@@ -1,0 +1,2 @@
+
+samples/login_client.dep: core/common.dep core/client.dep core/codegen.dep core/component.dep

@@ -1,0 +1,2 @@
+
+samples/calculator_service.dep: core/common.dep core/service.dep core/codegen.dep
