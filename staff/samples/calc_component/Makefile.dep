@@ -1,0 +1,2 @@
+
+samples/calc_component.dep: core/common.dep core/component.dep core/codegen.dep

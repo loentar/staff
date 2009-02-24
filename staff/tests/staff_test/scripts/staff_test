@@ -1,0 +1,523 @@
+#!/bin/bash
+
+#trap 'Cleanup' EXIT
+#trap 'echo -e "\nПрерывание операции....\n"' INT
+
+function Log()
+{
+  echo -e "$*" >> ${startDir}/logs/staff_test.log
+}
+
+function StartTest()
+{
+  echo -en "$*"
+  Log "-  $*"
+}
+
+function Assert()
+{
+  if [ $? != 0 ]
+  then
+    echo -e "\t\033[31;1mОШИБКА\033[0m"
+    Log "$*: ОШИБКА"
+    exit 1
+  fi
+
+  if [ ! -z "$*" ]
+  then
+    Log "$*"
+  fi
+}
+
+function Verify()
+{
+  test $? != 0
+  Assert
+}
+
+function Result()
+{
+  Assert
+  echo -e "\t\033[32;1mУспешно\033[0m"
+}
+
+function Exec()
+{
+  Log "$*"
+  $* >>${startDir}/logs/staff_test.log 2>&1
+}
+
+function Exec2()
+{
+  Log "$*"
+  $*
+}
+
+function Start()
+{
+  local proccessid=$1
+  shift
+  Log "Запуск: $*"
+  local name=$(echo $1 | sed 's/\//_/g')
+  local pid=$(sh -c "$* >>${startDir}/logs/${name}.log 2>&1 &
+  echo \$!")
+  eval "$proccessid=$pid"
+}
+
+function IsStarted()
+{
+  Log "IsStarted $1"
+  kill -0 $1 >/dev/null 2>&1
+}
+
+function Stop()
+{
+  Log "Останов: $1($(cat /proc/$1/cmdline 2>/dev/null))"
+  kill -INT $1 >>${startDir}/logs/staff_test.log 2>&1
+  Assert
+  sleep 2
+  IsStarted $1
+  if [ $? == 0 ]
+  then
+    Log "Процесс всё еще запущен..."
+    kill -9 $1 >>${startDir}/logs/staff_test.log 2>&1
+    sleep 1
+    IsStarted $1
+    Verify
+  fi
+}
+
+#--------------------------------------------------------------------------------------------------
+# pi
+#--------------------------------------------------------------------------------------------------
+
+function Prepare()
+{
+  mkdir -p ~/staff_test/
+  Assert
+  cd ~/staff_test/
+  Assert
+  startDir=$(pwd)
+  mkdir -p logs
+  Assert
+
+  Log "\n\n#########################################################\n== Тестирование $(date)\n\n"
+  StartTest "Подготовка к тестированию"
+
+  Exec killall -INT staff_calculator_service axis2_http_server 2>/dev/null 
+
+  mkdir -p out
+  Result
+}
+
+function StartPI()
+{
+  Log "starting axis2c"
+  Exec cd ${AXIS2C_HOME}/bin
+  Assert
+  Start axis2pid ./axis2_http_server
+  sleep 1
+  Exec cd -
+  Assert
+  Log "axis PID = $axis2pid"
+  IsStarted $axis2pid
+  Assert
+}
+
+function StopPI()
+{
+  Log "stopping axis2c($axis2pid)"
+  Stop $axis2pid
+  Assert
+  axis2pid=
+}
+
+function TestPI()
+{
+  StartTest "\n1. ----------------------------------------------------\n"
+  StartTest "Тестирование платформы интеграции"
+  echo
+  StartTest "Проверка переменных Окружения"
+  Exec test -d "$STAFF_HOME" -a -d "$AXIS2C_HOME"
+  Result
+
+  StartTest "Проверка настройки Axis2/C"
+  grep -q '<module ref="staff"/>' ${AXIS2C_HOME}/axis2.xml
+  Result
+
+  StartTest "Проверка запуска Axis2/C"
+  StartPI
+  Result
+  
+  StartTest "Останов Axis2/C"
+  StopPI
+  Result
+}
+
+function Cleanup()
+{
+  StartTest "\n\nЗачистка и выход...\n\n"
+  rm -Rf src_calculator_service src_calculator_client src_staff_client out
+
+  if [ ! -z "$axis2pid" ]
+  then
+    Stop $axis2pid
+  fi
+
+  if [ ! -z "$calcServicePID" ]
+  then
+    Stop $calcServicePID
+  fi
+}
+
+#--------------------------------------------------------------------------------------------------
+# calc client
+#--------------------------------------------------------------------------------------------------
+
+function GenClient()
+{
+  StartTest "\n2. ----------------------------------------------------\n"
+  StartTest "Проверка генерации тестового клиента"
+  Exec mkdir -p src_calculator_client
+  Assert
+  cat >src_calculator_client/Calculator.h <<CALC_SERVICE_EOF
+
+#ifndef _CALCULATOR_H_
+#define _CALCULATOR_H_
+
+class CCalculator
+{
+public:
+  virtual ~CCalculator() {}
+  virtual int Add(int nA, int nB) = 0;
+  virtual int Sub(int nA, int nB) = 0;
+};
+
+#endif // _CALCULATOR_H_
+
+CALC_SERVICE_EOF
+
+  Assert
+  
+  cat >src_calculator_client/main.cpp <<CALC_SERVICE_EOF
+
+#include <rise/threading/SharedPtr.h>
+#include <rise/string/String.h>
+#include <rise/common/Log.h>
+#include <rise/common/ExceptionTemplate.h>
+#include <staff/common/Exception.h>
+#include "ServiceFactory.h"
+#include "Calculator.h"
+
+int main(int nArgs, const char* paszArgs[])
+{
+  try
+  {
+    if(nArgs < 4)
+    {
+      rise::LogError() << "service_name operation a b";
+      return -2;
+    }
+      
+    rise::CSharedPtr<CCalculator> pCalculator = 
+      CServiceFactory::ServiceFactory().GetService<CCalculator>(paszArgs[1]);
+
+    RISE_ASSERTES(pCalculator != NULL, rise::CLogicNoItemException, "Cannot get service!");
+
+    int nA = 0;
+    int nB = 0;
+    int nRes = 0;
+    
+    rise::FromStr(paszArgs[3], nA);
+    rise::FromStr(paszArgs[4], nB);
+
+    if(!strcmp(paszArgs[2], "Add"))
+      nRes = pCalculator->Add(nA, nB);
+    else
+    if(!strcmp(paszArgs[2], "Sub"))
+      nRes = pCalculator->Sub(nA, nB);
+    else
+    {
+      rise::LogError() << "invalid operation";
+      return -3;
+    }
+    
+    rise::LogInfo() << "a=" << nA << "; b=" << nB << "; Res=" << nRes;
+    
+    return nRes;
+  }
+  catch(const staff::CRemoteException& rEx)
+  {
+    rise::LogError() << rEx.GetDescr();
+  }
+  RISE_CATCH_ALL
+  
+  return 255;
+}
+
+CALC_SERVICE_EOF
+
+  Assert
+
+  Log "--  Генерация прокси клиента  "
+  Exec staff_codegen -tclient Calculator.h -csrc_calculator_client
+  Result
+  
+  StartTest "Проверка компиляции тестового клиента"
+  Exec g++ -g -O0 -D_DEBUG src_calculator_client/*.cpp -o out/calculator_client -I${STAFF_HOME}/include -L${STAFF_HOME}/lib -lstaffclient -lrise
+  Result
+}
+
+#--------------------------------------------------------------------------------------------------
+# service
+#--------------------------------------------------------------------------------------------------
+
+function GenService()
+{
+  StartTest "\n4. ----------------------------------------------------\n"
+  StartTest "Проверка генерации тестового сервиса"
+  Exec mkdir -p src_calculator_service
+  Assert
+  cat >src_calculator_service/Calculator.h <<CALC_SERVICE_EOF
+
+#ifndef _CALCULATOR_H_
+#define _CALCULATOR_H_
+
+class CCalculator
+{
+public:
+  virtual ~CCalculator() {}
+  virtual int Add(int nA, int nB) = 0;
+  virtual int Sub(int nA, int nB) = 0;
+};
+
+#endif // _CALCULATOR_H_
+
+CALC_SERVICE_EOF
+
+  Assert
+  
+  Log "--  Генерация реализации сервиса  "
+  Exec staff_codegen -tserviceimpl Calculator.h -csrc_calculator_service
+  Assert
+
+  cat >src_calculator_service/CalculatorImpl.cpp <<CALC_SERVICE_IMPL_EOF
+#include "CalculatorImpl.h"
+
+CCalculatorImpl::~CCalculatorImpl( )
+{
+}
+
+int CCalculatorImpl::Add( int nA, int nB )
+{
+  return nA + nB;
+}
+
+int CCalculatorImpl::Sub( int nA, int nB )
+{
+  return nA - nB;
+}
+
+CALC_SERVICE_IMPL_EOF
+
+  Assert
+
+  Log "--  Генерация обертки сервиса  "
+  Exec staff_codegen -tservice Calculator.h -csrc_calculator_service
+
+  Result
+
+  StartTest "Проверка компиляции тестового сервиса"
+  Exec mkdir -p out
+  Assert
+  Exec g++ -g -O0 -D_DEBUG -oout/staff_calculator_service src_calculator_service/*.cpp -Wno-deprecated -fexceptions -D_REENTRANT -I${STAFF_HOME}/include/ -L${STAFF_HOME}/lib -lpthread -lrise -lstaffcommon -lstaffservice
+  Assert
+
+  file out/staff_calculator_service | grep -q "LSB executable"
+
+  Result
+}
+
+function TestService()
+{
+  StartTest "\n5. ----------------------------------------------------\n"
+  StartTest "Тестирование взаимодействия"
+  echo
+
+  StartTest "Запуск платформы интеграции"
+  StartPI
+  Result
+  
+  StartTest "Тестирование запуска сервиса"
+
+  Exec ServiceExists Calculator
+  Verify
+  
+  Exec Start calcServicePID out/staff_calculator_service
+  Assert
+
+  Exec sleep 1
+  Exec IsStarted $calcServicePID
+  Assert
+  
+  Exec ServiceExists Calculator
+  Result
+
+
+  StartTest "Тестирование работоспособности сервиса и клиента"
+  Exec2 out/calculator_client Calculator Add 2 3 >>${startDir}/logs/calculator_client.log 2>&1
+  Exec test $? == 5
+  Result
+
+  StartTest "Тестирование работоспособности компонентного сервиса"
+  Exec2 out/calculator_client calc.CalcService Add 5 2 >>${startDir}/logs/calculator_client.log 2>&1
+  Exec test $? == 7
+  Result
+
+  StartTest "Тестирование связи компонентных сервисов и динамического сервиса(при запущенном сервисе)"
+  Exec2 out/calculator_client calc.CalcService Sub 5 2 >>${startDir}/logs/calculator_client.log 2>&1
+  Exec test $? == 3
+  Result
+
+  StartTest "Тестирование остановки сервиса"
+  Log "stopping service Calculator"
+  Exec Stop $calcServicePID
+  Assert
+  
+  Exec sleep 1
+  Exec ServiceExists Calculator
+  Verify
+  Result
+
+  calcServicePID=
+
+  StartTest "Тестирование отсутствия связи компонентного сервиса с динамическим сервисом(при незапущенном сервисе)"
+  Exec2 out/calculator_client calc.SubService Sub 5 2 >>${startDir}/logs/calculator_client.log 2>&1
+  Exec test $? == 255
+  Result
+
+  StartTest "Тестирование работоспособности компонентного сервиса(отсутствие внешней связи)"
+  Exec2 out/calculator_client calc.CalcService Add 5 2 >>${startDir}/logs/calculator_client.log 2>&1
+  Exec test $? == 7
+  Result
+  
+  StartTest "Останов платформы интеграции"
+  StopPI
+  Result
+}
+
+#--------------------------------------------------------------------------------------------------
+# staffclient
+#--------------------------------------------------------------------------------------------------
+function GenStaffClient()
+{
+  StartTest "\n3. ----------------------------------------------------\n"
+  StartTest "Проверка генерации технологического клиента"
+  Exec mkdir -p src_staff_client
+  Assert
+  cat >src_staff_client/StaffService.h <<STAFF_SERVICE_INTERFACE_EOF
+#ifndef _STAFFSERVICE_H_
+#define _STAFFSERVICE_H_
+
+#include <staff/common/DataObject.h>
+
+class CStaffService
+{
+public:
+  virtual ~CStaffService() {}
+  virtual staff::CDataObject GetOperations(const rise::CString& sServiceName) const = 0;
+  virtual staff::CDataObject GetServices() const = 0;
+};
+
+#endif
+
+STAFF_SERVICE_INTERFACE_EOF
+
+  Assert
+
+  cat >src_staff_client/main.cpp <<STAFF_CLIENT_EOF
+#include <iostream>
+#include <rise/threading/SharedPtr.h>
+#include <rise/common/Log.h>
+#include <rise/common/ExceptionTemplate.h>
+#include <staff/common/Exception.h>
+#include <staff/common/DataObject.h>
+#include <staff/common/Value.h>
+#include "ServiceFactory.h"
+#include "StaffService.h"
+
+int main(int nArgs, const char* paszArgs[])
+{
+  try
+  {
+    rise::CSharedPtr<CStaffService> pStaffService = 
+      CServiceFactory::ServiceFactory().GetService<CStaffService>("StaffService");
+
+    RISE_ASSERTES(pStaffService != NULL, rise::CLogicNoItemException, "Cannot get client for service StaffService!");
+
+    const staff::CDataObject& tdoServices = pStaffService->GetServices();
+    for (staff::CDataObject::ConstIterator itService = tdoServices.Begin(); itService != tdoServices.End(); ++itService)
+      std::cout << itService->Value().AsString() << "\n";
+
+    return 0;
+  }
+  catch(const staff::CRemoteException& rEx)
+  {
+    rise::LogError() << rEx.GetDescr();
+  }
+  RISE_CATCH_ALL
+  
+  return 1;
+}
+STAFF_CLIENT_EOF
+
+  Assert
+  
+  Log "--  Генерация обертки клиента  "
+  Exec staff_codegen -tclient StaffService.h -csrc_staff_client
+  Result
+
+  StartTest "Проверка компиляции технологического клиента"
+  Log "--  компиляция клиента  "
+  Exec g++ -g -O0 -D_DEBUG src_staff_client/*.cpp -o out/staff_client -I${STAFF_HOME}/include -L${STAFF_HOME}/lib -lstaffclient -lrise
+  Result
+}
+  
+
+function GetServices()
+{
+  eval "$1=($(sh -c 'unset RISE_LOG_LEVEL RISE_LOG_VERBOSITY; out/staff_client;'))"
+  Assert
+
+  local s
+  eval "s=(\${$1[@]})"
+  Log "GetServices:" ${s[@]}
+}
+
+function ServiceExists()
+{
+  local services
+  GetServices services
+  for service in ${services[@]}
+  do
+    if [ "$service" == "$1" ]
+    then
+      Log "Service $1 found"
+      return 0
+    fi
+  done
+
+  Log "Service $1 not found"
+  return 1
+}
+
+#-----------------------------------------
+rm -f logs/*.log
+
+Prepare
+TestPI
+GenClient
+GenStaffClient
+GenService
+TestService
+Cleanup
