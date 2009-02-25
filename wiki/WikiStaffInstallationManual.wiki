@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Installation, configuration and test guide
 
 = Introduction =
 
@@ -7,42 +7,61 @@ It's a little guide for compiling and installing Staff on Linux-like OS.
 = Details =
 
 1. Compile and install dependencies:
+
 You need axis2/c-1.5.0 to be installed. Please refer to http://ws.apache.org/axis2/c/download.cgi.
 
+
 2. Getting source code:
+
 Please refer to http://code.google.com/p/staff/source/checkout to read guide for getting source code from svn repository.
+
+
 
 3. Compiling source code:
 
+
 3.1 Compiling and installing rise:
+
 Enter these commands to compile and install rise
+
 from checkout root (staff-read-only):
+
 make -C rise && sudo make -C rise install
 
+
 3.2 Compiling and installing staff
+
 Enter these commands to compile and install staff
+
 from checkout root (staff-read-only):
+
 
 export AXIS2C_HOME=<path to axis2/c installation dir> #defaults /usr/local/axis2c
 export STAFF_HOME=<path to staff installation dir> #for example: /usr/local/staff
 make -C staff && sudo make -C staff install
+
 
 Make sure that postgres is runnung and enter
 make -C staff/core/security installdb
 
 ...
 
+
 4. Configuring
+
 4.1 staff axis2 modules:
 
 sudo mcedit $AXIS2C_HOME/axis2.xml
 
 add two lines after
+
     <module ref="addressing"/>
 
-
+----------
     <module ref="staff"/>
     <module ref="staff_security"/>
+----------
+
 
 4.2 db conn:
 
@@ -56,18 +75,24 @@ set following parameters:
 
 
 5. Starting
+
 5.1 Normal mode
+
 export AXIS2C_HOME=<path to axis2/c installation dir> #defaults /usr/local/axis2c
 export STAFF_HOME=<path to staff installation dir> #for example: /usr/local/staff
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
 
+
 5.2 Debug mode
+
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
 
 
-5. Checking out
+6. Checking out
+
 6.1 Basic test
+
 Open Your favorite browser and enter:
 
 http://localhost:9090/axis2/services
@@ -76,6 +101,7 @@ Service "StaffService" must running
 
 
 6.2 Client test
-Run 
+
+Start
 
 calc_client
