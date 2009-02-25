@@ -322,14 +322,9 @@ $($sNamespace)$(Class.ServiceName).prototype =
 
   $(Member.Name): function(\
 #foreach $(Member.Params)
-#ifneq($(Param.$Num),0)
-, \
-#else
-\
-#ifeqend
-$(Param.Name)\
+$(Param.Name), \
 #end
-)
+pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('$(Member.Name)', this.tClient.GetServiceUri());
     
@@ -350,23 +345,53 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #end
-    this.tClient.InvokeOperation(tOperation);
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+#ifeq($(Member.Return.Type),struct) // !!struct!! 
+          pOnComplete(DeserializeStruct_$(Member.Return.Name)(tOperation), tOperation);
+#else
+#ifeq($(Member.Return.Type),typedef)    // !!typedef!!
+          pOnComplete(DeserializeTypedef_$(Member.Return.Name)(tOperation), tOperation);
+#else
+#ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
+          pOnComplete(tOperation.ResultElement().firstChild, tOperation);
+#else
+#ifeq($(Member.Return.Type),generic)    // !!generic!!
+#ifneq($(Member.Return.Name),void)      // !!not_void!!
+          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+#else                                   // !!void!!
+          pOnComplete(tOperation);
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
 #ifeq($(Member.Return.Type),struct) // !!struct!! 
 
-    return DeserializeStruct_$(Member.Return.Name)(tOperation);
+      return DeserializeStruct_$(Member.Return.Name)(tOperation);
 #else
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!
 
-    return DeserializeTypedef_$(Member.Return.Name)(tOperation);
+      return DeserializeTypedef_$(Member.Return.Name)(tOperation);
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 
-    return tOperation.ResultElement().firstChild;
+      return tOperation.ResultElement().firstChild;
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
 
-    return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild.nodeValue;
 #else                                   // !!void!!
 \
 #ifeqend
@@ -374,6 +399,7 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
+    }
   }\
 #end
 
