@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:tns="calculator" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tnsxsd="calculator" targetNamespace="calculator" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <s:schema targetNamespace="calculator">
+      <s:element name="add">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="a" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="b" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="addResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="addResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </types>
+  <message name="addSoapIn">
+    <part name="parameters" element="tnsxsd:add" />
+  </message>
+  <message name="addSoapOut">
+    <part name="parameters" element="tnsxsd:addResponse" />
+  </message>
+  <portType name="calculatorSoap">
+    <operation name="add">
+      <input message="tnsxsd:addSoapIn" />
+      <output message="tnsxsd:addSoapOut" />
+    </operation>
+  </portType>
+  <binding name="calculatorSoap" type="tnsxsd:calculatorSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="add">
+      <soap:operation soapAction="" style="document" />
+      <input>
+        <soap:body use="literal" namespace="calculator" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="calculator" />
+      </output>
+    </operation>
+  </binding>
+  <service name="calculator">
+    <port name="calculatorSoap" binding="tnsxsd:calculatorSoap">
+      <soap:address location="http://128.19.112.173/cgi-bin/httpRequestHandler" />
+    </port>
+  </service>
+</definitions>

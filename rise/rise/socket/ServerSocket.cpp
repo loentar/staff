@@ -1,0 +1,105 @@
+#include <rise/os/ossocket.h>
+#include <rise/common/Log.h>
+#include <rise/string/String.h>
+#include "ServerSocket.h"
+
+namespace rise
+{
+  namespace sockets
+  {
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    CONSTRUCTOR:    CServerSocket
+    //    DESCRIPTION:    default constructor
+    //    COMMENT:        none
+    //////////////////////////////////////////////////////////////////////////////
+    CServerSocket::CServerSocket() /*throw()*/
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    DESTRUCTOR:     CServerSocket
+    //    COMMENT:        none
+    //////////////////////////////////////////////////////////////////////////////
+    CServerSocket::~CServerSocket() /*throw()*/
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    FUNCTION:       Create(...)
+    //    DESCRIPTION:    создание сокета
+    //    PARAMETRS:      (in) ushPort - номер порта
+    //                         nType - тип сокета ST_STREAM или ST_DGRAM 
+    //                         nBacklog - максимальная длина очереди входящих подключений
+    //    RETURN:         none
+    //    EXCEPTIONS:     
+    //       CLogicAlreadyExistsException - инициализация уже произведена
+    //       CFileCreateException - ошибка при создании сокета
+    //       CFileOpenException - ошибка при переходе в режим прослушивания
+    //    COMMENT:        none
+    //////////////////////////////////////////////////////////////////////////////
+    void CServerSocket::Create( ushort ushPort, ulong unAddress /*= INADDR_ANY*/, int nType /*= CSocket::ST_STREAM*/, int nBacklog /*= 5*/ )
+    {
+      struct sockaddr_in saddr;
+
+      CSocket::Create(ushPort, nType);
+
+      memset(&saddr, 0, sizeof(saddr));
+      saddr.sin_family = AF_INET;
+      saddr.sin_port = htons(ushPort);
+      saddr.sin_addr.s_addr = unAddress;
+
+      try
+      {
+        int nValue = 1;
+#ifdef WIN32
+        SetSockOpt((ESocketOption)SO_EXCLUSIVEADDRUSE, nValue);
+#else
+        SetSockOpt(ESO_REUSEADDR, nValue);
+#endif
+      
+        int nRes = bind(GetHandle(), reinterpret_cast<struct sockaddr *>(&saddr), sizeof(saddr));
+        RISE_ASSERTES( nRes != SOCKET_ERROR, CFileCreateException, osGetLastSocketErrorStr());
+        LogDebug2() << "bind ok";
+        nRes = listen(GetHandle(), nBacklog);
+        RISE_ASSERTES( nRes != SOCKET_ERROR, CFileOpenException, osGetLastSocketErrorStr());
+        LogDebug2() << "listen ok";
+      } catch(...)
+      {
+        Close();
+        throw;
+      }
+
+      LogDebug2() << "listening on port: " << ushPort << "; sockid:" << GetHandle();
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    FUNCTION:       Accept(...)
+    //    DESCRIPTION:    принятие входящего подключения
+    //    PARAMETRS:      sRecv - принятый сокет
+    //    RETURN:         true, если входящее подключение принято
+    //    EXCEPTIONS:     none
+    //    COMMENT:        none
+    //////////////////////////////////////////////////////////////////////////////
+    bool CServerSocket::Accept(CRecvSocket& rRecv)
+    {
+      RISE_ASSERTE(IsInit(), CLogicNoInitException);
+      RISE_ASSERTE(!rRecv.IsInit(), CLogicAlreadyExistsException);
+
+      SOCKET sock = accept(GetHandle(), NULL, NULL);
+      if (sock == SOCKET_ERROR)
+      {
+        RISE_ASSERTES(osGetLastSocketError() == EWOULDBLOCK, CFileReadException, osGetLastSocketErrorStr());
+        return false;
+      }
+
+      LogDebug2() << "Accept OK!";
+
+      rRecv.Assign(sock);
+      
+      return true;
+    }
+
+  } // namespace sockets
+} // namespace rise
