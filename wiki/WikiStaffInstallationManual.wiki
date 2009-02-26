@@ -8,7 +8,7 @@ It's a little guide for compiling and installing Staff on Linux-like OS.
 = Details =
 
 == 0. Environment variables ==
-While compiling, starting axis2/c or any client/service application, these environment variables must be set:
+Environment variables AXIS2C_HOME, STAFF_HOME must be set before compile:
 {{{
 AXIS2C_HOME=/usr/local/axis2c
 STAFF_HOME=/usr/local/staff
@@ -32,6 +32,7 @@ cd axis2c-src-1.5.0
 make && sudo -E make install
 }}}
 
+You need PostgreSQL to be installed. Please, refer to http://postgresql.org/download
 
 == 2. Getting source code ==
 
@@ -95,19 +96,19 @@ edit following parameters:
 <parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
 }}}
 
-where POSTGRES_USER is Your postgres database user, and POSTGRES_PASSWORD is user's password.
+where POSTGRES_USER is your postgres database user, and POSTGRES_PASSWORD is user's password.
 
 
-== 5. Starting ==
+== 5. Start ==
 
-=== 5.1 Starting in normal mode ===
+=== 5.1 Start in normal mode ===
 
 {{{
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
 }}}
 
-=== 5.2 Starting in debug mode == 
+=== 5.2 Start in debug mode == 
 {{{
 cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
@@ -118,23 +119,23 @@ RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
 
 === 6.1 Basic test ===
 
-Open Your favorite web-browser and enter:
+Open your favorite web-browser and enter:
 
 http://localhost:9090/axis2/services
 
-Services "StaffService" and "staff.Login" must running.
+Services "StaffService" and "staff.Login" must be running.
 
-Sample services "calc.CalcService", "calc.SubService" must running.
+Sample services "calc.CalcService", "calc.SubService" must be running.
 
 
-=== 6.2 Service-Client interaction test ===
+=== 6.2 Client interaction test ===
 
 Start service Calculator
 {{{
 calculator_service
 }}}
 
-From another console start client
+From another console start calculator client
 {{{
 calc_client
 }}}
