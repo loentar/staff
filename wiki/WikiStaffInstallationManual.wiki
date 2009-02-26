@@ -26,8 +26,9 @@ Enter these commands to compile and install rise
 
 from checkout root (staff-read-only):
 
+{{{
 make -C rise && sudo make -C rise install
-
+}}}
 
 3.2 Compiling and installing staff
 
@@ -35,15 +36,16 @@ Enter these commands to compile and install staff
 
 from checkout root (staff-read-only):
 
-
+{{{
 export AXIS2C_HOME=<path to axis2/c installation dir> #defaults /usr/local/axis2c
 export STAFF_HOME=<path to staff installation dir> #for example: /usr/local/staff
 make -C staff && sudo make -C staff install
-
+}}}
 
 Make sure that postgres is runnung and enter
+{{{
 make -C staff/core/security installdb
-
+}}}
 ...
 
 
@@ -57,37 +59,42 @@ add two lines after
 
     <module ref="addressing"/>
 
-----------
+{{{
     <module ref="staff"/>
     <module ref="staff_security"/>
-----------
+}}}
 
 
 4.2 db conn:
 
 sudo mcedit $AXIS2C_HOME/modules/staff_security/module.xml
 
-set following parameters:
+edit following parameters:
+{{{
   <parameter name="pgHost" locked="false">localhost</parameter>
   <parameter name="pgPort" locked="false">5432</parameter>
   <parameter name="pgUser" locked="false">dem</parameter>
   <parameter name="pgPassword" locked="false">test</parameter>
-
+}}}
 
 5. Starting
 
 5.1 Normal mode
 
+{{{
 export AXIS2C_HOME=<path to axis2/c installation dir> #defaults /usr/local/axis2c
 export STAFF_HOME=<path to staff installation dir> #for example: /usr/local/staff
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
-
+}}}
 
 5.2 Debug mode
-
+{{{
+export AXIS2C_HOME=<path to axis2/c installation dir> #defaults /usr/local/axis2c
+export STAFF_HOME=<path to staff installation dir> #for example: /usr/local/staff
+cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
-
+}}}
 
 6. Checking out
 
@@ -103,5 +110,6 @@ Service "StaffService" must running
 6.2 Client test
 
 Start
-
+{{{
 calc_client
+}}}
