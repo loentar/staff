@@ -55,16 +55,16 @@ uninstall: check
 
 # == install db =====================================
 installdb: uninstalldb
-	createdb -Upostgres staff
-	psql -Upostgres staff <db/staff.sql 
+	psql template1 < db/instdb.sql
+	psql staff < db/staff.sql 
 
 # == uninstall db =====================================
 uninstalldb:
-	dropdb -Upostgres staff
+	-psql template1 < db/uninstdb.sql
 
 # == dump db ========================================
 dumpdb:
-	pg_dump -Fp -Upostgres staff -fdb/staff.sql 
+	pg_dump -Fp staff -fdb/staff.sql 
 
 # == mkdir ==========================================
 "%/":

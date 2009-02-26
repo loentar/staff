@@ -10,6 +10,7 @@
 #include <rise/xml/XMLNode.h>
 #include <rise/tools/FileFind.h>
 #include <rise/plugin/PluginManager.h>
+#include <staff/security/Security.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/Config.h>
 #include <staff/common/Operation.h>
@@ -279,8 +280,10 @@ rise::LogEntry();
 
           rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sServiceID << ")\" connected...";
           m_mRemoteServiceMap[sServiceNameID] = pNewService;
-          if(m_stEvents.pOnConnect != NULL && sServiceID == "")
+          if(m_stEvents.pOnConnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
+          {
             m_stEvents.pOnConnect(sServiceName, pRemoteServiceWrapper);
+          }
           
           return;
         }
@@ -299,8 +302,10 @@ rise::LogEntry();
     {
       const rise::CString& sServiceName = pService->GetName();
       const rise::CString& sServiceID = pService->GetID();
-      if(m_stEvents.pOnDisconnect != NULL && sServiceID == "")
+      if(m_stEvents.pOnDisconnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
+      {
         m_stEvents.pOnDisconnect(sServiceName);
+      }
 
       CService* pExistingService = m_pComponent->GetService(sServiceName);
 
