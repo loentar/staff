@@ -1,4 +1,5 @@
 #summary Installation, configuration and test guide
+#labels Phase-Deploy
 
 = Introduction =
 
@@ -58,9 +59,9 @@ sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
 
 Make sure that postgres is runnung and enter
 {{{
-make -C staff/core/security installdb
+sudo -u POSTGRES_USER make -C staff/core/security installdb
 }}}
-
+where POSTGRES_USER is Your postgres database user.
 
 == 4. Configuring ==
 
@@ -93,6 +94,8 @@ edit following parameters:
 <parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
 <parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
 }}}
+
+where POSTGRES_USER is Your postgres database user, and POSTGRES_PASSWORD is user's password.
 
 
 == 5. Starting ==
