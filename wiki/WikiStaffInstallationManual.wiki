@@ -8,10 +8,10 @@ It's a little guide for compiling and installing Staff on Linux-like OS.
 = Details =
 
 == 0. Environment variables ==
-Environment variables AXIS2C_HOME, STAFF_HOME must be set before compile:
+While compiling, starting axis2/c or any client/service application, these environment variables must be set:
 {{{
-AXIS2C_HOME=/usr/local/axis2c
-STAFF_HOME=/usr/local/staff
+export AXIS2C_HOME=/usr/local/axis2c
+export STAFF_HOME=/usr/local/staff
 }}}
 
 You can append there variables into ~/.bashrc file, and relogin.
@@ -32,7 +32,6 @@ cd axis2c-src-1.5.0
 make && sudo -E make install
 }}}
 
-You need PostgreSQL to be installed. Please, refer to http://postgresql.org/download
 
 == 2. Getting source code ==
 
@@ -60,9 +59,8 @@ sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
 
 Make sure that postgres is runnung and enter
 {{{
-sudo -u POSTGRES_USER make -C staff/core/security installdb
+sudo -u postgres make -C staff/core/security installdb
 }}}
-where POSTGRES_USER is Your postgres database user.
 
 == 4. Configuring ==
 
@@ -86,7 +84,10 @@ add two lines:
 
 === 4.2 Configuring staff db connection ===
 
+If You would like to change db settings:
+{{{
 sudo mcedit $AXIS2C_HOME/modules/staff_security/module.xml
+}}}
 
 edit following parameters:
 {{{
@@ -96,19 +97,19 @@ edit following parameters:
 <parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
 }}}
 
-where POSTGRES_USER is your postgres database user, and POSTGRES_PASSWORD is user's password.
+where POSTGRES_USER is Your postgres database user(default: staffdbuser), and POSTGRES_PASSWORD is user's password(default: staffdbuserpassword).
 
 
-== 5. Start ==
+== 5. Starting ==
 
-=== 5.1 Start in normal mode ===
+=== 5.1 Starting in normal mode ===
 
 {{{
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
 }}}
 
-=== 5.2 Start in debug mode == 
+=== 5.2 Starting in debug mode == 
 {{{
 cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
@@ -119,23 +120,23 @@ RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
 
 === 6.1 Basic test ===
 
-Open your favorite web-browser and enter:
+Open Your favorite web-browser and enter:
 
 http://localhost:9090/axis2/services
 
-Services "StaffService" and "staff.Login" must be running.
+Services "StaffService" and "staff.Login" must running.
 
-Sample services "calc.CalcService", "calc.SubService" must be running.
+Sample services "calc.CalcService", "calc.SubService" must running.
 
 
-=== 6.2 Client interaction test ===
+=== 6.2 Service-Client interaction test ===
 
 Start service Calculator
 {{{
 calculator_service
 }}}
 
-From another console start calculator client
+From another console start client
 {{{
 calc_client
 }}}
