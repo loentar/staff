@@ -2,8 +2,8 @@
   <parameter name="pgHost" locked="false">localhost</parameter>
   <parameter name="pgPort" locked="false">5432</parameter>
   <parameter name="pgDSN" locked="false">staff</parameter>
-  <parameter name="pgUser" locked="false">dem</parameter>
-  <parameter name="pgPassword" locked="false">test</parameter>
+  <parameter name="pgUser" locked="false">staffdbuser</parameter>
+  <parameter name="pgPassword" locked="false">staffdbuserpassword</parameter>
   <parameter name="sessionExpiration" locked="false">10</parameter>
 
   <inflow>
