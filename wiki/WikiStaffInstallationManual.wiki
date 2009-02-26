@@ -55,10 +55,12 @@ make -C staff/core/security installdb
 
 sudo mcedit $AXIS2C_HOME/axis2.xml
 
-add two lines after
-
+after line:
+{{{
     <module ref="addressing"/>
+}}}
 
+add two lines:
 {{{
     <module ref="staff"/>
     <module ref="staff_security"/>
