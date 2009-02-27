@@ -1,0 +1,146 @@
+#summary Руководство по установке, конфигурации и тестированию
+#labels Phase-Deploy
+
+= Вступление =
+
+Это - небольшое руководство по компиляции и установке Staff на Linux-подобной ОС.
+
+= Детали =
+
+== 0. Переменные окружения ==
+При компиляции, запуске axis2/c, клиентского или сервисного приложения, должны быть установлены следующие переменные окружения:
+{{{
+export AXIS2C_HOME=/usr/local/axis2c
+export STAFF_HOME=/usr/local/staff
+}}}
+
+Вы можете добавить эти строки в конец файла ~/.bashrc после чего произвести повторный вход в систему.
+
+== 1. Компиляция и установка зависимостей ==
+
+Необходимо сначала установить axis2/c-1.5.0. Домашняя страница axis2/c: http://ws.apache.org/axis2/c/
+
+Вы можете использовать следующий набор команд для загрузки и установки axis2/c:
+_Пакет curl-dev(libcurl-gnutls-dev или libcurl-openssl-dev) должен быть установлен._
+{{{
+mkdir ~/devel/axis2c
+cd ~/devel/axis2c
+wget http://apache.rinet.ru/dist/ws/axis2/c/1_5_0/axis2c-src-1.5.0.tar.gz
+tar zxvf axis2c-src-1.5.0.tar.gz
+cd axis2c-src-1.5.0
+./configure --enable-openssl=yes --enable-libcurl=yes --prefix=$AXIS2C_HOME --enable-libxml2
+make && sudo -E make install
+}}}
+
+
+== 2. Получение исходного кода ==
+
+Пожалуйста перейдите по ссылке http://code.google.com/p/staff/source/checkout для получения информации о том, как получить исходный код из svn репозитория.
+
+
+== 3. Компиляция исходного кода ==
+
+=== 3.1 Компиляция и установка rise ===
+_Пакет binutils-dev должен быть установлен._
+Введите эти команды для компиляции и установки rise из корня рабочей копии (staff-read-only):
+
+{{{
+make -C rise && sudo make -C rise install
+}}}
+
+=== 3.2 Компиляция и установка staff ===
+
+Введите эти команды для компиляции и установки staff корня рабочей копии (staff-read-only):
+
+{{{
+make -C staff && sudo -E make -C staff install
+sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
+}}}
+
+Убедитесь что postgres установлен и запущен и введите:
+{{{
+sudo -u postgres make -C staff/core/security installdb
+}}}
+
+== 4. Конфигурация ==
+
+=== 4.1 Конфигурация axis2 ===
+
+Для добавления модулей staff в axis2/c необходимо отредактировать конфигурационный файл:
+{{{
+sudo mcedit $AXIS2C_HOME/axis2.xml
+}}}
+
+следом за строкой:
+{{{
+<module ref="addressing"/>
+}}}
+
+добавьте:
+{{{
+<module ref="staff"/>
+<module ref="staff_security"/>
+}}}
+
+
+=== 4.2 Конфигурация соединения с БД ===
+
+Если необходимо изменить настройки соединения с БД запустите команду:
+{{{
+sudo mcedit $AXIS2C_HOME/modules/staff_security/module.xml
+}}}
+
+Для изменения доступны следующие параметры:
+{{{
+<parameter name="pgHost" locked="false">localhost</parameter>
+<parameter name="pgPort" locked="false">5432</parameter>
+<parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
+<parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
+}}}
+
+Где POSTGRES_USER - Ваш пользователь БД(по умолчанию: staffdbuser), и POSTGRES_PASSWORD - пароль пользователя(по умолчанию: staffdbuserpassword).
+
+
+== 5. Запуск ==
+
+=== 5.1 Запуск в обычном режиме ===
+
+Чтобы запустить сервер приложений axis2/c в обычном режиме, введите команды:
+{{{
+cd $AXIS2C_HOME/bin
+./axis2_http_server
+}}}
+
+=== 5.2 Запуск в отладочном режиме == 
+
+Чтобы запустить сервер приложений axis2/c в отладочном режиме, введите команды:
+{{{
+cd $AXIS2C_HOME/bin
+RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
+}}}
+
+
+== 6. Тестирование ==
+
+=== 6.1 Основной тест ===
+
+В Веб-браузере откройте ссылку:
+
+http://localhost:9090/axis2/services
+
+Сервисы "StaffService" и "staff.Login" должны быть в списке.
+
+Примеры сервисов "calc.CalcService", "calc.SubService" должны быть в списке.
+
+
+=== 6.2 Тест клиент-сервисного взаимодействия ===
+
+Запустите сервис Calculator:
+{{{
+calculator_service
+}}}
+
+Из другой консоли запустите клиент calc:
+{{{
+calc_client
+}}}
