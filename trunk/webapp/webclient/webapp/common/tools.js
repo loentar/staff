@@ -1,19 +1,26 @@
-
-var _asLocationParams = document.location.search.substr(1);
-var _asLocationParamsFlat = _asLocationParams.split(',');
-for(i = 0; i < _asLocationParamsFlat.length; ++i)
-  _asLocationParamsFlat[i] = _asLocationParamsFlat[i].split('=');
-
-function GetLocParam(sName, pDefaultParam)
+if(typeof webapp == 'undefined')
 {
-  for(i = 0; i < _asLocationParamsFlat.length; ++i)
-    if(_asLocationParamsFlat[i][0] == sName)
-      return _asLocationParamsFlat[i][1];
+  webapp = {};
+}
 
-  if(pDefaultParam == null)
-    throw Error("Mandatory request parameter \"" + sName + "\" not found.");
+webapp.Env = {};
+webapp.Env.Get = 
+  function(sName, sDefault)
+  {
+    var tRet = eval('webapp.Env.' + sName);
+    return tRet == null ? sDefault : tRet;
+  };
 
-  return pDefaultParam;
+if(document.location.search.length > 1)
+{
+  var _asLocationParams = document.location.search.substr(1);
+  var _asLocationParamsFlat = _asLocationParams.split(',');
+
+  for(var i = 0; i < _asLocationParamsFlat.length; ++i)
+  {
+    var asParam = _asLocationParamsFlat[i].split('=');
+    eval('webapp.Env.' + asParam[0] + '=\'' + asParam[1] + '\';');
+  }
 }
 
 var _atIncludedScripts = new Array();
