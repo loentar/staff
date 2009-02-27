@@ -37,7 +37,7 @@ function DeserializeStruct_$(Struct.Name)(tOperation, tNode)
   var tResult = 
   {
 #foreach $(Struct.Members)
-#ifeq($(Param.$Num),0) // Р“Р®РћРЄР Р®РЄ Р›Р•Р¤Р”РЎ РћР®РџР®Р›Р•Р РџР®Р›РҐ
+#ifeq($(Param.$Num),0) // запятая между параметрами
 \
 #else
 ,
@@ -192,7 +192,13 @@ function DeserializeTypedef_$(Typedef.Name)(tOperation, tNode)
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
 #ifeq($(Typedef.DataType.Type),generic)
-    aResult[j] = tResult.childNodes[i].firstChild.nodeValue; // generic 1
+    if(tNode.firstChild == null) // generic 1
+    {
+      aResult[j] = "";
+    } else
+    {
+      aResult[j] = tResult.childNodes[i].firstChild.nodeValue;
+    }
 #else
 #ifeq($(Typedef.DataType.Type),struct)
 // *** struct1 $(Typedef.DataType.Name)
@@ -229,7 +235,7 @@ function DeserializeTypedef_$(Typedef.Name)(tOperation, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
  pKey; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #else
- pKey.firstChild.nodeValue; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+  pKey.firstChild != null ? pKey.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -242,7 +248,7 @@ function DeserializeTypedef_$(Typedef.Name)(tOperation, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
  tResult.pValue; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #else
- tResult.pValue.firstChild.nodeValue; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ tResult.pValue.firstChild != null ? tResult.pValue.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -256,7 +262,7 @@ function DeserializeTypedef_$(Typedef.Name)(tOperation, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
  DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.Name)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #else
- tResult.childNodes[i].firstChild.nodeValue; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #ifeqend
 #ifeqend
 #ifeqend // #ifeq($(Typedef.DataType.Name),std::map)
@@ -274,9 +280,11 @@ function DeserializeTypedef_$(Typedef.Name)(tOperation, tNode)
 #else // #ifeq($\(Typedef.DataType.IsTemplate),1) --------------------------------------------------------
 // not a container :: $(Typedef.DataType.Name)
   if(tNode == null)
+  {
     tNode = tOperation.ResultElement();
+  }
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  return tNode.firstChild.nodeValue;
+  return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
   return tNode;
@@ -361,7 +369,7 @@ pOnComplete, pOnError)
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
 #else                                   // !!void!!
           pOnComplete(tOperation);
 #ifeqend
@@ -391,7 +399,7 @@ pOnComplete, pOnError)
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
 #else                                   // !!void!!
 \
 #ifeqend

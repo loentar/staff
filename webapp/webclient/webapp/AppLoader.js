@@ -6,6 +6,7 @@ webapp.AppLoader =
 {
   tMenuBar: null,
   tWidgetLoader: null,
+  tLoginService: null,
   
 ///---------------------------------------------------
   Init: function(aOptions, pCompleteFunction)
@@ -91,38 +92,45 @@ webapp.AppLoader =
       (
         asScripts,
         "",
-        LoadWidget
+        LoadClients
+      );
+    }
+    
+    function LoadClients()
+    {
+      Include
+      (
+        ["WidgetManager", "Login"],
+        "webapp/clients/",
+        LoadWidget,
+        function()
+        {
+          return (typeof widget != 'undefined' && typeof widget.WidgetManager != 'undefined' &&
+                  typeof staff != 'undefined' && typeof staff.Login != 'undefined');
+        }
       );
     }
     
     function LoadWidget()
     {
-      IncludeClass
-      (
-        ["widget.Widget"],
-        "webapp/",
-        function()
-        {
-          try
+      try
+      {
+        IncludeClass
+        (
+          ["widget.Widget", "widget.WidgetLoader", "widget.WidgetEditDialog"],
+          "webapp/",
+          function()
           {
-            IncludeClass
-            (
-              ["widget.WidgetManager", "widget.WidgetLoader", "widget.WidgetEditDialog"],
-              "webapp/",
-              function()
-              {
-                self.tWidgetLoader = new widget.WidgetLoader(aOptions.tWidgetInitInfo);
-                pCompleteFunction();
-              }
-            );
+            self.tWidgetLoader = new widget.WidgetLoader(aOptions.tWidgetInitInfo);
+            pCompleteFunction();
           }
-          catch(tEx)
-          {
-            var sMessage = tEx.text ? tEx.text : (tEx.message ? tEx.message : "");
-            webapp.MessageBox.ShowMessage('Ошибка при создании загрузчика виджетов:' + sMessage, 'error');
-          }
-        }
-      );
+        );
+      }
+      catch(tEx)
+      {
+        var sMessage = tEx.text ? tEx.text : (tEx.message ? tEx.message : "");
+        webapp.MessageBox.ShowMessage('нЬХАЙЮ ОПХ ЯНГДЮМХХ ГЮЦПСГВХЙЮ БХДФЕРНБ:' + sMessage, 'error');
+      }
     }
   },
   
@@ -134,5 +142,15 @@ webapp.AppLoader =
   GetWidgetLoader: function()
   {
     return this.tWidgetLoader;
+  },
+  
+  GetLoginService: function()
+  {
+    if(this.tLoginService == null)
+    {
+      this.tLoginService = new staff.Login();
+    }
+    
+    return this.tLoginService;
   }
 };

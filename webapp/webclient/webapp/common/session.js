@@ -5,6 +5,6 @@ var Session =
   sID: null
 };
 
-Session.sID = GetLocParam("sessid", "");
-Session.sHost = GetLocParam("host", document.location.hostname);
-Session.sPort = GetLocParam("port", "");
+Session.sID = webapp.Env.Get('sessid', '');
+Session.sHost = webapp.Env.Get('host', document.location.hostname);
+Session.sPort = webapp.Env.Get('port', '');

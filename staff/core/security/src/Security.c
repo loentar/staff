@@ -72,12 +72,13 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
   char* pResult = NULL;
   int nSize = 0;
   int nContextIdReq = htonl(nContextId);
-  int anParamLengths[1] = { sizeof(nContextIdReq) };
-  int anParamFormats[1] = { 1 };
-  const char* aszParams[1] = { (const char*)&nContextIdReq };
 
   if(bRemoveOld)
   {
+    int anParamLengths[1] = { sizeof(nContextIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nContextIdReq };
+
     // delete old session
     pPGResult = PQexecParams(g_pConn, 
       "delete from \"session\" where \"contextid\" = $1::int4;",
@@ -86,23 +87,8 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
     PQclear(pPGResult);
   }
 
-  // create new session
-  pPGResult = PQexecParams(g_pConn, 
-    "insert into \"session\"(\"contextid\") values($1::int4);",
-    1, NULL, aszParams, anParamLengths, anParamFormats, 0);
-
-  tQueryStatus = PQresultStatus(pPGResult);
-  if (tQueryStatus != PGRES_COMMAND_OK)
-  {
-    dprintf("failed to create new session: %s\n", PQerrorMessage(g_pConn));
-    PQclear(pPGResult);
-    return false;
-  }
-
-  // get created session
-  pPGResult = PQexecParams(g_pConn, 
-    "select \"sid\" from \"session\" where \"contextid\" = $1::int4;",
-    1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+  // create session id
+  pPGResult = PQexec(g_pConn, "select md5(now());");
   
   tQueryStatus = PQresultStatus(pPGResult);
   if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
@@ -123,8 +109,31 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
   nSize = min(nSessionIdSize - 1, (int)strlen(pResult));
   strncpy(szSessionId, pResult, nSize);
   szSessionId[nSize] = '\0';
-
   PQclear(pPGResult);
+
+  dprintf("new session id: %s\n", szSessionId);
+
+  {
+    int anParamLengths[2] = { nSize, sizeof(nContextIdReq) };
+    int anParamFormats[2] = { 0, 1 };
+    const char* aszParams[2] = { szSessionId, (const char*)&nContextIdReq };
+
+    // create new session
+    pPGResult = PQexecParams(g_pConn, 
+      "insert into \"session\"(\"sid\",\"contextid\") values($1::text,$2::int4);",
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("failed to create new session: %s\n", PQerrorMessage(g_pConn));
+      PQclear(pPGResult);
+      return false;
+    }
+
+    PQclear(pPGResult);
+  }
+
   return true;
 }
 

@@ -13,9 +13,6 @@ widget.WidgetLoader.prototype =
 {
   initialize: function()
   {
-    if(GetLocParam("debug", "none") != "none")
-      throw Error("Debug");
-    var self = this;
     this.pWidgetManager = new widget.WidgetManager();
     this.aWidgetList = new Array();
     this.tWidgetEditDialog = new widget.WidgetEditDialog();
