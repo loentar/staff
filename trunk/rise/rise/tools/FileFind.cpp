@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <string.h>
 #endif
 #include <rise/common/Log.h>
 #include "FileFind.h"

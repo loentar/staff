@@ -1,6 +1,8 @@
 #ifndef _EXCEPTIONTEMPLATE_HPP_
 #define _EXCEPTIONTEMPLATE_HPP_
 
+#include <stdlib.h>
+#include <string.h>
 #include <rise/tools/StackTracer.h>
 
 

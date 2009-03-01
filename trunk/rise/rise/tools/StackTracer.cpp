@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdlib.h>
 #include <rise/common/Log.h>
 #include <rise/tools/AddrInfoReader.h>
 #include "StackTracer.h"

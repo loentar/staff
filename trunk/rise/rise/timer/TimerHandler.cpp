@@ -4,6 +4,7 @@
 #ifndef WIN32
 #include <sys/time.h>
 #include <rise/signal/SignalHandler.h>
+#include <limits.h>
 #endif
 #include <rise/common/Log.h>
 #include <rise/common/Exception.h>
