@@ -276,8 +276,6 @@ public:
   typedef std::map<rise::CString, P$(Class.ServiceName)Impl> TServiceMap;
   TServiceMap m_mServices;
   staff::CComponent* m_pComponent;
-  static staff::CDataObject m_tServiceInfo;
-  static staff::CDataObject m_tOperations;
   static rise::CString m_sName;
   static rise::CString m_sDescr;
 };
@@ -314,9 +312,9 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const rise::CS
   staff::CDataObject& rResult = rOperation.Result();
   const rise::CString& sOperationName = rOperation.GetName();
 
-  if (sOperationName == "GetServiceInfo")
+  if (sOperationName == "GetServiceDescription")
   {
-    rResult = GetServiceInfo();
+    rResult = GetServiceDescription();
   } else
 #foreach $(Class.Members)
   if (sOperationName == "$(Member.Name)")
@@ -414,13 +412,21 @@ $(Param.Name)\
 
 const rise::CString& $(Class.Name)Wrapper::GetName() const
 {
-  GetServiceInfo();
+  if($(Class.Name)WrapperImpl::m_sName.size() == 0)
+  {
+    $(Class.Name)WrapperImpl::m_sName = "$(Class.ServiceName)";
+  }
+  
   return $(Class.Name)WrapperImpl::m_sName;
 }
 
 const rise::CString& $(Class.Name)Wrapper::GetDescr() const
 {
-  GetServiceInfo();
+  if($(Class.Name)WrapperImpl::m_sDescr.size() == 0)
+  {
+    $(Class.Name)WrapperImpl::m_sDescr = "Staff service $(Class.Name)";
+  }
+  
   return $(Class.Name)WrapperImpl::m_sDescr;
 }
 
@@ -439,57 +445,51 @@ void* $(Class.Name)Wrapper::GetImpl(const rise::CString& sID)
   return $(Class.Name)Context::GetContext().GetServiceImpl(sID);
 }
 
-const staff::CDataObject& $(Class.Name)Wrapper::GetOperations() const
+staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
 {
-  if(!$(Class.Name)WrapperImpl::m_tOperations.IsInit())
-    GetServiceInfo();
-  return $(Class.Name)WrapperImpl::m_tOperations;
-}
-
-const staff::CDataObject& $(Class.Name)Wrapper::GetServiceInfo() const
-{
-  if (!$(Class.Name)WrapperImpl::m_tServiceInfo.IsInit())
-  {
-    $(Class.Name)WrapperImpl::m_tServiceInfo.Create("ServicesInfo");
-    $(Class.Name)WrapperImpl::m_sName = "$(Class.ServiceName)";
-    $(Class.Name)WrapperImpl::m_sDescr = "Staff service $(Class.Name)";
-    
-    $(Class.Name)WrapperImpl::m_tServiceInfo.CreateChild("Name", $(Class.Name)WrapperImpl::m_sName);
-    $(Class.Name)WrapperImpl::m_tServiceInfo.CreateChild("Description", $(Class.Name)WrapperImpl::m_sDescr);
-
-    staff::CDataObject rOperations = $(Class.Name)WrapperImpl::m_tServiceInfo.CreateChild("Operations");
-
-    $(Class.Name)WrapperImpl::m_tOperations = rOperations;
+  staff::CDataObject tOperations("Operations");
 
 #foreach $(Class.Members)
-    {// Operation: $(Member.Return.Name) $(Member.Name)($(Member.Params))$(Member.Const)
-      staff::CDataObject rOp$(Member.Name) = rOperations.CreateChild("Operation");
-      rOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
-      rOp$(Member.Name).CreateChild("IsConst", $(Member.IsConst));
+  {// Operation: $(Member.Return.Name) $(Member.Name)($(Member.Params))$(Member.Const)
+    staff::CDataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
+    tOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
+    tOp$(Member.Name).CreateChild("IsConst", $(Member.IsConst));
 
-      staff::CDataObject rOpReturn$(Member.Name) = rOp$(Member.Name).CreateChild("Return");
-      rOpReturn$(Member.Name).CreateChild("Type", "$(Member.Return.Name)");
-      rOpReturn$(Member.Name).CreateChild("IsConst", $(Member.Return.IsConst));
+    staff::CDataObject tOpReturn$(Member.Name) = tOp$(Member.Name).CreateChild("Return");
+    tOpReturn$(Member.Name).CreateChild("Type", "$(Member.Return.Name)");
+    tOpReturn$(Member.Name).CreateChild("IsConst", $(Member.Return.IsConst));
 
-      staff::CDataObject rOp$(Member.Name)Params = rOp$(Member.Name).CreateChild("Parameters");
+    staff::CDataObject tOp$(Member.Name)Params = tOp$(Member.Name).CreateChild("Parameters");
 #foreach $(Member.Params)
-      {
-        staff::CDataObject rOpParam$(Param.Name) = rOp$(Member.Name)Params.CreateChild("Param");
-        rOpParam$(Param.Name).CreateChild("Name", "$(Param.Name)");
-        rOpParam$(Param.Name).CreateChild("Type", "$(Param.DataType.Name)");
-        rOpParam$(Param.Name).CreateChild("IsConst", $(Param.DataType.IsConst));
-        rOpParam$(Param.Name).CreateChild("IsRef", $(Param.DataType.IsRef));
-      }
-#end
+    {
+      staff::CDataObject tOpParam$(Param.Name) = tOp$(Member.Name)Params.CreateChild("Param");
+      tOpParam$(Param.Name).CreateChild("Name", "$(Param.Name)");
+      tOpParam$(Param.Name).CreateChild("Type", "$(Param.DataType.Name)");
+      tOpParam$(Param.Name).CreateChild("IsConst", $(Param.DataType.IsConst));
+      tOpParam$(Param.Name).CreateChild("IsRef", $(Param.DataType.IsRef));
     }
 #end
   }
-  
-  return $(Class.Name)WrapperImpl::m_tServiceInfo;
+#end
+
+  return tOperations;
 }
 
-staff::CDataObject $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_tServiceInfo;
-staff::CDataObject $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_tOperations;
+staff::CDataObject $(Class.Name)Wrapper::GetServiceDescription() const
+{
+  staff::CDataObject tServiceDescription;
+  staff::CDataObject tOperations = GetOperations();
+
+  tServiceDescription.Create("ServiceDescription");
+    
+  tServiceDescription.CreateChild("Name", GetName());
+  tServiceDescription.CreateChild("Description", GetDescr());
+  
+  tServiceDescription.AppendChild(tOperations);
+
+  return tServiceDescription;
+}
+
 rise::CString $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sName;
 rise::CString $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sDescr;
 

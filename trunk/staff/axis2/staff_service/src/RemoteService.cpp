@@ -13,30 +13,31 @@ namespace staff
   class CRemoteService::CRemoteServiceImpl
   {
   public:
-    void GetServiceInfo()
+    void GetServiceDescription()
     {
-      if (m_sName == "")
+      if (m_sName.size() == 0)
       {
-        COperation tOperation("GetServiceInfo");
-        CDataObject& rResult = tOperation.Result();
-        // request info from service;
+        COperation tOperation("GetServiceDescription");
+        const CDataObject& rResult = tOperation.Result();
+
+        // request description from service;
         m_pSelf->Invoke(tOperation);
 
-        m_sName = const_cast<const CDataObject&>(rResult)["Name"].AsString();
-        if(m_sName == "")
+        m_sName = rResult["Name"].AsString();
+        if(m_sName.size() == 0)
         {
           rise::LogError() << "Failed to get Service Name";
           m_pSelf->Close();
           return;
         }
 
-        m_sSessionId = const_cast<const CDataObject&>(rResult)["SessionId"].AsString();
-
-        m_sDescr = const_cast<const CDataObject&>(rResult)["Description"].AsString();
-
-        m_tOperations = rResult.GetChildByLocalName("Operations").DetachNode();
-        if(m_tOperations.GetLocalName() == "")
+        m_sSessionId = rResult["SessionId"].AsString();
+        m_sDescr = rResult["Description"].AsString();
+        m_tOperations = tOperation.Result().GetChildByLocalName("Operations").DetachNode();
+        if(m_tOperations.GetLocalName().size() == 0)
+        {
           rise::LogError() << "Failed to get Operations";
+        }
       }
     }
 
@@ -67,37 +68,47 @@ namespace staff
   CRemoteService::~CRemoteService()
   {
     if (m_pImpl != NULL)
+    {
       delete m_pImpl;
+    }
   }
 
   const rise::CString& CRemoteService::GetName() const
   {
-    if (m_pImpl->m_sName == "")
-      m_pImpl->GetServiceInfo();
+    if (m_pImpl->m_sName.size() == 0)
+    {
+      m_pImpl->GetServiceDescription();
+    }
 
     return m_pImpl->m_sName;
   }
 
   const rise::CString& CRemoteService::GetID() const
   {
-    if (m_pImpl->m_sSessionId == "")
-      m_pImpl->GetServiceInfo();
+    if (m_pImpl->m_sSessionId.size() == 0)
+    {
+      m_pImpl->GetServiceDescription();
+    }
 
     return m_pImpl->m_sSessionId;
   }
 
   const rise::CString& CRemoteService::GetDescr() const
   {
-    if (m_pImpl->m_sDescr == "")
-      m_pImpl->GetServiceInfo();
+    if (m_pImpl->m_sDescr.size() == 0)
+    {
+      m_pImpl->GetServiceDescription();
+    }
 
     return m_pImpl->m_sDescr;
   }
 
-  const CDataObject& CRemoteService::GetOperations() const
+  CDataObject CRemoteService::GetOperations() const
   {
-    if (m_pImpl->m_tOperations.GetLocalName() == "")
-      m_pImpl->GetServiceInfo();
+    if (m_pImpl->m_tOperations.GetLocalName().size() == 0)
+    {
+      m_pImpl->GetServiceDescription();
+    }
 
     return m_pImpl->m_tOperations;
   }
@@ -144,7 +155,9 @@ namespace staff
       while (bRcvd)
       {
         if(memchr(m_pImpl->m_tRecvBuffer.GetData() + ulCurrentSize, '\0', ulReceived) != NULL)
+        {
           break;
+        }
 
         ulCurrentSize += ulReceived;
 

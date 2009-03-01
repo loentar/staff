@@ -41,7 +41,12 @@ namespace $(Interface.Namespace)
     //!         получить описание операций
     /*! \return описание операций
     */
-    virtual const staff::CDataObject& GetOperations() const;
+    virtual staff::CDataObject GetOperations() const;
+
+    //!         получить описание сервиса
+    /*! \return описание сервиса
+    */
+    virtual staff::CDataObject GetServiceDescription() const;
     
     //!         вызвать операцию сервиса
     /*! \param  rOperation - операция
@@ -66,7 +71,6 @@ namespace $(Interface.Namespace)
 
   protected:
     $(Class.Name)Impl& ServiceImpl(const rise::CString& sID);
-    const staff::CDataObject& GetServiceInfo() const;
   
   private:
     class $(Class.Name)WrapperImpl;
