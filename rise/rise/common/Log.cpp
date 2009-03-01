@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 #include <locale.h>
 #include <rise/common/console.h>
 #include <rise/common/streamtypes.h>

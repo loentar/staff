@@ -1,3 +1,4 @@
+#include <string.h>
 #include "oserror.h"
 
 namespace rise
