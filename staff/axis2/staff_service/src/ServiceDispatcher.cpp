@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <pthread.h>
 #include <list>
 #include <set>
 #include <stdio.h>
@@ -87,6 +88,9 @@ rise::LogEntry();
           }
           else // поток axis2c
           {
+#ifndef MCBC
+            pthread_kill(m_pSelf->GetId(), SIGINT);
+#endif
             rise::LogDebug() << "Ожидание завершения диспетчера";
             for(int i = 0; i < 200 && m_pSelf->IsWorking(); ++i)
               Sleep(10);
@@ -617,7 +621,7 @@ rise::LogEntry();
       RISE_ASSERTES(pService != NULL, CRemoteInternalException, 
         "Service is not registered: " + rOperation.Request()["ServiceName"].AsString());
 
-      rOperation.Result().Clone(pService->GetOperations());
+      rOperation.Result() = pService->GetOperations();
     } else
       RISE_THROWS(CRemoteInternalException, "Operation not found: " + sOpName);
   }

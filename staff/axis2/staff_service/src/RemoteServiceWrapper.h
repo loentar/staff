@@ -38,7 +38,7 @@ namespace staff
     //!         получить список операций сервиса
     /*! \return список операций сервиса
     */
-    const CDataObject& GetOperations() const;
+    CDataObject GetOperations() const;
 
     //!         выполнить операцию
     /*! \param  rOperation - операция

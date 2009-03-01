@@ -30,7 +30,7 @@ namespace staff
     return m_mServices.begin()->second->GetDescr();
   }
 
-  const CDataObject& CRemoteServiceWrapper::GetOperations() const
+  CDataObject CRemoteServiceWrapper::GetOperations() const
   {
     return m_mServices.begin()->second->GetOperations();
   }

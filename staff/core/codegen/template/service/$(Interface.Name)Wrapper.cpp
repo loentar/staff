@@ -297,7 +297,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
   staff::CDataObject& rResult = rOperation.Result();
   const rise::CString& sOperationName = rOperation.GetName();
 
-  if (sOperationName == "GetServiceInfo")
+  if (sOperationName == "GetServiceDescription")
   {
     rResult.CreateChild("Name", "$(Class.ServiceName)");
 

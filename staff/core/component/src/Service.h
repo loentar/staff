@@ -30,7 +30,7 @@ namespace staff
     //!         получить описание операций
     /*! \return описание операций
     */
-    virtual const CDataObject& GetOperations() const = 0;
+    virtual CDataObject GetOperations() const = 0;
     
     //!         вызвать операцию сервиса
     /*! \param  rOperation - операция
