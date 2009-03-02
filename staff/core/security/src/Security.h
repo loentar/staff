@@ -139,16 +139,19 @@ STAFF_SECURITY_EXPORT bool StaffSecurityOpenSession( const char* szUser,
 
 //!         открытие дополнительной сессии для пользователя
 /*! \param  szExistingSessionId - идентификатор существующей сессии
-    \param  szExtraSessionId - результат - идентификатор созданной сессии
+    \param  nExtraSessionId - идентификатор(номер дополнительной сессии)
+    \param  szSessionId - результат - идентификатор созданной сессии
     \param  nSessionIdSize - размер буфера szExtraSessionId
     \return если операция выполнена успешно: true
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityOpenExtraSession( const char* szExistingSessionId,
-                                                          char* szExtraSessionId,
-                                                          int nExtraSessionIdSize );
+                                                          int nExtraSessionId,
+                                                          char* szSessionId,
+                                                          int nSessionIdSize );
 
 //!         закрытие сессии(разрегистрация пользователя в системе)
-/*! \param  szSessionId - идентификатор сессии
+/*! при закрытии главной сессии будут закрыты все дополнительные сессии
+    \param  szSessionId - идентификатор сессии
     \return если операция выполнена успешно: true
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityCloseSession( const char* szSessionId );

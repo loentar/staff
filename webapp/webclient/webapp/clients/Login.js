@@ -61,10 +61,11 @@ staff.Login.prototype =
     }
   },
 
-  OpenExtraSession: function(pOnComplete, pOnError)
+  OpenExtraSession: function(nExtraSessionId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('OpenExtraSession', this.tClient.GetServiceUri());
     
+    tOperation.AddParameter('nExtraSessionId', nExtraSessionId);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

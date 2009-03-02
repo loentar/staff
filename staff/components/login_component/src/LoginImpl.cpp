@@ -35,7 +35,7 @@ namespace staff
     return tResult;  // result
   }
 
-  std::string CLoginImpl::OpenExtraSession()
+  std::string CLoginImpl::OpenExtraSession(int nExtraSessionId)
   {
     const std::string& sCurrentSessionId = GetSessionID();
     std::string tResult;
@@ -45,7 +45,7 @@ namespace staff
       rise::CLogicAlreadyExistsException, 
       "Невозможно произвести открытие дополнительной сессии из анонимной сессии");
     
-    if(!StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), szSessionId, sizeof(szSessionId)))
+    if(!StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), nExtraSessionId, szSessionId, sizeof(szSessionId)))
     {
       RISE_THROWS(staff::CRemoteException, "Ошибка открытия дополнительной сессии");
     }
