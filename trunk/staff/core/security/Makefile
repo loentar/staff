@@ -3,9 +3,9 @@ include ../../Makefile.env
 TARGET = security
 TARGETNAME = libstaff$(TARGET).so
 
-CFLAGS += -c -D_DEBUG -DDEBUG -I/usr/include/postgresql -Wall
+CFLAGS += -c -D_DEBUG -DDEBUG -I/usr/include/postgresql -Wall -D_REENTRANT
 LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
-LFLAGS += -lpq
+LFLAGS += -lpq -lpthread
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

@@ -74,7 +74,8 @@ CREATE TABLE "session" (
     sessionid integer DEFAULT nextval('session_sequence'::text) NOT NULL,
     sid character varying(32) DEFAULT md5((now())::text) NOT NULL,
     contextid integer NOT NULL,
-    "time" timestamp without time zone DEFAULT now() NOT NULL
+    "time" timestamp without time zone DEFAULT now() NOT NULL,
+    extraid integer DEFAULT 0 NOT NULL
 ) WITHOUT OIDS;
 ALTER TABLE "session" SET MAC TO '{0,0}';
 
@@ -85,6 +86,7 @@ ALTER TABLE "session" SET MAC TO '{0,0}';
 --
 
 CREATE SEQUENCE objects_sequence
+    START WITH 11
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -216,11 +218,14 @@ COPY users (userid, username, "password", description) FROM stdin;
 -- Name: session; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY "session" (sessionid, sid, contextid, "time") FROM stdin;
-1	00000000000000000000000000000000	1	9999-12-31 23:59:59.999999
-5	100000	6	2019-02-09 11:46:00.110414
-8	10	5	2009-02-11 09:43:53.927396
-50	c3f40432f48fee0fb83a6cab83d5b584	13	2009-02-12 17:28:01.341096
+COPY "session" (sessionid, sid, contextid, "time", extraid) FROM stdin;
+5	100000	6	2019-02-09 11:46:00.110414	0
+1	00000000000000000000000000000000	1	9999-12-31 23:59:59.999999	0
+8	10	5	2009-02-11 09:43:53.927396	0
+9	5960ba7b645c50951210f2815556b67b	13	2009-02-27 16:58:42.860637	0
+10	5d6010dd1848e047ab13561b749fedf1	13	2009-03-02 11:05:17.125827	1
+11	7ac3c9a6d8c920be072179d037264170	13	2009-03-02 11:17:36.524184	2
+12	1fc8093088302fae0487eb167ce8056f	13	2009-03-02 11:17:42.562901	3
 \.
 
 
@@ -239,8 +244,10 @@ COPY objects (objectid, name, "type", description, userid, groupid, parentobject
 7	staff	1	staff component	0	0	1	511
 2	calc	1	\N	9	0	1	511
 8	ROOTWIDGET	4	root widget	0	0	0	511
-9	Button	4	п п╫п╬п©п╨п╟	0	0	8	511
-10	Edit	4	п║я┌я─п╬п╨п╟ п╡п╡п╬п╢п╟	0	0	8	511
+9	Button	4	Кнопка	0	0	8	511
+10	Edit	4	Строка ввода	0	0	8	511
+11	MapListView	4	Отображение карты	0	0	8	511
+12	DummyUnknown	4	DummyUnknown\n	0	0	8	511
 \.
 
 
@@ -376,21 +383,21 @@ ALTER TABLE ONLY objects
 
 
 --
--- TOC entry 28 (OID 249730)
--- Name: uni_sessioncontextid; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY "session"
-    ADD CONSTRAINT uni_sessioncontextid UNIQUE (contextid);
-
-
---
 -- TOC entry 34 (OID 249757)
 -- Name: pk_objecttypeid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY objecttypes
     ADD CONSTRAINT pk_objecttypeid PRIMARY KEY (objecttypeid);
+
+
+--
+-- TOC entry 28 (OID 257098)
+-- Name: uni_extraid_contextid; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "session"
+    ADD CONSTRAINT uni_extraid_contextid UNIQUE (extraid, contextid);
 
 
 --
@@ -468,7 +475,7 @@ SELECT pg_catalog.setval('users_sequence', 11, true);
 -- Name: objects_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('objects_sequence', 7, true);
+SELECT pg_catalog.setval('objects_sequence', 11, false);
 
 
 --
@@ -492,7 +499,7 @@ SELECT pg_catalog.setval('usertogroups_sequence', 6, true);
 -- Name: session_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('session_sequence', 50, true);
+SELECT pg_catalog.setval('session_sequence', 12, true);
 
 
 --

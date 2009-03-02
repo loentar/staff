@@ -24,7 +24,7 @@ namespace staff
     /*! функция должна вызываться не из гостевой сессии
         \return идентификатор дополнительной сессии
         */
-    virtual std::string OpenExtraSession() = 0;
+    virtual std::string OpenExtraSession(int nExtraSessionId) = 0;
 
     //!         выход пользователя из системы
     virtual void Logout() = 0;
