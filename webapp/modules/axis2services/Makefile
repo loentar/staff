@@ -26,7 +26,7 @@ APACHECTL=/www/bin/apachectl
 rebuild: make install restart
 
 make:
-	/usr/local/apache2/bin/apxs -i -a -c mod_axis2services.c
+	/usr/local/apache2/bin/apxs -c mod_axis2services.c
 
 #   the default target
 all: local-shared-build

@@ -162,7 +162,7 @@ rise::LogEntry();
         return;
       }
 
-      itLastFind = m_mRemoteServiceMap.find(sServiceName + ":");
+      itLastFind = m_mRemoteServiceMap.find(sServiceName + ":" + STAFF_SECURITY_GUEST_SESSION_ID);
 
       if (itLastFind != m_mRemoteServiceMap.end())
       {
@@ -266,36 +266,47 @@ rise::LogEntry();
       const rise::CString& sServiceNameID = sServiceName + ":" + sServiceID;
       if (sServiceName != "")
       {
-        CService* pExistingService = m_pComponent->GetService(sServiceName);
+        rise::CString sError;
 
-        // локального сервиса с таким именем нет?
-        if (pExistingService == NULL || pExistingService->GetImpl(sServiceID) == NULL && 
-          m_mRemoteServiceMap.find(sServiceNameID) == m_mRemoteServiceMap.end())
+        if(StaffSecurityValidateSessionID(sServiceID.c_str()))
         {
-          CRemoteServiceWrapper* pRemoteServiceWrapper = reinterpret_cast<CRemoteServiceWrapper*>(pExistingService);
+          CService* pExistingService = m_pComponent->GetService(sServiceName);
 
-          if (pRemoteServiceWrapper == NULL) // нет еще сервисов в этой группе
+          // локального сервиса с таким именем нет?
+          if (pExistingService == NULL || pExistingService->GetImpl(sServiceID) == NULL && 
+            m_mRemoteServiceMap.find(sServiceNameID) == m_mRemoteServiceMap.end())
           {
-            pRemoteServiceWrapper = new CRemoteServiceWrapper(m_pComponent); // создаем новый менеджер удаленыых сервисв группы
-            pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
-            m_pComponent->AddService(pRemoteServiceWrapper); // добавляем сервис в компонент
-          } else
-            pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
+            CRemoteServiceWrapper* pRemoteServiceWrapper = reinterpret_cast<CRemoteServiceWrapper*>(pExistingService);
 
-          rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sServiceID << ")\" connected...";
-          m_mRemoteServiceMap[sServiceNameID] = pNewService;
-          if(m_stEvents.pOnConnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
-          {
-            m_stEvents.pOnConnect(sServiceName, pRemoteServiceWrapper);
+            if (pRemoteServiceWrapper == NULL) // нет еще сервисов в этой группе
+            {
+              pRemoteServiceWrapper = new CRemoteServiceWrapper(m_pComponent); // создаем новый менеджер удаленыых сервисв группы
+              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
+              m_pComponent->AddService(pRemoteServiceWrapper); // добавляем сервис в компонент
+            } else
+              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
+
+            rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sServiceID << ")\" connected...";
+            m_mRemoteServiceMap[sServiceNameID] = pNewService;
+            if(m_stEvents.pOnConnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
+            {
+              m_stEvents.pOnConnect(sServiceName, pRemoteServiceWrapper);
+            }
+
+            return;
           }
           
-          return;
+          sError = "already connected";
+        }
+        else
+        {
+          sError = "session unknown or expired";
         }
 
         {
-          rise::LogWarning() << "Service \"" + sServiceName + "(" + sServiceID + ")\" already connected";
+          rise::LogWarning() << "Service \"" + sServiceName + "(" + sServiceID +  ")\" " + sError;
           COperation tOperation("Fault");
-          tOperation.Request().Value() = "Service \"" + sServiceName + "\" already connected";
+          tOperation.Request().Value() = "Service \"" + sServiceName + "(" + sServiceID + ")\": " + sError;
           pNewService->Invoke(tOperation);
         }
       } else
