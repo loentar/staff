@@ -449,6 +449,8 @@ bool StaffSecurityCloseSession( const char* szSessionId )
   int anParamFormats[1] = { 0 };
   const char* aszParams[1] = { szSessionId };
 
+  STAFF_SECURITY_ASSERT(szSessionId);
+
   pPGResult = PQexecParamsLock(g_pConn, "select \"extraid\", \"contextid\" from \"session\" where \"sid\" = $1;",
     1, NULL, aszParams, anParamLengths, anParamFormats, 1);
 
@@ -503,12 +505,12 @@ bool StaffSecurityCloseSession( const char* szSessionId )
   else // delete session and subsessions
   {
     int nContextIdReq = htonl(nContextId);
-    int anParamLengths[1] = { sizeof(nContextIdReq) };
-    int anParamFormats[1] = { 1 };
-    const char* aszParams[1] = { (const char*)&nContextIdReq };
+    int anParamLengths[2] = { sizeof(nContextIdReq), strlen(STAFF_SECURITY_GUEST_SESSION_ID) };
+    int anParamFormats[2] = { 1, 0 };
+    const char* aszParams[2] = { (const char*)&nContextIdReq, STAFF_SECURITY_GUEST_SESSION_ID };
 
-    pPGResult = PQexecParamsLock(g_pConn, "delete from \"session\" where \"contextid\" = $1;",
-      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+    pPGResult = PQexecParamsLock(g_pConn, "delete from \"session\" where \"contextid\" = $1::int4 and \"sid\" != $2;",
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
 
     tQueryStatus = PQresultStatus(pPGResult);
     if (tQueryStatus != PGRES_COMMAND_OK)
@@ -558,6 +560,8 @@ bool StaffSecurityValidateSessionID( const char* szSessionId )
   }
 
   // strcmp(pResult, szSessionId);
+
+  PQclearLock(pPGResult);
 
   return true;
 }

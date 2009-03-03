@@ -41,10 +41,6 @@ namespace staff
     std::string tResult;
     char szSessionId[33];
 
-    RISE_ASSERTES(sCurrentSessionId != STAFF_SECURITY_GUEST_SESSION_ID,
-      rise::CLogicAlreadyExistsException, 
-      "Невозможно произвести открытие дополнительной сессии из анонимной сессии");
-    
     if(!StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), nExtraSessionId, szSessionId, sizeof(szSessionId)))
     {
       RISE_THROWS(staff::CRemoteException, "Ошибка открытия дополнительной сессии");
@@ -58,16 +54,11 @@ namespace staff
   void CLoginImpl::Logout()
   {
     const std::string& sCurrentSessionId = GetSessionID();
-    RISE_ASSERTES(sCurrentSessionId != STAFF_SECURITY_GUEST_SESSION_ID, 
-      rise::CLogicAlreadyExistsException, 
-      "Невозможно закрыть гостевую сессию");
 
-    if(!StaffSecurityCloseSession(m_sSessionId.c_str()))
+    if(!StaffSecurityCloseSession(sCurrentSessionId.c_str()))
     {
       RISE_THROWS(staff::CRemoteException, "Ошибка закрытия сессии");
     }
-
-//    m_sSessionId = STAFF_SECURITY_GUEST_SESSION_ID;
   }
 
   void CLoginImpl::KeepAliveSession()

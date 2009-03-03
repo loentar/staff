@@ -95,7 +95,6 @@ void dump(const char* szData, unsigned long ulSize)
 
 void CloseSocket(int nSockID)
 {
-  int i = 0;
   char buf[32];
   struct timeval tv;
 
@@ -108,7 +107,7 @@ void CloseSocket(int nSockID)
   tv.tv_usec = 1;
   setsockopt(nSockID, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
 
-  i = recv(nSockID, buf, 32, 0);
+  recv(nSockID, buf, 32, 0);
   close(nSockID);
 }
 
@@ -258,8 +257,9 @@ LABEL
 LOG1("wanna to receive %d bytes", (sizeof(szHttpHeader) - nReceived - 1));
       nRet = recv(nSockID, szCurr, sizeof(szHttpHeader) - nReceived - 1, 0);
 LOG1("received %d bytes:", nRet);
-      if(nRet == -1)
+      if(nRet <= 0)
       {
+LOG1("error receiving: %s", strerror(errno));
         CloseSocket(nSockID);
         return 5;
       }

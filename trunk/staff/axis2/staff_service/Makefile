@@ -9,7 +9,7 @@ DEPLOYLIBDIR = $(DEPLOYDIR)axis2/services/staff/
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread -lstdc++
+LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread -lstdc++
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
