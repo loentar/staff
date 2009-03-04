@@ -487,6 +487,66 @@ std::istream& operator>>( std::istream& rStream, STypedef& rTypedef )
   return rStream;
 }
 
+void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
+{
+  char chData = 0;
+  std::string sTmp;
+
+  ReadStr(rStream, sTmp);
+  
+  if (sTmp == "class")
+  {
+    SClass stClass;
+    rStream >> stClass;
+    rInterface.lsClass.push_back(stClass);
+
+    rStream >> SkipWs >> chData;
+    if (chData != ';')
+    {
+      throw "missing ';' after class definition";
+    }
+  } else
+  if (sTmp == "struct")
+  {
+    SStruct stStruct;
+    rStream >> stStruct;
+    rInterface.lsStruct.push_back(stStruct);
+
+    rStream >> SkipWs >> chData;
+    if (chData != ';')
+    {
+      throw "missing ';' after struct definition";
+    }
+  } else
+  if (sTmp == "typedef")
+  {
+    STypedef stTypedef;
+    rStream >> stTypedef;
+    rInterface.lsTypedef.push_back(stTypedef);
+
+    rStream >> SkipWs >> chData;
+    if (chData != ';')
+    {
+      throw "missing ';' after typedef definition";
+    }
+  } else
+  if (sTmp == "namespace")
+  {
+    rStream >> rInterface.sNamespace;
+  } else
+  if (sTmp == "enum")   // enum -ignore
+  {
+    IgnoreFunction(rStream);
+  }
+  else
+  if (sTmp == "{")
+  {
+  } else
+  if (sTmp == "}")
+  {
+  }
+}
+
 // Interface
 std::istream& operator>>( std::istream& rStream, SInterface& rInterface )
 {
@@ -502,62 +562,71 @@ std::istream& operator>>( std::istream& rStream, SInterface& rInterface )
   while (rStream.good() && !rStream.eof())
   {
     rStream >> SkipWs;
-    rStream.get(chData);
+    chData = rStream.peek();
 
     if (chData == '#') // preprocessor
     {
+      rStream.ignore();
+      ReadStr(rStream, sTmp, false);
+      if (sTmp == "include")
+      {
+        rStream >> SkipWs;
+        chData = rStream.peek();
+        if (chData == '\"')
+        {
+          std::stringbuf sbTmp;
+          rStream.ignore();
+          rStream.get(sbTmp, chData);
+
+          std::string::size_type nPos = rInterface.sFileName.find_last_of('/');
+          std::string sFileName;
+          std::ifstream isFile;
+
+          if (nPos != std::string::npos)
+          {
+            sFileName = rInterface.sFileName.substr(0, nPos);
+          }
+          
+          sFileName += sbTmp.str();
+
+          isFile.open(sFileName.c_str());
+          if(isFile.good())
+          {
+            try
+            {
+              while (isFile.good() && !isFile.eof())
+              {
+                isFile >> SkipWs;
+                chData = isFile.peek();
+
+                if (chData == '#') // preprocessor
+                {
+                  isFile.ignore(INT_MAX, '\n');
+                } else // text
+                {
+                  ParseHeaderBlock(isFile, rInterface);
+                }
+              }
+            }
+            catch (...)
+            {
+              isFile.close();
+              throw;
+            }
+            
+            isFile.close();
+          }
+          else
+          {
+            std::cerr << "Warning: cannot include file \"" << sFileName << "\".";
+          }
+        }
+      }
+
       rStream.ignore(INT_MAX, '\n');
     } else // text
     {
-      sTmp.erase();
-      rStream.unget();
-      ReadStr(rStream, sTmp);
-      
-      if (sTmp == "class")
-      {
-        SClass stClass;
-        rStream >> stClass;
-        rInterface.lsClass.push_back(stClass);
-
-        rStream >> SkipWs >> chData;
-        if (chData != ';')
-          throw "missing ';' after class definition";
-      } else
-      if (sTmp == "struct")
-      {
-        SStruct stStruct;
-        rStream >> stStruct;
-        rInterface.lsStruct.push_back(stStruct);
-
-        rStream >> SkipWs >> chData;
-        if (chData != ';')
-          throw "missing ';' after struct definition";
-      } else
-      if (sTmp == "typedef")
-      {
-        STypedef stTypedef;
-        rStream >> stTypedef;
-        rInterface.lsTypedef.push_back(stTypedef);
-
-        rStream >> SkipWs >> chData;
-        if (chData != ';')
-          throw "missing ';' after typedef definition";
-      } else
-      if (sTmp == "namespace")
-      {
-        rStream >> rInterface.sNamespace;
-      } else
-      if (sTmp == "enum")   // enum -ignore
-      {
-        IgnoreFunction(rStream);
-      }
-      else
-      if (sTmp == "{")
-      {
-      } else
-      if (sTmp == "}")
-      {
-      }
+      ParseHeaderBlock(rStream, rInterface);
     }
   }
   return rStream;
