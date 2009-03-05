@@ -5,32 +5,38 @@
 #include <rise/common/Log.h>
 #include <rise/string/String.h>
 #include <staff/service/ServiceDispatcherClient.h>
-#include "CalculatorWrapper.h"
+#foreach $(Project.Interfaces)
+#include "$(Interface.Name)Wrapper.h"
+#end
 
 int main(int nArgs, const char* paszArgs[])
 {
+#foreach $(Project.Interfaces)
   try
   {
-    rise::CString sSessionId;
+    rise::CString sSID;
     rise::CString sTmp;
     for(int i = 1; i < nArgs; ++i)
     {
       if(paszArgs[i] != NULL)
       {
         sTmp = paszArgs[i];
-        if(sTmp.substr(0, 2) == "-s")
-          sSessionId = sTmp.substr(2);
+        if(sTmp.substr(0, 2) == _T("-s"))
+          sSID = sTmp.substr(2);
       }
     }
+#foreach $(Interface.Classes)
     {
-      ::samples::CCalculatorWrapper tCalculatorWrapper;
+      $(Class.NsName)Wrapper t$(Class.ServiceName)Wrapper;
 
-      tCalculatorWrapper.SetSessionId(sSessionId);
-      staff::CServiceDispatcherClient::ServiceDispatcherClient().SetWrapper(tCalculatorWrapper);
+      t$(Class.ServiceName)Wrapper.SetSID(sSID);
+      staff::CServiceDispatcherClient::ServiceDispatcherClient().SetWrapper(t$(Class.ServiceName)Wrapper);
       staff::CServiceDispatcherClient::ServiceDispatcherClient().Start();
     }
+#end
   }
   RISE_CATCH_ALL
+#end
 
   return 0;
 }

@@ -43,6 +43,14 @@ namespace staff
 
   const CService* CCompositeComponent::GetService( const rise::CString& sName ) const
   {
+#ifdef DEBUG
+    for (TServiceMap::const_iterator itService = m_mServices.begin();
+      itService != m_mServices.end(); ++itService)
+    {
+      rise::LogNotice() << "service: \"" << itService->first << "\" / \"" << sName << "\": component: \"" << m_sName << "\"";
+    }
+#endif
+  
     TServiceMap::const_iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;
@@ -51,6 +59,14 @@ namespace staff
 
   CService* CCompositeComponent::GetService( const rise::CString& sName )
   {
+#ifdef DEBUG
+    for (TServiceMap::const_iterator itService = m_mServices.begin();
+      itService != m_mServices.end(); ++itService)
+    {
+      rise::LogNotice() << "service: \"" << itService->first << "\" / \"" << sName << "\": component: \"" << m_sName << "\"";
+    }
+#endif
+
     TServiceMap::iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;

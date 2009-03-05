@@ -24,7 +24,6 @@ CREATE TABLE context (
     contextid integer DEFAULT nextval('context_sequence'::text) NOT NULL,
     userid integer
 ) WITHOUT OIDS;
-ALTER TABLE context SET MAC TO '{0,0}';
 
 
 --
@@ -50,7 +49,6 @@ CREATE TABLE users (
     "password" character varying,
     description character varying
 ) WITHOUT OIDS;
-ALTER TABLE users SET MAC TO '{0,0}';
 
 
 --
@@ -77,7 +75,6 @@ CREATE TABLE "session" (
     "time" timestamp without time zone DEFAULT now() NOT NULL,
     extraid integer DEFAULT 0 NOT NULL
 ) WITHOUT OIDS;
-ALTER TABLE "session" SET MAC TO '{0,0}';
 
 
 --
@@ -108,7 +105,6 @@ CREATE TABLE objects (
     parentobjectid integer DEFAULT 0 NOT NULL,
     permission integer DEFAULT 0 NOT NULL
 ) WITHOUT OIDS;
-ALTER TABLE objects SET MAC TO '{0,0}';
 
 
 --
@@ -121,7 +117,6 @@ CREATE TABLE groups (
     groupname character varying NOT NULL,
     description character varying
 ) WITHOUT OIDS;
-ALTER TABLE groups SET MAC TO '{0,0}';
 
 
 --
@@ -146,7 +141,6 @@ CREATE TABLE usertogroups (
     userid integer NOT NULL,
     groupid integer NOT NULL
 ) WITHOUT OIDS;
-ALTER TABLE usertogroups SET MAC TO '{0,0}';
 
 
 --
@@ -182,7 +176,6 @@ CREATE TABLE objecttypes (
     objecttypeid integer NOT NULL,
     typename character varying NOT NULL
 ) WITHOUT OIDS;
-ALTER TABLE objecttypes SET MAC TO '{0,0}';
 
 
 --
@@ -244,10 +237,6 @@ COPY objects (objectid, name, "type", description, userid, groupid, parentobject
 7	staff	1	staff component	0	0	1	511
 2	calc	1	\N	9	0	1	511
 8	ROOTWIDGET	4	root widget	0	0	0	511
-9	Button	4	Кнопка	0	0	8	511
-10	Edit	4	Строка ввода	0	0	8	511
-11	MapListView	4	Отображение карты	0	0	8	511
-12	DummyUnknown	4	DummyUnknown\n	0	0	8	511
 \.
 
 

@@ -68,7 +68,17 @@ namespace staff
 
     const CCompositeComponent* pComponent = GetComponent(sComponentName);
     if (pComponent == NULL)
-      return NULL;
+    {
+      pComponent = GetComponent("");
+      if (pComponent == NULL)
+      {
+        return NULL;
+      }
+      else
+      {
+        return pComponent->GetService(sName);
+      }
+    }
 
     return pComponent->GetService(sServiceName);
   }
@@ -87,7 +97,17 @@ namespace staff
 
     CCompositeComponent* pComponent = GetComponent(sComponentName);
     if (pComponent == NULL)
-      return NULL;
+    {
+      pComponent = GetComponent("");
+      if (pComponent == NULL)
+      {
+        return NULL;
+      }
+      else
+      {
+        return pComponent->GetService(sName);
+      }
+    }
 
     return pComponent->GetService(sServiceName);
   }
