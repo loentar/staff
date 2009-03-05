@@ -11,24 +11,26 @@ namespace staff
   class CComponentConfig;
 }
 
-namespace calc
+namespace samples
 {
-  class CCalcServiceImpl: public CCalcService
+  namespace calc
   {
-  public:
-    CCalcServiceImpl();
-    virtual ~CCalcServiceImpl();
-    virtual int Add(int nA, int nB) const;
-    virtual int Sub(int nA, int nB) const;
-    virtual void SetMem(int nMem);
-    virtual int GetMem() const;
+    class CCalcServiceImpl: public CCalcService
+    {
+    public:
+      CCalcServiceImpl();
+      virtual ~CCalcServiceImpl();
+      virtual int Add(int nA, int nB) const;
+      virtual int Sub(int nA, int nB) const;
+      virtual void SetMem(int nMem);
+      virtual int GetMem() const;
 
-  protected:
-    staff::CComponentConfig& GetConfig() const;
-  private:
-    mutable staff::CComponentConfig* m_pConfig;
-  };
+    protected:
+      staff::CComponentConfig& GetConfig() const;
+    private:
+      mutable staff::CComponentConfig* m_pConfig;
+    };
+  }
 }
-
 
 #endif // _CalcServiceImpl_h_

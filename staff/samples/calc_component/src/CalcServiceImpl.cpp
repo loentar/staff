@@ -14,68 +14,57 @@
 #include "CalcServiceContext.h"
 #include "CalcServiceImpl.h"
 
-namespace calc
+namespace samples
 {
-  CCalcServiceImpl::CCalcServiceImpl():
-    m_pConfig(NULL)
+  namespace calc
   {
-  }
-
-  CCalcServiceImpl::~CCalcServiceImpl()
-  {
-/*    try
+    CCalcServiceImpl::CCalcServiceImpl():
+      m_pConfig(NULL)
     {
-      staff::CConfig::Inst().SaveComponentConfig("calc", "CalcService.xml");
-    }
-    RISE_CATCH_ALL*/
-  }
-
-  int CCalcServiceImpl::Add(int nA, int nB) const
-  {
-    return nA + nB;  // result
-  }
-
-  int CCalcServiceImpl::Sub(int nA, int nB) const
-  {
-rise::LogEntry();
-    const rise::CString& sID = CCalcServiceContext::GetContext().GetServiceID(this);
-
-    CSubService* pSubServiceImpl = 
-        reinterpret_cast<CSubService*>(staff::CServiceLocator::Inst().LocateService("calc.SubService", sID));
-
-rise::LogLabel();    
-    RISE_ASSERTES(pSubServiceImpl != NULL, rise::CLogicNoItemException, 
-        "Service [calc.SubService] with id [" + sID + "] not found");
-
-rise::LogLabel();    
-    return pSubServiceImpl->Sub(nA, nB);
-  }
-
-  void CCalcServiceImpl::SetMem(int nMem)
-  {
-rise::LogLabel();    
-    GetConfig().Config().GetOrAddSubNode("Mem").NodeContent() = nMem;
-rise::LogLabel();    
-    GetConfig().SaveConfig();
-rise::LogLabel();    
-  }
-
-  int CCalcServiceImpl::GetMem() const
-  {
-rise::LogLabel();    
-    return GetConfig().Config()["Mem"].AsInt();  // result
-  }
-
-  staff::CComponentConfig& CCalcServiceImpl::GetConfig() const
-  {
-rise::LogLabel();    
-    if (m_pConfig == NULL)
-    {
-      m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("calc", "CalcService.xml", true);
     }
 
-    return *m_pConfig;
-  }
+    CCalcServiceImpl::~CCalcServiceImpl()
+    {
+    }
 
+    int CCalcServiceImpl::Add(int nA, int nB) const
+    {
+      return nA + nB;  // result
+    }
+
+    int CCalcServiceImpl::Sub(int nA, int nB) const
+    {
+      const rise::CString& sID = CCalcServiceContext::GetContext().GetServiceID(this);
+
+      CSubService* pSubServiceImpl = 
+          reinterpret_cast<CSubService*>(staff::CServiceLocator::Inst().LocateService("samples.calc.SubService", sID));
+      
+      RISE_ASSERTES(pSubServiceImpl != NULL, rise::CLogicNoItemException, 
+          "Service [samples.calc.SubService] with id [" + sID + "] not found");
+
+      return pSubServiceImpl->Sub(nA, nB);
+    }
+
+    void CCalcServiceImpl::SetMem(int nMem)
+    {
+      GetConfig().Config().GetOrAddSubNode("Mem").NodeContent() = nMem;
+      GetConfig().SaveConfig();
+    }
+
+    int CCalcServiceImpl::GetMem() const
+    {
+      return GetConfig().Config()["Mem"].AsInt();  // result
+    }
+
+    staff::CComponentConfig& CCalcServiceImpl::GetConfig() const
+    {
+      if (m_pConfig == NULL)
+      {
+        m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("calc", "CalcService.xml", true);
+      }
+
+      return *m_pConfig;
+    }
+
+  }
 }
-

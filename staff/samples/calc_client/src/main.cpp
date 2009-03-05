@@ -19,8 +19,8 @@ int main(int nArgs, const char* paszArgs[])
   {
     {
       // use anonymous account
-      rise::CSharedPtr<calc::CCalcService> pCalcService = 
-        CServiceFactory::Inst().GetService<calc::CCalcService>();
+      rise::CSharedPtr< ::samples::calc::CCalcService > pCalcService = 
+        CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >();
 
       RISE_ASSERTES(pCalcService != NULL, rise::CLogicNoItemException, "Cannot get client for service calc.CalcService!");
 

@@ -1,2 +1,2 @@
 
-samples/calc_client.dep: core/common.dep core/client.dep core/codegen.dep core/component.dep
+samples/calc_client.dep: core/common.dep core/client.dep core/component.dep tools/codegen.dep

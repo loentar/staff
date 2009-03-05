@@ -6,15 +6,17 @@
 
 #include "SubService.h"
 
-namespace calc
+namespace samples
 {
-  class CSubServiceImpl: public CSubService
+  namespace calc
   {
-  public:
-    virtual ~CSubServiceImpl();
-    virtual int Sub(int nA, int nB) const;
-  };
+    class CSubServiceImpl: public CSubService
+    {
+    public:
+      virtual ~CSubServiceImpl();
+      virtual int Sub(int nA, int nB) const;
+    };
+  }
 }
-
 
 #endif // _SubServiceImpl_h_

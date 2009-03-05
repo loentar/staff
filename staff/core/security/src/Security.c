@@ -546,6 +546,7 @@ bool StaffSecurityValidateSessionID( const char* szSessionId )
   tQueryStatus = PQresultStatus(pPGResult);
   if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
   {
+    dprintf("error getting result: %s\n", PQerrorMessage(g_pConn));
     PQclearLock(pPGResult);
     return false;
   }
@@ -554,7 +555,7 @@ bool StaffSecurityValidateSessionID( const char* szSessionId )
 
   if(pResult == NULL)
   {
-    dprintf("error getting value\n");
+    dprintf("error getting value: %s\n", PQerrorMessage(g_pConn));
     PQclearLock(pPGResult);
     return false;
   }

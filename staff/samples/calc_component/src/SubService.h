@@ -1,16 +1,19 @@
 #ifndef _SUBSERVICE_H_
 #define _SUBSERVICE_H_
 
-namespace calc
+namespace samples
 {
-  //!  SubService
-  class CSubService
+  namespace calc
   {
-  public:
-    //!        деструктор
-    virtual ~CSubService() {}
-    virtual int Sub(int nA, int nB) const = 0;
-  };
+    //!  SubService
+    class CSubService
+    {
+    public:
+      //!        деструктор
+      virtual ~CSubService() {}
+      virtual int Sub(int nA, int nB) const = 0;
+    };
+  }
 }
 
 #endif // _SUBSERVICE_H_

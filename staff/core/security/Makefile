@@ -56,7 +56,7 @@ uninstall: check
 # == install db =====================================
 installdb: uninstalldb
 	psql template1 < db/instdb.sql
-	psql staff < db/staff.sql 
+#	psql staff < db/staff.sql 
 
 # == uninstall db =====================================
 uninstalldb:

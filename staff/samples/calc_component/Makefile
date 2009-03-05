@@ -67,6 +67,7 @@ deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	chmod 777 $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 
 # == uninstall ======================================
 uninstall: check
