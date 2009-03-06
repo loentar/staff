@@ -74,13 +74,9 @@ namespace staff
       {
         return NULL;
       }
-      else
-      {
-        return pComponent->GetService(sName);
-      }
     }
 
-    return pComponent->GetService(sServiceName);
+    return pComponent->GetService(sName);
   }
 
   CService* CSharedContext::GetService( const rise::CString& sName )
@@ -103,32 +99,23 @@ namespace staff
       {
         return NULL;
       }
-      else
-      {
-        return pComponent->GetService(sName);
-      }
     }
 
-    return pComponent->GetService(sServiceName);
+    return pComponent->GetService(sName);
   }
 
   TServiceMap CSharedContext::GetServices() const
   {
-    rise::CString sServicePrefix;
     TServiceMap mServices;
     for(TCompositeComponentMap::const_iterator itComponent = m_mComponents.begin();
           itComponent != m_mComponents.end(); ++itComponent)
     {
-      sServicePrefix = itComponent->first;
-      if (sServicePrefix.size() != 0)
-        sServicePrefix += '.';
-
       const TServiceMap& rmNewComponent = itComponent->second->GetServices();
       for (TServiceMap::const_iterator itService = rmNewComponent.begin();
         itService != rmNewComponent.end(); ++itService)
       {
         const std::pair<TServiceMap::iterator, bool>& tInsertResult = 
-          mServices.insert(TServiceMap::value_type(sServicePrefix + itService->first, itService->second));
+          mServices.insert(TServiceMap::value_type(itService->first, itService->second));
         if (!tInsertResult.second)
           rise::LogWarning() << "Duplicate service: \"" << itService->first 
           << "\": in component: \"" << itComponent->first << "\".";
