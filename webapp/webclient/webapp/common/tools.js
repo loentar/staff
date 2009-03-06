@@ -23,6 +23,7 @@ if(document.location.search.length > 1)
   }
 }
 
+webapp.Env.protocol = document.location.protocol + '//';
 var _atIncludedScripts = new Array();
 
 //!         включить javascript файл/список файлов

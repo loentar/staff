@@ -15,7 +15,7 @@ staff.Client.prototype =
     if(sHostPort == null) sHostPort = Session.sPort;
     if(sID == null) sID = Session.sID;
     
-    this.sServiceUri = 'http://' + sHostName;
+    this.sServiceUri = webapp.Env.protocol + sHostName;
     if(sHostPort != '')
       this.sServiceUri += ':' + sHostPort;
     this.sServiceUri += '/axis2/services/' + sServiceName;
