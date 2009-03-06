@@ -38,7 +38,7 @@ namespace widget
       {
         m_tDoc.LoadFromFile(m_sFileName);
       }
-      catch(rise::xml::CXMLOpenException&)
+      catch(...)//rise::xml::CXMLOpenException&) // doesn't work on ubuntu
       {
         rise::LogWarning() << "Widget DB will be created in " + m_sFileName;
         m_tDoc.LoadFromFile(staff::CRuntime::Inst().GetComponentHome("widget") + "/db/widgetdb_default.xml");

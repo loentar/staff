@@ -19,7 +19,7 @@ namespace('staff');
 //-----------------------------------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////////////////////
-// class: Login
+// class: staff.Login
 
 staff.Login = Class.create();
 staff.Login.tClient = null;
@@ -28,7 +28,9 @@ staff.Login.prototype =
   initialize: function(sServiceName, sHostName, sHostPort)
   {
     if(sServiceName == null)
+    {
       sServiceName = 'staff.Login';
+    }
     this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
   },
   
@@ -48,7 +50,7 @@ staff.Login.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
         },
         pOnError
       );
@@ -57,7 +59,7 @@ staff.Login.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   },
 
@@ -71,7 +73,7 @@ staff.Login.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
         },
         pOnError
       );
@@ -80,7 +82,7 @@ staff.Login.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   },
 
@@ -133,7 +135,7 @@ staff.Login.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
         },
         pOnError
       );
@@ -142,7 +144,7 @@ staff.Login.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   },
 
@@ -155,7 +157,7 @@ staff.Login.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
         },
         pOnError
       );
@@ -164,7 +166,7 @@ staff.Login.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   },
 
@@ -177,7 +179,7 @@ staff.Login.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild.nodeValue, tOperation);
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
         },
         pOnError
       );
@@ -186,7 +188,7 @@ staff.Login.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild.nodeValue;
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   }
 }

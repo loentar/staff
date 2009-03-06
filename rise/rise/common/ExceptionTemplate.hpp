@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <rise/common/Log.h>
 #include <rise/tools/StackTracer.h>
 
 
@@ -47,7 +48,10 @@ namespace rise
     const char* szStackTracingEnv = getenv("RISE_EXCEPTION_STACKTRACING");
     m_bStackTracing = szStackTracingEnv != NULL && ((!strcmp(szStackTracingEnv, "1") || !strcmp(szStackTracingEnv, "TRUE")));
     if (m_bStackTracing)
+    {
+      rise::LogWarning() << "Exception at " << sFile << "[" << nLine << "]: " << sFunction << ": " << sDescr << " (" << sExpr << "/" << sObject << ")";
       tools::CStackTracer::StackTraceStr(m_sStack);
+    }
   }
   
   //////////////////////////////////////////////////////////////////////////////

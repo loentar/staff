@@ -97,7 +97,7 @@ std::istream& ReadBefore(std::istream& rStream, std::string& sOut, const std::st
 template<typename TStructType>
 bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
 {
-  for (std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+  for (typename std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
   {
     if (it->sName == rDataType.sName)
     {

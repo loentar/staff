@@ -44,8 +44,10 @@ COMPONENT_SERVICES_CODEGEN := $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cp
     $(patsubst %.h,%Context.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Context.cpp,$(COMPONENT_SERVICES_HEADERS)) \
     $(patsubst %.h,%Wrapper.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Wrapper.cpp,$(COMPONENT_SERVICES_HEADERS))
 
+ifneq ("$(EXTERN_SERVICES)","")
 EXTERN_SERVICES_CODEGEN := $(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp \
     $(patsubst %.h,%Proxy.h,$(EXTERN_SERVICES_HEADERS)) $(patsubst %.h,%Proxy.cpp,$(EXTERN_SERVICES_HEADERS))
+endif
 
 CODEGEN_SOURCES := $(filter %.cpp,$(COMPONENT_SERVICES_CODEGEN) $(EXTERN_SERVICES_CODEGEN))
 
@@ -75,8 +77,8 @@ $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp:: $(COMPONENT_SERVICES_HEADE
 
 # генерация прокси внешних сервисов
 ifeq ("$(EXTERN_SERVICES)","")
-$(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:
-	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
+$(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:;
+#	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 else
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
 	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
@@ -85,18 +87,21 @@ $(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:: $(EXTERN_SERVICES_HEADER
 	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 endif
 
-check:
 ifeq ($(STAFF_HOME),)
+check:
 	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+else
+check:;
 endif
 
 # == deploy  ========================================
 deploy:
 
 # == install ========================================
-install: "$(INSTALLDIR)components/$(TARGET)/" "$(INSTALLDIR)components/$(TARGET)/db/"
+install: "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
 	cp -f $(OUTDIR)$(TARGETNAME) $<
-	cp -f config/*.xml $(INSTALLDIR)components/$(TARGET)/db/
+	cp -f config/*.xml $(INSTALLDIR)$(TARGET)/db/
+	chmod 777 $(INSTALLDIR)$(TARGET)/db/
 
 # == uninstall ======================================
 uninstall:

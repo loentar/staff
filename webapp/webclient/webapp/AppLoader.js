@@ -129,7 +129,7 @@ webapp.AppLoader =
       catch(tEx)
       {
         var sMessage = tEx.text ? tEx.text : (tEx.message ? tEx.message : "");
-        webapp.MessageBox.ShowMessage('нЬХАЙЮ ОПХ ЯНГДЮМХХ ГЮЦПСГВХЙЮ БХДФЕРНБ:' + sMessage, 'error');
+        webapp.MessageBox.ShowMessage('Ошибка при вызове сервиса: ' + sMessage, 'error');
       }
     }
   },
