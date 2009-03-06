@@ -56,7 +56,8 @@ void InitializeLock(PLock pLock)
 #ifdef WIN32
   InitializeCriticalSection(pLock);
 #else
-  pthread_mutexattr_t tAttr = {PTHREAD_MUTEX_RECURSIVE_NP};
+  pthread_mutexattr_t tAttr;
+  pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
   pthread_mutex_init(pLock, &tAttr);
 #endif
 }
@@ -177,7 +178,7 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
   }
 
   // create session id
-  pPGResult = PQexecLock(g_pConn, "select md5(now());");
+  pPGResult = PQexecLock(g_pConn, "select md5(cast (now() as text));");
   
   tQueryStatus = PQresultStatus(pPGResult);
   if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
@@ -873,7 +874,7 @@ bool ParseObjectInfoResponse(PGresult* pPGResult, TObject* pstObject, int nRow)
   pstObject->stPermissionOthers = *((TPermission*)&bPermission);
 
 #ifdef _DEBUG
-  dprintf("name: %s, type: %d, description: %s, parent: %d, user: %d, group: %d, perm: %d([%d]%d-%d-%d) sizeof=%ld\n", 
+  dprintf("name: %s, type: %d, description: %s, parent: %d, user: %d, group: %d, perm: %d([%d]%d-%d-%d) sizeof=%d\n", 
     pstObject->szObjectName, pstObject->nType, pstObject->szDescription, pstObject->nParentObjectId,
     pstObject->nUserId, pstObject->nGroupId, 
     *(int*)&stPermissions, stPermissions.nDummy, stPermissions.nUser, stPermissions.nGroup, stPermissions.nOthers, sizeof(stPermissions));
@@ -1042,9 +1043,9 @@ bool StaffSecurityGetObjectListByType( int nObjectType,
   }
 
   *pnCount = PQntuples(pPGResult);
-  if (*pnCount <= 0)
+  if (*pnCount < 0)
   {
-    dprintf("no objects with type %d found\n", nObjectType);
+    dprintf("invalid objects count with type %d found\n", nObjectType);
     PQclearLock(pPGResult);
     return false;
   }
