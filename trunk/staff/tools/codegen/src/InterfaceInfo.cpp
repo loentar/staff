@@ -95,47 +95,30 @@ std::istream& ReadBefore(std::istream& rStream, std::string& sOut, const std::st
 }
 
 template<typename TStructType>
-bool IsExistsInList(const std::list<TStructType>& rList, const std::string& sNsName)
+bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
 {
-  std::string sName;
-  std::string sNamespace;
-  std::string::size_type nPos = sNsName.find_last_of("::");
-  if (nPos != std::string::npos)
+  for (std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
   {
-    ++nPos;
-    sName = sNsName.substr(nPos);
-    sNamespace = sNsName.substr(0, nPos);
-  }
-  else
-  {
-    sName = sNsName;
-    sNamespace = "::";
-  }
-
-  for (typename std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
-  {
-    if (it->sName == sName)
+    if (it->sName == rDataType.sName)
     {
       // namespace match
-      if (it->sNamespace == sNamespace)
+      if (it->sNamespace == rDataType.sNamespace)
       {
         return true;
       }
       
-      // find in current subnamespaces
-      if (g_sCurrentNamespace.substr(0, it->sNamespace.size()) == it->sNamespace)
-      {
-        return true;
-      }
-      
-      nPos = g_sCurrentNamespace.find_last_of("::");
+      std::string::size_type nPos = g_sCurrentNamespace.find_last_of("::");
       
       while (nPos != std::string::npos)
       {
         ++nPos;
-        std::string sDebugTmp = (g_sCurrentNamespace.substr(0, nPos) + sNamespace); //!!!!!!!!!!
-        if((g_sCurrentNamespace.substr(0, nPos) + sNamespace) == it->sNamespace)
+        if((g_sCurrentNamespace.substr(0, nPos) + rDataType.sNamespace) == it->sNamespace)
         {
+          if (it->sNamespace != rDataType.sNamespace) // correct namespace
+          {
+            rDataType.sNamespace = it->sNamespace;
+          }
+
           return true;
         }
 
@@ -153,41 +136,68 @@ bool IsExistsInList(const std::list<TStructType>& rList, const std::string& sNsN
 }
 
 
-SDataType::EDataType DetectType(const std::string& sName)
+void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
 {
-  if (sName == "staff::CDataObject")
-    return SDataType::EDataObject;
-  
-  if (sName == "bool" ||
-      sName == "char" ||
-      sName == "int" ||
-      sName == "short" ||
-      sName == "long" ||
-      sName == "float" ||
-      sName == "double" ||
-      sName == "void" ||
-      
-      sName == "std::string" ||
-      sName == "rise::CString" ||
-      sName == "rise::CStringA" ||
-      sName == "rise::CStringW" ||
-      sName == "std::wstring" ||
+  std::string::size_type nPos = sDataTypeName.find_last_of("::");
+  if (nPos != std::string::npos)
+  {
+    ++nPos;
+    rDataType.sName = sDataTypeName.substr(nPos);
+    rDataType.sNamespace = sDataTypeName.substr(0, nPos);
+  }
+  else
+  {
+    rDataType.sName = sDataTypeName;
+    rDataType.sNamespace = ""; //"::";
+  }
 
-      sName == "rise::byte" ||
-      sName == "rise::word" ||
-      sName == "rise::ushort" ||
-      sName == "rise::dword" ||
-      sName == "rise::ulong" ||
-      sName == "rise::uint" ||
-      sName == "rise::TSize"
+  if (sDataTypeName == "staff::CDataObject")
+  {
+    rDataType.eType = SDataType::EDataObject;
+  }
+  else
+  if (sDataTypeName == "bool" ||
+      sDataTypeName == "char" ||
+      sDataTypeName == "int" ||
+      sDataTypeName == "short" ||
+      sDataTypeName == "long" ||
+      sDataTypeName == "float" ||
+      sDataTypeName == "double" ||
+      sDataTypeName == "void" ||
+      
+      sDataTypeName == "std::string" ||
+      sDataTypeName == "std::wstring" ||
+      sDataTypeName == "rise::CString" ||
+      sDataTypeName == "rise::CStringA" ||
+      sDataTypeName == "rise::CStringW" ||
+
+      sDataTypeName == "rise::byte" ||
+      sDataTypeName == "rise::word" ||
+      sDataTypeName == "rise::ushort" ||
+      sDataTypeName == "rise::dword" ||
+      sDataTypeName == "rise::ulong" ||
+      sDataTypeName == "rise::uint" ||
+      sDataTypeName == "rise::TSize" ||
+
+      sDataTypeName == "staff::CValue"
       )
-    return SDataType::EGeneric;
-  
-  if(IsExistsInList(Interface().lsStruct, sName))
-    return SDataType::EStruct;
-  if(IsExistsInList(Interface().lsTypedef, sName))
-    return SDataType::ETypedef;
-  return SDataType::EUnknown;
+  {
+    rDataType.eType = SDataType::EGeneric;
+  }
+  else
+  if(ParseCompositeDataType(Interface().lsStruct, rDataType))
+  {
+    rDataType.eType = SDataType::EStruct;
+  }
+  else
+  if(ParseCompositeDataType(Interface().lsTypedef, rDataType))
+  {
+    rDataType.eType = SDataType::ETypedef;
+  }
+  else
+  {
+    rDataType.eType = SDataType::EUnknown;
+  }
 }
 
 void IgnoreFunction(std::istream& rStream)
@@ -245,6 +255,7 @@ std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
     {
       rStream.ignore();
       rDataType.sName = sTmp;
+      rDataType.sNamespace = "";
       rDataType.eType = SDataType::ETemplate;
       while(rStream.good())
       {
@@ -280,10 +291,14 @@ std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
     }
     else
     if (sTmp == "")
+    {
       return rStream;
+    }
 
     if(sTmp == "const")
+    {
       rDataType.bIsConst = true;
+    }
     else // name of type
     {
       if (sTmp == "unsigned")
@@ -292,24 +307,11 @@ std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
         if(rStream.eof())
           throw "unexpected EOF(after type parsing)";
 
-        rDataType.eType = DetectType(sTmp);
+        ParseDataType(sTmp, rDataType);
         rDataType.sName = "unsigned " + sTmp;
-        rDataType.sNamespace = "::";
       } else
       {
-        std::string::size_type nPos = sTmp.find_last_of("::");
-        rDataType.eType = DetectType(sTmp);
-        if (nPos != std::string::npos)
-        {
-          ++nPos;
-          rDataType.sName = sTmp.substr(nPos);
-          rDataType.sNamespace = sTmp.substr(0, nPos);
-        }
-        else
-        {
-          rDataType.sName = sTmp;
-          rDataType.sNamespace = "::";
-        }
+        ParseDataType(sTmp, rDataType);
       }
       break;
     }

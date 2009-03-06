@@ -15,7 +15,7 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
   {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
-    m_mServices["$(Class.ServiceName)"] = new $(Class.NsName)Wrapper(this);
+    m_mServices["$(Class.ServiceNsName)"] = new $(Class.NsName)Wrapper(this);
 #end
 #end
   }

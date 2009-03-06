@@ -27,7 +27,7 @@ bool GetDataType(std::string& sOut, const SDataType& rDataType)
     return false;
   }
 
-  sOut += '<';
+  sOut += "< ";
   for(std::list<SDataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it)
   {
     if (it != rDataType.lsParams.begin())
@@ -36,7 +36,7 @@ bool GetDataType(std::string& sOut, const SDataType& rDataType)
   }
   if(bIsTemplate)
     sOut += ' ';
-  sOut += '>';
+  sOut += " >";
 
   sOut += (rDataType.bIsRef ? "&" : "");
   return true;
