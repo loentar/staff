@@ -41,19 +41,25 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 {
 #foreach $(Struct.Members)
+  staff::CDataObject tdoParam$(Param.Name)("$(Param.Name)");
 #ifeq($(Param.DataType.Type),struct)
-  rdoParam.Add("$(Param.Name)") << rstStruct.$(Param.Name);
+  tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  rdoParam.Add("$(Param.Name)") << rstStruct.$(Param.Name);
+  tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
-  rdoParam.Add("$(Param.Name)").Add(rstStruct.$(Param.Name));
+  tdoParam$(Param.Name).ApendChild(rstStruct.$(Param.Name));
 #else
-  rdoParam.Add("$(Param.Name)", rstStruct.$(Param.Name));
+#ifeq($(Param.DataType.Type),generic)
+  tdoParam$(Param.Name).SetValue(rstStruct.$(Param.Name));
+#else
+#cgerror unknown type of Param.Name: $(Struct.Name)::$(Param.DataType.Name)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
+  rdoParam.AppendChild(tdoParam$(Param.Name));
 #end
   return rdoParam;
 }
@@ -102,15 +108,20 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Struct.Name)& rst
 staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
   for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
-#ifeq($(Typedef.DataType.Name),std::map)
   {
-    staff::CDataObject& rdoItem = rdoParam.Add("Item");
-    rdoItem.Add("Key") << it->first;
-    rdoItem.Add("Value") << it->second;
-  }
+    staff::CDataObject tdoItem("Item");
+#ifeq($(Typedef.DataType.Name),std::map)
+    staff::CDataObject tdoItemKey("Key");
+    staff::CDataObject tdoItemValue("Value");
+    tdoItemKey << it->first;
+    tdoItemValue << it->second;
+    tdoItem.AppendChild(tdoItemKey);
+    tdoItem.AppendChild(tdoItemValue);
 #else
-    rdoParam.Add("Item") << *it;
+    tdoItem << *it;
 #ifeqend
+    rdoParam.AppendChild(tdoItem);
+  }
   return rdoParam;
 }
 #else // DataType.IsTemplate
@@ -153,7 +164,8 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 
   for(staff::CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
-    *it >> tItem;
+    staff::CDataObject tdoItem(*it);
+    tdoItem >> tItem;
     rtType.push_back(tItem);
   }
   return rdoParam;
@@ -185,7 +197,8 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
     rtType.push_back(*(it->Begin()));
 #else
 #ifeq($(Typedef.DataType.Type),typedef)
-    *it >> tItem;
+    staff::CDataObject tdoItem(*it);
+    tdoItem >> tItem;
     rtType.push_back(tItem);
 #else
 #ifeq($(Typedef.DataType.Type),template)
@@ -205,7 +218,8 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!! //6
     tItem = (*it)["Item"];
 #else
-    *it >> tItem;
+    staff::CDataObject tdoItem(*it);
+    tdoItem >> tItem;
 #ifeqend
     rtType.push_back(tItem);
 #ifeqend
@@ -265,20 +279,21 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 {
   staff::COperation tOperation("$(Member.Name)");
 #foreach $(Member.Params)
+  staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
-  tOperation.AddParameter("$(Param.Name)", $(Param.Name));
+  tdoParam$(Param.Name).SetValue($(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
-  tOperation.Request().Add("$(Param.Name)").Add($(Param.Name));
+  tdoParam$(Param.Name).AppendChild($(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
-  tOperation.Request().Add("$(Param.Name)") << $(Param.Name);
+  tdoParam$(Param.Name) << $(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
-  tOperation.Request().Add("$(Param.Name)") << $(Param.Name);
+  tdoParam$(Param.Name) << $(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),template)    // !!template!!
-  tOperation.Request().Add("$(Param.Name)") << $(Param.Name);
+  tdoParam$(Param.Name) << $(Param.Name);
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
 #ifeqend
