@@ -219,9 +219,13 @@ const staff::CDataObject& operator>>(const staff::CDataObject& rdoParam, $(Typed
     (*it)("Value") >> tValue;
 #ifeqend
     rtType[ tKey ] = tValue;
-#else
+#else // ----------------------- list, vector, etc.
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)    // !!string!!
+    tItem = it->Value().AsString();
+#else
     tItem = it->Value();
+#ifeqend
 #else
     *it >> tItem;
 #ifeqend
