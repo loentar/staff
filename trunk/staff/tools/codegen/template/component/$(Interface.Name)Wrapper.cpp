@@ -189,10 +189,10 @@ const staff::CDataObject& operator>>(const staff::CDataObject& rdoParam, $(Typed
 #ifneq($(Typedef.DataType.Type),typedef)
 #ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.Name),std::map)
-  $(Typedef.DataType.TemplateParams.TemplateParam1) tKey;
-  $(Typedef.DataType.TemplateParams.TemplateParam2) tValue;
+    $(Typedef.DataType.TemplateParams.TemplateParam1) tKey;
+    $(Typedef.DataType.TemplateParams.TemplateParam2) tValue;
 #else
-  $(Typedef.DataType.TemplateParams.TemplateParam1) tItem;
+    $(Typedef.DataType.TemplateParams.TemplateParam1) tItem;
 #ifeqend
 #ifeqend
 #ifeqend
@@ -220,9 +220,13 @@ const staff::CDataObject& operator>>(const staff::CDataObject& rdoParam, $(Typed
     (*it)("Value") >> tValue;
 #ifeqend
     rtType[ tKey ] = tValue;
-#else
+#else // ----------------------- list, vector, etc.
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)    // !!string!!
+    tItem = it->Value().AsString();
+#else
     tItem = it->Value();
+#ifeqend
 #else
     *it >> tItem;
 #ifeqend
