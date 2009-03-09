@@ -14,7 +14,7 @@ int main(int nArgs, const char* paszArgs[])
 #foreach $(Project.Interfaces)
   try
   {
-    rise::CString sSID;
+    rise::CString sSessionId;
     rise::CString sTmp;
     for(int i = 1; i < nArgs; ++i)
     {
@@ -22,14 +22,14 @@ int main(int nArgs, const char* paszArgs[])
       {
         sTmp = paszArgs[i];
         if(sTmp.substr(0, 2) == _T("-s"))
-          sSID = sTmp.substr(2);
+          sSessionId = sTmp.substr(2);
       }
     }
 #foreach $(Interface.Classes)
     {
       $(Class.NsName)Wrapper t$(Class.ServiceName)Wrapper;
 
-      t$(Class.ServiceName)Wrapper.SetSID(sSID);
+      t$(Class.ServiceName)Wrapper.SetSessionId(sSessionId);
       staff::CServiceDispatcherClient::ServiceDispatcherClient().SetWrapper(t$(Class.ServiceName)Wrapper);
       staff::CServiceDispatcherClient::ServiceDispatcherClient().Start();
     }

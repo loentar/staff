@@ -47,10 +47,10 @@ staff.Client.prototype =
       tHeader = tEnvelope.create_header();
     }
       
-    var tSidElm = tOperation.SubNode("SID", tHeader.element);
+    var tSidElm = tOperation.SubNode("SessionId", tHeader.element);
     if(tSidElm == null)
     {
-      tSidElm = tHeader.create_child(new WS.QName("SID"));
+      tSidElm = tHeader.create_child(new WS.QName("SessionId"));
       tSidElm.set_value(this.sID);
     }
     

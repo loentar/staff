@@ -602,7 +602,7 @@ bool StaffSecurityGetUserIdBySessionId(const char* szSessionId, int* pnUserId)
   const char* pResult = NULL;
 
   STAFF_SECURITY_ASSERT(g_pConn);
-  STAFF_SECURITY_ASSERT(szSessionId);
+  STAFF_SECURITY_ASSERT(szSessionId && szSessionId[0]);
   STAFF_SECURITY_ASSERT(pnUserId);
 
   if (g_nSessionExpiration > 0)
