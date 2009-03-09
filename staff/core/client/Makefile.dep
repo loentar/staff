@@ -1,2 +1,2 @@
 
-core/client.dep: core/common.dep
+core/client.dep: core/common.dep core/security.dep

@@ -137,26 +137,35 @@ namespace rise
     COStream*    m_pLogStream[10];       //! потоки журналирования
     ELogLevel    m_eLogLevel;            //! уровень журналирования
     int          m_nLogVerbosity;        //! уровень информативности
+    int          m_nSrcRecode;
+    int          m_nDstRecode;
   };
 
   //!          класс-помощник вывода в журнал - для внутреннего использования
   class RISE_EXPORT CLogStream
   {
   public:
-    CLogStream(COStream* pLogStream, bool bOutEndLine = true);
+    CLogStream(COStream* pLogStream, bool bOutEndLine = true, int nSrcRecode = 0, int nDstRecode = 0);
     ~CLogStream();
 
     void SetStream(COStream* pStream);
     COStream* GetStream() const;
 
+    const CLogStream& operator<<( const char* tData ) const;
+    const CLogStream& operator<<( const std::string& tData ) const;
+
     template<typename TDATA>
-    const CLogStream& operator<<( TDATA tData )  const;
+    const CLogStream& operator<<( TDATA tData ) const;
 
   private:
     mutable COStream*            m_pLogStream;  // поток вывода
     bool                         m_bOutEndLine; // выводить перевод строки
+    int          m_nSrcRecode;
+    int          m_nDstRecode;
 
   private:
+    void OutRecoded( const std::string& tData ) const;
+
     CLogStream& operator=(const CLogStream&); // запрет копирования
 
     friend RISE_EXPORT CLogStream& LogEndLOff(CLogStream& rLogStream);

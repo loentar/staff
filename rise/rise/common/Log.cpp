@@ -4,6 +4,7 @@
 #include <rise/common/console.h>
 #include <rise/common/streamtypes.h>
 #include <rise/string/String.h>
+#include <rise/string/Encoding.h>
 #include <rise/process/Process.h>
 #include <rise/threading/Thread.h>
 #include "Log.h"
@@ -11,6 +12,42 @@
 namespace rise
 {
   CLog tLog;
+  
+  void DetectRecode(const char* szEncoding, int& nRecode)
+  {
+    if (szEncoding != NULL)
+    {
+      if (strcmp(szEncoding, "utf-8") == 0)
+      {
+        nRecode = CEncoding::ET_UTF_8;
+      }
+      else
+      if (strcmp(szEncoding, "koi8-r") == 0)
+      {
+        nRecode = CEncoding::ET_KOI8R;
+      }
+      else
+      if (strcmp(szEncoding, "cp1251") == 0)
+      {
+        nRecode = CEncoding::ET_WIN1251;
+      }
+      else
+      if (strcmp(szEncoding, "cp866") == 0)
+      {
+        nRecode = CEncoding::ET_CP866;
+      }
+      else
+      if (strcmp(szEncoding, "mac") == 0)
+      {
+        nRecode = CEncoding::ET_MACINTOSH;
+      }
+      else
+      if (strcmp(szEncoding, "iso-8859-5") == 0)
+      {
+        nRecode = CEncoding::ET_ISO_8859_5;
+      }
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   //    CONSTRUCTOR:    CLog
@@ -129,6 +166,51 @@ namespace rise
 
       std::cout << "rise:CLog: RISE_LOG_VERBOSITY: " << szRiseLogVerbosity << std::endl;
     }
+
+
+    const char* szRiseLogSrcRecode = getenv("RISE_LOG_SRC_RECODE");
+    if (szRiseLogSrcRecode == NULL)
+    {
+#ifdef OS_MCBC
+      m_nSrcRecode = CEncoding::ET_KOI8R;
+#else
+#ifdef OS_UBUNTU
+      m_nSrcRecode = CEncoding::ET_UTF_8;
+#else
+      m_nSrcRecode = CEncoding::ET_UTF_8;
+#endif
+#endif
+
+#ifdef RISE_LOG_SRC_RECODE
+      DetectRecode(RISE_LOG_SRC_RECODE, m_nSrcRecode);
+#endif
+    }
+    else
+    {
+      DetectRecode(szRiseLogSrcRecode, m_nSrcRecode);
+    }
+
+    const char* szRiseLogDstRecode = getenv("RISE_LOG_DST_RECODE");
+    if (szRiseLogDstRecode == NULL)
+    {
+#ifdef OS_MCBC
+      m_nDstRecode = CEncoding::ET_KOI8R;
+#else
+#ifdef OS_UBUNTU
+      m_nDstRecode = CEncoding::ET_UTF_8;
+#else
+      m_nDstRecode = CEncoding::ET_UTF_8;
+#endif
+#endif
+
+#ifdef RISE_LOG_DST_RECODE
+      DetectRecode(RISE_LOG_DST_RECODE, m_nDstRecode);
+#endif
+    }
+    else
+    {
+      DetectRecode(szRiseLogDstRecode, m_nDstRecode);
+    }
   }
   
   //////////////////////////////////////////////////////////////////////////////
@@ -230,7 +312,7 @@ namespace rise
       if ((m_nLogVerbosity & ELV_FUNCTION) != 0)
         tStream << ColorUnderlineOn << sFunction << ColorUnderlineOff << ": ";
 
-      return CLogStream(&tStream);
+      return CLogStream(&tStream, true, m_nSrcRecode, m_nDstRecode);
     }
   }
 
@@ -244,8 +326,9 @@ namespace rise
     m_nLogVerbosity = nLogVerbosity;
   }
 
-  CLogStream::CLogStream( COStream* pLogStream, bool bOutEndLine /*= true*/) :
-    m_pLogStream(pLogStream), m_bOutEndLine(bOutEndLine)
+  CLogStream::CLogStream( COStream* pLogStream, bool bOutEndLine /*= true*/, int nSrcRecode, int nDstRecode) :
+    m_pLogStream(pLogStream), m_bOutEndLine(bOutEndLine),
+    m_nSrcRecode(nSrcRecode), m_nDstRecode(nDstRecode)
   {
   }
 
@@ -281,22 +364,22 @@ namespace rise
 
   COStream& LogResultSuccess(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkGreen << ColorBright << "Success" << ColorDefault;
+    return rLogStream << ": " << ColorInkGreen << ColorBright << "Success" << ColorDefault << std::endl;
   }
 
   COStream& LogResultDone(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkGreen << ColorBright << "Done" << ColorDefault;
+    return rLogStream << ": " << ColorInkGreen << ColorBright << "Done" << ColorDefault << std::endl;
   }
 
   COStream& LogResultWarning(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkBrown << ColorBright << "Warning" << ColorDefault;
+    return rLogStream << ": " << ColorInkBrown << ColorBright << "Warning" << ColorDefault << std::endl;
   }
 
   COStream& LogResultFailed(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkRed << ColorBright << "Failed" << ColorDefault;
+    return rLogStream << ": " << ColorInkRed << ColorBright << "Failed" << ColorDefault << std::endl;
   }
 
   CLogStream& LogEndLOff( CLogStream& rLogStream )
@@ -309,6 +392,46 @@ namespace rise
   {
     rLogStream.m_bOutEndLine = true;
     return rLogStream;
+  }
+
+  const CLogStream& CLogStream::operator<<( const char* tData ) const
+  {
+    if(tData != NULL)
+    {
+      OutRecoded(tData);
+    }
+    return *this;
+  }
+
+  const CLogStream& CLogStream::operator<<( const std::string& tData ) const
+  {
+    OutRecoded(tData);
+    return *this;
+  }
+
+  void CLogStream::OutRecoded( const std::string& tData ) const
+  {
+    if (m_pLogStream != NULL)
+    {
+      if(m_nSrcRecode != m_nDstRecode)
+      {
+        try
+        {
+          CString sTmp;
+          CEncoding::Convert(tData, sTmp, 
+            static_cast<CEncoding::EType>(m_nSrcRecode), static_cast<CEncoding::EType>(m_nDstRecode));
+          *m_pLogStream << sTmp;
+	}
+	catch(...)
+	{
+          *m_pLogStream << " *** " << tData << " *** ";
+	}
+      }
+      else
+      {
+        *m_pLogStream << tData;
+      }
+    }
   }
 
 

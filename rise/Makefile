@@ -10,6 +10,24 @@ ifeq ("$(PLATFORM)","")
   PLATFORM := $(shell uname -m)
 endif
 
+ifneq ($(shell grep -c vniins /proc/version),0)
+  OS = MCBC
+  RISE_LOG_SRC_RECODE=\"utf-8\"
+  RISE_LOG_DST_RECODE=\"koi8-r\"
+else
+ifneq ($(shell grep -c ubuntu /proc/version),0)
+  OS = UBUNTU
+  RISE_LOG_SRC_RECODE=\"utf-8\"
+  RISE_LOG_DST_RECODE=\"utf-8\"
+else
+  OS = UNKNOWN
+  RISE_LOG_SRC_RECODE=\"utf-8\"
+  RISE_LOG_DST_RECODE=\"utf-8\"
+endif
+endif
+
+CXXFLAGS += -DOS_$(OS) -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_DST_RECODE=$(RISE_LOG_DST_RECODE)
+
 USRINCDIR = /usr/include/
 USRINCDIRVER = /usr/include/rise-$(VERSION)/
 USRLIBDIR = /usr/lib/

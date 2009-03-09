@@ -88,7 +88,7 @@ rise::LogEntry();
           }
           else // поток axis2c
           {
-#ifndef MCBC
+#ifndef OS_MCBC
             pthread_kill(m_pSelf->GetId(), SIGINT);
 #endif
             rise::LogDebug() << "Ожидание завершения диспетчера";

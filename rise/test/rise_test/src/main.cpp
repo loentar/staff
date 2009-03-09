@@ -34,7 +34,7 @@
 #include <rise/string/Encoding.h>
 
 #include <rise/plugin/PluginManager.h>
-#include "../myplugin/src/MyPlugin.h"
+#include "../../myplugin/src/MyPlugin.h"
 
 class CEntry
 {
@@ -123,7 +123,7 @@ class CMyTimer2: public rise::CTimerHandler
            rise::LogDebug1() << "Received: " << sString << nCode;
           }
         }
-        RISE_CATCH_ALL_DESCR("exception will raised, thread ") << CThread::GetId() << " will now exit";
+        RISE_CATCH_ALL_DESCR("exception will raised, thread " << CThread::GetId() << " will now exit");
     }
   };
 
@@ -172,7 +172,7 @@ class CMyTimer2: public rise::CTimerHandler
       {
         bool operator()( const rise::xml::CXMLNode& rNode1, const rise::xml::CXMLNode& rNode2 ) const
         {
-          return rNode1.Attribute("n")).AsString() < rNode2.Attribute("n".AsString();
+          return rNode1.Attribute("n").AsString() < rNode2.Attribute("n").AsString();
         }
       };
       struct SAttrSort
@@ -240,7 +240,7 @@ public:
 
   void SignalHandler(int nSignal)
   {
-    rise::LogDebug1() << "Signal #") << nSignal << "(") << GetSignalStr(nSignal) << _T("";
+    rise::LogDebug1() << "Signal #" << nSignal << "(" << GetSignalStr(nSignal) << "";
   }
 
 } tSigTest;
@@ -342,9 +342,9 @@ int main(int argc, const rise::TChar* argv[])
 
       // basic test ////////////////////////////////////////////////////////////
       rise::CString ss = rise::CString("asdqwe");
-      RISE_ASSERTS( ss == "asdqwe"), "CString 0";
+      RISE_ASSERTS( ss == "asdqwe", "CString 0");
 
-      RISE_ASSERTS( rise::CString("test")) == "test"), _T("CString 1";
+      RISE_ASSERTS( rise::CString("test") == "test", "CString 1");
 //       RISE_ASSERTS( rise::CString("test")) == "test", "CString 2";
 //       RISE_ASSERTS( rise::CString("test")).ToW() == L"test", "CString 3";
 //       RISE_ASSERTS( (CString("test")) + "123")) == _T("test123"), _T("CString 4";
@@ -365,28 +365,28 @@ int main(int argc, const rise::TChar* argv[])
 //       StrReplace(str, 1, 3, "");
 
       str = "123456789";
-      rise::StrReplace(str, "9"), "<_+>";
-      RISE_ASSERTS( str == "12345678<_+>"), "replace 1";
+      rise::StrReplace(str, "9", "<_+>");
+      RISE_ASSERTS( str == "12345678<_+>", "replace 1");
 
-      rise::StrReplace(str, "1"), "";
-      RISE_ASSERTS( str == "2345678<_+>"), "replace 2";
+      rise::StrReplace(str, "1", "");
+      RISE_ASSERTS( str == "2345678<_+>", "replace 2");
 
-      rise::StrReplace(str, "5"), " ";
-      RISE_ASSERTS( str == "234 678<_+>"), "replace 2";
+      rise::StrReplace(str, "5", " ");
+      RISE_ASSERTS( str == "234 678<_+>", "replace 2");
       
       //////////////////////////////////////////////////////////////////////////
       // Trim
       str = "  11 23";
       rise::StrTrim(str);
-      RISE_ASSERTS( str == "11 23"), "Trim1";
+      RISE_ASSERTS( str == "11 23", "Trim1");
 
       str = "11 23  ";
       rise::StrTrim(str);
-      RISE_ASSERTS( str == "11 23"), "Trim2";
+      RISE_ASSERTS( str == "11 23", "Trim2");
 
       str = "  11 23  ";
       rise::StrTrim(str);
-      RISE_ASSERTS( str == "11 23"), "Trim3";
+      RISE_ASSERTS( str == "11 23", "Trim3");
 
       //////////////////////////////////////////////////////////////////////////
       // left/right/mid test
@@ -394,19 +394,19 @@ int main(int argc, const rise::TChar* argv[])
 
       //////////////////////////////////////////////////////////////////////////
       // Left
-      RISE_ASSERTS( rise::StrLeft(str, 3) == "123"), "Left1";
-      RISE_ASSERTS( rise::StrLeft(str, 0) == ""), "Left2";
-      RISE_ASSERTS( rise::StrLeft(str, rise::CString::npos) == "123456"), "Left2";
+      RISE_ASSERTS( rise::StrLeft(str, 3) == "123", "Left1");
+      RISE_ASSERTS( rise::StrLeft(str, 0) == "", "Left2");
+      RISE_ASSERTS( rise::StrLeft(str, rise::CString::npos) == "123456", "Left2");
 
       //////////////////////////////////////////////////////////////////////////
       // Right
-      RISE_ASSERTS( rise::StrRight(str, 3) == "456"), "Right1";
-      RISE_ASSERTS( rise::StrRight(str, 0) == ""), "Right2";
+      RISE_ASSERTS( rise::StrRight(str, 3) == "456", "Right1");
+      RISE_ASSERTS( rise::StrRight(str, 0) == "", "Right2");
 
       //////////////////////////////////////////////////////////////////////////
       // Mid
-      RISE_ASSERTS( rise::StrMid(str, 2, 3) == "345"), "Mid1";
-      RISE_ASSERTS( rise::StrMid(str, 2) == "3456"), "Mid2";
+      RISE_ASSERTS( rise::StrMid(str, 2, 3) == "345", "Mid1");
+      RISE_ASSERTS( rise::StrMid(str, 2) == "3456", "Mid2");
 
       //////////////////////////////////////////////////////////////////////////
       // Find
@@ -431,8 +431,8 @@ int main(int argc, const rise::TChar* argv[])
     //    ToStr
       rise::CString sRes;
       rise::ToStr(123, sRes);
-      RISE_ASSERTS(sRes == "123"), "ToStr1!";
-      RISE_ASSERTS(rise::ToStr(123) == "123"), "ToStr2!";
+      RISE_ASSERTS(sRes == "123", "ToStr1!");
+      RISE_ASSERTS(rise::ToStr(123) == "123", "ToStr2!");
       tStdOut << rise::LogResultSuccess;
     }
 
@@ -644,8 +644,8 @@ int main(int argc, const rise::TChar* argv[])
       ofStream.close();
 
       tPerfCounter.Finish();
-      rise::LogDebug() << "(") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond) ";
-      rise::LogDebug() << "Serializing (") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond)";
+      rise::LogDebug() << "(" << tPerfCounter.GetLastMeasuredValue() << " microsecond) ";
+      rise::LogDebug() << "Serializing (" << tPerfCounter.GetLastMeasuredValue() << " microsecond)";
       tStdOut << rise::LogResultSuccess;
     }
 
@@ -667,19 +667,19 @@ int main(int argc, const rise::TChar* argv[])
       tPerfCounter.Start();
       rXMLNodeRoot.SortNodes(SNodeSort());
       tPerfCounter.Finish();
-      rise::LogDebug() << "SortNodes(SNodeSort()) (") << tPerfCounter.GetLastMeasuredValue() + _T(" microsecond)";
+      rise::LogDebug() << "SortNodes(SNodeSort()) (" << tPerfCounter.GetLastMeasuredValue() + " microsecond)";
 
       tPerfCounter.Start();
       rXMLNodeRoot.SortAttrs(SAttrSort());
       tPerfCounter.Finish();
-      rise::LogDebug() << "SortNodes(SAttrSort()) (") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond)";
+      rise::LogDebug() << "SortNodes(SAttrSort()) (" << tPerfCounter.GetLastMeasuredValue() << " microsecond)";
 
       tDoc.SaveToFile("out/test_sorted_by_name_out.xml");
 
       tPerfCounter.Start();
       rXMLNodeRoot.SortNodes(SNodeSortN());
       tPerfCounter.Finish();
-      rise::LogDebug() << "SortNodes(SNodeSortN()) (") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond)";
+      rise::LogDebug() << "SortNodes(SNodeSortN()) (" << tPerfCounter.GetLastMeasuredValue() << " microsecond)";
 
       tDoc.SaveToFile("out/test_sorted_attr_value_out.xml");
 
@@ -702,20 +702,20 @@ int main(int argc, const rise::TChar* argv[])
 
       cXMLNodeRoot.NodeName() = "rootNode";
       cXMLNodeRoot.Namespace() = "myns";
-      cXMLNodeRoot.GetNsList().push_back(rise::xml::SXMLNamespace("myns"), "http://tempui.org/services/myservice");
+      cXMLNodeRoot.GetNsList().push_back(rise::xml::SXMLNamespace("myns", "http://tempui.org/services/myservice"));
 
       rise::xml::CXMLNode& node1 = cXMLNodeRoot.AddSubNode("myns:node1");
       /*CXMLNode& node11 = */cXMLNodeRoot.AddSubNode("myns:node11");
       rise::xml::CXMLNode& node2 = node1.AddSubNode("myns2:node2");
-      node2.GetNsList().push_back(rise::xml::SXMLNamespace("myns2"), "http://tempui.org/services/myservice2");
+      node2.GetNsList().push_back(rise::xml::SXMLNamespace("myns2", "http://tempui.org/services/myservice2"));
       
       node2.AddSubNode("comment", rise::xml::CXMLNode::ENTCOMMENT);
       rise::xml::CXMLNode& nodeCData = node1.AddSubNode("some text data <1d12d12> <asd !!", rise::xml::CXMLNode::ENTCDATA);
       nodeCData.AddSubNode("test");
 
-      node1.AddAttribute("attr1"), "1";
-      node1.AddAttribute("attr2"), "2";
-      node1.AddAttribute("attr3"), "3";
+      node1.AddAttribute("attr1", "1");
+      node1.AddAttribute("attr2", "2");
+      node1.AddAttribute("attr3", "3");
       node1.NodeContent() = "some value";
 
       tDoc.SaveToFile("out/testxmlwr_out.xml");
@@ -726,9 +726,9 @@ int main(int argc, const rise::TChar* argv[])
       tPerfCounter.Start();
       cXMLNodeRoot.NodeName() = "root";
       for (int i = 0; i < nNodeCount; ++i)
-        cXMLNodeRoot.AddSubNode("subnode")).AddAttribute(_T("id", rise::ToStr(rand() % 10000));
+        cXMLNodeRoot.AddSubNode("subnode").AddAttribute("id", rise::ToStr(rand() % 10000));
       tPerfCounter.Finish();
-      rise::LogDebug() << "AddSubNode(") << nNodeCount << ") ("  << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond)";
+      rise::LogDebug() << "AddSubNode(" << nNodeCount << ") ("  << tPerfCounter.GetLastMeasuredValue() << " microsecond)";
 
 
       tDoc.SaveToFile("out/testxml_rand_unsorted_out.xml");
@@ -740,7 +740,7 @@ int main(int argc, const rise::TChar* argv[])
       cXMLNodeRoot.SortNodes(SNodeSortID());
 
       tPerfCounter.Finish();
-      rise::LogDebug() << "AddSubNode(") << nNodeCount << ") (" << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond, " <<
+      rise::LogDebug() << "AddSubNode(" << nNodeCount << ") (" << tPerfCounter.GetLastMeasuredValue() << " microsecond, " <<
           (tPerfCounter.GetLastMeasuredValue() / (double)nNodeCount) << " microsecond per node)";
 
 
@@ -763,8 +763,8 @@ int main(int argc, const rise::TChar* argv[])
       tDoc.SaveToFile("out/test_meta_out.xml");
 
       tPerfCounter.Finish();
-      rise::LogDebug() << "(") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond) ";
-      rise::LogDebug() << "Serializing (") << tPerfCounter.GetLastMeasuredValue() << _T(" microsecond)";
+      rise::LogDebug() << "(" << tPerfCounter.GetLastMeasuredValue() << " microsecond) ";
+      rise::LogDebug() << "Serializing (" << tPerfCounter.GetLastMeasuredValue() << " microsecond)";
 
       tStdOut << rise::LogResultSuccess;
     }
@@ -827,7 +827,7 @@ int main(int argc, const rise::TChar* argv[])
     //////////////////////////////////////////////////////////////////////////////
     //    plugin system
     //////////////////////////////////////////////////////////////////////////////
-    {
+/*    {
       tStdOut << "plugin system" << std::flush;
 
       rise::CString sPluginName = "myplugin";
@@ -840,7 +840,7 @@ int main(int argc, const rise::TChar* argv[])
       tPluginManager.UnLoadPlugin(sPluginName);
 
       tStdOut << rise::LogResultSuccess;
-    }
+    }*/
 
   }
   RISE_CATCH_ALL_DESCR_ACTION("\nошибка при тестировании!", tStdOut << rise::LogResultFailed);
