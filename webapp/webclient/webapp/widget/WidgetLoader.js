@@ -365,7 +365,7 @@ widget.WidgetLoader.prototype =
     var self = this;
     try
     {
-      this.pWidgetManager.Open(this.tOptions.sWidgetDbName);
+      this.pWidgetManager.Open(this.tOptions.sProfile);
       this.LoadWidgets();
     }
     catch(tError)

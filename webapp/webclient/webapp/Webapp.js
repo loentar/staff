@@ -2,13 +2,8 @@
 // namespace webapp
 namespace('webapp');
 
-webapp.AppLoader =
+webapp.Webapp =
 {
-  tMenuBar: null,
-  tWidgetLoader: null,
-  tLoginService: null,
-  
-///---------------------------------------------------
   Init: function(aOptions, pCompleteFunction)
   {
     var self = this;
@@ -152,5 +147,25 @@ webapp.AppLoader =
     }
     
     return this.tLoginService;
+  },
+  
+  SetMainMenu: function(tMainMenu)
+  {
+    this.tMainMenu = tMainMenu;
+  },
+  
+  GetMainMenu: function()
+  {
+    return this.tMainMenu;
+  },
+  
+  SetToolbar: function(tToolbar)
+  {
+    this.tToolbar = tToolbar;
+  },
+  
+  GetToolbar: function()
+  {
+    return this.tToolbar;
   }
 };
