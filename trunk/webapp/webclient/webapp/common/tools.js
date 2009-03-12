@@ -257,10 +257,18 @@ function removeHandler(element,event,action,param)
       element['on'+event]=returnFalse;
 }
 
-function namespace(sNameSpace)
+function namespace(sNamespace)
 {
-  if(eval("typeof " + sNameSpace + " == 'undefined'"))
+  var aNamespace = sNamespace.split('.');
+  var sCurrentNamespace = '';
+  for(var nNs = 0; nNs != aNamespace.length; ++nNs)
   {
-    eval(sNameSpace + " = {};");
+    if (nNs != 0) 
+    {
+      sCurrentNamespace += '.';
+    }
+    sCurrentNamespace += aNamespace[nNs];
+    
+    eval('if (typeof ' + sCurrentNamespace + ' == \'undefined\') { ' + sCurrentNamespace + ' = {}; };');
   }
 }
