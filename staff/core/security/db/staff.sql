@@ -37,7 +37,6 @@ GRANT ALL ON TABLE context TO staffdbuser;
 --
 
 CREATE SEQUENCE context_sequence
-    START WITH 3
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -77,7 +76,6 @@ GRANT ALL ON TABLE users TO staffdbuser;
 --
 
 CREATE SEQUENCE users_sequence
-    START WITH 3
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -220,7 +218,6 @@ GRANT ALL ON TABLE usertogroups TO staffdbuser;
 --
 
 CREATE SEQUENCE usertogroups_sequence
-    START WITH 2
     INCREMENT BY 1
     NO MAXVALUE
     MINVALUE 0
@@ -240,7 +237,6 @@ GRANT ALL ON TABLE usertogroups_sequence TO staffdbuser;
 --
 
 CREATE SEQUENCE session_sequence
-    START WITH 2
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -282,6 +278,7 @@ COPY context (contextid, userid) FROM stdin;
 0	0
 1	1
 2	2
+3	3
 \.
 
 
@@ -290,9 +287,10 @@ COPY context (contextid, userid) FROM stdin;
 --
 
 COPY users (userid, username, "password", description) FROM stdin;
-1	guest	guest	anonymous user
-0	root	root	administrator
-2	test	test	test user
+0	root	root	Administrator
+1	guest	guest	Anonymous user
+2	test	test	Test user
+3	admin	admin	Administrator
 \.
 
 
@@ -312,13 +310,12 @@ COPY "session" (sessionid, sid, contextid, "time", extraid) FROM stdin;
 COPY objects (objectid, name, "type", description, userid, groupid, parentobjectid, permission) FROM stdin;
 0	root	0	root object	0	0	0	480
 1	ROOTCOMPONENT	1	root component	0	0	0	511
-3	CalcService	2	\N	9	0	2	456
-4	SubService	2	\N	9	0	2	448
-5	Add	3	\N	9	0	3	511
-6	Sub	3	\N	9	0	3	448
-7	staff	1	staff component	0	0	1	511
-2	calc	1	\N	9	0	1	511
-8	ROOTWIDGET	4	root widget	0	0	0	511
+2	ROOTWIDGET	4	root widget	0	0	0	511
+3	staff	1	Staff component	0	0	1	511
+4	admin	1	Staff administration component	0	0	3	504
+5	AccountAdmin	2	Account Admin service	0	0	4	504
+7	GetGroups	3	Enable operation for all	0	0	5	511
+6	GetUsers	3	Enable operation for all	0	0	5	511
 \.
 
 
@@ -340,6 +337,8 @@ COPY groups (groupid, groupname, description) FROM stdin;
 COPY usertogroups (id, userid, groupid) FROM stdin;
 0	0	0
 1	1	1
+2	3	0
+3	2	2
 \.
 
 
@@ -509,17 +508,25 @@ ALTER TABLE ONLY objects
 
 
 --
+-- Name: fk_userid; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY objects
+    ADD CONSTRAINT fk_userid FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: context_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('context_sequence', 3, false);
+SELECT pg_catalog.setval('context_sequence', 3, true);
 
 
 --
 -- Name: users_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('users_sequence', 3, false);
+SELECT pg_catalog.setval('users_sequence', 3, true);
 
 
 --
@@ -540,14 +547,14 @@ SELECT pg_catalog.setval('groups_sequence', 3, false);
 -- Name: usertogroups_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('usertogroups_sequence', 2, false);
+SELECT pg_catalog.setval('usertogroups_sequence', 3, true);
 
 
 --
 -- Name: session_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('session_sequence', 2, false);
+SELECT pg_catalog.setval('session_sequence', 6, true);
 
 
 --

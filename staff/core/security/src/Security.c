@@ -722,6 +722,7 @@ bool IsUserBelongsToGroup(int nUserId, int nGroupId, int* pnResult)
 {
   ExecStatusType tQueryStatus;
   PGresult* pResult = NULL;
+  int nResultCount = -1;
 
   STAFF_SECURITY_ASSERT(g_pConn);
   STAFF_SECURITY_ASSERT(nUserId >= 0);
@@ -748,14 +749,15 @@ bool IsUserBelongsToGroup(int nUserId, int nGroupId, int* pnResult)
     return false;
   }
 
-  if (PQntuples(pResult) < 0)
+  nResultCount = PQntuples(pResult);
+  if (nResultCount < 0)
   {
     dprintf("error executing query\n");
     PQclearLock(pResult);
     return false;
   }
 
-  if (PQntuples(pResult) > 0)
+  if (nResultCount == 0)
   {
 #ifdef _DEBUG
     dprintf("user %d is not belongs to group %d\n", nUserId, nGroupId);
