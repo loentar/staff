@@ -129,7 +129,7 @@ axis2_status_t GetSessionId( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
               if (pSoapHeaderBlockElement != NULL)
               {
                 szHeaderLocalName = axiom_element_get_localname(pSoapHeaderBlockElement, pEnv);
-                if (szHeaderLocalName != NULL && axutil_strcmp(szHeaderLocalName, "SID") == 0)
+                if (szHeaderLocalName != NULL && axutil_strcmp(szHeaderLocalName, "SessionId") == 0)
                 {
                   *pszSessionId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
                   return AXIS2_SUCCESS;
