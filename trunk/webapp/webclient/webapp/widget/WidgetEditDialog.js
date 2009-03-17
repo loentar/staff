@@ -97,7 +97,7 @@ widget.WidgetEditDialog.prototype =
 
     var btnAdd = new YAHOO.widget.Button
     ({
-       label: '<img src="webapp/img/add.gif" style="margin-top: 0px" align="left"></img>Добавить',
+       label: '<img src="webapp/img/add.gif" style="margin-top: 2px" align="left"></img>Добавить',
        container: "tButtonsElement",
        id: "btnAdd"
     });

@@ -88,7 +88,7 @@ widget.WidgetLoader.prototype =
                   }
                   catch(tError)
                   {
-                     webapp.MessageBox.ShowMessage(tError.text, 'error');
+                     webapp.MessageBox.ShowMessage(tError.message, 'error');
                   }
                 }
               );

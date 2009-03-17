@@ -6,28 +6,30 @@
 #include <staff/common/Value.h>
 #include "$(Interface.Name)Proxy.h"
 
+namespace staff
+{
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // forward declarations
 #foreach $(Interface.Structs)
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Struct.Name)& rstStruct);
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Struct.Name)& rstStruct);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct);
+CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct);
 #end
 
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Name)& rtType);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Name)& rtType);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 #else
 \
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rtType);
+CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rtType);
+CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #else
 \
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
@@ -38,10 +40,10 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
 #foreach $(Interface.Structs)
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 {
 #foreach $(Struct.Members)
-  staff::CDataObject tdoParam$(Param.Name)("$(Param.Name)");
+  CDataObject tdoParam$(Param.Name)("$(Param.Name)");
 #ifeq($(Param.DataType.Type),struct)
   tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
@@ -69,7 +71,7 @@ staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Struct.Name
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct deserializators
 #foreach $(Interface.Structs)
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Struct.Name)& rstStruct)
+CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 {
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
@@ -105,14 +107,14 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Struct.Name)& rst
 
 // $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Name)& rtType)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
   for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
-    staff::CDataObject tdoItem("Item");
+    CDataObject tdoItem("Item");
 #ifeq($(Typedef.DataType.Name),std::map)
-    staff::CDataObject tdoItemKey("Key");
-    staff::CDataObject tdoItemValue("Value");
+    CDataObject tdoItemKey("Key");
+    CDataObject tdoItemValue("Value");
     tdoItemKey << it->first;
     tdoItemValue << it->second;
     tdoItem.AppendChild(tdoItemKey);
@@ -126,7 +128,7 @@ staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Nam
 }
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Name)& rtType)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
   rdoParam.Value() = rtType;
@@ -158,13 +160,13 @@ staff::CDataObject& operator<<(staff::CDataObject& rdoParam, const $(Typedef.Nam
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
 #ifeq($(Typedef.DataType.IsTemplate),1)
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rtType)
+CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
 {
   $(Typedef.DataType.Name) tItem;
 
-  for(staff::CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
+  for(CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
-    staff::CDataObject tdoItem(*it);
+    CDataObject tdoItem(*it);
     tdoItem >> tItem;
     rtType.push_back(tItem);
   }
@@ -172,7 +174,7 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 }
 #ifeqend
 #else                 // !!not_a_struct!!
-staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rtType)
+CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.IsTemplate),1)
 // container :: $(Typedef.DataType.Name)
@@ -188,7 +190,7 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 #ifeqend
 #ifeqend
 #ifeqend
-  for(staff::CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
+  for(CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
 #ifeq($(Typedef.DataType.Type),generic)
     rtType.push_back(it->Value());
@@ -197,7 +199,7 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
     rtType.push_back(*(it->Begin()));
 #else
 #ifeq($(Typedef.DataType.Type),typedef)
-    staff::CDataObject tdoItem(*it);
+    CDataObject tdoItem(*it);
     tdoItem >> tItem;
     rtType.push_back(tItem);
 #else
@@ -218,7 +220,7 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!! //6
     tItem = (*it)["Item"];
 #else
-    staff::CDataObject tdoItem(*it);
+    CDataObject tdoItem(*it);
     tdoItem >> tItem;
 #ifeqend
     rtType.push_back(tItem);
@@ -257,7 +259,7 @@ staff::CDataObject& operator>>(staff::CDataObject& rdoParam, $(Typedef.Name)& rt
 
 #ifeqend
 #end
-
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // classes implementation

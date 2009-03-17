@@ -1,6 +1,6 @@
-set projectname=login
+set projectname=AccountAdmin
 
-set deploydir=%cd%\..\..\deploy\win32
+set deploydir=%cd%\..\..\..\deploy\win32
 set componentdir=%deploydir%\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%

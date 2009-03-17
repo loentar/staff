@@ -1,5 +1,7 @@
 #include <signal.h>
+#ifdef __linux__
 #include <pthread.h>
+#endif
 #include <list>
 #include <set>
 #include <stdio.h>

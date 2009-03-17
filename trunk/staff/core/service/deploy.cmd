@@ -1,6 +1,6 @@
 set projectname=service
 
-set deploydir=%cd%\..\deploy\win32
+set deploydir=%cd%\..\..\deploy\win32
 set incdir=%deploydir%\include\staff
 set libdir=%deploydir%\lib
 set bindir=%deploydir%\bin

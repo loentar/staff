@@ -64,7 +64,7 @@ uninstalldb:
 
 # == dump db ========================================
 dumpdb:
-	pg_dump -Fp staff -fdb/staff.sql 
+	sudo -u postgres pg_dump --disable-macs -Fp staff | grep -v " TOC entry " >db/staff.sql
 
 # == mkdir ==========================================
 "%/":

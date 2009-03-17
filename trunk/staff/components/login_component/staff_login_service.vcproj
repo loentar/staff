@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_login_service"
-	ProjectGUID="{4866FA75-38E7-4B16-B072-D991831D2BC0}"
+	Name="staff.Login"
+	ProjectGUID="{6CBAF82D-29DA-4709-9151-3511B596C396}"
 	RootNamespace="staff_login_service"
 	Keyword="Win32Proj"
 	>
@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="false"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;D:\dem\devel\rise\;../deploy/win32/include;&quot;C:\Program Files\DB\PostgreSQL 8.1\&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;D:\dem\devel\rise\;../../deploy/win32/include;&quot;C:\Program Files\DB\PostgreSQL 8.1\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,7 +66,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib staff_component.lib rise.lib ws2_32.lib libpq.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;..\deploy\win32\lib\;&quot;C:\Program Files\DB\PostgreSQL 8.1\lib\ms\&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;&quot;C:\Program Files\DB\PostgreSQL 8.1\lib\ms\&quot;;..\..\deploy\win32\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
