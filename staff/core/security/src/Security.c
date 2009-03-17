@@ -4,14 +4,15 @@
 #include <Winsock2.h>
 #include <windows.h>
 #else
+#include <pthread.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-#include <pthread.h>
 #endif
 
 #include <libpq-fe.h>
 #include "Security.h"
+#include "Admin.h"
 
 #ifdef WIN32
   typedef CRITICAL_SECTION TLock;
@@ -506,7 +507,7 @@ bool StaffSecurityCloseSession( const char* szSessionId )
   else // delete session and subsessions
   {
     int nContextIdReq = htonl(nContextId);
-    int anParamLengths[2] = { sizeof(nContextIdReq), strlen(STAFF_SECURITY_GUEST_SESSION_ID) };
+    int anParamLengths[2] = { sizeof(nContextIdReq), (int)strlen(STAFF_SECURITY_GUEST_SESSION_ID) };
     int anParamFormats[2] = { 1, 0 };
     const char* aszParams[2] = { (const char*)&nContextIdReq, STAFF_SECURITY_GUEST_SESSION_ID };
 
@@ -1179,3 +1180,608 @@ int StaffSecurityGetSessionExpiration()
 {
   return g_nSessionExpiration;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Admin
+
+bool StaffSecurityAdminGetUsers(TUser** ppUsers, int* pnCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(ppUsers);
+  STAFF_SECURITY_ASSERT(pnCount);
+
+
+  pPGResult = PQexecLock(g_pConn, "select \"userid\",\"username\",\"description\" from \"users\" order by \"userid\";");
+
+  tQueryStatus = PQresultStatus(pPGResult);
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnCount = PQntuples(pPGResult);
+  if(*pnCount < 0)
+  {
+    dprintf("can't get users list\n");
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppUsers = (TUser*)calloc(*pnCount, sizeof(TUser));
+
+  for(nIndex = 0; nIndex < *pnCount; ++nIndex)
+  {
+    // get id
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting id\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeUsers(*ppUsers);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    (*ppUsers)[nIndex].nId = atoi(pResult);
+
+    // get name
+    pResult = PQgetvalue(pPGResult, nIndex, 1);
+    if(!pResult)
+    {
+      dprintf("error getting name\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeUsers(*ppUsers);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    strncpy((*ppUsers)[nIndex].szName, pResult, sizeof((*ppUsers)[nIndex].szName) - 1);
+
+    // get description
+    pResult = PQgetvalue(pPGResult, nIndex, 2);
+    if(!pResult)
+    {
+      dprintf("error getting description\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeUsers(*ppUsers);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    strncpy((*ppUsers)[nIndex].szDescription, pResult, sizeof((*ppUsers)[nIndex].szDescription) - 1);
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+
+bool StaffSecurityAdminGetGroups(TGroup** ppGroups, int* pnCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(ppGroups);
+  STAFF_SECURITY_ASSERT(pnCount);
+
+
+  pPGResult = PQexecLock(g_pConn, "select \"groupid\",\"groupname\",\"description\" from \"groups\" order by \"groupid\";");
+
+  tQueryStatus = PQresultStatus(pPGResult);
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnCount = PQntuples(pPGResult);
+  if(*pnCount < 0)
+  {
+    dprintf("can't get groups list\n");
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppGroups = (TGroup*)calloc(*pnCount, sizeof(TGroup));
+
+  for(nIndex = 0; nIndex < *pnCount; ++nIndex)
+  {
+    // get id
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting id\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeGroups(*ppGroups);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    (*ppGroups)[nIndex].nId = atoi(pResult);
+
+    // get name
+    pResult = PQgetvalue(pPGResult, nIndex, 1);
+    if(!pResult)
+    {
+      dprintf("error getting name\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeGroups(*ppGroups);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    strncpy((*ppGroups)[nIndex].szName, pResult, sizeof((*ppGroups)[nIndex].szName) - 1);
+
+    // get description
+    pResult = PQgetvalue(pPGResult, nIndex, 2);
+    if(!pResult)
+    {
+      dprintf("error getting description\n");
+      *pnCount = 0;
+      StaffSecurityAdminFreeGroups(*ppGroups);
+      PQclearLock(pPGResult);
+      return false;
+    }
+    strncpy((*ppGroups)[nIndex].szDescription, pResult, sizeof((*ppGroups)[nIndex].szDescription) - 1);
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+
+bool StaffSecurityAdminGetUserGroups(int nUserId, int** ppnGroups, int* pnGroupsCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+
+  int nIndex = 0;
+  int nUserIdReq = htonl(nUserId);
+  int anParamLengths[1] = { sizeof(nUserId) };
+  int anParamFormats[1] = { 1 };
+  const char* aszParams[1] = { (const char*)&nUserIdReq };
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(ppnGroups);
+  STAFF_SECURITY_ASSERT(pnGroupsCount);
+
+
+  pPGResult = PQexecParamsLock(g_pConn, "select \"groupid\" from \"usertogroups\" where \"userid\" = $1::int4;",
+    1, NULL, aszParams, anParamLengths, anParamFormats, 1);
+
+  tQueryStatus = PQresultStatus(pPGResult);
+
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnGroupsCount = PQntuples(pPGResult);
+  if(*pnGroupsCount < 0)
+  {
+    dprintf("can't get groups for user: %d\n", nUserId);
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppnGroups = (int*)calloc(*pnGroupsCount, sizeof(int));
+
+  for(nIndex = 0; nIndex < *pnGroupsCount; ++nIndex)
+  {
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    (*ppnGroups)[nIndex] = ntohl(*((unsigned*)pResult));
+  }
+  
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+
+bool StaffSecurityAdminAddUser(const char* szUserName, const char* szDescription, int* pnUserId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nUserIdReq = -1;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(szUserName);
+  STAFF_SECURITY_ASSERT(szDescription);
+  STAFF_SECURITY_ASSERT(pnUserId);
+
+  // create user id
+  {
+    pPGResult = PQexecLock(g_pConn, "select nextval('users_sequence');");
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
+    {
+      dprintf("failed to create new user id: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    pResult = PQgetvalue(pPGResult, 0, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    *pnUserId = atoi(pResult);
+    nUserIdReq = htonl(*pnUserId);
+
+    PQclearLock(pPGResult);
+  }
+
+  // create user
+  {
+    int anParamLengths[3] = { sizeof(nUserIdReq), (int)strlen(szUserName), (int)strlen(szDescription) };
+    int anParamFormats[3] = { 1, 0, 0 };
+    const char* aszParams[3] = { (const char*)&nUserIdReq, szUserName, szDescription };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"users\"(\"userid\", \"username\", \"description\") values($1::int4, $2, $3);", 
+      3, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+  
+  // create user context
+  {
+    int anParamLengths[1] = { sizeof(nUserIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nUserIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"context\"(\"userid\") values($1::int4);", 
+      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminRemoveUser(int nUserId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  int nUserIdReq = htonl(nUserId);
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+
+  // drop user 
+  {
+    int anParamLengths[1] = { sizeof(nUserIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nUserIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "delete from \"users\" where \"userid\" = $1::int4;", 
+      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminSetUserPassword(int nUserId, const char* szPass)
+{
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(szPass);
+
+  {
+    int nUserIdReq = htonl(nUserId);
+    ExecStatusType tQueryStatus;
+    PGresult* pPGResult = NULL;
+    int anParamLengths[2] = { sizeof(nUserIdReq), (int)strlen(szPass) };
+    int anParamFormats[2] = { 1, 0 };
+    const char* aszParams[2] = { (const char*)&nUserIdReq, szPass };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "update \"users\" set \"password\" = $2 where \"userid\" = $1::int4;", 
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+void StaffSecurityAdminFreeUsers(TUser* pUsers)
+{
+  if(pUsers)
+  {
+    free(pUsers);
+  }
+}
+
+void StaffSecurityAdminFreeGroups(TGroup* pGroups)
+{
+  if(pGroups)
+  {
+    free(pGroups);
+  }
+}
+
+void StaffSecurityAdminFreeGroupIds(int* pGroups)
+{
+  if(pGroups)
+  {
+    free(pGroups);
+  }
+}
+
+bool StaffSecurityAdminAddGroup(const char* szGroupName, const char* szDescription, int* pnGroupId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nGroupIdReq = -1;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(szGroupName);
+  STAFF_SECURITY_ASSERT(szDescription);
+  STAFF_SECURITY_ASSERT(pnGroupId);
+
+  // create group id
+  {
+    pPGResult = PQexecLock(g_pConn, "select nextval('groups_sequence');");
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
+    {
+      dprintf("failed to create new group id: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    pResult = PQgetvalue(pPGResult, 0, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    *pnGroupId = atoi(pResult);
+    nGroupIdReq = htonl(*pnGroupId);
+
+    PQclearLock(pPGResult);
+  }
+
+  // create group
+  {
+    int anParamLengths[3] = { sizeof(nGroupIdReq), (int)strlen(szGroupName), (int)strlen(szDescription) };
+    int anParamFormats[3] = { 1, 0, 0 };
+    const char* aszParams[3] = { (const char*)&nGroupIdReq, szGroupName, szDescription };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"groups\"(\"groupid\", \"groupname\", \"description\") values($1::int4, $2, $3);", 
+      3, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminRemoveGroup(int nGroupId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  int nGroupIdReq = htonl(nGroupId);
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nGroupId >= 0);
+
+  // drop group 
+  {
+    int anParamLengths[1] = { sizeof(nGroupIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nGroupIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "delete from \"groups\" where \"groupid\" = $1::int4;", 
+      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+
+
+bool StaffSecurityAdminAddUserToGroup(int nUserId, int nGroupId)
+{
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(nGroupId >= 0);
+
+  // add user to group
+  {
+    ExecStatusType tQueryStatus;
+    PGresult* pPGResult = NULL;
+    int nUserIdReq = htonl(nUserId);
+    int nGroupIdReq = htonl(nGroupId);
+
+    int anParamLengths[2] = { sizeof(nUserIdReq), sizeof(nGroupIdReq) };
+    int anParamFormats[2] = { 1, 1 };
+    const char* aszParams[2] = { (const char*)&nUserIdReq, (const char*)&nGroupIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"usertogroups\"(\"userid\", \"groupid\") values($1::int4, $2::int4);", 
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminAddUserToGroups(int nUserId, const int* pnGroupIds, int nGroupsCount, int* pnFailedCount)
+{
+  int nIndex = 0;
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(pnGroupIds);
+  STAFF_SECURITY_ASSERT(nGroupsCount >= 0);
+
+  for (nIndex = 0; nIndex < nGroupsCount; ++nIndex)
+  {
+    if(!StaffSecurityAdminAddUserToGroup(nUserId, pnGroupIds[nIndex]))
+    {
+      if(pnFailedCount)
+      {
+        ++(*pnFailedCount);
+      }
+    }
+  }
+
+  return pnFailedCount ? *pnFailedCount != nGroupsCount : true;
+}
+
+
+bool StaffSecurityAdminRemoveUserFromGroup(int nUserId, int nGroupId)
+{
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(nGroupId >= 0);
+
+  // remove user from group
+  {
+    ExecStatusType tQueryStatus;
+    PGresult* pPGResult = NULL;
+    int nUserIdReq = htonl(nUserId);
+    int nGroupIdReq = htonl(nGroupId);
+
+    int anParamLengths[2] = { sizeof(nUserIdReq), sizeof(nGroupIdReq) };
+    int anParamFormats[2] = { 1, 1 };
+    const char* aszParams[2] = { (const char*)&nUserIdReq, (const char*)&nGroupIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "delete from \"usertogroups\" where (\"userid\" = $1::int4 and \"groupid\" = $2::int4);", 
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminRemoveUserFromGroups(int nUserId, const int* pnGroupIds, int nGroupsCount, int* pnFailedCount)
+{
+  int nIndex = 0;
+  STAFF_SECURITY_ASSERT(nUserId >= 0);
+  STAFF_SECURITY_ASSERT(pnGroupIds);
+  STAFF_SECURITY_ASSERT(nGroupsCount >= 0);
+
+  for (nIndex = 0; nIndex < nGroupsCount; ++nIndex)
+  {
+    if(!StaffSecurityAdminRemoveUserFromGroup(nUserId, pnGroupIds[nIndex]))
+    {
+      if(pnFailedCount)
+      {
+        ++(*pnFailedCount);
+      }
+    }
+  }
+
+  return pnFailedCount ? *pnFailedCount != nGroupsCount : true;
+}
+

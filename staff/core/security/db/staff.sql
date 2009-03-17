@@ -5,7 +5,6 @@
 SET SESSION AUTHORIZATION 'postgres';
 
 --
--- TOC entry 3 (OID 2200)
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
@@ -16,7 +15,6 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 SET search_path = public, pg_catalog;
 
 --
--- TOC entry 16 (OID 249665)
 -- Name: context; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -27,11 +25,19 @@ CREATE TABLE context (
 
 
 --
--- TOC entry 4 (OID 249668)
+-- Name: context; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE context FROM PUBLIC;
+GRANT ALL ON TABLE context TO staffdbuser;
+
+
+--
 -- Name: context_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE context_sequence
+    START WITH 3
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -39,24 +45,39 @@ CREATE SEQUENCE context_sequence
 
 
 --
--- TOC entry 17 (OID 249670)
+-- Name: context_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE context_sequence FROM PUBLIC;
+GRANT ALL ON TABLE context_sequence TO staffdbuser;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE users (
     userid integer DEFAULT nextval('users_sequence'::text) NOT NULL,
-    username character varying,
+    username character varying NOT NULL,
     "password" character varying,
     description character varying
 ) WITHOUT OIDS;
 
 
 --
--- TOC entry 6 (OID 249676)
+-- Name: users; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE users FROM PUBLIC;
+GRANT ALL ON TABLE users TO staffdbuser;
+
+
+--
 -- Name: users_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE users_sequence
+    START WITH 3
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -64,7 +85,14 @@ CREATE SEQUENCE users_sequence
 
 
 --
--- TOC entry 18 (OID 249678)
+-- Name: users_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE users_sequence FROM PUBLIC;
+GRANT ALL ON TABLE users_sequence TO staffdbuser;
+
+
+--
 -- Name: session; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -78,12 +106,19 @@ CREATE TABLE "session" (
 
 
 --
--- TOC entry 8 (OID 249683)
+-- Name: session; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE "session" FROM PUBLIC;
+GRANT ALL ON TABLE "session" TO staffdbuser;
+
+
+--
 -- Name: objects_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE objects_sequence
-    START WITH 11
+    START WITH 9
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -91,7 +126,14 @@ CREATE SEQUENCE objects_sequence
 
 
 --
--- TOC entry 19 (OID 249685)
+-- Name: objects_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE objects_sequence FROM PUBLIC;
+GRANT ALL ON TABLE objects_sequence TO staffdbuser;
+
+
+--
 -- Name: objects; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -108,7 +150,14 @@ CREATE TABLE objects (
 
 
 --
--- TOC entry 20 (OID 249695)
+-- Name: objects; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE objects FROM PUBLIC;
+GRANT ALL ON TABLE objects TO staffdbuser;
+
+
+--
 -- Name: groups; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -120,11 +169,19 @@ CREATE TABLE groups (
 
 
 --
--- TOC entry 10 (OID 249701)
+-- Name: groups; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE groups FROM PUBLIC;
+GRANT ALL ON TABLE groups TO staffdbuser;
+
+
+--
 -- Name: groups_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE groups_sequence
+    START WITH 3
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -132,7 +189,14 @@ CREATE SEQUENCE groups_sequence
 
 
 --
--- TOC entry 21 (OID 249703)
+-- Name: groups_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE groups_sequence FROM PUBLIC;
+GRANT ALL ON TABLE groups_sequence TO staffdbuser;
+
+
+--
 -- Name: usertogroups; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -144,11 +208,19 @@ CREATE TABLE usertogroups (
 
 
 --
--- TOC entry 12 (OID 249706)
+-- Name: usertogroups; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE usertogroups FROM PUBLIC;
+GRANT ALL ON TABLE usertogroups TO staffdbuser;
+
+
+--
 -- Name: usertogroups_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE usertogroups_sequence
+    START WITH 2
     INCREMENT BY 1
     NO MAXVALUE
     MINVALUE 0
@@ -156,11 +228,19 @@ CREATE SEQUENCE usertogroups_sequence
 
 
 --
--- TOC entry 14 (OID 249708)
+-- Name: usertogroups_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE usertogroups_sequence FROM PUBLIC;
+GRANT ALL ON TABLE usertogroups_sequence TO staffdbuser;
+
+
+--
 -- Name: session_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE session_sequence
+    START WITH 2
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -168,62 +248,64 @@ CREATE SEQUENCE session_sequence
 
 
 --
--- TOC entry 22 (OID 249752)
+-- Name: session_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE session_sequence FROM PUBLIC;
+GRANT ALL ON TABLE session_sequence TO staffdbuser;
+
+
+--
 -- Name: objecttypes; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE objecttypes (
     objecttypeid integer NOT NULL,
-    typename character varying NOT NULL
+    typename character varying NOT NULL,
+    description character varying
 ) WITHOUT OIDS;
 
 
 --
--- Data for TOC entry 35 (OID 249665)
+-- Name: objecttypes; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE objecttypes FROM PUBLIC;
+GRANT ALL ON TABLE objecttypes TO staffdbuser;
+
+
+--
 -- Name: context; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY context (contextid, userid) FROM stdin;
-5	2
-6	9
 0	0
 1	1
-13	11
+2	2
 \.
 
 
 --
--- Data for TOC entry 36 (OID 249670)
 -- Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY users (userid, username, "password", description) FROM stdin;
-2	user2	234567	\N
-9	dem	test	\N
 1	guest	guest	anonymous user
 0	root	root	administrator
-11	test	test	test user
+2	test	test	test user
 \.
 
 
 --
--- Data for TOC entry 37 (OID 249678)
 -- Name: session; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY "session" (sessionid, sid, contextid, "time", extraid) FROM stdin;
-5	100000	6	2019-02-09 11:46:00.110414	0
 1	00000000000000000000000000000000	1	9999-12-31 23:59:59.999999	0
-8	10	5	2009-02-11 09:43:53.927396	0
-9	5960ba7b645c50951210f2815556b67b	13	2009-02-27 16:58:42.860637	0
-10	5d6010dd1848e047ab13561b749fedf1	13	2009-03-02 11:05:17.125827	1
-11	7ac3c9a6d8c920be072179d037264170	13	2009-03-02 11:17:36.524184	2
-12	1fc8093088302fae0487eb167ce8056f	13	2009-03-02 11:17:42.562901	3
 \.
 
 
 --
--- Data for TOC entry 38 (OID 249685)
 -- Name: objects; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -241,48 +323,40 @@ COPY objects (objectid, name, "type", description, userid, groupid, parentobject
 
 
 --
--- Data for TOC entry 39 (OID 249695)
 -- Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY groups (groupid, groupname, description) FROM stdin;
-0	root	\N
-1	guest	\N
-2	group1	\N
+0	root	Admistrators
+1	guest	Guests
+2	user	Users
 \.
 
 
 --
--- Data for TOC entry 40 (OID 249703)
 -- Name: usertogroups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY usertogroups (id, userid, groupid) FROM stdin;
 0	0	0
 1	1	1
-2	2	2
-4	9	0
-5	9	1
-6	1	0
 \.
 
 
 --
--- Data for TOC entry 41 (OID 249752)
 -- Name: objecttypes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY objecttypes (objecttypeid, typename) FROM stdin;
-0	root
-1	component
-2	service
-3	operation
-4	widget
+COPY objecttypes (objecttypeid, typename, description) FROM stdin;
+0	root	root object
+1	component	Component
+2	service	Service
+3	operation	Service operation
+4	widget	Widget
 \.
 
 
 --
--- TOC entry 25 (OID 249710)
 -- Name: userid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -291,7 +365,6 @@ ALTER TABLE ONLY users
 
 
 --
--- TOC entry 24 (OID 249712)
 -- Name: userid_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -300,7 +373,6 @@ ALTER TABLE ONLY context
 
 
 --
--- TOC entry 26 (OID 249714)
 -- Name: username_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -309,7 +381,6 @@ ALTER TABLE ONLY users
 
 
 --
--- TOC entry 23 (OID 249716)
 -- Name: contextid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -318,7 +389,6 @@ ALTER TABLE ONLY context
 
 
 --
--- TOC entry 27 (OID 249718)
 -- Name: sessionid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -327,7 +397,6 @@ ALTER TABLE ONLY "session"
 
 
 --
--- TOC entry 29 (OID 249720)
 -- Name: pk_object; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -336,7 +405,6 @@ ALTER TABLE ONLY objects
 
 
 --
--- TOC entry 31 (OID 249722)
 -- Name: pk_groupid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -345,7 +413,6 @@ ALTER TABLE ONLY groups
 
 
 --
--- TOC entry 32 (OID 249724)
 -- Name: uni_groupname; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -354,7 +421,6 @@ ALTER TABLE ONLY groups
 
 
 --
--- TOC entry 33 (OID 249726)
 -- Name: pk_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -363,7 +429,6 @@ ALTER TABLE ONLY usertogroups
 
 
 --
--- TOC entry 30 (OID 249728)
 -- Name: uni_objectnametypeparentid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -372,7 +437,6 @@ ALTER TABLE ONLY objects
 
 
 --
--- TOC entry 34 (OID 249757)
 -- Name: pk_objecttypeid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -381,7 +445,6 @@ ALTER TABLE ONLY objecttypes
 
 
 --
--- TOC entry 28 (OID 257098)
 -- Name: uni_extraid_contextid; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -390,109 +453,104 @@ ALTER TABLE ONLY "session"
 
 
 --
--- TOC entry 42 (OID 249732)
+-- Name: uni_usergroup; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY usertogroups
+    ADD CONSTRAINT uni_usergroup UNIQUE (userid, groupid);
+
+
+--
 -- Name: userid; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY context
-    ADD CONSTRAINT userid FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT userid FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 43 (OID 249736)
 -- Name: contextid; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY "session"
-    ADD CONSTRAINT contextid FOREIGN KEY (contextid) REFERENCES context(contextid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT contextid FOREIGN KEY (contextid) REFERENCES context(contextid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 44 (OID 249740)
 -- Name: fk_parent; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY objects
-    ADD CONSTRAINT fk_parent FOREIGN KEY (parentobjectid) REFERENCES objects(objectid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_parent FOREIGN KEY (parentobjectid) REFERENCES objects(objectid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 46 (OID 249744)
 -- Name: fk_userid; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY usertogroups
-    ADD CONSTRAINT fk_userid FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_userid FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 47 (OID 249748)
 -- Name: fk_groupid; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY usertogroups
-    ADD CONSTRAINT fk_groupid FOREIGN KEY (groupid) REFERENCES groups(groupid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_groupid FOREIGN KEY (groupid) REFERENCES groups(groupid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 45 (OID 249759)
 -- Name: fk_objecttype; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY objects
-    ADD CONSTRAINT fk_objecttype FOREIGN KEY ("type") REFERENCES objecttypes(objecttypeid) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_objecttype FOREIGN KEY ("type") REFERENCES objecttypes(objecttypeid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 5 (OID 249668)
 -- Name: context_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('context_sequence', 13, true);
+SELECT pg_catalog.setval('context_sequence', 3, false);
 
 
 --
--- TOC entry 7 (OID 249676)
 -- Name: users_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('users_sequence', 11, true);
+SELECT pg_catalog.setval('users_sequence', 3, false);
 
 
 --
--- TOC entry 9 (OID 249683)
 -- Name: objects_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('objects_sequence', 11, false);
+SELECT pg_catalog.setval('objects_sequence', 9, false);
 
 
 --
--- TOC entry 11 (OID 249701)
 -- Name: groups_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('groups_sequence', 1, true);
+SELECT pg_catalog.setval('groups_sequence', 3, false);
 
 
 --
--- TOC entry 13 (OID 249706)
 -- Name: usertogroups_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('usertogroups_sequence', 6, true);
+SELECT pg_catalog.setval('usertogroups_sequence', 2, false);
 
 
 --
--- TOC entry 15 (OID 249708)
 -- Name: session_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('session_sequence', 12, true);
+SELECT pg_catalog.setval('session_sequence', 2, false);
 
 
 --
--- TOC entry 2 (OID 2200)
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
 

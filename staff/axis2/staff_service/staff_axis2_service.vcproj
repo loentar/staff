@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_axis2_service"
+	Name="staff_service"
 	ProjectGUID="{D357200B-1633-4350-AFD2-7E51D7248D49}"
 	RootNamespace="staff_axis2_service"
 	Keyword="Win32Proj"
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;D:\dem\devel\rise;..\deploy\win32\include\"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;D:\dem\devel\rise;..\..\deploy\win32\include\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,7 +65,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib rise.lib ws2_32.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;..\deploy\win32\lib\"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;..\..\deploy\win32\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"

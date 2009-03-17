@@ -1,6 +1,6 @@
 set projectname=staff_codegen
 
-set deploydir=%cd%\..\deploy\win32
+set deploydir=%cd%\..\..\deploy\win32
 set bindir=%deploydir%\bin
 set templatedir=%bindir%\template
 

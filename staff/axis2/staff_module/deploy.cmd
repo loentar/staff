@@ -1,6 +1,6 @@
 set projectname=staff_axis2_module
 
-set deploydir=%cd%\..\deploy\win32
+set deploydir=%cd%\..\..\deploy\win32
 set libdir=%deploydir%\axis2\modules\staff
 
 if not EXIST %libdir% mkdir %libdir%
