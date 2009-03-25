@@ -5,11 +5,12 @@ use File::Copy;
 use File::Basename;
 use POSIX qw(strftime);
 
-$deploydir="../../deploy/win32/";
+$deploydir="deploy/win32/";
 
 $incdir="$deploydir/include/rise";
 $libdir="$deploydir/lib";
 
+mkdir "deploy/";
 mkdir "$deploydir" || die "can't mkdir($deploydir) : $!";;
 
 # копируем инклюды
@@ -64,7 +65,7 @@ sub GetTargetFileList
 my $FileList = [];
 my $file;
 
-GetTargetFileList("../../rise", $FileList);
+GetTargetFileList("rise", $FileList);
 
 foreach $file (@{$FileList})
 {
