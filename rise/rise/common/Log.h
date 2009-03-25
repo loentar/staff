@@ -173,7 +173,7 @@ namespace rise
   };
 
   //!  класс лога в области видимости
-  class CLogEntry
+  class RISE_EXPORT CLogEntry
   {
   public:
     CLogEntry(const TChar* sFile, unsigned nLine, const TChar* sFunction, CLog::ELogLevel eLevel = m_eLevelDefault);
