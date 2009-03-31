@@ -120,11 +120,11 @@ bool StaffSecurityInit( const char* szHost,
                         const char* szPassword,
                         int nSessionExpiration )
 {
+  InitializeLock(&g_tLock);
   g_pConn = PQsetdbLogin(szHost, szPort, "", "", szDSN, szUser, szPassword);
   STAFF_SECURITY_ASSERT(g_pConn);
   STAFF_SECURITY_ASSERT(PQstatus(g_pConn) == CONNECTION_OK);
   g_nSessionExpiration = nSessionExpiration;
-  InitializeLock(&g_tLock);
 
   return true;
 }
@@ -1787,3 +1787,651 @@ bool StaffSecurityAdminRemoveUserFromGroups(int nUserId, const int* pnGroupIds, 
   return pnFailedCount ? *pnFailedCount != nGroupsCount : true;
 }
 
+
+bool StaffSecurityAdminGetObjectIdList(int** ppnObjectIds, int* pnObjectsCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(ppnObjectIds);
+  STAFF_SECURITY_ASSERT(pnObjectsCount);
+
+  pPGResult = PQexecParamsLock(g_pConn, "select \"objectid\" from \"objects\";",
+    0, NULL, NULL, NULL, NULL, 1);
+
+  tQueryStatus = PQresultStatus(pPGResult);
+
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnObjectsCount = PQntuples(pPGResult);
+  if(*pnObjectsCount < 0)
+  {
+    dprintf("can't get object list\n");
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppnObjectIds = (int*)calloc(*pnObjectsCount, sizeof(int));
+
+  for(nIndex = 0; nIndex < *pnObjectsCount; ++nIndex)
+  {
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    (*ppnObjectIds)[nIndex] = ntohl(*((unsigned*)pResult));
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+bool StaffSecurityAdminGetObjectIdListWithParent(int** ppnObjectIds, int nParentId, int* pnObjectsCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(ppnObjectIds);
+  STAFF_SECURITY_ASSERT(pnObjectsCount);
+
+  {
+    int nParentIdReq = htonl(nParentId); // to network byte order
+    int anParamLengths[1] = { sizeof(nParentIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nParentIdReq };
+
+    // get children excluding self-parent
+    pPGResult = PQexecParamsLock(g_pConn,
+      "select \"objectid\" from \"objects\" "
+        "where (\"parentobjectid\" = $1::int4 and \"objectid\" != $1::int4);",
+      1, NULL, aszParams, anParamLengths, anParamFormats, 1);
+  }
+
+  tQueryStatus = PQresultStatus(pPGResult);
+
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnObjectsCount = PQntuples(pPGResult);
+  if(*pnObjectsCount < 0)
+  {
+    dprintf("can't get object list\n");
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppnObjectIds = (int*)calloc(*pnObjectsCount, sizeof(int));
+
+  for(nIndex = 0; nIndex < *pnObjectsCount; ++nIndex)
+  {
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    (*ppnObjectIds)[nIndex] = ntohl(*((unsigned*)pResult));
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+
+bool StaffSecurityAdminGetObjectById(int nObjectId, TObject* pstObject)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pstObject);
+  STAFF_SECURITY_ASSERT(nObjectId >= 0);
+
+  {
+    int nObjectIdReq = htonl(nObjectId); // to network byte order
+    int anParamLengths[1] = { sizeof(nObjectIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nObjectIdReq };
+
+    pPGResult = PQexecParamsLock(g_pConn,
+      "select \"objectid\", \"name\", \"type\", \"description\", \"userid\", \"groupid\", \"parentobjectid\", "
+      "\"permission\" from \"objects\" where \"objectid\" = $1::int4;",
+      1, NULL, aszParams, anParamLengths, anParamFormats, 1);
+  }
+
+  tQueryStatus = PQresultStatus(pPGResult);
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: \"%s\"\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  if (PQntuples(pPGResult) <= 0)
+  {
+    dprintf("object %d does not exists\n", nObjectId);
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  if (!ParseObjectInfoResponse(pPGResult, pstObject, 0))
+  {
+    dprintf("can't parse info for object %d\n", nObjectId);
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+
+bool StaffSecurityAdminGetObjectList(const int* pnObjectIds, int nObjectIdsCount, TObject** ppstObjects, int* pnObjectsCount)
+{
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pnObjectIds);
+  STAFF_SECURITY_ASSERT(nObjectIdsCount > 0);
+  STAFF_SECURITY_ASSERT(ppstObjects);
+  STAFF_SECURITY_ASSERT(pnObjectsCount);
+
+  *ppstObjects = (TObject*)calloc(nObjectIdsCount, sizeof(TObject));
+  if(!*ppstObjects)
+  {
+    dprintf("error allocating memory!!!");
+    return false;
+  }
+  
+  *pnObjectsCount = 0;
+
+  // TODO: select * from objects where objectid in (1,2,3,4);
+  for(nIndex = 0; nIndex != nObjectIdsCount; ++nIndex)
+  {
+    if(StaffSecurityAdminGetObjectById(pnObjectIds[nIndex], &(*ppstObjects)[nIndex]))
+    {
+      ++*pnObjectsCount;
+    }
+  }
+
+  if (*pnObjectsCount == 0)
+  {
+    StaffSecurityFreeObjectList(*ppstObjects);
+    return false;
+  }
+
+  return true;
+}
+
+bool StaffSecurityAdminAddObject(const TObject* pstObject, int* pnObjectId)
+{
+  ExecStatusType tQueryStatus;
+  const char* pResult = NULL;
+  PGresult* pPGResult = NULL;
+  int nObjectIdReq = 0;
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pstObject);
+  STAFF_SECURITY_ASSERT(pnObjectId);
+
+  // create object id
+  {
+    pPGResult = PQexecLock(g_pConn, "select nextval('objects_sequence');");
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
+    {
+      dprintf("failed to create new object id: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    pResult = PQgetvalue(pPGResult, 0, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    *pnObjectId = atoi(pResult);
+    nObjectIdReq = htonl(*pnObjectId);
+
+    PQclearLock(pPGResult);
+  }
+
+  // create object
+  {
+    TPermissions stPermissions;
+    int nUserIdReq = htonl(pstObject->nUserId);
+    int nGroupIdReq = htonl(pstObject->nGroupId);
+    int nParentObjectIdReq = htonl(pstObject->nParentObjectId);
+    int nPermissionReq = 0;
+    int nTypeReq = htonl(pstObject->nType);
+
+    int anParamLengths[8] = 
+    {
+      sizeof(nObjectIdReq), 
+      (int)strlen(pstObject->szObjectName),
+      (int)strlen(pstObject->szDescription),
+      sizeof(nUserIdReq), 
+      sizeof(nGroupIdReq), 
+      sizeof(nParentObjectIdReq), 
+      sizeof(nPermissionReq), 
+      sizeof(nTypeReq)
+    };
+    int anParamFormats[8] = { 1, 0, 0, 1, 1, 1, 1, 1 };
+    const char* aszParams[8] = 
+    {
+      (const char*)&nObjectIdReq, 
+      pstObject->szObjectName,
+      pstObject->szDescription,
+      (const char*)&nUserIdReq, 
+      (const char*)&nGroupIdReq, 
+      (const char*)&nParentObjectIdReq, 
+      (const char*)&nPermissionReq, 
+      (const char*)&nTypeReq
+    };
+
+
+    stPermissions.nDummy = 0;
+    stPermissions.nUser = *(unsigned*)&pstObject->stPermissionUser;
+    stPermissions.nGroup = *(unsigned*)&pstObject->stPermissionGroup;
+    stPermissions.nOthers = *(unsigned*)&pstObject->stPermissionOthers;
+
+    nPermissionReq = htonl(*(unsigned*)&stPermissions);
+
+
+
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"objects\"("
+        "\"objectid\", \"name\", \"description\", \"userid\", \"groupid\", \"parentobjectid\", \"permission\", \"type\""
+      ") values($1::int4, $2, $3, $4::int4, $5::int4, $6::int4, $7::int4, $8::int4);",
+      8, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+bool StaffSecurityAdminRemoveObject(int nObjectId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  int nObjectIdReq = htonl(nObjectId);
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nObjectId >= 0);
+
+  // drop object 
+  {
+    int anParamLengths[1] = { sizeof(nObjectIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nObjectIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "delete from \"objects\" where \"objectid\" = $1::int4;", 
+      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+bool StaffSecurityAdminReplaceObject(const TObject* pstObject)
+{
+  ExecStatusType tQueryStatus;
+  const char* pResult = NULL;
+  PGresult* pPGResult = NULL;
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pstObject);
+
+  // create object
+  {
+    TPermissions stPermissions;
+    int nObjectIdReq = htonl(pstObject->nObjectId);
+    int nUserIdReq = htonl(pstObject->nUserId);
+    int nGroupIdReq = htonl(pstObject->nGroupId);
+    int nParentObjectIdReq = htonl(pstObject->nParentObjectId);
+    int nPermissionReq = 0;
+    int nTypeReq = htonl(pstObject->nType);
+
+    int anParamLengths[8] = 
+    {
+      sizeof(nObjectIdReq), 
+      (int)strlen(pstObject->szObjectName),
+      (int)strlen(pstObject->szDescription),
+      sizeof(nUserIdReq), 
+      sizeof(nGroupIdReq), 
+      sizeof(nParentObjectIdReq), 
+      sizeof(nPermissionReq), 
+      sizeof(nTypeReq)
+    };
+    int anParamFormats[8] = { 1, 0, 0, 1, 1, 1, 1, 1 };
+    const char* aszParams[8] = 
+    {
+      (const char*)&nObjectIdReq, 
+      pstObject->szObjectName,
+      pstObject->szDescription,
+      (const char*)&nUserIdReq, 
+      (const char*)&nGroupIdReq, 
+      (const char*)&nParentObjectIdReq, 
+      (const char*)&nPermissionReq, 
+      (const char*)&nTypeReq
+    };
+
+
+    stPermissions.nDummy = 0;
+    stPermissions.nUser = *(unsigned*)&pstObject->stPermissionUser;
+    stPermissions.nGroup = *(unsigned*)&pstObject->stPermissionGroup;
+    stPermissions.nOthers = *(unsigned*)&pstObject->stPermissionOthers;
+
+    nPermissionReq = htonl(*(unsigned*)&stPermissions);
+
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "update \"objects\" set "
+      "\"name\" = $2, \"type\" = $8::int4, \"description\" = $3, "
+      "\"userid\" = $4::int4, \"groupid\" = $5::int4, \"parentobjectid\" = $6::int4, \"permission\" = $7::int4 "
+      "where \"objectid\" = $1::int4;",
+      8, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+void StaffSecurityAdminFreeObjectIds(int* pObjects)
+{
+  if(pObjects)
+  {
+    free(pObjects);
+  }
+}
+
+
+
+bool StaffSecurityAdminGetObjectTypeList(TObjectType** ppstObjectTypes, int* pnObjectTypesCount)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  const char* pResult = NULL;
+  int nIndex = 0;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(ppstObjectTypes);
+  STAFF_SECURITY_ASSERT(pnObjectTypesCount);
+
+  pPGResult = PQexecParamsLock(g_pConn,
+    "select \"objecttypeid\", \"name\", \"description\" from \"objecttypes\";",
+    0, NULL, NULL, NULL, NULL, 1);
+
+  tQueryStatus = PQresultStatus(pPGResult);
+  if (tQueryStatus != PGRES_TUPLES_OK)
+  {
+    dprintf("error executing query: \"%s\"\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *pnObjectTypesCount = PQntuples(pPGResult);
+
+  if (*pnObjectTypesCount < 0)
+  {
+    dprintf("failed to get types id\n");
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  *ppstObjectTypes = (TObjectType*)calloc(*pnObjectTypesCount, sizeof(TObjectType));
+
+  for (nIndex = 0; nIndex < *pnObjectTypesCount; ++nIndex)
+  {
+    TObjectType* pObjectType = &(*ppstObjectTypes)[nIndex];
+
+    pResult = PQgetvalue(pPGResult, nIndex, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      free(ppstObjectTypes);
+      return false;
+    }
+    pObjectType->nId = ntohl(*(unsigned*)pResult);
+
+    pResult = PQgetvalue(pPGResult, nIndex, 1);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      free(ppstObjectTypes);
+      return false;
+    }
+    strncpy(pObjectType->szName, pResult, sizeof(pObjectType->szName) - 1);
+    pObjectType->szName[sizeof(pObjectType->szName) - 1] = '\0';
+  
+    pResult = PQgetvalue(pPGResult, nIndex, 2);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      free(ppstObjectTypes);
+      return false;
+    }
+    strncpy(pObjectType->szDescription, pResult, sizeof(pObjectType->szDescription) - 1);
+    pObjectType->szName[sizeof(pObjectType->szDescription) - 1] = '\0';
+  }
+
+  PQclearLock(pPGResult);
+
+  return true;
+}
+
+bool StaffSecurityAdminAddObjectType(const TObjectType* pstObjectType, int* pnObjectTypeId)
+{
+  ExecStatusType tQueryStatus;
+  const char* pResult = NULL;
+  PGresult* pPGResult = NULL;
+  int nObjectTypeIdReq = 0;
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pstObjectType);
+  STAFF_SECURITY_ASSERT(pnObjectTypeId);
+
+  // create objecttype id
+  {
+    pPGResult = PQexecLock(g_pConn, "select nextval('objecttypes_sequence');");
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_TUPLES_OK || PQntuples(pPGResult) <= 0)
+    {
+      dprintf("failed to create new objecttype id: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    pResult = PQgetvalue(pPGResult, 0, 0);
+    if(!pResult)
+    {
+      dprintf("error getting result\n");
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    *pnObjectTypeId = atoi(pResult);
+    nObjectTypeIdReq = htonl(*pnObjectTypeId);
+
+    PQclearLock(pPGResult);
+  }
+
+  // create objecttype
+  {
+    int nObjectTypeIdReq = htonl(pstObjectType->nId);
+
+    int anParamLengths[3] = 
+    {
+      sizeof(nObjectTypeIdReq), 
+      (int)strlen(pstObjectType->szName),
+      (int)strlen(pstObjectType->szDescription)
+    };
+    int anParamFormats[3] = { 1, 0, 0 };
+    const char* aszParams[3] = 
+    {
+      (const char*)&nObjectTypeIdReq, 
+      pstObjectType->szName,
+      pstObjectType->szDescription
+    };
+
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "insert into \"objecttypes\"("
+      "\"objecttypeid\", \"name\", \"description\""
+      ") values($1::int4, $2, $);",
+      3, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+
+bool StaffSecurityAdminRemoveObjectType(int nObjectTypeId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  int nObjectTypeIdReq = htonl(nObjectTypeId);
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(nObjectTypeId >= 0);
+
+  // drop objecttype 
+  {
+    int anParamLengths[1] = { sizeof(nObjectTypeIdReq) };
+    int anParamFormats[1] = { 1 };
+    const char* aszParams[1] = { (const char*)&nObjectTypeIdReq };
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "delete from \"objecttypes\" where \"objecttypeid\" = $1::int4;", 
+      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+bool StaffSecurityAdminReplaceObjectType(const TObjectType* pstObjectType)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+
+  STAFF_SECURITY_ASSERT(g_pConn);
+  STAFF_SECURITY_ASSERT(pstObjectType);
+
+  // update objecttype
+  {
+    int nObjectTypeIdReq = htonl(pstObjectType->nId);
+
+    int anParamLengths[3] = 
+    {
+      sizeof(nObjectTypeIdReq), 
+      (int)strlen(pstObjectType->szName),
+      (int)strlen(pstObjectType->szDescription)
+    };
+    int anParamFormats[3] = { 1, 0, 0 };
+    const char* aszParams[3] = 
+    {
+      (const char*)&nObjectTypeIdReq, 
+      pstObjectType->szName,
+      pstObjectType->szDescription
+    };
+
+    pPGResult = PQexecParamsLock(g_pConn, 
+      "update \"objecttypes\" set "
+      "\"name\" = $2, \"description\" = $3::int4 "
+      "where \"objecttypeid\" = $1::int4;",
+      8, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_COMMAND_OK)
+    {
+      dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return false;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
+  return true;
+}
+
+void StaffSecurityAdminFreeObjectTypes(TObjectType* pObjectTypes)
+{
+  if(pObjectTypes != NULL)
+  {
+    free(pObjectTypes);
+  }
+}

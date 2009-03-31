@@ -26,6 +26,14 @@ struct SGroup
 };
 typedef struct SGroup TGroup;
 
+//! object type
+struct SObjectType
+{
+  int nId; //!<  object type id
+  char szName[64];  //!<  type name
+  char szDescription[128]; //!<  type description
+};
+typedef struct SObjectType TObjectType;
 
 //!         get user list
 /*! to free list use \sa StaffSecurityAdminFreeUsers
@@ -136,6 +144,100 @@ STAFF_SECURITY_EXPORT bool StaffSecurityAdminRemoveUserFromGroup(int nUserId, in
     \return true, if operation successes
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityAdminRemoveUserFromGroups(int nUserId, const int* pnGroupIds, int nGroupsCount, int* pnFailedCount);
+
+//////////////////////////////////////////////////////////////////////////
+// objects admin
+
+//!         get object list of id
+/*! \param  pnObjectIds - list of object ids
+    \param  pnObjectsCount - returns count of ids
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectIdList(int** ppnObjectIds, int* pnObjectsCount);
+
+//!         get object list of id
+/*! \param  pnObjectIds - list of object ids
+    \param  nParentId - parent object id
+    \param  pnObjectsCount - returns count of ids
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectIdListWithParent(int** ppnObjectIds, int nParentId, int* pnObjectsCount);
+
+//!         get object by id
+/*! \param  nObjectId - object id
+    \param  pstObject - pointer to object struct
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectById(int nObjectId, TObject* pstObject);
+
+//!         get object list by id list
+/*! \param  pnObjectIds - list of objects ids
+    \param  nObjectIdsCount - count of object ids
+    \param  ppstObjects - returning list of objects
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectList(const int* pnObjectIds, int nObjectIdsCount, TObject** ppstObjects, int* pnObjectsCount);
+
+//!         add new object
+/*! TObject::nObjectId is ignored
+    \param  pstObject - pointer to new object
+    \param  pnObjectId - pointer to added object id
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminAddObject(const TObject* pstObject, int* pnObjectId);
+
+
+//!         remove object by id
+/*! \param  nObjectId - object id
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminRemoveObject(int nObjectId);
+
+//!         replace object
+/*! \param  pstObject - pointer to object
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminReplaceObject(const TObject* pstObject);
+
+//!         free objects id list
+/*! \param  pObjects - objects id list
+    */
+STAFF_SECURITY_EXPORT void StaffSecurityAdminFreeObjectIds(int* pObjects);
+
+
+
+//!         get object type list
+/*! \param  nObjectTypeIdsCount - count of type ids
+    \param  ppstObjectTypes - returning list of objects
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectTypeList(TObjectType** ppstObjectTypes, int* pnObjectTypesCount);
+
+//!         add new type
+/*! TObjectType::nId is ignored
+    \param  pstObjectType - pointer to new type
+    \param  pnObjectTypeId - pointer to added type id
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminAddObjectType(const TObjectType* pstObjectType, int* pnObjectTypeId);
+
+
+//!         remove type by id
+/*! \param  nObjectTypeId - type id
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminRemoveObjectType(int nObjectTypeId);
+
+//!         replace type
+/*! \param  pstObjectType - pointer to type
+    \return true, if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityAdminReplaceObjectType(const TObjectType* pstObjectType);
+
+//!         free objects id list
+/*! \param  pObjectTypes - objects id list
+    */
+STAFF_SECURITY_EXPORT void StaffSecurityAdminFreeObjectTypes(TObjectType* pObjectTypes);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@ function SerializeStruct_$(Struct.MangledName)(tOperation, rstStruct, tNode)
 {
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  SerializeStruct_$(Struct.MangledName)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
+  SerializeStruct_$(Param.DataType.MangledName)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
 #else
 #ifeq($(Param.DataType.Type),typedef)
   SerializeTypedef_$(Param.DataType.MangledName)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));

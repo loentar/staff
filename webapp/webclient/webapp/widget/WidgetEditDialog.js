@@ -37,7 +37,7 @@ widget.WidgetEditDialog.prototype =
         elCell.innerHTML = 
           '<span class="yui-button yui-push-button">' +
             '<span class="first-child">' +
-              '<button name="btnWidgetPropDel" type="button" style="background: url(webapp/img/del.gif) center center no-repeat; text-indent: -4em; height: 2em; width: 2em; *margin-left: 4em;"></button>' +
+              '<button name="btnWidgetPropDel" type="button" style="background: url(webapp/assets/img/del.gif) center center no-repeat; text-indent: -4em; height: 2em; width: 2em; *margin-left: 4em;"></button>' +
             '</span>' +
           '</span>';
      };
@@ -97,7 +97,7 @@ widget.WidgetEditDialog.prototype =
 
     var btnAdd = new YAHOO.widget.Button
     ({
-       label: '<img src="webapp/img/add.gif" style="margin-top: 2px" align="left"></img>Добавить',
+       label: '<img src="webapp/assets/img/add.gif" style="margin-top: 2px" align="left"></img>Добавить',
        container: "tButtonsElement",
        id: "btnAdd"
     });
