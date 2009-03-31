@@ -163,7 +163,14 @@ staff.Operation.prototype =
     }
     else
     {
-      tCreatedElm.set_value(tValue);
+      if (typeof tValue != 'string')
+      {
+        tCreatedElm.set_value(tValue.toString());
+      }
+      else
+      {
+        tCreatedElm.set_value(tValue);
+      }
     }
     
     return tCreatedElm;

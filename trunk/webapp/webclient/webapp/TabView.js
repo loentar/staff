@@ -36,7 +36,7 @@ webapp.TabView.prototype =
     
     var pTab = new YAHOO.widget.Tab
       ({
-        label: sTabLabel + '&nbsp;&nbsp;<span class="yui-button yui-push-button" style="background: none; border-width: 0px;"><button type="button" style="background: url(webapp/img/close.png) center center no-repeat; width: 9px; height: 9px; margin: 0; border-width: 0;"></button></span>',
+        label: sTabLabel + '&nbsp;&nbsp;<span class="yui-button yui-push-button" style="background: none; border-width: 0px;"><button type="button" style="background: url(webapp/assets/img/close.png) center center no-repeat; width: 9px; height: 9px; margin: 0; border-width: 0;"></button></span>',
         id: 'tab_' + sTabName,
         content: '<div id="tabdiv_' + sTabName + '" style="margin: 0; border-width: 0;">' + sFrameContent + '</div>', 
         active: true

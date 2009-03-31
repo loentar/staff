@@ -257,7 +257,7 @@ GRANT ALL ON TABLE session_sequence TO staffdbuser;
 
 CREATE TABLE objecttypes (
     objecttypeid integer NOT NULL,
-    typename character varying NOT NULL,
+    name character varying NOT NULL,
     description character varying
 ) WITHOUT OIDS;
 
@@ -268,6 +268,26 @@ CREATE TABLE objecttypes (
 
 REVOKE ALL ON TABLE objecttypes FROM PUBLIC;
 GRANT ALL ON TABLE objecttypes TO staffdbuser;
+
+
+--
+-- Name: objecttypes_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE objecttypes_sequence
+    START WITH 4
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+--
+-- Name: objecttypes_sequence; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE objecttypes_sequence FROM PUBLIC;
+GRANT ALL ON TABLE objecttypes_sequence TO staffdbuser;
 
 
 --
@@ -346,7 +366,7 @@ COPY usertogroups (id, userid, groupid) FROM stdin;
 -- Name: objecttypes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY objecttypes (objecttypeid, typename, description) FROM stdin;
+COPY objecttypes (objecttypeid, name, description) FROM stdin;
 0	root	root object
 1	component	Component
 2	service	Service
@@ -555,6 +575,13 @@ SELECT pg_catalog.setval('usertogroups_sequence', 3, true);
 --
 
 SELECT pg_catalog.setval('session_sequence', 6, true);
+
+
+--
+-- Name: objecttypes_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('objecttypes_sequence', 4, false);
 
 
 --

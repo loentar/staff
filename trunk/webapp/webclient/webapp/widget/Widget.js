@@ -4,13 +4,6 @@ namespace('widget');
 // class Widget
 
 widget.Widget = Class.create();
-widget.Widget.sName = null;
-widget.Widget.sClass = null;
-widget.Widget.pElement = null;
-widget.Widget.pMenuItem = null;
-widget.Widget.tProperties = null;
-widget.Widget.tOptions = null;
-widget.Widget.bModified = false;
 widget.Widget.prototype = 
 {
   //! constructor
@@ -22,7 +15,27 @@ widget.Widget.prototype =
 
     if(this.Create)
     {
-      this.Create();
+      var tParent;
+      
+      if(this.tProperties.sParent)
+      {
+        tParent = document.getElementById(this.tProperties.sParent);
+      }
+      else
+      {
+        tParent = this.tOptions.pParentElement;
+      }
+    
+      if(tParent == null)
+      {
+         throw Error("Невозможно восстановить " + self.tProperties.sLabel + "; <br>Отсутствует родительский элемент");
+      }
+
+      var tElement = this.Create(tParent);
+      if (tElement != null) // compat
+      {
+        this.pElement = tElement;
+      }
     }
 
     if (this.DeserializeData)
@@ -76,7 +89,7 @@ widget.Widget.prototype =
     this.tProperties = {};
     for(var i = 0; i < stWidget.lsProperties.length; ++i)
     {
-      eval("this.tProperties." + stWidget.lsProperties[i].sName + " = stWidget.lsProperties[i].tValue;");
+      this.tProperties[stWidget.lsProperties[i].sName] = stWidget.lsProperties[i].tValue;
     }
 
     // deserialize data by default
@@ -98,7 +111,7 @@ widget.Widget.prototype =
     {
       sName: this.sName,
       sClass: this.sClass,
-      lsProperties : new Array()
+      lsProperties: new Array()
     };
 
     for(tProperty in this.tProperties)

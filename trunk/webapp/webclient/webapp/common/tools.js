@@ -7,32 +7,32 @@ webapp.Env = {};
 webapp.Env.Get = 
   function(sName, sDefault)
   {
-    var tRet = eval('webapp.Env.' + sName);
-    return tRet == null ? sDefault : tRet;
+    return webapp.Env[sName] || sDefault;
   };
 
 if(document.location.search.length > 1)
 {
-  var _asLocationParams = document.location.search.substr(1);
-  var _asLocationParamsFlat = _asLocationParams.split(',');
+  var _asLocationParamsFlat = document.location.search.substr(1).split(',');
 
   for(var i = 0; i < _asLocationParamsFlat.length; ++i)
   {
     var asParam = _asLocationParamsFlat[i].split('=');
-    eval('webapp.Env.' + asParam[0] + '=\'' + asParam[1] + '\';');
+    webapp.Env[asParam[0]] = asParam[1];
   }
 }
 
 webapp.Env.protocol = document.location.protocol + '//';
 var _atIncludedScripts = new Array();
+var _atIncludedCss = {};
 
 //!         включить javascript файл/список файлов
 /*! \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
     \param  sBasePath - базовый путь к скрипту. пример "widgets/"
     \param  pIncludingCompleteFunction - функция, которая будет вызвана при завершении включения
+    \param  pIncludeAvailableFunction - функция для проверки доступности либо массив строк, содержащий имена символов в файле
     \return null
     */
-function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvaibleFunction )
+function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvailableFunction )
 {
   if(sBaseName instanceof Array)
   {
@@ -45,21 +45,49 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
       
       function CheckIncludeMulti()
       {
-        if(pIncludeAvaibleFunction)
+        function ContinueWait()
+        {
+          if(--nLimit > 0)
+          {
+            setTimeout(CheckIncludeMulti, 100);
+          }
+          else
+          {
+            alert("can't load: " + sBaseName[i]);
+          }
+        }
+      
+        if(typeof pIncludeAvailableFunction == 'function')
         {
           for(var i = 0; i < sBaseName.length; ++i)
           {
-            if(!pIncludeAvaibleFunction(sBaseName[i]))
+            if(!pIncludeAvailableFunction(sBaseName[i]))
             {
-              if(--nLimit > 0)
-              {
-                setTimeout(CheckIncludeMulti, 100);
-              }
-              else
-              {
-                alert("can't load: " + sBaseName[i]);
-              }
+              ContinueWait();
               return;
+            }
+          }
+        }
+        else
+        if(pIncludeAvailableFunction instanceof Array)
+        {
+          for(var j = 0; j < pIncludeAvailableFunction.length; ++j)
+          {
+            if(typeof pIncludeAvailableFunction[j] == 'string')
+            {
+              try
+              {
+                if(eval(pIncludeAvailableFunction[j]) == null)
+                {
+                  ContinueWait();
+                  return;
+                }
+              }
+              catch(tError)
+              {
+                ContinueWait();
+                return;
+              }
             }
           }
         }
@@ -125,8 +153,8 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
     
     function CheckIncludeSingle()
     {
-      if(pIncludeAvaibleFunction)
-        if(!pIncludeAvaibleFunction(sBaseName))
+      if(pIncludeAvailableFunction)
+        if(!pIncludeAvailableFunction(sBaseName))
         {
           if(--nLimit > 0)
             setTimeout(CheckIncludeSingle, 100);
@@ -190,71 +218,82 @@ function IncludeCss( sBaseName, sBasePath )
   if(sBaseName instanceof Array)
   {
     for(var i = 0; i < sBaseName.length; ++i)
+    {
       IncludeCss(sBaseName[i], sBasePath);
+    }
     
     return;
   }
-
-  var pScript = null;
-  for(var i = 0; i < _atIncludedScripts.length; ++i)
-  {
-    if (_atIncludedScripts[i].sBaseName == sBaseName) 
-    {
-      pScript = _atIncludedScripts[i];
-      break;
-    }
-  }
   
-  if (pScript == null)
+  var sCssSrc = (sBasePath || '') + sBaseName + ".css";
+  
+  if (_atIncludedCss[sCssSrc] == null)
   { // добавляем новый скрипт
-    var tScriptBlock = null;
-    var sScriptSrc = (sBasePath != null ? sBasePath : "") + sBaseName + ".css";
+    var tCssBlock = null;
     var pHead = document.getElementsByTagName("head")[0];
 
     // ищем в документе
-    for(tScriptBlock = pHead.firstChild; tScriptBlock != null; tScriptBlock = tScriptBlock.nextSibling)
-      if(tScriptBlock.tagName == "LINK" && tScriptBlock.src == sScriptSrc)
-        break;
-
-    if (tScriptBlock == null) // нет в документе, загружаем
+    for(tCssBlock = pHead.firstChild; tCssBlock != null; tCssBlock = tCssBlock.nextSibling)
     {
-      tScriptBlock = document.createElement('link');
-      tScriptBlock.rel = 'stylesheet';
-      tScriptBlock.type = 'text/css';
-      tScriptBlock.href = sScriptSrc;
-      pHead.appendChild(tScriptBlock);
+      if(tCssBlock.tagName == "LINK" && tCssBlock.src == sCssSrc)
+      {
+        break;
+      }
+    }
+
+    if (tCssBlock == null) // нет в документе, загружаем
+    {
+      tCssBlock = document.createElement('link');
+      tCssBlock.rel = 'stylesheet';
+      tCssBlock.type = 'text/css';
+      tCssBlock.href = sCssSrc;
+      pHead.appendChild(tCssBlock);
     }
   
-    var pScript = 
-    {
-      sBaseName: sBaseName,
-      tScriptBlock: tScriptBlock
-    };
-    
-    _atIncludedScripts.push(pScript);
+    _atIncludedCss[sCssSrc] = tCssBlock;
   }
 }
 
-function addHandler(element,event,action,param)
+function addHandler(tElement, sEvent, fHandler)
 {
-  if(document.addEventListener)
-    element.addEventListener(event,action,param);
+  if(tElement.addEventListener)
+  {
+    tElement.addEventListener(sEvent, fHandler);
+  }
   else 
-    if(document.attachEvent)
-      element.attachEvent('on'+event,action);
+  {
+    if(tElement.attachEvent)
+    {
+      tElement.attachEvent('on' + sEvent, fHandler);
+    }
     else 
-      element['on'+event]=action;
+    {
+      tElement['on' + sEvent] = fHandler;
+    }
+  }
 }
 
-function removeHandler(element,event,action,param)
+function removeHandler(tElement, sEvent, fHandler)
 {
-  if(document.addEventListener)
-    element.removeEventListener(event,action,param);
+  if(tElement.removeEventListener)
+  {
+    tElement.removeEventListener(sEvent, fHandler);
+  }
   else 
-    if(document.attachEvent)
-      element.detachEvent('on'+event,action);
+  {
+    if(tElement.detachEvent)
+    {
+      tElement.detachEvent('on' + sEvent, fHandler);
+    }
     else 
-      element['on'+event]=returnFalse;
+    {
+      tElement['on' + sEvent] = 
+        function()
+        {
+          return false;
+        };
+    }
+  }
 }
 
 function namespace(sNamespace)
