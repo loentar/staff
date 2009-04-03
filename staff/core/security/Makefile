@@ -25,7 +25,7 @@ $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 
 # == deploy ========================================
-deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers
+deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers deploy_db
 
 deploy_libs: "$(DEPLOYDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(LIBDIR)$(TARGETNAME)
@@ -33,6 +33,9 @@ deploy_libs: "$(DEPLOYDIR)$(LIBDIR)"
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
 	find  $(DEPLOYDIR)$(INCDIR) -type d | xargs chmod a+x
+
+deploy_db: "$(DEPLOYDIR)db/"
+	cp -f db/*.sql $(DEPLOYDIR)db/
 
 # == distrib =========================================
 distrib:;

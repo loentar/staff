@@ -1,9 +1,9 @@
 %define _topdir  __topdir__
 
 Summary: rise
-Name: rise
+Name: rise-dev
 Version: __version__
-Release: dev
+Release: mcbc
 Copyright: 2009
 Group: Utilities/System
 Requires: rise

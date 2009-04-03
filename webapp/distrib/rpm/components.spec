@@ -1,12 +1,12 @@
 %define _topdir  __topdir__
 
 Summary: webapp
-Name: webapp
+Name: webapp-components
 Version: __version__
-Release: components
+Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: staff
+Requires: staff rise
 Provides: webapp-components
 
 %description
