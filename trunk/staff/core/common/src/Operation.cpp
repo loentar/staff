@@ -61,6 +61,11 @@ namespace staff
     return Result().Value();
   }
 
+  const CValue COperation::ResultValue() const
+  {
+    return Result().Value();
+  }
+
   void COperation::SetResult( CDataObject& rDataObject )
   {
     Result() = rDataObject;

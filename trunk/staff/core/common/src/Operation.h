@@ -60,6 +60,11 @@ namespace staff
     */
     CValue ResultValue();
 
+    //!         получить/установить результат(простой)
+    /*! \return ссылка на значение результата
+    */
+    const CValue ResultValue() const;
+
     //!         установить результат
     /*! \param  rDataObject - обьект данных с результатом
         */

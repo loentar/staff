@@ -190,7 +190,7 @@ namespace staff
         !! ВНИМАНИЕ !! неоптимальная версия: копия создаётся посредством сериализации через строку
         \return объект копии
         */
-    CDataObject Clone();
+    CDataObject Clone() const;
 
     //////////////////////////////////////////////////////////////////////////
     // управление подузлами
@@ -225,6 +225,11 @@ namespace staff
         \param  rDataObject - дочернее поддерево
         */
     CDataObject AppendChild(CDataObject& rDataObject);
+    
+    //!         добавить дочернее поддерево
+    /*! \param  rDataObject - дочернее поддерево
+        */
+    CDataObject AppendChild(const CDataObject& rDataObject);
     
     //!         отсоединить дочернее поддерево
     /*! \param  itChild - итератор на дочерний узел для отсоединения

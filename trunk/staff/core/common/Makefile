@@ -35,6 +35,9 @@ deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
 	find  $(DEPLOYDIR)$(INCDIR) -type d | xargs chmod a+x
 
+# == distrib =========================================
+distrib:;
+
 # == install ========================================
 install: check install_libs install_headers
 

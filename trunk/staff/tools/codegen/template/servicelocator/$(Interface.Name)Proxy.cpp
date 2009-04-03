@@ -312,7 +312,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!void!!
-  return tOperation.ResultValue();
+  return const_cast<const staff::COperation&>(tOperation).ResultValue();
 #else
 \
 #ifeqend

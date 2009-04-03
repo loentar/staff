@@ -64,6 +64,9 @@ endif
 deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(TARGETNAME) $^
 
+# == distrib =========================================
+distrib:;
+
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/

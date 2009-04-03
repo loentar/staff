@@ -3,7 +3,7 @@ include ../../Makefile.env
 TARGET = staff_security_module
 TARGETNAME = lib$(TARGET).so
 
-DEPLOYLIBDIR = $(DEPLOYDIR)axis2/modules/staff_security/
+DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff_security/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff_security/
 
 CFLAGS += -c -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR)
@@ -32,6 +32,9 @@ $(OBJDIR)%.o: %.c
 deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
 	cp config/module.xml $(DEPLOYLIBDIR)
+
+# == distrib =========================================
+distrib:;
 
 # == install ========================================
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"

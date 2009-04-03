@@ -1,5 +1,6 @@
 
 TARGET = rise
+PROJECT = $(TARGET)
 VERSION = 0.2.8
 
 SRCDIR = rise/
@@ -8,6 +9,10 @@ TARGETLIBVER = $(TARGETLIB).$(VERSION)
 
 ifeq ("$(PLATFORM)","")
   PLATFORM := $(shell uname -m)
+endif
+
+ifeq ($(TOPDIR),)
+  TOPDIR = $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
 endif
 
 ifneq ($(shell grep -c vniins /proc/version),0)
@@ -31,14 +36,16 @@ CXXFLAGS += -DOS_$(OS) -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_D
 USRINCDIR = /usr/include/
 USRINCDIRVER = /usr/include/rise-$(VERSION)/
 USRLIBDIR = /usr/lib/
-DEPLOYDIR = $(PWD)/deploy/$(PLATFORM)/
 
 OBJDIR = obj/$(PLATFORM)/
 OUTDIR = out/$(PLATFORM)/
 
-DEPLOYINCDIR = $(DEPLOYDIR)include/
+DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)/
+DEPLOYINCDIR = $(DEPLOYDIR)usr/include/
 DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise-$(VERSION)/
-DEPLOYLIBDIR = $(DEPLOYDIR)lib/
+DEPLOYLIBDIR = $(DEPLOYDIR)usr/lib/
+
+#DISTRIBDIR = $(TOPDIR)/../distrib/
 
 CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC
 LIBS = -ldl -lpthread -lstdc++
@@ -74,6 +81,7 @@ $(OUTDIR)$(TARGETLIBVER): $(OBJECTS)
 
 # == deploy  ========================================
 deploy: deploy_headers deploy_lib
+	chmod -R go-w $(DEPLOYDIR)
 
 deploy_lib: "$(DEPLOYLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIBVER)
@@ -86,6 +94,21 @@ deploy_headers: "$(DEPLOYINCDIRVER)"
  chmod -R a+r $(DEPLOYINCDIRVER);\
  find  $(DEPLOYINCDIRVER) -type d | xargs chmod a+x;\
  ln -nsf rise-$(VERSION) $(DEPLOYINCDIR)rise
+
+include ../Makefile.distrib
+
+# == distrib  ========================================
+#distrib:
+#	make -C distrib distrib
+# "$(DISTRIBDIR)" $(patsubst $(DISTRIBSCRIPTSDIR)%,%,$(wildcard $(DISTRIBSCRIPTSDIR)*))
+
+#%.spec:
+#	@/bin/echo -e "\n\n\033[1mbuilding rise-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm\033[0m\n"
+#	sed "s/__version__/$(VERSION)/g" $(DISTRIBSCRIPTSDIR)$@ >/tmp/buildrpm_$@; \
+# rpmbuild -bb /tmp/buildrpm_$@ --buildroot $(DEPLOYDIR) --target $(PLATFORM) --quiet; \
+# mv /usr/src/RPM/RPMS/$(PLATFORM)/rise-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm $(DISTRIBDIR); \
+# rm -f /tmp/buildrpm_$@.spec
+
 
 # == install ========================================
 install: install_headers install_libs

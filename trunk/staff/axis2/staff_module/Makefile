@@ -3,7 +3,7 @@ include ../../Makefile.env
 TARGET = staff_module
 TARGETNAME = lib$(TARGET).so
 
-DEPLOYLIBDIR = $(DEPLOYDIR)axis2/modules/staff/
+DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR) -I$(STAFF_HOME)/include/
@@ -33,6 +33,9 @@ $(OBJDIR)%.o: %.cpp
 deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
 	cp config/module.xml $(DEPLOYLIBDIR)
+
+# == distrib =========================================
+distrib:;
 
 # == install ========================================
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"

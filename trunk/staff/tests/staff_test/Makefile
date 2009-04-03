@@ -9,6 +9,9 @@ make: check deploy
 deploy: "$(DEPLOYDIR)$(BINDIR)"
 	cp -f scripts/$(TARGET) $^
 
+# == distrib =========================================
+distrib:;
+
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)"
 	cp -f scripts/$(TARGET) $(INSTALLDIR)$(BINDIR)

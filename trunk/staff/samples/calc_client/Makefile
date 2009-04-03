@@ -38,6 +38,9 @@ $(CODEGEN): $(HEADERS)
 deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $^
 
+# == distrib =========================================
+distrib:;
+
 # == install ========================================
 install: check "$(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
