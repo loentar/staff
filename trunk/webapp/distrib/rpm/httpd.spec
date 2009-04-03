@@ -1,12 +1,12 @@
 %define _topdir  __topdir__
 
 Summary: webapp
-Name: webapp
+Name: webapp-httpd
 Version: __version__
-Release: httpd
+Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: sgod webapp
+Requires: sgod
 Provides: webapp-httpd
 
 %description

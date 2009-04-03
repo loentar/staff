@@ -3,10 +3,10 @@
 Summary: rise
 Name: rise
 Version: __version__
-Release: libs
+Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: /usr/lib/libbfd.so
+#Requires: 
 Provides: rise
 
 %description
@@ -20,7 +20,8 @@ Provides: rise
 
 #%preun
 
-#%post
+%post
+test -f /usr/lib/libbfd.so || ln -s /usr/lib/libbfd-2.14.90.0.6.so /usr/lib/libbfd.so
 #ldconfig
 
 #%postun

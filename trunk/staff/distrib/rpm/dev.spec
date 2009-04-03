@@ -1,12 +1,12 @@
 %define _topdir  __topdir__
 
 Summary: staff
-Name: staff
+Name: staff-dev
 Version: __version__
-Release: dev
+Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: staff-libs
+Requires: staff rise-dev postgresql-devel
 Provides: staff-dev
 
 %description
