@@ -315,7 +315,7 @@ namespace staff
     return *this;
   }
 
-  CDataObject CDataObject::Clone()
+  CDataObject CDataObject::Clone() const
   {
     CDataObject tdoClone;
     tdoClone.FromString(ToString());
@@ -365,6 +365,15 @@ namespace staff
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, rDataObject.m_pAxiomNode);
     rDataObject.m_bOwner = false;
+    
+    return rDataObject;
+  }
+
+  CDataObject CDataObject::AppendChild( const CDataObject& rDataObject )
+  {
+    RISE_ASSERT(m_pAxiomNode);
+
+    axiom_node_add_child(m_pAxiomNode, m_pEnv, rDataObject.Clone().m_pAxiomNode);
     
     return rDataObject;
   }

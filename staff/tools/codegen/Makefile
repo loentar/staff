@@ -30,6 +30,9 @@ deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
 	cp -f --parents $$(find template -type f | grep -v '.svn') $(DEPLOYDIR)$(BINDIR)
 
+# == distrib =========================================
+distrib:;
+
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)

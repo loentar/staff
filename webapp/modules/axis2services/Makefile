@@ -19,7 +19,7 @@ TARGET = axis2services
 TARGETNAME = .libs/mod_$(TARGET).so
 
 # == make ===========================================
-make: $(TARGETNAME)
+make: $(TARGETNAME) deploy
 
 $(TARGETNAME):
 	$(APXS) -c mod_$(TARGET).c
@@ -28,6 +28,16 @@ $(TARGETNAME):
 clean:
 	rm -f mod_$(TARGET).o mod_$(TARGET).lo mod_$(TARGET).slo mod_$(TARGET).la 
 	rm -Rf .libs
+
+# == deploy ==========================================
+deploy:
+	mkdir -p $(DEPLOYDIR)www/conf/mods-enabled/ $(DEPLOYDIR)www/modules/
+	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > $(DEPLOYDIR)/www/conf/mods-enabled/$(TARGET).conf
+#	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
+	cp -f $(TARGETNAME) $(DEPLOYDIR)www/modules/
+
+# == distrib =========================================
+distrib:;
 
 install:
 ifeq ($(OS),UBUNTU)

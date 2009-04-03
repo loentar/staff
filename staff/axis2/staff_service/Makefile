@@ -5,7 +5,7 @@ TARGETNAME = lib$(TARGET).so
 
 INSTALLLIBDIR = $(AXIS2C_HOME)/services/staff/
 
-DEPLOYLIBDIR = $(DEPLOYDIR)axis2/services/staff/
+DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/services/staff/
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
@@ -34,6 +34,9 @@ deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
 	cp -f config/services.xml $(DEPLOYLIBDIR)
 	cp -f config/staff.xml $(DEPLOYDIR)
+
+# == distrib =========================================
+distrib:;
 
 # == install ========================================
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"

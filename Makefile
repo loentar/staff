@@ -6,7 +6,7 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-MAKEFILES_DEP = $(shell find -type f -name Makefile.dep | sed 's/^.\///g')
+MAKEFILES_DEP = $(wildcard */Makefile.dep)
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 
 #.PHONY: $(MAKECMDGOALS)

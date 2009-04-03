@@ -1,27 +1,10 @@
+include ../../Makefile.env
 
 TARGET = widget
 TARGETNAME = lib$(TARGET).so
 
-SRCDIR = src/
-OBJDIR = obj/$(PLATFORM)/
-OUTDIR = out/$(PLATFORM)/
-
 CXXFLAGS += -fPIC -fexceptions -D_REENTRANT -Wall
 LDFLAGS += -fPIC -fexceptions -Wl,-rpath,$(AXIS2C_LIBDIR)
-
-ifeq ($(PLATFORM),)
-  PLATFORM = $(shell uname -m)
-endif
-
-ifeq ($(PLATFORM),x86_64)
-  CXXFLAGS += -D_M_X64
-  CFLAGS += -D_M_X64
-endif
-
-ifneq ($(DEBUG),)
-  CXXFLAGS += -DDEBUG -D_DEBUG -g -O0
-  LDFLAGS += -g -O0
-endif
 
 VPATH = $(SRCDIR)
 
@@ -87,15 +70,13 @@ $(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:: $(EXTERN_SERVICES_HEADER
 	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 endif
 
-ifeq ($(STAFF_HOME),)
-check:
-	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
-else
-check:;
-endif
-
 # == deploy  ========================================
-deploy:
+deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/"
+	cp -f $(OUTDIR)$(TARGETNAME) $<
+	cp -f config/*.xml $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+
+# == distrib =========================================
+distrib:;
 
 # == install ========================================
 install: "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
