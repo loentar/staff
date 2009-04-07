@@ -25,8 +25,8 @@ webapp.Env.protocol = document.location.protocol + '//';
 var _atIncludedScripts = new Array();
 var _atIncludedCss = {};
 
-//!         включить javascript файл/список файлов
-/*! \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
+//          включить javascript файл/список файлов
+/*  \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
     \param  sBasePath - базовый путь к скрипту. пример "widgets/"
     \param  pIncludingCompleteFunction - функция, которая будет вызвана при завершении включения
     \param  pIncludeAvailableFunction - функция для проверки доступности либо массив строк, содержащий имена символов в файле
@@ -209,8 +209,8 @@ function IncludeClass( asFullNames, sBasePath, pIncludingCompleteFunction )
   );
 }
 
-//!         включить css файл/список файлов
-/*! \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
+//          включить css файл/список файлов
+/*  \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
     \param  sBasePath - базовый путь к скрипту. пример "css/"
     */
 function IncludeCss( sBaseName, sBasePath )
@@ -258,7 +258,7 @@ function addHandler(tElement, sEvent, fHandler)
 {
   if(tElement.addEventListener)
   {
-    tElement.addEventListener(sEvent, fHandler);
+    tElement.addEventListener(sEvent, fHandler, null);
   }
   else 
   {
