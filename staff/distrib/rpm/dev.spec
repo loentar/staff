@@ -13,7 +13,7 @@ Provides: staff-dev
 Средства разработки под staff
 
 %files
-%defattr(0755,root,root)
+%defattr(-,root,root)
 /usr/local/staff/include/
 /usr/local/staff/bin/
 

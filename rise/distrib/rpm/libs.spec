@@ -14,14 +14,14 @@ Provides: rise
 
 %files
 %defattr(-,root,root)
-/usr/lib/
+/usr/lib/*
 
 #%pre
 
 #%preun
 
 %post
-test -f /usr/lib/libbfd.so || ln -s /usr/lib/libbfd-2.14.90.0.6.so /usr/lib/libbfd.so
+test -L /usr/lib/libbfd.so || ln -s /usr/lib/libbfd-2.14.90.0.6.so /usr/lib/libbfd.so
 #ldconfig
 
 #%postun
