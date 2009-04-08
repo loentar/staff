@@ -13,8 +13,8 @@ Provides: rise-dev
 Средства разработки под многоплатформенную библиотеку классов rise
 
 %files
-%defattr(0755,root,root)
-/usr/include/
+%defattr(-,root,root)
+/usr/include/*
 
 %pre
 

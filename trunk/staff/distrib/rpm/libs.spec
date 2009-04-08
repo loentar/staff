@@ -6,7 +6,7 @@ Version: __version__
 Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: rise postgresql-libs
+Requires: rise postgresql-libs postgresql-server
 Provides: staff
 
 %description
@@ -29,34 +29,81 @@ staff
 
 %preun
 echo -n "Удаление БД..."
+/etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
+sleep 1 ## database system is starting up
 cd /usr/local/staff/ && psql -q -U postgres template1 < db/uninstdb.sql && echo "     ОК"
 
 %post
-ldconfig
+cat /etc/ld.so.conf.d/*.conf | xargs ldconfig
+
+####################################
+echo "Настройка Axis2/C"
+patch /usr/local/axis2c/axis2.xml << AXIS2C_PATCH_END
+--- axis2.xml	Wed Apr  8 09:28:14 2009
++++ axis2.xml	Wed Apr  8 09:30:30 2009
+@@ -83,4 +83,6 @@
+     <!-- Comment this to disable Addressing -->
+     <module ref="addressing"/>
++    <module ref="staff"/>
++    <module ref="staff_security"/>
+ 
+ 
+AXIS2C_PATCH_END
+
+####################################
+echo "Настройка СУБД"
+/etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
+sleep 1 ## database system is starting up
+patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_PATCH_END
+--- pg_hba.conf	Wed Apr  8 09:43:12 2009
++++ pg_hba.conf	Wed Apr  8 09:43:16 2009
+@@ -58,2 +58,3 @@ local   all         postgres            
+ local   all         all                                             pam
+-host    all         all         127.0.0.1         255.255.255.255   pam
++#host    all         all         127.0.0.1         255.255.255.255   pam
++host    all         all         127.0.0.1         255.255.255.255   md5
+POSTGRES_PATCH_END
+#"mktmp: Permission denied" while sudo -u postgres patch
+chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
+
+/etc/init.d/postgresql reload
+
+####################################
 echo -n "Установка БД..."
 cd /usr/local/staff/ && psql -q -U postgres template1 < db/instdb.sql >/dev/null && echo "     ОК"
-cat << CONFIG_MESSAGE_END
-Для завершения настройки staff:
- 1) добавьте следующие строки в /usr/local/axis2c/axis2.xml:
- 
-    <module ref="staff"/>
-    <module ref="staff_security"/>
-    
-    следом за строкой:
-    <module ref="addressing"/>
 
- 2) Отредактируйте файл настроект доступа к БД:
- 
-    mcedit /var/lib/pgsql/data/pg_hba.conf
-
-    закоментируйте строку, добавив в её начало символ '#'
-
-    #local  all      all        127.0.0.1    255.255.255.255   pam
-    
-    добавьте строку
-    
-    local  all      all        127.0.0.1    255.255.255.255   md5
-
-CONFIG_MESSAGE_END
+####################################
+cat << DONE_MESSAGE_END
+Установка завершена.
+Изменения вступят в силу при повторном входе в систему.
+DONE_MESSAGE_END
 
 %postun
+####################################
+echo "Настройка Axis2/C"
+patch /usr/local/axis2c/axis2.xml << AXIS2C_UNPATCH_END
+--- axis2.xml	Wed Apr  8 09:30:30 2009
++++ axis2.xml	Wed Apr  8 09:28:14 2009
+@@ -83,6 +83,4 @@
+     <!-- Comment this to disable Addressing -->
+     <module ref="addressing"/>
+-    <module ref="staff"/>
+-    <module ref="staff_security"/>
+ 
+ 
+AXIS2C_UNPATCH_END
+
+####################################
+patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_UNPATCH_END
+--- pg_hba.conf	Wed Apr  8 09:43:16 2009
++++ pg_hba.conf	Wed Apr  8 09:43:12 2009
+@@ -58,3 +58,2 @@ local   all         postgres            
+ local   all         all                                             pam
+-#host    all         all         127.0.0.1         255.255.255.255   pam
+-host    all         all         127.0.0.1         255.255.255.255   md5
++host    all         all         127.0.0.1         255.255.255.255   pam
+POSTGRES_UNPATCH_END
+#"mktmp: Permission denied" while sudo -u postgres patch
+chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
+
+/etc/init.d/postgresql reload

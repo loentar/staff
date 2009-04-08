@@ -13,9 +13,9 @@ Provides: webapp-httpd
 Прокси-модуль для вызова сервисов axis2c/staff через Apache2
 
 %files
-%defattr(0755,root,root)
+%defattr(-,root,root)
 /www/conf/mods-enabled/
-/www/modules/
+/www/modules/*
 
 %pre
 
