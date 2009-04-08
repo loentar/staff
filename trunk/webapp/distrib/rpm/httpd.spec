@@ -23,5 +23,7 @@ Provides: webapp-httpd
 
 %post
 grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n' >> /www/conf/httpd.conf
+ps -C httpd >/dev/null && /www/bin/apachectl graceful
 
 %postun
+ps -C httpd >/dev/null && /www/bin/apachectl graceful
