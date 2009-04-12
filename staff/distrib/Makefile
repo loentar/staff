@@ -2,6 +2,7 @@ include ../Makefile.env
 
 make:;
 clean:;
+install:;
 
 distrib:
 	mkdir -p $(DEPLOYROOTDIR)etc/ld.so.conf.d/ $(DEPLOYROOTDIR)etc/profile.d/
