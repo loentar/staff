@@ -59,24 +59,26 @@ function DeserializeStruct_$(Struct.MangledName)(tOperation, tNode)
 #ifeq($(Typedef.DataType.IsTemplate),1)
 function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 {
-  for(var i = 0; i != rtType.length; ++i)
 #ifeq($(Typedef.DataType.Name),std::map) // ---- map -------------------------- key
+  for(var tKey in rtType)
   {
-    var tItem = tOperation.AddParameter('Item', '', tNode);
+    if(typeof tKey != 'function')
+    {
+      var tItem = tOperation.AddParameter('Item', '', tNode);
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
-    SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Key', '', tItem));
+      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[tKey], tOperation.AddParameter('Key', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-    tOperation.AddParameter('Key', rtType[i].key, tItem);
+      tOperation.AddParameter('Key', tKey, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!! 
-    tOperation.AddDataParameter('Key', rtType[i].key, tItem); // dataobject as key??? very strange
+      tOperation.AddDataParameter('Key', tKey, tItem); // dataobject as key??? very strange
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Key', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),template)    // !!template!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Key', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -85,19 +87,19 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend //  - value -
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)    // !!struct!!
-    SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Value', '', tItem));
+      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[tKey], tOperation.AddParameter('Value', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
-    tOperation.AddParameter('Value', rtType[i].value, tItem);
+      tOperation.AddParameter('Value', rtType[tKey], tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject) // !!dataobject!! 
-    tOperation.AddDataParameter('Value', rtType[i].value, tItem); // dataobject as value??? very strange
+      tOperation.AddDataParameter('Value', rtType[tKey], tItem); // dataobject as value??? very strange
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)    // !!typedef!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Value', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[tKey], tOperation.AddParameter('Value', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),template)    // !!template!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Value', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, rtType[tKey], tOperation.AddParameter('Value', '', tItem));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam2.Type);"
 #ifeqend
@@ -105,8 +107,10 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
+    }
   }
 #else  // ---------------------------- list -----------------------------------
+  for(var i = 0; i != rtType.length; ++i)
   {
 // Typedef.DataType.TemplateParams.TemplateParam1.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
@@ -171,8 +175,14 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
   var tItem = null;
 
   var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+#ifeq($(Typedef.DataType.Name),std::list)
   var aResult = new Array();
   var j = 0;
+#else
+#ifeq($(Typedef.DataType.Name),std::map)
+  var aResult = {};
+#ifeqend
+#ifeqend
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
@@ -201,43 +211,37 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
     {
 #ifeq($(Typedef.DataType.Name),std::map)
 //template $(Typedef.DataType.Name)<$(Typedef.DataType.TemplateParams.TemplateParam1.Name), $(Typedef.DataType.TemplateParams.TemplateParam2.Name)>
-      var tResultPair = 
-      {
-        key: null,
-        value: null  
-      };
-    
-      var pKey = tOperation.SubNode("Key", tResult.childNodes[i]);
-      var pValue = tOperation.SubNode("Value", tResult.childNodes[i]);
+      var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
+      var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
 
-      tResultPair.key =\
+      var tKey =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, pKey); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, pKeyElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, pKey); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, pKeyElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
- pKey; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #else
-  pKey.firstChild != null ? pKey.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
 #ifeqend
 #ifeqend
 #ifeqend
-      tResultPair.value =\
+      var tValue =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, pValue); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, pValue); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, pValueElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
- tResult.pValue; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ tResult.pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #else
- tResult.pValue.firstChild != null ? tResult.pValue.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ tResult.pValueElem.firstChild != null ? tResult.pValueElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
 #ifeqend
 #ifeqend
 #ifeqend
-      aResult[j++] = tResultPair;
+      aResult[tKey] = tValue;
 #else
 //template $(Typedef.DataType.Name)<$(Typedef.DataType.TemplateParams.TemplateParam1.Name)>
     aResult[j++] =\
