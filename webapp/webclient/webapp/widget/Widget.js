@@ -20,6 +20,7 @@ widget.Widget.prototype =
       if(this.tProperties.sParent)
       {
         tParent = document.getElementById(this.tProperties.sParent);
+        delete this.tProperties.sParent; // compat
       }
       else
       {
@@ -28,14 +29,33 @@ widget.Widget.prototype =
     
       if(tParent == null)
       {
-         throw Error("Невозможно восстановить " + self.tProperties.sLabel + "; <br>Отсутствует родительский элемент");
+         throw Error("РќРµРІРѕР·РјРѕР¶РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ " + this.sName 
+            + "; <br>РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ СЌР»РµРјРµРЅС‚: " + this.tProperties.sParent);
       }
 
-      var tElement = this.Create(tParent);
-      if (tElement != null) // compat
+      this.tWidgetParent = tParent;
+      
+      var tFrameOpts = this.GetFrameOptions != null ? this.GetFrameOptions() : {};
+      
+      if(tFrameOpts.bNoFrame !== true)
+      {
+        if(tFrameOpts.sCaption == null)
+        {
+          tFrameOpts.sCaption = tOptions.sDescription;
+        }
+      
+        this._tWidgetFrame = new webapp.view.WidgetFrame(tParent, tFrameOpts);
+        this._tWidgetFrame.On('close', this._OnClose, this, stWidget);
+        tParent = this._tWidgetFrame.GetBodyContainer();
+      }
+
+      this.tOptions.pParentElement = tParent.Element != null ? tParent.Element() : tParent; // compat
+
+      this.tElement = this.Create(tParent, tOptions);
+/*      if (tElement != null) // compat
       {
         this.pElement = tElement;
-      }
+      }*/
     }
 
     if (this.DeserializeData)
@@ -44,10 +64,11 @@ widget.Widget.prototype =
     }
 
     this.SetModify(false);
+    this.tEvents = {};
   },
   
   //! deinitializer
-  uninitialize: function()
+  destroy: function()
   {
     if(this.Destroy)
     {
@@ -60,6 +81,11 @@ widget.Widget.prototype =
       this.pMenuItem.destroy();
     }
     
+    if (this._tWidgetFrame != null)
+    {
+      this._tWidgetFrame.destroy();
+    }
+    
     if(this.pElement != null)
     {
       // yui
@@ -69,9 +95,9 @@ widget.Widget.prototype =
       }
       else
       { // DOM
-        if(this.pElement.parentElement && this.pElement.parentElement.removeChild)
+        if(this.pElement.parentNode && this.pElement.parentNode.removeChild)
         {
-          this.pElement.parentElement.removeChild(this.pElement);
+          this.pElement.parentNode.removeChild(this.pElement);
         }
       }
     }
@@ -114,6 +140,7 @@ widget.Widget.prototype =
       lsProperties: new Array()
     };
 
+    this.tProperties.sParent = this.tWidgetParent.id;
     for(tProperty in this.tProperties)
     {
       if(typeof this.tProperties[tProperty] != "function")
@@ -183,5 +210,28 @@ widget.Widget.prototype =
     }
     
     return sResult;
-  }  
+  },
+
+  On: function(sEvent, fHandler, tScope, tObject)
+  {
+    this.tEvents[sEvent] = 
+    {
+      fHandler: tScope != null ? fHandler.bind(tScope) : fHandler,
+      tObject: tObject
+    };
+  },
+  
+  FireEvent: function(sEvent)
+  {
+    var tEventHandler = this.tEvents[sEvent];
+    if (tEventHandler != null)
+    {
+      tEventHandler.fHandler(tEventHandler.tObject);
+    }
+  },
+  
+  _OnClose: function()
+  {
+    this.FireEvent("close");
+  }
 };

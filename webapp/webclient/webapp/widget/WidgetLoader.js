@@ -4,42 +4,41 @@ namespace('widget');
 // class WidgetLoader
 
 widget.WidgetLoader = Class.create();
-widget.WidgetLoader.pWidgetManager = null;
-widget.WidgetLoader.tOptions = null;
-widget.WidgetLoader.aWidgetList = null;
-widget.WidgetLoader.pCallbackFunction = null;
-widget.WidgetLoader.tWidgetEditDialog = null;
 widget.WidgetLoader.prototype = 
 {
   initialize: function()
   {
     this.pWidgetManager = new widget.WidgetManager();
-    this.aWidgetList = new Array();
     this.tWidgetEditDialog = new widget.WidgetEditDialog();
   },
   
   Init: function(tOptions)
   {
     this.tOptions = tOptions;
-    this._Open();
+
+    this.mActiveWidgets = {};
+    this.mAvailableWidgets = {};
+    this.aAvailableWidgets = {};
+
+    Include('WidgetFrame', 'webapp/view/',
+      this._Open.bind(this),
+      ['webapp.view.WidgetFrame']);
   },
   
   AddWidget: function()
   {
-    var self = this;
-    
     try
     {
-      var tWidgetClassList = this.pWidgetManager.GetWidgetClassList();
-
       webapp.dlgList.hide(); // если открыт диалог другого типа
-      $('dlgListCaption').innerText = "Добавить виджет";
-      $('dlgListLabel').innerText = "Выберите виджет из списка:";
+      $('dlgListCaption').innerText = "Добавить сервис";
+      $('dlgListLabel').innerText = "Выберите сервис из списка:";
       var pListName = $('selDlgListName');
       pListName.options.length = 0;
-      pListName.options.length = tWidgetClassList.length;
-      for (var i = 0; i < tWidgetClassList.length; i++)
-        pListName.options[i] = new Option(tWidgetClassList[i].sDescr, i);
+      pListName.options.length = this.aAvailableWidgets.length;
+      for (var i = 0; i < this.aAvailableWidgets.length; i++)
+      {
+        pListName.options[i] = new Option(this.aAvailableWidgets[i].sDescr, i);
+      }
       pListName.selectedIndex = 0;
       
       webapp.dlgList.onConfirm =
@@ -48,11 +47,12 @@ widget.WidgetLoader.prototype =
           var nIndex = pListName.selectedIndex;
           var tSelectedObj = pListName.options[nIndex];
           var nWidgetID = tSelectedObj.value;
-          var sWidgetClass = tWidgetClassList[nWidgetID].sClass;
+          var sWidgetDescr = tSelectedObj.text;
+          var sWidgetClass = this.aAvailableWidgets[nWidgetID].sClass;
 
           webapp.dlgList.hide();
           
-          IncludeClass // подгрузка виджета
+          IncludeClass // подгрузка сервиса
           (
             "widget." + sWidgetClass,
             "",
@@ -65,62 +65,52 @@ widget.WidgetLoader.prototype =
                 lsProperties: []
               };
 
-              self.tWidgetEditDialog.Show
+              this.tWidgetEditDialog.Show
               (
                 stWidget,
                 function(stWidget)
                 {
-                  var nKey = 0;
-                    
-                  for(nIndex in self.aWidgetList)
-                  {
-                    if(typeof self.aWidgetList[nIndex] == "object" && nKey <= nIndex) // extend, each....
-                    {
-                      nKey = nIndex + 1;
-                    }
-                  }
-                      
                   try
                   {
-                    var tNewWidget = eval('new widget.' + sWidgetClass + '(stWidget, self.tOptions)');
-                    self.pWidgetManager.AddWidget(tNewWidget.Serialize());
-                    self.aWidgetList[nKey] = tNewWidget;
+                    var tNewWidget = this._CreateWidget(stWidget);
+                    var nWidgetId = this.pWidgetManager.AddWidget(tNewWidget.Serialize());
+                    this.mActiveWidgets[nWidgetId] = tNewWidget;
                   }
                   catch(tError)
                   {
-                     webapp.MessageBox.ShowMessage(tError.message, 'error');
+                    webapp.MessageBox.ShowMessage(tError.message, 'error');
                   }
-                }
+                }.bind(this)
               );
-            }
+            }.bind(this)
           );
-          
-        }
 
-        webapp.dlgList.show();
-      }
-      catch(tError)
-      {
-        webapp.MessageBox.ShowMessage("Невозможно получить список доступных виджетов:<br>" + tError, 'error');
-      }
+        }.bind(this);
+
+      webapp.dlgList.show();
+    }
+    catch(tError)
+    {
+      webapp.MessageBox.ShowMessage("Невозможно получить список доступных сервисов:<br>" + tError, 'error');
+    }
   },
   
   EditWidget: function()
   {
-    var self = this;
-
     webapp.dlgList.hide(); // если открыт диалог другого типа
-    $('dlgListCaption').innerText = "Изменить виджет";
-    $('dlgListLabel').innerText = "Выберите виджет из списка:";
+    $('dlgListCaption').innerText = "Изменить сервис";
+    $('dlgListLabel').innerText = "Выберите сервис из списка:";
     var pListName = $('selDlgListName');
     pListName.options.length = 0;
     var j = 0;
-    for(nIndex in this.aWidgetList)
-      if(typeof this.aWidgetList[nIndex] == "object") // extend, each....
+    for(nIndex in this.mActiveWidgets)
+    {
+      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
       {
-        pListName.options[j] = new Option(this.aWidgetList[nIndex].sName, nIndex);
+        pListName.options[j] = new Option(this.mActiveWidgets[nIndex].sName, nIndex);
         ++j;
       }
+    }
 
     pListName.options.length = j; // opera fix?
     pListName.selectedIndex = 0;
@@ -134,37 +124,35 @@ widget.WidgetLoader.prototype =
         var sWidgetName = tSelectedObj.text;
 
         webapp.dlgList.hide();
-        var tWidget = self.aWidgetList[nWidgetID];
+        var tWidget = this.mActiveWidgets[nWidgetID];
         var stWidget = tWidget.Serialize();
-        self.tWidgetEditDialog.Show
+        this.tWidgetEditDialog.Show
         (
           stWidget,
           function(stWidget)
           {
             tWidget.Deserialize(stWidget);
             tWidget.SetModify(true);
-            self.pWidgetManager.AlterWidget(nWidgetID, tWidget.Serialize());
+            this.pWidgetManager.AlterWidget(nWidgetID, tWidget.Serialize());
           }
         );
-      }
+      }.bind(this);
 
     webapp.dlgList.show();
   },
   
   DeleteWidget: function()
   {
-    var self = this;
-
     webapp.dlgList.hide(); // если открыт диалог другого типа
-    $('dlgListCaption').innerText = "Выгрузить виджет";
-    $('dlgListLabel').innerText = "Выберите виджет из списка:";
+    $('dlgListCaption').innerText = "Выгрузить сервис";
+    $('dlgListLabel').innerText = "Выберите сервис из списка:";
     var pListName = $('selDlgListName');
     pListName.options.length = 0;
     var j = 0;
-    for(nIndex in this.aWidgetList)
-      if(typeof this.aWidgetList[nIndex] == "object") // extend, each....
+    for(nIndex in this.mActiveWidgets)
+      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
       {
-        pListName.options[j] = new Option(this.aWidgetList[nIndex].sName, nIndex);
+        pListName.options[j] = new Option(this.mActiveWidgets[nIndex].sName, nIndex);
         ++j;
       }
 
@@ -179,14 +167,12 @@ widget.WidgetLoader.prototype =
         var nWidgetID = tSelectedObj.value;
         var sWidgetName = tSelectedObj.text;
 
-        self.pWidgetManager.DeleteWidget(nWidgetID);
+        this.pWidgetManager.DeleteWidget(nWidgetID);
 
         webapp.dlgList.hide();
-        var tWidgetToDel = self.aWidgetList[nWidgetID];
-        tWidgetToDel.uninitialize();
-        delete tWidgetToDel;
-        delete self.aWidgetList[nWidgetID];
-      }
+        this.mActiveWidgets[nWidgetID].destroy();
+        delete this.mActiveWidgets[nWidgetID];
+      }.bind(this);
 
     webapp.dlgList.show();
   },
@@ -194,9 +180,13 @@ widget.WidgetLoader.prototype =
   _Dump: function()
   {
     var sDumpResult = "";
-    for(nIndex in this.aWidgetList)
-      if(typeof this.aWidgetList[nIndex] == "object") // extend, each....
-        sDumpResult += "--------------\n"  + this.aWidgetList[nIndex].Dump() + "--------------\n";
+    for(nIndex in this.mActiveWidgets)
+    {
+      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
+      {
+        sDumpResult += "--------------\n"  + this.mActiveWidgets[nIndex].Dump() + "--------------\n";
+      }
+    }
     
     return sDumpResult;
   },
@@ -208,17 +198,17 @@ widget.WidgetLoader.prototype =
   
   GetWidgetList: function()
   {
-    return this.aWidgetList;
+    return this.mActiveWidgets;
   },
   
   GetWidgetByName: function(sName)
   {
-    for(nId in this.aWidgetList)
+    for(nId in this.mActiveWidgets)
     {
-      if(typeof this.aWidgetList[nId] == "object" && // extend, each....
-        this.aWidgetList[nId].sName == sName) 
+      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
+        this.mActiveWidgets[nId].sName == sName) 
       {
-        return this.aWidgetList[nId];
+        return this.mActiveWidgets[nId];
       }
     }
 
@@ -227,12 +217,12 @@ widget.WidgetLoader.prototype =
   
   GetWidgetByClass: function(sClass)
   {
-    for(nId in this.aWidgetList)
+    for(nId in this.mActiveWidgets)
     {
-      if(typeof this.aWidgetList[nId] == "object" && // extend, each....
-        this.aWidgetList[nId].sClass == sClass) 
+      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
+        this.mActiveWidgets[nId].sClass == sClass) 
       {
-        return this.aWidgetList[nId];
+        return this.mActiveWidgets[nId];
       }
     }
 
@@ -241,10 +231,10 @@ widget.WidgetLoader.prototype =
   
   GetWidgetIdByName: function(sName)
   {
-    for(nId in this.aWidgetList)
+    for(nId in this.mActiveWidgets)
     {
-      if(typeof this.aWidgetList[nId] == "object" && // extend, each....
-        this.aWidgetList[nId].sName == sName) 
+      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
+        this.mActiveWidgets[nId].sName == sName) 
       {
         return nId;
       }
@@ -255,13 +245,17 @@ widget.WidgetLoader.prototype =
   
   LoadWidgets: function()
   {
-    var self = this;
     try
     {
       var tWidgetList = this.pWidgetManager.GetWidgetList();
       var asWidgetScripts = new Array()
-      for(var i = 0; i < tWidgetList.length; ++i)
-        asWidgetScripts.push("widget." + tWidgetList[i].value.sClass);
+      for(var nWidgetId in tWidgetList)
+      {
+        if(typeof tWidgetList[nWidgetId] != 'function')
+        {
+          asWidgetScripts.push("widget." + tWidgetList[nWidgetId].sClass);
+        }
+      }
       
       IncludeClass
       (
@@ -269,28 +263,41 @@ widget.WidgetLoader.prototype =
         "",
         function()
         {
-          self.UnloadWidgets();
-          for(var i = 0; i < tWidgetList.length; ++i)
+          this.UnloadWidgets();
+          for(var nWidgetId in tWidgetList)
           {
-            var nKey = parseInt(tWidgetList[i].key);
-            self.aWidgetList[nKey] = eval('new widget.' + tWidgetList[i].value.sClass + '(tWidgetList[' + i + '].value, self.tOptions)');
+            if(typeof tWidgetList[nWidgetId] != 'function')
+            {
+              try
+              {
+                this.mActiveWidgets[nWidgetId] = this._CreateWidget(tWidgetList[nWidgetId]);
+              }
+              catch(tError)
+              {
+                if(!confirm("Невозможно загрузить сервис:\n" + tError.message + "\nЗагружать его в слудеющий раз?"))
+                {
+                  this.pWidgetManager.DeleteWidget(nWidgetId);
+                }
+              }
+
+            }
           }
-        }
+        }.bind(this)
       );
     }
     catch(tError)
     {
-      webapp.MessageBox.ShowMessage("Невозможно получить список активных виджетов:<br>" + tError, 'error');
+      webapp.MessageBox.ShowMessage("Невозможно получить список активных сервисов:<br>" + tError, 'error');
     }
   },
   
   SaveWidgets: function()
   {
-    for(nIndex in this.aWidgetList)
+    for(nIndex in this.mActiveWidgets)
     {
-      if(typeof this.aWidgetList[nIndex] == "object") // extend, each....
+      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
       {
-        var pWidget = this.aWidgetList[nIndex];
+        var pWidget = this.mActiveWidgets[nIndex];
         if(pWidget.GetModify())
         {
           this.pWidgetManager.AlterWidget(nIndex, pWidget.Serialize());
@@ -304,37 +311,33 @@ widget.WidgetLoader.prototype =
   
   UnloadWidgets: function()
   {
-    for(nIndex in this.aWidgetList)
+    for(nIndex in this.mActiveWidgets)
     {
-      if(typeof this.aWidgetList[nIndex] == "object") // extend, each....
+      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
       {
-        var pWidget = this.aWidgetList[nIndex];
-        pWidget.uninitialize();
-        delete pWidget;
-        delete this.aWidgetList[nIndex];
+        this.mActiveWidgets[nIndex].destroy();
+        delete this.mActiveWidgets[nIndex];
       }
     }
-    this.aWidgetList.length = 0;
+    this.mActiveWidgets = {};
   },
   
   LoadWidget: function(stWidget, tOptions, pCallbackFunction)
   {
-    var self = this;
     IncludeClass
     (
       "widget." + stWidget.sClass,
       "",
       function()
       {
-        var nKey = self.aWidgetList.length;
-        var tNewWidget = eval('new widget.' + stWidget.sClass + '(stWidget, tOptions)');
-
-        self.pWidgetManager.AddWidget(tNewWidget.Serialize());
-
-        self.aWidgetList[nKey] = tNewWidget;
+        var tNewWidget = this._CreateWidget(stWidget);
+        var nWidgetId = this.pWidgetManager.AddWidget(tNewWidget.Serialize());
+        this.mActiveWidgets[nWidgetId] = tNewWidget;
         if(pCallbackFunction != null)
-          pCallbackFunction(self.aWidgetList[nKey]);
-      }
+        {
+          pCallbackFunction(tNewWidget);
+        }
+      }.bind(this)
     );    
   },
   
@@ -346,33 +349,62 @@ widget.WidgetLoader.prototype =
     if(typeof tWidget != 'object')
     {
       nIndex = tWidget;
-      pWidget = this.aWidgetList[nIndex];
+      pWidget = this.mActiveWidgets[nIndex];
     } else
     {
       pWidget = tWidget;
-      nIndex = this.GetWidgetIndexByName(tWidget);
+      nIndex = this.GetWidgetIdByName(tWidget.sName);
     }
     
     this.pWidgetManager.DeleteWidget(nIndex);
 
-    pWidget.uninitialize();
+    pWidget.destroy();
     delete pWidget;
-    this.aWidgetList.splice(nIndex, 1);
+    delete this.mActiveWidgets[nIndex];
   },
   
   _Open: function()
   {
-    var self = this;
     try
     {
       this.pWidgetManager.Open(this.tOptions.sProfile);
+      this.aAvailableWidgets = this.pWidgetManager.GetWidgetClassList();
+      for(var nIndex = this.aAvailableWidgets.length - 1; nIndex >= 0; --nIndex)
+      {
+        this.mAvailableWidgets[this.aAvailableWidgets[nIndex].sClass] = this.aAvailableWidgets[nIndex].sDescr;
+      }
+
       this.LoadWidgets();
     }
     catch(tError)
     {
-      webapp.MessageBox.ShowMessage("Невозможно соединиться с сервисом виджетов:<br>" + tError.message, 'error',
-        [{ text: 'Повторить', handler: function() { setTimeout(function(){self._Open();}, 10); webapp.MessageBox.Hide(); } }]);
+      function Retry()
+      { 
+        setTimeout(this._Open().bind(this), 10); 
+        webapp.MessageBox.Hide(); 
+      }
+      
+      webapp.MessageBox.ShowMessage("Невозможно соединиться с сервисом сервисов:<br>" + tError.message, 'error',
+        [{ text: 'Повторить', handler: Retry.bind(this) }]);
     }
+  },
+  
+  _OnCloseWidget: function(tWidget)
+  {
+    if(confirm("Убрать сервис \"" + tWidget.tOptions.sDescription + "\"?"))
+    {
+      this.UnloadWidget(tWidget);
+    }
+  },
+  
+  _CreateWidget: function(stWidget)
+  {
+    var tOpts = this.tOptions.clone();
+    tOpts.sDescription = this.mAvailableWidgets[stWidget.sClass];
+
+    var tWidget = new widget[stWidget.sClass](stWidget, tOpts);
+    tWidget.On("close", this._OnCloseWidget, this, tWidget);
+    return tWidget;
   }
 
 }
