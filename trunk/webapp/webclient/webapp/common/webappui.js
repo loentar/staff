@@ -97,6 +97,31 @@ webapp.ui.Generic.prototype =
   On: function(sEvent, fHandler, tScope)
   {
     addHandler(this.tElement, sEvent, fHandler.bindAsEventListener(tScope || this));
+  },
+  
+  Show: function(bShow)
+  {
+    if (bShow == null)
+    {
+      bShow = true;
+    }
+
+    this.tElement.style.visibility = bShow ? "visible" : "hidden";
+  },
+  
+  Hide: function()
+  {
+    this.Show(false);
+  },
+  
+  AppendChild: function(tChild)
+  {
+    this.tElement.appendChild(tChild.tElement != null ? tChild.tElement : tChild);
+  },
+  
+  RemoveChild: function(tChild)
+  {
+    this.tElement.removeChild(tChild.tElement != null ? tChild.tElement : tChild);
   }
 };
 
@@ -122,14 +147,15 @@ webapp.ui.Label.prototype.extend(new webapp.ui.Generic).extend
   
   Create: function(tParent, tOpt)
   {
-    if (tOpt.sCaption == null)
-    {
-      tOpt.sCaption = '';
-    }
-    
     var tLabel = document.createElement('label');
     
-    tLabel.appendChild(document.createTextNode(tOpt.sCaption));
+    if (tOpt != null)
+    {
+      if (tOpt.sCaption != null)
+      {
+        tLabel.appendChild(document.createTextNode(tOpt.sCaption));
+      }
+    }
 
     return tLabel;
   },
@@ -139,9 +165,17 @@ webapp.ui.Label.prototype.extend(new webapp.ui.Generic).extend
     return this.Element().firstNode.nodeValue;
   },
   
-  SetCaption: function(sText)
+  SetCaption: function(sCaption)
   {
-    return this.Element().firstNode.nodeValue = sText;
+    var tNodeCaption = this.Element().firstNode;
+    if (tNodeCaption != null)
+    {
+      tNodeCaption.nodeValue = sCaption;
+    }
+    else
+    {
+      this.AppendChild(document.createTextNode(sCaption));
+    }
   },
   
   SetBuddy: function(tBuddy)
@@ -448,7 +482,7 @@ webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
     if(this.tCaptionText == null)
     {
       this.tCaption = document.createElement('caption');
-      this.tTBody.appendChild(this.tCaption);
+      this.tTable.appendChild(this.tCaption);
       
       this.tCaptionText = document.createTextNode(sCaption)
       this.tCaption.appendChild(this.tCaptionText);    }
@@ -456,5 +490,34 @@ webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
     {
       this.tCaptionText.nodeValue = sCaption;
     }
+  }
+});
+
+
+//////////////////////////////////////////////////////////////////////////
+// Image
+webapp.ui.Image = Class.create();
+webapp.ui.Image.prototype.extend(new webapp.ui.Generic).extend
+({
+  sClass: 'Image',
+  
+  Create: function(tParent, tOpt)
+  {
+    var tImage = new Image();
+    
+    if (tOpt != null)
+    {
+      if (tOpt.sSrc != null)
+      {
+        tImage.src = tOpt.sSrc;
+      }
+    }
+    
+    return tImage;
+  },
+  
+  SetSrc: function(sUrl)
+  {
+    this.Element().src = sUrl;
   }
 });

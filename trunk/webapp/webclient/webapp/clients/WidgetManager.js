@@ -85,11 +85,14 @@ function SerializeTypedef_widget_TPropertyList(tOperation, rtType, tNode)
 // ::widget::TWidgetMap  Typedef.DataType.Type template std::map
 function SerializeTypedef_widget_TWidgetMap(tOperation, rtType, tNode)
 {
-  for(var i = 0; i != rtType.length; ++i)
+  for(var tKey in rtType)
   {
-    var tItem = tOperation.AddParameter('Item', '', tNode);
-    tOperation.AddParameter('Key', rtType[i].key, tItem);
-    SerializeStruct_widget_SWidget(tOperation, rtType[i], tOperation.AddParameter('Value', '', tItem));
+    if(typeof tKey != 'function')
+    {
+      var tItem = tOperation.AddParameter('Item', '', tNode);
+      tOperation.AddParameter('Key', tKey, tItem);
+      SerializeStruct_widget_SWidget(tOperation, rtType[tKey], tOperation.AddParameter('Value', '', tItem));
+    }
   }
   return tNode;
 }
@@ -144,26 +147,19 @@ function DeserializeTypedef_widget_TWidgetMap(tOperation, tNode)
   var tItem = null;
 
   var tResult = tNode == null ? tOperation.ResultElement() : tNode;
-  var aResult = new Array();
-  var j = 0;
+  var aResult = {};
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
     if( tResult.childNodes[i].nodeName == "Item")
     {
 //template std::map<int, ::widget::SWidget>
-      var tResultPair = 
-      {
-        key: null,
-        value: null  
-      };
-    
-      var pKey = tOperation.SubNode("Key", tResult.childNodes[i]);
-      var pValue = tOperation.SubNode("Value", tResult.childNodes[i]);
+      var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
+      var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
 
-      tResultPair.key =  pKey.firstChild != null ? pKey.firstChild.nodeValue : ""; // *** generic int
-      tResultPair.value = DeserializeStruct_widget_SWidget(tOperation, pValue); // *** struct ::widget::SWidget
-      aResult[j++] = tResultPair;
+      var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic int
+      var tValue = DeserializeStruct_widget_SWidget(tOperation, pValueElem); // *** struct ::widget::SWidget
+      aResult[tKey] = tValue;
     }
   }
 

@@ -153,13 +153,53 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
     
     function CheckIncludeSingle()
     {
-      if(pIncludeAvailableFunction)
-        if(!pIncludeAvailableFunction(sBaseName))
+      function ContinueWait()
+      {
+        if(--nLimit > 0)
         {
-          if(--nLimit > 0)
-            setTimeout(CheckIncludeSingle, 100);
-          return;
+          setTimeout(CheckIncludeSingle, 100);
         }
+        else
+        {
+          alert("can't load: " + sBaseName);
+        }
+      }
+    
+
+      if(pIncludeAvailableFunction)
+      {
+        if(typeof pIncludeAvailableFunction == 'function')
+        {
+          if(!pIncludeAvailableFunction(sBaseName))
+          {
+            ContinueWait();
+            return;
+          }
+        }
+        else
+        if(pIncludeAvailableFunction instanceof Array)
+        {
+          for(var j = 0; j < pIncludeAvailableFunction.length; ++j)
+          {
+            if(typeof pIncludeAvailableFunction[j] == 'string')
+            {
+              try
+              {
+                if(eval(pIncludeAvailableFunction[j]) == null)
+                {
+                  ContinueWait();
+                  return;
+                }
+              }
+              catch(tError)
+              {
+                ContinueWait();
+                return;
+              }
+            }
+          }
+        }
+      }
       
       pIncludingCompleteFunction();
     }
@@ -311,3 +351,15 @@ function namespace(sNamespace)
     eval('if (typeof ' + sCurrentNamespace + ' == \'undefined\') { ' + sCurrentNamespace + ' = {}; };');
   }
 }
+
+Object.prototype.clone = function()
+{
+  var tClone = {};
+  for (tProperty in this) 
+  {
+    tClone[tProperty] = this[tProperty];
+  }
+  return tClone;
+}
+
+Object.prototype.clone.dontEnum = true;

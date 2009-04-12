@@ -1,0 +1,39 @@
+
+.WidgetFrame
+{
+  overflow: hidden;
+}
+
+.WidgetFrameHeader
+{
+  background: ActiveCaption;
+  border: 1px solid buttonshadow;
+}
+
+.WidgetFrameBody
+{
+  width: 100%;
+  border: 1px solid buttonshadow;
+}
+
+.WidgetFrameHeaderTable
+{
+  height: 22px;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.WidgetFrameHeaderLabel
+{
+  color: CaptionText;
+  font-family: Arial;
+  font-weight: bold;
+}
+
+.WidgetFrameCellHeaderButton
+{
+  height: 16px;
+  width: 16px;
+  margin-right: 3px;
+}
