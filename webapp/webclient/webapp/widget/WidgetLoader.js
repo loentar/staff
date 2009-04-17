@@ -78,7 +78,7 @@ widget.WidgetLoader.prototype =
                   }
                   catch(tError)
                   {
-                    webapp.MessageBox.ShowMessage(tError.message, 'error');
+                    webapp.MessageBox.ShowMessage(tError.message || tError, 'error');
                   }
                 }.bind(this)
               );
@@ -274,7 +274,7 @@ widget.WidgetLoader.prototype =
               }
               catch(tError)
               {
-                if(!confirm("Невозможно загрузить сервис:\n" + tError.message + "\nЗагружать его в слудеющий раз?"))
+                if(!confirm("Невозможно загрузить сервис:\n" + (tError.message || tError) + "\nЗагружать его в слудеющий раз?"))
                 {
                   this.pWidgetManager.DeleteWidget(nWidgetId);
                 }
@@ -384,7 +384,7 @@ widget.WidgetLoader.prototype =
         webapp.MessageBox.Hide(); 
       }
       
-      webapp.MessageBox.ShowMessage("Невозможно соединиться с сервисом сервисов:<br>" + tError.message, 'error',
+      webapp.MessageBox.ShowMessage("Невозможно соединиться с сервисом сервисов:<br>" + (tError.message || tError), 'error',
         [{ text: 'Повторить', handler: Retry.bind(this) }]);
     }
   },

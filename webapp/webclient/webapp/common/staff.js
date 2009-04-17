@@ -117,7 +117,15 @@ staff.Client.prototype =
     }
     else
     {
-      throw Error("Ошибка при вызове сервиса " + this.sServiceUri + ": " + GetErrorStr(tAjaxRequest.transport.status) + "(" + tAjaxRequest.transport.statusText + ")");
+      var sMessage;
+      if (tAjaxRequest.transport.responseXML != null && tAjaxRequest.transport.responseXML.documentElement != null)
+      { //remote exception
+        tOperation.SetResultEvenlope(new SOAP.Envelope(tAjaxRequest.transport.responseXML.documentElement));
+        sMessage = tOperation.GetFaultString();
+      }
+
+      throw Error("Ошибка при вызове сервиса " + this.sServiceUri + ": <b>" + sMessage + "</b> <br/>" 
+          + "(" + (tAjaxRequest.transport.statusText || GetErrorStr(tAjaxRequest.transport.status)) + ")");
     }
   }
 };
