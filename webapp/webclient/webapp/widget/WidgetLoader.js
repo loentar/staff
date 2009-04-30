@@ -1,15 +1,17 @@
-namespace('widget');
+namespace('webapp.widget');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // class WidgetLoader
 
-widget.WidgetLoader = Class.create();
-widget.WidgetLoader.prototype = 
+webapp.widget.WidgetLoader = Class.create();
+webapp.widget.WidgetLoader.prototype = 
 {
   initialize: function()
   {
-    this.pWidgetManager = new widget.WidgetManager();
-    this.tWidgetEditDialog = new widget.WidgetEditDialog();
+  },
+  
+  destroy: function()
+  {
   },
   
   Init: function(tOptions)
@@ -20,180 +22,101 @@ widget.WidgetLoader.prototype =
     this.mAvailableWidgets = {};
     this.aAvailableWidgets = {};
 
-    Include('WidgetFrame', 'webapp/view/',
-      this._Open.bind(this),
-      ['webapp.view.WidgetFrame']);
+    Include
+    (
+      [ "webapp/clients/WidgetManager", "webapp/view/WidgetFrame" ],
+      "",
+      this._OnInitComplete.bind(this),
+      [ "widget.WidgetManager", "webapp.view.WidgetFrame" ]
+    );
   },
   
-  AddWidget: function()
+  _OnInitComplete: function()
   {
-    try
-    {
-      webapp.dlgList.hide(); // если открыт диалог другого типа
-      $('dlgListCaption').innerText = "Добавить сервис";
-      $('dlgListLabel').innerText = "Выберите сервис из списка:";
-      var pListName = $('selDlgListName');
-      pListName.options.length = 0;
-      pListName.options.length = this.aAvailableWidgets.length;
-      for (var i = 0; i < this.aAvailableWidgets.length; i++)
-      {
-        pListName.options[i] = new Option(this.aAvailableWidgets[i].sDescr, i);
-      }
-      pListName.selectedIndex = 0;
-      
-      webapp.dlgList.onConfirm =
-        function()
-        {
-          var nIndex = pListName.selectedIndex;
-          var tSelectedObj = pListName.options[nIndex];
-          var nWidgetID = tSelectedObj.value;
-          var sWidgetDescr = tSelectedObj.text;
-          var sWidgetClass = this.aAvailableWidgets[nWidgetID].sClass;
-
-          webapp.dlgList.hide();
-          
-          IncludeClass // подгрузка сервиса
-          (
-            "widget." + sWidgetClass,
-            "",
-            function()
-            {
-              var stWidget = 
-              {
-                sClass: sWidgetClass, 
-                sName: 'id' + sWidgetClass, 
-                lsProperties: []
-              };
-
-              this.tWidgetEditDialog.Show
-              (
-                stWidget,
-                function(stWidget)
-                {
-                  try
-                  {
-                    var tNewWidget = this._CreateWidget(stWidget);
-                    var nWidgetId = this.pWidgetManager.AddWidget(tNewWidget.Serialize());
-                    this.mActiveWidgets[nWidgetId] = tNewWidget;
-                  }
-                  catch(tError)
-                  {
-                    webapp.MessageBox.ShowMessage(tError.message || tError, 'error');
-                  }
-                }.bind(this)
-              );
-            }.bind(this)
-          );
-
-        }.bind(this);
-
-      webapp.dlgList.show();
-    }
-    catch(tError)
-    {
-      webapp.MessageBox.ShowMessage("Невозможно получить список доступных сервисов:<br>" + tError, 'error');
-    }
+    this.pWidgetManager = new widget.WidgetManager();
+    this._Open();
+    this._LoadActiveWidgets();
   },
   
-  EditWidget: function()
+  NewWidgetDlg: function()
   {
-    webapp.dlgList.hide(); // если открыт диалог другого типа
-    $('dlgListCaption').innerText = "Изменить сервис";
-    $('dlgListLabel').innerText = "Выберите сервис из списка:";
-    var pListName = $('selDlgListName');
-    pListName.options.length = 0;
-    var j = 0;
-    for(nIndex in this.mActiveWidgets)
+    var tDlgList = new webapp.view.DlgList({ sCaption: _('Add widget'), sLabel: _('Select widget from list') + ":" });
+    tDlgList.On("confirm", this._OnConfirmNewWidget, this);
+    tDlgList.SetItems(this.aAvailableWidgets, { sKey: "sClass", sLabel: "sDescr", 
+      fnFilter: this._FilterOutSingle, tObj: this });
+    tDlgList.Show();
+  },
+
+  _OnConfirmNewWidget: function(tEvent)
+  {
+    var tUnits;
+    var tWidgetLayout = this.GetWidgetByClass("webapp.widget.Layout");
+
+    if(tWidgetLayout != null)
     {
-      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
-      {
-        pListName.options[j] = new Option(this.mActiveWidgets[nIndex].sName, nIndex);
-        ++j;
-      }
+      tUnits = tWidgetLayout.GetUnits();
+    }
+    else
+    {
+      tUnits = {};
+      tUnits[this.tOptions.tParent.Element().id] = 
+        { 
+          sName: _("Main unit"),
+          sId: this.tOptions.tParent.Element().id,
+          tBody: this.tOptions.tParent
+        };
     }
 
-    pListName.options.length = j; // opera fix?
-    pListName.selectedIndex = 0;
+    var tDlgList = new webapp.view.DlgList({ sCaption: _('Add widget'), sLabel: _('Select layout unit') + ":" });
+    tDlgList.On("confirm", this._OnConfirmUnit, this, tEvent.tItem);
+    tDlgList.SetItems(tUnits, { sKey: "sId", sLabel: "sName" });
+    tDlgList.Show();
+  },
+  
+  _OnConfirmUnit: function(tEvent, tObj)
+  {
+    var aProperties = [];
+    aProperties.push({ sName: 'sParent', tValue: tEvent.tItem.sId });
+    this.NewWidget(tObj.sClass, aProperties);
+  },
+
+  RemoveWidgetDlg: function()
+  {
+    var tDlgList = new webapp.view.DlgList({ sCaption: _('Remove widget'), sLabel: _('Select widget from list') + ":" });
+    tDlgList.On("confirm", this._OnConfirmRemoveWidget, this);
+    tDlgList.SetItems(this.mActiveWidgets, { sKey: "nId", sLabel: "sDescr", fnFilter: this._FilterOutMainLayout });
+    tDlgList.Show();
+  },
+
+  _OnConfirmRemoveWidget: function(tEvent)
+  {
+    this.RemoveWidget(tEvent.tItem.nId);
+  },
     
-    webapp.dlgList.onConfirm =
-      function()
-      {
-        var nIndex = pListName.selectedIndex;
-        var tSelectedObj = pListName.options[nIndex];
-        var nWidgetID = tSelectedObj.value;
-        var sWidgetName = tSelectedObj.text;
-
-        webapp.dlgList.hide();
-        var tWidget = this.mActiveWidgets[nWidgetID];
-        var stWidget = tWidget.Serialize();
-        this.tWidgetEditDialog.Show
-        (
-          stWidget,
-          function(stWidget)
-          {
-            tWidget.Deserialize(stWidget);
-            tWidget.SetModify(true);
-            this.pWidgetManager.AlterWidget(nWidgetID, tWidget.Serialize());
-          }
-        );
-      }.bind(this);
-
-    webapp.dlgList.show();
-  },
-  
-  DeleteWidget: function()
+  ConfigureWidgetDlg: function()
   {
-    webapp.dlgList.hide(); // если открыт диалог другого типа
-    $('dlgListCaption').innerText = "Выгрузить сервис";
-    $('dlgListLabel').innerText = "Выберите сервис из списка:";
-    var pListName = $('selDlgListName');
-    pListName.options.length = 0;
-    var j = 0;
-    for(nIndex in this.mActiveWidgets)
-      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
-      {
-        pListName.options[j] = new Option(this.mActiveWidgets[nIndex].sName, nIndex);
-        ++j;
-      }
+    var tDlgList = new webapp.view.DlgList({ sCaption: _('Configure widget'), sLabel: _('Select widget from list') });
+    tDlgList.On("confirm", this._OnConfirmConfigureWidget, this);
+    tDlgList.SetItems(this.mActiveWidgets, 
+      { sKey: "nId", sLabel: "sDescr", fnFilter: this._FilterOutNonConfigurableWidgets });
+    tDlgList.Show();
+  },
 
-    pListName.options.length = j; // opera fix?
-    pListName.selectedIndex = 0;
+  _OnConfirmConfigureWidget: function(tEvent)
+  {
+    this.mActiveWidgets[tEvent.tItem.nId].Configure();
+  },
     
-    webapp.dlgList.onConfirm =
-      function()
-      {
-        var nIndex = pListName.selectedIndex;
-        var tSelectedObj = pListName.options[nIndex];
-        var nWidgetID = tSelectedObj.value;
-        var sWidgetName = tSelectedObj.text;
-
-        this.pWidgetManager.DeleteWidget(nWidgetID);
-
-        webapp.dlgList.hide();
-        this.mActiveWidgets[nWidgetID].destroy();
-        delete this.mActiveWidgets[nWidgetID];
-      }.bind(this);
-
-    webapp.dlgList.show();
-  },
-  
-  _Dump: function()
+  NewWidget: function(sClass, aProperties)
   {
-    var sDumpResult = "";
-    for(nIndex in this.mActiveWidgets)
+    var stWidget = 
     {
-      if(typeof this.mActiveWidgets[nIndex] != "function") // extend, each....
-      {
-        sDumpResult += "--------------\n"  + this.mActiveWidgets[nIndex].Dump() + "--------------\n";
-      }
-    }
+      sClass: sClass,
+      sName: webapp.ui.IdGen.Gen(sClass),
+      lsProperties: aProperties || []
+    };
     
-    return sDumpResult;
-  },
-  
-  DumpWidgets: function()
-  {
-    webapp.MessageBox.ShowMessage(this._Dump().replace(/\n/g, '<br />'), 'info');
+    this.AddWidget(stWidget, this.tOptions);
   },
   
   GetWidgetList: function()
@@ -201,59 +124,93 @@ widget.WidgetLoader.prototype =
     return this.mActiveWidgets;
   },
   
-  GetWidgetByName: function(sName)
+  GetWidgetById: function(nId)
   {
-    for(nId in this.mActiveWidgets)
-    {
-      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
-        this.mActiveWidgets[nId].sName == sName) 
-      {
-        return this.mActiveWidgets[nId];
-      }
-    }
-
-    return null;
+    return this.mActiveWidgets[nId];
   },
   
   GetWidgetByClass: function(sClass)
   {
     for(nId in this.mActiveWidgets)
     {
-      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
-        this.mActiveWidgets[nId].sClass == sClass) 
+      if(this.mActiveWidgets[nId].sClass == sClass) 
       {
         return this.mActiveWidgets[nId];
       }
     }
-
-    return null;
   },
   
-  GetWidgetIdByName: function(sName)
+  GetWidgetByName: function(sName)
   {
     for(nId in this.mActiveWidgets)
     {
-      if(typeof this.mActiveWidgets[nId] != "function" && // extend, each....
-        this.mActiveWidgets[nId].sName == sName) 
+      if(this.mActiveWidgets[nId].sName == sName) 
       {
-        return nId;
+        return this.mActiveWidgets[nId];
       }
     }
-    
-    return null;
   },
   
-  LoadWidgets: function()
+  AddWidget: function(stWidget, tOptions)
+  {
+    IncludeClass
+    (
+      stWidget.sClass,
+      "",
+      function()
+      {
+        var tNewWidget = this._CreateWidget(stWidget, tOptions);
+        var nWidgetId = this.pWidgetManager.AddWidget(tNewWidget.Serialize());
+        tNewWidget.nId = nWidgetId;
+        this.mActiveWidgets[nWidgetId] = tNewWidget;
+      }.bind(this)
+    );    
+  },
+  
+  RemoveWidget: function(nWidgetId)
+  {
+    this.pWidgetManager.DeleteWidget(nWidgetId);
+
+    this.mActiveWidgets[nWidgetId].destroy();
+    delete this.mActiveWidgets[nWidgetId];
+  },
+  
+  _Open: function()
+  {
+    try
+    {
+      this.pWidgetManager.Open(this.tOptions.sProfile);
+      this.aAvailableWidgets = this.pWidgetManager.GetWidgetClassList();
+      for(var nIndex = this.aAvailableWidgets.length - 1; nIndex >= 0; --nIndex)
+      {
+        this.mAvailableWidgets[this.aAvailableWidgets[nIndex].sClass] = this.aAvailableWidgets[nIndex].sDescr;
+      }
+    }
+    catch(tError)
+    {
+      function Retry()
+      {
+        setTimeout(this._Open().bind(this), 10); 
+        webapp.view.MessageBox.Hide(); 
+      }
+      
+      webapp.view.MessageBox.ShowMessage(_('Cannot open widget DB') + ":<br>" + (tError.message || tError), 'error',
+        [{ text: _('Retry'), handler: Retry.bind(this) }]);
+    }
+  },
+  
+  _LoadActiveWidgets: function()
   {
     try
     {
       var tWidgetList = this.pWidgetManager.GetWidgetList();
-      var asWidgetScripts = new Array()
+      var asWidgetScripts = [];
       for(var nWidgetId in tWidgetList)
       {
-        if(typeof tWidgetList[nWidgetId] != 'function')
+        var sClass = tWidgetList[nWidgetId].sClass;
+        if(sClass != null)
         {
-          asWidgetScripts.push("widget." + tWidgetList[nWidgetId].sClass);
+          asWidgetScripts.push(sClass);
         }
       }
       
@@ -263,18 +220,20 @@ widget.WidgetLoader.prototype =
         "",
         function()
         {
-          this.UnloadWidgets();
           for(var nWidgetId in tWidgetList)
           {
-            if(typeof tWidgetList[nWidgetId] != 'function')
+            if(typeof tWidgetList[nWidgetId] == 'object')
             {
               try
               {
-                this.mActiveWidgets[nWidgetId] = this._CreateWidget(tWidgetList[nWidgetId]);
+                var tWidget = this._CreateWidget(tWidgetList[nWidgetId], this.tOptions);
+                tWidget.nId = nWidgetId;
+                this.mActiveWidgets[nWidgetId] = tWidget;
               }
               catch(tError)
               {
-                if(!confirm("Невозможно загрузить сервис:\n" + (tError.message || tError) + "\nЗагружать его в слудеющий раз?"))
+                if(!confirm(_('Cannot load widget') + ":\n" + (tError.message || tError) + 
+                  "\n" + _('Load this widget next time') + "?"))
                 {
                   this.pWidgetManager.DeleteWidget(nWidgetId);
                 }
@@ -287,7 +246,7 @@ widget.WidgetLoader.prototype =
     }
     catch(tError)
     {
-      webapp.MessageBox.ShowMessage("Невозможно получить список активных сервисов:<br>" + tError, 'error');
+      webapp.view.MessageBox.ShowMessage(_('Cannot get active widget list') + ":<br>" + tError, 'error');
     }
   },
   
@@ -309,7 +268,7 @@ widget.WidgetLoader.prototype =
     this.pWidgetManager.Commit();
   },
   
-  UnloadWidgets: function()
+/*  UnloadWidgets: function()
   {
     for(nIndex in this.mActiveWidgets)
     {
@@ -320,91 +279,59 @@ widget.WidgetLoader.prototype =
       }
     }
     this.mActiveWidgets = {};
-  },
+  },*/
   
-  LoadWidget: function(stWidget, tOptions, pCallbackFunction)
-  {
-    IncludeClass
-    (
-      "widget." + stWidget.sClass,
-      "",
-      function()
-      {
-        var tNewWidget = this._CreateWidget(stWidget);
-        var nWidgetId = this.pWidgetManager.AddWidget(tNewWidget.Serialize());
-        this.mActiveWidgets[nWidgetId] = tNewWidget;
-        if(pCallbackFunction != null)
-        {
-          pCallbackFunction(tNewWidget);
-        }
-      }.bind(this)
-    );    
-  },
   
-  UnloadWidget: function(tWidget)
+  _OnCloseWidget: function(tEvent, tWidget)
   {
-    var pWidget;
-    var nIndex;
-    
-    if(typeof tWidget != 'object')
+    if(confirm(_('Remove widget') +  " \"" + _(tWidget.sDescr) + "\"?"))
     {
-      nIndex = tWidget;
-      pWidget = this.mActiveWidgets[nIndex];
-    } else
-    {
-      pWidget = tWidget;
-      nIndex = this.GetWidgetIdByName(tWidget.sName);
-    }
-    
-    this.pWidgetManager.DeleteWidget(nIndex);
-
-    pWidget.destroy();
-    delete pWidget;
-    delete this.mActiveWidgets[nIndex];
-  },
-  
-  _Open: function()
-  {
-    try
-    {
-      this.pWidgetManager.Open(this.tOptions.sProfile);
-      this.aAvailableWidgets = this.pWidgetManager.GetWidgetClassList();
-      for(var nIndex = this.aAvailableWidgets.length - 1; nIndex >= 0; --nIndex)
-      {
-        this.mAvailableWidgets[this.aAvailableWidgets[nIndex].sClass] = this.aAvailableWidgets[nIndex].sDescr;
-      }
-
-      this.LoadWidgets();
-    }
-    catch(tError)
-    {
-      function Retry()
-      { 
-        setTimeout(this._Open().bind(this), 10); 
-        webapp.MessageBox.Hide(); 
-      }
-      
-      webapp.MessageBox.ShowMessage("Невозможно соединиться с сервисом сервисов:<br>" + (tError.message || tError), 'error',
-        [{ text: 'Повторить', handler: Retry.bind(this) }]);
+      this.RemoveWidget(tWidget.nId);
     }
   },
   
-  _OnCloseWidget: function(tWidget)
+  _CreateWidget: function(stWidget, tOptions)
   {
-    if(confirm("Убрать сервис \"" + tWidget.tOptions.sDescription + "\"?"))
-    {
-      this.UnloadWidget(tWidget);
-    }
-  },
-  
-  _CreateWidget: function(stWidget)
-  {
-    var tOpts = this.tOptions.clone();
-    tOpts.sDescription = this.mAvailableWidgets[stWidget.sClass];
-
-    var tWidget = new widget[stWidget.sClass](stWidget, tOpts);
+    var tOpts = tOptions.clone();
+    tOpts.sDescr = _(this.mAvailableWidgets[stWidget.sClass]);
+    var tWidget = new (eval(stWidget.sClass))(stWidget, tOpts);
+    tWidget.sDescr = tOpts.sDescr;
     tWidget.On("close", this._OnCloseWidget, this, tWidget);
     return tWidget;
-  }
+  },
 
+  _Dump: function()
+  {
+    var sDumpResult = "";
+    for(nIndex in this.mActiveWidgets)
+    {
+      if(this.mActiveWidgets[nIndex].Dump != null)
+      {
+        sDumpResult += "--------------\n"  + this.mActiveWidgets[nIndex].Dump() + "--------------\n";
+      }
+    }
+    
+    return sDumpResult;
+  },
+  
+  DumpWidgets: function()
+  {
+    webapp.view.MessageBox.ShowMessage(this._Dump().replace(/\n/g, '<br />'), 'info');
+  },
+  
+  _FilterOutMainLayout: function(tItem)
+  {
+    return tItem.sName != 'idMainLayout';
+  },
+  
+  _FilterOutSingle: function(tItem, tThis)
+  {
+    var tWidget = tThis.GetWidgetByClass(tItem.sClass);
+    return tWidget == null || tWidget.IsMultiple != null && tWidget.IsMultiple();
+  },
+  
+  _FilterOutNonConfigurableWidgets: function(tItem)
+  {
+    return tItem.Configure != null;
+  }
 }

@@ -3,6 +3,10 @@
   <!-- widget classes list -->
   <Classes>
     <Class>
+      <Name>Layout</Name>
+      <Descr>Layout</Descr>
+    </Class>
+    <Class>
       <Name>Button</Name>
       <Descr>Sample Button</Descr>
     </Class>

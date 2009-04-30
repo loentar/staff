@@ -1,8 +1,8 @@
 namespace('webapp.view');
 
 webapp.view.WidgetFrame = Class.create();
-webapp.view.WidgetFrame.prototype = 
-{
+webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
+({
   initialize: function(tParent, tOptions)
   {
     IncludeCss("webapp/assets/view/WidgetFrame/WidgetFrame");
@@ -22,13 +22,15 @@ webapp.view.WidgetFrame.prototype =
     // table for markup layout
     this._tTableMarkup = new webapp.ui.Table(this._tDivMain);
     
+    var sNoFrameBorder = tOptions.bNoFrameBorder ? 'NoBorder' : '';
+
     // header
     this._tRowHead = this._tTableMarkup.AddHeadRow();
-    this._tCellHead = this._tTableMarkup.AddCell(this._tRowHead, { sClass: 'WidgetFrameHeader' });
+    this._tCellHead = this._tTableMarkup.AddCell(this._tRowHead, { sClass: 'WidgetFrameHeader' + sNoFrameBorder });
     
     // body
     this._tRowBody = this._tTableMarkup.AddRow();
-    this._tCellBody = this._tTableMarkup.AddCell(this._tRowBody, { sClass: 'WidgetFrameBody' });
+    this._tCellBody = this._tTableMarkup.AddCell(this._tRowBody, { sClass: 'WidgetFrameBody' + sNoFrameBorder });
 
     // header and body divs    
     this.tDivHeader = new webapp.ui.Div(this._tCellHead);
@@ -111,42 +113,24 @@ webapp.view.WidgetFrame.prototype =
   _OnRollup: function(tEvent)
   {
     this.bCollapsed = !this.bCollapsed;
+
+    this.FireEvent('rollup', { bCollapsed: this.bCollapsed });
     if(this.bCollapsed)
     {
       this._tRowBody.style.visibility = "hidden";
       this._tDivMain.Element().style.height = this.tDivHeader.Element().offsetHeight + 2;
       this._tImgRollup.SetSrc("webapp/assets/view/WidgetFrame/img/go-bottom.png");
-      this.FireEvent('rollup');
     }
     else
     {
       this._tRowBody.style.visibility = "visible";
       this._tDivMain.Element().style.height = "auto";
       this._tImgRollup.SetSrc("webapp/assets/view/WidgetFrame/img/go-top.png");
-      this.FireEvent('collapse');
     }
   },
     
   _OnClose: function(tEvent)
   {
     this.FireEvent('close');
-  },
-  
-  On: function(sEvent, fHandler, tScope, tObject)
-  {
-    this.tEvents[sEvent] = 
-    {
-      fHandler: tScope != null ? fHandler.bind(tScope) : fHandler,
-      tObject: tObject
-    };
-  },
-  
-  FireEvent: function(sEvent)
-  {
-    var tEventHandler = this.tEvents[sEvent];
-    if (tEventHandler != null)
-    {
-      tEventHandler.fHandler(tEventHandler.tObject);
-    }
   }
-};
+});

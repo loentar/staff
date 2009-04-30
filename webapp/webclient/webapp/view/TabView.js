@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////
 // class webapp.TabView
 
-webapp.TabView = Class.create();
-webapp.TabView.tTabView = null;
-webapp.TabView.prototype = 
+webapp.view.TabView = Class.create();
+webapp.view.TabView.tTabView = null;
+webapp.view.TabView.prototype = 
 {
   //! конструктор
   initialize: function(sParent)

@@ -190,11 +190,11 @@ widget.WidgetManager.prototype =
     this.tClient.SetID(sID);
   },
 
-  Open: function(sWidgetDB, pOnComplete, pOnError)
+  Open: function(sProfile, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Open', this.tClient.GetServiceUri());
     
-    tOperation.AddParameter('sWidgetDB', sWidgetDB);
+    tOperation.AddParameter('sProfile', sProfile);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

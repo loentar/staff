@@ -496,8 +496,15 @@ std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
   ReadStr(rStream, sTmp);
   if(rStream.eof())
     throw "unexpected EOF(after structname and '{'): " + rStruct.sName;
+
+  if (sTmp == ";")
+  {
+    rStream.unget();
+    return rStream;
+  }
+  
   if (sTmp != "{")
-    throw "'{' after structname expected: " + rStruct.sName;
+    throw "'{' or ';' after structname expected: " + rStruct.sName;
 
   while (rStream.good() && !rStream.eof())
   {
@@ -588,7 +595,12 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   {
     SStruct stStruct;
     rStream >> stStruct;
-    rInterface.lsStruct.push_back(stStruct);
+
+    // check for forward declaration
+    if(stStruct.lsMember.size() != 0)
+    {
+      rInterface.lsStruct.push_back(stStruct);
+    }
 
     rStream >> SkipWs >> chData;
     if (chData != ';')

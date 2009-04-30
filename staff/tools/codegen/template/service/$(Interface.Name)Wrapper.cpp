@@ -54,7 +54,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   CDataObject rdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
-  rdoParam$(Param.Name).CreateChild(rstStruct.$(Param.Name));
+  rdoParam$(Param.Name).AppendChild(rstStruct.$(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),template)
   CDataObject rdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
@@ -140,7 +140,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
-  rdoParam.CreateChild(rtType);
+  rdoParam.AppendChild(rtType);
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
@@ -211,7 +211,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.Name),std::map)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)
+    tKey = (*it)["Key"].AsString();
+#else
     tKey = (*it)["Key"];
+#ifeqend
 #else
     (*it)("Key") >> tKey;
 #ifeqend

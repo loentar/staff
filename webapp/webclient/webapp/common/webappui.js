@@ -1,4 +1,4 @@
-﻿namespace('webapp.ui');
+namespace('webapp.ui');
 
 webapp.ui.IdGen = 
 {
@@ -11,15 +11,21 @@ webapp.ui.IdGen =
       sControlType = 'Generic';
     }
     
-    if(this._tIds['id' + sControlType] == null)
+    var sId = 'id' + sControlType;
+    
+    if (!this._tIds[sId])
     {
-      this._tIds['id' + sControlType] = 0;
-      return sControlType + '0';
+      this._tIds[sId] = 0;
     }
-    else
+
+    var sResult;
+    do
     {
-      return 'id' + sControlType + (++this._tIds['id' + sControlType]);
+      sResult = sId + (++this._tIds[sId]);
     }
+    while (document.getElementById(sResult));
+
+    return sResult;
   }
 };
 
@@ -94,9 +100,14 @@ webapp.ui.Generic.prototype =
     this.tElement.focus();
   },
   
-  On: function(sEvent, fHandler, tScope)
+  On: function(sEvent, fnHandler, tScope)
   {
-    addHandler(this.tElement, sEvent, fHandler.bindAsEventListener(tScope || this));
+    addHandler(this.tElement, sEvent, fnHandler.bindAsEventListener(tScope || this));
+  },
+  
+  Fire: function(sEvent)
+  {
+    fireEvent(this.tElement, sEvent);
   },
   
   Show: function(bShow)
@@ -112,6 +123,26 @@ webapp.ui.Generic.prototype =
   Hide: function()
   {
     this.Show(false);
+  },
+  
+  GetWidth: function()
+  {
+    return this.tElement.offsetWidth;
+  },
+  
+  GetHeight: function()
+  {
+    return this.tElement.offsetHeight;
+  },
+  
+  SetWidth: function(nWidth)
+  {
+    return this.tElement.style.width = nWidth;
+  },
+  
+  SetHeight: function(nHeight)
+  {
+    return this.tElement.style.width = nHeight;
   },
   
   AppendChild: function(tChild)
@@ -162,12 +193,12 @@ webapp.ui.Label.prototype.extend(new webapp.ui.Generic).extend
   
   GetCaption: function()
   {
-    return this.Element().firstNode.nodeValue;
+    return this.Element().firstChild.nodeValue;
   },
   
   SetCaption: function(sCaption)
   {
-    var tNodeCaption = this.Element().firstNode;
+    var tNodeCaption = this.Element().firstChild;
     if (tNodeCaption != null)
     {
       tNodeCaption.nodeValue = sCaption;
@@ -272,26 +303,62 @@ webapp.ui.Select.prototype.extend(new webapp.ui.Generic).extend
   {
     var atSelOptions = this.Element().options;
     atSelOptions.length = 0;
-    
-    if (tParseOpts != null && tParseOpts.sKey != null && tParseOpts.sLabel != null)
+
+    if (atOptions != null)
     {
-      for(var nIndex = 0; nIndex < atOptions.length; ++nIndex)
+      if (tParseOpts != null && tParseOpts.sKey != null && tParseOpts.sLabel != null)
       {
-        var tOption = atOptions[nIndex];
-        atSelOptions[nIndex] = new Option(tOption[tParseOpts.sLabel], tOption[tParseOpts.sKey]);
+        var nOptIndex = 0;
+        for(var nIndex in atOptions)
+        {
+          var tOption = atOptions[nIndex];
+          if (tOption[tParseOpts.sKey] != null && tOption[tParseOpts.sLabel] != null &&
+            (tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+          {
+            atSelOptions[nOptIndex] = new Option(_(tOption[tParseOpts.sLabel]), tOption[tParseOpts.sKey]);
+            ++nOptIndex;
+          }
+        }
+        this.tParseOpts = tParseOpts;
       }
-    }
-    else
-    {
-      for(var nIndex = 0; nIndex < atOptions.length; ++nIndex)
+      else
       {
-        var tOption = atOptions[nIndex];
-        atSelOptions.push(new Option(tOption[1], tOption[0]));
+        var nOptIndex = 0;
+        for(var nIndex in atOptions)
+        {
+          var tOption = atOptions[nIndex];
+          if (tOption[0] != null && tOption[1] != null &&
+            (tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+          {
+            atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
+            ++nOptIndex;
+          }
+        }
       }
+      
+      atSelOptions.selectedIndex = 0;
     }
   },
   
-  GetActiveItem: function()
+  GetActiveItem: function(tParseOpts)
+  {
+    var tActiveItem = this.GetActiveItemElement();
+    var tOpts = tParseOpts || this.tParseOpts;
+    if(tOpts)
+    {
+      var tResult = {};
+      tResult[tOpts.sKey] = tActiveItem.value;
+      tResult[tOpts.sLabel] = tActiveItem.text;
+      return tResult;
+    }
+    else
+    {
+      var aResult = [ tActiveItem.value, tActiveItem.text ];
+      return aResult;
+    }
+  },
+  
+  GetActiveItemElement: function()
   {
     return this.Element()[this.Element().selectedIndex];
   },
@@ -319,6 +386,16 @@ webapp.ui.Select.prototype.extend(new webapp.ui.Generic).extend
     }
     
     return false;
+  },
+  
+  SetSize: function(nSize)
+  {
+    this.Element().size = nSize;
+  },
+  
+  GetSize: function(nSize)
+  {
+    return this.Element().size;
   }
   
 });
@@ -485,7 +562,7 @@ webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
       this.tTable.appendChild(this.tCaption);
       
       this.tCaptionText = document.createTextNode(sCaption)
-      this.tCaption.appendChild(this.tCaptionText);    }
+      this.tCaption.appendChild(this.tCaptionText);    }
     else
     {
       this.tCaptionText.nodeValue = sCaption;
