@@ -1,0 +1,76 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Страница авторизации</title>
+
+  <script type="text/javascript" src="webapp/common/prototype.js"></script>
+  <script type="text/javascript" src="webapp/common/ws.js"></script>
+  <script type="text/javascript" src="webapp/common/tools.js"></script>
+  <script type="text/javascript" src="webapp/common/staff.js"></script>
+  <script type="text/javascript" src="webapp/common/session.js"></script>
+  <script type="text/javascript" src="webapp/common/error.js"></script>
+  <script type="text/javascript" src="clients/Login.js"></script>
+  <script type="text/javascript">
+
+    var tLogin = new staff.Login();
+    
+    function ErrorLogin()
+    {
+      $('Result').innerHTML = "<a style=\"color: Red\"> Ошибка регистрации пользователя</a>";
+    }
+    
+    function LoginSuccessed(sSessionID)
+    {
+      document.location = "main.htm?sessid=" + sSessionID + ",host=" + Session.sHost;
+    }
+
+    function Login(sUserName, sPassword, ResultControl)
+    {
+      try
+      {
+        var sSessionID = tLogin.Login(sUserName, sPassword);
+        ResultControl.innerHTML = "<a style=\"color: Green\"> Успешная регистрация пользователя</a>";
+        setTimeout('LoginSuccessed( \"' + sSessionID + '\" )', 1000);
+      }
+      catch(tError)
+      {
+        ErrorLogin();
+      }
+    }
+
+  </script>
+
+</head>
+
+
+<body style="background: white">
+<!-- #F5F6F1 -->
+  <center>
+    <div style="position: relative; width: 300px; height: 255px; background: ButtonFace; border: 2px outset ButtonShadow;">
+      <form action="javascript:Login($('UserName').value,$('Password').value,$('Result'));" method="post">
+      
+        <table>
+          <tr><h1>Авторизация</h1></tr>
+          <tr>
+            <td>
+              Пользователь: <br /><input name="UserName" id="UserName" value="" /><p />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Пароль: <br /><input name="Password" id="Password" value="" type="password"/><p />
+            </td>
+          </tr>
+        </table>
+        <br/>
+
+        <input value="Вход" type="submit" /><br />
+
+        <hr />
+        <div id="Result"></div>
+      </form>
+    </div>
+  </center>
+</body>
+</html>
+
