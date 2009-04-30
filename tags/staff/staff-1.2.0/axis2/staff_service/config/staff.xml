@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<staffconfig>
+  <ServiceDispatcher>
+    <DispatcherPort>8765</DispatcherPort>
+    <ReconnectDelay>1500</ReconnectDelay>
+    <nMaxServices>10</nMaxServices>
+  </ServiceDispatcher>
+</staffconfig>

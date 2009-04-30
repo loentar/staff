@@ -1,0 +1,2 @@
+
+components/admin/AccountAdmin.dep: core/common.dep core/component.dep core/security.dep tools/codegen.dep
