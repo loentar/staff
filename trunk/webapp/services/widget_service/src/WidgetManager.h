@@ -47,9 +47,9 @@ namespace widget
     virtual ~CWidgetManager() {};
 
     //!         open widget db
-    /*! \param  sWidgetDB - db name
+    /*! \param  sProfile - db name
         */
-    virtual void Open(const rise::CString& sWidgetDB) = 0;
+    virtual void Open(const rise::CString& sProfile) = 0;
 
     //!         close db, commiting changes
     virtual void Close() = 0;

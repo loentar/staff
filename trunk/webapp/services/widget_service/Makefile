@@ -79,8 +79,8 @@ deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/loc
 distrib:;
 
 # == install ========================================
-install: "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
-	cp -f $(OUTDIR)$(TARGETNAME) $<
+install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
+	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(TARGET)/"
 	cp -f config/*.xml $(INSTALLDIR)$(TARGET)/db/
 	chmod 777 $(INSTALLDIR)$(TARGET)/db/
 

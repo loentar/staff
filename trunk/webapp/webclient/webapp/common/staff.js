@@ -5,8 +5,6 @@ namespace('staff');
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // class client
 staff.Client = Class.create();
-staff.Client.sServiceUri = '';
-staff.Client.sID = '';
 staff.Client.prototype = 
 {
   initialize: function(sServiceName, sHostName, sHostPort, sID)
@@ -106,26 +104,26 @@ staff.Client.prototype =
       var tResponseXml = tAjaxRequest.transport.responseXML;
       if (tResponseXml == null || tResponseXml.documentElement == null)
       {
-        throw Error("Ошибка разбора ответа!");
+        throw Error(_('Error while parsing response') + "!");
       }
       
       tOperation.SetResultEvenlope(new SOAP.Envelope(tResponseXml.documentElement));
       if(tOperation.IsFault())
       {
-        throw Error("Ошибка при вызове сервиса " + this.sServiceUri + ": " + tOperation.GetFaultString());
+        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString());
       }
     }
     else
     {
-      var sMessage;
+      var sMessage = '';
       if (tAjaxRequest.transport.responseXML != null && tAjaxRequest.transport.responseXML.documentElement != null)
       { //remote exception
         tOperation.SetResultEvenlope(new SOAP.Envelope(tAjaxRequest.transport.responseXML.documentElement));
         sMessage = tOperation.GetFaultString();
       }
 
-      throw Error("Ошибка при вызове сервиса " + this.sServiceUri + ": <b>" + sMessage + "</b> <br/>" 
-          + "(" + (tAjaxRequest.transport.statusText || GetErrorStr(tAjaxRequest.transport.status)) + ")");
+      throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": <b>" + _(sMessage) + "</b> <br/>" 
+          + "(" + _(tAjaxRequest.transport.statusText || GetErrorStr(tAjaxRequest.transport.status)) + ")");
     }
   }
 };
@@ -134,12 +132,6 @@ staff.Client.prototype =
 // class Operation
 
 staff.Operation = Class.create();
-staff.Operation.sName = '';
-staff.Operation.tRequestEnvelope = null;
-staff.Operation.tRequestElement = null;
-staff.Operation.tResultEnvelope = null;
-staff.Operation.tResultElement = null;
-staff.Operation.tFaultElement = null;
 staff.Operation.prototype = 
 {
   //! sName - имя операции
@@ -254,19 +246,19 @@ staff.Operation.prototype =
       return;
     }
 
-    if (this.tResultEnvelope.element.childNodes.length == 0) // пустой envelope
+    if (this.tResultEnvelope.element.childNodes.length == 0) // empty envelope
     {
-      this.SetFault('Failed to invoke service');
+      this.SetFault(_('Failed to invoke service'));
     } else // 
     {
       // пытаемся получить результат
       var tRes = this.SubNode('staff:' + this.sName + 'Result', this.tResultEnvelope.get_body().element);
 
-      if(tRes != null) // если список нод результата не пуст
+      if(tRes != null)
       {
         this.tResultElement = tRes;
       } 
-      else // смотрим ошибку
+      else
       {
         tRes = this.tResultEnvelope.get_body().get_children(new WS.QName('Fault', SOAP.URI, 'soapenv'));
         if(tRes.length != 0)
@@ -275,7 +267,7 @@ staff.Operation.prototype =
         } 
         else
         {
-          throw Error('Failed to get ' + this.sName + 'Result');
+          throw Error(_('Failed to get') +' ' + this.sName + 'Result');
         }
       }
     }
@@ -375,3 +367,4 @@ staff.Operation.prototype =
     tNode.add_child(tData);
   }
 };
+

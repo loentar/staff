@@ -1,11 +1,11 @@
-namespace('widget');
+namespace('webapp.widget');
 
 ///////////////////////////////////////////////////////////////
 // class Widget
 
-widget.Widget = Class.create();
-widget.Widget.prototype = 
-{
+webapp.widget.Widget = Class.create();
+webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
+({
   //! constructor
   initialize: function(stWidget, tOptions)
   {
@@ -20,17 +20,16 @@ widget.Widget.prototype =
       if(this.tProperties.sParent)
       {
         tParent = document.getElementById(this.tProperties.sParent);
-        delete this.tProperties.sParent; // compat
       }
       else
       {
-        tParent = this.tOptions.pParentElement;
+        tParent = this.tOptions.tParent;
       }
     
       if(tParent == null)
       {
-         throw Error("Невозможно восстановить " + this.sName 
-            + "; <br>Отсутствует родительский элемент: " + this.tProperties.sParent);
+         throw Error(_('Cannot load') + " " + this.sName 
+            + "; <br>" + _('Parent element is missing') + ": " + this.tProperties.sParent);
       }
 
       this.tWidgetParent = tParent;
@@ -41,7 +40,7 @@ widget.Widget.prototype =
       {
         if(tFrameOpts.sCaption == null)
         {
-          tFrameOpts.sCaption = tOptions.sDescription;
+          tFrameOpts.sCaption = tOptions.sDescr;
         }
       
         this._tWidgetFrame = new webapp.view.WidgetFrame(tParent, tFrameOpts);
@@ -52,10 +51,6 @@ widget.Widget.prototype =
       this.tOptions.pParentElement = tParent.Element != null ? tParent.Element() : tParent; // compat
 
       this.tElement = this.Create(tParent, tOptions);
-/*      if (tElement != null) // compat
-      {
-        this.pElement = tElement;
-      }*/
     }
 
     if (this.DeserializeData)
@@ -64,7 +59,6 @@ widget.Widget.prototype =
     }
 
     this.SetModify(false);
-    this.tEvents = {};
   },
   
   //! deinitializer
@@ -76,9 +70,9 @@ widget.Widget.prototype =
     }
 
     // remove associated menu item
-    if (this.pMenuItem != null && this.pMenuItem.destroy) // assert yui
+    if (this.tMenuItem != null && this.tMenuItem.destroy) // assert yui
     {
-      this.pMenuItem.destroy();
+      this.tMenuItem.destroy();
     }
     
     if (this._tWidgetFrame != null)
@@ -137,7 +131,7 @@ widget.Widget.prototype =
     {
       sName: this.sName,
       sClass: this.sClass,
-      lsProperties: new Array()
+      lsProperties: []
     };
 
     this.tProperties.sParent = this.tWidgetParent.id;
@@ -161,20 +155,13 @@ widget.Widget.prototype =
   //! set modification flag
   SetModify: function(bModified)
   {
-    if(bModified == null)
-    {
-      this.bModified = true;
-    }
-    else
-    {
-      this.bModified = bModified;
-    }
+    this.bModified = bModified;
   },
   
   //! get modification flag
   GetModify: function()
   {
-    if(this.bModified)
+    if(this.bModified !== false)
     {
       return true;
     }
@@ -189,10 +176,10 @@ widget.Widget.prototype =
   },
   
   //! add menu item for widget
-  AddWidgetMenu: function(sLabel, pFunction)
+  AddWidgetMenu: function(sLabel, fnOnClick)
   {
-    this.pMenuItem = this.tOptions.pWidgetMenu.addItem({ text: sLabel }, 1);
-    this.pMenuItem.subscribe("click", pFunction);
+    this.tMenuItem = this.tOptions.tWidgetMenu.addItem({ text: sLabel }, 1);
+    this.tMenuItem.subscribe("click", fnOnClick);
   },
   
   //! dump widget properties for debug
@@ -212,26 +199,8 @@ widget.Widget.prototype =
     return sResult;
   },
 
-  On: function(sEvent, fHandler, tScope, tObject)
-  {
-    this.tEvents[sEvent] = 
-    {
-      fHandler: tScope != null ? fHandler.bind(tScope) : fHandler,
-      tObject: tObject
-    };
-  },
-  
-  FireEvent: function(sEvent)
-  {
-    var tEventHandler = this.tEvents[sEvent];
-    if (tEventHandler != null)
-    {
-      tEventHandler.fHandler(tEventHandler.tObject);
-    }
-  },
-  
   _OnClose: function()
   {
     this.FireEvent("close");
   }
-};
+});

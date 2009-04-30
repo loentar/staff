@@ -1,15 +1,16 @@
+namespace('widget');
 
 ///////////////////////////////////////////////////////////////
 // class Edit
 
 widget.Edit = Class.create();
-widget.Edit.prototype.extend(widget.Widget.prototype).extend
+widget.Edit.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function()
   {
     var self = this;
     this.pElement = document.createElement("input");
-    this.tOptions.pParentElement.appendChild(this.pElement);
+    this.tOptions.tParent.AppendChild(this.pElement);
 
     // добавление пункта меню для виджета
     this.AddWidgetMenu
@@ -40,5 +41,10 @@ widget.Edit.prototype.extend(widget.Widget.prototype).extend
   Destroy: function()
   {
     // pMenuItem и pElement будут удалены в родительском классе
+  },
+  
+  IsMultiple: function()
+  {
+    return true;
   }
 });

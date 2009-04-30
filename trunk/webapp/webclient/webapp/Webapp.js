@@ -4,60 +4,50 @@ namespace('webapp');
 
 webapp.Webapp =
 {
-  Init: function(aOptions, pCompleteFunction)
+  Init: function(tOptions, fnOnComplete, tScope)
   {
-    var self = this;
-    if(aOptions == null)
-      aOptions = {};
+    var tOpts = tOptions || {};
       
     var asYuiComponents = [
       "reset", "fonts", "reset-fonts-grids", //css
-      "button", "datatable", "container", "tabview"]; // js
-
+      "button", "datatable", "container", "tabview", "menu", "layout", "resize"]; // js
+      
     var tYuiLoader = new YAHOO.util.YUILoader
     ({
       require: asYuiComponents,
       base: 'yui/',
-      onSuccess: function()
-      {
-        // Instantiate the Dialog
-        webapp.dlgList = new YAHOO.widget.Dialog
-        (
-          "dlgList", 
-          { 
-            width: "230px",
-            fixedcenter: true,
-            visible: false, 
-            constraintoviewport: true,
-            buttons: 
-            [ 
-              { text: "Ввод", handler: function() { webapp.dlgList.onConfirm(); }, isDefault: true },
-              { text: "Отмена", handler: function(){ webapp.dlgList.hide();} } 
-            ]
-          }
-        );
-        // Render the Dialog
-        webapp.dlgList.render();
-        LoadBase();
-      },
+      onSuccess: LoadLocale,
       onFailure: function(e)
       {
         alert("error: " + YAHOO.lang.dump(e));
       }
      });
     tYuiLoader.insert();
+    
+    function LoadLocale()
+    {
+      Include
+      (
+        ["i18n"], 
+        "webapp/common/",
+        SetLocale,
+        ["i18n"]
+      );
+    }
+    
+    function SetLocale()
+    {
+      i18n.LoadLocale('webapp', 'webapp', LoadBase);
+    }
 
     function LoadBase()
     {
       Include
       (
-        ["ws", "error", "noselect"], 
+        ["ws", "error", "noselect", "webappui"], 
         "webapp/common/",
         LoadStaff,
-        function()
-        {
-          return (typeof WS != 'undefined') && (typeof GetErrorStr != 'undefined');
-        }
+        ["WS", "GetErrorStr", "webapp.ui"]
       );
     }
     
@@ -65,24 +55,16 @@ webapp.Webapp =
     {
       Include
       (
-        ["staff"],
+        ["staff", "Event"],
         "webapp/common/",
         LoadView,
-        function()
-        {
-          return (typeof staff != 'undefined');
-        }
+        ["staff", "webapp.Event"]
       );
     }
     
     function LoadView()
     {
-      var asScripts = ["webapp.MessageBox"];
-      if(aOptions.bEnableTabView)
-      {
-        asScripts.push("webapp.TabView");
-      } 
-
+      var asScripts = ["webapp.view.MessageBox", "webapp.view.WidgetFrame", "webapp.view.DlgList"];
       IncludeClass
       (
         asScripts,
@@ -95,14 +77,10 @@ webapp.Webapp =
     {
       Include
       (
-        ["WidgetManager", "Login"],
+        ["Login"],
         "webapp/clients/",
         LoadWidget,
-        function()
-        {
-          return (typeof widget != 'undefined' && typeof widget.WidgetManager != 'undefined' &&
-                  typeof staff != 'undefined' && typeof staff.Login != 'undefined');
-        }
+        ["staff.Login"]
       );
     }
     
@@ -112,26 +90,20 @@ webapp.Webapp =
       {
         IncludeClass
         (
-          ["widget.Widget", "widget.WidgetLoader", "widget.WidgetEditDialog"],
-          "webapp/",
+          ["webapp.widget.Widget", "webapp.widget.WidgetLoader"],
+          "",
           function()
           {
-            self.tWidgetLoader = new widget.WidgetLoader(aOptions.tWidgetInitInfo);
-            pCompleteFunction();
+            webapp.Webapp.tWidgetLoader = new webapp.widget.WidgetLoader(tOpts.tWidgetInitInfo);
+            fnOnComplete.bind(tScope)();
           }
         );
       }
-      catch(tEx)
+      catch(tError)
       {
-        var sMessage = tEx.text ? tEx.text : (tEx.message ? tEx.message : "");
-        webapp.MessageBox.ShowMessage('Ошибка при вызове сервиса: ' + sMessage, 'error');
+        webapp.view.MessageBox.ShowMessage('Ошибка при загрузке системы виджетов: ' + (tError.message || tError), 'error');
       }
     }
-  },
-  
-  GetMainTabView: function()
-  {
-    return this.tTabView;
   },
   
   GetWidgetLoader: function()
@@ -157,15 +129,5 @@ webapp.Webapp =
   GetMainMenu: function()
   {
     return this.tMainMenu;
-  },
-  
-  SetToolbar: function(tToolbar)
-  {
-    this.tToolbar = tToolbar;
-  },
-  
-  GetToolbar: function()
-  {
-    return this.tToolbar;
   }
 };

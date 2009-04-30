@@ -1,58 +1,70 @@
+namespace('widget');
 
 ///////////////////////////////////////////////////////////////
 // class Button
 
 widget.Button = Class.create();
-widget.Button.prototype.extend(widget.Widget.prototype).extend
+widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
-  Create: function()
+  Create: function(tParent)
   {
-    var self = this;
+    if(this.tProperties.sID == null || this.tProperties.sID == "")
+    {
+      this.tProperties.sID = "button_" + Math.floor(Math.random() * 1000);
+    }
+    
+    if(this.tProperties.sLabel == null || this.tProperties.sLabel == "")
+    {
+      this.tProperties.sLabel = this.tProperties.sID;
+    }
     
     // создание YUI элемента(кнопка)
-    self.pElement = new YAHOO.widget.Button
+    this.tButton = new YAHOO.widget.Button
     ({
-       id: self.tProperties.sID,
-       label: self.tProperties.sLabel,
-       container: self.tOptions.pParentElement
+       id: this.tProperties.sID,
+       label: this.tProperties.sLabel,
+       container: tParent.Element != null ? tParent.Element() : tParent
     });
     
     // устанавка обработчика нажатия
-    self.pElement.on
-    (
-      "click", 
-      function()
-      {
-        webapp.MessageBox.ShowMessage("нажата кнопка " + self.tProperties.sLabel, 'info');
-      }
-    );
+    this.tButton.on("click", this._OnButtonClick.bind(this));
      
     // добавление пункта меню для виджета
-    self.AddWidgetMenu
-    (
-      self.sName, 
-      function()
-      {
-        webapp.MessageBox.ShowMessage("обработчик виджета " + self.sClass + " " + self.tProperties.sLabel, 'info');
-      }
-    );
+    this.AddWidgetMenu(this.sName, this._OnMenuClick.bind(this));
+  },
+  
+  _OnButtonClick: function()
+  {
+    webapp.view.MessageBox.ShowMessage("Нажата кнопка " + this.tProperties.sLabel, 'info');
+  },
+
+  _OnMenuClick: function()
+  {
+    webapp.view.MessageBox.ShowMessage("Обработчик меню для виджета " + this.tProperties.sLabel, 'info');
   },
   
   DeserializeData: function() // записать динамические свойства в контрол/обновить статические
   {
-    if(this.pElement != null)
+    if(this.tButton != null)
     {
-      this.pElement.set('id', this.tProperties.sID);
-      this.pElement.set('label', this.tProperties.sLabel);
+      this.tButton.set('id', this.tProperties.sID);
+      this.tButton.set('label', this.tProperties.sLabel);
     }
   },
   
   SerializeData: function() // получить динамические свойства из контрола
   {
+//    this.tProperties.sParent = this.tButton.get('parentNode').id;
   },
   
   Destroy: function()
   {
-    // pMenuItem и pElement будут удалены в родительском классе
+    // pMenuItem и tButton будут удалены в родительском классе
+  },
+  
+  IsMultiple: function()
+  {
+    return true;
   }
 });
+

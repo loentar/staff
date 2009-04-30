@@ -14,7 +14,7 @@ namespace widget
   public:
     CWidgetManagerImpl();
     virtual ~CWidgetManagerImpl();
-    virtual void Open(const rise::CString& sWidgetDB);
+    virtual void Open(const rise::CString& sProfile);
     virtual void Close();
     virtual void Commit();
     virtual TWidgetClassList GetWidgetClassList();
@@ -36,7 +36,7 @@ namespace widget
     rise::xml::CXMLDocument m_tDocClasses;
     rise::CString m_sFileName;
     rise::CString m_sFileNameClasses;
-    rise::CString m_sWidgetDB;
+    rise::CString m_sProfile;
     std::string m_sSessionId;
     int m_nUserId;
   };

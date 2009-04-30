@@ -1,0 +1,84 @@
+/* css for widget ObjectAdmin  */
+
+/* main div */
+div#divObjectsAdmin
+{
+  font: 12px arial;
+}
+
+a.newObject
+{
+  color: blue;
+}
+
+table#tTableProps, table#tTableAccess
+{
+  width: 100%;
+  cursor: default;
+  border-collapse: separate;
+  *border-collapse: inherit;
+  border-spacing: 4px 1px;
+}
+
+div#tDivProps
+{
+  cursor: default;
+  margin: 6px;
+  *width: 100%; /* ie only */
+}
+
+table#tTableAccess
+{
+  margin-top: 6px;
+  width: 100%;
+  cursor: default;
+}
+
+div#tDivButtons
+{
+  *width: 100%;
+  margin-right: 5px;
+  margin-top: 5px;
+  border-width: 0px;
+  text-align: right;
+}
+
+/*div#tDivMove
+{
+  color: Gray;
+  position: absolute;
+  cursor: default;
+}*/
+
+.yui-button#tButtonReloadProps button 
+{
+  background: url(img/undo.png) 10% 50% no-repeat;
+  padding-left: 2.2em;
+  cursor: default;
+}
+
+.yui-button#tButtonSaveProps button 
+{
+  background: url(img/apply.png) 10% 50% no-repeat;
+  padding-left: 2.2em;
+  cursor: default;
+}
+
+.propLabel
+{
+  width: 80px;
+}
+
+.propValue
+{
+  width: 160px;
+}
+
+a.treeViewItemHighlight
+{
+  margin-left: 2px;
+  color: CaptionText;
+  text-decoration: none;
+  background: ActiveCaption;
+}
+

@@ -3,49 +3,71 @@ namespace('webapp');
 webapp.Event = Class.create();
 webapp.Event.prototype =
 {
-  initialize: function()
+  AddEventHandler: function(sEvent, fnHandler, tScope, tObject)
   {
-    this.tEvents = {};
-  },
-  
-  AddEventHandler: function(sEvent, fHandler, tScope, tObject)
-  {
-    var aEventHandlers = this.tEvents[sEvent];
-    if(aEventHandlers == null)
+    if(this.tEvents == null)
     {
-      aEventHandlers = new Array();
-      this.tEvents[sEvent] = aEventHandlers;
+      this.tEvents = {};
     }
     
-    aEventHandlers.push( { fHandler: tScope != null ? fHandler.bind(tScope) : fHandler, tObject: tObject } );
+    if(this.tEvents[sEvent] == null)
+    {
+      this.tEvents[sEvent] = [];
+    }
+    
+    this.tEvents[sEvent].push( { fnHandler: tScope != null ? fnHandler.bind(tScope) : fnHandler, tObject: tObject } );
   },
   
-  RemoveEventHandler: function(sEvent, fHandler)
+  RemoveEventHandler: function(sEvent, fnHandler)
   {
-    var aEventHandlers = this.tEvents[sEvent];
-    if(aEventHandlers != null)
+    if(this.tEvents != null)
     {
-      for(var tHandler in aEventHandlers)
+      var aEventHandlers = this.tEvents[sEvent];
+      if(aEventHandlers != null)
       {
-        if (aEventHandlers[tHandler].fHandler == fHandler)
+        for(var tHandler in aEventHandlers)
         {
-          delete aEventHandlers[tHandler];
+          if (aEventHandlers[tHandler].fnHandler == fnHandler)
+          {
+            delete aEventHandlers[tHandler];
+          }
         }
       }
     }
   },
   
+  RemoveAllEventHandlers: function(sEvent)
+  {
+    if(this.tEvents != null && this.tEvents[sEvent] != null)
+    {
+      delete this.tEvents[sEvent];
+    }
+  },
+  
+  On: function(sEvent, fnHandler, tScope, tObject)
+  {
+    if(this.tEvents == null)
+    {
+      this.tEvents = {};
+    }
+    
+    this.tEvents[sEvent] = [ { fnHandler: tScope != null ? fnHandler.bind(tScope) : fnHandler, tObject: tObject } ];
+  },
+  
   FireEvent: function(sEvent, tParam)
   {
-    var aEventHandlers = this.tEvents[sEvent];
-    if(aEventHandlers != null)
+    if(this.tEvents != null)
     {
-      for(var tHandler in aEventHandlers)
+      var aEventHandlers = this.tEvents[sEvent];
+      if(aEventHandlers != null)
       {
-        var tEventHandler = aEventHandlers[tHandler];
-        if (tEventHandler.fHandler != null)
+        for(var tHandler in aEventHandlers)
         {
-          tEventHandler.fHandler(tEventHandler.tObject, tParam);
+          var tEventHandler = aEventHandlers[tHandler];
+          if (tEventHandler.fnHandler != null)
+          {
+            tEventHandler.fnHandler(tParam, tEventHandler.tObject);
+          }
         }
       }
     }

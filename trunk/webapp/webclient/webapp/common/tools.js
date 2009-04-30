@@ -22,24 +22,26 @@ if(document.location.search.length > 1)
 }
 
 webapp.Env.protocol = document.location.protocol + '//';
-var _atIncludedScripts = new Array();
+var _tIncludedScripts = new Array();
 var _atIncludedCss = {};
 
 //          включить javascript файл/список файлов
 /*  \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
     \param  sBasePath - базовый путь к скрипту. пример "widgets/"
-    \param  pIncludingCompleteFunction - функция, которая будет вызвана при завершении включения
-    \param  pIncludeAvailableFunction - функция для проверки доступности либо массив строк, содержащий имена символов в файле
+    \param  fnComplete - функция, которая будет вызвана при завершении включения
+    \param  fnCheckAvail - функция для проверки доступности либо массив строк, содержащий имена символов в файле
     \return null
     */
-function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvailableFunction )
+function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
 {
   if(sBaseName instanceof Array)
   {
     for(var i = 0; i < sBaseName.length; ++i)
+    {
       Include(sBaseName[i], sBasePath);
+    }
     
-    if(pIncludingCompleteFunction)
+    if(fnComplete)
     {
       var nLimit = 20;
       
@@ -53,15 +55,22 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
           }
           else
           {
-            alert("can't load: " + sBaseName[i]);
+            if (fnError != null)
+            {
+              fnError(sBaseName, sBasePath);
+            }
+            else
+            {
+              alert(_("can't load") + ": " + sBaseName[i]);
+            }
           }
         }
       
-        if(typeof pIncludeAvailableFunction == 'function')
+        if(typeof fnCheckAvail == 'function')
         {
           for(var i = 0; i < sBaseName.length; ++i)
           {
-            if(!pIncludeAvailableFunction(sBaseName[i]))
+            if(!fnCheckAvail(sBaseName[i]))
             {
               ContinueWait();
               return;
@@ -69,15 +78,15 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
           }
         }
         else
-        if(pIncludeAvailableFunction instanceof Array)
+        if(fnCheckAvail instanceof Array)
         {
-          for(var j = 0; j < pIncludeAvailableFunction.length; ++j)
+          for(var j = 0; j < fnCheckAvail.length; ++j)
           {
-            if(typeof pIncludeAvailableFunction[j] == 'string')
+            if(typeof fnCheckAvail[j] == 'string')
             {
               try
               {
-                if(eval(pIncludeAvailableFunction[j]) == null)
+                if(eval(fnCheckAvail[j]) == null)
                 {
                   ContinueWait();
                   return;
@@ -92,10 +101,24 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
           }
         }
         
-        pIncludingCompleteFunction();
+        try
+        {
+          fnComplete();
+        }
+        catch(tError)
+        {
+          if (fnError != null)
+          {
+            fnError(sBaseName, sBasePath, (tError.message || tError.text || tError));
+          }
+          else
+          {
+            alert(_(tError.message || tError.text || tError));
+          }
+        }
       }
       
-      if(pIncludingCompleteFunction)
+      if(fnComplete)
       {
         setTimeout(CheckIncludeMulti, 0);
       }
@@ -104,20 +127,11 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
     return;
   }
 
-  var pScript = null;
-  for(var i = 0; i < _atIncludedScripts.length; ++i)
-  {
-    if (_atIncludedScripts[i].sBaseName == sBaseName) 
-    {
-      pScript = _atIncludedScripts[i];
-      break;
-    }
-  }
+  var sScriptSrc = (sBasePath || '') + sBaseName + '.js';
   
-  if (pScript == null)
+  if (_tIncludedScripts[sScriptSrc] == null)
   { // добавляем новый скрипт
     var tScriptBlock = null;
-    var sScriptSrc = (sBasePath != null ? sBasePath : "") + sBaseName + ".js";
     var pHead = document.getElementsByTagName("head")[0];
 
     // ищем в документе
@@ -138,16 +152,10 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
       pHead.appendChild(tScriptBlock);
     }
   
-    var pScript = 
-    {
-      sBaseName: sBaseName,
-      tScriptBlock: tScriptBlock
-    };
-    
-    _atIncludedScripts.push(pScript);
+    _tIncludedScripts[sScriptSrc] = tScriptBlock;
   }
   
-  if(pIncludingCompleteFunction)
+  if(fnComplete)
   {
     var nLimit = 20;
     
@@ -161,31 +169,38 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
         }
         else
         {
-          alert("can't load: " + sBaseName);
+          if (fnError != null)
+          {
+            fnError(sBaseName, sBasePath);
+          }
+          else
+          {
+            alert(_("can't load") + ": " + sBaseName[i]);
+          }
         }
       }
     
 
-      if(pIncludeAvailableFunction)
+      if(fnCheckAvail)
       {
-        if(typeof pIncludeAvailableFunction == 'function')
+        if(typeof fnCheckAvail == 'function')
         {
-          if(!pIncludeAvailableFunction(sBaseName))
+          if(!fnCheckAvail(sBaseName))
           {
             ContinueWait();
             return;
           }
         }
         else
-        if(pIncludeAvailableFunction instanceof Array)
+        if(fnCheckAvail instanceof Array)
         {
-          for(var j = 0; j < pIncludeAvailableFunction.length; ++j)
+          for(var j = 0; j < fnCheckAvail.length; ++j)
           {
-            if(typeof pIncludeAvailableFunction[j] == 'string')
+            if(typeof fnCheckAvail[j] == 'string')
             {
               try
               {
-                if(eval(pIncludeAvailableFunction[j]) == null)
+                if(eval(fnCheckAvail[j]) == null)
                 {
                   ContinueWait();
                   return;
@@ -201,15 +216,15 @@ function Include( sBaseName, sBasePath, pIncludingCompleteFunction, pIncludeAvai
         }
       }
       
-      pIncludingCompleteFunction();
+      fnComplete();
     }
     
-    if(pIncludingCompleteFunction)
+    if(fnComplete)
       setTimeout(CheckIncludeSingle, 0);
   }
 }
 
-function IncludeClass( asFullNames, sBasePath, pIncludingCompleteFunction )
+function IncludeClass( asFullNames, sBasePath, fnComplete )
 {
   var asBaseNames = new Array();
 
@@ -229,7 +244,7 @@ function IncludeClass( asFullNames, sBasePath, pIncludingCompleteFunction )
   (
     asBaseNames,
     sBasePath,
-    pIncludingCompleteFunction,
+    fnComplete,
     function(sBaseName)
     {
       try
@@ -336,6 +351,23 @@ function removeHandler(tElement, sEvent, fHandler)
   }
 }
 
+function fireEvent(tElement, sEvent)
+{
+  if (document.createEventObject)
+  {
+    // IE
+    var tEventObj = document.createEventObject();
+    return tElement.fireEvent('on' + sEvent, tEventObj)
+  }
+  else
+  {
+    // firefox & others
+    var tEventObj = document.createEvent("HTMLEvents");
+    tEventObj.initEvent(sEvent, true, true );
+    return !tElement.dispatchEvent(tEventObj);
+  }
+}
+
 function namespace(sNamespace)
 {
   var aNamespace = sNamespace.split('.');
@@ -361,5 +393,3 @@ Object.prototype.clone = function()
   }
   return tClone;
 }
-
-Object.prototype.clone.dontEnum = true;
