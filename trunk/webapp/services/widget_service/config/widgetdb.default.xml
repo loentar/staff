@@ -5,7 +5,7 @@
     <WidgetItem>
       <nID>0</nID>
       <Widget>
-        <sClass>Layout</sClass>
+        <sClass>webapp.widget.Layout</sClass>
         <sName>idMainLayout</sName>
         <Properties>
           <Property>

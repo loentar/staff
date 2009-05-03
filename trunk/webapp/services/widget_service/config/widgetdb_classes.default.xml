@@ -3,15 +3,15 @@
   <!-- widget classes list -->
   <Classes>
     <Class>
-      <Name>Layout</Name>
+      <Name>webapp.widget.Layout</Name>
       <Descr>Layout</Descr>
     </Class>
     <Class>
-      <Name>Button</Name>
+      <Name>webapp.widget.Button</Name>
       <Descr>Sample Button</Descr>
     </Class>
     <Class>
-      <Name>Edit</Name>
+      <Name>webapp.widget.Edit</Name>
       <Descr>Sample Editor</Descr>
     </Class>
   </Classes>
