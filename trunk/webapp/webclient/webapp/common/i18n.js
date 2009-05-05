@@ -11,7 +11,7 @@ i18n =
     var tOpts = tOptions || {};
     if (tOpts.sLocale == null)
     {
-      tOpts.sLocale = navigator.userLanguage;
+      tOpts.sLocale = navigator.userLanguage || navigator.language;
     }
     
     function OnLoaded()

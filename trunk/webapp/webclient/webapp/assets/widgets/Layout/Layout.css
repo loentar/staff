@@ -1,0 +1,42 @@
+/* css for webapp.widget.Layout */
+
+td.cellUnit, td.cellUnitSel
+{
+  background: white;
+  cursor: default;
+  text-align: center;
+  vertical-align: middle;
+  height: 60px;
+  width: 90px;
+  font: 14px;
+  border: 2px solid buttonshadow;
+}
+
+td.cellUnitSel
+{
+  background: highlight;
+}
+
+.checkIdent
+{
+  margin-left: 15px;
+}
+
+.editLayoutProp
+{
+  width: 80px;
+  margin-left: 30px;
+}
+
+.editLayoutPropLong
+{
+  width: 150px;
+  margin-left: 30px;
+}
+
+label.noticeLabel
+{
+  margin-top: 8px;
+  color: maroon;
+  width: 280px;
+}

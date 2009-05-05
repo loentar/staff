@@ -386,10 +386,22 @@ function namespace(sNamespace)
 
 Object.prototype.clone = function()
 {
-  var tClone = {};
+  var tClone;
+  if(this instanceof Array)
+  {
+    tClone = [];
+  }
+  else
+  {
+    tClone = {};
+  }
+
   for (tProperty in this) 
   {
-    tClone[tProperty] = this[tProperty];
+    if (tProperty != 'clone')
+    {
+      tClone[tProperty] = this[tProperty];
+    }
   }
   return tClone;
 }

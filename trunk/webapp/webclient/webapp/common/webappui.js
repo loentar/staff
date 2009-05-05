@@ -11,7 +11,7 @@ webapp.ui.IdGen =
       sControlType = 'Generic';
     }
     
-    var sId = 'id' + sControlType;
+    var sId = 'id_' + sControlType.replace(/\./g, '_') + '_';
     
     if (!this._tIds[sId])
     {
@@ -112,17 +112,32 @@ webapp.ui.Generic.prototype =
   
   Show: function(bShow)
   {
-    if (bShow == null)
-    {
-      bShow = true;
-    }
-
-    this.tElement.style.visibility = bShow ? "visible" : "hidden";
+    this.tElement.style.visibility = bShow !== false ? "visible" : "hidden";
   },
   
   Hide: function()
   {
     this.Show(false);
+  },
+  
+  Visible: function()
+  {
+    return this.tElement.style.visibility == "visible";
+  },
+  
+  Enable: function(bEnable)
+  {
+    this.tElement.disabled = bEnable === false;
+  },
+  
+  Disable: function()
+  {
+    this.Enable(false);
+  },
+
+  Enabled: function()
+  {
+    return !this.tElement.disabled;
   },
   
   GetWidth: function()
@@ -153,13 +168,22 @@ webapp.ui.Generic.prototype =
   RemoveChild: function(tChild)
   {
     this.tElement.removeChild(tChild.tElement != null ? tChild.tElement : tChild);
+  },
+  
+  GetValue: function()
+  {
+    return '';
+  },
+  
+  SetValue: function(tValue)
+  {
   }
 };
 
 //////////////////////////////////////////////////////////////////////////
 // div
 webapp.ui.Div = Class.create();
-webapp.ui.Div.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Div.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Div',
   
@@ -172,7 +196,7 @@ webapp.ui.Div.prototype.extend(new webapp.ui.Generic).extend
 //////////////////////////////////////////////////////////////////////////
 // Label
 webapp.ui.Label = Class.create();
-webapp.ui.Label.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Label.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Label',
   
@@ -236,7 +260,7 @@ webapp.ui.Label.prototype.extend(new webapp.ui.Generic).extend
 //////////////////////////////////////////////////////////////////////////
 // Editor
 webapp.ui.Edit = Class.create();
-webapp.ui.Edit.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Edit.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Edit',
   
@@ -253,13 +277,23 @@ webapp.ui.Edit.prototype.extend(new webapp.ui.Generic).extend
   SetText: function(sText)
   {
     return this.Element().value = sText;
+  },
+  
+  GetValue: function()
+  {
+    return this.GetText();
+  },
+  
+  SetValue: function(tValue)
+  {
+    this.SetText(tValue);
   }
 });
 
 //////////////////////////////////////////////////////////////////////////
 // Selector
 webapp.ui.Select = Class.create();
-webapp.ui.Select.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Select',
   
@@ -396,6 +430,16 @@ webapp.ui.Select.prototype.extend(new webapp.ui.Generic).extend
   GetSize: function(nSize)
   {
     return this.Element().size;
+  },
+  
+  GetValue: function()
+  {
+    return this.GetActiveItemId();
+  },
+  
+  SetValue: function(tValue)
+  {
+    return this.SetActiveItemById(tValue);
   }
   
 });
@@ -403,7 +447,7 @@ webapp.ui.Select.prototype.extend(new webapp.ui.Generic).extend
 //////////////////////////////////////////////////////////////////////////
 // Checkbox with label control
 webapp.ui.LabeledCheckbox = Class.create();
-webapp.ui.LabeledCheckbox.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'LabeledCheckbox',
   
@@ -418,12 +462,14 @@ webapp.ui.LabeledCheckbox.prototype.extend(new webapp.ui.Generic).extend
     
     this.tCheck = document.createElement('input');
     this.tCheck.type = 'checkbox';
-    this.tCheck.id = webapp.ui.IdGen.Gen('Checkbox');;
+    this.tCheck.id = tOpt.sCheckId || webapp.ui.IdGen.Gen('Checkbox');;
+    this.tCheck.style.verticalAlign = 'bottom';
     tDiv.appendChild(this.tCheck);
 
     this.tLabel = document.createElement('label');
     this.tLabel.htmlFor = this.tCheck.id;
     this.tLabel.appendChild(document.createTextNode(tOpt.sCaption));
+    this.tLabel.style.verticalAlign = 'bottom';
     tDiv.appendChild(this.tLabel);
 
     if (tOpt.bChecked != null)
@@ -433,19 +479,6 @@ webapp.ui.LabeledCheckbox.prototype.extend(new webapp.ui.Generic).extend
     
     return tDiv;
   },
-  
-/*  Destroy: function()
-  {
-    if(this.tLabel != null && this.tLabel.parentNode != null)
-    {
-      delete this.tLabel.parentNode.removeChild(this.tLabel);
-    }
-
-    if(this.tCheck != null && this.tCheck.parentNode != null)
-    {
-      delete this.tCheck.parentNode.removeChild(this.tCheck);
-    }
-  },*/
   
   SetChecked: function(bChecked)
   {
@@ -467,14 +500,33 @@ webapp.ui.LabeledCheckbox.prototype.extend(new webapp.ui.Generic).extend
   GetChecked: function()
   {
     return this.tCheck.checked;
-  }
+  },
   
+  On: function(sEvent, fnHandler, tScope)
+  {
+    addHandler(this.tCheck, sEvent, fnHandler.bindAsEventListener(tScope || this));
+  },
+  
+  Fire: function(sEvent)
+  {
+    fireEvent(this.tCheck, sEvent);
+  },
+  
+  GetValue: function()
+  {
+    return this.GetChecked();
+  },
+  
+  SetValue: function(tValue)
+  {
+    this.SetChecked(tValue);
+  }
 });
 
 //////////////////////////////////////////////////////////////////////////
 // Table
 webapp.ui.Table = Class.create();
-webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Table',
   
@@ -554,6 +606,11 @@ webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
     return tTd;
   },
   
+  AddRowCell: function(tOpt)
+  {
+    return this.AddCell(this.AddRow(), tOpt);
+  },
+  
   SetCaption: function(sCaption)
   {
     if(this.tCaptionText == null)
@@ -574,7 +631,7 @@ webapp.ui.Table.prototype.extend(new webapp.ui.Generic).extend
 //////////////////////////////////////////////////////////////////////////
 // Image
 webapp.ui.Image = Class.create();
-webapp.ui.Image.prototype.extend(new webapp.ui.Generic).extend
+webapp.ui.Image.prototype.extend(webapp.ui.Generic.prototype).extend
 ({
   sClass: 'Image',
   
@@ -596,5 +653,21 @@ webapp.ui.Image.prototype.extend(new webapp.ui.Generic).extend
   SetSrc: function(sUrl)
   {
     this.Element().src = sUrl;
+  },
+  
+  GetSrc: function()
+  {
+    return this.Element().src;
+  },
+  
+  GetValue: function()
+  {
+    return this.GetSrc();
+  },
+  
+  SetValue: function(tValue)
+  {
+    this.SetSrc(tValue);
   }
 });
+

@@ -46,6 +46,16 @@ webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
     var tTableHeaderCellLabel = tTableHeader.AddCell(tTableHeaderRow);
     this.tLabelCaption = new webapp.ui.Label(tTableHeaderCellLabel, { sClass: 'WidgetFrameHeaderLabel' });
 
+    if(tOptions.bConfigure === true)
+    {
+      // close button
+      var tTableHeaderCellConfigure = tTableHeader.AddCell(tTableHeaderRow);
+      tTableHeaderCellConfigure.className = "WidgetFrameCellHeaderButton";
+      this.tImgConfigure = new webapp.ui.Image(tTableHeaderCellConfigure, 
+        { sSrc: "webapp/assets/view/WidgetFrame/img/configure.png", sClass: "WidgetFrameCellHeaderButton" });
+      this.tImgConfigure.On('click', this._OnConfigure, this);
+    }
+    
     if(tOptions.bNoCollapse !== true)
     {
       // rollup button
@@ -132,5 +142,10 @@ webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
   _OnClose: function(tEvent)
   {
     this.FireEvent('close');
+  },
+  
+  _OnConfigure: function(tEvent)
+  {
+    this.FireEvent('configure');
   }
 });
