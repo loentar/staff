@@ -59,11 +59,21 @@ i18n.webapp =
   
   // Layout
   'Layout': 'Раскладка',
+  'Configure layout': 'Настройка раскладки',
   'left': 'слева',
   'right': 'справа',
-  'center': 'центр',
-  'top': 'верх',
-  'bottom': 'низ',
+  'center': 'по центру',
+  'top': 'сверху',
+  'bottom': 'снизу',
+  'Click unit to edit': 'Выберите позицию для редактирования',
+  'Enabled': 'Включен',
+  'Header': 'Заголовок',
+  'Gutter': 'Отступ',
+  'Width': 'Ширина',
+  'Height': 'Высота',
+  'Resize': 'Измененяемый размер',
+  'Scroll': 'Прокрутка',
+  'After changing layout it\'s recommended to save widgets and reload page': 'После изменения раскладки рекомендуется сохранить сервисы и перезагрузить страницу',
   
   // Object Admin
   'Object administrator': 'Администратор объектов',

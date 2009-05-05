@@ -42,9 +42,19 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
         {
           tFrameOpts.sCaption = tOptions.sDescr;
         }
+        
+        if (typeof this.Configure == 'function')
+        {
+          tFrameOpts.bConfigure = true;
+        }
       
         this._tWidgetFrame = new webapp.view.WidgetFrame(tParent, tFrameOpts);
         this._tWidgetFrame.On('close', this._OnClose, this, stWidget);
+        if (typeof this.Configure == 'function')
+        {
+          this._tWidgetFrame.On('configure', this.Configure, this, stWidget);
+        }
+
         tParent = this._tWidgetFrame.GetBodyContainer();
       }
 
