@@ -1,258 +1,39 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Веб клиент</title>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
 
-  <!-- basic files -->  
-  <script type="text/javascript" src="webapp/common/prototype.js"></script>
-  <script type="text/javascript" src="webapp/common/tools.js"></script>
-  <script type="text/javascript" src="webapp/common/session.js"></script>
-
-  <!-- yui -->
-  <script type="text/javascript" src="yui/utilities/utilities.js"></script>
-  <script type="text/javascript" src="yui/yahoo-dom-event/yahoo-dom-event.js"></script>
-
-  <!-- app loader -->
-  <script type="text/javascript" src="webapp/AppLoader.js"></script>
-  
-  <!-- main scripts -->
-  <script type="text/javascript">
-    var aItemData =
-    [
-      { text: "<b>*</b>" },
+    <style type="text/css">
+      body
       {
-        text: "Файл",
-        submenu:
-        {
-          id: "filemenu",
-          itemdata:
-          [
-            { text: "Открыть...", helptext: "Ctrl + O", url: "javascript:OnOpen;" },
-            { text: "Закрыть...", helptext: "Ctrl + W", url: "javascript:window.close();" }
-          ]
-        }
-      },
-      {
-        text: "Правка",
-        submenu:
-        { 
-          id: "editmenu", 
-          itemdata: 
-          [
-            [
-              { text: "Отменить", helptext: "Ctrl + Z" },
-              { text: "Вернуть", helptext: "Ctrl + Y", disabled: true }
-            ],
-            [
-              { text: "Вырезать", helptext: "Ctrl + X", disabled: true },
-              { text: "Копировать", helptext: "Ctrl + C", disabled: true },
-              { text: "Вставить", helptext: "Ctrl + V" },
-              { text: "Удалить", helptext: "Del", disabled: true }
-            ],
-            [
-              { text: "Выделить всё", helptext: "Ctrl + A" } 
-            ],
-            [
-              { text: "Найти...", helptext: "Ctrl + F" },
-              { text: "Найти далее", helptext: "Ctrl + G" }
-            ]
-          ]
-        }
-      },
-      {
-        text: "Виджет",
-        submenu:
-        { 
-          id: "widgetmenu", 
-          itemdata: 
-          [
-            [
-              { text: "Сохранить", url: "javascript:webapp.AppLoader.GetWidgetLoader().SaveWidgets();" },
-              { text: "Добавить", url: "javascript:webapp.AppLoader.GetWidgetLoader().AddWidget();" },
-              { text: "Изменить", url: "javascript:webapp.AppLoader.GetWidgetLoader().EditWidget();" },
-              { text: "Удалить", url: "javascript:webapp.AppLoader.GetWidgetLoader().DeleteWidget();" },
-              { text: "<b style='color: Blue;'>Dump</b>", url: "javascript:webapp.AppLoader.GetWidgetLoader().DumpWidgets();" }
-            ],
-            [
-              { text: "<small><b>Активные виджеты:</b></small>", disabled: true }
-            ]
-          ]
-        }
-      },
-      {
-        text: "Справка",
-        submenu:
-        {
-          id: "Help",
-          itemdata:
-          [
-            { text: "О программе...", url: "javascript:OnAbout();" }
-          ]
-        }
-      },
-    ];
-    
-    //-----------------------------------------------------------------------------------
-    function OnOpen()
-    {
-      webapp.MessageBox.ShowMessage('open', 'info');
-    }
-    
-    function OnAbout()
-    {
-      webapp.MessageBox.ShowMessage("webapp 1.0<p/>&copy; 2008 PRZ", 'info');
-    }
-    
-    //-----------------------------------------------------------------------------------
-    function OnInitControls()
-    {
-      // init layout
-      var layout = new YAHOO.widget.Layout
-      ({
-        units: 
-        [
-          { body: 'divToolbar',  position: 'top', height: '35px', gutter: '0px' },
-          { body: 'divRight',    position: 'right',  header: 'Виджеты', width: 300, resize: true, gutter: '5px', footer: '...', collapse: true, scroll: true, animate: true },
-          { body: 'divBottom',   position: 'bottom', header: 'Сообщения', height: 100, resize: true, gutter: '5px', collapse: true },
-          { body: 'divMain',     position: 'center', gutter: '5px' }
-        ]
-      });
-      layout.render();
-      
-    
-      // init menu
-      tMenuBar = new YAHOO.widget.MenuBar('MainMenuBar', {itemdata: aItemData});
-      tMenuBar.render(document.body);
-      
-      webapp.AppLoader.GetWidgetLoader().Init
-      (
-        {
-          pParentElement: $('divTest'),
-          pWidgetMenu: tMenuBar.getSubmenus()[2],
-          sWidgetDbName: 'default'
-        }
-      );
-      
-      // init tabview
-      tTabView = new webapp.TabView('divMapTabSet');
-      
-      tTabView.AddTab
-      (
-        "Приветствие",
-        0,
-        "<div>" +
-          "<H1>Добро пожаловать в Веб</H1>" +
-        "</div>"
-      );
-      
-      $('divHiddenLoad').style.visibility = 'visible';
-      $('divLoading').style.visibility = 'hidden';
-    }
-    
-    function OnInit()
-    {
-      var asYuiComponents = 
-      [
-        //css
-        "menu", "layout", "resize"
-      ];
-
-      var tYuiLoader = new YAHOO.util.YUILoader
-      ({
-        require: asYuiComponents,
-        base: 'yui/',
-        onSuccess: OnInitControls,
-        onFailure: function(e)
-        {
-          alert("error: " + YAHOO.lang.dump(e));
-        }
-       });
-
-       tYuiLoader.insert();
-    }
-    
-    //-----------------------------------------------------------------------------------
-    YAHOO.util.Event.onDOMReady
-    (
-      function() 
-      {
-        try
-        {
-          webapp.AppLoader.Init
-          (
-            {
-              bEnableWidgets: true,
-              bEnableTabView: true
-            },
-            OnInit
-          );
-        }
-        catch(tEx)
-        {
-          var sMessage = tEx.text ? tEx.text : (tEx.message ? tEx.message : "");
-          if (webapp.MessageBox)
-          {
-            webapp.MessageBox.ShowMessage('Ошибка при инициализации приложения: '+ sMessage, 'error');
-          } else
-          {
-            alert('Ошибка при инициализации приложения: '+ sMessage);
-          }
-        }
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        border-width: 0px;
       }
-    );
+    </style>
 
-  </script>
-</head>
+    <!-- basic files -->  
+    <script type="text/javascript" src="webapp/common/prototype.js"></script>
+    <script type="text/javascript" src="webapp/common/tools.js"></script>
+    <script type="text/javascript" src="webapp/common/session.js"></script>
 
+    <!-- yui -->
+    <script type="text/javascript" src="yui/utilities/utilities.js"></script>
+    <script type="text/javascript" src="yui/yahoo-dom-event/yahoo-dom-event.js"></script>
 
-<body style="background: white; border-width: 0px;" class="yui-skin-sam">
-  <div id="divHiddenLoad" style="visibility: hidden; border-width: 0px;">
-    <div id="divLoading" style="visibility: visible;">
+    <!-- app loader -->
+    <script type="text/javascript" src="webapp/Webapp.js"></script>
+    
+    <!-- main scripts -->
+    <script type="text/javascript" src="view/Main.js"></script>
+  </head>
+
+  <body class="yui-skin-sam">
+    <div id="divLoading">
       <center>
-        <big>Загрузка...</big>
+        <big>Loading...</big>
       </center>
     </div>
-    
-    <!-- тулбар -->
-    <div id="divToolbar" style="margin-top: 3px;">
-      <span id="spBtnTools" class="yui-button yui-push-button">
-        <strong class="first-child">
-          <button type="button" name="bOpen" style="background: url(webapp/img/open.png) center center no-repeat; text-indent: -4em; height: 2em; width: 2em; *margin-left: 4em;" onclick="javascript:OnOpen();"></button>
-        </strong>
-      </span>
-    </div>
-    
-    <!-- нижний баннер -->
-    <div id="divBottom">
-      <textarea cols="0" rows="0" style="width: 100%;" readonly="readonly">Список сообщений пуст</textarea>
-    </div>
-
-    <!-- правый баннер -->
-    <div id="divRight">
-      <div id="divTest"></div>
-    </div>
-
-    <!-- главный баннер -->
-    <div id="divMain">
-      <div id="divMapTabSet" class="yui-navset">
-        <ul class="yui-nav"></ul>            
-        <div class="yui-content"></div>
-      </div>
-    </div>
-
-    <!-- диалог -->
-    <div id="dlgList">
-      <div class="hd" id="dlgListCaption"></div>
-      <div class="bd">
-        <form id="formDlgList" action="">
-          <label for="selDlgListName" id="dlgListLabel"></label><br/>
-          <select size="6" id="selDlgListName" style="width: 200px;"/>
-          <div class="clear"></div>
-        </form>
-      </div>
-    </div>
-
-  </div>
-
-</body>
+  </body>
 </html>

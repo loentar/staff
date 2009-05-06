@@ -165,7 +165,7 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
   //! set modification flag
   SetModify: function(bModified)
   {
-    this.bModified = bModified;
+    this.bModified = bModified !== false;
   },
   
   //! get modification flag

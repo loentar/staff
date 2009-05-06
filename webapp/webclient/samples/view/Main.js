@@ -1,0 +1,165 @@
+
+namespace('webapp.sample');
+  
+webapp.sample.Application =
+{
+  _GetMenuItems: function()
+  {
+    var aMainMenuItems =
+    [
+      {
+        text: _('Actions'),
+        submenu:
+        {
+          id: "MenuActions",
+          itemdata:
+          [
+            [
+              { text: "<small><b style=\'margin-left: -10px;\'>" + _('System') + ":</b></small>", disabled: true },
+              { text: _('Logout'), url: "javascript:webapp.sample.Application.Logout();"  },
+            ]
+          ]
+        }
+      },
+      {
+        text: _('Widgets'),
+        submenu:
+        {
+          id: "MenuWidgets",
+          itemdata:
+          [
+            [
+              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Management') + ":</b></small>", disabled: true },
+              { text: _('Save'), url: "javascript:webapp.Webapp.GetWidgetLoader().SaveWidgets();" },
+              { text: _('Add'), url: "javascript:webapp.Webapp.GetWidgetLoader().NewWidgetDlg();" },
+              { text: _('Configure'), url: "javascript:webapp.Webapp.GetWidgetLoader().ConfigureWidgetDlg();" },
+              { text: _('Remove'), url: "javascript:webapp.Webapp.GetWidgetLoader().RemoveWidgetDlg();" },
+              { text: "<b style='color: Blue;'>" + _('Dump') + "</b>", url: "javascript:webapp.Webapp.GetWidgetLoader().DumpWidgets();" }
+            ],
+            [
+              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Active widgets') + ":</b></small>", disabled: true }
+            ]
+          ]
+        }
+      },
+      {
+        text: _('Help'),
+        submenu:
+        {
+          id: "MenuHelp",
+          itemdata:
+          [
+            { text: _('About') + '...', url: "javascript:webapp.sample.Application.OnAbout();" }
+          ]
+        }
+      }
+    ];
+    return aMainMenuItems;
+  },
+  
+  Logout: function()
+  {
+    try
+    {
+      webapp.Webapp.GetLoginService().Logout();
+    }
+    catch(tError)
+    {
+    }
+
+    var sLocation;
+
+    if (webapp.Env.host)
+    {
+      sLocation = (sLocation ? sLocation + "," : "?") + 'host=' + webapp.Env.host;
+    }
+    
+    if (webapp.Env.port)
+    {
+      sLocation = (sLocation ? sLocation + "," : "?") + "port=" + webapp.Env.port;
+    }
+    
+    if (webapp.Env.lang)
+    {
+      sLocation = (sLocation ? sLocation + "," : "?") + 'lang=' + webapp.Env.lang;
+    }
+    
+    document.location = 'login.htm' + sLocation || '';
+  },
+  
+  OnAbout: function()
+  {
+    webapp.view.MessageBox.ShowMessage(_('Example WEB-appplication for staff') + " 1.0<p/>&copy; 2008-2009", 'info');
+  },
+
+  ///--------------------------------------------------------------------------------------
+  
+  OnInit: function()
+  {
+    i18n.LoadLocale('webapp_sample', '', webapp.sample.Application.InitControls.bind(this));
+  },
+  
+  InitControls: function()
+  {
+    document.title = _('WEB Application sample');
+    
+    // init menu
+    this.tMenuBar = new YAHOO.widget.MenuBar('MainMenuBar', {itemdata: this._GetMenuItems()});
+    this.tMenuBar.render(document.body);
+    
+    function onSubmenuShow()
+    {
+      if (this.id == "MenuActions") 
+      {  // fix yui menu position
+        YAHOO.util.Dom.setX(this.element, 0);
+      }
+    }
+    
+    this.tMenuBar.subscribe("show", onSubmenuShow);
+    
+    this.tDivMain = new webapp.ui.Div(document.body, { sId: "divMain" });
+    
+    webapp.Webapp.GetWidgetLoader().Init
+    (
+      {
+        tParent: this.tDivMain,
+        tWidgetMenu: this.tMenuBar.getSubmenus()[1],
+        tMainMenu: this.tMenuBar,
+        sProfile: webapp.Env.profile
+      }
+    );
+
+    var tDivLoading = $('divLoading');
+    tDivLoading.parentNode.removeChild(tDivLoading);
+  },
+
+  Init: function()
+  {
+    try
+    {
+      webapp.Webapp.Init
+      (
+        {
+          bEnableWidgets: true
+        },
+        webapp.sample.Application.OnInit,
+        webapp.sample.Application
+      );
+    }
+    catch(tError)
+    {
+      var sMessage = tError.message || tError.text || tError || _('Unknown error');
+      try
+      {
+        webapp.view.MessageBox.ShowMessage(_('Error while initializing application') + ': '+ sMessage, 'error');
+      }
+      catch(tIgnoredError)
+      {
+        alert( _('Error while initializing application') + ': \n'+ sMessage);
+      }
+    }
+  }
+};
+
+///--------------------------------------------------------------------------------------
+YAHOO.util.Event.onDOMReady(webapp.sample.Application.Init);

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<WidgetDB version="1.0" type="classes">
+  <!-- widget classes list -->
+  <Classes>
+    <Class>
+      <Name>webapp.widget.Layout</Name>
+      <Descr>Layout</Descr>
+    </Class>
+    <Class>
+      <Name>widget.Button</Name>
+      <Descr>Sample widget: Button</Descr>
+    </Class>
+    <Class>
+      <Name>widget.Edit</Name>
+      <Descr>Sample widget: Editor</Descr>
+    </Class>
+    <Class>
+      <Name>widget.Sample</Name>
+      <Descr>Sample widget</Descr>
+    </Class>
+    <Class>
+      <Name>webapp.widget.AccountAdmin</Name>
+      <Descr>Account administrator</Descr>
+    </Class>
+    <Class>
+      <Name>webapp.widget.ObjectAdmin</Name>
+      <Descr>Object administrator</Descr>
+    </Class>
+  </Classes>
+</WidgetDB>

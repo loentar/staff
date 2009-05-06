@@ -1,24 +1,24 @@
 namespace('widget');
 
 ///////////////////////////////////////////////////////////////
-// class Button
+// class Button: example widget
 
 widget.Button = Class.create();
 widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParent)
   {
-    if(this.tProperties.sID == null || this.tProperties.sID == "")
+    if(!this.tProperties.sID)
     {
       this.tProperties.sID = "button_" + Math.floor(Math.random() * 1000);
     }
     
-    if(this.tProperties.sLabel == null || this.tProperties.sLabel == "")
+    if(!this.tProperties.sLabel)
     {
       this.tProperties.sLabel = this.tProperties.sID;
     }
     
-    // создание YUI элемента(кнопка)
+    // creating YUI button
     this.tButton = new YAHOO.widget.Button
     ({
        id: this.tProperties.sID,
@@ -26,24 +26,24 @@ widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
        container: tParent.Element != null ? tParent.Element() : tParent
     });
     
-    // устанавка обработчика нажатия
-    this.tButton.on("click", this._OnButtonClick.bind(this));
+    // set "onclick" handler
+    this.tButton.on('click', this._OnButtonClick.bind(this));
      
-    // добавление пункта меню для виджета
+    // adding simple widget menu
     this.AddWidgetMenu(this.sName, this._OnMenuClick.bind(this));
   },
   
   _OnButtonClick: function()
   {
-    webapp.view.MessageBox.ShowMessage("Нажата кнопка " + this.tProperties.sLabel, 'info');
+    webapp.view.MessageBox.ShowMessage( _('Button pressed') + ' ' + this.tProperties.sLabel, 'info');
   },
 
   _OnMenuClick: function()
   {
-    webapp.view.MessageBox.ShowMessage("Обработчик меню для виджета " + this.tProperties.sLabel, 'info');
+    webapp.view.MessageBox.ShowMessage(_('Menu item selected for button') + ' ' + this.tProperties.sLabel, 'info');
   },
   
-  DeserializeData: function() // записать динамические свойства в контрол/обновить статические
+  DeserializeData: function() // wirte dynamic data/update static
   {
     if(this.tButton != null)
     {
@@ -52,19 +52,27 @@ widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
     }
   },
   
-  SerializeData: function() // получить динамические свойства из контрола
+  SerializeData: function() // get data from control
   {
-//    this.tProperties.sParent = this.tButton.get('parentNode').id;
   },
   
   Destroy: function()
   {
-    // pMenuItem и tButton будут удалены в родительском классе
   },
   
   IsMultiple: function()
   {
     return true;
+  },
+  
+  Configure: function()
+  {
+    var sResult = prompt(_('Enter new button label'), this.tProperties.sLabel);
+    if (sResult)
+    {
+      this.tProperties.sLabel = sResult;
+      this.tButton.set('label', this.tProperties.sLabel);
+      this.SetModify();
+    }
   }
 });
-
