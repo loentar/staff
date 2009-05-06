@@ -11,7 +11,13 @@ i18n =
     var tOpts = tOptions || {};
     if (tOpts.sLocale == null)
     {
-      tOpts.sLocale = navigator.userLanguage || navigator.language;
+      tOpts.sLocale = webapp.Env.lang || navigator.userLanguage || navigator.language;
+    }
+    
+    if (tOpts.sLocale == 'en')
+    { // do not load default language
+      LoadingDone();
+      return;
     }
     
     function OnLoaded()
@@ -29,17 +35,23 @@ i18n =
           tLoc[nIndex] = tNewLoc[nIndex];
         }
       }
-      
-      if (tOpts.bSwitchTo !== false)
-      {
-        i18n.SetLocale(tOpts.sLocale);
-      }
-      fnComplete && fnComplete();
+
+      LoadingDone();      
     }
     
     function OnError()
     {
       alert("can't load locale: \"" + tOpts.sLocale + "\" for " + sNamespace);
+      LoadingDone();      
+    }
+    
+    function LoadingDone()
+    {
+      if (tOpts.bSwitchTo !== false)
+      {
+        i18n.SetLocale(tOpts.sLocale);
+      }
+      fnComplete && fnComplete();
     }
 
     Include(tOpts.sLocale, (sPath != '' ? sPath + '/' : '') + 'assets/i18n/', OnLoaded, [ 'i18n.' + sNamespace ], OnError);

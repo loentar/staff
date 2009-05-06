@@ -6,41 +6,37 @@ namespace('widget');
 widget.Edit = Class.create();
 widget.Edit.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
-  Create: function()
+  Create: function(tParent)
   {
-    var self = this;
-    this.pElement = document.createElement("input");
-    this.tOptions.tParent.AppendChild(this.pElement);
+    this.tEdit = new webapp.ui.Edit(tParent);
+    this.tEdit.SetValue(this.tProperties.sValue || this.sName);
 
-    // добавление пункта меню для виджета
-    this.AddWidgetMenu
-    (
-      this.sName, 
-      function()
-      {
-        self.pElement.value = "меню: " + self.tProperties.sID;
-      }
-    );
+    this.AddWidgetMenu(this.sName, this._OnMenuClicked.bind(this));
+    
+    return this.tEdit;
   },
   
-  DeserializeData: function() // записать динамические свойства в контрол
+  _OnMenuClicked: function()
   {
-    this.pElement.value = this.tProperties.sValue;
+    this.tEdit.SetValue("Hello, world!");
   },
   
-  SerializeData: function() // получить динамические свойства из контрола
+  DeserializeData: function()
   {
-    this.tProperties.sValue = this.pElement.value;
+    if (this.tProperties.sValue)
+    {
+      this.tEdit.SetValue(this.tProperties.sValue);
+    }
   },
   
-  GetModifyData: function() // получить признак модицикации динамических свойств контрола
+  SerializeData: function()
   {
-    return (this.tProperties.sValue != this.pElement.value);
+    this.tProperties.sValue = this.tEdit.GetValue();
   },
   
-  Destroy: function()
+  GetModifyData: function()
   {
-    // pMenuItem и pElement будут удалены в родительском классе
+    return (this.tProperties.sValue != this.tEdit.GetValue());
   },
   
   IsMultiple: function()

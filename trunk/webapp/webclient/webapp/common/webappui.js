@@ -266,7 +266,13 @@ webapp.ui.Edit.prototype.extend(webapp.ui.Generic.prototype).extend
   
   Create: function(tParent, tOpt)
   {
-    return document.createElement('input');
+    var tInput = document.createElement('input');
+    
+    if (tOpt.bIsPassword === true)
+    {
+      tInput.type = "password";
+    }
+    return tInput;
   },
   
   GetText: function()
@@ -362,7 +368,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
         {
           var tOption = atOptions[nIndex];
           if (tOption[0] != null && tOption[1] != null &&
-            (tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+            (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
           {
             atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
             ++nOptIndex;
@@ -480,6 +486,16 @@ webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
     return tDiv;
   },
   
+  GetCaption: function()
+  {
+    return this.tLabel.firstChild.nodeValue;
+  },
+  
+  SetCaption: function(sCaption)
+  {
+    this.tLabel.firstChild.nodeValue = sCaption;
+  },
+
   SetChecked: function(bChecked)
   {
     if(bChecked == null)

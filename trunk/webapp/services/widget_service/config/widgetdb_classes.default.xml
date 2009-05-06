@@ -6,13 +6,5 @@
       <Name>webapp.widget.Layout</Name>
       <Descr>Layout</Descr>
     </Class>
-    <Class>
-      <Name>webapp.widget.Button</Name>
-      <Descr>Sample Button</Descr>
-    </Class>
-    <Class>
-      <Name>webapp.widget.Edit</Name>
-      <Descr>Sample Editor</Descr>
-    </Class>
   </Classes>
 </WidgetDB>
