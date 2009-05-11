@@ -10,10 +10,8 @@ VPATH = $(SRCDIR)
 
 INSTALLDIR = $(STAFF_HOME)/components/
 
-STAFF_CODEGEN = $(STAFF_HOME)/bin/staff_codegen
-
-CXXFLAGS += -Wno-deprecated -I$(STAFF_HOME)/include/
-LDFLAGS += -L$(STAFF_HOME)/lib
+CXXFLAGS += -Wno-deprecated -I$(STAFF_DEPLOY_HOME)/include/
+LDFLAGS += -L$(STAFF_DEPLOY_HOME)/lib
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
