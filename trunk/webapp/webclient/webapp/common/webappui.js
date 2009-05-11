@@ -297,6 +297,51 @@ webapp.ui.Edit.prototype.extend(webapp.ui.Generic.prototype).extend
 });
 
 //////////////////////////////////////////////////////////////////////////
+// Button
+webapp.ui.Button = Class.create();
+webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'Button',
+  
+  Create: function(tParent, tOpt)
+  {
+    var tInput = document.createElement('input');
+    
+    tInput.type = "button";
+
+    if (tOpt != null)
+    {
+      if (tOpt.sCaption != null)
+      {
+        tInput.value = tOpt.sCaption;
+      }
+    }
+
+    return tInput;
+  },
+  
+  GetCaption: function()
+  {
+    return this.Element().value;
+  },
+  
+  SetCaption: function(sText)
+  {
+    return this.Element().value = sText;
+  },
+  
+  GetValue: function()
+  {
+    return this.GetCaption();
+  },
+  
+  SetValue: function(tValue)
+  {
+    this.SetCaption(tValue);
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
 // Selector
 webapp.ui.Select = Class.create();
 webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
