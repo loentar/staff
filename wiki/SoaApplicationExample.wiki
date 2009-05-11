@@ -93,7 +93,7 @@ std::string HelloWorldImpl::Hello(const std::string& sName)
 }}}
 
   The implementation of the service is ready.
-   _* WARNING: Changing the service interface should be independently make changes in implementation. When you re-generate the template perezatret realization.*_
+   _* WARNING: When You change service interface, You should make changes in implementation manualy.*_
 
 
 === 1.2. Generate component service wrapper ===
@@ -219,7 +219,7 @@ http://localhost:9090/axis2/services
   staff_codegen -tclient HelloWorld.h
 }}}
 
-   _* WARNING: When You change the service interface, You must regenerat the proxy .*_ 
+   _* WARNING: When You change the service interface, You must regenerate the proxy .*_ 
 
 === 2.3. Compiling client ===
 
@@ -401,6 +401,7 @@ widget.HelloWorld.prototype.extend(webapp.widget.Widget.prototype).extend
   mkdir -p clients
   staff_codegen -tjsclient -i../../component/src/ -oclients HelloWorld.h
 }}}
+   _* WARNING: When You change the service interface, You must regenerate the proxy .*_ 
 
 === 3.4. Installing ===
   Copy the widget, and client wrapper: 
