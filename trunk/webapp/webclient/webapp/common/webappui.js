@@ -100,9 +100,19 @@ webapp.ui.Generic.prototype =
     this.tElement.focus();
   },
   
-  On: function(sEvent, fnHandler, tScope)
+  On: function(sEvent, fnHandler, tScope, tObject)
   {
-    addHandler(this.tElement, sEvent, fnHandler.bindAsEventListener(tScope || this));
+    var tSelf = this;
+
+    addHandler
+    (
+      this.tElement,
+      sEvent,
+      function(tEvent)
+      {
+        fnHandler.call(tScope || tSelf, tEvent || window.event, tObject);
+      }
+    );
   },
   
   Fire: function(sEvent)
@@ -140,6 +150,26 @@ webapp.ui.Generic.prototype =
     return !this.tElement.disabled;
   },
   
+  GetLeft: function()
+  {
+    return this.tElement.offsetLeft;
+  },
+  
+  GetTop: function()
+  {
+    return this.tElement.offsetTop;
+  },
+  
+  SetLeft: function(nLeft)
+  {
+    return this.tElement.style.left = nLeft;
+  },
+  
+  SetTop: function(nTop)
+  {
+    return this.tElement.style.top = nTop;
+  },
+  
   GetWidth: function()
   {
     return this.tElement.offsetWidth;
@@ -157,7 +187,37 @@ webapp.ui.Generic.prototype =
   
   SetHeight: function(nHeight)
   {
-    return this.tElement.style.width = nHeight;
+    return this.tElement.style.height = nHeight;
+  },
+  
+  GetRight: function()
+  {
+    return this.tElement.offsetLeft + this.tElement.offsetWidth;
+  },
+  
+  GetBottom: function()
+  {
+    return this.tElement.offsetTop + this.tElement.offsetHeight;
+  },
+  
+  SetRight: function(nRight)
+  {
+    return this.tElement.style.width = nRight - this.tElement.offsetLeft;
+  },
+  
+  SetBottom: function(nBottom)
+  {
+    return this.tElement.style.height = nBottom - this.tElement.offsetTop;
+  },
+  
+  GetCursor: function()
+  {
+    return this.tElement.style.cursor;
+  },
+  
+  SetCursor: function(sCursor)
+  {
+    this.tElement.style.cursor = sCursor;
   },
   
   AppendChild: function(tChild)
@@ -308,14 +368,8 @@ webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
     var tInput = document.createElement('input');
     
     tInput.type = "button";
-
-    if (tOpt != null)
-    {
-      if (tOpt.sCaption != null)
-      {
-        tInput.value = tOpt.sCaption;
-      }
-    }
+    
+    tInput.value = tOpt.sCaption || '';
 
     return tInput;
   },
@@ -325,9 +379,9 @@ webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.Element().value;
   },
   
-  SetCaption: function(sText)
+  SetCaption: function(sCaption)
   {
-    return this.Element().value = sText;
+    return this.Element().value = sCaption;
   },
   
   GetValue: function()
