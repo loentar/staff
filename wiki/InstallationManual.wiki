@@ -1,5 +1,5 @@
 #summary Installation, configuration and test guide
-#labels Phase-Deploy
+#labels Featured,Phase-Deploy
 
 = Introduction =
 
@@ -36,6 +36,7 @@ make && sudo -E make install
 == 2. Getting source code ==
 
 Please refer to http://code.google.com/p/staff/source/checkout to read guide for getting source code from svn repository.
+Or checkout the [http://code.google.com/p/staff/downloads/list Download] section.
 
 
 == 3. Compiling source code ==
