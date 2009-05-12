@@ -1,5 +1,5 @@
-# summary Overview of SOA-an application for Staff 
-# labels Featured, Phase-Design 
+#summary Overview of SOA-an application for Staff
+#labels Featured,Phase-Design
 
 _NOTICE: translated from russian with translate.google.com_ 
 
