@@ -224,6 +224,16 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     var tRecord = this.tDataTableUsers.getRecord(tRows[0]);
     var nUserId = tRecord.getData('nId');
 
+    var aUserGroupIds;
+    try
+    {
+      aUserGroupIds = this.pAccountAdminService.GetUserGroups(nUserId);
+    }
+    catch(tError)
+    {
+      webapp.view.MessageBox.ShowMessage(_('Cannot get user\'s groups') + ":<br>" + (tError.message || tError), 'error');
+    }
+
     function OnConfirm()
     {
       if (this.aAddedGroups.length > 0)
@@ -411,8 +421,6 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     addHandler(tBtnExclude, 'click', OnExcludeGroup.bindAsEventListener(this));
     addHandler(tBtnExclude, 'dblclick', OnExcludeGroup.bindAsEventListener(this));
 
-    var aUserGroupIds = this.pAccountAdminService.GetUserGroups(nUserId);
-    
     this.aAvailGroups = this.aGroups.slice();
     this.aUserGroups = new Array(); // assoc array for user groups
     

@@ -9,9 +9,9 @@ widget.Edit.prototype.extend(webapp.widget.Widget.prototype).extend
   Create: function(tParent)
   {
     this.tEdit = new webapp.ui.Edit(tParent);
-    this.tEdit.SetValue(this.tProperties.sValue || this.sName);
+    this.tEdit.SetValue(this.tProperties.sValue || this.sId);
 
-    this.AddWidgetMenu(this.sName, this._OnMenuClicked.bind(this));
+    this.AddWidgetMenu(this.sId, this._OnMenuClicked.bind(this));
     
     return this.tEdit;
   },

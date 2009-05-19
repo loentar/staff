@@ -29,15 +29,33 @@ webapp.sample.Application =
           itemdata:
           [
             [
-              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Management') + ":</b></small>", disabled: true },
+              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Widget management') + ":</b></small>", disabled: true },
               { text: _('Save'), url: "javascript:webapp.Webapp.GetWidgetLoader().SaveWidgets();" },
               { text: _('Add'), url: "javascript:webapp.Webapp.GetWidgetLoader().NewWidgetDlg();" },
               { text: _('Configure'), url: "javascript:webapp.Webapp.GetWidgetLoader().ConfigureWidgetDlg();" },
               { text: _('Remove'), url: "javascript:webapp.Webapp.GetWidgetLoader().RemoveWidgetDlg();" },
-              { text: "<b style='color: Blue;'>" + _('Dump') + "</b>", url: "javascript:webapp.Webapp.GetWidgetLoader().DumpWidgets();" }
             ],
             [
-              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Active widgets') + ":</b></small>", disabled: true }
+              { text: "<small><b style=\'margin-left: -10px;\'>" + _('Widget group management') + ":</b></small>", disabled: true },
+              { text: _('Activate group'), url: "javascript:webapp.Webapp.GetWidgetLoader().ActivateWidgetGroupDlg();" },
+              { text: _('Deactivate group'), url: "javascript:webapp.Webapp.GetWidgetLoader().DeactivateWidgetGroupDlg();" },
+              { text: _('Create group'), url: "javascript:webapp.Webapp.GetWidgetLoader().CreateWidgetGroupDlg();" },
+              { text: _('Remove group'), url: "javascript:webapp.Webapp.GetWidgetLoader().RemoveWidgetGroupDlg();" },
+            ],
+            [
+              { 
+                text: _('Active widgets'), 
+                submenu:
+                {
+                  id: "MenuWidgetsConf",
+                  itemdata:
+                  [
+                    [
+                      { text: "<small><b style=\'margin-left: -10px;\'>" + _('Configuration') + ":</b></small>", disabled: true }
+                    ]
+                  ]
+                }
+              }
             ]
           ]
         }
@@ -118,12 +136,13 @@ webapp.sample.Application =
     this.tMenuBar.subscribe("show", onSubmenuShow);
     
     this.tDivMain = new webapp.ui.Div(document.body, { sId: "divMain" });
+    addHandler(document.body, 'contextmenu', cancelEvent);
     
     webapp.Webapp.GetWidgetLoader().Init
     (
       {
         tParent: this.tDivMain,
-        tWidgetMenu: this.tMenuBar.getSubmenus()[1],
+        tWidgetMenu: this.tMenuBar.getSubmenus()[1].getSubmenus()[0],
         tMainMenu: this.tMenuBar,
         sProfile: webapp.Env.profile
       }
@@ -135,6 +154,7 @@ webapp.sample.Application =
 
   Init: function()
   {
+    IncludeCss('assets/pages/Main');
     try
     {
       webapp.Webapp.Init

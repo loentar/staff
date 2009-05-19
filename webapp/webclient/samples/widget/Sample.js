@@ -49,7 +49,7 @@ widget.Sample.prototype.extend(webapp.widget.Widget.prototype).extend
     for(var tIndex in this.tCtrls)
     {
       var tItem = this.tCtrls[tIndex];
-      if (tItem.SetValue)
+      if (tItem.GetValue)
       {
         this.tProperties[tIndex] = tItem.GetValue();
       }

@@ -1,11 +1,12 @@
 namespace('webapp.view');
 
+IncludeCss("webapp/assets/view/WidgetFrame/WidgetFrame");
+
 webapp.view.WidgetFrame = Class.create();
 webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
 ({
   initialize: function(tParent, tOptions)
   {
-    IncludeCss("webapp/assets/view/WidgetFrame/WidgetFrame");
     this.bCollapsed = false;
     
     if(tOptions == null)
@@ -65,6 +66,11 @@ webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
         { sSrc: "webapp/assets/view/WidgetFrame/img/go-top.png", sClass: "WidgetFrameCellHeaderButton" });
       this._tImgRollup.On('click', this._OnRollup, this);
       this.tLabelCaption.On('dblclick', this._OnRollup, this);
+      
+      if (tOptions.bCollapsed)
+      {
+        this._OnRollup();
+      }
     }
       
     if(tOptions.bNoClose !== true)
@@ -90,8 +96,6 @@ webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
     {
       this.tLabelCaption.SetCaption(tOptions.sCaption);
     }
-    
-    this.tEvents = {};
   },
   
   destroy: function()
@@ -118,6 +122,11 @@ webapp.view.WidgetFrame.prototype.extend(webapp.Event.prototype).extend
   GetBodyContainer: function()
   {
     return this._tDivBody;
+  },
+  
+  IsCollapsed: function()
+  {
+    return this.bCollapsed;
   },
   
   _OnRollup: function(tEvent)

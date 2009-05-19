@@ -6,31 +6,26 @@ namespace('widget');
 widget.Button = Class.create();
 widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
-  Create: function(tParent)
+  Create: function(tParentElem)
   {
-    if(!this.tProperties.sID)
-    {
-      this.tProperties.sID = "button_" + Math.floor(Math.random() * 1000);
-    }
-    
     if(!this.tProperties.sLabel)
     {
-      this.tProperties.sLabel = this.tProperties.sID;
+      this.tProperties.sLabel = this.sId;
     }
     
     // creating YUI button
     this.tButton = new YAHOO.widget.Button
     ({
-       id: this.tProperties.sID,
+       id: this.sId,
        label: this.tProperties.sLabel,
-       container: tParent.Element != null ? tParent.Element() : tParent
+       container: tParentElem
     });
     
     // set "onclick" handler
     this.tButton.on('click', this._OnButtonClick.bind(this));
      
     // adding simple widget menu
-    this.AddWidgetMenu(this.sName, this._OnMenuClick.bind(this));
+    this.AddWidgetMenu(this.sId, this._OnMenuClick.bind(this));
   },
   
   _OnButtonClick: function()
@@ -47,7 +42,7 @@ widget.Button.prototype.extend(webapp.widget.Widget.prototype).extend
   {
     if(this.tButton != null)
     {
-      this.tButton.set('id', this.tProperties.sID);
+      this.tButton.set('id', this.sId);
       this.tButton.set('label', this.tProperties.sLabel);
     }
   },

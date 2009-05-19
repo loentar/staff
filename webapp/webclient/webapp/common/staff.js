@@ -48,7 +48,7 @@ staff.Client.prototype =
     var tSidElm = tOperation.SubNode("SessionId", tHeader.element);
     if(tSidElm == null)
     {
-      tSidElm = tHeader.create_child(new WS.QName("SessionId"));
+      tSidElm = tHeader.create_child(new WS.QName("SessionId", SOAP.URI));
       tSidElm.set_value(this.sID);
     }
     
@@ -108,10 +108,6 @@ staff.Client.prototype =
       }
       
       tOperation.SetResultEvenlope(new SOAP.Envelope(tResponseXml.documentElement));
-      if(tOperation.IsFault())
-      {
-        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString());
-      }
     }
     else
     {
@@ -121,9 +117,10 @@ staff.Client.prototype =
         tOperation.SetResultEvenlope(new SOAP.Envelope(tAjaxRequest.transport.responseXML.documentElement));
         sMessage = tOperation.GetFaultString();
       }
-
-      throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": <b>" + _(sMessage) + "</b> <br/>" 
-          + "(" + _(tAjaxRequest.transport.statusText || GetErrorStr(tAjaxRequest.transport.status)) + ")");
+      
+      throw Error("<b>" + _(sMessage) + "</b><br/>" + 
+          _('Failed to invoke service') + " <u style='color: blue'>" + this.sServiceUri + "</u><br/>" 
+          + "<sub>(" + _(tAjaxRequest.transport.statusText || GetErrorStr(tAjaxRequest.transport.status)) + ")</sub>");
     }
   }
 };
@@ -157,11 +154,7 @@ staff.Operation.prototype =
     var tParentElm = tNode == null ? this.tRequestElement : tNode;
     var tCreatedElm = tParentElm.create_child(new WS.QName(sName));
     
-    if (tValue == null)
-    {
-      tCreatedElm.set_value('');
-    }
-    else
+    if (tValue)
     {
       if (typeof tValue != 'string')
       {
@@ -251,7 +244,7 @@ staff.Operation.prototype =
       this.SetFault(_('Failed to invoke service'));
     } else // 
     {
-      // пытаемся получить результат
+      // trying to retrive result
       var tRes = this.SubNode('staff:' + this.sName + 'Result', this.tResultEnvelope.get_body().element);
 
       if(tRes != null)
@@ -368,3 +361,153 @@ staff.Operation.prototype =
   }
 };
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// class DataObject
+
+staff.DataObject = Class.create();
+staff.DataObject.prototype = 
+{
+  initialize: function()
+  {
+  },
+  
+  Erase: function()
+  {
+    for (var tIndex in this)
+    {
+      if (typeof this[tIndex] != 'function')
+      {
+        delete this[tIndex];
+      }
+    }
+  },
+  
+  FromElement: function(tElement)
+  {
+    this.Erase();
+    this.extend(this._FromElement(tElement));
+  },
+  
+  _FromElement: function(tElem)
+  {
+    // detect type
+
+    // node?
+    if (!tElem.firstChild)
+    {
+      //empty string
+      return tElem.nodeType == 1 ? {} : '';
+    }
+
+    // is object/array?
+    {
+      var bArray = null;
+      // has subnodes?
+      var tNode = tElem.firstChild;
+      for (; tNode; tNode = tNode.nextSibling)
+      {
+        if (tNode.nodeType == 1) // filter out text nodes
+        {
+          bArray = tNode.nodeName == 'ArrayItem';
+          break;
+        }
+      }
+      
+      if (tNode && bArray !== null)
+      {
+        if (bArray)
+        { // array
+          var aData = [];
+          for (; tNode; tNode = tNode.nextSibling)
+          {
+            if (tNode.nodeType == 1) // filter out text nodes
+            {
+              aData.push(this._FromElement(tNode));
+            }
+          }
+
+          return aData;
+        }
+        else
+        { // object
+          var oData = {};
+          for (; tNode; tNode = tNode.nextSibling)
+          {
+            if (tNode.nodeType == 1) // filter out text nodes
+            {
+              oData[tNode.nodeName] = this._FromElement(tNode);
+            }
+          }
+
+          return oData;
+        }
+      }
+    }
+
+    // is boolean?
+    var sVal = tElem.firstChild.nodeValue.toLowerCase();
+    if (sVal == 'true' || sVal == 'false')
+    {
+      return sVal == 'true';
+    }
+
+    // is number? (including exp form)
+    if (sVal.search(/^([-+]|)([\d]+|)(\.|)([\d]+|)([eE][-+\d][\d]+|)$/g) == 0)
+    {
+      return parseFloat(sVal);
+    }
+    
+    return tElem.firstChild.nodeValue;
+  },
+  
+  ToElement: function(tElem)
+  {
+    for (var tIndex in this)
+    {
+      if (typeof this[tIndex] != 'function')
+      {
+        return this._ToElement(tElem, this[tIndex], tIndex);
+      }
+    }
+  },
+  
+  _ToElement: function(tParentElem, tObj, sName)
+  {
+    var tElem = tParentElem.create_child(new WS.QName(sName));
+
+    if (typeof tObj == 'object')
+    {
+      if (tObj instanceof Array)
+      {
+        for(var nIndex = 0; nIndex < tObj.length; ++nIndex)
+        {
+          this._ToElement(tElem, tObj[nIndex], 'ArrayItem');
+        }
+      }
+      else
+      {
+        // deny to serialize HTML elements
+        if (tObj.document === document)
+        {
+          throw Error('Unable to serialize HTML elements');
+        }
+        
+        for(var tIndex in tObj)
+        {
+          var tSubObj = tObj[tIndex];
+          if (typeof tSubObj != 'function')
+          {
+            this._ToElement(tElem, tObj[tIndex], tIndex);
+          }
+        }
+      }
+    }
+    else
+    {
+      tElem.set_value(tObj.toString());
+    }
+
+    return tElem;
+  }
+};

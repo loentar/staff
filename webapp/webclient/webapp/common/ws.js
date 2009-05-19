@@ -79,7 +79,7 @@ var XML = {
   createAttributeNS : function(document,nodename,namespace,value) {
     var attr = Try.these(
       function() { return document.createNode(2,nodename,namespace)},
-      function() { return document.createAttributeNS(namespace,nodename)}
+      function() { return namespace ? document.createAttributeNS(namespace,nodename) : document.createAttribute(nodename)}
     ) || false;
     attr.nodeValue = value;
     return attr;

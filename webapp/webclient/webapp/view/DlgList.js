@@ -97,7 +97,7 @@ webapp.view.DlgList.prototype.extend(webapp.Event.prototype).extend
   _OnConfirm: function()
   {
     var tParams = {};
-    tParams.tItem = this.tSelect.GetActiveItem()
+    tParams.tItem = this.tSelect.GetActiveItem();
 
     this.FireEvent("confirm", tParams);
 

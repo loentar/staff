@@ -42,7 +42,13 @@ i18n =
     function OnError()
     {
       alert("can't load locale: \"" + tOpts.sLocale + "\" for " + sNamespace);
-      LoadingDone();      
+      try
+      {
+        LoadingDone();      
+      }
+      catch(tErrorIgnored)
+      {
+      }
     }
     
     function LoadingDone()

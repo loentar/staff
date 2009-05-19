@@ -8,12 +8,69 @@
 #include <rise/xml/XMLException.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
+#include <staff/common/DataObject.h>
+#include <staff/common/DataObjectHelper.h>
 #include <staff/security/Security.h>
 #include "WidgetManagerContext.h"
 #include "WidgetManagerImpl.h"
 
 namespace widget
 {
+
+  struct CWidgetManagerImpl::SWidgetInternal
+  {
+    std::string sId;
+    std::string sClass;
+    rise::xml::CXMLNode tProps;
+
+    void ToWidget(SWidget& rWidget) const
+    {
+      rWidget.sId = sId;
+      rWidget.sClass = sClass;
+      staff::CDataObjectHelper::XmlToDataObject(tProps, rWidget.tdoProps);
+    }
+
+    void FromWidget(const SWidget& rWidget)
+    {
+      sId = rWidget.sId;
+      sClass = rWidget.sClass;
+      tProps.Clear();
+      staff::CDataObjectHelper::DataObjectToXml(rWidget.tdoProps, tProps);
+    }
+  };
+
+  struct CWidgetManagerImpl::SWidgetGroupInternal
+  {
+    std::string         sId;
+    std::string         sDescr;
+    TWidgetInternalMap  mWidgets;
+
+    void ToWidgetGroup(SWidgetGroup& rWidgetGroup) const
+    {
+      rWidgetGroup.sId = sId;
+      rWidgetGroup.sDescr = sDescr;
+      rWidgetGroup.mWidgets.clear();
+      
+      for (TWidgetInternalMap::const_iterator itWidget = mWidgets.begin();
+           itWidget != mWidgets.end(); ++itWidget)
+      {
+        itWidget->second.ToWidget(rWidgetGroup.mWidgets[itWidget->first]);
+      }
+    }
+
+    void FromWidgetGroup(const SWidgetGroup& rWidgetGroup)
+    {
+      sId = rWidgetGroup.sId;
+      sDescr = rWidgetGroup.sDescr;
+      mWidgets.clear();
+
+      for (TWidgetMap::const_iterator itWidget = rWidgetGroup.mWidgets.begin();
+        itWidget != rWidgetGroup.mWidgets.end(); ++itWidget)
+      {
+        mWidgets[itWidget->first].FromWidget(itWidget->second);
+      }
+    }
+  };
 
   CWidgetManagerImpl::CWidgetManagerImpl():
     m_nUserId(-1)  
@@ -24,83 +81,118 @@ namespace widget
   {
   }
 
-  void CWidgetManagerImpl::Open(const rise::CString& sProfile)
+  void CWidgetManagerImpl::Open(const std::string& sProfile)
   {
     Close();
 
-    m_sProfile = sProfile;
-    const std::string& sProfileBase = staff::CRuntime::Inst().GetComponentHome("widget") + "/db/widgetdb.";
-    m_sFileName = sProfileBase + sProfile + "." + rise::ToStr(GetUserId()) + ".xml";
+    LoadWidgetClasses(sProfile);
+
+    const std::string& sProfileBase = m_sComponentHome + "/db/widgetdb.";
+    const std::string& sUserDbFileName = sProfileBase + sProfile + "." + rise::ToStr(GetUserId()) + ".xml";
+    const rise::xml::CXMLNode& rNodeRoot = m_tDoc.GetRoot();
 
     try
     {
-      m_tDoc.LoadFromFile(m_sFileName);
+      m_tDoc.LoadFromFile(sUserDbFileName);
     }
     catch(...)//rise::xml::CXMLOpenException&) // doesn't work on ubuntu
     {
       try
       {
-        rise::LogWarning() << "Loading DEFAULT DB for profile: " << sProfileBase << sProfile << "default.xml";
+        rise::LogWarning() << "Loading DEFAULT DB for profile: " << sProfileBase << sProfile << ".default.xml";
         m_tDoc.LoadFromFile(sProfileBase + sProfile + ".default.xml");
       }
       catch(...)
       {
-        rise::LogWarning() << "Loading DEFAULT DB: " << sProfileBase << "default.xml";
+        rise::LogWarning() << "Loading DEFAULT DB: " << sProfileBase << ".default.xml";
         m_tDoc.LoadFromFile(sProfileBase + "default.xml");
       }
 
-      rise::LogWarning() << "Widget DB will be created in " + m_sFileName;
+      rise::LogWarning() << "Widget DB will be created in " + sUserDbFileName;
     }
 
-    GetWidgetClasses();
-    
-    // widgets
-    m_mWidgets.clear();
-    rise::xml::CXMLNode& rNodeWidgets = m_tDoc.GetRoot().Subnode("Widgets");
+    RISE_ASSERTES(rNodeRoot.Attribute("type") == "user", rise::CFileOpenException, "Widget DB type mismatch");
+    RISE_ASSERTES(rNodeRoot.Attribute("version") == "2.0", rise::CFileOpenException, "Widget DB version mismatch");
+
+    // Load widgets
+    LoadWidgets(rNodeRoot.Subnode("Widgets"), m_mActiveWidgets);
+
+    // Load Available groups
+    m_mWidgetGroups.clear();
+    const rise::xml::CXMLNode& rNodeWidgetGroups = rNodeRoot.Subnode("WidgetGroups");
+    for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeWidgetGroup = rNodeWidgetGroups.NodeBegin(); 
+      itNodeWidgetGroup != rNodeWidgetGroups.NodeEnd(); ++itNodeWidgetGroup)
+    {
+      if ((itNodeWidgetGroup->NodeType() == rise::xml::CXMLNode::ENTGENERIC) && 
+          (itNodeWidgetGroup->NodeName() == "WidgetGroup"))
+      {
+        const rise::xml::CXMLNode& rNodeWidgetGroup = *itNodeWidgetGroup;
+        const std::string& sWidgetGroupId = rNodeWidgetGroup["sId"].AsString();
+        const std::string& sDescr = rNodeWidgetGroup["sDescr"].AsString();
+        
+        SWidgetGroupInternal& rWidgetGroup = m_mWidgetGroups[sWidgetGroupId];
+
+        rWidgetGroup.sId = sWidgetGroupId;
+        rWidgetGroup.sDescr = sDescr;
+
+        LoadWidgets(rNodeWidgetGroup.Subnode("Widgets"), rWidgetGroup.mWidgets);
+      }
+    }
+
+    // Load Active Groups
+    m_lsActiveWidgetGroups.clear();
+    const rise::xml::CXMLNode& rNodeActiveWidgetGroups = rNodeRoot.Subnode("ActiveWidgetGroups");
+    for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeActiveWidgetGroup = rNodeActiveWidgetGroups.NodeBegin(); 
+      itNodeActiveWidgetGroup != rNodeActiveWidgetGroups.NodeEnd(); ++itNodeActiveWidgetGroup)
+    {
+      if ((itNodeActiveWidgetGroup->NodeType() == rise::xml::CXMLNode::ENTGENERIC) && 
+          (itNodeActiveWidgetGroup->NodeName() == "WidgetGroup"))
+      {
+        m_lsActiveWidgetGroups.push_back(itNodeActiveWidgetGroup->NodeContent());
+      }
+    }
+
+    m_sUserDbFileName = sUserDbFileName;
+    m_sProfile = sProfile;
+  }
+  
+  void CWidgetManagerImpl::LoadWidgets( const rise::xml::CXMLNode& rNodeWidgets, TWidgetInternalMap& mWidgets )
+  {
+    mWidgets.clear();
+
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeWidgets = rNodeWidgets.NodeBegin(); 
           itNodeWidgets != rNodeWidgets.NodeEnd(); ++itNodeWidgets)
     {
       if ((itNodeWidgets->NodeType() == rise::xml::CXMLNode::ENTGENERIC) && 
-          (itNodeWidgets->NodeName() == "WidgetItem"))
+          (itNodeWidgets->NodeName() == "Widget"))
       {
-        const rise::xml::CXMLNode& rNodeWidget = itNodeWidgets->Subnode("Widget");
-        const rise::CString& sWidgetClassName = rNodeWidget["sClass"].AsString();
+        const rise::xml::CXMLNode& rNodeWidget = *itNodeWidgets;
+        const std::string& sWidgetClassName = rNodeWidget["sClass"].AsString();
 
-        for(TWidgetClassList::const_iterator itClass = m_lsWidgetClasses.begin(); itClass != m_lsWidgetClasses.end(); ++itClass)
+        // filter-out unknown classes
+        TStringMap::const_iterator itClass = m_mWidgetClasses.find(sWidgetClassName);
+        if(itClass != m_mWidgetClasses.end())
         {
-          if(itClass->sClass == sWidgetClassName)
-          {
-            SWidget stWidget;
-            int nID = itNodeWidgets->Subnode("nID").NodeContent();
-            const rise::xml::CXMLNode& rNodeProperties = rNodeWidget.Subnode("Properties");
+          const rise::xml::CXMLNode& rNodeProperties = rNodeWidget.Subnode("Properties");
+          const std::string& sWidgetId = rNodeWidget["sId"].AsString();
 
-            stWidget.sClass = rNodeWidget["sClass"].AsString();
-            stWidget.sName = rNodeWidget["sName"].AsString();
-            for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeProperties = rNodeProperties.NodeBegin(); 
-              itNodeProperties != rNodeProperties.NodeEnd(); ++itNodeProperties)
-            {
-              if ((itNodeProperties->NodeType() == rise::xml::CXMLNode::ENTGENERIC) && 
-                  (itNodeProperties->NodeName() == "Property"))
-              {
-                SProperty stProperty;
-                stProperty.sName = (*itNodeProperties)["sName"].AsString();
-                stProperty.tValue = (*itNodeProperties)["tValue"].AsString();
-                stWidget.lsProperties.push_back(stProperty);
-              }
-            }
+          SWidgetInternal& stWidget = mWidgets[sWidgetId];
 
-            m_mWidgets[nID] = stWidget;
-            break;
-          }
+          stWidget.sClass = sWidgetClassName;
+          stWidget.sId = sWidgetId;
+          stWidget.tProps = rNodeProperties;
         }
-        
+        else
+        {
+          rise::LogWarning() << "Class \'" << sWidgetClassName << "\'is not listed in classdb. Ignoring.";
+        }
       }
     } // for
   }
 
   void CWidgetManagerImpl::Close()
   {
-    if (m_sFileName == "")
+    if (m_sUserDbFileName.size() == 0)
     {
       return;
     }
@@ -111,69 +203,182 @@ namespace widget
     }
     RISE_CATCH_ALL
 
-    m_sFileName = "";
-  }
-
-  TWidgetMap CWidgetManagerImpl::GetWidgetList() const
-  {
-    return m_mWidgets;
-  }
-
-  int CWidgetManagerImpl::AddWidget(const SWidget& rWidget)
-  {
-    int nID = 0;
-    if(m_mWidgets.size() != 0)
-      nID = m_mWidgets.rbegin()->first + 1;
-
-    m_mWidgets[nID] = rWidget;
-    
-    return nID;
-  }
-
-  void CWidgetManagerImpl::DeleteWidget(int nWidgetID)
-  {
-    m_mWidgets.erase(nWidgetID);
-  }
-
-  void CWidgetManagerImpl::AlterWidget(int nWidgetID, const SWidget& rWidget)
-  {
-    TWidgetMap::iterator itWidget = m_mWidgets.find(nWidgetID);
-    RISE_ASSERTES(itWidget != m_mWidgets.end(), staff::CRemoteException, "Widget does not exist");
-
-    itWidget->second = rWidget;
+    m_sUserDbFileName.erase();
   }
 
   void CWidgetManagerImpl::Commit()
   {
-    RISE_ASSERTES(m_sFileName != "", staff::CRemoteException, "DB was not opened");
+    RISE_ASSERTES(m_sUserDbFileName != "", staff::CRemoteException, "DB was not opened");
 
-    rise::xml::CXMLNode& rNodeWidgets = m_tDoc.GetRoot().Subnode("Widgets");
-    rNodeWidgets.Clear();
-    for(TWidgetMap::iterator itWidget = m_mWidgets.begin(); itWidget != m_mWidgets.end(); ++itWidget)
+    rise::xml::CXMLNode& rNodeRoot = m_tDoc.GetRoot();
+
+    // widgets
     {
-      rise::xml::CXMLNode& rNodeWidget1 = rNodeWidgets.AddSubNode("WidgetItem");
-      rNodeWidget1.AddSubNode("nID").NodeContent() = itWidget->first;
-
-      rise::xml::CXMLNode& rNodeWidget2 = rNodeWidget1.AddSubNode("Widget");
-      rNodeWidget2.AddSubNode("sClass").NodeContent().AsString() = itWidget->second.sClass;
-      rNodeWidget2.AddSubNode("sName").NodeContent().AsString() = itWidget->second.sName;
-      rise::xml::CXMLNode& rNodeProperties = rNodeWidget2.AddSubNode("Properties");
-      for (TPropertyList::const_iterator itProp = itWidget->second.lsProperties.begin();
-        itProp != itWidget->second.lsProperties.end(); ++itProp)
+      rise::xml::CXMLNode& rNodeWidgets = rNodeRoot.Subnode("Widgets");
+      rNodeWidgets.Clear();
+      for(TWidgetInternalMap::const_iterator itWidget = m_mActiveWidgets.begin(); 
+        itWidget != m_mActiveWidgets.end(); ++itWidget)
       {
-        rise::xml::CXMLNode& rNodeProperty = rNodeProperties.AddSubNode("Property");
-        rNodeProperty.AddSubNode("sName").NodeContent().AsString() = itProp->sName;
-        rNodeProperty.AddSubNode("tValue").NodeContent().AsString() = itProp->tValue.AsString();
+        const SWidgetInternal& rWidgetInternal = itWidget->second;
+        rise::xml::CXMLNode& rNodeWidget = rNodeWidgets.AddSubNode("Widget");
+        rNodeWidget.AddSubNode("sClass").NodeContent().AsString() = rWidgetInternal.sClass;
+        rNodeWidget.AddSubNode("sId").NodeContent().AsString() = rWidgetInternal.sId;
+        rNodeWidget.AddSubNode("Properties") = rWidgetInternal.tProps;
       }
     }
 
-    m_tDoc.SaveToFile(m_sFileName);
+    // widget groups
+    {
+      rise::xml::CXMLNode& rNodeWidgetGroups = rNodeRoot.Subnode("WidgetGroups");
+      rNodeWidgetGroups.Clear();
+      for(TWidgetGroupInternalMap::const_iterator itWidgetGroup = m_mWidgetGroups.begin(); 
+        itWidgetGroup != m_mWidgetGroups.end(); ++itWidgetGroup)
+      {
+        const SWidgetGroupInternal& rWidgetGroupInternal = itWidgetGroup->second;
+        rise::xml::CXMLNode& rNodeWidgetGroup = rNodeWidgetGroups.AddSubNode("WidgetGroup");
+        rNodeWidgetGroup.AddSubNode("sId").NodeContent().AsString() = rWidgetGroupInternal.sId;
+        rNodeWidgetGroup.AddSubNode("sDescr").NodeContent().AsString() = rWidgetGroupInternal.sDescr;
+
+        rise::xml::CXMLNode& rNodeWidgets = rNodeWidgetGroup.AddSubNode("Widgets");
+
+        for(TWidgetInternalMap::const_iterator itWidget = rWidgetGroupInternal.mWidgets.begin(); 
+          itWidget != rWidgetGroupInternal.mWidgets.end(); ++itWidget)
+        {
+          const SWidgetInternal& rWidgetInternal = itWidget->second;
+          rise::xml::CXMLNode& rNodeWidget = rNodeWidgets.AddSubNode("Widget");
+          rNodeWidget.AddSubNode("sClass").NodeContent().AsString() = rWidgetInternal.sClass;
+          rNodeWidget.AddSubNode("sId").NodeContent().AsString() = rWidgetInternal.sId;
+          rNodeWidget.AddSubNode("Properties") = rWidgetInternal.tProps;
+        }
+      }
+    }
+
+    // active groups
+    {
+      rise::xml::CXMLNode& rNodeActiveWidgetGroups = rNodeRoot.Subnode("ActiveWidgetGroups");
+      rNodeActiveWidgetGroups.Clear();
+
+      for (TStringList::const_iterator itWidgetGroup = m_lsActiveWidgetGroups.begin(); 
+        itWidgetGroup != m_lsActiveWidgetGroups.end(); ++itWidgetGroup)
+      {
+        rNodeActiveWidgetGroups.AddSubNode("WidgetGroup").NodeContent() = *itWidgetGroup;
+      }
+    }
+
+    m_tDoc.SaveToFile(m_sUserDbFileName);
   }
 
-  TWidgetClassList CWidgetManagerImpl::GetWidgetClassList()
+
+  TStringMap CWidgetManagerImpl::GetWidgetClasses()
   {
-    return GetWidgetClasses();
+    return m_mWidgetClasses;
   }
+
+
+  TWidgetMap CWidgetManagerImpl::GetActiveWidgets() const
+  {
+    TWidgetMap mWidgets;
+
+    for (TWidgetInternalMap::const_iterator itActiveWidget = m_mActiveWidgets.begin();
+      itActiveWidget != m_mActiveWidgets.end(); ++itActiveWidget)
+    {
+      itActiveWidget->second.ToWidget(mWidgets[itActiveWidget->first]);
+    }
+
+    return mWidgets;
+  }
+
+  void CWidgetManagerImpl::AddWidget( const SWidget& rWidget )
+  {
+    RISE_ASSERTES(m_mActiveWidgets.find(rWidget.sId) == m_mActiveWidgets.end(), 
+      staff::CRemoteException, "Widget with id \'" + rWidget.sId + "\'already exists");
+
+    m_mActiveWidgets[rWidget.sId].FromWidget(rWidget);
+  }
+
+  void CWidgetManagerImpl::DeleteWidget( const std::string& sId )
+  {
+    m_mActiveWidgets.erase(sId);
+  }
+
+  void CWidgetManagerImpl::DeleteWidgets( const TStringList& lsIds )
+  {
+    for (TStringList::const_iterator itWidgetId = lsIds.begin(); 
+      itWidgetId != lsIds.end(); ++itWidgetId)
+    {
+      m_mActiveWidgets.erase(*itWidgetId);
+    }
+  }
+
+  void CWidgetManagerImpl::AlterWidget( const SWidget& rWidget )
+  {
+    TWidgetInternalMap::iterator itWidget = m_mActiveWidgets.find(rWidget.sId);
+    RISE_ASSERTES(itWidget != m_mActiveWidgets.end(), staff::CRemoteException, "Widget does not exists: " + rWidget.sId);
+
+    itWidget->second.FromWidget(rWidget);
+  }
+
+
+
+  TStringMap CWidgetManagerImpl::GetAvailableWidgetGroups() const
+  {
+    TStringMap mResult;
+    for (TWidgetGroupInternalMap::const_iterator itWidgetGroup = m_mWidgetGroups.begin();
+          itWidgetGroup != m_mWidgetGroups.end(); ++itWidgetGroup)
+    {
+      mResult[itWidgetGroup->second.sId] = itWidgetGroup->second.sDescr;
+    }
+    
+    return mResult;
+  }
+
+  TWidgetGroupMap CWidgetManagerImpl::GetWidgetGroups(const TStringList& lsWidgetGroups) const
+  {
+    TWidgetGroupMap mWidgetGroups;
+    for (TStringList::const_iterator itWidgetGroup = lsWidgetGroups.begin();
+        itWidgetGroup != lsWidgetGroups.end(); ++itWidgetGroup)
+    {
+      TWidgetGroupInternalMap::const_iterator itFindWidgetGroup = m_mWidgetGroups.find(*itWidgetGroup);
+      if (itFindWidgetGroup != m_mWidgetGroups.end())
+      {
+        itFindWidgetGroup->second.ToWidgetGroup(mWidgetGroups[itFindWidgetGroup->first]);
+      }
+    }
+    
+    return mWidgetGroups;
+  }
+
+
+  void CWidgetManagerImpl::AddWidgetGroup( const SWidgetGroup& rWidgetGroup )
+  {
+    RISE_ASSERTES(m_mWidgetGroups.find(rWidgetGroup.sId) == m_mWidgetGroups.end(), 
+      staff::CRemoteException, "Widget group with id: \'" + rWidgetGroup.sId + "\' already exists");
+    m_mWidgetGroups[rWidgetGroup.sId].FromWidgetGroup(rWidgetGroup);
+  }
+
+  void CWidgetManagerImpl::DeleteWidgetGroup( const std::string& sGroupId )
+  {
+    m_mWidgetGroups.erase(sGroupId);
+  }
+
+  void CWidgetManagerImpl::AlterWidgetGroup( const SWidgetGroup& rWidgetGroup )
+  {
+    TWidgetGroupInternalMap::iterator itWidgetGroup = m_mWidgetGroups.find(rWidgetGroup.sId);
+    RISE_ASSERTES(itWidgetGroup != m_mWidgetGroups.end(),
+      staff::CRemoteException, "Widget group with id: \'" + rWidgetGroup.sId + "\' is not found");
+    itWidgetGroup->second.FromWidgetGroup(rWidgetGroup);
+  }
+
+  TStringList CWidgetManagerImpl::GetActiveWidgetGroups() const
+  {
+    return m_lsActiveWidgetGroups;
+  }
+
+  void CWidgetManagerImpl::SetActiveWidgetGroups( const TStringList& lsActiveWidgetGroups )
+  {
+    m_lsActiveWidgetGroups = lsActiveWidgetGroups;
+  }
+
 
   const std::string& CWidgetManagerImpl::GetSessionId()
   {
@@ -181,7 +386,7 @@ namespace widget
     {
       m_sSessionId = CWidgetManagerContext::GetContext().GetServiceID(this);
     }
-    
+
     return m_sSessionId;
   }
 
@@ -196,31 +401,41 @@ namespace widget
         RISE_THROWS(staff::CRemoteException, "Unknown userid");
       }
     }
-    
+
     return m_nUserId;
   }
 
-  const TWidgetClassList& CWidgetManagerImpl::GetWidgetClasses()
+  void CWidgetManagerImpl::LoadWidgetClasses( const std::string& sProfile )
   {
+    // TODO: load class db only once per profile
+    // TODO: check file for update, and reload only when file date is changed
+//     if (m_sProfile == sProfile)
+//     {
+//       return m_mWidgetClasses;
+//     }
+    
     // widget classes
-    m_lsWidgetClasses.clear();
+    m_mWidgetClasses.clear();
 
-    m_sFileNameClasses = staff::CRuntime::Inst().GetComponentHome("widget");
-    m_sFileNameClasses += "/db/widgetdb_classes." + m_sProfile + ".xml";
+    std::string sFileNameClasses = m_sComponentHome + "/db/widgetdb_classes." + sProfile + ".xml";
 
+    rise::xml::CXMLDocument tDocClasses;
     try
     {
-      m_tDocClasses.LoadFromFile(m_sFileNameClasses);
+      tDocClasses.LoadFromFile(sFileNameClasses);
     }
     catch(...)
     {
-      m_sFileNameClasses = staff::CRuntime::Inst().GetComponentHome("widget");
-      m_sFileNameClasses += "/db/widgetdb_classes.default.xml";
+      sFileNameClasses = m_sComponentHome + "/db/widgetdb_classes.default.xml";
       rise::LogWarning() << "Loading default Widget class list!";
-      m_tDocClasses.LoadFromFile(m_sFileNameClasses);
+      tDocClasses.LoadFromFile(sFileNameClasses);
     }
-    
-    const rise::xml::CXMLNode& rNodeClasses = m_tDocClasses.GetRoot().Subnode("Classes");
+
+    const rise::xml::CXMLNode& rNodeRoot = tDocClasses.GetRoot();
+    RISE_ASSERTES(rNodeRoot.Attribute("type") == "classes", rise::CFileOpenException, "Widget classes DB type mismatch");
+    RISE_ASSERTES(rNodeRoot.Attribute("version") == "1.0", rise::CFileOpenException, "Widget classes DB version mismatch");
+
+    const rise::xml::CXMLNode& rNodeClasses = rNodeRoot.Subnode("Classes");
 
     //!!! TODO: get type from db !!!
     TPermission tRootWidgetPerm;
@@ -233,7 +448,7 @@ namespace widget
     RISE_ASSERTS(StaffSecurityGetObjectListByType(4, &tRootWidget.nObjectId, &pWidgetList, &nWidgetListSize), "can't get objects list");
 
 
-    if(!StaffSecurityGetPermissionForUser(&tRootWidget, m_nUserId, &tRootWidgetPerm))
+    if(!StaffSecurityGetPermissionForUser(&tRootWidget, GetUserId(), &tRootWidgetPerm))
     {
       rise::LogWarning() << "can't get permission for root object " << tRootWidget.szObjectName << " setting no access(0-0-0)";
       tRootWidgetPerm.bRead = 0;
@@ -245,48 +460,53 @@ namespace widget
     {
       TPermission tPerm;
       
-      for(rise::xml::CXMLNode::TXMLNodeConstIterator itClass = rNodeClasses.NodeBegin(); itClass != rNodeClasses.NodeEnd(); ++itClass)
+      for(rise::xml::CXMLNode::TXMLNodeConstIterator itClass = rNodeClasses.NodeBegin(); 
+          itClass != rNodeClasses.NodeEnd(); ++itClass)
       {
-        bool bFound = false;
-        SWidgetClass stWidgetClass;
-        stWidgetClass.sClass = (*itClass)["Name"].AsString();
-        stWidgetClass.sDescr = (*itClass)["Descr"].AsString();
-        
-        for(int i = 0; i < nWidgetListSize; ++i)
+        if ((itClass->NodeType() == rise::xml::CXMLNode::ENTGENERIC) && (itClass->NodeName() == "Class"))
         {
-          if(stWidgetClass.sClass == pWidgetList[i].szObjectName)
+          bool bFound = false;
+          const rise::xml::CXMLNode& rNodeClass = *itClass;
+          std::string sClass = rNodeClass["Name"].AsString();
+          std::string sDescr = rNodeClass["Descr"].AsString();
+
+          for(int i = 0; i < nWidgetListSize; ++i)
           {
-            if(!StaffSecurityGetPermissionForUser(&pWidgetList[i], m_nUserId, &tPerm))
+            if(sClass == pWidgetList[i].szObjectName)
             {
-              rise::LogWarning() << "can't get permission for object " << pWidgetList[i].szObjectName << " skipping..";
-              continue;
+              if(!StaffSecurityGetPermissionForUser(&pWidgetList[i], m_nUserId, &tPerm))
+              {
+                rise::LogWarning() << "can't get permission for object " << pWidgetList[i].szObjectName << " skipping..";
+                continue;
+              }
+
+              if(tPerm.bRead)
+              {
+                rise::LogDebug1() << "adding object " << sClass << "(" << sDescr << ") to user " << m_nUserId;
+                m_mWidgetClasses[sClass] = sDescr;
+              } 
+              else
+              {
+                rise::LogDebug1() << "skipping object " << sClass << "(" << sDescr << ") to user " << m_nUserId;
+              }
+
+              bFound = true;
+              break;
             }
-          
-            if(tPerm.bRead)
+          } // for
+
+          if(!bFound)
+          {
+            // using root widget permissions
+            if(tRootWidgetPerm.bRead)
             {
-              rise::LogDebug1() << "adding object " << stWidgetClass.sClass << "(" << stWidgetClass.sDescr << ") to user " << m_nUserId;
-              m_lsWidgetClasses.push_back(stWidgetClass);
+              rise::LogDebug1() << "adding object " << sClass << "(" << sDescr << ") to user " << m_nUserId << " by root object rights";
+              m_mWidgetClasses[sClass] = sDescr;
             } 
             else
             {
-              rise::LogDebug1() << "skipping object " << stWidgetClass.sClass << "(" << stWidgetClass.sDescr << ") to user " << m_nUserId;
+              rise::LogDebug1() << "skipping object " << sClass << "(" << sDescr << ") to user " << m_nUserId << " by root object rights";
             }
-
-            bFound = true;
-            break;
-          }
-        } // for
-        
-        if(!bFound)
-        { // 
-          if(tRootWidgetPerm.bRead)
-          {
-            rise::LogDebug1() << "adding object " << stWidgetClass.sClass << "(" << stWidgetClass.sDescr << ") to user " << m_nUserId << " by root object rights";
-            m_lsWidgetClasses.push_back(stWidgetClass);
-          } 
-          else
-          {
-            rise::LogDebug1() << "skipping object " << stWidgetClass.sClass << "(" << stWidgetClass.sDescr << ") to user " << m_nUserId << " by root object rights";
           }
         }
       }
@@ -298,8 +518,7 @@ namespace widget
     }
 
     StaffSecurityFreeObjectList(pWidgetList);
-
-    return m_lsWidgetClasses;
   }
 
+  std::string CWidgetManagerImpl::m_sComponentHome = staff::CRuntime::Inst().GetComponentHome("widget");
 }
