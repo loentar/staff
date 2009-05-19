@@ -47,7 +47,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
       
       function CheckIncludeMulti()
       {
-        function ContinueWait()
+        function ContinueWait(i)
         {
           if(--nLimit > 0)
           {
@@ -61,7 +61,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
             }
             else
             {
-              alert(_("can't load") + ": " + sBaseName[i]);
+              alert("can't load" + ": " + sBaseName[i]);
             }
           }
         }
@@ -72,7 +72,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
           {
             if(!fnCheckAvail(sBaseName[i]))
             {
-              ContinueWait();
+              ContinueWait(i);
               return;
             }
           }
@@ -88,13 +88,13 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
               {
                 if(eval(fnCheckAvail[j]) == null)
                 {
-                  ContinueWait();
+                  ContinueWait(j);
                   return;
                 }
               }
               catch(tError)
               {
-                ContinueWait();
+                ContinueWait(j);
                 return;
               }
             }
@@ -113,7 +113,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
           }
           else
           {
-            alert(_(tError.message || tError.text || tError));
+            alert(tError.message || tError.text || tError);
           }
         }
       }
@@ -175,7 +175,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
           }
           else
           {
-            alert(_("can't load") + ": " + sBaseName[i]);
+            alert("can't load" + ": " + sBaseName[i]);
           }
         }
       }
@@ -384,24 +384,53 @@ function namespace(sNamespace)
   }
 }
 
-Object.prototype.clone = function()
+Object.prototype.clone = function(tCloneTo)
 {
-  var tClone;
-  if(this instanceof Array)
+  if (tCloneTo)
   {
-    tClone = [];
+    if(this instanceof Array)
+    {
+      tCloneTo.splice(0, tCloneTo.length);
+    }
+    else
+    {
+      for(var tProperty in tCloneTo)
+      {
+        if (tProperty != 'clone')
+        {
+          delete tCloneTo[tProperty];
+        }
+      }
+    }
+
+    for (tProperty in this)
+    {
+      if (tProperty != 'clone')
+      {
+        tCloneTo[tProperty] = this[tProperty];
+      }
+    }
+    return tCloneTo;
   }
   else
   {
-    tClone = {};
-  }
-
-  for (tProperty in this) 
-  {
-    if (tProperty != 'clone')
+    var tClone;
+    if(this instanceof Array)
     {
-      tClone[tProperty] = this[tProperty];
+      tClone = [];
     }
+    else
+    {
+      tClone = {};
+    }
+
+    for (tProperty in this)
+    {
+      if (tProperty != 'clone')
+      {
+        tClone[tProperty] = this[tProperty];
+      }
+    }
+    return tClone;
   }
-  return tClone;
 }

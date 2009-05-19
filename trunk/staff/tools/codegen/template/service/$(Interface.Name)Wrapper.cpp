@@ -54,7 +54,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   CDataObject rdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
-  rdoParam$(Param.Name).AppendChild(rstStruct.$(Param.Name));
+  rdoParam$(Param.Name).AppendChild(const_cast<CDataObject&>(rstStruct.$(Param.Name)));
 #else
 #ifeq($(Param.DataType.Type),template)
   CDataObject rdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");

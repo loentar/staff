@@ -51,7 +51,7 @@
 				ExecutionBucket="5"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;$(STAFF_HOME)/include&quot;;../../../rise/deploy/win32/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -109,7 +109,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="copy /y $(TargetPath) $(STAFF_HOME)\components\widget\"
 				ExecutionBucket="16"
 			/>
 			<Tool
@@ -240,6 +240,22 @@
 			</File>
 			<File
 				RelativePath=".\src\WidgetManagerWrapper.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="_config"
+			>
+			<File
+				RelativePath=".\config\widgetdb.default.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\config\widgetdb_classes.default.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\config\widgetdb_classes.webapp_sample.xml"
 				>
 			</File>
 		</Filter>

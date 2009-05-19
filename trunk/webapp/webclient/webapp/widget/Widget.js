@@ -23,12 +23,12 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
       }
       else
       {
-        tParent = this.tOptions.tParent;
+        tParent = this.tOptions.tParent.Element ? this.tOptions.tParent.Element() : this.tOptions.tParent;
       }
     
       if(tParent == null)
       {
-         throw Error(_('Cannot load') + " " + this.sName 
+         throw Error(_('Cannot load') + " " + this.sId
             + "; <br>" + _('Parent element is missing') + ": " + this.tProperties.sParent);
       }
 
@@ -47,6 +47,8 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
         {
           tFrameOpts.bConfigure = true;
         }
+        
+        tFrameOpts.bCollapsed = this.tProperties.bCollapsed;
       
         this._tWidgetFrame = new webapp.view.WidgetFrame(tParent, tFrameOpts);
         this._tWidgetFrame.On('close', this._OnClose, this, stWidget);
@@ -55,10 +57,10 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
           this._tWidgetFrame.On('configure', this.Configure, this, stWidget);
         }
 
-        tParent = this._tWidgetFrame.GetBodyContainer();
+        tParent = this._tWidgetFrame.GetBodyContainer().Element();
       }
 
-      this.tOptions.pParentElement = tParent.Element != null ? tParent.Element() : tParent; // compat
+      this.tOptions.pParentElement = tParent; // compat
 
       this.tElement = this.Create(tParent, tOptions);
     }
@@ -110,18 +112,11 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
   //! restore widget state
   Deserialize: function(stWidget, bDoNotDeserializeData)
   {
-    this.sName = stWidget.sName;
+    this.sId = stWidget.sId;
     this.sClass = stWidget.sClass;
-    if(this.tProperties != null)
-    {
-      delete this.tProperties;
-    }
-    this.tProperties = {};
-    for(var i = 0; i < stWidget.lsProperties.length; ++i)
-    {
-      this.tProperties[stWidget.lsProperties[i].sName] = stWidget.lsProperties[i].tValue;
-    }
-
+    this.tdoProps = stWidget.tdoProps;
+    this.tProperties = stWidget.tdoProps.Properties;
+    
     // deserialize data by default
     if (bDoNotDeserializeData != true && this.DeserializeData)
     {
@@ -137,28 +132,15 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
       this.SerializeData();
     }
 
+    this.tProperties.sParent = this.tWidgetParent.id;
+
     var stWidget = 
     {
-      sName: this.sName,
+      sId: this.sId,
       sClass: this.sClass,
-      lsProperties: []
+      tdoProps: this.tdoProps
     };
 
-    this.tProperties.sParent = this.tWidgetParent.id;
-    for(tProperty in this.tProperties)
-    {
-      if(typeof this.tProperties[tProperty] != "function")
-      {
-        var tCurrProperty =
-        {
-          sName: tProperty,
-          tValue: this.tProperties[tProperty]
-        };
-        
-        stWidget.lsProperties.push(tCurrProperty);
-      }
-    }
-      
     return stWidget;
   },
   
@@ -171,6 +153,12 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
   //! get modification flag
   GetModify: function()
   {
+    if (this._tWidgetFrame && (this.tProperties.bCollapsed != this._tWidgetFrame.IsCollapsed()))
+    {
+      this.tProperties.bCollapsed = this._tWidgetFrame.IsCollapsed();
+      return true;
+    }
+    
     if(this.bModified !== false)
     {
       return true;
@@ -188,7 +176,7 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
   //! add menu item for widget
   AddWidgetMenu: function(sLabel, fnOnClick)
   {
-    this.tMenuItem = this.tOptions.tWidgetMenu.addItem({ text: sLabel }, 1);
+    this.tMenuItem = this.tOptions.tWidgetMenu.addItem({ text: sLabel }, 0);
     this.tMenuItem.subscribe("click", fnOnClick);
   },
   
@@ -198,13 +186,10 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
     var sResult = "";
     var stWidget = this.Serialize();
     
-    sResult += "sName: " + stWidget.sName + "\n";
+    sResult += "sName: " + stWidget.sId + "\n";
     sResult += "sClass: " + stWidget.sClass + "\n";
     sResult += " -- properties --\n";
-    for(var i = 0; i < stWidget.lsProperties.length; ++i)
-    {
-      sResult += stWidget.lsProperties[i].sName + ":" + stWidget.lsProperties[i].tValue + "\n";
-    }
+    sResult += YAHOO.util.Lang.dump(stWidget.tdoProps);
     
     return sResult;
   },

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "D:\...\webclient\", ".", "{E1744974-A756-4B13-850D-729AFC709B25}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "D:\...\samples\", ".", "{E1744974-A756-4B13-850D-729AFC709B25}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.VirtualPath = "/webclient"
 		Debug.AspNetCompiler.PhysicalPath = "..\..\..\devel\webapp\webclient\"

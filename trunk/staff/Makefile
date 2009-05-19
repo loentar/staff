@@ -23,7 +23,7 @@ include $(MAKEFILES_DEP)
 %.dep:
 	@/bin/echo -e "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 #	@echo "\n\n$(patsubst %.dep,%,$@) => $(patsubst %.dep,%,$^)"
-	make -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
+	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
 VERSION=1.2.0

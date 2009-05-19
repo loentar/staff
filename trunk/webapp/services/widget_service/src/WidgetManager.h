@@ -3,41 +3,40 @@
 
 #include <list>
 #include <map>
-#include <rise/string/String.h>
-#include <staff/common/Value.h>
+#include <string>
+#include <staff/common/DataObject.h>
 
 namespace widget
 {
-  //! widget class
-  struct SWidgetClass
-  {
-    rise::CString sClass;   //!< class name
-    rise::CString sDescr;   //!< description
-  };
+  //! common string:string map
+  typedef std::map<std::string, std::string> TStringMap;
 
-  //! list of widget classes
-  typedef std::list<SWidgetClass> TWidgetClassList;
-
-  //! property of widget object
-  struct SProperty
-  {
-    rise::CString sName;   //!< name of property
-    staff::CValue tValue;  //!< value of property
-  };
-
-  //! list of properties
-  typedef std::list<SProperty> TPropertyList;
+  //! string list
+  typedef std::list<std::string> TStringList;
 
   //! widget description
   struct SWidget
   {
-    rise::CString sClass;        //!< widget class name
-    rise::CString sName;         //!< widget instance name
-    TPropertyList lsProperties;  //!< properties list
+    std::string sId;              //!< widget instance id
+    std::string sClass;           //!< widget class
+    staff::CDataObject tdoProps;  //!< properties tree
   };
 
-  //! widget map
-  typedef std::map<int, SWidget> TWidgetMap;
+  //! widget map pair(widget id, widget instance)
+  typedef std::map<std::string, SWidget> TWidgetMap;
+
+
+  //! widget group
+  struct SWidgetGroup
+  {
+    std::string sId;        //!<  group id
+    std::string sDescr;     //!<  description
+    TWidgetMap  mWidgets;   //!<  widgets in group
+  };
+
+  //! widget map pair(group id, widget group instance)
+  typedef std::map<std::string, SWidgetGroup> TWidgetGroupMap;
+
 
   //!  Widget Manager
   class CWidgetManager
@@ -49,7 +48,7 @@ namespace widget
     //!         open widget db
     /*! \param  sProfile - db name
         */
-    virtual void Open(const rise::CString& sProfile) = 0;
+    virtual void Open(const std::string& sProfile) = 0;
 
     //!         close db, commiting changes
     virtual void Close() = 0;
@@ -57,32 +56,77 @@ namespace widget
     //!         commit changes
     virtual void Commit() = 0;
 
-    //!         get widget class list
-    /*! \return widget class list
-    */
-    virtual TWidgetClassList GetWidgetClassList() = 0;
 
-    //!         get active widet list
+    //!         get available widgets description
+    /*! \return widget class map
+    */
+    virtual TStringMap GetWidgetClasses() = 0;
+
+
+    //!         get active widget list
     /*! \return active widget list
     */
-    virtual TWidgetMap GetWidgetList() const = 0;
+    virtual TWidgetMap GetActiveWidgets() const = 0;
 
     //!         add widget to active list
     /*! \param  rWidget - widget description
-        \return id of widget instance
         */
-    virtual int AddWidget(const SWidget& rWidget) = 0;
+    virtual void AddWidget(const SWidget& rWidget) = 0;
 
-    //!         delete
-    /*! \param  rWidget - id of widget instance
+    //!         delete widget instance
+    /*! \param  sId - id of widget instance
         */
-    virtual void DeleteWidget(int nWidgetID) = 0;
+    virtual void DeleteWidget(const std::string& sId) = 0;
+
+    //!         delete widgets instances
+    /*! \param  lsIds - ids list of widget instances
+    */
+    virtual void DeleteWidgets(const TStringList& lsIds) = 0;
 
     //!         alter widget
-    /*! \param  nWidgetID - id of widget instance
-        \param  rWidget - widget description
+    /*! \param  rWidget - widget description
         */
-    virtual void AlterWidget(int nWidgetID, const SWidget& rWidget) = 0;
+    virtual void AlterWidget(const SWidget& rWidget) = 0;
+
+
+    //!         get available widget groups
+    /*! \return widget groups map(group id/description)
+    */
+    virtual TStringMap GetAvailableWidgetGroups() const = 0;
+
+    //!         get widget groups map
+    /*! \param  rlsWidgetGroups - list of widget group ids to retrive
+        \return widget groups map(group id/full group info)
+    */
+    virtual TWidgetGroupMap GetWidgetGroups(const TStringList& lsWidgetGroups) const = 0;
+
+
+    //!         add new widget group
+    /*! \param  rWidgetGroup - widget group info
+        */
+    virtual void AddWidgetGroup(const SWidgetGroup& rWidgetGroup) = 0;
+
+    //!         remove widget group
+    /*! \param  sGroupId - group id
+    */
+    virtual void DeleteWidgetGroup(const std::string& sGroupId) = 0;
+    
+    //!         alter widget group
+    /*! \param  rWidgetGroup - widget group info
+        */
+    virtual void AlterWidgetGroup(const SWidgetGroup& rWidgetGroup) = 0;
+
+
+    //!         get active(auto-loadable) widget groups map
+    /*! \return widget groups map(group id/description)
+    */
+    virtual TStringList GetActiveWidgetGroups() const = 0;
+
+    //!         set active(auto-loadable) groups list
+    /*! \param  lsActiveWidgetGroups - active groups list
+    */
+    virtual void SetActiveWidgetGroups(const TStringList& lsActiveWidgetGroups) = 0;
+
   };
 }
 

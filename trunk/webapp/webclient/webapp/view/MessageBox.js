@@ -65,6 +65,7 @@ webapp.view.MessageBox =
     this.tMessageBoxPanel.cfg.setProperty('buttons', asButtons);
     this.tMessageBoxPanel.bringToTop();
     this.tMessageBoxPanel.show();
+    this.tMessageBoxPanel.body.focus();
   },
   
   GetPanel: function()
@@ -83,8 +84,22 @@ webapp.view.MessageBox =
           }
         );
       this.tMessageBoxPanel.render(document.body);
+      addHandler(this.tMessageBoxPanel.body, 'keydown', this._OnKeyDown.bindAsEventListener(this));
     }
     return this.tMessageBoxPanel;
+  },
+  
+  _OnKeyDown: function(tEvent)
+  {
+    switch (tEvent.keyCode)
+    {
+      case 13: // Enter
+      case 27: // Escape
+      {
+        this.tMessageBoxPanel.hide();
+        break;
+      }
+    }
   },
   
   tMessageBoxPanel: null

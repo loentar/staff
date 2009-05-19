@@ -1,5 +1,7 @@
 namespace('webapp.widget');
 
+IncludeCss("webapp/assets/widgets/Layout/Layout");
+
 ///////////////////////////////////////////////////////////////
 // class Layout
 
@@ -8,10 +10,12 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParent, tOpts)
   {
-    IncludeCss("webapp/assets/widgets/Layout/Layout");
+    if (!this.tProperties.Layout)
+    {
+      this.tProperties.Layout = this._GetDefaultLayoutUnits();
+    }
 
-    this.tLayoutUnits = 
-      this.tProperties.sLayout ? this.DeserializeProps(this.tProperties.sLayout) : this._GetDefaultLayoutUnits();
+    this.tLayoutUnits = this.tProperties.Layout;
         
     this.CreateControls(tParent, this.tLayoutUnits);
     
@@ -133,100 +137,10 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
   {
     var tDefaultLayoutUnits = 
     [
-      { body: 'divright' + this.sName, position: 'right', width: 515, resize: true, gutter: '5px', scroll: true },
-      { body: 'divcenter' + this.sName, position: 'center', gutter: '5px 0px 5px 5px' }
+      { body: 'divright' + this.sId, position: 'right', width: 515, resize: true, gutter: '5px', scroll: true },
+      { body: 'divcenter' + this.sId, position: 'center', gutter: '5px 0px 5px 5px' }
     ];
     return tDefaultLayoutUnits;
-  },
-  
-  DeserializeData: function() // записать динамические свойства в контрол
-  {
-    if (this.tProperties.sLayout)
-    {
-      this.tLayoutUnits = this.DeserializeProps(this.tProperties.sLayout);
-    }
-  },
-  
-  SerializeData: function() // получить динамические свойства из контрола
-  {
-    if(this.tLayoutUnits)
-    {
-      this.tProperties.sLayout = this.SerializeProps(this.tLayoutUnits);
-    }
-  },
-  
-  DeserializeProps: function(sProps)
-  {
-    var aProps = [];
-    var aPropsArr = sProps.split('|');
-    
-    for(var nArrIndex = 0; nArrIndex < aPropsArr.length - 1; ++nArrIndex)
-    {
-      var tProps = {};
-      var aPropsKeys = aPropsArr[nArrIndex].split(';');
-      for(var nIndex = 0; nIndex < aPropsKeys.length - 1; ++nIndex)
-      {
-        var aPair = aPropsKeys[nIndex].split(':');
-        if (aPair[1].substr(0, 1) === "'")
-        {
-          tProps[aPair[0]] = aPair[1].substr(1, aPair[1].length - 2);
-        }
-        else
-        {
-          var tValue = aPair[1];
-          if (tValue === 'true')
-          {
-            tProps[aPair[0]] = true;
-          }
-          else
-          if (tValue === 'false')
-          {
-            tProps[aPair[0]] = false;
-          }
-          else
-          {
-            var nValue = parseInt(tValue)
-            if (!isNaN(nValue))
-            {
-              tProps[aPair[0]] = nValue;
-            }
-            else
-            {
-              tProps[aPair[0]] = tValue;
-            }
-          }
-        }
-      }
-      aProps[aProps.length] = tProps;
-    }
-    
-    return aProps;
-  },
-  
-  SerializeProps: function(aProps)
-  {
-    var sProps = "";
-    
-    for(var nArrIndex = 0; nArrIndex < aProps.length; ++nArrIndex)
-    {
-      var tProps = aProps[nArrIndex];
-      for(nIndex in tProps)
-      {
-        var sType = typeof tProps[nIndex];
-        if (sType == "string")
-        {
-          sProps += nIndex + ':\'' + tProps[nIndex] + '\';';
-        }
-        else
-        if (sType == "number" || sType == "boolean")
-        {
-          sProps += nIndex + ':' + tProps[nIndex] + ';';
-        }
-      }
-      sProps += "|";
-    }
-    
-    return sProps;
   },
   
   GetFrameOptions: function()
@@ -381,7 +295,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
   _OnConfirmConfigure: function()
   {
     this._SaveUnit(this.sUnit);
-    this.tLayoutUnits = this._tLayoutUnitsCfg;
+    this._tLayoutUnitsCfg.clone(this.tLayoutUnits);
     this._Refresh();
     this._OnCancelConfigure();
     this.SetModify();
@@ -474,7 +388,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
 
       if(!this._tLayoutUnitsCfg[tUnitIndex])
       {
-        this._tLayoutUnitsCfg[tUnitIndex] = { body: 'div' + this.sUnit + this.sName, position: this.sUnit };
+        this._tLayoutUnitsCfg[tUnitIndex] = { body: 'div' + this.sUnit + this.sId, position: this.sUnit };
       }
       
       var tUnitProps = this._tLayoutUnitsCfg[tUnitIndex];

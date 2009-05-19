@@ -4,53 +4,41 @@ namespace('widget');
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
-function SerializeStruct_widget_SWidgetClass(tOperation, rstStruct, tNode)
-{
-  tOperation.AddParameter('sClass', rstStruct.sClass, tNode);
-  tOperation.AddParameter('sDescr', rstStruct.sDescr, tNode);
-}
-
-function SerializeStruct_widget_SProperty(tOperation, rstStruct, tNode)
-{
-  tOperation.AddParameter('sName', rstStruct.sName, tNode);
-  tOperation.AddParameter('tValue', rstStruct.tValue, tNode);
-}
-
 function SerializeStruct_widget_SWidget(tOperation, rstStruct, tNode)
 {
+  tOperation.AddParameter('sId', rstStruct.sId, tNode);
   tOperation.AddParameter('sClass', rstStruct.sClass, tNode);
-  tOperation.AddParameter('sName', rstStruct.sName, tNode);
-  SerializeTypedef_widget_TPropertyList(tOperation, rstStruct.lsProperties, tOperation.AddParameter('lsProperties', '', tNode));
+  rstStruct.tdoProps.ToElement(tOperation.AddParameter('tdoProps', null, tNode));
+}
+
+function SerializeStruct_widget_SWidgetGroup(tOperation, rstStruct, tNode)
+{
+  tOperation.AddParameter('sId', rstStruct.sId, tNode);
+  tOperation.AddParameter('sDescr', rstStruct.sDescr, tNode);
+  SerializeTypedef_widget_TWidgetMap(tOperation, rstStruct.mWidgets, tOperation.AddParameter('mWidgets', '', tNode));
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct deserializators
-function DeserializeStruct_widget_SWidgetClass(tOperation, tNode)
-{
-  var tResult = {};
-
-  tResult.sClass = tOperation.SubNodeText("sClass", tNode);
-  tResult.sDescr = tOperation.SubNodeText("sDescr", tNode);
-  return tResult;
-}
-
-function DeserializeStruct_widget_SProperty(tOperation, tNode)
-{
-  var tResult = {};
-
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.tValue = tOperation.SubNodeText("tValue", tNode);
-  return tResult;
-}
-
 function DeserializeStruct_widget_SWidget(tOperation, tNode)
 {
   var tResult = {};
 
+  tResult.sId = tOperation.SubNodeText("sId", tNode);
   tResult.sClass = tOperation.SubNodeText("sClass", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.lsProperties = DeserializeTypedef_widget_TPropertyList(tOperation, tOperation.SubNode("lsProperties", tNode));
+  tResult.tdoProps = new staff.DataObject();
+  tResult.tdoProps.FromElement(tOperation.SubNode("tdoProps", tNode));
+  return tResult;
+}
+
+function DeserializeStruct_widget_SWidgetGroup(tOperation, tNode)
+{
+  var tResult = {};
+
+  tResult.sId = tOperation.SubNodeText("sId", tNode);
+  tResult.sDescr = tOperation.SubNodeText("sDescr", tNode);
+  tResult.mWidgets = DeserializeTypedef_widget_TWidgetMap(tOperation, tOperation.SubNode("mWidgets", tNode));
   return tResult;
 }
 
@@ -60,24 +48,29 @@ function DeserializeStruct_widget_SWidget(tOperation, tNode)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
 
-// ::widget::TWidgetClassList  Typedef.DataType.Type template std::list
-function SerializeTypedef_widget_TWidgetClassList(tOperation, rtType, tNode)
+// ::widget::TStringMap  Typedef.DataType.Type template std::map
+function SerializeTypedef_widget_TStringMap(tOperation, rtType, tNode)
 {
-  for(var i = 0; i != rtType.length; ++i)
+  for(var tKey in rtType)
   {
-// Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
-    SerializeStruct_widget_SWidgetClass(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+    var tValue = rtType[tKey];
+    if(typeof tValue != 'function')
+    {
+      var tItem = tOperation.AddParameter('Item', '', tNode);
+      tOperation.AddParameter('Key', tKey, tItem);
+      tOperation.AddParameter('Value', tValue, tItem);
+    }
   }
   return tNode;
 }
 
-// ::widget::TPropertyList  Typedef.DataType.Type template std::list
-function SerializeTypedef_widget_TPropertyList(tOperation, rtType, tNode)
+// ::widget::TStringList  Typedef.DataType.Type template std::list
+function SerializeTypedef_widget_TStringList(tOperation, rtType, tNode)
 {
   for(var i = 0; i != rtType.length; ++i)
   {
-// Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
-    SerializeStruct_widget_SProperty(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = generic
+  tOperation.AddParameter('Item', rtType[i], tNode);
   }
   return tNode;
 }
@@ -87,11 +80,28 @@ function SerializeTypedef_widget_TWidgetMap(tOperation, rtType, tNode)
 {
   for(var tKey in rtType)
   {
-    if(typeof tKey != 'function')
+    var tValue = rtType[tKey];
+    if(typeof tValue != 'function')
     {
       var tItem = tOperation.AddParameter('Item', '', tNode);
       tOperation.AddParameter('Key', tKey, tItem);
-      SerializeStruct_widget_SWidget(tOperation, rtType[tKey], tOperation.AddParameter('Value', '', tItem));
+      SerializeStruct_widget_SWidget(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
+    }
+  }
+  return tNode;
+}
+
+// ::widget::TWidgetGroupMap  Typedef.DataType.Type template std::map
+function SerializeTypedef_widget_TWidgetGroupMap(tOperation, rtType, tNode)
+{
+  for(var tKey in rtType)
+  {
+    var tValue = rtType[tKey];
+    if(typeof tValue != 'function')
+    {
+      var tItem = tOperation.AddParameter('Item', '', tNode);
+      tOperation.AddParameter('Key', tKey, tItem);
+      SerializeStruct_widget_SWidgetGroup(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
     }
   }
   return tNode;
@@ -99,51 +109,9 @@ function SerializeTypedef_widget_TWidgetMap(tOperation, rtType, tNode)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef deserializators
-function DeserializeTypedef_widget_TWidgetClassList(tOperation, tNode)
+function DeserializeTypedef_widget_TStringMap(tOperation, tNode)
 {
-// container :: std::list< ::widget::SWidgetClass >
-  var tItem = null;
-
-  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
-  var aResult = new Array();
-  var j = 0;
-
-  for (var i = 0; i < tResult.childNodes.length; i++)
-  {
-    if( tResult.childNodes[i].nodeName == "Item")
-    {
-//template std::list<::widget::SWidgetClass>
-    aResult[j++] = DeserializeStruct_widget_SWidgetClass(tOperation, tResult.childNodes[i]); // *** struct ::widget::SWidgetClass
-    }
-  }
-
-  return aResult;
-}
-
-function DeserializeTypedef_widget_TPropertyList(tOperation, tNode)
-{
-// container :: std::list< ::widget::SProperty >
-  var tItem = null;
-
-  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
-  var aResult = new Array();
-  var j = 0;
-
-  for (var i = 0; i < tResult.childNodes.length; i++)
-  {
-    if( tResult.childNodes[i].nodeName == "Item")
-    {
-//template std::list<::widget::SProperty>
-    aResult[j++] = DeserializeStruct_widget_SProperty(tOperation, tResult.childNodes[i]); // *** struct ::widget::SProperty
-    }
-  }
-
-  return aResult;
-}
-
-function DeserializeTypedef_widget_TWidgetMap(tOperation, tNode)
-{
-// container :: std::map< int, ::widget::SWidget >
+// container :: std::map< std::string, std::string >
   var tItem = null;
 
   var tResult = tNode == null ? tOperation.ResultElement() : tNode;
@@ -153,12 +121,83 @@ function DeserializeTypedef_widget_TWidgetMap(tOperation, tNode)
   {
     if( tResult.childNodes[i].nodeName == "Item")
     {
-//template std::map<int, ::widget::SWidget>
+//template std::map<std::string, std::string>
       var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
       var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
 
-      var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic int
+      var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic std::string
+      var tValue = pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ""; // *** generic std::string
+      aResult[tKey] = tValue;
+    }
+  }
+
+  return aResult;
+}
+
+function DeserializeTypedef_widget_TStringList(tOperation, tNode)
+{
+// container :: std::list< std::string >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = new Array();
+  var j = 0;
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::list<std::string>
+    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic std::string
+    }
+  }
+
+  return aResult;
+}
+
+function DeserializeTypedef_widget_TWidgetMap(tOperation, tNode)
+{
+// container :: std::map< std::string, ::widget::SWidget >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = {};
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::map<std::string, ::widget::SWidget>
+      var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
+      var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
+
+      var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic std::string
       var tValue = DeserializeStruct_widget_SWidget(tOperation, pValueElem); // *** struct ::widget::SWidget
+      aResult[tKey] = tValue;
+    }
+  }
+
+  return aResult;
+}
+
+function DeserializeTypedef_widget_TWidgetGroupMap(tOperation, tNode)
+{
+// container :: std::map< std::string, ::widget::SWidgetGroup >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = {};
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::map<std::string, ::widget::SWidgetGroup>
+      var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
+      var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
+
+      var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic std::string
+      var tValue = DeserializeStruct_widget_SWidgetGroup(tOperation, pValueElem); // *** struct ::widget::SWidgetGroup
       aResult[tKey] = tValue;
     }
   }
@@ -251,16 +290,16 @@ widget.WidgetManager.prototype =
     }
   },
 
-  GetWidgetClassList: function(pOnComplete, pOnError)
+  GetWidgetClasses: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetWidgetClassList', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetWidgetClasses', this.tClient.GetServiceUri());
     
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(DeserializeTypedef_widget_TWidgetClassList(tOperation), tOperation);
+          pOnComplete(DeserializeTypedef_widget_TStringMap(tOperation), tOperation);
         },
         pOnError
       );
@@ -269,13 +308,13 @@ widget.WidgetManager.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return DeserializeTypedef_widget_TWidgetClassList(tOperation);
+      return DeserializeTypedef_widget_TStringMap(tOperation);
     }
   },
 
-  GetWidgetList: function(pOnComplete, pOnError)
+  GetActiveWidgets: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetWidgetList', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetActiveWidgets', this.tClient.GetServiceUri());
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -305,7 +344,7 @@ widget.WidgetManager.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation);
         },
         pOnError
       );
@@ -313,16 +352,14 @@ widget.WidgetManager.prototype =
     else
     {
       this.tClient.InvokeOperation(tOperation);
-
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
     }
   },
 
-  DeleteWidget: function(nWidgetID, pOnComplete, pOnError)
+  DeleteWidget: function(sId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('DeleteWidget', this.tClient.GetServiceUri());
     
-    tOperation.AddParameter('nWidgetID', nWidgetID);
+    tOperation.AddParameter('sId', sId);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -339,12 +376,186 @@ widget.WidgetManager.prototype =
     }
   },
 
-  AlterWidget: function(nWidgetID, rWidget, pOnComplete, pOnError)
+  DeleteWidgets: function(lsIds, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('DeleteWidgets', this.tClient.GetServiceUri());
+    
+    SerializeTypedef_widget_TStringList(tOperation, lsIds, tOperation.AddParameter('lsIds'));
+
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  AlterWidget: function(rWidget, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('AlterWidget', this.tClient.GetServiceUri());
     
-    tOperation.AddParameter('nWidgetID', nWidgetID);
     SerializeStruct_widget_SWidget(tOperation, rWidget, tOperation.AddParameter('rWidget'));
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  GetAvailableWidgetGroups: function(pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetAvailableWidgetGroups', this.tClient.GetServiceUri());
+    
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeTypedef_widget_TStringMap(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeTypedef_widget_TStringMap(tOperation);
+    }
+  },
+
+  GetWidgetGroups: function(lsWidgetGroups, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetWidgetGroups', this.tClient.GetServiceUri());
+    
+    SerializeTypedef_widget_TStringList(tOperation, lsWidgetGroups, tOperation.AddParameter('lsWidgetGroups'));
+
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeTypedef_widget_TWidgetGroupMap(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeTypedef_widget_TWidgetGroupMap(tOperation);
+    }
+  },
+
+  AddWidgetGroup: function(rWidgetGroup, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('AddWidgetGroup', this.tClient.GetServiceUri());
+    
+    SerializeStruct_widget_SWidgetGroup(tOperation, rWidgetGroup, tOperation.AddParameter('rWidgetGroup'));
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  DeleteWidgetGroup: function(sGroupId, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('DeleteWidgetGroup', this.tClient.GetServiceUri());
+    
+    tOperation.AddParameter('sGroupId', sGroupId);
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  AlterWidgetGroup: function(rWidgetGroup, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('AlterWidgetGroup', this.tClient.GetServiceUri());
+    
+    SerializeStruct_widget_SWidgetGroup(tOperation, rWidgetGroup, tOperation.AddParameter('rWidgetGroup'));
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  GetActiveWidgetGroups: function(pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetActiveWidgetGroups', this.tClient.GetServiceUri());
+    
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeTypedef_widget_TStringList(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeTypedef_widget_TStringList(tOperation);
+    }
+  },
+
+  SetActiveWidgetGroups: function(lsActiveWidgetGroups, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('SetActiveWidgetGroups', this.tClient.GetServiceUri());
+    
+    SerializeTypedef_widget_TStringList(tOperation, lsActiveWidgetGroups, tOperation.AddParameter('lsActiveWidgetGroups'));
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

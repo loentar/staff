@@ -26,6 +26,7 @@ i18n.webapp =
   'Error while parsing response': 'Ошибка разбора ответа',
   'Failed to invoke service': 'Ошибка при вызове сервиса',
   'Failed to get': 'Ошибка при получении',
+  'Access denied': 'В доступе отказано',
   
   // view.DlgList
   'List': 'Список',
@@ -46,16 +47,25 @@ i18n.webapp =
   'Parent element is missing': 'Отсутствует родительский элемент',
   
   // WidgetLoader
-  'Add widget': 'Добавить сервис',
-  'Select widget from list': 'Выберите сервис из списка',
+  'Add widget': 'Добавить виджет',
+  'Select widget from list': 'Выберите виджет из списка',
   'Select layout unit': 'Выберите позицию из списка',
-  'Remove widget': 'Убрать сервис',
-  'Configure widget': 'Настроить сервис',
+  'Remove widget': 'Убрать виджет',
+  'Configure widget': 'Настроить виджет',
   'Cannot open widget DB': 'Невозможно открыть БД виджетов',
-  'Cannot load widget': 'Невозможно загрузить сервис',
+  'Cannot load widget': 'Невозможно загрузить виджет',
   'Load this widget next time': 'Загружать его в слудеющий раз',
-  'Cannot get active widget list': 'Невозможно получить список активных сервисов',
-  'Remove widget': 'Убрать сервис',
+  'Cannot get active widget list': 'Невозможно получить список активных виджетов',
+  'Remove widget': 'Убрать виджет',
+  'Activate widget group': 'Активировать группу виджетов',
+  'Deactivate widget group': 'Деактивировать группу виджетов',
+  'Delete widget group': 'Удалить группу виджетов',
+  'Select widget group from list': 'Выберите группу виджетов из списка',
+  'Enter group description': 'Введите описание группы',
+  'Error while loading main Layout': 'Ошибка при загрузке главной раскладки',
+  'Create widget group': 'Создать группу из виджетов',
+  'Cannot create group': 'Невозможно создать группу виджетов',
+  'add some wigets first': 'сначала добавьте виджеты',
   
   // Layout
   'Layout': 'Раскладка',
@@ -73,7 +83,7 @@ i18n.webapp =
   'Height': 'Высота',
   'Resize': 'Измененяемый размер',
   'Scroll': 'Прокрутка',
-  'After changing layout it\'s recommended to save widgets and reload page': 'После изменения раскладки рекомендуется сохранить сервисы и перезагрузить страницу',
+  'After changing layout it\'s recommended to save widgets and reload page': 'После изменения раскладки рекомендуется сохранить виджеты и перезагрузить страницу',
   
   // Object Admin
   'Object administrator': 'Администратор объектов',
@@ -101,7 +111,7 @@ i18n.webapp =
   'Service': 'Сервис',
   'Service operation': 'Операция сервиса',
   'Widget': 'Виджет',
-  
+  'Cannot get user\'s groups': 'Невожможно определить список групп пользователя',
   
   // Account Admin
   'Account administrator': 'Администратор пользователей',

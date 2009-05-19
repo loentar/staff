@@ -409,11 +409,11 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
   
   GetItems: function(tWriteOpts)
   {
-    var atOptions = new Array();
     var atSelOptions = this.Element().options;
     
     if (tWriteOpts != null && tWriteOpts.sKey != null && tWriteOpts.sLabel != null)
     {
+      var atOptions = [];
       for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
       {
         var tSelOption = atSelOptions[nIndex];
@@ -422,20 +422,34 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
         tOption[tWriteOpts.sKey] = tSelOption.value;
         atOptions.push(tOption);
       }
+      return atOptions;
     }
     else
     {
-      for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+      if (this.tParseOpts.bObjProps === true)
       {
-        var tSelOption = atSelOptions[nIndex];
-        var atOption = new Array();
-        atOption.push(tSelOption.text);
-        atOption.push(tSelOption.value);
-        atOptions.push(atOption);
+        var tOptions = {};
+        for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+        {
+          var tSelOption = atSelOptions[nIndex];
+          tOptions[tSelOption.value] = tSelOption.text;
+        }
+        return tOptions;
+      }
+      else
+      {
+        var atOptions = [];
+        for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+        {
+          var tSelOption = atSelOptions[nIndex];
+          var atOption = new Array();
+          atOption.push(tSelOption.text);
+          atOption.push(tSelOption.value);
+          atOptions.push(atOption);
+        }
+        return atOptions;
       }
     }
-    
-    return atOptions;
   },
   
   SetItems: function(atOptions, tParseOpts)
@@ -462,16 +476,35 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
       }
       else
       {
-        var nOptIndex = 0;
-        for(var nIndex in atOptions)
+        if (atOptions instanceof Array)
         {
-          var tOption = atOptions[nIndex];
-          if (tOption[0] != null && tOption[1] != null &&
-            (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+          var nOptIndex = 0;
+          for(var nIndex in atOptions)
           {
-            atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
-            ++nOptIndex;
+            var tOption = atOptions[nIndex];
+            if (tOption[0] != null && tOption[1] != null &&
+              (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+            {
+              atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
+              ++nOptIndex;
+            }
           }
+        }
+        else
+        {
+          var nOptIndex = 0;
+          for(var tIndex in atOptions)
+          {
+            var tOption = atOptions[tIndex];
+            if (tOption != null && typeof tOption != 'function' &&
+              (tParseOpts == null || tParseOpts.fnFilter == null || 
+                tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
+            {
+              atSelOptions[nOptIndex] = new Option(_(tOption.toString()), tIndex);
+              ++nOptIndex;
+            }
+          }
+          this.tParseOpts = { bObjProps: true };
         }
       }
       
@@ -483,7 +516,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
   {
     var tActiveItem = this.GetActiveItemElement();
     var tOpts = tParseOpts || this.tParseOpts;
-    if(tOpts)
+    if(tOpts && tOpts.sKey && tOpts.sLabel)
     {
       var tResult = {};
       tResult[tOpts.sKey] = tActiveItem.value;
@@ -492,8 +525,18 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     }
     else
     {
-      var aResult = [ tActiveItem.value, tActiveItem.text ];
-      return aResult;
+      if (this.tParseOpts.bObjProps === true)
+      {
+        var tResult = {};
+        tResult.sKey = tActiveItem.value;
+        tResult.sLabel = tActiveItem.text;
+        return tResult;
+      }
+      else
+      {
+        var aResult = [ tActiveItem.value, tActiveItem.text ];
+        return aResult;
+      }
     }
   },
   
@@ -635,6 +678,17 @@ webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
   SetValue: function(tValue)
   {
     this.SetChecked(tValue);
+  },
+  
+  Enable: function(bEnable)
+  {
+    this.tCheck.disabled = bEnable === false;
+    this.tLabel.disabled = bEnable === false;
+  },
+  
+  Enabled: function()
+  {
+    return !this.tCheck.disabled;
   }
 });
 
