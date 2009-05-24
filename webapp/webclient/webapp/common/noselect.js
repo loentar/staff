@@ -1,17 +1,21 @@
-function cancelEvent(e)
+function cancelEvent(tEvent)
 {
-  if(e.preventDefault)
-    e.preventDefault();
+  if(tEvent.preventDefault)
+    tEvent.preventDefault();
   else 
-    e.returnValue = false;
+    tEvent.returnValue = false;
 }
 
-function selectHandler(e)
+function selectHandler(tEvent)
 {
-  if(e.srcElement.tagName == "INPUT" || e.srcElement.tagName == "TEXTAREA")
+  var tElement = tEvent.srcElement || tEvent.target;
+
+  if(tElement && (tElement.tagName == "INPUT" || tElement.tagName == "TEXTAREA"))
+  {
     return true;
+  }
   
-  cancelEvent(e);
+  cancelEvent(tEvent);
   return false;
 }
 

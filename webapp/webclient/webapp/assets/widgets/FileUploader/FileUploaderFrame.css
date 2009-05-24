@@ -1,0 +1,34 @@
+body
+{
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+  overflow: hidden;
+  background: #f2f2f2;
+  font-size: 13px;
+  font-family: arial;
+}
+
+form.formUpload
+{
+  margin: 0px;
+  padding: 0px;
+}
+
+label.labUploadSuccessed
+{
+  font-size: 20px;
+  color: green;
+}
+
+label.labUploadFailed
+{
+  font-size: 20px;
+  color: red;
+}
+
+input#idUnpack
+{
+  margin-left: 0px;
+}
+

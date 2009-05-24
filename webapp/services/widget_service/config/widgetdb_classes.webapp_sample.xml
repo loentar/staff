@@ -26,5 +26,9 @@
       <Name>webapp.widget.ObjectAdmin</Name>
       <Descr>Object administrator</Descr>
     </Class>
+    <Class>
+      <Name>webapp.widget.FileUploader</Name>
+      <Descr>File uploader</Descr>
+    </Class>
   </Classes>
 </WidgetDB>

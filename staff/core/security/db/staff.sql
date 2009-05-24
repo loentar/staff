@@ -116,7 +116,7 @@ GRANT ALL ON TABLE "session" TO staffdbuser;
 --
 
 CREATE SEQUENCE objects_sequence
-    START WITH 9
+    START WITH 12
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -336,6 +336,9 @@ COPY objects (objectid, name, "type", description, userid, groupid, parentobject
 5	AccountAdmin	2	Account Admin service	0	0	4	504
 7	GetGroups	3	Enable operation for all	0	0	5	511
 6	GetUsers	3	Enable operation for all	0	0	5	511
+9	webapp	1	webapp	0	0	1	511
+10	FileUploader	2	file uploader	0	0	9	504
+11	webapp.widget.FileUploader	4	File uploader widget	0	0	2	504
 \.
 
 
@@ -553,7 +556,7 @@ SELECT pg_catalog.setval('users_sequence', 3, true);
 -- Name: objects_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('objects_sequence', 9, false);
+SELECT pg_catalog.setval('objects_sequence', 12, false);
 
 
 --

@@ -185,13 +185,11 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
   var tItem = null;
 
   var tResult = tNode == null ? tOperation.ResultElement() : tNode;
-#ifeq($(Typedef.DataType.Name),std::list)
-  var aResult = new Array();
-  var j = 0;
-#else
 #ifeq($(Typedef.DataType.Name),std::map)
   var aResult = {};
-#ifeqend
+#else
+  var aResult = new Array();
+  var j = 0;
 #ifeqend
 
   for (var i = 0; i < tResult.childNodes.length; i++)

@@ -136,7 +136,7 @@ webapp.sample.Application =
     this.tMenuBar.subscribe("show", onSubmenuShow);
     
     this.tDivMain = new webapp.ui.Div(document.body, { sId: "divMain" });
-    addHandler(document.body, 'contextmenu', cancelEvent);
+    addHandler(document.body, 'contextmenu', selectHandler);
     
     webapp.Webapp.GetWidgetLoader().Init
     (
