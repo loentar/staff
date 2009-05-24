@@ -1,0 +1,18 @@
+table.tableFileUploaderLayout
+{
+  margin: 8px;
+}
+
+iframe#idFileUploaderFrame
+{
+  overflow: hidden;
+  margin: 2px;
+  *margin-left: 0px; /* for IE only */
+  border: 0px;
+  height: 150px;
+}
+
+label.labFileUploaderStatus
+{
+}
+

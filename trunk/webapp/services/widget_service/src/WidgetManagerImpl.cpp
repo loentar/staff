@@ -99,12 +99,12 @@ namespace widget
     {
       try
       {
-        rise::LogWarning() << "Loading DEFAULT DB for profile: " << sProfileBase << sProfile << ".default.xml";
-        m_tDoc.LoadFromFile(sProfileBase + sProfile + ".default.xml");
+        rise::LogWarning() << "Loading DEFAULT DB for profile: " << sProfileBase << sProfile << ".xml";
+        m_tDoc.LoadFromFile(sProfileBase + sProfile + ".xml");
       }
       catch(...)
       {
-        rise::LogWarning() << "Loading DEFAULT DB: " << sProfileBase << ".default.xml";
+        rise::LogWarning() << "Loading DEFAULT DB: " << sProfileBase << "default.xml";
         m_tDoc.LoadFromFile(sProfileBase + "default.xml");
       }
 

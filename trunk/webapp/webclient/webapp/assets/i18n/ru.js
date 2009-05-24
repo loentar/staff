@@ -133,6 +133,27 @@ i18n.webapp =
   'Enter a group name': 'Введите имя группы',
   'Add group': 'Добавить группу',
   'Select a group': 'Выберите группу',
-  'Remove group': 'Удалить группу'
+  'Remove group': 'Удалить группу',
   
+  // File uploader
+  'File uploader': 'Загрузка файлов',
+  'Upload file': 'Загрузить файл',
+  'Save to': 'Сохранить в',
+  'Unpack file after uploading': 'Распаковать после загрузки',
+  'Upload': 'Загрузить',
+  'Select a file': 'Выберите файл',
+  'Upload successed': 'Загрузка завершена',
+  'Upload failed': 'Ошибка при загрузке',
+  'File saved as': 'Файл сохранен как',
+  'New upload': 'Новая загрузка',
+  'Please, fill in "save to" path': 'Пожалуйста, заполните путь сохранения',
+  'Please, select a file': 'Пожалуйста, выберите файл',
+  'Uploading': 'Загрузка',
+  'unpacking': 'распаковка',
+  'moving to target path': 'перенос в каталог назначения',
+  'Success': 'Выполнено',
+  'Unpacking': 'Распаковка',
+  'Unpack finished': 'Распаковка успешно завершена',
+  'Unpack failed': 'Ошибка при распаковке файла'
+
 };

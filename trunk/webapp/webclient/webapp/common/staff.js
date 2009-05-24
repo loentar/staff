@@ -108,6 +108,10 @@ staff.Client.prototype =
       }
       
       tOperation.SetResultEvenlope(new SOAP.Envelope(tResponseXml.documentElement));
+      if (tOperation.IsFault())
+      {
+        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString());
+      }
     }
     else
     {
@@ -154,7 +158,11 @@ staff.Operation.prototype =
     var tParentElm = tNode == null ? this.tRequestElement : tNode;
     var tCreatedElm = tParentElm.create_child(new WS.QName(sName));
     
-    if (tValue)
+    if (tValue == null)
+    {
+      tCreatedElm.set_value('');
+    }
+    else
     {
       if (typeof tValue != 'string')
       {

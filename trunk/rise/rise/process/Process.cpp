@@ -72,8 +72,8 @@ namespace rise
     int CProcess::GetExitStatus( bool bWait /*= false*/ )
     {
       int nStatus = 0;
-      osWaitPid(m_hProcess, &nStatus, bWait);
-      return nStatus;
+      int nResult = osWaitPid(m_hProcess, &nStatus, bWait);
+      return nResult == -1 ? -2 : ((nResult == 0) ? -1 : nStatus);
     }
 
     //////////////////////////////////////////////////////////////////////////////
