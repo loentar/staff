@@ -2,10 +2,13 @@
 #define _FILEUPLOADER_H_
 
 #include <string>
+#include <list>
 
 namespace webapp
 {
-  //!  FileUploader
+  typedef std::list<std::string> TStringList; //!< string list
+
+  //!  File Uploader
   class CFileUploader
   {
   public:
@@ -29,7 +32,12 @@ namespace webapp
     /*! \return -1 - running, 0 - finished with success, > 0 -  fail code
     */
     virtual int GetUnpackingStatus() = 0;
-
+    
+    //!         get unpacked files
+    /*! \param  sMask - file mask
+        \return list of unpacked files filtered by mask
+    */
+    virtual TStringList GetUnpackedFiles(const std::string& sMask) = 0;
     
     //!         delete uploaded file
     /*! \param  sFileName - uploaded filename
