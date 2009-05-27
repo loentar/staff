@@ -439,13 +439,24 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
       else
       {
         var atOptions = [];
-        for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+        if (this.tParseOpts.bArrIndex)
         {
-          var tSelOption = atSelOptions[nIndex];
-          var atOption = new Array();
-          atOption.push(tSelOption.text);
-          atOption.push(tSelOption.value);
-          atOptions.push(atOption);
+          for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+          {
+            var tSelOption = atSelOptions[nIndex];
+            atOptions[tSelOption.value] = tSelOption.text;
+          }
+        }
+        else
+        {
+          for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+          {
+            var tSelOption = atSelOptions[nIndex];
+            var atOption = new Array();
+            atOption.push(tSelOption.text);
+            atOption.push(tSelOption.value);
+            atOptions.push(atOption);
+          }
         }
         return atOptions;
       }
@@ -479,16 +490,34 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
         if (atOptions instanceof Array)
         {
           var nOptIndex = 0;
-          for(var nIndex in atOptions)
-          {
-            var tOption = atOptions[nIndex];
-            if (tOption[0] != null && tOption[1] != null &&
-              (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+          if(atOptions[0] instanceof Array)
+          { // [ [ 1, "item1"], [ 2, "item2"], ... -> key - 1st sub array value, value - 2nd
+            for(var nIndex in atOptions)
             {
-              atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
-              ++nOptIndex;
+              var tOption = atOptions[nIndex];
+              if (tOption[0] != null && tOption[1] != null &&
+                (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
+              {
+                atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
+                ++nOptIndex;
+              }
             }
           }
+          else
+          { // [ "item1", "item2", ... ] -> key by array index
+            for(var nIndex in atOptions)
+            {
+              var tOption = atOptions[nIndex];
+              if (tOption != null && typeof tOption != 'function' && 
+                   (tParseOpts == null || tParseOpts.fnFilter == null || 
+                      tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
+              {
+                atSelOptions[nOptIndex] = new Option(_(tOption), nIndex);
+                ++nOptIndex;
+              }
+            }
+          }
+          this.tParseOpts = { bArrIndex: true };
         }
         else
         {
