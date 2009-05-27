@@ -13,8 +13,40 @@ namespace('webapp');
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
 
+// ::webapp::TStringList  Typedef.DataType.Type template std::list
+function SerializeTypedef_webapp_TStringList(tOperation, rtType, tNode)
+{
+  for(var i = 0; i != rtType.length; ++i)
+  {
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = generic
+  tOperation.AddParameter('Item', rtType[i], tNode);
+  }
+  return tNode;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef deserializators
+function DeserializeTypedef_webapp_TStringList(tOperation, tNode)
+{
+// container :: std::list< std::string >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = new Array();
+  var j = 0;
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::list<std::string>
+    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic std::string
+    }
+  }
+
+  return aResult;
+}
+
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -102,6 +134,29 @@ webapp.FileUploader.prototype =
       this.tClient.InvokeOperation(tOperation);
 
       return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+    }
+  },
+
+  GetUnpackedFiles: function(sMask, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetUnpackedFiles', this.tClient.GetServiceUri());
+    
+    tOperation.AddParameter('sMask', sMask);
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeTypedef_webapp_TStringList(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeTypedef_webapp_TStringList(tOperation);
     }
   },
 
