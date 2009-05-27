@@ -7,6 +7,7 @@
 #include <fstream>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
+#include <rise/tools/FileFind.h>
 #include <rise/string/String.h>
 #include <rise/xml/XMLNode.h>
 #include <rise/xml/XMLDocument.h>
@@ -75,6 +76,7 @@ namespace webapp
         RISE_THROWS(rise::CLogicNoItemException, strerror(errno));
       }
     }
+    m_sLastSaveToDir = sPathTo;
   }
 
   void CFileUploaderImpl::Unpack(const std::string& sFileName, const std::string& sPathTo)
@@ -86,7 +88,7 @@ namespace webapp
     std::string::size_type nSize = sFilePathFrom.size();
     std::string sUnpackCmd;
 
-    RISE_ASSERTES(!m_tUnpackProc.IsExists(), rise::CLogicAlreadyExistsException, "Unpacking already running");
+    RISE_ASSERTES(!m_tUnpacker.GetStatus() != CFileUnpacker::ERunning, rise::CLogicAlreadyExistsException, "Unpacking already running");
 
     if (m_mUnpackers.size() == 0)
     { // load config
@@ -122,32 +124,40 @@ namespace webapp
     rise::StrReplace(sUnpackCmd, " ", "\t", true); // split parameters
     rise::StrReplace(sUnpackCmd, "$(SRC_FILE)", sFilePathFrom);
     rise::StrReplace(sUnpackCmd, "$(DST_DIR)", sPathTo);
-
-    rise::LogDebug() << "Unpacking: [" << sUnpackCmd << "]";
-    RISE_ASSERTES(m_tUnpackProc.Exec(sUnpackCmd), rise::CLogicNoItemException, "Cannot start unpack process: \"" + sUnpackCmd + "\"");
-    rise::LogWarning() << "PID: " << m_tUnpackProc.GetProcessID();
+    
+    m_tUnpacker.Start(sUnpackCmd);
+    m_sLastSaveToDir = sPathTo;
   }
 
   int CFileUploaderImpl::GetUnpackingStatus()
   {
-    int nStatus = m_tUnpackProc.GetExitStatus();
-#ifdef WIN32
-    return nStatus;
-#else
-    if (nStatus == -2)
-    { // some error
-      return 1;
+    return m_tUnpacker.GetStatus();
+  }
+
+  TStringList CFileUploaderImpl::GetUnpackedFiles(const std::string& sMask)
+  {
+    TStringList lsFiles;
+    RISE_ASSERTES(m_sLastSaveToDir.size() != 0, rise::CLogicNoItemException, "Last save dir is not set");
+
+    GetUnpackedFiles(sMask, lsFiles);
+    return lsFiles;
+  }
+
+  void CFileUploaderImpl::GetUnpackedFiles(const std::string& sMask, TStringList& rFiles, const std::string& sRelativeDir /*= ""*/)
+  {
+    TStringList lsDirs;
+    TStringList lsFiles;
+    rise::CFileFind::Find(m_sLastSaveToDir + "/" + sRelativeDir, lsDirs, "*", rise::CFileFind::EFA_DIR);
+    for(TStringList::const_iterator itDir = lsDirs.begin(); itDir != lsDirs.end(); ++itDir)
+    {
+      GetUnpackedFiles(sMask, rFiles, (sRelativeDir.size() == 0) ? *itDir : (sRelativeDir + "/" + *itDir));
     }
-    else
-    if (nStatus == -1)
-    { // process is still running
-      return -1;
+
+    rise::CFileFind::Find(m_sLastSaveToDir + "/" + sRelativeDir, lsFiles, sMask, rise::CFileFind::EFA_FILE);
+    for(TStringList::iterator itFile = lsFiles.begin(); itFile != lsFiles.end(); ++itFile)
+    {
+      rFiles.push_back((sRelativeDir.size() == 0) ? *itFile : (sRelativeDir + "/" + *itFile));
     }
-    else
-    { // finished
-      return WIFEXITED(nStatus) ? WEXITSTATUS(nStatus) : 1;
-    }
-#endif
   }
 
   void CFileUploaderImpl::Delete(const std::string& sFileName)

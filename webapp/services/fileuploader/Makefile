@@ -12,14 +12,14 @@ INSTALLDIR = $(STAFF_HOME)/components/
 
 CXXFLAGS += -Wno-deprecated -I$(STAFF_DEPLOY_HOME)/include/
 LDFLAGS += -L$(STAFF_DEPLOY_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise
+LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))
 
-EXTERN_SERVICES := $(patsubst $(SRCDIR)%.h, %, $(filter-out %Wrapper.h %Context.h %Impl.h %Proxy.h %ServiceLocator.h $(COMPONENT_SERVICES_HEADERS), $(wildcard $(SRCDIR)*.h)))
-EXTERN_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(EXTERN_SERVICES))
+#EXTERN_SERVICES := $(patsubst $(SRCDIR)%.h, %, $(filter-out %Wrapper.h %Context.h %Impl.h %Proxy.h %ServiceLocator.h $(COMPONENT_SERVICES_HEADERS), $(wildcard $(SRCDIR)*.h)))
+#EXTERN_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(EXTERN_SERVICES))
 
 COMPONENT_SERVICES_CODEGEN := $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp \
     $(patsubst %.h,%Context.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Context.cpp,$(COMPONENT_SERVICES_HEADERS)) \
