@@ -330,7 +330,7 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     tBtnInclude.style.width = "24px";
     tBtnInclude.style.height = "20px";
     var tImgInclude = new Image();
-    tImgInclude.src = "img/go-previous.png";
+    tImgInclude.src = "webapp/assets/img/go-previous.png";
     tBtnInclude.appendChild(tImgInclude);
     
     var tBtnExclude = document.createElement('button');
@@ -338,7 +338,7 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     tBtnExclude.style.width = "24px";
     tBtnExclude.style.height = "20px";
     var tImgExclude = new Image();
-    tImgExclude.src = "img/go-next.png";
+    tImgExclude.src = "webapp/assets/img/go-next.png";
     tBtnExclude.appendChild(tImgExclude);
 
 

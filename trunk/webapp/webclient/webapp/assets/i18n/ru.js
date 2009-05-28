@@ -66,6 +66,11 @@ i18n.webapp =
   'Create widget group': 'Создать группу из виджетов',
   'Cannot create group': 'Невозможно создать группу виджетов',
   'add some wigets first': 'сначала добавьте виджеты',
+  'Edit widget group': 'Изменить группу виджетов',
+  'Widget group properties': 'Свойства группы виджетов',
+  'Widget group description': 'Описание группы виджетов',
+  'Widgets in group': 'Виджеты в группе',
+  'Group can\'t be empty': 'Группа не может быть пустой',
   
   // Layout
   'Layout': 'Раскладка',

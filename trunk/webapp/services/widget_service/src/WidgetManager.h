@@ -73,6 +73,11 @@ namespace widget
         */
     virtual void AddWidget(const SWidget& rWidget) = 0;
 
+    //!         add widgets to active list
+    /*! \param  rWidgets - map of widget description
+        */
+    virtual void AddWidgets(const TWidgetMap& rWidgets) = 0;
+
     //!         delete widget instance
     /*! \param  sId - id of widget instance
         */

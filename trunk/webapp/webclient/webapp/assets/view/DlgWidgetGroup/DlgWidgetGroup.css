@@ -1,0 +1,23 @@
+div.divDlgWidgetGroupHeader
+{
+  text-align: left;
+}
+
+td.tdDlgWidgetGroupSpace
+{
+  width: 8px;
+}
+
+.yui-button#idDlgWidgetGroupInclude button 
+{
+  width: 24px;
+  height: 20px;
+  background: url("../../img/go-next.png") 50% 50% no-repeat;
+}
+
+.yui-button#idDlgWidgetGroupExclude button 
+{
+  width: 24px;
+  height: 20px;
+  background: url("../../img/go-previous.png") 50% 50% no-repeat;
+}

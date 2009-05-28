@@ -40,6 +40,7 @@ webapp.sample.Application =
               { text: _('Activate group'), url: "javascript:webapp.Webapp.GetWidgetLoader().ActivateWidgetGroupDlg();" },
               { text: _('Deactivate group'), url: "javascript:webapp.Webapp.GetWidgetLoader().DeactivateWidgetGroupDlg();" },
               { text: _('Create group'), url: "javascript:webapp.Webapp.GetWidgetLoader().CreateWidgetGroupDlg();" },
+              { text: _('Edit group'), url: "javascript:webapp.Webapp.GetWidgetLoader().EditWidgetGroupDlg();" },
               { text: _('Remove group'), url: "javascript:webapp.Webapp.GetWidgetLoader().RemoveWidgetGroupDlg();" },
             ],
             [
