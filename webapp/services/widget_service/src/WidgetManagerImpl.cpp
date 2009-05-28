@@ -296,6 +296,18 @@ namespace widget
     m_mActiveWidgets[rWidget.sId].FromWidget(rWidget);
   }
 
+  void CWidgetManagerImpl::AddWidgets(const TWidgetMap& rWidgets)
+  {
+    for (TWidgetMap::const_iterator itWidget = rWidgets.begin();
+      itWidget != rWidgets.end(); ++itWidget)
+    {
+      RISE_ASSERTES(m_mActiveWidgets.find(itWidget->first) == m_mActiveWidgets.end(),
+        staff::CRemoteException, "Widget with id \'" + itWidget->first + "\'already exists");
+
+      m_mActiveWidgets[itWidget->first].FromWidget(itWidget->second);
+    }
+  }
+  
   void CWidgetManagerImpl::DeleteWidget( const std::string& sId )
   {
     m_mActiveWidgets.erase(sId);

@@ -25,6 +25,7 @@ i18n.webapp_sample =
   'Deactivate group': 'Деактивировать группу',
   'Create group': 'Создать группу',
   'Remove group': 'Удалить группу',
+  'Edit group': 'Изменить группу',
   'Configuration': 'Конфигурация',
   'Active widgets': 'Активные виджеты',
   'Help': 'Справка',

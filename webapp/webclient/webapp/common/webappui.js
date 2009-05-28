@@ -411,6 +411,11 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
   {
     var atSelOptions = this.Element().options;
     
+    if (!tWriteOpts)
+    {
+      tWriteOpts = this.tParseOpts;
+    }
+    
     if (tWriteOpts != null && tWriteOpts.sKey != null && tWriteOpts.sLabel != null)
     {
       var atOptions = [];
@@ -571,7 +576,11 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
   
   GetActiveItemElement: function()
   {
-    return this.Element()[this.Element().selectedIndex];
+    var nIndex = this.Element().selectedIndex;
+    if (nIndex != -1)
+    {
+      return this.Element()[nIndex]
+    }
   },
   
   GetActiveItemId: function()
@@ -597,6 +606,58 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     }
     
     return false;
+  },
+  
+  RemoveItemByIndex: function(nIndex)
+  {
+    var tItemElem = this.Element()[nIndex];
+    if (tItemElem)
+    {
+      tItemElem.parentNode.removeChild(tItemElem);
+    }
+  },
+  
+  RemoveItemById: function(nIndex)
+  {
+    var atSelOptions = this.Element().options;
+    for (var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+    {
+      var tOption = atSelOptions[nIndex];
+      if (tOption.value == nId)
+      {
+        tOption.parentNode.removeChild(tOption);
+        break;
+      }
+    }
+  },
+  
+  RemoveActiveItem: function(tParseOpts)
+  {
+    var tActiveItemElem = this.GetActiveItemElement();
+    if (tActiveItemElem)
+    {
+      tActiveItemElem.parentNode.removeChild(tActiveItemElem);
+    }
+  },
+  
+  MoveActiveItem: function(tSelect)
+  {
+    var tSelectElem = tSelect.Element ? tSelect.Element() : tSelect;
+    var nIndex = this.Element().selectedIndex;
+
+    var tActiveItemElem = this.GetActiveItemElement();
+    if (tActiveItemElem)
+    {
+      tSelectElem.options[tSelectElem.options.length] = new Option(tActiveItemElem.text, tActiveItemElem.value);
+      tActiveItemElem.parentNode.removeChild(tActiveItemElem);
+    }
+    
+    this.Element().selectedIndex = nIndex;
+  },
+  
+  GetItemCount: function()
+  {
+    return this.Element().options.length;
   },
   
   SetSize: function(nSize)
@@ -866,6 +927,60 @@ webapp.ui.Image.prototype.extend(webapp.ui.Generic.prototype).extend
   SetValue: function(tValue)
   {
     this.SetSrc(tValue);
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// Link
+webapp.ui.Link = Class.create();
+webapp.ui.Link.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'Link',
+  
+  Create: function(tParent, tOpt)
+  {
+    var tElem = document.createElement('a');
+    tElem.href = tOpts.sUrl;
+    return tElem;
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// Horizontal rule
+webapp.ui.Hr = Class.create();
+webapp.ui.Hr.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'Hr',
+  
+  Create: function(tParent, tOpt)
+  {
+    return document.createElement('hr');
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// Line break
+webapp.ui.Br = Class.create();
+webapp.ui.Br.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'Br',
+  
+  Create: function(tParent, tOpt)
+  {
+    return document.createElement('br');
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// Paragraph
+webapp.ui.P = Class.create();
+webapp.ui.P.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'P',
+  
+  Create: function(tParent, tOpt)
+  {
+    return document.createElement('p');
   }
 });
 

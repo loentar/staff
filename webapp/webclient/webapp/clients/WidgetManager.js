@@ -355,6 +355,28 @@ widget.WidgetManager.prototype =
     }
   },
 
+  AddWidgets: function(rWidgets, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('AddWidgets', this.tClient.GetServiceUri());
+    
+    SerializeTypedef_widget_TWidgetMap(tOperation, rWidgets, tOperation.AddParameter('rWidgets'));
+
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
   DeleteWidget: function(sId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('DeleteWidget', this.tClient.GetServiceUri());

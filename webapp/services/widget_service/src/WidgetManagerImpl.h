@@ -23,6 +23,7 @@ namespace widget
 
     virtual TWidgetMap GetActiveWidgets() const;
     virtual void AddWidget(const SWidget& rWidget);
+    virtual void AddWidgets(const TWidgetMap& rWidgets);
     virtual void DeleteWidget(const std::string& sId);
     virtual void DeleteWidgets(const TStringList& lsIds);
     virtual void AlterWidget(const SWidget& rWidget);

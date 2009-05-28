@@ -1,4 +1,5 @@
 namespace('webapp.widget');
+Include('webapp/view/DlgWidgetGroup');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // class WidgetLoader
@@ -450,58 +451,210 @@ webapp.widget.WidgetLoader.prototype =
   
   CreateWidgetGroupDlg: function()
   {
-    var sWidgets = '';
+    var tOpts = 
+    {
+      sGroupId: this._GenWidgetId('WidgetGroup'),
+      sGroupDescr: '',
+      aActiveWidgets: [],
+      aWidgetsInGroup: []
+    };
+    
+    tOpts.sGroupDescr = tOpts.sGroupId;
+    
     for(var tIndex in this.mActiveWidgets)
     {
       var tWidget = this.mActiveWidgets[tIndex]
       if (tWidget.sId && tWidget.sId.charAt(0) != '_')
       {
-        sWidgets += sWidgets ? ',' : '';
-        sWidgets += _(this.mAvailableWidgets[tWidget.sClass]);
+        var tItem = 
+        {
+          sKey: tWidget.sId,
+          sLabel: this.mAvailableWidgets[tWidget.sClass]
+        };
+
+        tOpts.aWidgetsInGroup.push(tItem);
       }
     }
     
-    if (sWidgets == '')
+    if (!tOpts.aActiveWidgets.length)
     {
       webapp.view.MessageBox.ShowMessage(_('Cannot create group') + ': <br/>' + _('add some wigets first'), 'error');
       return;
     }
+    
+    var tWidgetGroupDlg = new webapp.view.DlgWidgetGroup(tOpts);
+    tWidgetGroupDlg.On('confirm', this._OnCreateWidgetGroupDlgConfirm, this);
+    tWidgetGroupDlg.Show();
+  },
   
-    var sGroupId = this._GenWidgetId('WidgetGroup');
-
-    var sDescr = prompt(_('Create widget group') + ' (' + sWidgets + ')\n' + _('Enter group description'), sGroupId);
-    if (sDescr)
+  _OnCreateWidgetGroupDlgConfirm: function(tEvent)
+  {
+    var tNewWidgetGroupData = 
     {
-      var tNewWidgetGroupData = 
+      sId: tEvent.sGroupId,
+      sDescr: tEvent.sGroupDescr,
+      mWidgets: {}
+    };
+    
+    var mNewWidgetGroup = {};
+    
+    var aWidgetsToDel = [];
+    
+    for (var tWidgetIndex in tEvent.aWidgetsInGroup)
+    {
+      var sWidgetId = tEvent.aWidgetsInGroup[tWidgetIndex].sKey;
+      if (sWidgetId && sWidgetId.charAt(0) != '_')
       {
-        sId: sGroupId,
-        sDescr: sDescr,
-        mWidgets: {}
-      };
-      
-      var mNewWidgetGroup = {};
-      
-      var aWidgets = [];
-      for(var tIndex in this.mActiveWidgets)
-      {
-        var tWidget = this.mActiveWidgets[tIndex]
-        if (tWidget.sId && tWidget.sId.charAt(0) != '_')
+        var tWidget = this.mActiveWidgets[sWidgetId];
+        if (tWidget)
         {
-          aWidgets.push(tWidget.sId);
-          tNewWidgetGroupData.mWidgets[tIndex] = tWidget.Serialize();
+          aWidgetsToDel.push(tWidget.sId);
+          tNewWidgetGroupData.mWidgets[sWidgetId] = tWidget.Serialize();
           mNewWidgetGroup[tWidget.sId] = tWidget;
-          delete this.mActiveWidgets[tIndex];
+          delete this.mActiveWidgets[sWidgetId];
         }
       }
-      
-      this.tWidgetManager.DeleteWidgets(aWidgets);
-      this.tWidgetManager.AddWidgetGroup(tNewWidgetGroupData);
-      this.aActiveWidgetGroupList.push(sGroupId);
-      this.tWidgetManager.SetActiveWidgetGroups(this.aActiveWidgetGroupList);
-      // move current widgets to group
-      this.mActiveWidgetGroups[sGroupId] = mNewWidgetGroup;
-      this.mAvailableWidgetGroups[sGroupId] = sDescr;
     }
+    
+    this.tWidgetManager.DeleteWidgets(aWidgetsToDel);
+    this.tWidgetManager.AddWidgetGroup(tNewWidgetGroupData);
+    this.aActiveWidgetGroupList.push(tEvent.sGroupId);
+    this.tWidgetManager.SetActiveWidgetGroups(this.aActiveWidgetGroupList);
+    // move current widgets to group
+    this.mActiveWidgetGroups[tEvent.sGroupId] = mNewWidgetGroup;
+    this.mAvailableWidgetGroups[tEvent.sGroupId] = tEvent.sGroupDescr;
+  },
+  
+  EditWidgetGroupDlg: function()
+  {
+    var tDlgList = new webapp.view.DlgList({ sCaption: _('Edit widget group'), sLabel: _('Select widget group from list') });
+    tDlgList.On("confirm", this._OnEditWidgetGroupDlgSelect, this);
+
+    var tActiveWidgetGroups = {};
+    for (tIndex in this.mActiveWidgetGroups)
+    {
+      var tGroup = this.mActiveWidgetGroups[tIndex];
+      if (typeof tGroup == 'object')
+      {
+        tActiveWidgetGroups[tIndex] = this.mAvailableWidgetGroups[tIndex];
+      }
+    }
+
+    tDlgList.SetItems(tActiveWidgetGroups);
+    tDlgList.Show();
+  },
+
+  _OnEditWidgetGroupDlgSelect: function(tEvent)
+  {
+    var sWidgetGroupId = tEvent.tItem.sKey;
+    var tWidgetGroup = this.mActiveWidgetGroups[sWidgetGroupId];
+
+    var tOpts = 
+    {
+      sGroupId: sWidgetGroupId,
+      sGroupDescr: tEvent.tItem.sLabel,
+      aActiveWidgets: [],
+      aWidgetsInGroup: []
+    };
+    
+    for(var tIndex in tWidgetGroup)
+    {
+      var tWidget = tWidgetGroup[tIndex];
+      if (typeof tWidget == 'object')
+      {
+        var tItem = 
+        {
+          sKey: tWidget.sId,
+          sLabel: this.mAvailableWidgets[tWidget.sClass]
+        };
+
+        tOpts.aWidgetsInGroup.push(tItem);
+      }
+    }
+    
+    for(var tIndex in this.mActiveWidgets)
+    {
+      var tWidget = this.mActiveWidgets[tIndex]
+      if (tWidget.sId && tWidget.sId.charAt(0) != '_')
+      {
+        var tItem = 
+        {
+          sKey: tWidget.sId,
+          sLabel: this.mAvailableWidgets[tWidget.sClass]
+        };
+
+        tOpts.aActiveWidgets.push(tItem);
+      }
+    }
+    
+    var tWidgetGroupDlg = new webapp.view.DlgWidgetGroup(tOpts);
+    tWidgetGroupDlg.On('confirm', this._OnEditWidgetGroupDlgConfirm, this);
+    tWidgetGroupDlg.Show();
+  },
+  
+  _OnEditWidgetGroupDlgConfirm: function(tEvent)
+  {
+    var tWidgetGroup = this.mActiveWidgetGroups[tEvent.sGroupId];
+
+    var tWidgetGroupData = 
+    {
+      sId: tEvent.sGroupId,
+      sDescr: tEvent.sGroupDescr,
+      mWidgets: {}
+    };
+    
+    var aWidgetsToDel = [];
+    // include into group
+    for (var tWidgetIndex in tEvent.aWidgetsInGroup)
+    {
+      var sWidgetId = tEvent.aWidgetsInGroup[tWidgetIndex].sKey;
+      if (sWidgetId && sWidgetId.charAt(0) != '_')
+      {
+        var tWidgetInGroup = tWidgetGroup[sWidgetId];
+        if (!tWidgetInGroup)
+        {
+          var tActiveWidget = this.mActiveWidgets[sWidgetId];
+          aWidgetsToDel.push(sWidgetId);
+          tWidgetGroupData.mWidgets[sWidgetId] = tActiveWidget.Serialize();
+          tWidgetGroup[sWidgetId] = tActiveWidget;
+          delete this.mActiveWidgets[sWidgetId];
+        }
+        else
+        {
+          tWidgetGroupData.mWidgets[sWidgetId] = tWidgetInGroup.Serialize();
+        }
+      }
+    }
+    
+    var aWidgetsToAdd = [];
+    // exclude from group
+    for (var tWidgetIndex in tEvent.aActiveWidgets)
+    {
+      var sWidgetId = tEvent.aActiveWidgets[tWidgetIndex].sKey;
+      if (sWidgetId && sWidgetId.charAt(0) != '_')
+      {
+        var tActiveWidget = this.mActiveWidgets[sWidgetId];
+        if (!tActiveWidget)
+        {
+          var tWidgetInGroup = tWidgetGroup[sWidgetId];
+          aWidgetsToAdd.push(tWidgetInGroup.Serialize());
+          this.mActiveWidgets[sWidgetId] = tWidgetInGroup;
+          delete tWidgetGroup[sWidgetId];
+        }
+      }
+    }
+    
+    if (aWidgetsToAdd.length)
+    {
+      this.tWidgetManager.AddWidgets(aWidgetsToAdd);
+    }
+    if (aWidgetsToDel.length)
+    {
+      this.tWidgetManager.DeleteWidgets(aWidgetsToDel);
+    }
+  
+    this.tWidgetManager.AlterWidgetGroup(tWidgetGroupData);
+    this.mAvailableWidgetGroups[tEvent.sGroupId] = tEvent.sGroupDescr;
   },
   
   RemoveWidgetGroupDlg: function()
