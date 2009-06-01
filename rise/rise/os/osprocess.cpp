@@ -125,29 +125,34 @@ namespace rise
   //    EXCEPTIONS:     none
   //    COMMENT:        none
   //////////////////////////////////////////////////////////////////////////////
-  HProcess osWaitPid(HProcess hProcess, int* piStatus, bool bWait /*= false*/)
+  int osWaitPid( HProcess hProcess, int* piStatus, bool bWait /*= false*/ )
   {
   #ifdef WIN32
-
     DWORD dwRetCode = 0;
     BOOL bRes = GetExitCodeProcess(hProcess, &dwRetCode);
     if (!bRes)
-      return NULL;
+    {
+      return -1;
+    }
 
     if (dwRetCode == STILL_ACTIVE && bWait)
     {
       WaitForSingleObject(hProcess, INFINITE);
       bRes = GetExitCodeProcess(hProcess, &dwRetCode);
       if (!bRes)
-        return NULL;
+      {
+        return -1;
+      }
     }
 
     if (piStatus != NULL)
+    {
       *piStatus = (int)dwRetCode;
+    }
 
-    return hProcess;
+    return dwRetCode == STILL_ACTIVE ? 0 : 1;
   #else
-    return waitpid(hProcess, piStatus, bWait ? 0 : WNOHANG);
+    return static_cast<int>(waitpid(hProcess, piStatus, bWait ? 0 : WNOHANG));
   #endif
   }
 

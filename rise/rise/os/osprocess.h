@@ -65,9 +65,9 @@ namespace rise
      \param  hProcess - ид. процесса
      \param  piStatus - статус процесса
      \param  bWait = true - ждать завершения процесса
-     \return идентификатор процесса, в случае ошибки -1 или 0
+     \return -1: ошибка, 0 - процесс еще запущен
   */
-  HProcess osWaitPid(HProcess hProcess, int* piStatus, bool bWait = false);
+  int osWaitPid(HProcess hProcess, int* piStatus, bool bWait = false);
 
   //!        получить идентификатор текущего процесса
   /*
