@@ -579,6 +579,9 @@ namespace staff
 #endif
 
   private:
+    axiom_node_t* Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent);
+
+  private:
     axiom_node_t* m_pAxiomNode;
     axiom_element_t* m_pAxiomElement;
     static axutil_env_t* m_pEnv;

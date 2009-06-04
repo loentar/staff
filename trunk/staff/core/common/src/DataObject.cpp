@@ -308,18 +308,173 @@ namespace staff
     return *this;
   }
 
+  axiom_node_t* CDataObject::Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent)
+  {
+    axiom_types_t tNodeType = axiom_node_get_node_type(pNodeIn, m_pEnv);
+    axiom_node_t* pNodeOut = NULL;
+    
+    switch (tNodeType)
+    {
+      case AXIOM_ELEMENT:
+      {
+        axiom_element_t* pElemIn = 
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNodeIn, m_pEnv));
+        axis2_char_t* szLocalName = axiom_element_get_localname(pElemIn, m_pEnv);
+        axiom_namespace_t* pNsIn = axiom_element_get_namespace(pElemIn, m_pEnv, pNodeIn);
+        axiom_namespace_t* pNsOut = NULL;
+
+        axiom_element_t* pElemOut = axiom_element_create(m_pEnv, pNodeOutParent, szLocalName, 
+          NULL, &pNodeOut);
+
+        // clone attributes
+        axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(pElemIn, m_pEnv);
+        if (pAttrHash != NULL)
+        {
+          void* pHashValue = NULL;
+
+          for (axutil_hash_index_t* pAttrIndex = axutil_hash_first(pAttrHash, m_pEnv);
+            pAttrIndex != NULL; 
+            pAttrIndex = axutil_hash_next(m_pEnv, pAttrIndex))
+          {
+            axutil_hash_this(pAttrIndex, NULL, NULL, &pHashValue);
+            if (pHashValue != NULL)
+            {
+              axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+              axiom_element_add_attribute(pElemOut, m_pEnv, axiom_attribute_clone(pAttr, m_pEnv), pNodeOut);
+            }
+          }
+        }
+
+        // clone namespaces
+        axutil_hash_t* pNsHash = axiom_element_get_namespaces(pElemIn, m_pEnv);
+        if (pNsHash != NULL)
+        {
+          axiom_namespace_t* pNs = NULL;
+          axiom_namespace_t* pNsClone = NULL;
+          void* pHashValue = NULL;
+
+          for (axutil_hash_index_t* pNsIndex = axutil_hash_first(pNsHash, m_pEnv);
+            pNsIndex != NULL; 
+            pNsIndex = axutil_hash_next(m_pEnv, pNsIndex))
+          {
+            axutil_hash_this(pNsIndex, NULL, NULL, &pHashValue);
+            if (pHashValue != NULL)
+            {
+              pNs = reinterpret_cast<axiom_namespace_t*>(pHashValue);
+              pNsClone = axiom_namespace_clone(pNs, m_pEnv);
+              axiom_element_declare_namespace(pElemOut, m_pEnv, pNodeOut, pNsClone);
+              if (pNs == pNsIn)
+              {
+                pNsOut = pNsClone;
+              }
+            }
+          }
+        }
+
+        // set current namespace
+        // if current namespace is owned by element
+        if (pNsOut != NULL)
+        {
+          axiom_element_set_namespace(pElemOut, m_pEnv, pNsOut, pNodeOut);
+        }
+        else
+        if (pNsIn != NULL)
+        { // find namespace in parents
+          axis2_char_t* szPrefix = axiom_namespace_get_prefix(pNsIn, m_pEnv);
+          axis2_char_t* szUri = axiom_namespace_get_uri(pNsIn, m_pEnv);
+          pNsOut = axiom_element_find_namespace(pElemOut, m_pEnv, pNodeOut, szUri, szPrefix);
+          axiom_element_set_namespace(pElemOut, m_pEnv, pNsOut, pNodeOut);
+        }
+
+        // clone subnodes
+        for (axiom_node_t* pItNode = axiom_node_get_first_child(pNodeIn, m_pEnv);
+          pItNode != NULL;
+          pItNode = axiom_node_get_next_sibling(pItNode, m_pEnv))
+        {
+          Clone(pItNode, pNodeOut);
+        }
+
+        break;
+      }
+
+      case AXIOM_DOCTYPE:
+      {
+        axiom_doctype_t* pDocTypeIn = 
+          reinterpret_cast<axiom_doctype_t*>(axiom_node_get_data_element(pNodeIn, m_pEnv));
+
+        if (pDocTypeIn != NULL)
+        {
+          axiom_doctype_create(m_pEnv, pNodeOutParent, 
+            axiom_doctype_get_value(pDocTypeIn, m_pEnv), &pNodeOut);
+        }
+        
+        break;
+      }
+
+      case AXIOM_COMMENT:
+      {
+        axiom_comment_t* pCommentIn = 
+          reinterpret_cast<axiom_comment_t*>(axiom_node_get_data_element(pNodeIn, m_pEnv));
+        if (pCommentIn != NULL)
+        {
+          axiom_comment_create(m_pEnv, pNodeOutParent, 
+              axiom_comment_get_value(pCommentIn, m_pEnv), &pNodeOut);
+        }
+
+        break;
+      }
+
+      case AXIOM_PROCESSING_INSTRUCTION:
+      {
+        axiom_processing_instruction_t* pProcInstrIn = 
+          reinterpret_cast<axiom_processing_instruction_t*>(axiom_node_get_data_element(pNodeIn, m_pEnv));
+
+        if (pProcInstrIn != NULL)
+        {
+          axiom_processing_instruction_create(m_pEnv, pNodeOutParent, 
+            axiom_processing_instruction_get_target(pProcInstrIn, m_pEnv),
+            axiom_processing_instruction_get_value(pProcInstrIn, m_pEnv),
+            &pNodeOut);
+        }
+
+        break;
+      }
+
+      case AXIOM_TEXT:
+      {
+        axiom_text_t* pTextIn = 
+          reinterpret_cast<axiom_text_t*>(axiom_node_get_data_element(pNodeIn, m_pEnv));
+        if (pTextIn != NULL)
+        {
+          axiom_text_t* pTextOut = axiom_text_create(m_pEnv, pNodeOutParent, 
+            axiom_text_get_text(pTextIn, m_pEnv), &pNodeOut);
+
+          axiom_text_set_content_id(pTextOut, m_pEnv, axiom_text_get_content_id(pTextIn, m_pEnv));
+        }
+        break;
+      }
+
+      case AXIOM_DATA_SOURCE:
+      {
+        // axiom handle CDATA as TEXT?
+        break;
+      }
+    }
+
+    return pNodeOut;
+  }
+
   CDataObject& CDataObject::Clone( const CDataObject& rDataObject )
   {
-    Detach();
-    FromString(rDataObject.ToString());
+    axiom_node_t* pNode = Clone(const_cast<CDataObject&>(rDataObject).m_pAxiomNode, NULL);
+    Attach(pNode);
     return *this;
   }
 
   CDataObject CDataObject::Clone() const
   {
     CDataObject tdoClone;
-    tdoClone.FromString(ToString());
-    return tdoClone;
+    return tdoClone.Clone(*this);
   }
 
   //////////////////////////////////////////////////////////////////////////
