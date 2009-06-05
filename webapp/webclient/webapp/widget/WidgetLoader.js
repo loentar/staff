@@ -476,7 +476,7 @@ webapp.widget.WidgetLoader.prototype =
       }
     }
     
-    if (!tOpts.aActiveWidgets.length)
+    if (!tOpts.aWidgetsInGroup.length)
     {
       webapp.view.MessageBox.ShowMessage(_('Cannot create group') + ': <br/>' + _('add some wigets first'), 'error');
       return;
