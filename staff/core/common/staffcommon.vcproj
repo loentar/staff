@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Namespace.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Operation.cpp"
 				>
 			</File>
@@ -236,6 +240,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Exception.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Namespace.h"
 				>
 			</File>
 			<File

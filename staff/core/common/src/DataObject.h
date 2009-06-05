@@ -4,7 +4,7 @@
 #include <string>
 #include "staffcommonexport.h"
 
-// AXIS typedefs
+// AXIS2/C typedefs
 typedef struct axiom_node axiom_node_t;
 typedef struct axiom_element axiom_element_t;
 typedef struct axiom_attribute axiom_attribute_t;
@@ -15,6 +15,7 @@ typedef struct axutil_env axutil_env_t;
 namespace staff
 {
   class CQName;
+  class CNamespace;
   class CAttribute;
   class CValue;
 
@@ -24,6 +25,8 @@ namespace staff
   public:
     class STAFF_COMMON_EXPORT Iterator;
     class STAFF_COMMON_EXPORT ConstIterator;
+    class STAFF_COMMON_EXPORT NamespaceIterator;
+    class STAFF_COMMON_EXPORT ConstNamespaceIterator;
     class STAFF_COMMON_EXPORT AttributeIterator;
     class STAFF_COMMON_EXPORT ConstAttributeIterator;
 
@@ -179,7 +182,6 @@ namespace staff
 
     //!         создание копии дерева
     /*! текущий объект становится владельцем копии
-        !! ВНИМАНИЕ !! неоптимальная версия: копия создаётся посредством сериализации через строку
         \param  rDataObject - исходный обьект
         \return ссылка на текущий обьект
         */
@@ -187,7 +189,6 @@ namespace staff
 
     //!         создание копии дерева
     /*! возвращаемый объект становится владельцем копии
-        !! ВНИМАНИЕ !! неоптимальная версия: копия создаётся посредством сериализации через строку
         \return объект копии
         */
     CDataObject Clone() const;
@@ -377,6 +378,66 @@ namespace staff
     const CValue operator[](const std::string& sName) const;
 
     //////////////////////////////////////////////////////////////////////////
+    // namespace management
+
+    //!         get the namespace
+    /*! \return namespace
+        */
+    CNamespace GetDefaultNamespace() const;
+
+    //!         declare default namespace for element
+    /*! \param  rNamespace - namespace
+        */
+    void DeclareDefaultNamespace(const std::string& sUri);
+
+    //!         get the namespace
+    /*! \return namespace
+        */
+    CNamespace GetNamespace() const;
+
+    //!         declare new namespace in element scope
+    /*! \param  rNamespace - namespace
+        */
+    void DeclareNamespace(CNamespace& rNamespace);
+
+    //!         set namespace for element
+    /*! \param  rNamespace - namespace
+        */
+    void SetNamespace(CNamespace& rNamespace);
+
+    //!         find a namespace in the scope of the document.
+    /*!         Start to find from the given node and go up the hierarchy.
+        \param  sUri - namespace URI
+        \return found namespace.
+        */
+    CNamespace FindNamespace(const std::string& sUri);
+
+    //!         find a namespace in the scope of the document.
+    /*! \param  sUri - namespace URI
+        \return found namespace.
+        */
+    CNamespace FindNamespace(const std::string& sUri, const std::string& sPrefix);
+    
+    //!         finds a namespace in current element's scope, by uri
+    /*! \param  sUri - namespace URI
+        \return found namespace.
+        */
+    CNamespace FindDeclaredNamespace(const std::string& sUri);
+
+    //!         finds a namespace in current element's scope, by uri and prefix
+    /*! \param  sUri - namespace URI
+        \return found namespace.
+        */
+    CNamespace FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix);
+
+    //!         Find namespace URI in current element's scope by prefix
+    /*! \param  sPrefix - prefix
+        \return found namespace
+        */
+    CNamespace FindNamespaceUri(const std::string& sPrefix) const;
+
+
+    //////////////////////////////////////////////////////////////////////////
     // управление атрибутами
 
     //!         добавить атрибут
@@ -465,6 +526,16 @@ namespace staff
     */
     AttributeIterator AttributeEnd();
 
+    //!         get iterator to first namespace
+    /*! \return iterator to first namespace
+    */
+    NamespaceIterator NamespaceBegin();
+
+    //!         get iterator to next by last namespace
+    /*! \return iterator to next by last namespace
+    */
+    NamespaceIterator NamespaceEnd();
+
     //////////////////////////////////////////////////////////////////////////
     // операторы поддержки
 
@@ -537,11 +608,6 @@ namespace staff
     /*! \sa GetChildByLocalName
         */
     STAFF_DEPRECATED(GetChildByLocalName) CDataObject operator()(const std::string& sLocalName);
-
-    //!         устаревшая функция 
-    /*! \sa GetNamespaceUri
-        */
-    STAFF_DEPRECATED(GetNamespaceUri) std::string GetNamespace() const;
 
     //!         устаревшая функция 
     /*! \sa SetNamespaceUri
@@ -673,6 +739,137 @@ namespace staff
     axiom_node_t* m_pAxiomNode;
     friend class CDataObject;
   };
+
+  //! Namespace iterator
+  class CDataObject::NamespaceIterator
+  {
+  public:
+    //!         constructor
+    NamespaceIterator();
+
+    //!         initializing constructor
+    /*! \param  pDataObject - dataobject
+        \param  pNamespaceHash - list of namespaces
+        */
+    NamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
+
+    //!         copy constructor
+    /*! \param  rIter - iterator
+    */
+    NamespaceIterator(const NamespaceIterator& rIter);
+
+    //!         destructor
+    ~NamespaceIterator();
+
+    //!         copy operator
+    /*! \param  rIter - source iterator
+        \return ref to current iterator
+        */
+    NamespaceIterator& operator=(const NamespaceIterator& rIter);
+
+    //!         pre-increment
+    /*! \return ref to current iterator
+        */
+    NamespaceIterator& operator++();
+
+    //!         post-increment
+    /*! \return copy of old iterator
+        */
+    NamespaceIterator operator++(int);
+
+    //!         equality check operator
+    /*! \param  rIter - iterator
+        \return true, if iterators equals
+        */
+    bool operator==(const NamespaceIterator& rIter) const;
+
+    //!         non-equality check operator
+    /*! \param  rIter - iterator
+        \return true, if iterators is not equals
+        */
+    bool operator!=(const NamespaceIterator& rIter) const;
+
+    //!         get current namespace operator
+    /*! \return namespace
+    */
+    CNamespace operator*();
+
+    //!         get current namespace operator
+    /*! \return namespace
+    */
+    CNamespace operator->();
+
+  private:
+    CDataObject* m_pDataObject;
+    axutil_hash_index_t* m_pNamespaceIndex;
+    friend class CDataObject;
+  };
+
+  //! Namespace iterator
+  class CDataObject::ConstNamespaceIterator
+  {
+  public:
+    //!         constructor
+    ConstNamespaceIterator();
+
+    //!         initializing constructor
+    /*! \param  pDataObject - dataobject
+        \param  pNamespaceHash - list of namespaces
+        */
+    ConstNamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
+
+    //!         copy constructor
+    /*! \param  rIter - iterator
+    */
+    ConstNamespaceIterator(const ConstNamespaceIterator& rIter);
+
+    //!         destructor
+    ~ConstNamespaceIterator();
+
+    //!         copy operator
+    /*! \param  rIter - source iterator
+        \return ref to current iterator
+        */
+    ConstNamespaceIterator& operator=(const ConstNamespaceIterator& rIter);
+
+    //!         pre-increment
+    /*! \return ref to current iterator
+        */
+    ConstNamespaceIterator& operator++();
+
+    //!         post-increment
+    /*! \return copy of old iterator
+        */
+    ConstNamespaceIterator operator++(int);
+
+    //!         equality check operator
+    /*! \param  rIter - iterator
+        \return true, if iterators equals
+        */
+    bool operator==(const ConstNamespaceIterator& rIter) const;
+
+    //!         non-equality check operator
+    /*! \param  rIter - iterator
+        \return true, if iterators is not equals
+        */
+    bool operator!=(const ConstNamespaceIterator& rIter) const;
+
+    //!         get current namespace operator
+    /*! \return namespace
+    */
+    const CNamespace operator*() const;
+
+    //!         get current namespace operator
+    /*! \return namespace
+    */
+    const CNamespace operator->() const;
+
+  private:
+    const CDataObject* m_pDataObject;
+    axutil_hash_index_t* m_pNamespaceIndex;
+    friend class CDataObject;
+  };
+
 
   //! итератор атрибутов
   class CDataObject::AttributeIterator

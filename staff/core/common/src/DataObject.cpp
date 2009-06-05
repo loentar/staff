@@ -7,6 +7,7 @@
 #include "Exception.h"
 #include "Runtime.h"
 #include "QName.h"
+#include "Namespace.h"
 #include "Attribute.h"
 #include "Value.h"
 #include "DataObject.h"
@@ -983,6 +984,25 @@ namespace staff
     return AttributeIterator(this, NULL);
   }
 
+  CDataObject::NamespaceIterator CDataObject::NamespaceBegin()
+  {
+    axutil_hash_t* pNsHash = axiom_element_get_namespaces(m_pAxiomElement, m_pEnv);
+    if (pNsHash == NULL)
+    {
+      return NamespaceIterator(this, NULL); // end
+    }
+
+    axutil_hash_index_t* pIndex = axutil_hash_first(pNsHash, m_pEnv);
+
+    return NamespaceIterator(this, pIndex);
+  }
+
+  CDataObject::NamespaceIterator CDataObject::NamespaceEnd()
+  {
+    return NamespaceIterator(this, NULL);
+  }
+
+
   //////////////////////////////////////////////////////////////////////////
   // операторы поддержки
 
@@ -1077,6 +1097,79 @@ namespace staff
     return this;
   }
 
+  CNamespace CDataObject::GetDefaultNamespace() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+  }
+
+  void CDataObject::DeclareDefaultNamespace(const std::string& sUri)
+  {
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(sUri.c_str()));
+  }
+
+  CNamespace CDataObject::GetNamespace() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+  }
+
+  void CDataObject::DeclareNamespace(CNamespace& rNamespace)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, rNamespace);
+    rNamespace.SetDataObject(this);
+  }
+
+  void CDataObject::SetNamespace(CNamespace& rNamespace)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
+    rNamespace.SetDataObject(this);
+  }
+
+  CNamespace CDataObject::FindNamespace( const std::string& sUri )
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL);
+  }
+
+  CNamespace CDataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str());
+  }
+
+  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL);
+  }
+
+  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str());
+  }
+
+  CNamespace CDataObject::FindNamespaceUri(const std::string& sPrefix) const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv, 
+      const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode);
+  }
+
+
   void CDataObject::AppendAttribute( CAttribute& rAttribute )
   {
     axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
@@ -1167,11 +1260,6 @@ namespace staff
   CDataObject CDataObject::operator()( const std::string& sLocalName )
   {
     return GetChildByLocalName(sLocalName);
-  }
-
-  std::string CDataObject::GetNamespace() const
-  {
-    return GetNamespaceUri();
   }
 
   void CDataObject::SetNamespace(const std::string& sNamespace)
@@ -1454,6 +1542,179 @@ namespace staff
   {
     return m_pAxiomNode;
   }
+
+  //////////////////////////////////////////////////////////////////////////
+  // NamespaceIterator
+
+  CDataObject::NamespaceIterator::NamespaceIterator():
+    m_pDataObject(NULL),
+    m_pNamespaceIndex(NULL)
+  {
+  }
+
+  CDataObject::NamespaceIterator::NamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex):
+    m_pDataObject(pDataObject),
+    m_pNamespaceIndex(pNamespaceIndex)
+  {
+  }
+
+  CDataObject::NamespaceIterator::NamespaceIterator(const CDataObject::NamespaceIterator& rIter)
+  {
+    operator=(rIter);
+  }
+
+  CDataObject::NamespaceIterator::~NamespaceIterator()
+  {
+  }
+
+  CDataObject::NamespaceIterator& CDataObject::NamespaceIterator::operator=(const CDataObject::NamespaceIterator& rIter)
+  {
+    m_pDataObject = rIter.m_pDataObject;
+    m_pNamespaceIndex = rIter.m_pNamespaceIndex;
+    return *this;
+  }
+
+  CDataObject::NamespaceIterator& CDataObject::NamespaceIterator::operator++()
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "++ operator after end");
+
+    m_pNamespaceIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pNamespaceIndex);
+    return *this;
+  }
+
+  CDataObject::NamespaceIterator CDataObject::NamespaceIterator::operator++(int)
+  {
+    NamespaceIterator itRes = *this;
+    operator++();
+    return itRes;
+  }
+
+  bool CDataObject::NamespaceIterator::operator==(const CDataObject::NamespaceIterator& rIter) const
+  {
+    return m_pDataObject == rIter.m_pDataObject &&
+           m_pNamespaceIndex == rIter.m_pNamespaceIndex;
+  }
+
+  bool CDataObject::NamespaceIterator::operator!=(const CDataObject::NamespaceIterator& rIter) const
+  {
+    return !(operator==(rIter));
+  }
+
+  CNamespace CDataObject::NamespaceIterator::operator*()
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "* operator after end");
+
+    void* pHashValue = NULL;
+
+    axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Cannot get namespace");
+
+    CNamespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), m_pDataObject);
+    return tNs;
+  }
+
+  CNamespace CDataObject::NamespaceIterator::operator->()
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "-> operator after end");
+
+    void* pHashValue = NULL;
+
+    axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Cannot get namespace");
+
+    CNamespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), m_pDataObject);
+    return tNs;
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  // ConstNamespaceIterator
+
+  CDataObject::ConstNamespaceIterator::ConstNamespaceIterator():
+    m_pDataObject(NULL),
+    m_pNamespaceIndex(NULL)
+  {
+  }
+
+  CDataObject::ConstNamespaceIterator::ConstNamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex):
+    m_pDataObject(pDataObject),
+    m_pNamespaceIndex(pNamespaceIndex)
+  {
+  }
+
+  CDataObject::ConstNamespaceIterator::ConstNamespaceIterator(const CDataObject::ConstNamespaceIterator& rIter)
+  {
+    operator=(rIter);
+  }
+
+  CDataObject::ConstNamespaceIterator::~ConstNamespaceIterator()
+  {
+  }
+
+  CDataObject::ConstNamespaceIterator& CDataObject::ConstNamespaceIterator::operator=(const CDataObject::ConstNamespaceIterator& rIter)
+  {
+    m_pDataObject = rIter.m_pDataObject;
+    m_pNamespaceIndex = rIter.m_pNamespaceIndex;
+    return *this;
+  }
+
+  CDataObject::ConstNamespaceIterator& CDataObject::ConstNamespaceIterator::operator++()
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "++ operator after end");
+
+    m_pNamespaceIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pNamespaceIndex);
+    return *this;
+  }
+
+  CDataObject::ConstNamespaceIterator CDataObject::ConstNamespaceIterator::operator++(int)
+  {
+    ConstNamespaceIterator itRes = *this;
+    operator++();
+    return itRes;
+  }
+
+  bool CDataObject::ConstNamespaceIterator::operator==(const CDataObject::ConstNamespaceIterator& rIter) const
+  {
+    return m_pDataObject == rIter.m_pDataObject &&
+           m_pNamespaceIndex == rIter.m_pNamespaceIndex;
+  }
+
+  bool CDataObject::ConstNamespaceIterator::operator!=(const CDataObject::ConstNamespaceIterator& rIter) const
+  {
+    return !(operator==(rIter));
+  }
+
+  const CNamespace CDataObject::ConstNamespaceIterator::operator*() const
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "* operator after end");
+
+    void* pHashValue = NULL;
+
+    axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Cannot get namespace");
+
+    CNamespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), const_cast<CDataObject*>(m_pDataObject));
+    return tNs;
+  }
+
+  const CNamespace CDataObject::ConstNamespaceIterator::operator->() const
+  {
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pNamespaceIndex != NULL, CDomNoItemException, "-> operator after end");
+
+    void* pHashValue = NULL;
+
+    axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Cannot get namespace");
+
+    CNamespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), const_cast<CDataObject*>(m_pDataObject));
+    return tNs;
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
   // AttributeIterator
