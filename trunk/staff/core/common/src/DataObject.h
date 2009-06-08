@@ -654,6 +654,8 @@ namespace staff
     bool m_bOwner;
     friend class Iterator;
     friend class ConstIterator;
+    friend class NamespaceIterator;
+    friend class ConstNamespaceIterator;
     friend class AttributeIterator;
     friend class ConstAttributeIterator;
   };
