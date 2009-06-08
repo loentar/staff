@@ -460,6 +460,10 @@ namespace staff
         // axiom handle CDATA as TEXT?
         break;
       }
+      
+      default:
+      {
+      }
     }
 
     return pNodeOut;
