@@ -1105,7 +1105,8 @@ namespace staff
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    CNamespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    return tNs;
   }
 
   void CDataObject::DeclareDefaultNamespace(const std::string& sUri)
@@ -1118,7 +1119,8 @@ namespace staff
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    CNamespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    return tNs;
   }
 
   void CDataObject::DeclareNamespace(CNamespace& rNamespace)
@@ -1141,36 +1143,41 @@ namespace staff
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL);
+    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL));
+    return tNs;
   }
 
   CNamespace CDataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str());
+    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str()));
+    return tNs;
   }
 
   CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri)
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL);
+    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL));
+    return tNs;
   }
 
   CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str());
+    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str()));
+    return tNs;
   }
 
   CNamespace CDataObject::FindNamespaceUri(const std::string& sPrefix) const
   {
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
-    return axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv, 
-      const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode);
+    CNamespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv, 
+      const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
+    return tNs;
   }
 
 

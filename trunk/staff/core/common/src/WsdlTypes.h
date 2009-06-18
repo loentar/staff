@@ -8,8 +8,8 @@ namespace staff
   /* primitive types */
   using std::string;
   typedef bool boolean;
-  typedef float float;
-  typedef double double;
+//  typedef float float;
+//  typedef double double;
   typedef double decimal;
   typedef string duration;
   typedef string dateTime;
@@ -42,9 +42,9 @@ namespace staff
   typedef int integer;
   typedef int nonPositiveInteger;
   typedef int negativeInteger;
-  typedef long long;
-  typedef int int;
-  typedef short short;
+//  typedef long long;
+//  typedef int int;
+//  typedef short short;
   typedef char byte;
   typedef unsigned int nonNegativeInteger;
   typedef unsigned long unsignedLong;

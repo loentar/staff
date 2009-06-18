@@ -837,7 +837,7 @@ private:
       stTempl.sName = rElement.sType;
       stTempl.sNodeName = rElement.sName;
 
-      rDataType.sName = "Array";
+      rDataType.sName = "staff::Array";
       rDataType.eType = SDataType::ETemplate;
       rDataType.lsParams.push_back(stTempl);
     }

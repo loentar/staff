@@ -105,6 +105,9 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
 #else
+#ifeq($(Param.DataType.Name),staff::string)
+  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
+#else
 #ifeq($(Param.DataType.Name),std::string)
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
@@ -112,6 +115,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -229,7 +233,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)
     tKey = (*it)["Key"].AsString();
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),staff::string)
+    tKey = (*it)["Key"].AsString();
+#else
     tKey = (*it)["Key"];
+#ifeqend
 #ifeqend
 #else
     (*it)("Key") >> tKey;
@@ -238,7 +246,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),std::string)
     tValue = (*it)["Value"].AsString();
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),staff::string)
+    tValue = (*it)["Value"].AsString();
+#else
     tValue = (*it)["Value"];
+#ifeqend
 #ifeqend
 #else
     (*it)("Value") >> tValue;
@@ -249,7 +261,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)    // !!string!!
     tItem = it->GetText();
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),staff::string)    // !!string!!
+    tItem = it->GetText();
+#else
     tItem = it->GetValue();
+#ifeqend
 #ifeqend
 #else
     *it >> tItem;

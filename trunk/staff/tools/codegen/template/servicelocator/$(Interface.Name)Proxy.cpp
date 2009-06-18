@@ -84,6 +84,9 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
 #else
+#ifeq($(Param.DataType.Name),staff::string)
+  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
+#else
 #ifeq($(Param.DataType.Name),std::string)
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
@@ -91,6 +94,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

@@ -89,13 +89,18 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+  CDataObject tdoParam$(Param.Name) = rdoParam("$(Param.Name)");
+  tdoParam$(Param.Name) >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+  CDataObject tdoParam$(Param.Name) = rdoParam("$(Param.Name)");
+  tdoParam$(Param.Name) >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
+#else
+#ifeq($(Param.DataType.Name),staff::string)
+  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
 #ifeq($(Param.DataType.Name),std::string)
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
@@ -104,6 +109,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
 #else
   rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
