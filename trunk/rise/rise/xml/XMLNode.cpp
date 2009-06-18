@@ -823,7 +823,7 @@ namespace rise
       rStream.SkipWhitespace();
       ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
         rStream.GetFileName(), rStream.GetLine());
-      if (rStream.Test("!--"))  // !!!! комментарий перед корневым узлом
+      while(rStream.Test("!--"))  // !!!! комментарий перед корневым узлом
       {
         rStream.ReadStringUntil(sTmp, "-->");
         rStream.SkipWhitespace();

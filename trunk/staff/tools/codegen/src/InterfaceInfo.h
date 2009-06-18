@@ -5,84 +5,101 @@
 #include <string>
 #include <list>
 
-//! тип данных
+//! data type
 struct SDataType 
 {
-  enum EDataType  //! тип данных
+  enum EDataType  //! data type enum
   {
-    EUnknown,     //!<  неизвестный
-    EGeneric,     //!<  встроеннный(поддерживаемый staff)
-    EDataObject,  //!<  обьект данных
-    EStruct,      //!<  структура
-    ETypedef,     //!<  обьявление типа
-    ETemplate     //!<  шаблон
+    EUnknown,     //!<  unknown
+    EGeneric,     //!<  generic(supported by staff)
+    EDataObject,  //!<  DataObject
+    EStruct,      //!<  struct
+    ETypedef,     //!<  typedef
+    ETemplate     //!<  template container (list, map, etc)
   };
 
-  bool                    bIsConst;    //!<  объявлен как const
-  bool                    bIsRef;      //!<  объявлен как ссылка
-  EDataType               eType;       //!<  тип данных
-  std::string             sName;       //!<  имя типа
+  bool                    bIsConst;    //!<  const type
+  bool                    bIsRef;      //!<  reference type
+  EDataType               eType;       //!<  data type enum
+  std::string             sNodeName;   //!<  SOAP node name
+  std::string             sName;       //!<  type name (int, string, etc.)
   std::string             sNamespace;  //!<  namespace
-  std::list<SDataType>    lsParams;    //!<  шаблонные параметры
+  std::list<SDataType>    lsParams;    //!<  template parameters
+
+  //! default constructor
+  /* non-const, not a ref, Generic datatype */
+  SDataType();
+
+  //! copy operator
+  SDataType& operator=(const SDataType& stDataType);
 };
 
-//!  параметр
-struct SParam 
+//!  parameter
+struct SParam
 {
-  SDataType    stDataType;  //!<  тип данных параметра
-  std::string  sName;       //!<  название переменной
+  SDataType    stDataType;  //!<  param data type
+  std::string  sName;       //!<  param name
+
+  SParam& operator=(const SParam& rParam);
 };
 
-//! функция
+//!  service operation
 struct SMember
 {
-  SDataType          stReturn;    //!<  возвращаемое значение
-  std::string        sName;       //!<  имя функции
-  std::list<SParam>  lsParamList; //!<  список параметров
-  bool               bIsConst;    //!<  объявлен как const
+  SDataType          stReturn;    //!<  return type
+  std::string        sName;       //!<  operation name
+  std::list<SParam>  lsParamList; //!<  parameters
+  bool               bIsConst;    //!<  operation is const
+  std::string        sDescr;      //!<  operation description
+  SMember();
 };
 
-//! класс
+//! service class
 struct SClass
 {
-  std::string         sName;          //!<  имя класса
+  std::string         sName;          //!<  class name
   std::string         sNamespace;     //!<  namespace
-  std::list<SMember>  lsMember;       //!<  список функций
+  std::string         sDescr;         //!<  service description
+  std::list<SMember>  lsMember;       //!<  service operations
 };
 
-//! структура
+//! struct
 struct SStruct
 {
-  std::string         sName;          //!<  имя структуры
+  std::string         sName;          //!<  struct name
   std::string         sNamespace;     //!<  namespace
-  std::list<SParam>   lsMember;       //!<  список свойств
+  std::string         sParent;        //!<  parent struct(inherits)
+  std::list<SParam>   lsMember;       //!<  struct fields
+  bool                bForward;       //!<  is forward declaration
+  
+  SStruct();
 };
 
-//! тип данных
+//! typedef
 struct STypedef
 {
-  std::string         sName;          //!<  имя типа
+  std::string         sName;          //!<  typedef name
   std::string         sNamespace;     //!<  namespace
-  SDataType           stDataType;     //!<  тип данных
+  SDataType           stDataType;     //!<  base data type
 };
 
-//! интерфейс
+//! service interface
 struct SInterface
 {
-  std::string           sName;          //!<  имя интерфейса, базирован на имени заголовочного файла
-  std::string           sFileName;      //!<  имя заголовочного файла, в котором обьявлен интерфейс
-  std::list<STypedef>   lsTypedef;      //!<  список типов данных
-  std::list<SStruct>    lsStruct;       //!<  список структур
-  std::list<SClass>     lsClass;        //!<  список классов
+  std::string           sName;          //!<  interface name, based on input filename
+  std::string           sFileName;      //!<  input filename
+  std::list<STypedef>   lsTypedef;      //!<  typedef list
+  std::list<SStruct>    lsStruct;       //!<  struct list
+  std::list<SClass>     lsClass;        //!<  service classes list
 };
 
-//! проект
+//! project
 struct SProject
 {
-  std::string            sName;         //!<  имя проекта
-  std::string            sInDir;        //!<  входной каталог
-  std::string            sOutDir;       //!<  выходной каталог
-  std::list<SInterface>  lsInterfaces;  //!<  список интерфейсов
+  std::string            sName;         //!<  project name
+  std::string            sInDir;        //!<  input dir
+  std::string            sOutDir;       //!<  output dir
+  std::list<SInterface>  lsInterfaces;  //!<  interface list
 };
 
 std::istream& operator>>(std::istream& rStream, SDataType& rDataType);

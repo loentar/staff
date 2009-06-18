@@ -2,7 +2,7 @@
 #define _OPERATION_H_
 
 #include "staffcommonexport.h"
-#include <rise/string/String.h>
+#include <string>
 #include "DataObject.h"
 
 namespace staff
@@ -14,7 +14,7 @@ namespace staff
   {
   public:
     //!        конструктор по умолчанию
-    COperation(const rise::CString& sName = "");
+    COperation(const std::string& sName = "", const std::string& sResponseName = "");
 
     //!        деструктор
     virtual ~COperation();
@@ -22,18 +22,28 @@ namespace staff
     //!         установить имя операции
     /*! \param  sName - имя операции
         */
-    void SetName(const rise::CString& sName);
+    void SetName(const std::string& sName);
 
     //!         получить имя операции
     /*! \return имя операции
     */
-    const rise::CString GetName() const;
+    const std::string GetName() const;
+
+    //!         установить имя ответа
+    /*! \param  sName - имя операции
+        */
+    void SetResponseName(const std::string& sResponseName);
+
+    //!         получить имя ответа
+    /*! \return имя операции
+    */
+    const std::string GetResponseName() const;
 
     //!         добавить параметр
     /*! \param  sName - имя
         \param  tValue - значение
         */
-    void AddParameter(const rise::CString& sName, const CValue& tValue);
+    void AddParameter(const std::string& sName, const CValue& tValue);
     
     //!         добавить параметр как обьект данных
     /*! \param  rDataObject - обьект данных
@@ -83,22 +93,22 @@ namespace staff
     //!         получить полное описание ошибки
     /*! \return описание ошибки, если ошибки нет - пустая строка
         */
-    rise::CString GetFaultString() const;
+    std::string GetFaultString() const;
 
     //!         получить причину ошибки
     /*! \return причина ошибки, если ошибки нет - пустая строка
     */
-    rise::CString GetFaultReason() const;
+    std::string GetFaultReason() const;
 
     //!         получить код ошибки
     /*! \return код ошибки, если ошибки нет - пустая строка
         */
-    rise::CString GetFaultCode() const;
+    std::string GetFaultCode() const;
 
     //!         получить подробное описание ошибки
     /*! \return подробное описание ошибки, если ошибки нет - пустая строка
     */
-    rise::CString GetFaultDetail() const;
+    std::string GetFaultDetail() const;
 
     //!         получить ошибку
     /*! \return ошибка
@@ -110,7 +120,7 @@ namespace staff
         \param  sFaultDetail - описание ошибки
         \param  sFaultCode - код ошибки
         */
-    void SetFault(const rise::CString& sReason, const rise::CString& sFaultDetail = "", const rise::CString& sFaultCode = "");
+    void SetFault(const std::string& sReason, const std::string& sFaultDetail = "", const std::string& sFaultCode = "");
 
     //!         установить/снять признак результата-ошибки
     void ResetFault();

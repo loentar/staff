@@ -8,6 +8,7 @@
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
 #include "InterfaceInfo.h"
+#include "WsdlParser.h"
 #include "CodeGen.h"
 #include "XmlGen.h"
 
@@ -39,6 +40,7 @@ int main(int nArgs, const char* szArgs[])
   std::string sTemplate;
   bool bGenXml = false;
   bool bUpdateOnly = false;
+  bool bSourceIsWsdl = false;
 
 
   if(szStaffHome == NULL)
@@ -96,6 +98,10 @@ int main(int nArgs, const char* szArgs[])
 //        bVerbosity = true;
 //        break;
 
+      case 'w':
+        bSourceIsWsdl = true;
+        break;
+
       default:
         std::cerr << "unrecognized option: " << szArgs[i];
         return 1;
@@ -109,50 +115,68 @@ int main(int nArgs, const char* szArgs[])
 
   try
   {
-    for (std::list<std::string>::const_iterator it = lsFiles.begin(); it != lsFiles.end(); ++it)
+    if (bSourceIsWsdl)
     {
-      std::string sFileName = stProject.sInDir + "/" + *it;
-      std::ifstream isFile;
-      SInterface stInterface;
-
-      isFile.open(sFileName.c_str());
-      if(isFile.good())
+      for (std::list<std::string>::const_iterator itFileName = lsFiles.begin(); itFileName != lsFiles.end(); ++itFileName)
       {
-        ResetLine();
-        stInterface.sFileName = *it;
-        try
-        {
-          isFile >> stInterface;
-          isFile.close();
-        }
-        catch (const std::string& sEx)
-        {
-          std::stringbuf sbData;
-          isFile.get(sbData, '\n');
-          isFile.ignore();
-          isFile.get(sbData, '\n');
+        std::string sFileName = stProject.sInDir + "/" + *itFileName;
+        std::ifstream isFile;
+        SInterface stInterface;
 
-          isFile.close();
-          
-          throw sEx + ": before line\n" + sbData.str() + "\n";
-        }
-        catch (const char* szEx)
-        {
-          std::stringbuf sbData;
-          isFile.get(sbData, '\n');
-          isFile.ignore();
-          isFile.get(sbData, '\n');
+        std::cout << "Processing wsdl: " << *itFileName << std::endl;
 
-          isFile.close();
+        CWsdlParser::Inst().Parse(*itFileName, stInterface);
 
-          throw std::string(szEx) + ": before line\n" + sbData.str() + "\n";
-        }
-
-        //std::cout << stInterface;
         stProject.lsInterfaces.push_back(stInterface);
-      } else
+      }
+    }
+    else
+    {
+      for (std::list<std::string>::const_iterator it = lsFiles.begin(); it != lsFiles.end(); ++it)
       {
-        throw std::string("can't open file: ") + *it + ": " + std::string(strerror(errno));
+        std::string sFileName = stProject.sInDir + "/" + *it;
+        std::ifstream isFile;
+        SInterface stInterface;
+
+        isFile.open(sFileName.c_str());
+        if(isFile.good())
+        {
+          ResetLine();
+          stInterface.sFileName = *it;
+          try
+          {
+            isFile >> stInterface;
+            isFile.close();
+          }
+          catch (const std::string& sEx)
+          {
+            std::stringbuf sbData;
+            isFile.get(sbData, '\n');
+            isFile.ignore();
+            isFile.get(sbData, '\n');
+
+            isFile.close();
+
+            throw sEx + ": before line\n" + sbData.str() + "\n";
+          }
+          catch (const char* szEx)
+          {
+            std::stringbuf sbData;
+            isFile.get(sbData, '\n');
+            isFile.ignore();
+            isFile.get(sbData, '\n');
+
+            isFile.close();
+
+            throw std::string(szEx) + ": before line\n" + sbData.str() + "\n";
+          }
+
+          //std::cout << stInterface;
+          stProject.lsInterfaces.push_back(stInterface);
+        } else
+        {
+          throw std::string("can't open file: ") + *it + ": " + std::string(strerror(errno));
+        }
       }
     }
 
@@ -160,7 +184,7 @@ int main(int nArgs, const char* szArgs[])
 
     if (bGenXml)
     {
-      tDoc.GetDecl().m_sEncoding = "koi8-r";
+      tDoc.GetDecl().m_sEncoding = "utf-8";
       tDoc.SaveToFile(stProject.sOutDir + "/" + stProject.sName + ".xml");
     }
 
@@ -184,7 +208,7 @@ int main(int nArgs, const char* szArgs[])
   }
   catch(const rise::CException& rEx)
   {
-    std::cerr << "ERROR: " << rEx.GetDescr() << std::endl << std::endl;
+    std::cerr << "ERROR: " << rEx.GetString() << std::endl << std::endl;
     return 1;
   }
 

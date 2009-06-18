@@ -4,6 +4,7 @@ set deploydir=%cd%\..\deploy\win32
 set componentdir=%deploydir%\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%
+if not EXIST %STAFF_HOME%\components\%projectname% mkdir %STAFF_HOME%\components\%projectname%
 
 echo "debug\*.dll => %componentdir%"
 xcopy /Y /S debug\*.dll %componentdir%

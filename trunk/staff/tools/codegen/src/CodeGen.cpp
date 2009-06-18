@@ -261,7 +261,6 @@ public:
       if(itNode->NodeType() == CXMLNode::ENTGENERIC)
       {
         std::istringstream ssStream(sLines);
-//        const CXMLNode& rProcessNode = *itNode;
         Process(ssStream, fsOut, *itNode);
       }
   }
@@ -347,12 +346,6 @@ public:
       stat(sIn.c_str(), &stIn);
       int nResOut = stat(sOut.c_str(), &stOut);
 
-      // ОПНОСЯЙ ЦЕМЕПЮЖХХ ЙНЦДЮ
-      // 1) ДХМЮЛХВЕЯЙХИ:
-      //    - ДЮРЮ ХМРЕПТЕИЯЮ ОНГФЕ ЬЮАКНМЮ Х РЕЙСЫЕЦН ПЕГСКЭРХПСЧЫЕЦН ТЮИКЮ
-      // 2) ЯРЮРХВЕЯЙХИ
-      //    - ДЮРЮ ЬЮАКНМЮ ОНГФЕ РЕЙСЫЕЦН ПЕГСКЭРХПСЧЫЕЦН ТЮИКЮ ХКХ СЯРЮМНБКЕМ ТКЮЦ bNeedUpdate
-
       if (bIsStaticTemplate)
       {
         if (!bNeedUpdate && nResOut == 0 && stOut.st_mtime > stIn.st_mtime)
@@ -375,7 +368,7 @@ public:
           }
           else
           {
-            bNeedUpdate = true; // МСФМН НАМНБХРЭ ЯРЮРХВЕЯЙХИ ЬЮАКНМ
+            bNeedUpdate = true;
           }
         }
       }

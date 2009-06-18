@@ -344,7 +344,7 @@ namespace rise
         {
           ReadChar();
           ch = PeekChar();
-          if ( !(ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9') )
+          if ( !(ch == '_' || ch == '-' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9') )
           {
             if (ch != ':')
               break;

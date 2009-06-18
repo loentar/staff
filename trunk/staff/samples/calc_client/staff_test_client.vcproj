@@ -31,7 +31,7 @@
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="cd src&#x0D;&#x0A;staff_codegen -tclient -u CalcService.h&#x0D;&#x0A;"
+				CommandLine="cd src&#x0D;&#x0A;staff_codegen -tclient -u CalcService.h -x&#x0D;&#x0A;"
 				ExecutionBucket="2"
 			/>
 			<Tool
@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="5"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;D:\dem\devel\rise\;../../deploy/win32/include"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;../../../rise/deploy/win32/include;../../deploy/win32/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -76,7 +76,7 @@
 				ExecutionBucket="9"
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib staff_common.lib staff_client.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;..\..\deploy\win32\lib\"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;..\..\..\rise\deploy\win32\lib\;..\..\deploy\win32\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
