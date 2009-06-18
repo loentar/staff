@@ -43,6 +43,13 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #foreach $(Interface.Structs)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // serialize parent struct
+  rdoParam << static_cast<const $(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
   CDataObject rdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
@@ -76,6 +83,13 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #foreach $(Interface.Structs)
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // deserialize parent struct
+  rdoParam >> static_cast<$(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
   rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
@@ -136,7 +150,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  rdoParam.Value() = rtType;
+  rdoParam.SetValue(rtType);
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -199,7 +213,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeqend
 
 #ifeq($(Typedef.DataType.Type),generic)
-    rtType.push_back(it->Value());
+    rtType.push_back(it->GetValue());
 #else
 #ifeq($(Typedef.DataType.Type),dataobject)
     rtType.push_back(*(it->Begin()));
@@ -220,7 +234,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
     (*it)("Key") >> tKey;
 #ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),std::string)
+    tValue = (*it)["Value"].AsString();
+#else
     tValue = (*it)["Value"];
+#ifeqend
 #else
     (*it)("Value") >> tValue;
 #ifeqend
@@ -228,9 +246,9 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #else // ----------------------- list, vector, etc.
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)    // !!string!!
-    tItem = it->Value().AsString();
+    tItem = it->GetText();
 #else
-    tItem = it->Value();
+    tItem = it->GetValue();
 #ifeqend
 #else
     *it >> tItem;
@@ -248,7 +266,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #else // !!DataType.IsTemplate!!
 // not container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  rtType = rdoParam.Value();
+  rtType = rdoParam.GetValue();
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 

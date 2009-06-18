@@ -192,6 +192,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\WsdlParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\XmlGen.cpp"
 				>
 			</File>
@@ -207,6 +211,10 @@
 			</File>
 			<File
 				RelativePath=".\src\InterfaceInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\WsdlParser.h"
 				>
 			</File>
 			<File

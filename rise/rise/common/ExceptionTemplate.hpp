@@ -45,8 +45,18 @@ namespace rise
     m_sExpr = sExpr;
     m_sObject = sObject;
     
-    const char* szStackTracingEnv = getenv("RISE_EXCEPTION_STACKTRACING");
+    char* szStackTracingEnv = NULL;
+#ifdef WIN32
+    _dupenv_s(&szStackTracingEnv, NULL, "RISE_EXCEPTION_STACKTRACING");
+#else
+    szStackTracingEnv = getenv("RISE_EXCEPTION_STACKTRACING");
+#endif
     m_bStackTracing = szStackTracingEnv != NULL && ((!strcmp(szStackTracingEnv, "1") || !strcmp(szStackTracingEnv, "TRUE")));
+
+#ifdef WIN32
+    free(szStackTracingEnv);
+#endif
+
     if (m_bStackTracing)
     {
       rise::LogWarning() << "Exception at " << sFile << "[" << nLine << "]: " << sFunction << ": " << sDescr << " (" << sExpr << "/" << sObject << ")";

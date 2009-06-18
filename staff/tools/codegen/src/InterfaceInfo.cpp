@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <rise/common/Log.h>
+#include <rise/common/exmacros.h>
+#include <rise/common/ExceptionTemplate.h>
 #include "InterfaceInfo.h"
 
 std::string g_sCurrentNamespace = "::";
@@ -11,10 +14,11 @@ SInterface& Interface(SInterface* pInterface = NULL)
 {
   static SInterface* pCurrentInterface = NULL;
   if (pInterface != NULL)
+  {
     pCurrentInterface = pInterface;
+  }
 
-  if (pCurrentInterface == NULL)
-    throw "(pCurrentInterface == NULL)";
+  RISE_ASSERTS(pCurrentInterface != NULL, "(pCurrentInterface == NULL)");
 
   return *pCurrentInterface;
 }
@@ -23,7 +27,10 @@ template<typename TType>
 std::ostream& operator<<(std::ostream& rStream, const std::list<TType>& rList)
 {
   for(typename std::list<TType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+  {
     rStream << *it;
+  }
+
   return rStream;
 }
 
@@ -34,7 +41,9 @@ std::istream& SkipWs(std::istream& rStream)
   {
     chData = rStream.peek();
     if (chData == '\n')
+    {
       ++GetLine();
+    }
 
     if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
     {
@@ -69,10 +78,33 @@ std::istream& SkipWs(std::istream& rStream)
   return rStream;
 }
 
+std::istream& SkipWsOnly(std::istream& rStream)
+{
+  char chData = 0;
+  while (rStream.good() && !rStream.eof())
+  {
+    chData = rStream.peek();
+    if (chData == '\n')
+    {
+      ++GetLine();
+    }
+
+    if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
+    {
+      break;
+    }
+    rStream.ignore();
+  }
+
+  return rStream;
+}
+
 void ReadStr(std::istream& rStream, std::string& sString, bool bSkipWS = true)
 {
   if (bSkipWS)
+  {
     rStream >> SkipWs;
+  }
   rStream >> sString;
 }
 
@@ -86,12 +118,54 @@ std::istream& ReadBefore(std::istream& rStream, std::string& sOut, const std::st
   {
     chData = rStream.peek();
     if(sDelim.find(chData) != std::string::npos)
+    {
       break;
+    }
+
     sOut += chData;
     rStream.ignore();
   }
 
   return rStream;
+}
+
+bool ReadComment(std::istream& rStream, std::string& sComment)
+{
+  char chData = '\0';
+
+  sComment.erase();
+
+  if (rStream.peek() == '/')
+  {
+    rStream.get(chData);
+    if (rStream.peek() == '*')
+    {
+      std::string sTmp;
+
+      rStream.ignore();
+      while (rStream.good() && !rStream.eof())
+      {
+        ReadBefore(rStream, sTmp, "*");
+        sComment += sTmp;
+        rStream.get(chData);
+        if(chData == '*')
+        {
+          if (rStream.peek() == '/')
+          {
+            rStream.ignore();
+            break;
+          }
+          sComment += chData;
+        }
+      }
+    }
+    else
+    {
+      rStream.unget();
+    }
+  }
+
+  return sComment.size() != 0;
 }
 
 template<typename TStructType>
@@ -135,7 +209,6 @@ bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDat
   return false;
 }
 
-
 void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
 {
   std::string::size_type nPos = sDataTypeName.find_last_of("::");
@@ -156,7 +229,9 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
     rDataType.eType = SDataType::EDataObject;
   }
   else
-  if (sDataTypeName == "bool" ||
+  if (
+      //C++ types
+      sDataTypeName == "bool" ||
       sDataTypeName == "char" ||
       sDataTypeName == "int" ||
       sDataTypeName == "short" ||
@@ -164,13 +239,13 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
       sDataTypeName == "float" ||
       sDataTypeName == "double" ||
       sDataTypeName == "void" ||
-      
+
       sDataTypeName == "std::string" ||
       sDataTypeName == "std::wstring" ||
+
       sDataTypeName == "rise::CString" ||
       sDataTypeName == "rise::CStringA" ||
       sDataTypeName == "rise::CStringW" ||
-
       sDataTypeName == "rise::byte" ||
       sDataTypeName == "rise::word" ||
       sDataTypeName == "rise::ushort" ||
@@ -179,8 +254,56 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
       sDataTypeName == "rise::uint" ||
       sDataTypeName == "rise::TSize" ||
 
-      sDataTypeName == "staff::CValue"
-      )
+      sDataTypeName == "staff::CValue" ||
+
+      // XML types"
+      sDataTypeName == "staff::string" ||
+      sDataTypeName == "staff::boolean" ||
+      sDataTypeName == "staff::float" ||
+      sDataTypeName == "staff::double" ||
+      sDataTypeName == "staff::decimal" ||
+      sDataTypeName == "staff::duration" ||
+      sDataTypeName == "staff::dateTime" ||
+      sDataTypeName == "staff::time" ||
+
+      sDataTypeName == "staff::date" ||
+      sDataTypeName == "staff::gYearMonth" ||
+      sDataTypeName == "staff::gYear" ||
+      sDataTypeName == "staff::gMonthDay" ||
+      sDataTypeName == "staff::gDay" ||
+      sDataTypeName == "staff::gMonth" ||
+      sDataTypeName == "staff::hexBinary" ||
+      sDataTypeName == "staff::base64Binary" ||
+      sDataTypeName == "staff::anyURI" ||
+      sDataTypeName == "staff::QName" ||
+      sDataTypeName == "staff::NOTATION" ||
+
+      sDataTypeName == "staff::normalizedString" ||
+      sDataTypeName == "staff::token" ||
+      sDataTypeName == "staff::language" ||
+      sDataTypeName == "staff::IDREFS" ||
+      sDataTypeName == "staff::ENTITIES" ||
+      sDataTypeName == "staff::NMTOKEN" ||
+      sDataTypeName == "staff::NMTOKENS" ||
+      sDataTypeName == "staff::Name" ||
+      sDataTypeName == "staff::NCName" ||
+      sDataTypeName == "staff::ID" ||
+      sDataTypeName == "staff::IDREF" ||
+      sDataTypeName == "staff::ENTITY" ||
+      sDataTypeName == "staff::integer" ||
+      sDataTypeName == "staff::nonPositiveInteger" ||
+      sDataTypeName == "staff::negativeInteger" ||
+      sDataTypeName == "staff::long" ||
+      sDataTypeName == "staff::int" ||
+      sDataTypeName == "staff::short" ||
+      sDataTypeName == "staff::byte" ||
+      sDataTypeName == "staff::nonNegativeInteger" ||
+      sDataTypeName == "staff::unsignedLong" ||
+      sDataTypeName == "staff::unsignedInt" ||
+      sDataTypeName == "staff::unsignedShort" ||
+      sDataTypeName == "staff::unsignedByte" ||
+      sDataTypeName == "staff::positiveInteger"
+    )
   {
     rDataType.eType = SDataType::EGeneric;
   }
@@ -319,7 +442,7 @@ std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
 
   if (rDataType.bIsRef && !rDataType.bIsConst)
   {
-    std::cerr << "Warning: Non-const reference to " << rDataType.sName << " at line " << GetLine() << " \n(return value cannot be passed over argument)"<< std::endl;
+    rise::LogWarning() << "Non-const reference to " << rDataType.sName << " at line " << GetLine() << " \n(return value cannot be passed over argument)";
   }
 
   return rStream;
@@ -348,10 +471,23 @@ std::istream& operator>>( std::istream& rStream, SMember& rMember )
   if (rMember.stReturn.bIsRef)
     throw "return value cannot be reference";
 
+  rStream >> SkipWsOnly;
+  ReadComment(rStream, sTmp);
+
   rStream >> SkipWs;
+
   rStream.get(tStreamBuff, '('); // parameters begin
 
   rMember.sName = tStreamBuff.str();
+
+  if (sTmp.size() != 0)
+  {
+    rMember.stReturn.sNodeName = sTmp;
+  }
+  else
+  {
+    rMember.stReturn.sNodeName = rMember.sName + "Result";
+  }
 
   rStream >> SkipWs >> chData;
   if (chData != '(')
@@ -438,7 +574,9 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
     {
     } else
     if (sTmp == "private:" || sTmp == "protected:")
-      std::cerr << "warn: all members of interface class must be only public!" << std::endl;
+    {
+      rise::LogWarning() << "all members of interface class must be only public!";
+    }
     else
     if (sTmp.substr(0, rClass.sName.size()) == rClass.sName)   // constructor-ignore it
     {
@@ -489,22 +627,56 @@ std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
   SParam stParamTmp;
 
   rStream >> SkipWs;
-  ReadBefore(rStream, rStruct.sName);
+  ReadBefore(rStream, rStruct.sName, " \r\n\t:;{}");
   rStruct.sNamespace = g_sCurrentNamespace;
   if(rStream.eof())
+  {
     throw "unexpected EOF(after struct name): " + rStruct.sName;
+  }
+
   ReadStr(rStream, sTmp);
   if(rStream.eof())
-    throw "unexpected EOF(after structname and '{'): " + rStruct.sName;
+  {
+    throw "unexpected EOF(after structname): " + rStruct.sName;
+  }
 
   if (sTmp == ";")
   {
     rStream.unget();
     return rStream;
   }
+
+  if (sTmp == ":")
+  { // inheritance
+    ReadStr(rStream, sTmp);
+    if(rStream.eof())
+    {
+      throw "unexpected EOF(after structname and inheritance sign): " + rStruct.sName;
+    }
+
+    if (sTmp != "public")
+    {
+      rise::LogWarning() << "non-public inheritance: " << rStruct.sName << " => " << sTmp;
+    }
+    else
+    {
+      ReadStr(rStream, sTmp);
+      if(rStream.eof())
+      {
+        throw "unexpected EOF(while reading parent struct name): " + rStruct.sName;
+      }
+    }
+    
+    rStruct.sParent = sTmp;
+    ReadStr(rStream, sTmp);
+  }
+
+  rStruct.bForward = false;
   
   if (sTmp != "{")
+  {
     throw "'{' or ';' after structname expected: " + rStruct.sName;
+  }
 
   while (rStream.good() && !rStream.eof())
   {
@@ -597,10 +769,35 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     rStream >> stStruct;
 
     // check for forward declaration
-    if(stStruct.lsMember.size() != 0)
+    std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
+    for (; itStruct != rInterface.lsStruct.end(); ++itStruct)
+    {
+      if (itStruct->sName == stStruct.sName)
+      {
+        break;
+      }
+    }
+
+    if (itStruct == rInterface.lsStruct.end())
     {
       rInterface.lsStruct.push_back(stStruct);
     }
+    else
+    {
+      if (!stStruct.bForward)
+      {
+        if (itStruct->bForward)
+        {
+          *itStruct = stStruct;
+        }
+        else
+        {
+          throw "Duplicating struct " + stStruct.sName;
+        }
+      }
+    }
+    
+
 
     rStream >> SkipWs >> chData;
     if (chData != ';')
@@ -758,7 +955,7 @@ void ParseHeader( std::istream& rStream, SInterface& rInterface )
           }
           else
           {
-            std::cerr << "Warning: cannot include file \"" << sFileName << "\".";
+            rise::LogWarning() << "cannot include file \"" << sFileName << "\".";
           }
         }
       }
@@ -861,4 +1058,41 @@ std::ostream& operator<<( std::ostream& rStream, const SDataType::EDataType eDat
   }
 
   return rStream;
+}
+
+SDataType::SDataType():
+  bIsConst(false), bIsRef(false), eType(EGeneric)
+{
+
+}
+
+SDataType& SDataType::operator=(const SDataType& stDataType)
+{
+  bIsConst = stDataType.bIsConst;
+  bIsRef = stDataType.bIsRef;
+  eType = stDataType.eType;
+  sName = stDataType.sName;
+  sNodeName = stDataType.sNodeName;
+  sNamespace = stDataType.sNamespace;
+  lsParams = stDataType.lsParams;
+
+  return *this;
+}
+
+SParam& SParam::operator=(const SParam& rParam)
+{
+  stDataType = rParam.stDataType;
+  sName = rParam.sName;
+  return *this;
+}
+
+SStruct::SStruct():
+  bForward(true)
+{
+}
+
+SMember::SMember():
+  bIsConst(false)
+{
+
 }

@@ -42,6 +42,13 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #foreach $(Interface.Structs)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // serialize parent struct
+  rdoParam << static_cast<const $(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
   CDataObject tdoParam$(Param.Name)("$(Param.Name)");
 #ifeq($(Param.DataType.Type),struct)
@@ -73,6 +80,13 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #foreach $(Interface.Structs)
 CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // deserialize parent struct
+  rdoParam >> static_cast<$(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
   rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
@@ -279,7 +293,7 @@ void $(Class.Name)Proxy::Init( const rise::CString& sSessionId, const rise::CStr
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
-  staff::COperation tOperation("$(Member.Name)");
+  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.NodeName)");
 #foreach $(Member.Params)
   staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!

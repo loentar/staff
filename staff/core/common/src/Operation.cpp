@@ -4,8 +4,8 @@
 
 namespace staff
 {
-  COperation::COperation(const rise::CString& sName):
-    m_tdoRequest(sName), m_tdoResult(sName + "Result")
+  COperation::COperation(const std::string& sName /*= ""*/, const std::string& sResponseName /*= ""*/):
+    m_tdoRequest(sName), m_tdoResult(sResponseName)
   {
   }
 
@@ -13,18 +13,27 @@ namespace staff
   {
   }
 
-  void COperation::SetName( const rise::CString& sName )
+  void COperation::SetName( const std::string& sName )
   {
     m_tdoRequest.SetLocalName(sName);
-    m_tdoResult.SetLocalName(sName + "Result");
   }
 
-  const rise::CString COperation::GetName() const
+  const std::string COperation::GetName() const
   {
     return m_tdoRequest.GetLocalName();
   }
 
-  void COperation::AddParameter( const rise::CString& sName, const CValue& tValue )
+  void COperation::SetResponseName( const std::string& sResponseName )
+  {
+    m_tdoResult.SetLocalName(sResponseName);
+  }
+
+  const std::string COperation::GetResponseName() const
+  {
+    return m_tdoRequest.GetLocalName();
+  }
+
+  void COperation::AddParameter( const std::string& sName, const CValue& tValue )
   {
     CDataObject tParam(sName);
     tParam.Value() = tValue;
@@ -81,15 +90,11 @@ namespace staff
     return Result().GetLocalName() == "Fault";
   }
 
-  void COperation::SetFault( const rise::CString& sReason, const rise::CString& sFaultDetail /*= ""*/, const rise::CString& sFaultCode /*= ""*/ )
+  void COperation::SetFault( const std::string& sReason, const std::string& sFaultDetail /*= ""*/, const std::string& sFaultCode /*= ""*/ )
   {
     CDataObject& rFault = Result();
 
     rFault.SetLocalName("Fault");
-
-//     rFault.CreateChildOnce("faultstring").Value() = sReason;
-//     rFault.CreateChildOnce("faultcode").Value() = sFaultCode;
-//     rFault.CreateChildOnce("detail").CreateChildOnce("Exception").Value() = sFaultDetail;
     rFault.CreateChildOnce("Reason").CreateChildOnce("Text").Value() = sReason;
     rFault.CreateChildOnce("Code").CreateChildOnce("Value").Value() = sFaultCode;
     rFault.CreateChildOnce("Detail").CreateChildOnce("Exception").Value() = sFaultDetail;
@@ -111,80 +116,98 @@ namespace staff
     Result().SetLocalName("Fault");
   }
 
-  rise::CString COperation::GetFaultString() const
+  std::string COperation::GetFaultString() const
   {
-    rise::CString sResult;
-    const rise::CString& sReason = GetFaultReason();
-    const rise::CString& sCode = GetFaultCode();
-    const rise::CString& sDetail = GetFaultDetail();
+    std::string sResult;
+    const std::string& sReason = GetFaultReason();
+    const std::string& sCode = GetFaultCode();
+    const std::string& sDetail = GetFaultDetail();
     
     if (sReason != "")
+    {
       sResult += "Reason: " + sReason + "\n";
+    }
     if (sCode != "")
+    {
       sResult += "Code: " + sCode + "\n";
+    }
     if (sDetail != "")
+    {
       sResult += "Detail: " + sDetail + "\n";
+    }
 
     return sResult;
   }
 
-  rise::CString COperation::GetFaultReason() const
+  std::string COperation::GetFaultReason() const
   {
-    static const rise::CString sEmpty = "";
+    static const std::string sEmpty = "";
 
     CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Reason");
     if (itFind == Result().End())
     {
       itFind = Result().FindChildByLocalName("faultstring");
       if (itFind == Result().End())
+      {
         return sEmpty;
+      }
 
       return itFind->GetText();
     }
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Text");
     if (itFindValue == itFind->End())
+    {
       return sEmpty;
+    }
 
     return itFindValue->GetText();
   }
 
-  rise::CString COperation::GetFaultCode() const
+  std::string COperation::GetFaultCode() const
   {
-    static const rise::CString sEmpty = "";
+    static const std::string sEmpty = "";
 
     CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Code");
     if (itFind == Result().End())
     {
       itFind = Result().FindChildByLocalName("faultcode");
       if (itFind == Result().End())
+      {
         return sEmpty;
+      }
 
       return itFind->GetText();
     } 
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Value");
     if (itFindValue == itFind->End())
+    {
       return sEmpty;
+    }
 
     return itFindValue->GetText();
   }
 
-  rise::CString COperation::GetFaultDetail() const
+  std::string COperation::GetFaultDetail() const
   {
-    static const rise::CString sEmpty = "";
+    static const std::string sEmpty = "";
 
     CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Detail");
     if (itFind == Result().End())
     {
       itFind = Result().FindChildByLocalName("detail");
       if (itFind == Result().End())
+      {
         return sEmpty;
+      }
     }
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Exception");
     if (itFindValue == itFind->End())
+    {
       return sEmpty;
+    }
 
     return itFindValue->GetText();
   }
@@ -200,8 +223,10 @@ namespace staff
 
     if (!IsFault())
     {
-      if(m_tdoResult.GetLocalName() == "Result" || m_tdoResult.GetLocalName() == "")
+      if(m_tdoResult.GetLocalName() == "")
+      {
         m_tdoResult.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
+      }
     }
 
     if (m_tdoResult.GetPrefix() == "" || m_tdoResult.GetNamespaceUri() == "")
