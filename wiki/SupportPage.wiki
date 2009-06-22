@@ -1,0 +1,6 @@
+#summary Support page
+#labels Featured,Phase-Support
+
+== Support page ==
+
+Here You can ask any questions, related to WSF Staff. Please use english or russian language.
