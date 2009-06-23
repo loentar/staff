@@ -122,6 +122,8 @@ CXMLNode& operator<<(CXMLNode& rNodeMembers, const SMember& rMember)
   rNodeMember["Name"] = rMember.sName;
   rNodeMember.AddSubNode(" Operation description ", CXMLNode::ENTCOMMENT);
   rNodeMember["Description"] = rMember.sDescr;
+  rNodeMember.AddSubNode(" Soap action ", CXMLNode::ENTCOMMENT);
+  rNodeMember["SoapAction"] = rMember.sSoapAction;
   rNodeMember.AddSubNode(" Function is non-mutable ", CXMLNode::ENTCOMMENT);
   rNodeMember["IsConst"] = rMember.bIsConst;
   rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
@@ -147,6 +149,8 @@ CXMLNode& operator<<(CXMLNode& rNodeClasses, const SClass& rClass)
   rNodeClass["Name"] = rClass.sName;
   rNodeClass.AddSubNode(" Service description ", CXMLNode::ENTCOMMENT);
   rNodeClass["Description"] = rClass.sDescr;
+  rNodeClass.AddSubNode(" Service URI ", CXMLNode::ENTCOMMENT);
+  rNodeClass["ServiceUri"] = rClass.sServiceUri;
   rNodeClass.AddSubNode(" Service class name with namespace ", CXMLNode::ENTCOMMENT);
   rNodeClass["NsName"] = rClass.sNamespace + rClass.sName;
   rNodeClass.AddSubNode(" Service name ", CXMLNode::ENTCOMMENT);

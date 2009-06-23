@@ -6,15 +6,30 @@
 
 namespace samples
 {
-  //! абстрактный класс сервиса - от него будет наследоваться реализация и прокси, на основе него генерируется упаковщик
+  //! sample service: Calculator
   class CCalculator
   {
   public:
     virtual ~CCalculator() {}
 
-    virtual rise::CString Test() const = 0;
+    //! addition
+    /*! \param nA - first operand
+        \param nB - second operand
+        \return nA + nB
+        */
     virtual int Add(int nA, int nB) = 0;
+
+    //! substraction
+    /*! \param nA - first operand
+        \param nB - second operand
+        \return nA - nB
+        */
     virtual int Sub(int nA, int nB) = 0;
+
+    //! add
+    /*! \param rDataObject - reference to dataobject, containing operands nA and nB
+        \return nA * nB
+        */
     virtual staff::CDataObject MulDO(const staff::CDataObject& rDataObject) = 0;
   };
 }

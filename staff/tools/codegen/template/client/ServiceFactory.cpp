@@ -7,15 +7,21 @@
 #end
 #include "ServiceFactory.h"
 
-void* CServiceFactory::AllocateClient( const rise::CString& sClientType, const rise::CString& sSessionId, const rise::CString& sServiceName, const rise::CString& sHostName, const rise::CString& sHostPort )
+void* CServiceFactory::AllocateClient(const std::string& sClientType, const std::string& sServiceUri, const std::string& sSessionId)
 {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
   if (sClientType == typeid($(Class.NsName)).name())
   {
-    std::auto_ptr< $(Class.NsName)Proxy > pRet(new $(Class.NsName)Proxy);
-    pRet->Init(sSessionId, sServiceName == "" ? "$(Class.ServiceNsName)" : sServiceName, sHostName, sHostPort);
-    return pRet.release();
+    std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
+    pClientProxy->Init(sServiceUri.size() != 0 ? sServiceUri : \
+#ifeq($(Class.ServiceUri),)
+"http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
+#else
+"$(Class.ServiceUri)"\
+#ifeqend
+, sSessionId);
+    return pClientProxy.release();
   } else
 #end
 #end

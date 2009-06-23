@@ -5,7 +5,7 @@
 #define _SERVICEFACTORY_H_
 
 #include <typeinfo>
-#include <rise/string/String.h>
+#include <string>
 #include <staff/security/Security.h>
 
 //! service factory
@@ -17,28 +17,24 @@ public:
 
   //!         allocate new object for work with service
   /*! example:
-      CCalculator* pCalculator = CServiceFactory::Inst().GetService<CCalculator>()
+      CCalculator* pCalculator = CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator")
 
+      \param  sServiceUri - service URI
       \param  sSessionId - session identifier
-      \param  sServiceName - service name
-      \param  sHostName - axis2c host name or IP-Address
-      \param  sHostPort - axis2c port
       \return pointer to object for work with service
       */
   template<typename TServiceClientBaseType>
-  TServiceClientBaseType* GetService( const rise::CString& sSessionId = STAFF_SECURITY_GUEST_SESSION_ID,
-                                      const rise::CString& sServiceName = "",
-                                      const rise::CString& sHostName = "localhost",
-                                      const rise::CString& sHostPort = "9090" )
+  TServiceClientBaseType* GetService( const std::string& sServiceUri = "",
+                                      const std::string& sSessionId = STAFF_SECURITY_GUEST_SESSION_ID )
   {
-    return reinterpret_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(), sSessionId, sServiceName, sHostName, sHostPort));
+    return reinterpret_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(), sServiceUri, sSessionId));
   }
 
 private:
   //! private constructor
   CServiceFactory();
 
-  void* AllocateClient(const rise::CString& sClientType, const rise::CString& sSessionId, const rise::CString& sServiceName, const rise::CString& sHostName, const rise::CString& sHostPort);
+  void* AllocateClient(const std::string& sClientType, const std::string& sServiceUri, const std::string& sSessionId);
 
 private:
   static CServiceFactory* m_pInst;  //!< instance

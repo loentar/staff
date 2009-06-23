@@ -28,7 +28,13 @@ int main(int nArgs, const char* paszArgs[])
 
       // Invoke Your service here:
 #foreach $(Class.Members)
-      // p$(Class.ServiceName)->$(Member.Name)(\
+      // \
+#ifneq($(Member.Return.Name),void)
+$(Member.Return.Name) $(Member.Return.NodeName) = \
+#else
+\
+#ifeqend
+p$(Class.ServiceName)->$(Member.Name)(\
 #foreach $(Member.Params)
 #ifeq($(Param.$Num),0)
 \

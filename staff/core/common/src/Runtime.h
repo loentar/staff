@@ -2,59 +2,66 @@
 #define _RUNTIME_H_
 
 #include "staffcommonexport.h"
-#include <rise/string/String.h>
+#include <string>
 
-// AXIS typedefs
+// Axis2/C typedefs
 typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
-  //!  Runtime
+  //!  Runtime information
   class STAFF_COMMON_EXPORT CRuntime
   {
   public:
-    //!         получить ссылку на экземпляр обьекта
-    /*! \return ссылка на экземпляр обьекта
+    //!         get instance
+    /*! \return ref to instance
     */
     static CRuntime& Inst();
 
-    //!         получить окружение axis2
-    /*! \return окружение axis2
+    //!         get Axis2/C env for given component
+    /*! \param  sEnvComponent - environment component(service, client, etc)
+        \return Axis2/C env
     */
-    axutil_env_t* GetAxis2Env();
+    axutil_env_t* GetAxis2Env(const std::string& sEnvComponent = "staff");
 
-    //!         получить домашний каталог Axis2
-    /*! \return 
+    //!         free Axis2/C env for given component
+    /*! \param  sEnvComponent - environment component(service, client, etc)
     */
-    rise::CString GetAxis2Home() const;
+    void FreeAxis2Env(const std::string& sEnvComponent = "staff");
 
-    //!         получить домашний каталог staff
-    /*! \return домашний каталог staff
+    //!         get Axis2/C home dir
+    /*! \return Axis2/C home dir
     */
-    rise::CString GetStaffHome() const;
+    std::string GetAxis2Home() const;
 
-    //!         получить домашний каталог компонентов
-    /*! \return домашний каталог компонентов
+    //!         get staff home dir
+    /*! \return staff home dir
     */
-    rise::CString GetComponentsHome() const;
+    std::string GetStaffHome() const;
 
-    //!         получить домашний каталог компонента
-    /*! \param  sComponent - компонент
-        \return домашний каталог компонента
+    //!         get home dir for staff components
+    /*! \return home dir for staff components
+    */
+    std::string GetComponentsHome() const;
+
+    //!         get home dir for given component
+    /*! \param  sComponent - component
+        \return home dir for given component
         */
-    rise::CString GetComponentHome(const rise::CString& sComponent) const;
+    std::string GetComponentHome(const std::string& sComponent) const;
 
-    //!         получить переменную окружения
-    /*! \param  sVariable - переменная окружения
-        \return значение переменной окружения
+    //!         get environment variable value
+    /*! throws exception, when variable is not found
+        \param  sVariable - environment variable
+        \return environment variable value
         */
-    rise::CString GetEnv(const rise::CString& sVariable) const;
+    std::string GetEnv(const std::string& sVariable) const;
 
   private:
-    //!        конструктор по умолчанию
+    //!        protected constructor
     CRuntime();
 
-    //!        деструктор
+    //!        destructor
     virtual ~CRuntime();
 
   private:

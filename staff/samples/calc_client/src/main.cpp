@@ -25,8 +25,8 @@ int main(int nArgs, const char* paszArgs[])
       RISE_ASSERTES(pCalcService != NULL, rise::CLogicNoItemException, "Cannot get client for service calc.CalcService!");
 
       // Invoke Your service here:
-      rise::LogInfo() << pCalcService->Add(1, 2);
-      rise::LogInfo() << pCalcService->Sub(3, 1);
+      rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
+      rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
       
       rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
 

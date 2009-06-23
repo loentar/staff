@@ -5,11 +5,11 @@ namespace samples
 {
   namespace calc
   {
-    //!  SubService
+    //!  sample service, implementing substract operation
     class CSubService
     {
     public:
-      //!        деструктор
+      //!        destructor
       virtual ~CSubService() {}
       virtual int Sub(int nA, int nB) const = 0;
     };

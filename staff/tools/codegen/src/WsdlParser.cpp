@@ -128,11 +128,13 @@ void GetType( const rise::xml::CXMLNode& rElement, const std::string& sAttrTypeN
       sTypeName == "nonPositiveInteger" ||
       sTypeName == "negativeInteger" ||
       sTypeName == "nonNegativeInteger" ||
+      sTypeName == "byte" ||
       sTypeName == "unsignedLong" ||
       sTypeName == "unsignedInt" ||
       sTypeName == "unsignedShort" ||
       sTypeName == "unsignedByte" ||
-      sTypeName == "positiveInteger")
+      sTypeName == "positiveInteger" ||
+      sTypeName == "anySimpleType")
     )
   {
     sCppTypeName = "staff::" + sTypeName;
@@ -624,13 +626,52 @@ public:
       rMember.sDescr = itNodeDoc->NodeContent().AsString();
     }
   }
+  
+  void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName, const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
+  {
+    rise::xml::CXMLNode::TXMLNodeConstIterator itNodeBinding = 
+      rDefs.FindNodeMatch("binding", rise::xml::SXMLAttribute("name", sPortTypeName));
+
+    if (itNodeBinding != rDefs.NodeEnd())
+    {
+      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOperationName = 
+        itNodeBinding->FindNodeMatch("operation", rise::xml::SXMLAttribute("name", sOperationName));
+     
+      if (itNodeOperationName != itNodeBinding->NodeEnd())
+      {
+        rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOperation = 
+          itNodeOperationName->FindSubnode("operation");
+     
+        if (itNodeOperation != itNodeOperationName->NodeEnd())
+        {
+          rise::xml::CXMLNode::TXMLAttrConstIterator itAttrSoapAction = 
+            itNodeOperation->FindAttribute("soapAction");
+          if (itAttrSoapAction != itNodeOperation->AttrEnd())
+          {
+            sSoapAction = itAttrSoapAction->sAttrValue.AsString();
+          }
+        }
+      }
+    }
+  }
 
   void ParseService(SClass& rClass, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
   {
     const rise::xml::CXMLNode& rService = rDefs.Subnode("service");
     rClass.sName = rService.Attribute("name").AsString();
+    
+    rise::xml::CXMLNode::TXMLNodeConstIterator itNodePort = rService.FindSubnode("port");
+    if (itNodePort != rService.NodeEnd())
+    {
+      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAddress = itNodePort->FindSubnode("address");
+      if (itNodeAddress != itNodePort->NodeEnd())
+      {
+        rClass.sServiceUri = itNodeAddress->Attribute("location").AsString();
+      }
+    }
 
     const rise::xml::CXMLNode& rPortType = rDefs.Subnode("portType");
+    const std::string& sPortTypeName = rPortType.Attribute("name").AsString();
 
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOp = rPortType.NodeBegin();
       itNodeOp != rPortType.NodeEnd(); ++itNodeOp)
@@ -640,6 +681,7 @@ public:
       {
         SMember tOperationMember;
         ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
+        ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, tOperationMember.sSoapAction);
         rClass.lsMember.push_back(tOperationMember);
       }
     }
@@ -649,6 +691,7 @@ public:
     {
       rClass.sDescr = itNodeOp->NodeContent().AsString();
     }
+    
   }
 
   void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)

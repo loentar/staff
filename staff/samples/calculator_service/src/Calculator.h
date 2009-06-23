@@ -6,7 +6,7 @@
 
 namespace samples
 {
-  //! interface for service Calculator
+  //! sample service: Calculator
   class CCalculator
   {
   public:
@@ -26,7 +26,7 @@ namespace samples
         */
     virtual int Sub(int nA, int nB) = 0;
 
-    //! add
+    //! multiply operation: example of using dataobject for complex datatypes/xml transmittion
     /*! \param rDataObject - reference to dataobject, containing operands nA and nB
         \return nA * nB
         */

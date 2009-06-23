@@ -3,6 +3,7 @@
 
 #include "staffcommonexport.h"
 #include <string>
+#include "WsdlTypes.h"
 
 namespace staff
 {
@@ -23,11 +24,13 @@ namespace staff
       ET_FLOAT,     //!<  число с плавающей точкой
       ET_DOUBLE,    //!<  двойное число с плавающей точкой
 
+      ET_BYTE,      //!<  byte
       ET_INT,       //!<  целое
       ET_SHORT,     //!<  короткое
       ET_LONG,      //!<  длинное
       ET_LONGLONG,  //!<  двойное длинное
 
+      ET_UBYTE,     //!<  unsigned byte
       ET_UINT,      //!<  беззнаковое целое
       ET_USHORT,    //!<  беззнаковое короткое
       ET_ULONG,     //!<  беззнаковое длинное
@@ -67,6 +70,11 @@ namespace staff
 
     //!         инициализирующий конструктор
     /*! \param  nValue - значение
+    */
+    CValue(byte btValue);
+
+    //!         инициализирующий конструктор
+    /*! \param  nValue - значение
         */
     CValue(int nValue);
     
@@ -84,6 +92,11 @@ namespace staff
     /*! \param  llValue - значение
     */
     CValue(long long llValue);
+
+    //!         инициализирующий конструктор
+    /*! \param  unValue - значение
+    */
+    CValue(unsignedByte ubtValue);
 
     //!         инициализирующий конструктор
     /*! \param  unValue - значение
@@ -138,6 +151,11 @@ namespace staff
     CValue& operator=(double dValue);
 
     //!         оператор копирования
+    /*! \param  btValue - значение
+    */
+    CValue& operator=(byte btValue);
+
+    //!         оператор копирования
     /*! \param  nValue - значение
     */
     CValue& operator=(int nValue);
@@ -156,6 +174,11 @@ namespace staff
     /*! \param  llValue - значение
     */
     CValue& operator=(long long llValue);
+
+    //!         оператор копирования
+    /*! \param  ubtValue - значение
+        */
+    CValue& operator=(unsignedByte ubtValue);
 
     //!         оператор копирования
     /*! \param  unValue - значение
@@ -201,6 +224,11 @@ namespace staff
     //!         const-оператор приведения к типу
     /*! \return const-значение приведенное к типу
         */
+    operator const byte() const;
+
+    //!         const-оператор приведения к типу
+    /*! \return const-значение приведенное к типу
+        */
     operator const int() const;
 
     //!         const-оператор приведения к типу
@@ -217,6 +245,11 @@ namespace staff
     /*! \return const-значение приведенное к типу
         */
     operator const long long() const;
+
+    //!         const-оператор приведения к типу
+    /*! \return const-значение приведенное к типу
+        */
+    operator const unsignedByte() const;
 
     //!         const-оператор приведения к типу
     /*! \return const-значение приведенное к типу
@@ -262,6 +295,11 @@ namespace staff
     //!         оператор приведения к типу
     /*! \return значение приведенное к типу
         */
+    operator byte&();
+
+    //!         оператор приведения к типу
+    /*! \return значение приведенное к типу
+        */
     operator int&();
 
     //!         оператор приведения к типу
@@ -278,6 +316,11 @@ namespace staff
     /*! \return значение приведенное к типу
         */
     operator long long&();
+
+    //!         оператор приведения к типу
+    /*! \return значение приведенное к типу
+        */
+    operator unsignedByte&();
 
     //!         оператор приведения к типу
     /*! \return значение приведенное к типу
@@ -342,11 +385,13 @@ namespace staff
       float               fValue;
       double              dValue;
       
+      byte                btValue;
       int                 nValue;
       short               shValue;
       long                lValue;
       long long           llValue;
 
+      unsignedByte        ubtValue;
       unsigned int        unValue;
       unsigned short      ushValue;
       unsigned long       ulValue;
