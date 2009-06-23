@@ -105,18 +105,10 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
 #else
-#ifeq($(Param.DataType.Name),staff::string)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
+#ifeq($(Param.DataType.Type),string)
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"].AsString();
 #else
-#ifeq($(Param.DataType.Name),std::string)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
-#else
-#ifeq($(Param.DataType.Name),rise::CString)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
-#else
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
-#ifeqend
-#ifeqend
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"];
 #ifeqend
 #ifeqend
 #ifeqend
@@ -159,6 +151,10 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
   rdoParam.SetValue(rtType);
   return rdoParam;
 #else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+  rdoParam.SetText(rtType);
+  return rdoParam;
+#else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
   rdoParam.AppendChild(rtType);
   return rdoParam;
@@ -170,6 +166,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -200,6 +197,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.IsTemplate),1)
+
 // container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),typedef)
   $(Typedef.DataType.Name) tItem;
@@ -220,6 +218,9 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #ifeq($(Typedef.DataType.Type),generic)
     rtType.push_back(it->GetValue());
 #else
+#ifeq($(Typedef.DataType.Type),string)
+    rtType.push_back(it->GetText());
+#else
 #ifeq($(Typedef.DataType.Type),dataobject)
     rtType.push_back(*(it->Begin()));
 #else
@@ -229,51 +230,40 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 #else
 #ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.Name),std::map)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
+    tKey = (*it)["Key"].AsString();
+#else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)
-    tKey = (*it)["Key"].AsString();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),staff::string)
-    tKey = (*it)["Key"].AsString();
-#else
     tKey = (*it)["Key"];
-#ifeqend
-#ifeqend
 #else
     (*it)("Key") >> tKey;
 #ifeqend
+#ifeqend
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)
+    tValue = (*it)["Value"].AsString();
+#else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),std::string)
-    tValue = (*it)["Value"].AsString();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),staff::string)
-    tValue = (*it)["Value"].AsString();
-#else
     tValue = (*it)["Value"];
-#ifeqend
-#ifeqend
 #else
     (*it)("Value") >> tValue;
 #ifeqend
+#ifeqend
     rtType[ tKey ] = tValue;
 #else // ----------------------- list, vector, etc.
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
+    tItem = it->GetText();
+#else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),std::string)    // !!string!!
-    tItem = it->GetText();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),staff::string)    // !!string!!
-    tItem = it->GetText();
-#else
     tItem = it->GetValue();
-#ifeqend
-#ifeqend
 #else
     *it >> tItem;
+#ifeqend
 #ifeqend
     rtType.push_back(tItem);
 #ifeqend
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -284,6 +274,10 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 // not container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
   rtType = rdoParam.GetValue();
+  return rdoParam;
+#else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+  rtType = rdoParam.GetText();
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -297,6 +291,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -399,8 +394,12 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const rise::CS
     \
 #ifeqend
 #else
+#ifeq($(Member.Return.Type),string)    // !!string!!
+    rOperation.ResultValue() = \
+#else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
     staff::CDataObject tResultDO = \
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -416,6 +415,9 @@ ServiceImpl(sID).$(Member.Name)(\
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
 rRequest["$(Param.Name)"]\
 #else
+#ifeq($(Param.DataType.Type),string)    // !!string!!
+rRequest["$(Param.Name)"]\
+#else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
 *rRequest.GetChildByLocalName("$(Param.Name)").Begin()\
 #else
@@ -426,6 +428,7 @@ $(Param.Name)\
 $(Param.Name)\
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -467,7 +470,12 @@ const rise::CString& $(Class.Name)Wrapper::GetDescr() const
 {
   if($(Class.Name)WrapperImpl::m_sDescr.size() == 0)
   {
-    $(Class.Name)WrapperImpl::m_sDescr = "Staff service $(Class.Name)";
+    $(Class.Name)WrapperImpl::m_sDescr = \
+#ifneq($(Class.Description),)
+"$(Class.Description)";
+#else
+"Staff service $(Class.ServiceName)";
+#ifeqend
   }
   
   return $(Class.Name)WrapperImpl::m_sDescr;

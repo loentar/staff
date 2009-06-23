@@ -12,6 +12,7 @@ struct SDataType
   {
     EUnknown,     //!<  unknown
     EGeneric,     //!<  generic(supported by staff)
+    EString,      //!<  string type
     EDataObject,  //!<  DataObject
     EStruct,      //!<  struct
     ETypedef,     //!<  typedef
@@ -51,6 +52,7 @@ struct SMember
   std::list<SParam>  lsParamList; //!<  parameters
   bool               bIsConst;    //!<  operation is const
   std::string        sDescr;      //!<  operation description
+  std::string        sSoapAction; //!<  soap action
   SMember();
 };
 
@@ -60,6 +62,7 @@ struct SClass
   std::string         sName;          //!<  class name
   std::string         sNamespace;     //!<  namespace
   std::string         sDescr;         //!<  service description
+  std::string         sServiceUri;    //!<  default service URI
   std::list<SMember>  lsMember;       //!<  service operations
 };
 

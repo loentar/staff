@@ -1,6 +1,7 @@
 #include <axiom.h>
 #include <axis2_util.h>
 #include <axiom_soap.h>
+#include <map>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include "Runtime.h"
@@ -10,22 +11,28 @@ namespace staff
   class CRuntime::CRuntimeImpl
   {
   public:
-    CRuntimeImpl():
-      m_pEnv(axutil_env_create_all("staff.log", AXIS2_LOG_LEVEL_TRACE))
+    CRuntimeImpl()
     {
     }
 
     ~CRuntimeImpl()
     {
-      if (m_pEnv != NULL)
+      if (m_mEnv.size() != 0)
       {
-        axutil_env_free(m_pEnv);
-        m_pEnv = NULL;
+        for (TAxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
+        {
+          if (itEnv->second != NULL)
+          {
+            axutil_env_free(itEnv->second);
+          }
+        }
+        m_mEnv.clear();
       }
     }
     
   public:
-    axutil_env_t* m_pEnv;
+    typedef std::map<std::string, axutil_env_t*> TAxutilEnvMap;
+    TAxutilEnvMap m_mEnv;
   };
 
 
@@ -53,34 +60,53 @@ namespace staff
     return *m_pInst;
   }
 
-  axutil_env_t* CRuntime::GetAxis2Env()
+  axutil_env_t* CRuntime::GetAxis2Env(const std::string& sEnvComponent /*= "staff"*/)
   {
-    return m_pImpl->m_pEnv;
+    CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
+    if (itEnv == m_pImpl->m_mEnv.end())
+    {
+      axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), AXIS2_LOG_LEVEL_TRACE);
+      m_pImpl->m_mEnv[sEnvComponent] = pEnv;
+      return pEnv;
+    }
+
+    return itEnv->second;
   }
 
-  rise::CString CRuntime::GetEnv( const rise::CString& rEnvVariable ) const
+  void CRuntime::FreeAxis2Env(const std::string& sEnvComponent /*= "staff"*/)
+  {
+    CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
+    if (itEnv != m_pImpl->m_mEnv.end())
+    {
+      axutil_env_free(itEnv->second);
+      itEnv->second = NULL;
+      m_pImpl->m_mEnv.erase(itEnv);
+    }
+  }
+
+  std::string CRuntime::GetEnv( const std::string& rEnvVariable ) const
   {
     const rise::TChar* szEnv = getenv(rEnvVariable.c_str());
     RISE_ASSERTES(szEnv != NULL, rise::CLogicNoItemException, "Environment variable " + rEnvVariable + " not found");
     return szEnv;
   }
 
-  rise::CString CRuntime::GetAxis2Home() const
+  std::string CRuntime::GetAxis2Home() const
   {
     return GetEnv("AXIS2C_HOME");
   }
 
-  rise::CString CRuntime::GetStaffHome() const
+  std::string CRuntime::GetStaffHome() const
   {
     return GetEnv("STAFF_HOME");
   }
 
-  rise::CString CRuntime::GetComponentsHome() const
+  std::string CRuntime::GetComponentsHome() const
   {
     return GetStaffHome() + "/components";
   }
 
-  rise::CString CRuntime::GetComponentHome( const rise::CString& sComponent ) const
+  std::string CRuntime::GetComponentHome( const std::string& sComponent ) const
   {
     return GetComponentsHome() + "/" + sComponent;
   }

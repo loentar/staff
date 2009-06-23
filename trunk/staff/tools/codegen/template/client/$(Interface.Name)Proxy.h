@@ -14,7 +14,7 @@ class $(Class.Name)Proxy: public $(Class.Name)
 {
 public:
   $(Class.Name)Proxy();
-  void Init(const rise::CString& sSessionId, const rise::CString& sServiceName, const rise::CString& sHostName, const rise::CString& sHostPort);
+  void Init(const std::string& sServiceUri, const std::string& sSessionId);
 #foreach $(Class.Members)
   $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const);
 #end

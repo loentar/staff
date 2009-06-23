@@ -131,38 +131,46 @@ std::istream& ReadBefore(std::istream& rStream, std::string& sOut, const std::st
 
 bool ReadComment(std::istream& rStream, std::string& sComment)
 {
-  char chData = '\0';
+  if (rStream.peek() != '/')
+  {
+    return false;
+  }
 
   sComment.erase();
 
+  rStream.ignore();
   if (rStream.peek() == '/')
   {
-    rStream.get(chData);
-    if (rStream.peek() == '*')
-    {
-      std::string sTmp;
+    rStream.ignore();
+    ReadBefore(rStream, sComment, "\n\r");
+  }
+  else
+  if (rStream.peek() == '*')
+  {
+    char chData = '\0';
+    std::string sTmp;
 
-      rStream.ignore();
-      while (rStream.good() && !rStream.eof())
+    rStream.ignore();
+    while (rStream.good() && !rStream.eof())
+    {
+      ReadBefore(rStream, sTmp, "*");
+
+      sComment += sTmp;
+      rStream.get(chData);
+      if(chData == '*')
       {
-        ReadBefore(rStream, sTmp, "*");
-        sComment += sTmp;
-        rStream.get(chData);
-        if(chData == '*')
+        if (rStream.peek() == '/')
         {
-          if (rStream.peek() == '/')
-          {
-            rStream.ignore();
-            break;
-          }
-          sComment += chData;
+          rStream.ignore();
+          break;
         }
+        sComment += chData;
       }
     }
-    else
-    {
-      rStream.unget();
-    }
+  }
+  else
+  {
+    rStream.unget();
   }
 
   return sComment.size() != 0;
@@ -230,7 +238,6 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
   }
   else
   if (
-      //C++ types
       sDataTypeName == "bool" ||
       sDataTypeName == "char" ||
       sDataTypeName == "int" ||
@@ -240,12 +247,6 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
       sDataTypeName == "double" ||
       sDataTypeName == "void" ||
 
-      sDataTypeName == "std::string" ||
-      sDataTypeName == "std::wstring" ||
-
-      sDataTypeName == "rise::CString" ||
-      sDataTypeName == "rise::CStringA" ||
-      sDataTypeName == "rise::CStringW" ||
       sDataTypeName == "rise::byte" ||
       sDataTypeName == "rise::word" ||
       sDataTypeName == "rise::ushort" ||
@@ -256,40 +257,12 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
 
       sDataTypeName == "staff::CValue" ||
 
-      // XML types"
-      sDataTypeName == "staff::string" ||
+      // XML types
       sDataTypeName == "staff::boolean" ||
       sDataTypeName == "staff::float" ||
       sDataTypeName == "staff::double" ||
       sDataTypeName == "staff::decimal" ||
-      sDataTypeName == "staff::duration" ||
-      sDataTypeName == "staff::dateTime" ||
-      sDataTypeName == "staff::time" ||
 
-      sDataTypeName == "staff::date" ||
-      sDataTypeName == "staff::gYearMonth" ||
-      sDataTypeName == "staff::gYear" ||
-      sDataTypeName == "staff::gMonthDay" ||
-      sDataTypeName == "staff::gDay" ||
-      sDataTypeName == "staff::gMonth" ||
-      sDataTypeName == "staff::hexBinary" ||
-      sDataTypeName == "staff::base64Binary" ||
-      sDataTypeName == "staff::anyURI" ||
-      sDataTypeName == "staff::QName" ||
-      sDataTypeName == "staff::NOTATION" ||
-
-      sDataTypeName == "staff::normalizedString" ||
-      sDataTypeName == "staff::token" ||
-      sDataTypeName == "staff::language" ||
-      sDataTypeName == "staff::IDREFS" ||
-      sDataTypeName == "staff::ENTITIES" ||
-      sDataTypeName == "staff::NMTOKEN" ||
-      sDataTypeName == "staff::NMTOKENS" ||
-      sDataTypeName == "staff::Name" ||
-      sDataTypeName == "staff::NCName" ||
-      sDataTypeName == "staff::ID" ||
-      sDataTypeName == "staff::IDREF" ||
-      sDataTypeName == "staff::ENTITY" ||
       sDataTypeName == "staff::integer" ||
       sDataTypeName == "staff::nonPositiveInteger" ||
       sDataTypeName == "staff::negativeInteger" ||
@@ -306,6 +279,48 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
     )
   {
     rDataType.eType = SDataType::EGeneric;
+  }
+  else
+  if (
+    sDataTypeName == "std::string" ||
+    sDataTypeName == "std::wstring" ||
+
+    sDataTypeName == "rise::CString" ||
+    sDataTypeName == "rise::CStringA" ||
+    sDataTypeName == "rise::CStringW" ||
+
+    sDataTypeName == "staff::string" ||
+
+    sDataTypeName == "staff::duration" ||
+    sDataTypeName == "staff::dateTime" ||
+    sDataTypeName == "staff::time" ||
+    sDataTypeName == "staff::date" ||
+    sDataTypeName == "staff::gYearMonth" ||
+    sDataTypeName == "staff::gYear" ||
+    sDataTypeName == "staff::gMonthDay" ||
+    sDataTypeName == "staff::gDay" ||
+    sDataTypeName == "staff::gMonth" ||
+    sDataTypeName == "staff::hexBinary" ||
+    sDataTypeName == "staff::base64Binary" ||
+    sDataTypeName == "staff::anyURI" ||
+    sDataTypeName == "staff::QName" ||
+    sDataTypeName == "staff::NOTATION" ||
+    sDataTypeName == "staff::normalizedString" ||
+    sDataTypeName == "staff::token" ||
+    sDataTypeName == "staff::language" ||
+    sDataTypeName == "staff::IDREFS" ||
+    sDataTypeName == "staff::ENTITIES" ||
+    sDataTypeName == "staff::NMTOKEN" ||
+    sDataTypeName == "staff::NMTOKENS" ||
+    sDataTypeName == "staff::Name" ||
+    sDataTypeName == "staff::NCName" ||
+    sDataTypeName == "staff::ID" ||
+    sDataTypeName == "staff::IDREF" ||
+    sDataTypeName == "staff::ENTITY" ||
+    sDataTypeName == "staff::anySimpleType"
+  )
+  {
+    rDataType.eType = SDataType::EString;
   }
   else
   if(ParseCompositeDataType(Interface().lsStruct, rDataType))
@@ -369,9 +384,14 @@ std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
     rStream >> SkipWs;
     ReadBefore(rStream, sTmp);
     if(rStream.eof())
+    {
       throw "unexpected EOF(after type parsing)";
+    }
+    
     if (sTmp == "static")
-      std::cout << "Warning: members must be non-static: Line:" << GetLine();
+    {
+      rise::LogWarning() << "members must be non-static: Line:" << GetLine();
+    }
 
     chTmp = rStream.peek();
     if (chTmp == '<')
@@ -546,28 +566,67 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
 {
   char chTmp = '\0';
   std::string sTmp;
+  std::string sSoapAction;
+  std::string sDescr;
 
   rStream >> SkipWs;
   ReadBefore(rStream, rClass.sName);
   rClass.sNamespace = g_sCurrentNamespace;
   if(rStream.eof())
+  {
     throw "unexpected EOF(after classname)";
+  }
+
   ReadStr(rStream, sTmp);
   if(rStream.eof())
+  {
     throw "unexpected EOF(after classname and '{')";
+  }
+
   if (sTmp != "{")
+  {
     throw "'{' after classname expected ";
+  }
 
   while (rStream.good() && !rStream.eof())
   {
-    rStream >> SkipWs;
+    sSoapAction.erase();
+    sDescr.erase();
+    
+    rStream >> SkipWsOnly;
+    while (ReadComment(rStream, sTmp))
+    {
+      rise::StrTrim(sTmp);
+      if (sTmp.size() != 0)
+      {
+        if (sTmp.substr(0, 11) == "soapAction:")
+        {
+          sSoapAction = sTmp.substr(12);
+          rise::StrTrimLeft(sSoapAction);
+        }
+        else
+        if (sTmp[0] == '!')
+        {
+          sDescr = sTmp.substr(1);
+          rise::StrTrimLeft(sDescr);
+        }
+        else
+        if (sTmp.substr(0, 12) == "description:")
+        {
+          sDescr = sTmp.substr(13);
+          rise::StrTrimLeft(sDescr);
+        }
+      }
+      rStream >> SkipWsOnly;
+    }
+    
     chTmp = rStream.peek();
     if (chTmp == '}')
     {
       rStream.ignore();
       break;
     }
-
+    
     ReadStr(rStream, sTmp);
     
     if (sTmp == "public:")
@@ -609,6 +668,8 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
         SMember stMember;
 
         rStream >> stMember;
+        stMember.sDescr = sDescr;
+        stMember.sSoapAction = sSoapAction;
         rClass.lsMember.push_back(stMember);
       }
     } 
@@ -738,11 +799,118 @@ std::istream& operator>>( std::istream& rStream, STypedef& rTypedef )
 }
 
 void ParseBracketedBlock( std::istream& rStream, SInterface& rInterface );
+void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface );
+
+void ParsePreprocessorBlock( std::istream& rStream, SInterface& rInterface )
+{
+  char chData = '\0';
+  std::string sTmp;
+  rStream.ignore();
+  ReadStr(rStream, sTmp, false);
+  if (sTmp == "include")
+  {
+    rStream >> SkipWs;
+    chData = rStream.peek();
+    if (chData == '\"')
+    {
+      std::stringbuf sbTmp;
+      rStream.ignore();
+      rStream.get(sbTmp, chData);
+
+      std::string::size_type nPos = rInterface.sFileName.find_last_of('/');
+      std::string sFileName;
+      std::ifstream isFile;
+
+      if (nPos != std::string::npos)
+      {
+        sFileName = rInterface.sFileName.substr(0, nPos);
+      }
+      
+      sFileName += sbTmp.str();
+
+      isFile.open(sFileName.c_str());
+      if(isFile.good())
+      {
+        try
+        {
+          while (isFile.good() && !isFile.eof())
+          {
+            isFile >> SkipWs;
+            chData = isFile.peek();
+
+            if (chData == '#') // preprocessor
+            {
+              isFile.ignore(INT_MAX, '\n');
+            } else // text
+            {
+              if (chData == '{')
+              {
+                ParseBracketedBlock(isFile, rInterface);
+              }
+              else // text
+              {
+                ParseHeaderBlock(isFile, rInterface);
+              }
+            }
+          }
+        }
+        catch (...)
+        {
+          isFile.close();
+          throw;
+        }
+        
+        isFile.close();
+      }
+      else
+      {
+        rise::LogWarning() << "cannot include file \"" << sFileName << "\".";
+      }
+    }
+  }
+
+  rStream.ignore(INT_MAX, '\n');
+}
 
 void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
 {
   char chData = 0;
+  std::string sServiceUri;
+  std::string sServiceDescr;
   std::string sTmp;
+
+  rStream >> SkipWsOnly;
+  while (ReadComment(rStream, sTmp))
+  {
+    rise::StrTrim(sTmp);
+    if (sTmp.size() != 0)
+    {
+      if (sTmp.substr(0, 4) == "uri:")
+      {
+        sServiceUri = sTmp.substr(5);
+        rise::StrTrimLeft(sServiceUri);
+      }
+      else
+      if (sTmp[0] == '!')
+      {
+        sServiceDescr = sTmp.substr(1);
+        rise::StrTrimLeft(sServiceDescr);
+      }
+      else
+      if (sTmp.substr(0, 12) == "description:")
+      {
+        sServiceDescr = sTmp.substr(13);
+        rise::StrTrimLeft(sServiceDescr);
+      }
+    }
+    rStream >> SkipWsOnly;
+  }
+
+  if (rStream.peek() == '#') // preprocessor
+  {
+    ParsePreprocessorBlock(rStream, rInterface);
+    return;
+  } 
 
   ReadStr(rStream, sTmp);
   
@@ -755,6 +923,8 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   {
     SClass stClass;
     rStream >> stClass;
+    stClass.sDescr = sServiceDescr;
+    stClass.sServiceUri = sServiceUri;
     rInterface.lsClass.push_back(stClass);
 
     rStream >> SkipWs >> chData;
@@ -797,8 +967,6 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
       }
     }
     
-
-
     rStream >> SkipWs >> chData;
     if (chData != ';')
     {
@@ -838,6 +1006,11 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   {
   }
   else
+  if (chData == '#') // preprocessor
+  {
+    ParsePreprocessorBlock(rStream, rInterface);
+  } 
+  else
   {
     throw ("Unknown lexeme: \"" + sTmp + "\"");
   }
@@ -856,12 +1029,12 @@ void ParseBracketedBlock( std::istream& rStream, SInterface& rInterface )
   
   while (rStream.good() && !rStream.eof())
   {
-    rStream >> SkipWs;
+    rStream >> SkipWsOnly;
     chData = rStream.peek();
 
     if (chData == '#') // preprocessor
     {
-      rStream.ignore(INT_MAX, '\n');
+      ParsePreprocessorBlock(rStream, rInterface);
     } else // text
     {
       if (chData == '}')
@@ -891,78 +1064,9 @@ void ParseHeader( std::istream& rStream, SInterface& rInterface )
 
   while (rStream.good() && !rStream.eof())
   {
-    rStream >> SkipWs;
+    rStream >> SkipWsOnly;
     chData = rStream.peek();
 
-    if (chData == '#') // preprocessor
-    {
-      rStream.ignore();
-      ReadStr(rStream, sTmp, false);
-      if (sTmp == "include")
-      {
-        rStream >> SkipWs;
-        chData = rStream.peek();
-        if (chData == '\"')
-        {
-          std::stringbuf sbTmp;
-          rStream.ignore();
-          rStream.get(sbTmp, chData);
-
-          std::string::size_type nPos = rInterface.sFileName.find_last_of('/');
-          std::string sFileName;
-          std::ifstream isFile;
-
-          if (nPos != std::string::npos)
-          {
-            sFileName = rInterface.sFileName.substr(0, nPos);
-          }
-          
-          sFileName += sbTmp.str();
-
-          isFile.open(sFileName.c_str());
-          if(isFile.good())
-          {
-            try
-            {
-              while (isFile.good() && !isFile.eof())
-              {
-                isFile >> SkipWs;
-                chData = isFile.peek();
-
-                if (chData == '#') // preprocessor
-                {
-                  isFile.ignore(INT_MAX, '\n');
-                } else // text
-                {
-                  if (chData == '{')
-                  {
-                    ParseBracketedBlock(isFile, rInterface);
-                  }
-                  else // text
-                  {
-                    ParseHeaderBlock(isFile, rInterface);
-                  }
-                }
-              }
-            }
-            catch (...)
-            {
-              isFile.close();
-              throw;
-            }
-            
-            isFile.close();
-          }
-          else
-          {
-            rise::LogWarning() << "cannot include file \"" << sFileName << "\".";
-          }
-        }
-      }
-
-      rStream.ignore(INT_MAX, '\n');
-    } 
-    else
     if (chData == '{')
     {
       ParseBracketedBlock(rStream, rInterface);
@@ -1035,6 +1139,10 @@ std::ostream& operator<<( std::ostream& rStream, const SDataType::EDataType eDat
   {
   case SDataType::EGeneric:
     rStream << "generic";
+    break;
+
+  case SDataType::EString:
+    rStream << "string";
     break;
 
   case SDataType::EDataObject:

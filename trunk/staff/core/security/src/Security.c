@@ -2121,7 +2121,6 @@ bool StaffSecurityAdminRemoveObject(int nObjectId)
 bool StaffSecurityAdminReplaceObject(const TObject* pstObject)
 {
   ExecStatusType tQueryStatus;
-  const char* pResult = NULL;
   PGresult* pPGResult = NULL;
   STAFF_SECURITY_ASSERT(g_pConn);
   STAFF_SECURITY_ASSERT(pstObject);

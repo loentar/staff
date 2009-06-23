@@ -33,6 +33,12 @@ namespace staff
     operator=(dValue);
   }
 
+  CValue::CValue(byte btValue):
+    m_pDataObject(NULL)
+  {
+    operator=(btValue);
+  }
+
   CValue::CValue(int nValue):
     m_pDataObject(NULL)
   {
@@ -55,6 +61,12 @@ namespace staff
     m_pDataObject(NULL)
   {
     operator=(llValue);
+  }
+
+  CValue::CValue(unsignedByte btValue):
+    m_pDataObject(NULL)
+  {
+    operator=(btValue);
   }
 
   CValue::CValue(unsigned int unValue):
@@ -142,6 +154,16 @@ namespace staff
     return *this;
   }
 
+  CValue& CValue::operator=( byte btValue )
+  {
+    m_bChanged = true;
+    m_eType = ET_BYTE;
+    m_ePrevType = m_eType;
+    m_uValue.btValue = btValue;
+    Flush();
+    return *this;
+  }
+
   CValue& CValue::operator=( int nValue )
   {
     m_bChanged = true;
@@ -178,6 +200,16 @@ namespace staff
     m_eType = ET_LONGLONG;
     m_ePrevType = m_eType;
     m_uValue.llValue = llValue;
+    Flush();
+    return *this;
+  }
+
+  CValue& CValue::operator=( unsignedByte ubtValue )
+  {
+    m_bChanged = true;
+    m_eType = ET_UBYTE;
+    m_ePrevType = m_eType;
+    m_uValue.ubtValue = ubtValue;
     Flush();
     return *this;
   }
@@ -272,6 +304,13 @@ namespace staff
     return m_uValue.dValue;
   }
 
+  CValue::operator byte&()
+  {
+    m_bChanged = true;
+    SyncTo(ET_BYTE);
+    return m_uValue.btValue;
+  }
+
   CValue::operator int&()
   {
     m_bChanged = true;
@@ -298,6 +337,13 @@ namespace staff
     m_bChanged = true;
     SyncTo(ET_LONGLONG);
     return m_uValue.llValue;
+  }
+
+  CValue::operator unsignedByte&()
+  {
+    m_bChanged = true;
+    SyncTo(ET_UBYTE);
+    return m_uValue.ubtValue;
   }
 
   CValue::operator unsigned int&()
@@ -354,6 +400,12 @@ namespace staff
     return m_uValue.dValue;
   }
 
+  CValue::operator const byte() const
+  {
+    SyncTo(ET_BYTE);
+    return m_uValue.btValue;
+  }
+
   CValue::operator const int() const
   {
     SyncTo(ET_INT);
@@ -376,6 +428,12 @@ namespace staff
   {
     SyncTo(ET_LONGLONG);
     return m_uValue.llValue;
+  }
+
+  CValue::operator const unsignedByte() const
+  {
+    SyncTo(ET_UBYTE);
+    return m_uValue.ubtValue;
   }
 
   CValue::operator const unsigned int() const
@@ -424,6 +482,9 @@ namespace staff
         case ET_DOUBLE:
           rise::ToStr(m_uValue.dValue, m_sValue); 
           break;
+        case ET_BYTE:
+          rise::ToStr(m_uValue.btValue, m_sValue); 
+          break;
         case ET_INT:
           rise::ToStr(m_uValue.nValue, m_sValue); 
           break;
@@ -435,6 +496,9 @@ namespace staff
           break;
         case ET_LONGLONG:
           rise::ToStr(m_uValue.llValue, m_sValue); 
+          break;
+        case ET_UBYTE:
+          rise::ToStr(m_uValue.ubtValue, m_sValue); 
           break;
         case ET_UINT:
           rise::ToStr(m_uValue.unValue, m_sValue); 
@@ -468,6 +532,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.fValue = static_cast<float>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.fValue = static_cast<float>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.fValue = static_cast<float>(m_uValue.nValue);
         break;
@@ -479,6 +546,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.fValue = static_cast<float>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.fValue = static_cast<float>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.fValue = static_cast<float>(m_uValue.unValue);
@@ -512,6 +582,9 @@ namespace staff
         break;
       case ET_DOUBLE:
         break;
+      case ET_BYTE:
+        m_uValue.dValue = static_cast<double>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.dValue = static_cast<double>(m_uValue.nValue);
         break;
@@ -523,6 +596,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.dValue = static_cast<double>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.dValue = static_cast<double>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.dValue = static_cast<double>(m_uValue.unValue);
@@ -545,6 +621,56 @@ namespace staff
       }
       break;
       
+    case ET_BYTE:
+      switch(eTypeFrom)
+      {
+      case ET_TEXT:
+        rise::FromStr(m_sValue, m_uValue.btValue); 
+        break;
+      case ET_FLOAT:
+        m_uValue.btValue = static_cast<byte>(m_uValue.fValue);
+        break;
+      case ET_DOUBLE:
+        m_uValue.btValue = static_cast<byte>(m_uValue.dValue);
+        break;
+      case ET_BYTE:
+        break;
+      case ET_INT:
+        m_uValue.btValue = static_cast<byte>(m_uValue.nValue);
+        break;
+      case ET_SHORT:
+        m_uValue.btValue = static_cast<byte>(m_uValue.shValue);
+        break;
+      case ET_LONG:
+        m_uValue.btValue = static_cast<byte>(m_uValue.lValue);
+        break;
+      case ET_LONGLONG:
+        m_uValue.btValue = static_cast<byte>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.btValue = static_cast<byte>(m_uValue.ubtValue);
+        break;
+      case ET_UINT:
+        m_uValue.btValue = static_cast<byte>(m_uValue.unValue);
+        break;
+      case ET_USHORT:
+        m_uValue.btValue = static_cast<byte>(m_uValue.ushValue);
+        break;
+      case ET_ULONG:
+        m_uValue.btValue = static_cast<byte>(m_uValue.ulValue);
+        break;
+      case ET_ULONGLONG:
+        m_uValue.btValue = static_cast<byte>(m_uValue.ullValue);
+        break;
+      case ET_BOOL:
+        m_uValue.btValue = m_uValue.bValue ? 1 : 0;
+        break;
+      case ET_NOTINIT:
+      case ET_UNKNOWN:
+        break;
+      }
+      break;
+      
     case ET_INT:
       switch(eTypeFrom)
       {
@@ -557,6 +683,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.nValue = static_cast<int>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.nValue = static_cast<int>(m_uValue.btValue);
+        break;
       case ET_INT:
         break;
       case ET_SHORT:
@@ -567,6 +696,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.nValue = static_cast<int>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.nValue = static_cast<int>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.nValue = static_cast<int>(m_uValue.unValue);
@@ -601,6 +733,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.shValue = static_cast<short>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.shValue = static_cast<short>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.shValue = static_cast<short>(m_uValue.nValue);
         break;
@@ -611,6 +746,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.shValue = static_cast<short>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.shValue = static_cast<short>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.shValue = static_cast<short>(m_uValue.unValue);
@@ -645,6 +783,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.lValue = static_cast<long>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.lValue = static_cast<long>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.lValue = static_cast<long>(m_uValue.nValue);
         break;
@@ -655,6 +796,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.lValue = static_cast<long>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.lValue = static_cast<long>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.lValue = static_cast<long>(m_uValue.unValue);
@@ -689,6 +833,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.llValue = static_cast<long long>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.llValue = static_cast<long long>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.llValue = static_cast<long long>(m_uValue.nValue);
         break;
@@ -699,6 +846,9 @@ namespace staff
         m_uValue.llValue = static_cast<long long>(m_uValue.lValue);
         break;
       case ET_LONGLONG:
+        break;
+      case ET_UBYTE:
+        m_uValue.llValue = static_cast<long long>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.llValue = static_cast<long long>(m_uValue.unValue);
@@ -721,7 +871,57 @@ namespace staff
       }
       break;
 
-      
+    case ET_UBYTE:
+      switch(eTypeFrom)
+      {
+      case ET_TEXT:
+        rise::FromStr(m_sValue, m_uValue.ubtValue); 
+        break;
+      case ET_FLOAT:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.fValue);
+        break;
+      case ET_DOUBLE:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.dValue);
+        break;
+      case ET_BYTE:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.btValue);
+        break;
+      case ET_INT:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.nValue);
+        break;
+      case ET_SHORT:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.shValue);
+        break;
+      case ET_LONG:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.lValue);
+        break;
+      case ET_LONGLONG:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ubtValue);
+        break;
+      case ET_UINT:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.unValue);
+        break;
+      case ET_USHORT:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ushValue);
+        break;
+      case ET_ULONG:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ulValue);
+        break;
+      case ET_ULONGLONG:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ullValue);
+        break;
+      case ET_BOOL:
+        m_uValue.ubtValue = m_uValue.bValue ? 1 : 0;
+        break;
+      case ET_NOTINIT:
+      case ET_UNKNOWN:
+        break;
+      }
+      break;
+
     case ET_UINT:
       switch(eTypeFrom)
       {
@@ -734,6 +934,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.unValue = static_cast<unsigned int>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.nValue);
         break;
@@ -745,6 +948,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.unValue = static_cast<unsigned int>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         break;
@@ -778,6 +984,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.ushValue = static_cast<unsigned short>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.nValue);
         break;
@@ -789,6 +998,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.ushValue = static_cast<unsigned short>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.unValue);
@@ -822,6 +1034,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.ulValue = static_cast<unsigned long>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.nValue);
         break;
@@ -833,6 +1048,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.ulValue = static_cast<unsigned long>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.unValue);
@@ -866,6 +1084,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.dValue);
         break;
+      case ET_BYTE:
+        m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.btValue);
+        break;
       case ET_INT:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.nValue);
         break;
@@ -877,6 +1098,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.llValue);
+        break;
+      case ET_UBYTE:
+        m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.ubtValue);
         break;
       case ET_UINT:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.unValue);
@@ -910,6 +1134,9 @@ namespace staff
       case ET_DOUBLE:
         m_uValue.bValue = m_uValue.dValue != 0;
         break;
+      case ET_BYTE:
+        m_uValue.bValue = m_uValue.btValue != 0;
+        break;
       case ET_INT:
         m_uValue.bValue = m_uValue.nValue != 0;
         break;
@@ -921,6 +1148,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         m_uValue.bValue = m_uValue.llValue != 0;
+        break;
+      case ET_UBYTE:
+        m_uValue.bValue = m_uValue.ubtValue != 0;
         break;
       case ET_UINT:
         m_uValue.bValue = m_uValue.unValue != 0;
@@ -1008,6 +1238,10 @@ namespace staff
       if (m_uValue.dValue == rValue.m_uValue.dValue)
         return true;
       break;
+    case ET_BYTE:
+      if (m_uValue.btValue == rValue.m_uValue.btValue)
+        return true;
+      break;
     case ET_INT:
       if (m_uValue.nValue == rValue.m_uValue.nValue)
         return true;
@@ -1022,6 +1256,10 @@ namespace staff
       break;
     case ET_LONGLONG:
       if (m_uValue.llValue == rValue.m_uValue.llValue)
+        return true;
+      break;
+    case ET_UBYTE:
+      if (m_uValue.ubtValue == rValue.m_uValue.ubtValue)
         return true;
       break;
     case ET_UINT:
@@ -1072,6 +1310,9 @@ namespace staff
       case ET_DOUBLE:
         rise::ToStr(m_uValue.dValue, m_sValue); 
         break;
+      case ET_BYTE:
+        rise::ToStr(static_cast<short>(m_uValue.btValue), m_sValue); 
+        break;
       case ET_INT:
         rise::ToStr(m_uValue.nValue, m_sValue); 
         break;
@@ -1083,6 +1324,9 @@ namespace staff
         break;
       case ET_LONGLONG:
         rise::ToStr(m_uValue.llValue, m_sValue); 
+        break;
+      case ET_UBYTE:
+        rise::ToStr(static_cast<unsigned short>(m_uValue.ubtValue), m_sValue); 
         break;
       case ET_UINT:
         rise::ToStr(m_uValue.unValue, m_sValue); 

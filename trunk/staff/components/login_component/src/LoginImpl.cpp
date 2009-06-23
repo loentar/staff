@@ -23,11 +23,11 @@ namespace staff
 
     RISE_ASSERTES(sCurrentSessionId == STAFF_SECURITY_GUEST_SESSION_ID,
       rise::CLogicAlreadyExistsException, 
-      "Невозможно произвести регистрацию из не анонимной сессии");
+      "Cannot login from non-guest session");
     
     if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), szSessionId, sizeof(szSessionId)))
     {
-      RISE_THROWS(staff::CRemoteException, "Ошибка открытия сессии");
+      RISE_THROWS(staff::CRemoteException, "Cannot open session");
     }
 
     tResult.assign(szSessionId);
@@ -43,7 +43,7 @@ namespace staff
 
     if(!StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), nExtraSessionId, szSessionId, sizeof(szSessionId)))
     {
-      RISE_THROWS(staff::CRemoteException, "Ошибка открытия дополнительной сессии");
+      RISE_THROWS(staff::CRemoteException, "Cannot open extra session");
     }
 
     tResult.assign(szSessionId);
@@ -57,7 +57,7 @@ namespace staff
 
     if(!StaffSecurityCloseSession(sCurrentSessionId.c_str()))
     {
-      RISE_THROWS(staff::CRemoteException, "Ошибка закрытия сессии");
+      RISE_THROWS(staff::CRemoteException, "Cannot close session");
     }
   }
 
@@ -65,7 +65,7 @@ namespace staff
   {
     if(!StaffSecurityKeepAliveSession(m_sSessionId.c_str()))
     {
-      RISE_THROWS(staff::CRemoteException, "Ошибка продолжения сессии");
+      RISE_THROWS(staff::CRemoteException, "Cannot keepalive session");
     }
   }
 
@@ -75,7 +75,7 @@ namespace staff
     std::string tResult;
     if(!StaffSecurityGetUserNameBySessionId(m_sSessionId.c_str(), szUserName, sizeof(szUserName)))
     {
-      RISE_THROWS(staff::CRemoteException, "Ошибка получения имени пользователя");
+      RISE_THROWS(staff::CRemoteException, "Cannot get current user name");
     }
 
     tResult.assign(szUserName);
@@ -96,7 +96,9 @@ namespace staff
   const std::string& CLoginImpl::GetSessionID()
   {
     if(m_sSessionId.size() == 0)
+    {
       m_sSessionId = CLoginContext::GetContext().GetServiceID(this);
+    }
     return m_sSessionId;
   }
 

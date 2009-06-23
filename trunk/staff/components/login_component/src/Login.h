@@ -5,45 +5,40 @@
 
 namespace staff
 {
-  //!  сервис аутентификации
+
+  //!  Login service
   class CLogin
   {
   public:
-    //!        деструктор
+    //!        destructor
     virtual ~CLogin() {}
 
-    //!         аутентификация и вход пользователя в систему
-    /*! аутентификация пользователя производится из гостевой сессии
-        \param  sUserName - имя пользователя
-        \param  sPassword - пароль
-        \return идентификатор сессии
+    //!         login user and create session
+    /*! this operation must be called from guest session
+        \param  sUserName - username
+        \param  sPassword - password
+        \return created session id
         */
     virtual std::string Login(const std::string& sUserName, const std::string& sPassword) = 0;
-    
-    //!         открыть дополнительную сессию
-    /*! функция должна вызываться не из гостевой сессии
-        \return идентификатор дополнительной сессии
-        */
-    virtual std::string OpenExtraSession(int nExtraSessionId) = 0;
 
-    //!         выход пользователя из системы
+    //!         logout and close session
     virtual void Logout() = 0;
 
-    //!         продлить сессию
+    //!         keepalive session
     virtual void KeepAliveSession() = 0;
 
-    //!         проверить идентификатор сессии на валидность
-    /*! \return true - сессия верна
+    //!         validate session
+    /*! \return true - session is valid
         */
     virtual bool ValidateSession() = 0;
     
-    //!         получить имя пользователя
-    /*! \return текущий имя пользователя
+    //!         get current user name
+    /*! \return current use name
         */
     virtual std::string GetUserName() = 0;
 
-    //!         получить время истечения сессии по умолчанию
-    /*! \return время истечения сессии в минутах
+    //!         get session expiration time
+    /*! \return session expiration time in minutes
         */
     virtual int GetSessionExpiration() const = 0;
 

@@ -198,19 +198,15 @@ int main(int nArgs, const char* szArgs[])
   }
   catch (const std::string& sError)
   {
-    std::cerr << "ERROR: " << sError << "\nLineNo: " << GetLine() << std::endl << std::endl;
+    rise::LogError() << sError << "\nLineNo: " << GetLine();
     return 1;
   }
   catch (const char* szError)
   {
-    std::cerr << "ERROR: " << szError << "\nLineNo: " << GetLine() << std::endl << std::endl;
+    rise::LogError() << szError << "\nLineNo: " << GetLine();
     return 1;
   }
-  catch(const rise::CException& rEx)
-  {
-    std::cerr << "ERROR: " << rEx.GetString() << std::endl << std::endl;
-    return 1;
-  }
+  RISE_CATCH_ALL
 
   return 0;
 }

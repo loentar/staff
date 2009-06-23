@@ -39,6 +39,16 @@ namespace staff
     */
     const std::string GetResponseName() const;
 
+    //!         set SOAP action
+    /*! \param  sSoapAction - SOAP action
+        */
+    void SetSoapAction(const std::string& sSoapAction);
+
+    //!         get SOAP action
+    /*! \return SOAP action
+        */
+    const std::string& GetSoapAction() const;
+
     //!         добавить параметр
     /*! \param  sName - имя
         \param  tValue - значение
@@ -133,6 +143,7 @@ namespace staff
   private:
     CDataObject m_tdoRequest;
     CDataObject m_tdoResult;
+    std::string m_sSoapAction;
   };
 }
 

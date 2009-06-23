@@ -43,6 +43,13 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #foreach $(Interface.Structs)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // serialize parent struct
+  rdoParam << static_cast<const $(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
   CDataObject tdoParam$(Param.Name)("$(Param.Name)");
 #ifeq($(Param.DataType.Type),struct)
@@ -57,7 +64,11 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #ifeq($(Param.DataType.Type),generic)
   tdoParam$(Param.Name).SetValue(rstStruct.$(Param.Name));
 #else
+#ifeq($(Param.DataType.Type),string)
+  tdoParam$(Param.Name).SetText(rstStruct.$(Param.Name));
+#else
 #cgerror unknown type of Param.Name: $(Struct.Name)::$(Param.DataType.Name)
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -74,28 +85,29 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #foreach $(Interface.Structs)
 CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 {
+#ifneq($(Struct.Parent),)
+  // deserialize parent struct
+  rdoParam >> static_cast<$(Struct.Parent)&>(rstStruct);
+
+#else
+\
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+  CDataObject tdoParam$(Param.Name) = rdoParam("$(Param.Name)");
+  tdoParam$(Param.Name) >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+  CDataObject tdoParam$(Param.Name) = rdoParam("$(Param.Name)");
+  tdoParam$(Param.Name) >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
 #else
-#ifeq($(Param.DataType.Name),staff::string)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
+#ifeq($(Param.DataType.Type),string)
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"].AsString();
 #else
-#ifeq($(Param.DataType.Name),std::string)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
-#else
-#ifeq($(Param.DataType.Name),rise::CString)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
-#else
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
-#ifeqend
-#ifeqend
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"];
 #ifeqend
 #ifeqend
 #ifeqend
@@ -136,7 +148,11 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  rdoParam.Value() = rtType;
+  rdoParam.SetValue(rtType);
+  return rdoParam;
+#else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+  rdoParam.SetText(rtType);
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -150,6 +166,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -198,7 +215,10 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
   for(CDataObject::Iterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
 #ifeq($(Typedef.DataType.Type),generic)
-    rtType.push_back(it->Value());
+    rtType.push_back(it->GetValue());
+#else
+#ifeq($(Typedef.DataType.Type),string)
+    rtType.push_back(it->GetText());
 #else
 #ifeq($(Typedef.DataType.Type),dataobject)
     rtType.push_back(*(it->Begin()));
@@ -213,20 +233,32 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
     tKey = (*it)["Key"];
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
+    tKey = (*it)["Key"].AsString();
+#else
     (*it)("Key") >> tKey;
+#ifeqend
 #ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
     tValue = (*it)["Value"];
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)    // !!string!!
+    tValue = (*it)["Value"].AsString();
+#else
     (*it)("Value") >> tValue;
+#ifeqend
 #ifeqend
     rtType[ tKey ] = tValue;
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!! //6
     tItem = (*it)["Item"];
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
+    tItem = (*it)["Item"].AsString();
+#else
     CDataObject tdoItem(*it);
     tdoItem >> tItem;
+#ifeqend
 #ifeqend
     rtType.push_back(tItem);
 #ifeqend
@@ -236,12 +268,17 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
   }
   return rdoParam;
 #else // !!DataType.IsTemplate!!
 // not container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  rtType = rdoParam.Value();
+  rtType = rdoParam.GetValue();
+  return rdoParam;
+#else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+  rtType = rdoParam.GetText();
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -255,6 +292,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -285,11 +323,18 @@ void $(Class.Name)Proxy::SetService(staff::CService* pService)
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
-  staff::COperation tOperation("$(Member.Name)");
+  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.NodeName)");
+#ifneq($(Member.SoapAction),)
+
+  tOperation.SetSoapAction("$(Member.SoapAction)");
+#ifeqend
 #foreach $(Member.Params)
   staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
   tdoParam$(Param.Name).SetValue($(Param.Name));
+#else
+#ifeq($(Param.DataType.Type),string)    // !!string!!
+  tdoParam$(Param.Name).SetText($(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
   tdoParam$(Param.Name).AppendChild($(Param.Name));
@@ -309,6 +354,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
 #end
 
   m_pService->Invoke(tOperation, m_sID);
@@ -320,6 +366,9 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 \
 #ifeqend
+#else
+#ifeq($(Member.Return.Type),string)    // !!string!!
+  return const_cast<const staff::COperation&>(tOperation).ResultValue();
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
   return tOperation.Result();
@@ -340,6 +389,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   return tReturn;
 #else
 #cgerror "Member.Return.Type = $(Member.Return.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

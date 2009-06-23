@@ -26,18 +26,24 @@ struct $(Struct.Name)$(Struct.ParentDecl)
 $(Class.OpeningNs)
 //!  service $(Class.ServiceNsName)
 #ifneq($(Class.Description),)
-/* $(Class.Description) */
+/*! $(Class.Description) */
 #else
 \
 #ifeqend
+// uri: $(Class.ServiceUri)
 class $(Class.Name)
 {
 public:
   virtual ~$(Class.Name)() {}
 #foreach $(Class.Members)
-#ifneq($(Member.Description),)
 
-  /* $(Member.Description) */
+#ifneq($(Member.SoapAction),)
+  // soapAction: $(Member.SoapAction)
+#else
+\
+#ifeqend
+#ifneq($(Member.Description),)
+  /*! $(Member.Description) */
 #else
 \
 #ifeqend

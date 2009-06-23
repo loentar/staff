@@ -52,6 +52,8 @@ namespace staff
   typedef unsigned short unsignedShort;
   typedef unsigned char unsignedByte;
   typedef unsigned int positiveInteger;
+  
+  typedef string anySimpleType;
 
 
   /* SOAP types */

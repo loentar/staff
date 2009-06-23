@@ -2,7 +2,7 @@
 #define _AXIS2CLIENT_H_
 
 #include "staffclientexport.h"
-#include <rise/string/String.h>
+#include <string>
 
 namespace staff
 {
@@ -12,41 +12,39 @@ namespace staff
   class STAFF_CLIENT_EXPORT CAxis2Client
   {
   public:
-    //!         конструктор
+    //!         constructor
     CAxis2Client();
 
-    //!         деструктор
+    //!         destructor
     ~CAxis2Client();
 
-    //!         инициализация клиента
-    /*! \param  sServiceName - имя сервиса
-        \param  sHostName - имя хоста или IP-адрес
-        \param  sHostPort - порт хоста
+    //!         client init
+    /*! \param  sServiceUri - service URI
+        \param  sSessionId - sessionId
         */
-    void Init(const rise::CString& sServiceName, const rise::CString& sHostName = "localhost", const rise::CString& sHostPort = "9090" );
+    void Init(const std::string& sServiceUri, const std::string& sSessionId);
 
-    //!         установить используемый SessionId сервиса
-    /*! \param  sSessionId - SessionId сервиса
-        */
-    void SetSessionId(const rise::CString& sSessionId);
-
-    //!         деинициализация
+    //!         deinit
     void Deinit();
 
-    //!         получить URI сервиса
-    /*! \return URI сервиса
+    //!         get service URI
+    /*! \return service URI
         */
-    const rise::CString& GetServiceURI() const;
+    const std::string& GetServiceURI() const;
 
-    //!         выполнить операцию
-    /*! \param  rOperation - операция
+    //!         invoke operation
+    /*! \param  rOperation - operation
         */
     void Invoke(COperation& rOperation);    
 
-    //!         проверка на инициализацию
+    //!         check for init
+    /*! \return true if Init() was called
+        \sa Init
+        */
     bool IsInit() const;
     
   private:
+    CAxis2Client(const CAxis2Client&);
     CAxis2Client& operator=(const CAxis2Client&);
     class CAxis2ClientImpl;
     CAxis2ClientImpl* m_pImpl;

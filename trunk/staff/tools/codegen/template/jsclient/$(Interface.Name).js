@@ -81,6 +81,9 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
       tOperation.AddParameter('Key', tKey, tItem);
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!generic!!
+      tOperation.AddParameter('Key', tKey, tItem);
+#else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!! 
       tOperation.AddDataParameter('Key', tKey, tItem); // dataobject as key??? very strange
 #else
@@ -95,11 +98,15 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
 #ifeqend //  - value -
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)    // !!struct!!
       SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
+      tOperation.AddParameter('Value', tValue, tItem);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)    // !!string!!
       tOperation.AddParameter('Value', tValue, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject) // !!dataobject!! 
@@ -117,6 +124,7 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
     }
   }
 #else  // ---------------------------- list -----------------------------------
@@ -127,6 +135,9 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
     SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
+  tOperation.AddParameter('Item', rtType[i], tNode);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
   tOperation.AddParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!! 
@@ -144,6 +155,7 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
   }
 #ifeqend
   return tNode;
@@ -153,6 +165,9 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 {
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
+  return tOperation.SetValue(rtType, tNode);
+#else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
   return tOperation.SetValue(rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -165,6 +180,7 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
   return SerializeTypedef_$(Typedef.DataType.MangledName)(tOperation, rtType, tNode);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -196,6 +212,15 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
   {
 #ifeq($(Typedef.DataType.Type),generic)
     if(tNode.firstChild == null) // generic 1
+    {
+      aResult[j] = "";
+    } else
+    {
+      aResult[j] = tResult.childNodes[i].firstChild.nodeValue;
+    }
+#else
+#ifeq($(Typedef.DataType.Type),string)
+    if(tNode.firstChild == null) // string
     {
       aResult[j] = "";
     } else
@@ -272,6 +297,7 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
   }
 
   return aResult;
@@ -284,6 +310,9 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
   return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
 #else
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+  return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
+#else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
   return tNode;
 #else
@@ -294,6 +323,7 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
   return DeserializeTypedef_$(Typedef.DataType.MangledName)(tOperation, tNode);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -345,6 +375,10 @@ pOnComplete, pOnError)
 #else
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
     tOperation.AddParameter('$(Param.Name)', $(Param.Name));
+#else
+#ifeq($(Param.DataType.Type),string)    // !!string!!
+    tOperation.AddParameter('$(Param.Name)', $(Param.Name));
+#ifeqend
 #ifeqend
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
@@ -372,6 +406,10 @@ pOnComplete, pOnError)
           pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
 #else                                   // !!void!!
           pOnComplete(tOperation);
+#ifeqend
+#else
+#ifeq($(Member.Return.Type),string)    // !!string!!
+          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
 #ifeqend
 #ifeqend
 #ifeqend
@@ -403,6 +441,9 @@ pOnComplete, pOnError)
 #else                                   // !!void!!
 \
 #ifeqend
+#ifeqend
+#ifeq($(Member.Return.Type),string)    // !!string!!
+      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
 #ifeqend
 #ifeqend
 #ifeqend

@@ -33,6 +33,16 @@ namespace staff
     return m_tdoRequest.GetLocalName();
   }
 
+  void COperation::SetSoapAction(const std::string& sSoapAction)
+  {
+    m_sSoapAction = sSoapAction;
+  }
+
+  const std::string& COperation::GetSoapAction() const
+  {
+    return m_sSoapAction;
+  }
+
   void COperation::AddParameter( const std::string& sName, const CValue& tValue )
   {
     CDataObject tParam(sName);
