@@ -685,8 +685,6 @@ std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
   std::string sTmp;
   bool bFunction = false;
 
-  SParam stParamTmp;
-
   rStream >> SkipWs;
   ReadBefore(rStream, rStruct.sName, " \r\n\t:;{}");
   rStruct.sNamespace = g_sCurrentNamespace;
@@ -741,6 +739,8 @@ std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
 
   while (rStream.good() && !rStream.eof())
   {
+    SParam stParamTmp;
+
     bFunction = false;
     rStream >> SkipWs;
     chTmp = rStream.peek();
