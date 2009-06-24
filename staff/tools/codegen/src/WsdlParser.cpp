@@ -145,6 +145,16 @@ void GetType( const rise::xml::CXMLNode& rElement, const std::string& sAttrTypeN
   }
 }
 
+std::string StripNamespace(const std::string& sSymbol)
+{
+  std::string::size_type nPos = sSymbol.find_last_of(':');
+  if (nPos != std::string::npos)
+  {
+    return sSymbol.substr(nPos + 1);
+  }
+  
+  return sSymbol;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -362,23 +372,13 @@ void SComplexType::ParseComplexContent( const rise::xml::CXMLNode& rNodeComplexC
         rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRef = itNodeAttr->FindAttribute("ref");
         if (itAttrRef != itNodeAttr->AttrEnd())
         {
-          std::string sRef = itAttrRef->sAttrValue.AsString();
-          std::string::size_type nPos = sRef.find_last_of(':');
-          if (nPos != std::string::npos)
-          {
-            sRef.erase(0, nPos + 1);
-          }
+          std::string sRef = StripNamespace(itAttrRef->sAttrValue.AsString());
 
           rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRefType = itNodeAttr->AttrBegin();
           for (; itAttrRefType != itNodeAttr->AttrEnd();
               ++itAttrRefType)
           {
-            std::string sAttrName = itAttrRefType->sAttrName;
-            std::string::size_type nPos = sAttrName.find_last_of(':');
-            if (nPos != std::string::npos)
-            {
-              sAttrName.erase(0, nPos + 1);
-            }
+            std::string sAttrName = StripNamespace(itAttrRefType->sAttrName);
 
             if (sAttrName == sRef)
             {
@@ -491,32 +491,40 @@ public:
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = rPart.FindAttribute("element");
     if (itAttrType != rPart.AttrEnd())
     { // element type
-      std::string sElementName = itAttrType->sAttrValue.AsString();
-      std::string::size_type nPos = sElementName.find_last_of(':');
-      if (nPos != std::string::npos)
-      {
-        sElementName.erase(0, nPos + 1);
-      }
+      std::string sElementName = StripNamespace(itAttrType->sAttrValue.AsString());
 
       TElementMap::const_iterator itElement = rWsdlTypes.mElements.find(sElementName);
       RISE_ASSERTES(itElement != rWsdlTypes.mElements.end(), rise::CLogicNoItemException, 
         "Element " + itAttrType->sAttrValue.AsString() + " is not found, while parsing part");
 
-      for (std::list<SComplexType>::const_iterator itParamType = itElement->second.lsComplexTypes.begin();
-        itParamType != itElement->second.lsComplexTypes.end(); ++itParamType)
+      if (itElement->second.lsComplexTypes.size() != 0)
       {
-        for (std::list<SElement>::const_iterator itParamElement = itParamType->lsElements.begin();
-          itParamElement != itParamType->lsElements.end(); ++itParamElement)
+        for (std::list<SComplexType>::const_iterator itParamType = itElement->second.lsComplexTypes.begin();
+          itParamType != itElement->second.lsComplexTypes.end(); ++itParamType)
         {
-          const SElement& rElem = *itParamElement;
-          SParam stParam;
+          for (std::list<SElement>::const_iterator itParamElement = itParamType->lsElements.begin();
+            itParamElement != itParamType->lsElements.end(); ++itParamElement)
+          {
+            const SElement& rElem = *itParamElement;
+            SParam stParam;
 
-          stParam.sName = rElem.sName;
-          stParam.stDataType.sName = rElem.sType;
-          stParam.stDataType.sNodeName = rElem.sName;
+            stParam.sName = rElem.sName;
+            stParam.stDataType.sName = rElem.sType;
+            stParam.stDataType.sNodeName = rElem.sName;
 
-          rParts.push_back(stParam);
+            rParts.push_back(stParam);
+          }
         }
+      }
+      else
+      { // write element
+        SParam stParam;
+
+        stParam.sName = itElement->second.sName;
+        stParam.stDataType.sName = itElement->second.sType;
+        stParam.stDataType.sNodeName = itElement->second.sName;
+
+        rParts.push_back(stParam);
       }
     }
     else
@@ -578,12 +586,7 @@ public:
     if (itNodeInput != rOperation.NodeEnd())
     {
       // request
-      std::string sRequestName = itNodeInput->Attribute("message").AsString();
-      nPos = sRequestName.find_last_of(":");
-      if (nPos != std::string::npos)
-      {
-        sRequestName.erase(0, nPos + 1);
-      }
+      std::string sRequestName = StripNamespace(itNodeInput->Attribute("message").AsString());
 
       rise::xml::CXMLNode::TXMLNodeConstIterator itMessage = 
         rDefs.FindNodeMatch("message", rise::xml::SXMLAttribute("name", sRequestName));
@@ -599,12 +602,7 @@ public:
       rOperation.FindSubnode("output");
     if (itNodeOutput != rOperation.NodeEnd())
     {
-      std::string sResponseName = itNodeOutput->Attribute("message").AsString();
-      nPos = sResponseName.find_last_of(":");
-      if (nPos != std::string::npos)
-      {
-        sResponseName.erase(0, nPos + 1);
-      }
+      std::string sResponseName = StripNamespace(itNodeOutput->Attribute("message").AsString());
 
       rise::xml::CXMLNode::TXMLNodeConstIterator itMessage = 
         rDefs.FindNodeMatch("message", rise::xml::SXMLAttribute("name", sResponseName));
@@ -629,8 +627,37 @@ public:
   
   void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName, const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
   {
+
+    class FindNodeBinding
+    {
+    public:
+      FindNodeBinding(const std::string& sTypeName):
+        m_sTypeName(StripNamespace(sTypeName))
+      {}
+
+      bool operator()(const rise::xml::CXMLNode& rFindNode)
+      {
+        if (rFindNode.NodeName() != "binding")
+        {
+          return false;
+        }
+
+        rise::xml::CXMLNode::TXMLAttrConstIterator itType = rFindNode.FindAttribute("type");
+        if (itType == rFindNode.AttrEnd())
+        {
+          return false;
+        }
+
+        return StripNamespace(itType->sAttrValue.AsString()) == m_sTypeName;
+      }
+
+    private:
+      std::string m_sTypeName;
+    };
+
+
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeBinding = 
-      rDefs.FindNodeMatch("binding", rise::xml::SXMLAttribute("name", sPortTypeName));
+      rDefs.FindNodeIf(FindNodeBinding(sPortTypeName));
 
     if (itNodeBinding != rDefs.NodeEnd())
     {

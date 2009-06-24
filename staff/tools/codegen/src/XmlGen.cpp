@@ -229,6 +229,8 @@ CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const STypedef& rTypedef)
 
   rNodeTypedef.AddSubNode(" Typedef name ", CXMLNode::ENTCOMMENT);
   rNodeTypedef["Name"] = rTypedef.sNamespace + rTypedef.sName;
+  rNodeTypedef.AddSubNode(" Typedef native name ", CXMLNode::ENTCOMMENT);
+  rNodeTypedef["NativeName"] = rTypedef.sName;
   rNodeTypedef.AddSubNode(" Typedef name with namespace ", CXMLNode::ENTCOMMENT);
   rNodeTypedef["MangledName"] = sMangledName + rTypedef.sName;
   rNodeTypedef.AddSubNode(" Source datatype ", CXMLNode::ENTCOMMENT);

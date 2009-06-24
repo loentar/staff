@@ -71,6 +71,24 @@ public:
       return tNodeCount;
     }
 
+    if (sVariable == "$Count")
+    {
+      static CXMLNode tSubNodeCount;
+      int nNum = 0;
+
+      for (CXMLNode::TXMLNodeConstIterator itNode = pNode->NodeBegin(); 
+        itNode != pNode->NodeEnd(); ++itNode)
+      {
+        if(itNode->NodeType() == CXMLNode::ENTGENERIC)
+        {
+          ++nNum;
+        }
+      }
+
+      tSubNodeCount.NodeContent() = nNum;
+      return tSubNodeCount;
+    }
+
     return pNode->Subnode(sVariable);
   }
 
@@ -102,7 +120,7 @@ public:
   void Init(const std::string& sInDir)
   {
     std::list<std::string> tFileList;
-    rise::CFileFind::Find(sInDir, tFileList, "*.*");
+    rise::CFileFind::Find(sInDir, tFileList, "*.*", rise::CFileFind::EFA_FILE);
     for (std::list<std::string>::const_iterator it = tFileList.begin(); it != tFileList.end(); ++it)
     {
       if(it->find('$') != std::string::npos)
@@ -158,9 +176,39 @@ public:
 
       std::string sLeft = sLine.substr(nOffsetPos, nPosStart - nOffsetPos);
       std::string sRight = sLine.substr(nPosStart + 1, nPosEnd - nPosStart - 1);
-      bEq = (sRight == sLeft);
+
+      bEq = false;
+
+      std::string::size_type nPosStartLeft = 0;
+      std::string::size_type nPosStartRight = 0;
+      std::string::size_type nPosEndLeft = 0;
+      std::string::size_type nPosEndRight = 0;
+      do
+      {
+        nPosEndLeft = sLeft.find("||", nPosStartLeft);
+        const std::string& sLeftCmp = sLeft.substr(nPosStartLeft, nPosEndLeft - nPosStartLeft);
+
+        nPosStartRight = 0;
+        nPosEndRight = 0;
+        do
+        {
+          nPosEndRight = sRight.find("||", nPosStartRight);
+          const std::string& sRightCmp = sRight.substr(nPosStartRight, nPosEndRight - nPosStartRight);
+          
+          if(sLeftCmp == sRightCmp)
+          {
+            bEq = true;
+            break;
+          }
+          nPosStartRight = nPosEndRight + 2;
+        } while (nPosEndRight != std::string::npos);
+        nPosStartLeft = nPosEndLeft + 2;
+      } while (nPosEndLeft != std::string::npos && !bEq);
+      
       if (bNotEq)
+      {
         bEq = !bEq;
+      }
     }
 
     while (!fsIn.eof() && fsIn.good() && nRecursion > 0)
