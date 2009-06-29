@@ -5,13 +5,23 @@
 
 #include <staff/common/WsdlTypes.h>
 
+// targetNamespace: $(Interface.TargetNamespace)
+#ifneq($(Interface.Structs.$Count),0)
+
 #foreach $(Interface.Structs)
 struct $(Struct.Name);
 #end
+#else
+\
+#ifeqend
+#ifneq($(Interface.Typedefs.$Count),0)
 
 #foreach $(Interface.Typedefs)
 typedef $(Typedef.DataType) $(Typedef.Name);
 #end
+#else
+\
+#ifeqend
 
 #foreach $(Interface.Structs)
 struct $(Struct.Name)$(Struct.ParentDecl)
@@ -37,13 +47,23 @@ public:
   virtual ~$(Class.Name)() {}
 #foreach $(Class.Members)
 
+#ifneq($(Member.Description),)
+  /*! $(Member.Description) */
+#else
+\
+#ifeqend
 #ifneq($(Member.SoapAction),)
   // soapAction: $(Member.SoapAction)
 #else
 \
 #ifeqend
-#ifneq($(Member.Description),)
-  /*! $(Member.Description) */
+#ifneq($(Member.Return.ResponseName),)
+  // responseElement: $(Member.Return.ResponseName)
+#else
+\
+#ifeqend
+#ifneq($(Member.Return.NodeName),)
+  // resultElement: $(Member.Return.NodeName)
 #else
 \
 #ifeqend

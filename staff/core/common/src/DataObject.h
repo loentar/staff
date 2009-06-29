@@ -180,6 +180,9 @@ namespace staff
     */
     CDataObject& DetachNode();
 
+    //!         replace current node to given    
+    CDataObject& ReplaceNode(CDataObject& rNewNode);
+
     //!         создание копии дерева
     /*! текущий объект становится владельцем копии
         \param  rDataObject - исходный обьект

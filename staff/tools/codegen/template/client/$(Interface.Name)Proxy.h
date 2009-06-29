@@ -5,6 +5,7 @@
 #define _$(Interface.Name)Proxy_h_
 
 #include <staff/client/Axis2Client.h>
+#include <staff/common/WsdlTypes.h>
 #include "$(Interface.FileName)"
 
 #foreach $(Interface.Classes)

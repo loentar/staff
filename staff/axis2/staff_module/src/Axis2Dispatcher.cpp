@@ -105,7 +105,7 @@ rise::LogEntry();
     return NULL;
   }
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
   {
     axiom_soap_envelope_t* pSoapEnv = axis2_msg_ctx_get_soap_envelope(pMsgCtx, pEnv);
     if (pSoapEnv == NULL)
@@ -124,7 +124,7 @@ rise::LogEntry();
       AXIS2_FREE(pEnv->allocator, szXml);
     }
   }
-#endif
+#endif*/
 
   printf("Staff service \"%s\" found\n", sRequestedServiceName.c_str());
   return pService;

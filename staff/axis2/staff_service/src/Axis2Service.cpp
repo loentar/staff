@@ -14,6 +14,7 @@
 #include <axiom_soap_body.h>
 #include <axiom.h>
 #include <exception>
+#include <rise/common/console.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
 #include <staff/common/Exception.h>
@@ -176,7 +177,7 @@ rise::LogLabel();
       axiom_node_t* panBody = axiom_node_get_parent(pAxiomNode, pEnv);
       axiom_node_t* panEnv = axiom_node_get_parent(panBody, pEnv);
 
-      rise::LogDebug2() << "request SOAP Envelope: \n" << staff::CDataObject(panEnv).ToString() << "\n";
+      rise::LogDebug2() << "request SOAP Envelope: \n" << rise::ColorInkBlue << staff::CDataObject(panEnv).ToString() << "\n" << rise::ColorDefault;
     }
 #endif
     
@@ -243,13 +244,13 @@ rise::LogLabel();
     }
 
     tOperation.PrepareResult();
-    tOperation.Result().SetOwner(false);
+    tOperation.GetResponse().SetOwner(false);
 
 #ifdef _DEBUG
-    rise::LogDebug2() << "Sending Response: \n" << tOperation.Result().ToString();
+    rise::LogDebug2() << "Sending Response: \n" <<  rise::ColorInkBlue << tOperation.GetResponse().ToString() << "\n" << rise::ColorDefault;
 #endif
 
-    return tOperation.Result();
+    return tOperation.GetResponse();
   }
 
   static void OnConnect(const std::string& sServiceName, const staff::CService* pService)

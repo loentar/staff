@@ -4,8 +4,8 @@
 
 namespace staff
 {
-  COperation::COperation(const std::string& sName /*= ""*/, const std::string& sResponseName /*= ""*/):
-    m_tdoRequest(sName), m_tdoResult(sResponseName)
+  COperation::COperation(const std::string& sName /*= ""*/, const std::string& sResponseName /*= ""*/, const std::string& sResultName /*= ""*/):
+    m_tdoRequest(sName), m_tdoResponse(sResponseName), m_sResultName(sResultName)
   {
   }
 
@@ -25,12 +25,22 @@ namespace staff
 
   void COperation::SetResponseName( const std::string& sResponseName )
   {
-    m_tdoResult.SetLocalName(sResponseName);
+    m_tdoResponse.SetLocalName(sResponseName);
   }
 
   const std::string COperation::GetResponseName() const
   {
     return m_tdoRequest.GetLocalName();
+  }
+
+  void COperation::SetResultName( const std::string& sResultName )
+  {
+    m_sResultName = sResultName;
+  }
+
+  const std::string& COperation::GetResultName() const
+  {
+    return m_sResultName;
   }
 
   void COperation::SetSoapAction(const std::string& sSoapAction)
@@ -67,11 +77,15 @@ namespace staff
 
   const CDataObject& COperation::Result() const
   {
+    m_tdoResult = (m_sResultName.size() == 0 ? m_tdoResponse : m_tdoResponse.GetChildByLocalName(m_sResultName));
+    m_tdoResult.SetOwner(false);
     return m_tdoResult;
   }
 
   CDataObject& COperation::Result()
   {
+    m_tdoResult = (m_sResultName.size() == 0 ? m_tdoResponse : m_tdoResponse.CreateChildOnce(m_sResultName));
+    m_tdoResult.SetOwner(false);
     return m_tdoResult;
   }
 
@@ -87,7 +101,22 @@ namespace staff
 
   void COperation::SetResult( CDataObject& rDataObject )
   {
-    Result() = rDataObject;
+    Result().ReplaceNode(rDataObject);
+  }
+
+  CDataObject& COperation::GetResponse()
+  {
+    return m_tdoResponse;
+  }
+  
+  const CDataObject& COperation::GetResponse() const
+  {
+    return m_tdoResponse;
+  }
+  
+  void COperation::SetResponse(staff::CDataObject& rdoResponse)
+  {
+    m_tdoResponse = rdoResponse;
   }
 
   void COperation::SetResultValue( const CValue& rValue )
@@ -97,12 +126,12 @@ namespace staff
 
   bool COperation::IsFault() const
   {
-    return Result().GetLocalName() == "Fault";
+    return GetResponse().GetLocalName() == "Fault";
   }
 
   void COperation::SetFault( const std::string& sReason, const std::string& sFaultDetail /*= ""*/, const std::string& sFaultCode /*= ""*/ )
   {
-    CDataObject& rFault = Result();
+    CDataObject& rFault = GetResponse();
 
     rFault.SetLocalName("Fault");
     rFault.CreateChildOnce("Reason").CreateChildOnce("Text").Value() = sReason;
@@ -112,7 +141,7 @@ namespace staff
 
   void COperation::ResetFault()
   {
-    CDataObject& rFault = Result();
+    CDataObject& rFault = GetResponse();
 
     rFault.SetLocalName(Request().GetLocalName() + "Result");
     rFault.RemoveChildByLocalName("Reason");
@@ -122,8 +151,8 @@ namespace staff
 
   void COperation::SetUserFault( CDataObject& rDataObjectFault )
   {
-    Result() = rDataObjectFault;
-    Result().SetLocalName("Fault");
+    SetResponse(rDataObjectFault);
+    GetResponse().SetLocalName("Fault");
   }
 
   std::string COperation::GetFaultString() const
@@ -224,7 +253,7 @@ namespace staff
 
   const CDataObject COperation::GetFault() const
   {
-    return m_tdoResult.GetChildByLocalName("Fault");
+    return m_tdoResponse.GetChildByLocalName("Fault");
   }
 
   void COperation::PrepareResult()
@@ -233,16 +262,16 @@ namespace staff
 
     if (!IsFault())
     {
-      if(m_tdoResult.GetLocalName() == "")
+      if(m_tdoResponse.GetLocalName() == "")
       {
-        m_tdoResult.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
+        m_tdoResponse.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
       }
     }
 
-    if (m_tdoResult.GetPrefix() == "" || m_tdoResult.GetNamespaceUri() == "")
+    if (m_tdoResponse.GetPrefix() == "" || m_tdoResponse.GetNamespaceUri() == "")
     {
-      CQName tqnResult(m_tdoResult.GetLocalName(), m_tdoRequest.GetNamespaceUri(), m_tdoRequest.GetPrefix());
-      m_tdoResult.SetQName(tqnResult);
+      CQName tqnResult(m_tdoResponse.GetLocalName(), m_tdoRequest.GetNamespaceUri(), m_tdoRequest.GetPrefix());
+      m_tdoResponse.SetQName(tqnResult);
     }
   }
 }

@@ -14,7 +14,7 @@ namespace staff
   {
   public:
     //!        конструктор по умолчанию
-    COperation(const std::string& sName = "", const std::string& sResponseName = "");
+    COperation(const std::string& sName = "", const std::string& sResponseName = "", const std::string& sResultName = "");
 
     //!        деструктор
     virtual ~COperation();
@@ -38,6 +38,16 @@ namespace staff
     /*! \return имя операции
     */
     const std::string GetResponseName() const;
+
+    //!         установить имя ответа
+    /*! \param  sName - имя операции
+        */
+    void SetResultName(const std::string& sResponseName);
+
+    //!         получить имя ответа
+    /*! \return имя операции
+    */
+    const std::string& GetResultName() const;
 
     //!         set SOAP action
     /*! \param  sSoapAction - SOAP action
@@ -74,6 +84,21 @@ namespace staff
 
     //!         подготовить результат к отправке
     void PrepareResult();
+
+    //!         Get response object
+    /*! \return response object
+        */
+    CDataObject& GetResponse();
+
+    //!         Get response object
+    /*! \return response object
+        */
+    const CDataObject& GetResponse() const;
+
+    //!         set response object
+    /*! \param  rdoResponse - response object
+        */
+    void SetResponse(staff::CDataObject& rdoResponse);
 
     //!         получить/установить результат(простой)
     /*! \return ссылка на значение результата
@@ -142,7 +167,9 @@ namespace staff
 
   private:
     CDataObject m_tdoRequest;
-    CDataObject m_tdoResult;
+    CDataObject m_tdoResponse;
+    mutable CDataObject m_tdoResult;
+    std::string m_sResultName;
     std::string m_sSoapAction;
   };
 }

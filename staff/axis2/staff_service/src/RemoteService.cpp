@@ -18,10 +18,11 @@ namespace staff
       if (m_sName.size() == 0)
       {
         COperation tOperation("GetServiceDescription");
-        const CDataObject& rResult = tOperation.Result();
 
         // request description from service;
         m_pSelf->Invoke(tOperation);
+
+        const CDataObject& rResult = const_cast<const COperation&>(tOperation).Result();
 
         m_sName = rResult["Name"].AsString();
         if(m_sName.size() == 0)
@@ -33,6 +34,8 @@ namespace staff
 
         m_sSessionId = rResult["SessionId"].AsString();
         m_sDescr = rResult["Description"].AsString();
+        
+
         m_tOperations = tOperation.Result().GetChildByLocalName("Operations").DetachNode();
         if(m_tOperations.GetLocalName().size() == 0)
         {
@@ -186,7 +189,7 @@ namespace staff
       }
     }
 
-    m_pImpl->m_tRecvBuffer >> rOperation.Result();
+    m_pImpl->m_tRecvBuffer >> rOperation.GetResponse();
   }
 
   bool CRemoteService::CheckConnection()

@@ -1,3 +1,4 @@
+#include <rise/common/Log.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
 #include <rise/xml/XMLAttribute.h>
@@ -486,7 +487,7 @@ public:
   }
 
 
-  void ParsePart(std::list<SParam>& rParts, const rise::xml::CXMLNode& rPart, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
+  void ParsePart(std::list<SParam>& rParts, const rise::xml::CXMLNode& rPart, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes, bool bIsResponse)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = rPart.FindAttribute("element");
     if (itAttrType != rPart.AttrEnd())
@@ -508,7 +509,7 @@ public:
             const SElement& rElem = *itParamElement;
             SParam stParam;
 
-            stParam.sName = rElem.sName;
+            stParam.sName = bIsResponse ? sElementName : rElem.sName;
             stParam.stDataType.sName = rElem.sType;
             stParam.stDataType.sNodeName = rElem.sName;
 
@@ -520,7 +521,7 @@ public:
       { // write element
         SParam stParam;
 
-        stParam.sName = itElement->second.sName;
+        stParam.sName = bIsResponse ? sElementName : itElement->second.sName;
         stParam.stDataType.sName = itElement->second.sType;
         stParam.stDataType.sNodeName = itElement->second.sName;
 
@@ -556,29 +557,28 @@ public:
         itNodePart != rMessage.NodeEnd();
         itNodePart = rMessage.FindSubnode("part", ++itNodePart))
     {
-      ParsePart(rParams, *itNodePart, rDefs, rWsdlTypes);
+      ParsePart(rParams, *itNodePart, rDefs, rWsdlTypes, false);
     }
   }
 
-  void ParseResponse(SDataType& rParam, const rise::xml::CXMLNode& rMessage, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
+  void ParseResponse(SParam& rParam, const rise::xml::CXMLNode& rMessage, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
   {
     std::list<SParam> lsParams;
-    ParsePart(lsParams, rMessage.Subnode("part"), rDefs, rWsdlTypes);
+    ParsePart(lsParams, rMessage.Subnode("part"), rDefs, rWsdlTypes, true);
 
     if (lsParams.size() > 0)
     {
-      rParam = lsParams.front().stDataType;
+      rParam = lsParams.front();
     }
     else
     {
-      rParam.sName = "void";
+      rParam.stDataType.sName = "void";
     }
   }
   
 
   void ParseOperation(SMember& rMember, const rise::xml::CXMLNode& rOperation, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
   {
-    std::string::size_type nPos = std::string::npos;
     rMember.sName = rOperation.Attribute("name").AsString();
 
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeInput = 
@@ -625,37 +625,35 @@ public:
     }
   }
   
-  void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName, const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
+  class FindNodeBinding
   {
+  public:
+    FindNodeBinding(const std::string& sTypeName):
+      m_sTypeName(StripNamespace(sTypeName))
+    {}
 
-    class FindNodeBinding
+    bool operator()(const rise::xml::CXMLNode& rFindNode)
     {
-    public:
-      FindNodeBinding(const std::string& sTypeName):
-        m_sTypeName(StripNamespace(sTypeName))
-      {}
-
-      bool operator()(const rise::xml::CXMLNode& rFindNode)
+      if (rFindNode.NodeName() != "binding")
       {
-        if (rFindNode.NodeName() != "binding")
-        {
-          return false;
-        }
-
-        rise::xml::CXMLNode::TXMLAttrConstIterator itType = rFindNode.FindAttribute("type");
-        if (itType == rFindNode.AttrEnd())
-        {
-          return false;
-        }
-
-        return StripNamespace(itType->sAttrValue.AsString()) == m_sTypeName;
+        return false;
       }
 
-    private:
-      std::string m_sTypeName;
-    };
+      rise::xml::CXMLNode::TXMLAttrConstIterator itType = rFindNode.FindAttribute("type");
+      if (itType == rFindNode.AttrEnd())
+      {
+        return false;
+      }
 
+      return StripNamespace(itType->sAttrValue.AsString()) == m_sTypeName;
+    }
 
+  private:
+    std::string m_sTypeName;
+  };
+
+  void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName, const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
+  {
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeBinding = 
       rDefs.FindNodeIf(FindNodeBinding(sPortTypeName));
 
@@ -972,6 +970,8 @@ void CWsdlParser::Parse( const std::string& sFileName, SInterface& rInterface )
   // validate root node name
   RISE_ASSERTES(rDefs.NodeName() == "definitions", rise::CLogicFormatException, 
     "Invalid wsdl root node name: " + rDefs.NodeName());
+
+  rInterface.sTargetNs = rDefs.Attribute("targetNamespace").AsString();
 
   // fill in interface name
   std::string::size_type nPos = sFileName.find_last_of("/\\");

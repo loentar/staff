@@ -23,9 +23,14 @@ namespace staff
         \param  sSessionId - sessionId
         */
     void Init(const std::string& sServiceUri, const std::string& sSessionId);
-
+    
     //!         deinit
     void Deinit();
+
+    //!         set target namespace
+    /*! \param sTarget namespace - target namespace
+        */
+    void SetTargetNamespace(const std::string& sTargetNamespace);
 
     //!         get service URI
     /*! \return service URI

@@ -176,7 +176,12 @@ void osInitializeCriticalSection(PCriticalSection pCriticalSection)
 #ifdef WIN32
   InitializeCriticalSection(pCriticalSection);
 #else
+#ifdef OS_MCBC
   pthread_mutexattr_t tAttr = {PTHREAD_MUTEX_RECURSIVE_NP};
+#else
+  pthread_mutexattr_t tAttr;
+  pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+#endif
   pthread_mutex_init(pCriticalSection, &tAttr);
 #endif
 }

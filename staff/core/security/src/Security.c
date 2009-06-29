@@ -1102,7 +1102,11 @@ bool StaffSecurityGetPermissionForUser( const TObject* pstObject, int nUserId, T
     }
   }
   
-  dprintf("\033[4mpermissions: %03o\033[0m\n", *(int*)&pstPermission);
+  dprintf("\033[4muser permissions to [%s]: %c%c%c\033[0m\n", 
+    pstObject->szObjectName,
+    pstPermission->bRead ? 'r' : '-',
+    pstPermission->bWrite ? 'w' : '-',
+    pstPermission->bExecute ? 'x' : '-');
 
   return true;
 }

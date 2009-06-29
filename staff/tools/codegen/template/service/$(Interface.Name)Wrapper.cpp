@@ -334,6 +334,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 
   if (sOperationName == "GetServiceDescription")
   {
+    rResult.DeclareDefaultNamespace("http://tempui.org/staff/service-description");
     rResult.CreateChild("Name", "$(Class.ServiceNsName)");
 
     rResult.CreateChild("SessionId", GetSessionId());
@@ -379,7 +380,8 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 #foreach $(Class.Members)
   if (sOperationName == "$(Member.Name)")
   {
-    rOperation.SetResponseName("$(Member.Return.NodeName)");
+    rOperation.SetResponseName("$(Member.Return.ResponseName)");
+    rOperation.SetResultName("$(Member.Return.NodeName)");
 #foreach $(Member.Params) // для структур и типов создаем локальные переменные 
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
     $(Param.DataType.Name) $(Param.Name);

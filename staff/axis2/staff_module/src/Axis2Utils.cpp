@@ -82,12 +82,13 @@ bool GetServiceName(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, std::str
 
   if (szServiceUri == NULL || szServiceUri[0] == '\0')
   {
-    // не смогли определить к какому сервису HTTP-запрос, попробуем по SOAP namesapce
+    // if HTTP-header does'nt contain service URI, try to get service name from SOAP operation namespace
     szServiceUri = GetServiceUriFromMsgCtx(pMsgCtx, pEnv);
     if (szServiceUri == NULL || szServiceUri[0] == '\0')
-      return false; // не смогли определаить URI сервиса
-  } else // в SOAP operation необходимо заменить namespace URI, 
-         // чтобы сервис смог понять откуда пришел запрос
+    {
+      return false; // SOAP operation namespace is empty: fault
+    }
+  } else // changing namespace for service
   {
     printf("HTTP URI: %s\n", szServiceUri);
 
@@ -98,21 +99,19 @@ bool GetServiceName(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, std::str
       return false;
     }
 
-    staff::CDataObject do1(pSoapOpNode);
-    printf("%s\n\n", do1.ToString().c_str()      );
-
-
     axiom_namespace_t* pNamespace = GetNs(pSoapOpNode, pEnv);
     if (pNamespace == NULL)
+    {
+      printf("can't get operation namespace\n");
       return false;
+    }
 
     const axis2_char_t* szSoapUri = axiom_namespace_get_uri(pNamespace, pEnv);
 
     printf("SOAP URI: %s\n", szSoapUri);
 
-    // если неймспейсы не совпадают
     if (strcmp(szSoapUri, szServiceUri) != 0)
-    { // изменить неймспейс
+    {
       axutil_string_t* psServiceUri = axutil_string_create(pEnv, szServiceUri);
       axiom_namespace_set_uri_str(pNamespace, pEnv, psServiceUri);
     }

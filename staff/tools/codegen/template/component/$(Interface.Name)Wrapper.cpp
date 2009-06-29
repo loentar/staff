@@ -356,7 +356,8 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const rise::CS
 #foreach $(Class.Members)
   if (sOperationName == "$(Member.Name)")
   {
-    rOperation.SetResponseName("$(Member.Return.NodeName)");
+    rOperation.SetResponseName("$(Member.Return.ResponseName)");
+    rOperation.SetResultName("$(Member.Return.NodeName)");
 #foreach $(Member.Params) // для структур и типов создаем локальные переменные 
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
     $(Param.DataType.Name) $(Param.Name);
@@ -532,6 +533,7 @@ staff::CDataObject $(Class.Name)Wrapper::GetServiceDescription() const
   staff::CDataObject tOperations = GetOperations();
 
   tServiceDescription.Create("ServiceDescription");
+  tServiceDescription.DeclareDefaultNamespace("http://tempui.org/staff/service-description");
     
   tServiceDescription.CreateChild("Name", GetName());
   tServiceDescription.CreateChild("Description", GetDescr());

@@ -309,6 +309,22 @@ namespace staff
     return *this;
   }
 
+  CDataObject& CDataObject::ReplaceNode(CDataObject& rNewNode)
+  {
+    axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
+
+    DetachNode();
+    Free();
+
+    if (pParentNode != NULL)
+    {
+      axiom_node_add_child(pParentNode, m_pEnv, rNewNode.m_pAxiomNode);
+    }
+
+    Attach(rNewNode);
+    return *this;
+  }
+
   axiom_node_t* CDataObject::Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent)
   {
     axiom_types_t tNodeType = axiom_node_get_node_type(pNodeIn, m_pEnv);
@@ -1086,9 +1102,12 @@ namespace staff
 
   std::string CDataObject::ToString() const
   {
+    std::string sXml;
     char* szXml = axiom_node_to_string(m_pAxiomNode, m_pEnv);
-    RISE_ASSERTES(szXml != NULL, CDomFormatException, "Ошибка преобразования ОМ в строку");
-    return szXml;
+    RISE_ASSERTES(szXml != NULL, CDomFormatException, "cannot convert DataObject to string");
+    sXml = szXml;
+    AXIS2_FREE(m_pEnv->allocator, szXml);
+    return sXml;
   }
 
   CDataObject* CDataObject::operator->()

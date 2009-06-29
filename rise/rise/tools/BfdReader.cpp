@@ -224,7 +224,7 @@ namespace rise
     {
 #ifdef _M_X64
       char szAddrHex[19];
-      snprintf(szAddrHex, sizeof(szAddrHex), "0x%016x", reinterpret_cast<const unsigned long>(pAddr));
+      snprintf(szAddrHex, sizeof(szAddrHex), "0x%016lx", reinterpret_cast<const unsigned long>(pAddr));
 #else
       char szAddrHex[11];
       snprintf(szAddrHex, sizeof(szAddrHex), "0x%08x", reinterpret_cast<const unsigned int>(pAddr));
