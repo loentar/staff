@@ -1,0 +1,121 @@
+#summary Creating SOA clients by on WSDL.
+#labels Featured,Phase-Implementation
+
+_NOTICE: translated from russian with translate.google.com_
+
+= Introduction =
+
+ This document describes the basic sequence of steps that must be met to create a C++ client using the WSDL.
+
+ As an example we use Web service !StockQuote http://www.webservicex.net/WCF/ServiceDetails.aspx?SID=19
+
+ As a result of the steps will be received by C++ client to work with the service !StockQuote.
+
+
+= Description =
+
+== 0. Directory Structure ==
+ First create a directory structure for the client:
+
+{{{
+ # this variable is needed only for a better understanding of directory structure
+ export WSCLIENTDIR=~/devel/ws/clients/stockquote
+ # create the directory client and directory for storing source code
+ mkdir -p ${WSCLIENTDIR}/src
+}}}
+
+== 1. Implementing client ==
+ The client must make a request stock quotes and display the result on the screen:
+
+{{{
+ # Move to the directory the source files client
+ cd ${WSCLIENTDIR}/src
+ # Get the WSDL for a web service StockQuote
+ wget http://www.webservicex.net/stockquote.asmx?WSDL -O StockQuote.wsdl
+ # Generate template implementation of a client
+ ${STAFF_HOME}/bin/staff_codegen -w -tclientimpl StockQuote.wsdl
+}}}
+
+  Then, in a template to implement the client code to call the service. Open the main.cpp file in a text editor:
+
+{{{
+ gedit main.cpp
+}}}
+
+and add the code calling the service and output the results after the comment "Invoke Your service here", replacing the parameter COMPANY_NAME with company name, for example IBM.
+
+{{{
+ staff::string GetQuoteResult = pStockQuote->GetQuote("COMPANY_NAME");
+ std::cout << "Result:" << std::endl << GetQuoteResult << std::endl;
+}}}
+
+== 2. Generating interface and the proxy ==
+ To generate the service interface and the proxy type:
+
+{{{
+ staff_codegen -w -tinterface StockQuote.wsdl
+ staff_codegen -tclient StockQuote.h
+}}}
+
+
+== 3. Compiling and Running ==
+ Create a Makefile client for client compilation.
+
+{{{
+  cd ${WSCLIENTDIR}
+  gedit Makefile
+}}}
+
+ Paste the Makefile code:
+{{{
+TARGET = StockQuoteClient
+TARGETNAME = $(TARGET)
+
+PLATFORM ?= $(shell uname -m)
+SRCDIR = src/
+OBJDIR = obj/$(PLATFORM)/
+OUTDIR = out/$(PLATFORM)/
+
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include -fPIC
+LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+LDFLAGS += -lstaffcommon -lstaffclient -lrise
+
+SOURCES = $(wildcard $(SRCDIR)*.cpp)
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+# == make =========================================== 
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+
+# link
+$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile 
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == clean ========================================== 
+clean:
+	rm -Rf $(OBJDIR) $(OUTDIR)
+
+# == mkdir ========================================== 
+"%/":
+	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+
+# == check ========================================== 
+check:
+ifeq ($(STAFF_HOME),)
+	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+endif
+}}}
+
+Compile client with command:
+{{{
+ make
+}}}
+
+Run the client:
+{{{
+ out/$(uname -m)/StockQuoteClient
+}}}
+
