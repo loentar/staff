@@ -74,7 +74,11 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
       return AXIS2_FAILURE;
     }
     
-    dprintf("\033[1mpermissions: %d\033[0m\n\n", *(int*)&stPermission);
+    dprintf("\033[4muser permissions to (%s:%s): %c%c%c\033[0m\n", 
+      szService, szOperation,
+      stPermission.bRead ? 'r' : '-',
+      stPermission.bWrite ? 'w' : '-',
+      stPermission.bExecute ? 'x' : '-');
 
     if(!stPermission.bExecute)
     {

@@ -4,6 +4,7 @@
 #ifndef _$(Interface.Name)Proxy_h_
 #define _$(Interface.Name)Proxy_h_
 
+#include <staff/common/WsdlTypes.h>
 #include "$(Interface.FileName)"
 
 namespace staff { class CService; }

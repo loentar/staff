@@ -15,7 +15,9 @@ namespace samples
       /*! add nA and nB.
           example of using non-default result node
       */
-      virtual int /*addResult*/ Add(int nA, int nB) const = 0;
+      // responseElement: AddResponse
+      // resultElement: addResult
+      virtual int Add(int nA, int nB) const = 0;
 
       /*! substract nA and nB.
           example of invoking another component service

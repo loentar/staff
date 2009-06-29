@@ -99,6 +99,37 @@ std::istream& SkipWsOnly(std::istream& rStream)
   return rStream;
 }
 
+std::istream& SkipSingleLineComment(std::istream& rStream)
+{
+  char chData = '\0';
+  while (rStream.good() && !rStream.eof())
+  {
+    chData = rStream.peek();
+    if(chData != ' ' && chData != '\t')
+    {
+      break;
+    }
+    rStream.ignore();
+  }
+
+  if (rStream.good() && !rStream.eof())
+  {
+    if (rStream.peek() == '/') // comment
+    {
+      rStream.ignore();
+      if (rStream.peek() == '/') // single line comment
+      {
+        rStream.ignore(INT_MAX, '\n');
+      } else
+      {
+        rStream.unget();
+      }
+    }
+  }
+  
+  return rStream;
+}
+
 void ReadStr(std::istream& rStream, std::string& sString, bool bSkipWS = true)
 {
   if (bSkipWS)
@@ -348,23 +379,33 @@ void IgnoreFunction(std::istream& rStream)
     rStream >> chTmp;
 
     if (chTmp == ';' && nRecursion == 0)
+    {
+      rStream >> SkipSingleLineComment;
       break;
+    }
     else
     if (chTmp == '}')
     {
       --nRecursion;
       if (nRecursion < 0)
+      {
         throw "mismatch {}";
+      }
+
       if (nRecursion == 0)
       {
         while (rStream.peek() == ';')
+        {
           rStream.ignore();
+        }
         break;
       }
     }
     else
     if (chTmp == '{')
+    {
       ++nRecursion;
+    }
   }
 }
 
@@ -486,28 +527,16 @@ std::istream& operator>>( std::istream& rStream, SMember& rMember )
 
   rMember.bIsConst = false;
 
-  rStream >> rMember.stReturn;
+  rStream >> rMember.stReturn.stDataType;
 
-  if (rMember.stReturn.bIsRef)
+  if (rMember.stReturn.stDataType.bIsRef)
     throw "return value cannot be reference";
-
-  rStream >> SkipWsOnly;
-  ReadComment(rStream, sTmp);
 
   rStream >> SkipWs;
 
   rStream.get(tStreamBuff, '('); // parameters begin
 
   rMember.sName = tStreamBuff.str();
-
-  if (sTmp.size() != 0)
-  {
-    rMember.stReturn.sNodeName = sTmp;
-  }
-  else
-  {
-    rMember.stReturn.sNodeName = rMember.sName + "Result";
-  }
 
   rStream >> SkipWs >> chData;
   if (chData != '(')
@@ -558,6 +587,7 @@ std::istream& operator>>( std::istream& rStream, SMember& rMember )
   if (chData != ';')
     throw "';' expected";
 
+  rStream >> SkipSingleLineComment;
   return rStream;
 }
 
@@ -568,6 +598,8 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   std::string sTmp;
   std::string sSoapAction;
   std::string sDescr;
+  std::string sResponseElement;
+  std::string sResultElement;
 
   rStream >> SkipWs;
   ReadBefore(rStream, rClass.sName);
@@ -607,14 +639,36 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
         else
         if (sTmp[0] == '!')
         {
-          sDescr = sTmp.substr(1);
-          rise::StrTrimLeft(sDescr);
+          std::string sDescrTmp = sTmp.substr(1);
+          rise::StrTrimLeft(sDescrTmp);
+          if (sDescr.size() != 0)
+          {
+            sDescr += '\n';
+          }
+          sDescr += sDescrTmp;
         }
         else
         if (sTmp.substr(0, 12) == "description:")
         {
-          sDescr = sTmp.substr(13);
-          rise::StrTrimLeft(sDescr);
+          std::string sDescrTmp = sTmp.substr(13);
+          rise::StrTrimLeft(sDescrTmp);
+          if (sDescr.size() != 0)
+          {
+            sDescr += '\n';
+          }
+          sDescr += sDescrTmp;
+        }
+        else
+        if (sTmp.substr(0, 16) == "responseElement:")
+        {
+          sResponseElement = sTmp.substr(16);
+          rise::StrTrimLeft(sResponseElement);
+        }
+        else
+        if (sTmp.substr(0, 14) == "resultElement:")
+        {
+          sResultElement = sTmp.substr(14);
+          rise::StrTrimLeft(sResultElement);
         }
       }
       rStream >> SkipWsOnly;
@@ -670,6 +724,8 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
         rStream >> stMember;
         stMember.sDescr = sDescr;
         stMember.sSoapAction = sSoapAction;
+        stMember.stReturn.sName = sResponseElement;
+        stMember.stReturn.stDataType.sNodeName = sResultElement;
         rClass.lsMember.push_back(stMember);
       }
     } 
@@ -779,13 +835,19 @@ std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
         if (stParamTmp.stDataType.bIsRef)
           throw "Struct members must be non-ref: " + rStruct.sName;
         rStruct.lsMember.push_back(stParamTmp);
+        rStream >> SkipSingleLineComment;
       } else
+      {
         bFunction = true;
+      }
     }
 
     if (bFunction)
+    {
       IgnoreFunction(rStream);
+    }
   }
+
   return rStream;
 }
 
@@ -893,14 +955,30 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
       else
       if (sTmp[0] == '!')
       {
-        sServiceDescr = sTmp.substr(1);
-        rise::StrTrimLeft(sServiceDescr);
+        std::string sDescrTmp = sTmp.substr(1);
+        rise::StrTrimLeft(sDescrTmp);
+        if (sServiceDescr.size() != 0)
+        {
+          sServiceDescr += '\n';
+        }
+        sServiceDescr += sDescrTmp;
       }
       else
       if (sTmp.substr(0, 12) == "description:")
       {
-        sServiceDescr = sTmp.substr(13);
-        rise::StrTrimLeft(sServiceDescr);
+        std::string sDescrTmp = sTmp.substr(13);
+        rise::StrTrimLeft(sDescrTmp);
+        if (sServiceDescr.size() != 0)
+        {
+          sServiceDescr += '\n';
+        }
+        sServiceDescr += sDescrTmp;
+      }
+      else
+      if (sTmp.substr(0, 16) == "targetNamespace:")
+      {
+        rInterface.sTargetNs = sTmp.substr(17);
+        rise::StrTrimLeft(rInterface.sTargetNs);
       }
     }
     rStream >> SkipWsOnly;
@@ -932,6 +1010,8 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     {
       throw "missing ';' after class definition";
     }
+
+    rStream >> SkipSingleLineComment;
   } else
   if (sTmp == "struct")
   {
@@ -972,6 +1052,8 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     {
       throw "missing ';' after struct definition";
     }
+  
+    rStream >> SkipSingleLineComment;
   } else
   if (sTmp == "typedef")
   {
@@ -984,6 +1066,8 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     {
       throw "missing ';' after typedef definition";
     }
+  
+    rStream >> SkipSingleLineComment;
   } else
   if (sTmp == "namespace")
   {
@@ -1000,10 +1084,12 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   if (sTmp == "enum")   // enum -ignore
   {
     IgnoreFunction(rStream);
+    rStream >> SkipSingleLineComment;
   }
   else
   if (sTmp == ";")
   {
+    rStream >> SkipSingleLineComment;
   }
   else
   if (chData == '#') // preprocessor

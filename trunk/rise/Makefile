@@ -133,9 +133,6 @@ uninstall:
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
 
-distclean:
-	rm -Rf $(USRINCDIR)rise $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIBVER)
-
 # == mkdir ==========================================
 "%/":
 	@mkdir -p $@ && chmod g+w $@

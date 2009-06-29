@@ -47,7 +47,7 @@ struct SParam
 //!  service operation
 struct SMember
 {
-  SDataType          stReturn;    //!<  return type
+  SParam             stReturn;    //!<  return type
   std::string        sName;       //!<  operation name
   std::list<SParam>  lsParamList; //!<  parameters
   bool               bIsConst;    //!<  operation is const
@@ -91,6 +91,7 @@ struct SInterface
 {
   std::string           sName;          //!<  interface name, based on input filename
   std::string           sFileName;      //!<  input filename
+  std::string           sTargetNs;      //!<  target namespace
   std::list<STypedef>   lsTypedef;      //!<  typedef list
   std::list<SStruct>    lsStruct;       //!<  struct list
   std::list<SClass>     lsClass;        //!<  service classes list

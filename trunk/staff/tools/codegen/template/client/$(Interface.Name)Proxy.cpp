@@ -315,12 +315,17 @@ $(Class.Name)Proxy::$(Class.Name)Proxy()
 void $(Class.Name)Proxy::Init( const std::string& sServiceUri, const std::string& sSessionId )
 {
   m_tClient.Init(sServiceUri, sSessionId);
+#ifneq($(Interface.TargetNamespace),)
+  m_tClient.SetTargetNamespace("$(Interface.TargetNamespace)");
+#else
+\
+#ifeqend
 }
 #foreach $(Class.Members)
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
-  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.NodeName)");
+  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.ResponseName)", "$(Member.Return.NodeName)");
 #ifneq($(Member.SoapAction),)
 
   tOperation.SetSoapAction("$(Member.SoapAction)");

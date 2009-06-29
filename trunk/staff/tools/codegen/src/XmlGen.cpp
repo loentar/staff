@@ -112,11 +112,9 @@ CXMLNode& operator<<(CXMLNode& rNodeMembers, const SMember& rMember)
 
   rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);
   CXMLNode& rNodeReturn = rNodeMember.AddSubNode("Return");
-  rNodeReturn << rMember.stReturn;
-  if (rMember.stReturn.sNodeName.size() != 0)
-  {
-    rNodeReturn.NodeContent().AsString() += " /*" + rMember.stReturn.sNodeName + "*/";
-  }
+  rNodeReturn << rMember.stReturn.stDataType;
+  rNodeReturn.AddSubNode(" Response Name ", CXMLNode::ENTCOMMENT);
+  rNodeReturn["ResponseName"] = rMember.stReturn.sName;
 
   rNodeMember.AddSubNode(" Operation name ", CXMLNode::ENTCOMMENT);
   rNodeMember["Name"] = rMember.sName;
@@ -245,6 +243,10 @@ CXMLNode& operator<<(CXMLNode& rNodeInterfaces, const SInterface& rInterface)
   
   rNodeInterface.AddSubNode(" Intarface name ", CXMLNode::ENTCOMMENT);
   rNodeInterface["Name"] = rInterface.sName;
+
+  rNodeInterface.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
+  rNodeInterface["TargetNamespace"] = rInterface.sTargetNs;
+
   rNodeInterface.AddSubNode(" Interface file name ", CXMLNode::ENTCOMMENT);
   rNodeInterface["FileName"] = rInterface.sFileName;
 

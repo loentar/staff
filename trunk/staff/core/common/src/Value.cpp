@@ -625,7 +625,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.btValue); 
+        m_uValue.btValue = m_sValue.size() > 0 ? m_sValue[0] : 0;
         break;
       case ET_FLOAT:
         m_uValue.btValue = static_cast<byte>(m_uValue.fValue);
@@ -875,7 +875,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.ubtValue); 
+        m_sValue = m_uValue.ubtValue;
         break;
       case ET_FLOAT:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.fValue);
