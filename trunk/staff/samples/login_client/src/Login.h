@@ -21,6 +21,11 @@ namespace staff
         */
     virtual std::string Login(const std::string& sUserName, const std::string& sPassword) = 0;
 
+    //!         open extra session
+    /*! \param  nExtraSessionId - extra session number
+        */
+    virtual std::string OpenExtraSession(int nExtraSessionId) = 0;
+
     //!         logout and close session
     virtual void Logout() = 0;
 

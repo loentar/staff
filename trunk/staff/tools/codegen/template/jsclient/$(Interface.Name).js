@@ -6,6 +6,7 @@
 namespace('$(Class.ComponentName)');
 #ifeqend
 
+#ifneq($(Interface.Structs.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
 #foreach $(Interface.Structs)
@@ -57,8 +58,10 @@ function DeserializeStruct_$(Struct.MangledName)(tOperation, tNode)
 }
 
 #end
-
 //-----------------------------------------------------------------------------------------------------
+
+#ifeqend // ($(Interface.Structs.$Count),0)
+#ifneq($(Interface.Typedefs.$Count),0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
@@ -78,14 +81,11 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
       SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, tValue, tOperation.AddParameter('Key', '', tItem));
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-      tOperation.AddParameter('Key', tKey, tItem);
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!generic!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)    // !!generic,string!!
       tOperation.AddParameter('Key', tKey, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!! 
-      tOperation.AddDataParameter('Key', tKey, tItem); // dataobject as key??? very strange
+      tOperation.AddDataObjectParameter('Key', tKey, tItem); // dataobject as key??? very strange
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
       SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
@@ -98,19 +98,15 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 #ifeqend //  - value -
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)    // !!struct!!
       SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
-      tOperation.AddParameter('Value', tValue, tItem);
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)    // !!string!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic||string)    // !!generic,string!!
       tOperation.AddParameter('Value', tValue, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject) // !!dataobject!! 
-      tOperation.AddDataParameter('Value', tValue, tItem);
+      tOperation.AddDataObjectParameter('Value', tValue, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)    // !!typedef!!
       SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
@@ -119,7 +115,6 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
       SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.MangledName)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam2.Type);"
-#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -134,14 +129,11 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
     SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-  tOperation.AddParameter('Item', rtType[i], tNode);
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)    // !!generic,string!!
   tOperation.AddParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!! 
-  tOperation.AddDataParameter('Item', rtType[i], tNode);
+  tOperation.AddDataObjectParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
   SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.MangledName)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode))
@@ -155,7 +147,6 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
   }
 #ifeqend
   return tNode;
@@ -164,14 +155,11 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 #ifneq($(Typedef.DataType.Type),struct)
 function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
 {
-#ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  return tOperation.SetValue(rtType, tNode);
-#else
-#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+#ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
   return tOperation.SetValue(rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
-  return tOperation.SetData(rtType, tNode);
+  return tOperation.SetDataObject(rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
   return SerializeTypedef_$(Typedef.DataType.MangledName)(tOperation, rtType, tNode);
@@ -180,7 +168,6 @@ function SerializeTypedef_$(Typedef.MangledName)(tOperation, rtType, tNode)
   return SerializeTypedef_$(Typedef.DataType.MangledName)(tOperation, rtType, tNode);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
-#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -210,17 +197,8 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-#ifeq($(Typedef.DataType.Type),generic)
-    if(tNode.firstChild == null) // generic 1
-    {
-      aResult[j] = "";
-    } else
-    {
-      aResult[j] = tResult.childNodes[i].firstChild.nodeValue;
-    }
-#else
-#ifeq($(Typedef.DataType.Type),string)
-    if(tNode.firstChild == null) // string
+#ifeq($(Typedef.DataType.Type),generic||string)
+    if(tNode.firstChild == null) // $(Typedef.DataType.Type)
     {
       aResult[j] = "";
     } else
@@ -297,7 +275,6 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
   }
 
   return aResult;
@@ -307,10 +284,7 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
   {
     tNode = tOperation.ResultElement();
   }
-#ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
-#else
-#ifeq($(Typedef.DataType.Type),string)    // !!string!!
+#ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
   return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
@@ -328,32 +302,48 @@ function DeserializeTypedef_$(Typedef.MangledName)(tOperation, tNode)
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 }
 
 #end
 
 //-----------------------------------------------------------------------------------------------------
 
+#ifeqend // ($(Interface.Typedefs.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////
 // class: $(Class.ServiceNsName)
 
 $(Class.ServiceNsName) = Class.create();
-$(Class.ServiceNsName).tClient = null;
 $(Class.ServiceNsName).prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort)
+  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
-    if(sServiceName == null)
+    if (!sServiceUri)
     {
-      sServiceName = '$(Class.ServiceNsName)';
+      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/$(Class.ServiceNsName)';
     }
-    this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
+    
+#ifneq($(Interface.TargetNamespace),)
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = "$(Interface.TargetNamespace)";
+    }
+
+#else
+\
+#ifeqend
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = sServiceUri;
+    }
+    
+    this.sTargetNamespace = sTargetNamespace || sServiceUri;
+
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
-  SetID: function(sID)
+  SetID: function(sSessionId)
   {
-    this.tClient.SetID(sID);
+    this.tClient.SetSessionId(sSessionId);
   }\
 #foreach $(Class.Members)
 ,
@@ -364,7 +354,8 @@ $(Param.Name), \
 #end
 pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('$(Member.Name)', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('$(Member.Name)', this.sTargetNamespace, '$(Member.Return.ResponseName)', '$(Member.Return.NodeName)');
+    tOperation.SetSoapAction("$(Member.SoapAction)");
     
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct) // !!struct!! 
@@ -373,16 +364,14 @@ pOnComplete, pOnError)
 #ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
     SerializeTypedef_$(Param.DataType.MangledName)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
 #else
-#ifeq($(Param.DataType.Type),generic)    // !!generic!!
+#ifeq($(Param.DataType.Type),generic||string)    // !!generic,string!!
     tOperation.AddParameter('$(Param.Name)', $(Param.Name));
-#else
-#ifeq($(Param.DataType.Type),string)    // !!string!!
-    tOperation.AddParameter('$(Param.Name)', $(Param.Name));
-#ifeqend
-#ifeqend
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
-    tOperation.AddDataParameter('$(Param.Name)', $(Param.Name));
+    tOperation.AddDataObjectParameter('$(Param.Name)', $(Param.Name));
+#else
+#cgerror "Error param: $(Param.DataType.Type)"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -403,13 +392,15 @@ pOnComplete, pOnError)
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
 #else                                   // !!void!!
           pOnComplete(tOperation);
 #ifeqend
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
+#else
+#cgerror "Error result: $(Param.DataType.Type)"
 #ifeqend
 #ifeqend
 #ifeqend
@@ -425,25 +416,28 @@ pOnComplete, pOnError)
 #ifeq($(Member.Return.Type),struct) // !!struct!! 
 
       return DeserializeStruct_$(Member.Return.MangledName)(tOperation);
-#else
+#else // end struct
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!
 
       return DeserializeTypedef_$(Member.Return.MangledName)(tOperation);
-#else
+#else // end typedef
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 
-      return tOperation.ResultElement().firstChild;
-#else
+      return new staff.DataObject(tOperation.ResultElement().firstChild);
+#else // end dataobject
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
 #else                                   // !!void!!
 \
 #ifeqend
-#ifeqend
+#else // end generic
 #ifeq($(Member.Return.Type),string)    // !!string!!
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
+#else // end string
+#cgerror "Error return: $(Param.DataType.Type)"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

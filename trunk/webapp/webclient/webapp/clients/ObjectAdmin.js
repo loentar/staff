@@ -85,8 +85,8 @@ function DeserializeStruct_staff_admin_SObjectType(tOperation, tNode)
   return tResult;
 }
 
-
 //-----------------------------------------------------------------------------------------------------
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
@@ -196,26 +196,34 @@ function DeserializeTypedef_staff_admin_TObjectTypesList(tOperation, tNode)
 // class: staff.admin.ObjectAdmin
 
 staff.admin.ObjectAdmin = Class.create();
-staff.admin.ObjectAdmin.tClient = null;
 staff.admin.ObjectAdmin.prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort)
+  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
-    if(sServiceName == null)
+    if (!sServiceUri)
     {
-      sServiceName = 'staff.admin.ObjectAdmin';
+      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/staff.admin.ObjectAdmin';
     }
-    this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
+    
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = sServiceUri;
+    }
+    
+    this.sTargetNamespace = sTargetNamespace || sServiceUri;
+
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
-  SetID: function(sID)
+  SetID: function(sSessionId)
   {
-    this.tClient.SetID(sID);
+    this.tClient.SetSessionId(sSessionId);
   },
 
   GetObjectIdList: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetObjectIdList', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetObjectIdList', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -237,7 +245,8 @@ staff.admin.ObjectAdmin.prototype =
 
   GetObjectIdListWithParent: function(nParentId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetObjectIdListWithParent', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetObjectIdListWithParent', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nParentId', nParentId);
     if(typeof pOnComplete == 'function')
@@ -260,7 +269,8 @@ staff.admin.ObjectAdmin.prototype =
 
   GetObjectById: function(nObjectId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetObjectById', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetObjectById', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nObjectId', nObjectId);
     if(typeof pOnComplete == 'function')
@@ -283,10 +293,10 @@ staff.admin.ObjectAdmin.prototype =
 
   GetObjectList: function(rlsObjectIdList, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetObjectList', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetObjectList', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeTypedef_staff_admin_TObjectIdList(tOperation, rlsObjectIdList, tOperation.AddParameter('rlsObjectIdList'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -307,7 +317,8 @@ staff.admin.ObjectAdmin.prototype =
 
   AddObject: function(rstObject, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddObject', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddObject', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_staff_admin_SObject(tOperation, rstObject, tOperation.AddParameter('rstObject'));
     if(typeof pOnComplete == 'function')
@@ -315,7 +326,7 @@ staff.admin.ObjectAdmin.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -324,13 +335,14 @@ staff.admin.ObjectAdmin.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
     }
   },
 
   RemoveObject: function(nObjectId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveObject', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveObject', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nObjectId', nObjectId);
     if(typeof pOnComplete == 'function')
@@ -351,7 +363,8 @@ staff.admin.ObjectAdmin.prototype =
 
   ReplaceObject: function(rstObject, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('ReplaceObject', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('ReplaceObject', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_staff_admin_SObject(tOperation, rstObject, tOperation.AddParameter('rstObject'));
     if(typeof pOnComplete == 'function')
@@ -372,7 +385,8 @@ staff.admin.ObjectAdmin.prototype =
 
   GetObjectTypeList: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetObjectTypeList', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetObjectTypeList', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -394,7 +408,8 @@ staff.admin.ObjectAdmin.prototype =
 
   AddObjectType: function(rstObjectType, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddObjectType', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddObjectType', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_staff_admin_SObjectType(tOperation, rstObjectType, tOperation.AddParameter('rstObjectType'));
     if(typeof pOnComplete == 'function')
@@ -402,7 +417,7 @@ staff.admin.ObjectAdmin.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -411,13 +426,14 @@ staff.admin.ObjectAdmin.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
     }
   },
 
   ReplaceObjectType: function(rstObjectType, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('ReplaceObjectType', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('ReplaceObjectType', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_staff_admin_SObjectType(tOperation, rstObjectType, tOperation.AddParameter('rstObjectType'));
     if(typeof pOnComplete == 'function')
@@ -438,7 +454,8 @@ staff.admin.ObjectAdmin.prototype =
 
   RemoveObjectType: function(nObjectTypeId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveObjectType', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveObjectType', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nObjectTypeId', nObjectTypeId);
     if(typeof pOnComplete == 'function')

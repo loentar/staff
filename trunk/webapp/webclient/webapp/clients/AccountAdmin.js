@@ -41,8 +41,8 @@ function DeserializeStruct_staff_admin_SGroup(tOperation, tNode)
   return tResult;
 }
 
-
 //-----------------------------------------------------------------------------------------------------
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
@@ -152,26 +152,34 @@ function DeserializeTypedef_staff_admin_TGroupList(tOperation, tNode)
 // class: staff.admin.AccountAdmin
 
 staff.admin.AccountAdmin = Class.create();
-staff.admin.AccountAdmin.tClient = null;
 staff.admin.AccountAdmin.prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort)
+  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
-    if(sServiceName == null)
+    if (!sServiceUri)
     {
-      sServiceName = 'staff.admin.AccountAdmin';
+      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/staff.admin.AccountAdmin';
     }
-    this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
+    
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = sServiceUri;
+    }
+    
+    this.sTargetNamespace = sTargetNamespace || sServiceUri;
+
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
-  SetID: function(sID)
+  SetID: function(sSessionId)
   {
-    this.tClient.SetID(sID);
+    this.tClient.SetSessionId(sSessionId);
   },
 
   GetUsers: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetUsers', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetUsers', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -193,7 +201,8 @@ staff.admin.AccountAdmin.prototype =
 
   GetGroups: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -215,7 +224,8 @@ staff.admin.AccountAdmin.prototype =
 
   GetUserGroups: function(nUserId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetUserGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetUserGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     if(typeof pOnComplete == 'function')
@@ -238,7 +248,8 @@ staff.admin.AccountAdmin.prototype =
 
   AddUser: function(sUserName, sDescription, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddUser', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddUser', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sDescription', sDescription);
@@ -247,7 +258,7 @@ staff.admin.AccountAdmin.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -256,13 +267,14 @@ staff.admin.AccountAdmin.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
     }
   },
 
   RemoveUser: function(nUserId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveUser', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveUser', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     if(typeof pOnComplete == 'function')
@@ -283,7 +295,8 @@ staff.admin.AccountAdmin.prototype =
 
   SetUserPassword: function(nUserId, sPass, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('SetUserPassword', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('SetUserPassword', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('sPass', sPass);
@@ -305,7 +318,8 @@ staff.admin.AccountAdmin.prototype =
 
   AddGroup: function(sGroupName, sDescription, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sGroupName', sGroupName);
     tOperation.AddParameter('sDescription', sDescription);
@@ -314,7 +328,7 @@ staff.admin.AccountAdmin.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -323,13 +337,14 @@ staff.admin.AccountAdmin.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
     }
   },
 
   RemoveGroup: function(nGroupId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nGroupId', nGroupId);
     if(typeof pOnComplete == 'function')
@@ -350,7 +365,8 @@ staff.admin.AccountAdmin.prototype =
 
   AddUserToGroup: function(nUserId, nGroupId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddUserToGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddUserToGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('nGroupId', nGroupId);
@@ -372,11 +388,11 @@ staff.admin.AccountAdmin.prototype =
 
   AddUserToGroups: function(nUserId, rlsGroupIds, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddUserToGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddUserToGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     SerializeTypedef_staff_admin_TIdList(tOperation, rlsGroupIds, tOperation.AddParameter('rlsGroupIds'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -395,7 +411,8 @@ staff.admin.AccountAdmin.prototype =
 
   RemoveUserFromGroup: function(nUserId, nGroupId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveUserFromGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveUserFromGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('nGroupId', nGroupId);
@@ -417,11 +434,11 @@ staff.admin.AccountAdmin.prototype =
 
   RemoveUserFromGroups: function(nUserId, rlsGroupIds, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('RemoveUserFromGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('RemoveUserFromGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nUserId', nUserId);
     SerializeTypedef_staff_admin_TIdList(tOperation, rlsGroupIds, tOperation.AddParameter('rlsGroupIds'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
