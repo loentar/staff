@@ -86,7 +86,7 @@ webapp.sample.Application =
     {
     }
 
-    var sLocation;
+    var sLocation = '';
 
     if (webapp.Env.host)
     {
@@ -103,7 +103,7 @@ webapp.sample.Application =
       sLocation = (sLocation ? sLocation + "," : "?") + 'lang=' + webapp.Env.lang;
     }
     
-    document.location = 'login.htm' + sLocation || '';
+    document.location = 'login.htm' + sLocation;
   },
   
   OnAbout: function()

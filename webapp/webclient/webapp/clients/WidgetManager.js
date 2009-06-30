@@ -42,8 +42,8 @@ function DeserializeStruct_widget_SWidgetGroup(tOperation, tNode)
   return tResult;
 }
 
-
 //-----------------------------------------------------------------------------------------------------
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
@@ -69,7 +69,7 @@ function SerializeTypedef_widget_TStringList(tOperation, rtType, tNode)
 {
   for(var i = 0; i != rtType.length; ++i)
   {
-// Typedef.DataType.TemplateParams.TemplateParam1.Type = generic
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = string
   tOperation.AddParameter('Item', rtType[i], tNode);
   }
   return tNode;
@@ -212,26 +212,34 @@ function DeserializeTypedef_widget_TWidgetGroupMap(tOperation, tNode)
 // class: widget.WidgetManager
 
 widget.WidgetManager = Class.create();
-widget.WidgetManager.tClient = null;
 widget.WidgetManager.prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort)
+  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
-    if(sServiceName == null)
+    if (!sServiceUri)
     {
-      sServiceName = 'widget.WidgetManager';
+      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/widget.WidgetManager';
     }
-    this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
+    
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = sServiceUri;
+    }
+    
+    this.sTargetNamespace = sTargetNamespace || sServiceUri;
+
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
-  SetID: function(sID)
+  SetID: function(sSessionId)
   {
-    this.tClient.SetID(sID);
+    this.tClient.SetSessionId(sSessionId);
   },
 
   Open: function(sProfile, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Open', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Open', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sProfile', sProfile);
     if(typeof pOnComplete == 'function')
@@ -252,7 +260,8 @@ widget.WidgetManager.prototype =
 
   Close: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Close', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Close', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -272,7 +281,8 @@ widget.WidgetManager.prototype =
 
   Commit: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Commit', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Commit', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -292,7 +302,8 @@ widget.WidgetManager.prototype =
 
   GetWidgetClasses: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetWidgetClasses', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetWidgetClasses', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -314,7 +325,8 @@ widget.WidgetManager.prototype =
 
   GetActiveWidgets: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetActiveWidgets', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetActiveWidgets', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -336,7 +348,8 @@ widget.WidgetManager.prototype =
 
   AddWidget: function(rWidget, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddWidget', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddWidget', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_widget_SWidget(tOperation, rWidget, tOperation.AddParameter('rWidget'));
     if(typeof pOnComplete == 'function')
@@ -357,10 +370,10 @@ widget.WidgetManager.prototype =
 
   AddWidgets: function(rWidgets, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddWidgets', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddWidgets', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeTypedef_widget_TWidgetMap(tOperation, rWidgets, tOperation.AddParameter('rWidgets'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -379,7 +392,8 @@ widget.WidgetManager.prototype =
 
   DeleteWidget: function(sId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('DeleteWidget', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('DeleteWidget', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sId', sId);
     if(typeof pOnComplete == 'function')
@@ -400,10 +414,10 @@ widget.WidgetManager.prototype =
 
   DeleteWidgets: function(lsIds, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('DeleteWidgets', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('DeleteWidgets', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeTypedef_widget_TStringList(tOperation, lsIds, tOperation.AddParameter('lsIds'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -422,7 +436,8 @@ widget.WidgetManager.prototype =
 
   AlterWidget: function(rWidget, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AlterWidget', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AlterWidget', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_widget_SWidget(tOperation, rWidget, tOperation.AddParameter('rWidget'));
     if(typeof pOnComplete == 'function')
@@ -443,7 +458,8 @@ widget.WidgetManager.prototype =
 
   GetAvailableWidgetGroups: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetAvailableWidgetGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetAvailableWidgetGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -465,10 +481,10 @@ widget.WidgetManager.prototype =
 
   GetWidgetGroups: function(lsWidgetGroups, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetWidgetGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetWidgetGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeTypedef_widget_TStringList(tOperation, lsWidgetGroups, tOperation.AddParameter('lsWidgetGroups'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -489,7 +505,8 @@ widget.WidgetManager.prototype =
 
   AddWidgetGroup: function(rWidgetGroup, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AddWidgetGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AddWidgetGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_widget_SWidgetGroup(tOperation, rWidgetGroup, tOperation.AddParameter('rWidgetGroup'));
     if(typeof pOnComplete == 'function')
@@ -510,7 +527,8 @@ widget.WidgetManager.prototype =
 
   DeleteWidgetGroup: function(sGroupId, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('DeleteWidgetGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('DeleteWidgetGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sGroupId', sGroupId);
     if(typeof pOnComplete == 'function')
@@ -531,7 +549,8 @@ widget.WidgetManager.prototype =
 
   AlterWidgetGroup: function(rWidgetGroup, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('AlterWidgetGroup', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('AlterWidgetGroup', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeStruct_widget_SWidgetGroup(tOperation, rWidgetGroup, tOperation.AddParameter('rWidgetGroup'));
     if(typeof pOnComplete == 'function')
@@ -552,7 +571,8 @@ widget.WidgetManager.prototype =
 
   GetActiveWidgetGroups: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetActiveWidgetGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetActiveWidgetGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -574,10 +594,10 @@ widget.WidgetManager.prototype =
 
   SetActiveWidgetGroups: function(lsActiveWidgetGroups, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('SetActiveWidgetGroups', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('SetActiveWidgetGroups', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     SerializeTypedef_widget_TStringList(tOperation, lsActiveWidgetGroups, tOperation.AddParameter('lsActiveWidgetGroups'));
-
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

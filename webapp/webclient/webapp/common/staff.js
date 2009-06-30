@@ -7,22 +7,25 @@ namespace('staff');
 staff.Client = Class.create();
 staff.Client.prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort, sID)
+  initialize: function(sServiceUri, sSessionId)
   {
-    if(sHostName == null) sHostName = Session.sHost;
-    if(sHostPort == null) sHostPort = Session.sPort;
-    if(sID == null) sID = Session.sID;
-    
-    this.sServiceUri = webapp.Env.protocol + sHostName;
-    if(sHostPort != '')
-      this.sServiceUri += ':' + sHostPort;
-    this.sServiceUri += '/axis2/services/' + sServiceName;
-    this.sID = sID;
+    this.sServiceUri = sServiceUri;
+    this.sSessionId = sSessionId;
   },
   
-  SetID: function(sID)
+  SetSessionId: function(sSessionId)
   {
-    this.sID = sID;
+    this.sSessionId = sSessionId;
+  },
+  
+  GetSessionId: function(sSessionId)
+  {
+    return this.sSessionId;
+  },
+  
+  SetServiceUri: function(sServiceUri)
+  {
+    this.sServiceUri = sServiceUri;
   },
   
   GetServiceUri: function()
@@ -32,7 +35,7 @@ staff.Client.prototype =
   
   IsInit: function()
   {
-    return this.sServiceUri != '';
+    return !!this.sServiceUri;
   },
   
   InvokeOperation: function(tOperation, pOnComplete, pOnError)
@@ -48,8 +51,8 @@ staff.Client.prototype =
     var tSidElm = tOperation.SubNode("SessionId", tHeader.element);
     if(tSidElm == null)
     {
-      tSidElm = tHeader.create_child(new WS.QName("SessionId", SOAP.URI));
-      tSidElm.set_value(this.sID);
+      tSidElm = tHeader.create_child(new WS.QName("SessionId", "http://tempui.org/staff/sessionid", "sid"));
+      tSidElm.set_value(this.sSessionId);
     }
     
     var tRequestOptions = 
@@ -58,7 +61,11 @@ staff.Client.prototype =
       asynchronous:   false,
       parameters:     '',
       postBody:       tEnvelope.asElement().ownerDocument,
-      requestHeaders: [ 'Content-Type', 'application/xml', 'SOAPAction', '""' ]
+      requestHeaders: 
+      [ 
+        'Content-Type', 'application/xml',
+        'SOAPAction',   tOperation.GetSoapAction()
+      ]
     };
     
     //asynchronous request
@@ -135,12 +142,15 @@ staff.Client.prototype =
 staff.Operation = Class.create();
 staff.Operation.prototype = 
 {
-  //! sName - имя операции
-  initialize: function(sName, sServiceUri)
+  initialize: function(sName, sTargetNamespace, sResponseName, sResultName)
   {
     this.sName = sName;
+    this.sResponseName = sResponseName || (sName + "Result");
+    this.sResultName = sResultName;
+    this.sTargetNamespace = sTargetNamespace;
+
     this.tRequestEnvelope = new SOAP.Envelope();
-    this.tRequestElement = this.tRequestEnvelope.create_body().create_child(new WS.QName(this.sName, sServiceUri, "staff"));
+    this.tRequestElement = this.tRequestEnvelope.create_body().create_child(new WS.QName(this.sName, this.sTargetNamespace));
   },
   
   SetName: function(sName)
@@ -153,10 +163,40 @@ staff.Operation.prototype =
     return this.sName;
   },
   
+  SetResponseName: function(sResponseName)
+  {
+    this.sResponseName = sResponseName;
+  },
+  
+  GetResponseName: function()
+  {
+    return this.sResponseName;
+  },
+  
+  SetResultName: function(sResultName)
+  {
+    this.sResultName = sResultName;
+  },
+  
+  GetResultName: function()
+  {
+    return this.sResultName;
+  },
+  
+  SetSoapAction: function(sSoapAction)
+  {
+    this.sSoapAction = sSoapAction;
+  },
+  
+  GetSoapAction: function()
+  {
+    return this.sSoapAction;
+  },
+  
   AddParameter: function(sName, tValue, tNode)
   {
     var tParentElm = tNode == null ? this.tRequestElement : tNode;
-    var tCreatedElm = tParentElm.create_child(new WS.QName(sName));
+    var tCreatedElm = tParentElm.create_child(new WS.QName(sName, this.sTargetNamespace));
     
     if (tValue == null)
     {
@@ -177,10 +217,20 @@ staff.Operation.prototype =
     return tCreatedElm;
   },
   
-  AddDataParameter: function(sName, tData, tNode)
+  AddDataObjectParameter: function(sName, tData, tNode)
   {
     var tParentElm = tNode == null ? this.tRequestElement : tNode;
-    var tCreatedElm = tParentElm.create_child(new WS.QName(sName));
+    var tCreatedElm = tParentElm.create_child(new WS.QName(sName, this.sTargetNamespace));
+    
+    tCreatedElm.add_child(tData.ToElement());
+    
+    return tCreatedElm;
+  },
+  
+  AddXmlParameter: function(sName, tData, tNode)
+  {
+    var tParentElm = tNode == null ? this.tRequestElement : tNode;
+    var tCreatedElm = tParentElm.create_child(new WS.QName(sName, this.sTargetNamespace));
     
     tCreatedElm.add_child(tData);
     
@@ -197,14 +247,24 @@ staff.Operation.prototype =
     return this.tRequestElement;
   },
 
-  ResultEnvelope: function()
+  ResponseEnvelope: function()
   {
-    return this.tResultEnvelope;
+    return this.tResponseEnvelope;
   },
 
+  ResponseElement: function()
+  {
+    return this.tResponseElement;
+  },
+  
   ResultElement: function()
   {
     return this.tResultElement;
+  },
+  
+  ResultValue: function()
+  {
+    return !this.tResultElement.firstChild ? "" : this.tResultElement.firstChild.nodeValue;
   },
   
   FaultElement: function()
@@ -214,18 +274,18 @@ staff.Operation.prototype =
   
   IsFault: function()
   {
-    return this.tFaultElement != null;
+    return !!this.tFaultElement;
   },
   
   SetFaultString: function(sFaultString)
   {
-    if(this.tResultEnvelope == null)
+    if(this.tResponseEnvelope == null)
     {
-      this.tResultEnvelope = new SOAP.Envelope();
-      this.tResultEnvelope.create_body();
+      this.tResponseEnvelope = new SOAP.Envelope();
+      this.tResponseEnvelope.create_body();
     }
     
-    var tFaultNode = this.tResultEnvelope.get_body().create_child(new WS.QName('Fault'));
+    var tFaultNode = this.tResponseEnvelope.get_body().create_child(new WS.QName('Fault'));
     
     this.tFaultElement = tFaultNode.element;
     tFaultNode.create_child(new WS.QName('FaultString')).set_value(sFaultString);
@@ -239,118 +299,113 @@ staff.Operation.prototype =
   
   SetResultEvenlope: function(tEnvelope)
   {
-    this.tResultEnvelope = tEnvelope;
+    this.tResponseEnvelope = tEnvelope;
+    this.tResponseElement = null;
     this.tResultElement = null;
     this.tFaultElement = null;
-    if(tEnvelope == null)
+
+    if (!tEnvelope)
     {
-      return;
+      throw Error(_("Envelope is not defined"));
+    }
+    
+    var tBodyElement = this.tResponseEnvelope.get_body().element;
+
+    // trying to retrive result
+    this.tResponseElement = this.SubNode(this.sResponseName, tBodyElement);
+
+    if (!this.tResponseElement) // soap:Fault?
+    {
+      var tFaultElement = this.SubNode("Fault", tBodyElement);
+      if (!tFaultElement)
+      {
+        throw Error(_('Failed to get') + ' ResponseElement: ' + this.sResponseName);
+      }
+
+      this.tFaultElement = tFaultElement;
     }
 
-    if (this.tResultEnvelope.element.childNodes.length == 0) // empty envelope
+    if (!this.sResultName)
     {
-      this.SetFault(_('Failed to invoke service'));
-    } else // 
+      this.tResultElement = this.tResponseElement;
+    }
+    else
     {
-      // trying to retrive result
-      var tRes = this.SubNode('staff:' + this.sName + 'Result', this.tResultEnvelope.get_body().element);
-
-      if(tRes != null)
-      {
-        this.tResultElement = tRes;
-      } 
-      else
-      {
-        tRes = this.tResultEnvelope.get_body().get_children(new WS.QName('Fault', SOAP.URI, 'soapenv'));
-        if(tRes.length != 0)
-        {
-          this.tFaultElement = tRes[0].element;
-        } 
-        else
-        {
-          throw Error(_('Failed to get') +' ' + this.sName + 'Result');
-        }
-      }
+      this.tResultElement = this.SubNode(this.sResultName, this.tResponseElement);
     }
   },
   
   SubNode: function(sName, tNode)
   {
-    if (tNode == null)
+    if (!tNode)
     {
       tNode = this.ResultElement();
     }
 
-    if (tNode != null)
+    if (tNode && tNode.childNodes)
     {
       for (var i = 0; i < tNode.childNodes.length; i++)
       {
-        if (tNode.childNodes[i].nodeName == sName)
+        if (tNode.childNodes[i].localName == sName)
         {
           return tNode.childNodes[i];
         }
       }
     }
-    
-    return null;
   },
   
   SubNodeNoCase: function(sName, tNode)
   {
-    if (tNode == null)
+    if (!tNode)
     {
       tNode = this.ResultElement();
     }
 
-    if (tNode != null && tNode.childNodes != null)
+    if (tNode && tNode.childNodes)
     {
       var sNameLocase = sName.toLowerCase();
       for (var i = 0; i < tNode.childNodes.length; i++)
       {
-        if (tNode.childNodes[i].nodeName.toLowerCase() == sNameLocase)
+        if (tNode.childNodes[i].localName.toLowerCase() == sNameLocase)
+        {
           return tNode.childNodes[i];
+        }
       }
     }
-    
-    return null;
   },
   
   
   SubNodeText: function (sName, tNode)
   {
     var tFindNode = this.SubNode(sName, tNode);
-    if (tFindNode != null)
+    if (tFindNode)
     {
-      if(tFindNode.firstChild == null || tFindNode.firstChild.nodeValue == null)
+      if(!tFindNode.firstChild || !tFindNode.firstChild.nodeValue)
       {
         return "";
       }
       
       return tFindNode.firstChild.nodeValue;
     }
-    
-    return null;
   },
   
   SubNodeNoCaseText: function (sName, tNode)
   {
     var tFindNode = this.SubNodeNoCase(sName, tNode);
-    if (tFindNode != null)
+    if (tFindNode)
     {
-      if(tFindNode.firstChild == null || tFindNode.firstChild.nodeValue == null)
+      if(!tFindNode.firstChild || !tFindNode.firstChild.nodeValue)
       {
         return "";
       }
       
       return tFindNode.firstChild.nodeValue;
     }
-    
-    return null;
   },
   
   SetValue: function(sValue, tNode)
   {
-    if (tNode == null)
+    if (!tNode)
     {
       tNode = this.ResultElement();
     }
@@ -358,14 +413,14 @@ staff.Operation.prototype =
     tNode.element.firstChild.nodeValue = sValue;
   },
   
-  SetData: function(tData, tNode)
+  SetDataObject: function(tDataObject, tNode)
   {
-    if (tNode == null)
+    if (!tNode)
     {
       tNode = this.ResultElement();
     }
     
-    tNode.add_child(tData);
+    tNode.add_child(tDataObject.ToElement());
   }
 };
 
@@ -376,8 +431,12 @@ staff.Operation.prototype =
 staff.DataObject = Class.create();
 staff.DataObject.prototype = 
 {
-  initialize: function()
+  initialize: function(tElement)
   {
+    if (tElement != null)
+    {
+      this.FromElement(tElement);
+    }
   },
   
   Erase: function()
@@ -417,7 +476,7 @@ staff.DataObject.prototype =
       {
         if (tNode.nodeType == 1) // filter out text nodes
         {
-          bArray = tNode.nodeName == 'ArrayItem';
+          bArray = tNode.localName == 'ArrayItem';
           break;
         }
       }
@@ -444,7 +503,7 @@ staff.DataObject.prototype =
           {
             if (tNode.nodeType == 1) // filter out text nodes
             {
-              oData[tNode.nodeName] = this._FromElement(tNode);
+              oData[tNode.localName] = this._FromElement(tNode);
             }
           }
 

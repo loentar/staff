@@ -2,13 +2,7 @@
 // DO NOT EDIT
 namespace('webapp');
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// struct serializators
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// struct deserializators
-
-//-----------------------------------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
@@ -18,7 +12,7 @@ function SerializeTypedef_webapp_TStringList(tOperation, rtType, tNode)
 {
   for(var i = 0; i != rtType.length; ++i)
   {
-// Typedef.DataType.TemplateParams.TemplateParam1.Type = generic
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = string
   tOperation.AddParameter('Item', rtType[i], tNode);
   }
   return tNode;
@@ -54,26 +48,34 @@ function DeserializeTypedef_webapp_TStringList(tOperation, tNode)
 // class: webapp.FileUploader
 
 webapp.FileUploader = Class.create();
-webapp.FileUploader.tClient = null;
 webapp.FileUploader.prototype = 
 {
-  initialize: function(sServiceName, sHostName, sHostPort)
+  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
-    if(sServiceName == null)
+    if (!sServiceUri)
     {
-      sServiceName = 'webapp.FileUploader';
+      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/webapp.FileUploader';
     }
-    this.tClient = new staff.Client(sServiceName, sHostName, sHostPort);
+    
+    if (!sTargetNamespace)
+    {
+      sTargetNamespace = sServiceUri;
+    }
+    
+    this.sTargetNamespace = sTargetNamespace || sServiceUri;
+
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
-  SetID: function(sID)
+  SetID: function(sSessionId)
   {
-    this.tClient.SetID(sID);
+    this.tClient.SetSessionId(sSessionId);
   },
 
   Move: function(sFileName, sPathTo, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Move', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Move', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sFileName', sFileName);
     tOperation.AddParameter('sPathTo', sPathTo);
@@ -95,7 +97,8 @@ webapp.FileUploader.prototype =
 
   Unpack: function(sFileName, sPathTo, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Unpack', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Unpack', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sFileName', sFileName);
     tOperation.AddParameter('sPathTo', sPathTo);
@@ -117,14 +120,15 @@ webapp.FileUploader.prototype =
 
   GetUnpackingStatus: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetUnpackingStatus', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetUnpackingStatus', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "", tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -133,13 +137,14 @@ webapp.FileUploader.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return tOperation.ResultElement().firstChild != null ? tOperation.ResultElement().firstChild.nodeValue : "";
+      return tOperation.ResultValue();
     }
   },
 
   GetUnpackedFiles: function(sMask, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetUnpackedFiles', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('GetUnpackedFiles', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sMask', sMask);
     if(typeof pOnComplete == 'function')
@@ -162,7 +167,8 @@ webapp.FileUploader.prototype =
 
   Delete: function(sFileName, pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('Delete', this.tClient.GetServiceUri());
+    var tOperation = new staff.Operation('Delete', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
     
     tOperation.AddParameter('sFileName', sFileName);
     if(typeof pOnComplete == 'function')
