@@ -624,6 +624,8 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   {
     sSoapAction.erase();
     sDescr.erase();
+    sResponseElement.erase();
+    sResultElement.erase();
     
     rStream >> SkipWsOnly;
     while (ReadComment(rStream, sTmp))

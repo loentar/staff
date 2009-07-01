@@ -6,13 +6,11 @@
 #ifneq($(Interface.Classes.Class.ServiceUri),)
 #var ServiceUri $(Interface.Classes.Class.ServiceUri)
 #else
-#var ServiceUri http://localhost:9090/axis2/services/$($ServiceName)
+#var ServiceUri http://localhost:9090/axis2/services/$(Interface.Classes.Class.ServiceNamespace)$($ServiceName)
 #ifeqend
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="$($TargetNamespace)" targetNamespace="$($TargetNamespace)">
   <wsdl:types>
-    <schema targetNamespace="$($TargetNamespace)"\
-      xmlns:staff="http://www.w3.org/2001/XMLSchema"\
-      xmlns:tns="$($TargetNamespace)">
+    <schema targetNamespace="$($TargetNamespace)" xmlns:staff="http://www.w3.org/2001/XMLSchema" xmlns:tns="$($TargetNamespace)">
 
       <!-- service operations -->
 #foreach $(Interface.Classes.Class.Members)
@@ -32,7 +30,7 @@ staff:$(Param.DataType.Name)\
 staff:string\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-staff::$(Param.DataType.Name)\
+staff::$(Param.DataType.NativeName)\
 #else
 $(Param.DataType.Name)\
 #ifeqend
@@ -48,13 +46,21 @@ $(Param.DataType.Name)\
 #ifeqend
       </element>
 
-      <element name="$(Member.Name)Response">
+#var sResponse $(Member.Return.ResponseName)
+#var sResult $(Member.Return.NodeName)
+#ifneq($($sResult),) // result element name is defined
+#ifeq($($sResponse),) // response is not defined, generating
+#var sResponse $(Member.Name)Response
+#else
+\
+#ifeqend // ----------  result name is defined  --------------------------
+      <element name="$($sResponse)">
         <complexType>
           <sequence>
 #ifeq($(Member.Return.Name),staff::CDataObject)
-            <any name="$(Member.Return.NodeName)" />
+            <any name="$($sResult)" />
 #else
-            <element name="$(Member.Return.NodeName)" type="\
+            <element name="$($sResult)" type="\
 #ifeq($(Member.Return.Name),float||double||long||int||short)
 staff:$(Member.Return.Name)\
 #else
@@ -62,7 +68,7 @@ staff:$(Member.Return.Name)\
 staff:string\
 #else
 #ifeq($(Member.Return.Type),struct||typedef)
-staff::$(Member.Return.Name)\
+staff::$(Member.Return.NativeName)\
 #else
 $(Member.Return.Name)\
 #ifeqend
@@ -75,7 +81,48 @@ $(Member.Return.Name)\
         </complexType>
       </element>
 
+#else //  result element name is not defined
+#ifeq($($sResponse),) // response is not defined, generating
+#var sResult $(Member.Name)Result
+#else
+#var sResult $($sResponse)
+#ifeqend // ----------  result name is not defined  --------------------------
+#ifeq($(Member.Return.Name),void)
+      <element name="$($sResult)">
+        <complexType/>
+      </element>
+#else
+#ifeq($(Member.Return.Name),staff::CDataObject)
+      <element name="$($sResult)">
+        <complexType>
+          <sequence>
+            <any />
+          </sequence>
+        </complexType>
+      </element>
+#else
+      <element name="$($sResult)" type="\
+#ifeq($(Member.Return.Name),float||double||long||int||short)
+staff:$(Member.Return.Name)\
+#else
+#ifeq($(Member.Return.Name),std::string||rise::CString)
+staff:string\
+#else
+#ifeq($(Member.Return.Type),struct||typedef)
+staff::$(Member.Return.NativeName)\
+#else
+$(Member.Return.Name)\
+#ifeqend
+\
+#ifeqend
+#ifeqend
+"/>
+#ifeqend
+#ifeqend
+#ifeqend // #ifneq($($sResult),) // result element name is defined
+
 #end // #foreach $(Interface.Classes.Class.Members)
+#ifneq($(Interface.Structs.$Count),0)
 
     <!-- complex types -->
 #foreach $(Interface.Structs)
@@ -104,7 +151,7 @@ staff:$(Param.DataType.Name)\
 staff:string\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-staff::$(Param.DataType.Name)\
+staff::$(Param.DataType.NativeName)\
 #else
 #ifeq($(Param.DataType.Type),template)
 staff::$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
@@ -133,6 +180,10 @@ $($sIdent)      </sequence>
 #ifeqend
     </complexType>
 #end // #foreach $(Interface.Structs)
+#else
+\
+#ifeqend // #ifneq($(Interface.Structs.$Count),0)
+#ifneq($(Interface.Typedefs.$Count),0)
 
     <!-- simple types -->
 #foreach $(Interface.Typedefs)
@@ -152,7 +203,7 @@ staff:$(Typedef.DataType.Name)\
 staff:string\
 #else
 #ifeq($(Typedef.DataType.Type),struct||typedef)
-staff::$(Typedef.DataType.Name)\
+staff::$(Typedef.DataType.NativeName)\
 #else
 $(Typedef.DataType.Name)\
 #ifeqend
@@ -164,7 +215,9 @@ $(Typedef.DataType.Name)\
 #ifeqend
 
 #end // #foreach $(Interface.Typedefs)
-
+#else
+\
+#ifeqend // #ifneq($(Interface.Typedefs.$Count),0)
     </schema>
   </wsdl:types>
 
@@ -175,7 +228,12 @@ $(Typedef.DataType.Name)\
   </wsdl:message>
 
   <wsdl:message name="$(Member.Name)Response">
-    <wsdl:part element="tns:$(Member.Name)Response" name="$(Member.Name)Response"/>
+#ifeq($(Member.Return.ResponseName),) // response is not defined, generating
+#var sResponse $(Member.Name)Result
+#else
+#var sResponse $(Member.Return.ResponseName)
+#ifeqend
+    <wsdl:part element="tns:$($sResponse)" name="$($sResponse)"/>
   </wsdl:message>
 
 #end // #foreach $(Interface.Classes.Class.Members)
@@ -184,12 +242,18 @@ $(Typedef.DataType.Name)\
   <wsdl:portType name="$($ServiceName)PortType">
 #foreach $(Interface.Classes.Class.Members)
     <wsdl:operation name="$(Member.Name)">
+#ifneq($(Member.Description),)
+      <wsdl:documentation>$(Member.Description)</wsdl:documentation> 
+#else
+\
+#ifeqend
       <wsdl:input message="tns:$(Member.Name)Request" name="$(Member.Name)Request"/>
       <wsdl:output message="tns:$(Member.Name)Response" name="$(Member.Name)Response"/>
     </wsdl:operation>
 #end // #foreach $(Interface.Classes.Class.Members)
   </wsdl:portType>
 
+  <!-- binding -->
   <wsdl:binding name="$($ServiceName)SoapBinding" type="tns:$($ServiceName)PortType">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
 #foreach $(Interface.Classes.Class.Members)
@@ -201,7 +265,7 @@ $(Member.SoapAction)\
 $($ServiceName)#$(Member.Name)\
 #ifeqend
 "/>
-      <wsdl:input name="$(Member.Name)Request">
+        <wsdl:input name="$(Member.Name)Request">
         <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="$(Member.Name)Response">
@@ -211,6 +275,7 @@ $($ServiceName)#$(Member.Name)\
 #end // #foreach $(Interface.Classes.Class.Members)
   </wsdl:binding>
 
+  <!-- service -->
   <wsdl:service name="$($ServiceName)">
 #ifneq($(Interface.Classes.Class.Description),)
     <wsdl:documentation>$(Interface.Classes.Class.Description)</wsdl:documentation>

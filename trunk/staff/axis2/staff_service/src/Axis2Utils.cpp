@@ -1,9 +1,11 @@
 #include <axutil_qname.h>
 #include <axis2_svc.h>
 #include <string>
+#include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/component/Service.h>
+#include <staff/component/Component.h>
 
 bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staff::CService* pService, void* pSvcClass, const struct axutil_env* pEnv, struct axis2_conf* pConf )
 {  
@@ -34,7 +36,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   }
   axutil_qname_free(pQName, pEnv);
 
-  // сервис виртуальный
+  // set "virtual" service flag
   axutil_param_t* pParam = axutil_param_create(pEnv, "IsStaffVirtualService", new bool(true));
   if(pParam == NULL)
   {
@@ -50,7 +52,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     return false;
   }
 
-  { // добавляем операции
+  { // adding operations
     const staff::CDataObject& rdoOperations = pService->GetOperations();
     for (staff::CDataObject::ConstIterator it = rdoOperations.Begin(); it != rdoOperations.End(); ++it)
     {
@@ -83,7 +85,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     }
   }
 
-  // описание сервиса взять из информации
+  // set service description
   if(axis2_svc_set_name(pAxis2Service, pEnv, sServiceName.c_str()) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
@@ -105,7 +107,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     return false;
   }
 
-  // создаем сервисную группу
+  // creating service group
   axis2_svc_grp_t* pServiceGroup = axis2_svc_grp_create_with_conf(pEnv, pConf);
   if(pServiceGroup == NULL)
   {
@@ -130,12 +132,19 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     return false;
   }
 
-  // добавляем в конфигурацию
+  // adding to configuration
   if(axis2_conf_add_svc_grp(pConf, pEnv, pServiceGroup) != AXIS2_SUCCESS)
   {
     axis2_svc_grp_free(pServiceGroup, pEnv);
     printf("error axis2_conf_add_svc_grp\n");
     return false;
+  }
+  
+  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pService->GetComponent()->GetName()) 
+      + RISE_PATH_SEPARATOR + pService->GetName() + ".wsdl";
+  if(axis2_svc_set_svc_wsdl_path(pAxis2Service, pEnv, sWsdlPath.c_str()) != AXIS2_SUCCESS)
+  {
+    printf("error axis2_svc_set_svc_wsdl_path\n");
   }
 
   return true;
@@ -147,7 +156,7 @@ bool Axis2UtilsRemoveVirtualService(const std::string& sServiceName,
   std::string sServiceGroupName = sServiceName.c_str();
   sServiceGroupName += "SvcGroup";
   
-  // удалить из конфигурации
+  // removing from conf
   axis2_svc_grp* pServiceGroup = axis2_conf_get_svc_grp(pConf, pEnv, sServiceGroupName.c_str());
   if(pServiceGroup == NULL)
   {

@@ -18,6 +18,8 @@ LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))
 
+WSDLS := $(patsubst %, $(OUTDIR)%.wsdl, $(COMPONENT_SERVICES))
+
 EXTERN_SERVICES := $(patsubst $(SRCDIR)%.h, %, $(filter-out %Wrapper.h %Context.h %Impl.h %Proxy.h %ServiceLocator.h $(COMPONENT_SERVICES_HEADERS), $(wildcard $(SRCDIR)*.h)))
 EXTERN_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(EXTERN_SERVICES))
 
@@ -47,14 +49,14 @@ $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == codegen ===========================================
-codegen: $(COMPONENT_SERVICES_CODEGEN) $(EXTERN_SERVICES_CODEGEN)
+codegen: $(COMPONENT_SERVICES_CODEGEN) $(EXTERN_SERVICES_CODEGEN) $(WSDLS)
 
 # генерация оберток сервисов компонента
 $(SRCDIR)%Context.h $(SRCDIR)%Context.cpp $(SRCDIR)%Wrapper.h $(SRCDIR)%Wrapper.cpp:: $(SRCDIR)%.h
-	cd $(SRCDIR) && $(STAFF_CODEGEN) -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
+	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
 
 $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp:: $(COMPONENT_SERVICES_HEADERS)
-	cd $(SRCDIR) && $(STAFF_CODEGEN) -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
+	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
 
 # генерация прокси внешних сервисов
 ifeq ("$(EXTERN_SERVICES)","")
@@ -62,11 +64,14 @@ $(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:;
 #	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 else
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
-	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
+	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 
 $(SRCDIR)ServiceLocator.h $(SRCDIR)ServiceLocator.cpp:: $(EXTERN_SERVICES_HEADERS)
-	cd $(SRCDIR) && $(STAFF_CODEGEN) -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
+	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tservicelocator $(patsubst $(SRCDIR)%,%,$(EXTERN_SERVICES_HEADERS))
 endif
+
+$(OUTDIR)%.wsdl: $(SRCDIR)%.h
+	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/"
@@ -79,6 +84,7 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(TARGET)/"
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	cp -f config/*.xml $(INSTALLDIR)$(TARGET)/db/
 	chmod 777 $(INSTALLDIR)$(TARGET)/db/
 

@@ -15,13 +15,15 @@ CODEGENH := $(patsubst %.h,%Wrapper.h,$(HEADERS))
 CODEGENCPP := $(patsubst %.h,%Wrapper.cpp,$(HEADERS))
 CODEGEN := $(CODEGENH) $(CODEGENCPP)
 
+WSDLS := $(patsubst %.h, %.wsdl, $(HEADERS))
+
 SOURCES = $(CODEGENCPP) $(filter-out %Wrapper.cpp,$(wildcard $(SRCDIR)*.cpp))
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 .SECONDARY: $(CODEGEN)
 
 # == make ===========================================
-make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(CODEGEN) $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
@@ -31,8 +33,11 @@ $(OUTDIR)$(TARGETNAME): $(OBJECTS)
 $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-$(CODEGEN): $(HEADERS)
+$(CODEGEN): $(HEADERS) $(WSDLS)
 	cd src; $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tservice -n$(TARGET)
+
+%.wsdl: %.h
+	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"

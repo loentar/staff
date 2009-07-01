@@ -434,7 +434,7 @@ public:
       if (!fsOut.good())
       {
         fsIn.close();
-        throw std::string("can't open output file: " + sIn);
+        throw std::string("can't open output file: " + sOut);
       }
 
       std::cout << "Generating " << sOut << std::endl;
