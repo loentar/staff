@@ -19,7 +19,7 @@ namespace staff
   public:
     struct SEvents
     {
-      void (*pOnConnect)(const std::string& sServiceName, const CService* pService); //!< функция обработки события при присоединении сервисного клиента
+      void (*pOnConnect)(const std::string& sService, const CService* pService); //!< функция обработки события при присоединении сервисного клиента
       void (*pOnDisconnect)(const std::string& sServiceName); //!< функция обработки события при отсоединении сервисного клиента
 
       SEvents();

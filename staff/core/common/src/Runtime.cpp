@@ -103,12 +103,12 @@ namespace staff
 
   std::string CRuntime::GetComponentsHome() const
   {
-    return GetStaffHome() + "/components";
+    return GetStaffHome() + RISE_PATH_SEPARATOR + std::string("components");
   }
 
   std::string CRuntime::GetComponentHome( const std::string& sComponent ) const
   {
-    return GetComponentsHome() + "/" + sComponent;
+    return GetComponentsHome() + RISE_PATH_SEPARATOR + sComponent;
   }
  
   CRuntime* CRuntime::m_pInst = NULL;

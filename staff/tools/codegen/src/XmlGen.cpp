@@ -61,6 +61,28 @@ CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
   rNodeDataTypes["Type"] = rDataType.eType;
   rNodeDataTypes.AddSubNode(" Typename with namespace ", CXMLNode::ENTCOMMENT);
   rNodeDataTypes["MangledName"] = sMangledName + rDataType.sName;
+  
+  std::string sNativeName;
+  if (rDataType.eType == SDataType::ETypedef)
+  {
+    sNativeName = ((rDataType.sName[0] == 'T') &&
+       (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
+  }
+  else
+  if (rDataType.eType == SDataType::EStruct)
+  {
+    sNativeName = ((rDataType.sName[0] == 'S') &&
+       (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
+  }
+  else
+  {
+    sNativeName = rDataType.sName;
+  }
+
+  rNodeDataTypes.AddSubNode(" Native name ", CXMLNode::ENTCOMMENT);
+  rNodeDataTypes["NativeName"] = sNativeName;
+  
+  
 
   rNodeDataTypes.NodeContent() = "";
   GetDataType(rNodeDataTypes.NodeContent().AsString(), rDataType);
@@ -228,7 +250,10 @@ CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const STypedef& rTypedef)
   rNodeTypedef.AddSubNode(" Typedef name ", CXMLNode::ENTCOMMENT);
   rNodeTypedef["Name"] = rTypedef.sNamespace + rTypedef.sName;
   rNodeTypedef.AddSubNode(" Typedef native name ", CXMLNode::ENTCOMMENT);
-  rNodeTypedef["NativeName"] = rTypedef.sName;
+  rNodeTypedef["NativeName"] = ((rTypedef.sName[0] == 'T') &&
+       (toupper(rTypedef.sName[1]) == rTypedef.sName[1]) ? rTypedef.sName.substr(1) : rTypedef.sName);
+  
+  
   rNodeTypedef.AddSubNode(" Typedef name with namespace ", CXMLNode::ENTCOMMENT);
   rNodeTypedef["MangledName"] = sMangledName + rTypedef.sName;
   rNodeTypedef.AddSubNode(" Source datatype ", CXMLNode::ENTCOMMENT);

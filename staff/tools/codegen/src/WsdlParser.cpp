@@ -716,7 +716,6 @@ public:
     {
       rClass.sDescr = itNodeOp->NodeContent().AsString();
     }
-    
   }
 
   void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)
@@ -734,6 +733,39 @@ public:
     }
   }
 
+  void ApplyComponentNamespace(SInterface& rInterface)
+  {
+    SClass& rService = rInterface.lsClass.front();
+    std::string::size_type nPosComponentBegin = rService.sServiceUri.find_last_of('/');
+    if (nPosComponentBegin == std::string::npos)
+    {
+      return;
+    }
+
+    std::string::size_type nPosComponentEnd = rService.sServiceUri.find_last_of('.');
+    if (nPosComponentEnd == std::string::npos)
+    {
+      return;
+    }
+    
+    std::string sNamespace = rService.sServiceUri.substr(nPosComponentBegin + 1, nPosComponentEnd - nPosComponentBegin);
+    
+    rise::StrReplace(sNamespace, ".", "::", true);
+    
+    rService.sNamespace = sNamespace;
+    
+    for (std::list<STypedef>::iterator itTypedef = rInterface.lsTypedef.begin();
+        itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
+    {
+      itTypedef->sNamespace = sNamespace;
+    }
+    
+    for (std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
+        itStruct != rInterface.lsStruct.end(); ++itStruct)
+    {
+      itStruct->sNamespace = sNamespace;
+    }
+  }
 
   static bool SortStructByParent(const SStruct& rStruct1, const SStruct& rStruct2)
   {
@@ -773,6 +805,8 @@ public:
 
     ParseService(tServiceClass, rNodeDefs, stWsdlTypes);
     rInterface.lsClass.push_back(tServiceClass);
+    
+    ApplyComponentNamespace(rInterface);
   }
 
 private:
