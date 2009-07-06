@@ -2,6 +2,7 @@ include ../../Makefile.env
 
 TARGET = widget
 TARGETNAME = lib$(TARGET).so
+COMPONENT = $(TARGET)
 
 CXXFLAGS += -fPIC -fexceptions -D_REENTRANT -Wall
 LDFLAGS += -fPIC -fexceptions -Wl,-rpath,$(AXIS2C_LIBDIR)
@@ -84,7 +85,7 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(TARGET)/"
-	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMPONENT)/
 	cp -f config/*.xml $(INSTALLDIR)$(TARGET)/db/
 	chmod 777 $(INSTALLDIR)$(TARGET)/db/
 

@@ -421,6 +421,16 @@ staff.Operation.prototype =
     }
     
     tNode.add_child(tDataObject.ToElement());
+  },
+  
+  SetXml: function(tXml, tNode)
+  {
+    if (!tNode)
+    {
+      tNode = this.ResultElement();
+    }
+    
+    tNode.add_child(tXml);
   }
 };
 

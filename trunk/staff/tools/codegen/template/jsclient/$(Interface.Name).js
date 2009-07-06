@@ -341,6 +341,11 @@ $(Class.ServiceNsName).prototype =
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
+  SetDataObjectAsXml: function(bDataObjectAsXml)
+  {
+    this.bDataObjectAsXml = bDataObjectAsXml;
+  },
+  
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -368,7 +373,14 @@ pOnComplete, pOnError)
     tOperation.AddParameter('$(Param.Name)', $(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
-    tOperation.AddDataObjectParameter('$(Param.Name)', $(Param.Name));
+    if (!this.bDataObjectAsXml)
+    {
+      tOperation.AddDataObjectParameter('$(Param.Name)', $(Param.Name));
+    }
+    else
+    {
+      tOperation.AddXmlParameter('$(Param.Name)', $(Param.Name));
+    }
 #else
 #cgerror "Error param: $(Param.DataType.Type)"
 #ifeqend
@@ -388,7 +400,14 @@ pOnComplete, pOnError)
           pOnComplete(DeserializeTypedef_$(Member.Return.MangledName)(tOperation), tOperation);
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-          pOnComplete(tOperation.ResultElement().firstChild, tOperation);
+    if (!this.bDataObjectAsXml)
+    {
+      pOnComplete(new staff.DataObject(tOperation.ResultElement().firstChild), tOperation);
+    }
+    else
+    {
+      pOnComplete(tOperation.ResultElement().firstChild, tOperation);
+    }
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
@@ -423,7 +442,14 @@ pOnComplete, pOnError)
 #else // end typedef
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 
+    if (!this.bDataObjectAsXml)
+    {
       return new staff.DataObject(tOperation.ResultElement().firstChild);
+    }
+    else
+    {
+      return tOperation.ResultElement().firstChild;
+    }
 #else // end dataobject
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
