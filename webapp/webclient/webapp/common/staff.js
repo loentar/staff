@@ -64,7 +64,7 @@ staff.Client.prototype =
       requestHeaders: 
       [ 
         'Content-Type', 'application/xml',
-        'SOAPAction',   tOperation.GetSoapAction()
+        'SOAPAction',   tOperation.GetSoapAction() || '""'
       ]
     };
     
@@ -346,7 +346,11 @@ staff.Operation.prototype =
     {
       for (var i = 0; i < tNode.childNodes.length; i++)
       {
-        if (tNode.childNodes[i].localName == sName)
+        var sLocalName = (!tNode.childNodes[i].localName ? 
+              tNode.childNodes[i].nodeName.replace(/^(.*:)/,'') :
+              tNode.childNodes[i].localName);
+
+        if (sLocalName == sName)
         {
           return tNode.childNodes[i];
         }
@@ -366,7 +370,11 @@ staff.Operation.prototype =
       var sNameLocase = sName.toLowerCase();
       for (var i = 0; i < tNode.childNodes.length; i++)
       {
-        if (tNode.childNodes[i].localName.toLowerCase() == sNameLocase)
+        var sLocalName = (!tNode.childNodes[i].localName ? 
+              tNode.childNodes[i].nodeName.replace(/^(.*:)/,'') :
+              tNode.childNodes[i].localName);
+
+        if (sLocalName.toLowerCase() == sNameLocase)
         {
           return tNode.childNodes[i];
         }
@@ -486,7 +494,9 @@ staff.DataObject.prototype =
       {
         if (tNode.nodeType == 1) // filter out text nodes
         {
-          bArray = tNode.localName == 'ArrayItem';
+          var sLocalName = !tNode.localName ? tNode.nodeName.replace(/^(.*:)/,'') : tNode.localName;
+        
+          bArray = sLocalName == 'ArrayItem';
           break;
         }
       }
@@ -513,7 +523,8 @@ staff.DataObject.prototype =
           {
             if (tNode.nodeType == 1) // filter out text nodes
             {
-              oData[tNode.localName] = this._FromElement(tNode);
+              var sLocalName = !tNode.localName ? tNode.nodeName.replace(/^(.*:)/,'') : tNode.localName;
+              oData[sLocalName] = this._FromElement(tNode);
             }
           }
 
