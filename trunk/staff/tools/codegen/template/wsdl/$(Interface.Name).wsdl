@@ -23,14 +23,14 @@
             <any name="$(Param.Name)" />
 #else
             <element name="$(Param.Name)" type="\
-#ifeq($(Param.DataType.Name),float||double||long||int||short)
+#ifeq($(Param.DataType.Name),float||double||long||int||short||bool)
 staff:$(Param.DataType.Name)\
 #else
 #ifeq($(Param.DataType.Name),std::string||rise::CString)
 staff:string\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-staff::$(Param.DataType.NativeName)\
+staff:$(Param.DataType.NativeName)\
 #else
 $(Param.DataType.Name)\
 #ifeqend
@@ -61,14 +61,14 @@ $(Param.DataType.Name)\
             <any name="$($sResult)" />
 #else
             <element name="$($sResult)" type="\
-#ifeq($(Member.Return.Name),float||double||long||int||short)
+#ifeq($(Member.Return.Name),float||double||long||int||short||bool)
 staff:$(Member.Return.Name)\
 #else
 #ifeq($(Member.Return.Name),std::string||rise::CString)
 staff:string\
 #else
 #ifeq($(Member.Return.Type),struct||typedef)
-staff::$(Member.Return.NativeName)\
+staff:$(Member.Return.NativeName)\
 #else
 $(Member.Return.Name)\
 #ifeqend
@@ -102,14 +102,14 @@ $(Member.Return.Name)\
       </element>
 #else
       <element name="$($sResult)" type="\
-#ifeq($(Member.Return.Name),float||double||long||int||short)
+#ifeq($(Member.Return.Name),float||double||long||int||short||bool)
 staff:$(Member.Return.Name)\
 #else
 #ifeq($(Member.Return.Name),std::string||rise::CString)
 staff:string\
 #else
 #ifeq($(Member.Return.Type),struct||typedef)
-staff::$(Member.Return.NativeName)\
+staff:$(Member.Return.NativeName)\
 #else
 $(Member.Return.Name)\
 #ifeqend
@@ -144,17 +144,17 @@ $(Member.Return.Name)\
 $($sIdent)      <sequence>
 #foreach $(Struct.Members)
 $($sIdent)        <element name="$(Param.Name)" type="\
-#ifeq($(Param.DataType.Name),float||double||long||int||short)
+#ifeq($(Param.DataType.Name),float||double||long||int||short||bool)
 staff:$(Param.DataType.Name)\
 #else
 #ifeq($(Param.DataType.Name),std::string||rise::CString)
 staff:string\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-staff::$(Param.DataType.NativeName)\
+staff:$(Param.DataType.NativeName)\
 #else
 #ifeq($(Param.DataType.Type),template)
-staff::$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
+staff:$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
 #else
 $(Param.DataType.Name)\
 #ifeqend
@@ -187,23 +187,23 @@ $($sIdent)      </sequence>
 
     <!-- simple types -->
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.Name),staff::Array)
+#ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)
     <complexType name="$(Typedef.NativeName)">
       <sequence>
-        <element minOccurs="0" maxOccurs="unbounded" name="staff::$(Typedef.DataType.TemplateParams.TemplateParam1.Name)" nillable="true" />
+        <element minOccurs="0" maxOccurs="unbounded" name="Item" type="staff:$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)" nillable="true" />
       </sequence>
     </complexType>
 #else
     <simpleType name="$(Typedef.NativeName)">
       <restriction base="\
-#ifeq($(Typedef.DataType.Name),float||double||long||int||short)
+#ifeq($(Typedef.DataType.Name),float||double||long||int||short||bool)
 staff:$(Typedef.DataType.Name)\
 #else
 #ifeq($(Typedef.DataType.Name),std::string||rise::CString)
 staff:string\
 #else
 #ifeq($(Typedef.DataType.Type),struct||typedef)
-staff::$(Typedef.DataType.NativeName)\
+staff:$(Typedef.DataType.NativeName)\
 #else
 $(Typedef.DataType.Name)\
 #ifeqend
