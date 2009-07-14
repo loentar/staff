@@ -42,7 +42,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-		     
 #include "httpd.h"
 #include "http_config.h"
 #include "http_protocol.h"
@@ -146,7 +145,7 @@ int CreateSocket()
     setsockopt(nSockID, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
   }
 
-  // таймаут на recv: 10 сек.
+  // я┌п╟п╧п╪п╟я┐я┌ п╫п╟ recv: 10 я│п╣п╨.
   tv.tv_sec = 60;
   tv.tv_usec = 0;
   setsockopt(nSockID, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
@@ -198,7 +197,7 @@ int InvokeRequest(request_rec* pReq, const char* szRequest, int nRequestSize, co
   int nBufferSize = 0;
 
 LABEL  
-  if(pReq == NULL || szRequest == NULL || pszAnswer == NULL || pnAnswerSize == NULL)
+  if (pReq == NULL || pszAnswer == NULL || pnAnswerSize == NULL)
     return 1;
     
   *pszAnswer = NULL;
@@ -209,17 +208,40 @@ LABEL
     return nSockID;
 
 LABEL  
-  nHttpHeaderLength = snprintf(szHttpHeader, sizeof(szHttpHeader),
+  if (pReq->method_number == M_POST)
+  {
+    const char* szSoapAction = "\"\"";
+    const char* szAprSoapAction = apr_table_get(pReq->headers_in, "SOAPAction");
+
+    if (szAprSoapAction)
+    {
+      szSoapAction = szAprSoapAction;
+    }
+
+    nHttpHeaderLength = snprintf(szHttpHeader, sizeof(szHttpHeader),
         "POST %s HTTP/1.1\r\n"
         "User-Agent: staff http module 1.0\r\n"
-        "SOAPAction: \"\"\r\n"
+        "SOAPAction: %s\r\n"
         "Content-Length: %d\r\n"
         "Content-Type: text/xml;charset=UTF-8\r\n"
         "Host: 127.0.0.1:9090\r\n\r\n",
-        pReq->uri,
+        pReq->unparsed_uri,
+        szSoapAction,
         nRequestSize);
+  }
+  else
+  {
+    nHttpHeaderLength = snprintf(szHttpHeader, sizeof(szHttpHeader),
+        "GET %s HTTP/1.1\r\n"
+        "User-Agent: staff http module 1.0\r\n"
+        "Content-Length: %d\r\n"
+        "Content-Type: text\r\n"
+        "Host: 127.0.0.1:9090\r\n\r\n",
+        pReq->unparsed_uri,
+        nRequestSize);
+  }
   
-LABEL  
+LABEL
   nRet = send(nSockID, szHttpHeader, nHttpHeaderLength, 0);
   if(nRet == -1)
   {
@@ -227,18 +249,20 @@ LABEL
     return 4;
   }
   
-LABEL  
-  nRet = send(nSockID, szRequest, nRequestSize, 0);
-  if(nRet == -1)
+LABEL
+  if (szRequest)
   {
-    CloseSocket(nSockID);
-    return 4;
+    nRet = send(nSockID, szRequest, nRequestSize, 0);
+    if(nRet == -1)
+    {
+      CloseSocket(nSockID);
+      return 4;
+    }
   }
   
-  
-LABEL  
+LABEL
   //////////////////////////////////////////////////
-  // сначала получаем и разбираем HttpHeader
+  // я│п╫п╟я┤п╟п╩п╟ п©п╬п╩я┐я┤п╟п╣п╪ п╦ я─п╟п╥п╠п╦я─п╟п╣п╪ HttpHeader
   {
     int bHeaderParsed = 0;
     int nReceived = 0;
@@ -246,7 +270,7 @@ LABEL
     char szLineEnd[4] = "";
     int nLineEndLength = 0;
 
-    char* szCurr = szHttpHeader; // текущий адрес для получения блока
+    char* szCurr = szHttpHeader; // я┌п╣п╨я┐я┴п╦п╧ п╟п╢я─п╣я│ п╢п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╠п╩п╬п╨п╟
 
     const char* szBegin = szCurr;
     const char* szEnd = NULL;
@@ -272,7 +296,7 @@ dump(szCurr, nRet);
       
       szEnd = strpbrk(szBegin, "\n\r");
 
-      // детект конца строк заголовка
+      // п╢п╣я┌п╣п╨я┌ п╨п╬п╫я├п╟ я│я┌я─п╬п╨ п╥п╟пЁп╬п╩п╬п╡п╨п╟
       if (nLineEndLength == 0 && szEnd != NULL)
       {
         szLineEnd[0] = *szEnd;
@@ -289,13 +313,13 @@ dump(szCurr, nRet);
       }
 
 LABEL  
-      // разбор заголовка    
+      // я─п╟п╥п╠п╬я─ п╥п╟пЁп╬п╩п╬п╡п╨п╟    
       while (szEnd != NULL)
       {
 LABEL  
-        if (szEnd == szBegin && strncmp(szBegin + nLineEndLength, szLineEnd, nLineEndLength)) // пошел основной текст сообщения
+        if (szEnd == szBegin && strncmp(szBegin + nLineEndLength, szLineEnd, nLineEndLength)) // п©п╬я┬п╣п╩ п╬я│п╫п╬п╡п╫п╬п╧ я┌п╣п╨я│я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐
         {
-          if(*pszAnswer == NULL) // основной текст без заголовка!!
+          if(*pszAnswer == NULL) // п╬я│п╫п╬п╡п╫п╬п╧ я┌п╣п╨я│я┌ п╠п╣п╥ п╥п╟пЁп╬п╩п╬п╡п╨п╟!!
           {
 LABEL  
             CloseSocket(nSockID);
@@ -332,6 +356,29 @@ LABEL
 LOG1("data size: %d", *pnAnswerSize);
 LOG1("buffer ptr: %p", *pszAnswer);
         }
+        else
+        if(strncmp(szBegin, "Content-Type:", 13) == 0)
+        {
+          char* szContentTypeCopy = NULL;
+          const char* szContentType = szBegin + 13;
+          const char* szContentTypeEnd = NULL;
+          while (*szContentType == ' ' || *szContentType == '\t')
+          {
+            ++szContentType;
+          }
+LABEL  
+          szContentTypeEnd = strpbrk(szContentType, "\n\r");
+          if (!szContentTypeEnd)
+          {
+            return 8;
+          }
+
+          szContentTypeCopy = apr_pcalloc(pReq->pool, szContentTypeEnd - szContentType + 1);
+          strncpy(szContentTypeCopy, szContentType, szContentTypeEnd - szContentType);
+          szContentTypeCopy[szContentTypeEnd - szContentType] = '\0';
+
+          pReq->content_type = szContentTypeCopy;
+        }
 
         szEnd += nLineEndLength;
         szBegin = szEnd;
@@ -346,7 +393,7 @@ LABEL
 
 
     ///////////////////////////////////////////////////////////
-    // тело сообщения
+    // я┌п╣п╩п╬ я│п╬п╬п╠я┴п╣п╫п╦я▐
     while(nReceived < *pnAnswerSize)
     {
       nRet = recv(nSockID, szCurr, *pnAnswerSize - nReceived, 0);
@@ -377,10 +424,9 @@ static int axis2services_handler(request_rec* pReq)
   if (pReq->header_only)
     return nRet;
 
-  if (pReq->method_number != M_POST)
-    return nRet;
-
 LABEL  
+
+  if (pReq->method_number == M_POST || pReq->method_number == M_GET)
   {
     const char* szRequest = NULL;
     int nRequestSize = 0;
@@ -389,7 +435,9 @@ LABEL
     int nAnswerSize = 0;
   
     if ((nRet = util_read(pReq, &szRequest, &nRequestSize)) != OK)
+    {
       return nRet;
+    }
     
     nRet = InvokeRequest(pReq, szRequest, nRequestSize, &szAnswer, &nAnswerSize);
 
@@ -407,14 +455,19 @@ LABEL
       snprintf(szError, sizeof(szError), "error while InvokeRequest #%d\n", nRet);
       ap_rputs(szError, pReq);
       
-      return 500;
+//      return 500;
+      return OK;
     }
 
 LOG2(" \n\nRESULT(size=%d): %s\n\n", nAnswerSize, szAnswer);
 dump(szAnswer, nAnswerSize);
 //dump(szAnswer, nAnswerSize > 4000 ? 4000 : nAnswerSize);
-    pReq->content_type = "text/xml;charset=UTF-8";
+//    pReq->content_type = "text/xml;charset=UTF-8";
     ap_rwrite(szAnswer, nAnswerSize, pReq);
+  }
+  else
+  {
+    return nRet;
   }
 
 //LOG1("%s", "--------------------------------------------------------");      
@@ -423,7 +476,7 @@ dump(szAnswer, nAnswerSize);
 
 static void axis2services_register_hooks(apr_pool_t *p)
 {
-    ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
+  ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
 #ifdef _DEBUG
 pLog = fopen("/tmp/apm.log", "wt");
 LABEL

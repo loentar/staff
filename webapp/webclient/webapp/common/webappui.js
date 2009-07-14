@@ -815,16 +815,30 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.tTHead;
   },
   
-  AddHeadRow: function()
+  AddHeadRow: function(tOpt)
   {
     var tTr = document.createElement('tr');
+    if (tOpt != null)
+    {
+      if (tOpt.sClass != null)
+      {
+        tTr.className = tOpt.sClass;
+      }
+    }
     this.Head().appendChild(tTr);
     return tTr;
   },
   
-  AddRow: function()
+  AddRow: function(tOpt)
   {
     var tTr = document.createElement('tr');
+    if (tOpt != null)
+    {
+      if (tOpt.sClass != null)
+      {
+        tTr.className = tOpt.sClass;
+      }
+    }
     this.tTBody.appendChild(tTr);
     return tTr;
   },

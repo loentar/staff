@@ -159,6 +159,12 @@ i18n.webapp =
   'Success': 'Выполнено',
   'Unpacking': 'Распаковка',
   'Unpack finished': 'Распаковка успешно завершена',
-  'Unpack failed': 'Ошибка при распаковке файла'
+  'Unpack failed': 'Ошибка при распаковке файла',
+  
+  // Active Services
+  'Active services': 'Активные сервисы',
+  'Service name': 'Имя сервиса',
+  'Service operations': 'Операции сервиса',
+  'No description': 'Описание отсутствует'
 
 };
