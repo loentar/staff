@@ -83,7 +83,7 @@ $(OUTDIR)$(TARGETLIBVER): $(OBJECTS)
 deploy: deploy_headers deploy_lib
 	chmod -R go-w $(DEPLOYDIR)
 
-deploy_lib: "$(DEPLOYLIBDIR)"
+deploy_lib: "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETLIBVER)
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIBVER)
 	ln -sf $(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIB)
 
