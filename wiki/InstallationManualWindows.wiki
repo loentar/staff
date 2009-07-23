@@ -1,0 +1,152 @@
+#summary Installation, configuration and test guide for windows
+#labels Featured,Phase-Deploy
+
+= Introduction =
+
+It's a little guide for compiling and installing Staff on Windows.
+
+= Details =
+
+== 0. Environment variables ==
+While compiling, starting axis2/c or any client/service application, these environment variables, points to Axis2/С и Staff homes and system paths, must be set:
+{{{
+AXIS2C_HOME=c:\ws\axis2c
+STAFF_HOME=c:\ws\staff
+PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib;<path to Postgresql>\bin;<path to Postgresql>\lib
+}}}
+
+You can set these variables in system properties.
+After setting these variables, You must relogin or reboot windows.
+
+== 1. Compile and install dependencies ==
+
+You need axis2/c-1.5.0 to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
+
+Unpack directory contents axis2c-bin-1.5.0-win32 into c:\ws\axis2c
+
+Make sure that Axis2/С starts:
+{{{
+c:\ws\axis2c\bin\axis2_http_server.exe
+}}}
+
+It must be console window with text:
+{{{
+Started Simple Axis2 HTTP Server ...
+}}}
+
+Make sure, that Axis2/C is working, refer to:
+http://localhost:9090/axis2/services/
+It must be Axis2/С service list.
+
+== 2. Getting source code ==
+
+Please refer to http://code.google.com/p/staff/source/checkout to read guide for getting source code from svn repository.
+Or checkout the [http://code.google.com/p/staff/downloads/list Download] section.
+
+
+== 3. Compiling source code ==
+
+=== 3.1 Compiling and installing rise ===
+
+Open file rise/rise.vcproj from Visual studio 2005.
+Build library (Build -> Build Solution)
+Copy files Debug/rise.lib Debug/rise.dll into directory c:\ws\staff\lib\
+Copy directory contents staff\rise\rise\ into directory c:\ws\staff\include\rise\ and staff\rise\deploy\win32\, excliding cpp-files.
+
+=== 3.2 Compiling and installing Staff ===
+
+Open solution file staff/staff.sln into Visual studio 2005.
+Edit Postgres paths into staff_security project properties.
+Build solution (Build -> Build Solution)
+
+Make sure that postgres is installed and running.
+Start psql and enter these commands for installing DB:
+{{{
+\cd <full path to directory with source code>/staff/staff/core/security/
+\i db/instdb.sql
+}}}
+
+== 4. Configuring ==
+
+=== 4.1 Configuring axis2 ===
+
+To engage staff modules into Axis2/C edit file:
+{{{
+%AXIS2C_HOME%\axis2.xml
+}}}
+
+after line:
+{{{
+<module ref="addressing"/>
+}}}
+
+add:
+{{{
+<module ref="staff"/>
+<module ref="staff_security"/>
+}}}
+
+
+=== 4.2 Configuring staff db connection ===
+
+If You would like to change db settings edit file:
+{{{
+%AXIS2C_HOME%\modules\staff_security\module.xml
+}}}
+
+edit following parameters:
+{{{
+<parameter name="pgHost" locked="false">localhost</parameter>
+<parameter name="pgPort" locked="false">5432</parameter>
+<parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
+<parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
+}}}
+
+where POSTGRES_USER is Your postgres database user(default: staffdbuser), and POSTGRES_PASSWORD is user's password(default: staffdbuserpassword).
+
+
+== 5. Starting ==
+
+=== 5.1 Starting in normal mode ===
+
+To start Axis2/C in normal mode:
+{{{
+cd %AXIS2C_HOME%\bin
+axis2_http_server
+}}}
+
+=== 5.2 Starting in debug mode == 
+
+To start Axis2/C in debug mode:
+{{{
+cd %AXIS2C_HOME%\bin
+set RISE_LOG_LEVEL=DEBUG3
+set RISE_EXCEPTION_STACKTRACING=1
+axis2_http_server
+}}}
+
+
+== 6. Testing ==
+
+=== 6.1 Basic test ===
+
+Open Your favorite web-browser and enter:
+
+http://localhost:9090/axis2/services
+
+Services "StaffService" and "staff.Login" must running.
+
+Sample services "calc.CalcService", "calc.SubService" must running.
+
+
+=== 6.2 Service-Client interaction test ===
+
+Start service Calculator
+{{{
+calculator_service
+}}}
+
+Open another console and start client
+{{{
+calc_client
+}}}

@@ -1,4 +1,4 @@
-#summary Installation, configuration and test guide
+#summary Installation, configuration and test guide for Linux
 #labels Featured,Phase-Deploy
 
 = Introduction =
