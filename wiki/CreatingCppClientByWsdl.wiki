@@ -1,4 +1,4 @@
-#summary Creating SOA clients by on WSDL.
+#summary Creating SOA clients from WSDL.
 #labels Featured,Phase-Implementation
 
 _NOTICE: translated from russian with translate.google.com_
@@ -118,4 +118,3 @@ Run the client:
 {{{
  out/$(uname -m)/StockQuoteClient
 }}}
-
