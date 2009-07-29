@@ -40,9 +40,6 @@ webapp.widget.ActiveServices.prototype.extend(webapp.widget.Widget.prototype).ex
     this.tFrame.visibility = 'hidden';
     addHandler(this.tFrame, 'load', this._OnFrameLoaded.bindAsEventListener(this));
     
-/*    tParentElem.style.width = "100%";
-    tParentElem.style.height = 400;
-    tParentElem.style.overflow = "auto";*/
     this.tContentDiv = new webapp.ui.Div(tParentElem, { sClass: "divActiveServices" });
 
     this.tTable = new webapp.ui.Table(this.tContentDiv, { sClass: "tableActiveServices" });
@@ -68,6 +65,22 @@ webapp.widget.ActiveServices.prototype.extend(webapp.widget.Widget.prototype).ex
   {
     var tFrameDoc = (this.tFrame.contentWindow || this.tFrame.window).document;
     var tFontElem = tFrameDoc.getElementsByTagName('font')[0];
+    
+    if(!tFontElem || !tFontElem.firstChild)
+    { // sometimes firefox fully reinterprets document
+      if (this.nRetry == 'undefined')
+      {
+        this.nRetry = 2;
+      }
+
+      --this.nRetry;
+      if (this.nRetry !== 0)
+      {
+        tFrameDoc.location.reload(true);
+      }
+      return;
+    }
+
     var tServiceRow;
     var tCellDescr;
     
