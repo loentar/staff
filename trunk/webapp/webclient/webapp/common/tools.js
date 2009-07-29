@@ -64,7 +64,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
     
     if(fnComplete)
     {
-      var nLimit = 20;
+      var nLimit = 30;
       
       function CheckIncludeMulti()
       {
@@ -72,7 +72,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
         {
           if(--nLimit > 0)
           {
-            setTimeout(CheckIncludeMulti, 100);
+            setTimeout(CheckIncludeMulti, 200);
           }
           else
           {
@@ -178,7 +178,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
   
   if(fnComplete)
   {
-    var nLimit = 20;
+    var nLimit = 30;
     
     function CheckIncludeSingle()
     {
@@ -186,7 +186,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
       {
         if(--nLimit > 0)
         {
-          setTimeout(CheckIncludeSingle, 100);
+          setTimeout(CheckIncludeSingle, 200);
         }
         else
         {
