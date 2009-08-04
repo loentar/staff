@@ -30,62 +30,54 @@ namespace rise
 {
   namespace xml
   {
-    //!        класс декларации XML-документа
+    //!        xml-document declaration
     class RISE_EXPORT CXMLDecl
     {
     public:
-      enum EXMLDeclStandAlone //! тип автономности
+      enum EXMLDeclStandAlone //! standalone
       {
-        EXMLSAUndefined = -1, //!< автономность не указана
-        EXMLSANo,             //!< не автономный
-        EXMLSAYes             //!< вытономный
+        EXMLSAUndefined = -1, //!< not defined
+        EXMLSANo,             //!< standalone="no"
+        EXMLSAYes             //!< standalone="yes"
       };
 
-      CString              m_sVersion;      //!< Версия XML-документа(поддерживается только 1.0)
-      CString              m_sEncoding;     //!< Кодировка
-      EXMLDeclStandAlone   m_eStandalone;   //!< Декларация автономного документа
+      CString              m_sVersion;      //!< xml document version(1.0)
+      CString              m_sEncoding;     //!< encoding
+      EXMLDeclStandAlone   m_eStandalone;   //!< standalone declaration
 
     public:
-      //!        конструктор
+      //!        constructor
       CXMLDecl();
 
-      //!        деструктор
+      //!        destructor
       ~CXMLDecl();
     };
 
-    //!        оператор сериализации
-    /*
-       \param   rStream - поток сериализации
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLDecl - reference to declaration
+        \return  serializing stream
     */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLDecl& rXMLDecl);
 
-    //!        оператор десериализации
-    /*
-       исключения:
-       CLogicFormatException - неверный формат файла
-       CXMLNoItemException - файл не начинается с декларации XML
-
-       \param   rStream - поток десериализации
-       \return результирующий поток сериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLDecl - reference to declaration
+        \return  deserializing stream
     */
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, CXMLDecl& rXMLDecl);
 
-    //!        оператор сериализации
-    /*
-       \param   rStream - поток сериализации
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLDecl - reference to declaration
+        \return  serializing stream
     */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLDecl& rXMLDecl);
 
-    //!        оператор десериализации
-    /*
-       исключения:
-       CLogicFormatException - неверный формат файла
-       CXMLNoItemException - файл не начинается с декларации XML
-
-       \param   rStream - поток десериализации
-       \return результирующий поток сериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLDecl - reference to declaration
+        \return  deserializing stream
     */
      RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLDecl& rXMLDecl);
 

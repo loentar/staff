@@ -33,60 +33,69 @@ namespace staff
   class CDataObject;
   class CRemoteService;
 
+  //! remote service type
   typedef rise::CMutablePtr<CRemoteService> PRemoteService;
+
+  //! remote service map
   typedef std::map<rise::CString, PRemoteService> TRemoteServiceMap;
 
-   //!  класс клиентской части для stateful сервиса
+  //!  remote service wrapper
   class CRemoteServiceWrapper: public CService
   {
   public:
-    //!         конструктор
+    //!         constructor
+    /*! \param  pComponent - pointer to component
+        */
     CRemoteServiceWrapper(CComponent* pComponent);
     
-    //!         деструктор
+    //!         destructor
     virtual ~CRemoteServiceWrapper();
 
-    //!         получить имя сервиса
-    /*! \return имя сервиса
+    //!         get service name
+    /*! \return service name
     */
     const rise::CString& GetName() const;
 
-    //!         получить описание сервиса
-    /*! \return описание сервиса
+    //!         get service description
+    /*! \return service description
     */
     const rise::CString& GetDescr() const;
 
-    //!         получить список операций сервиса
-    /*! \return список операций сервиса
+    //!         get service operations
+    /*! \return service operations
     */
     CDataObject GetOperations() const;
 
-    //!         выполнить операцию
-    /*! \param  rOperation - операция
+    //!         invoke operation
+    /*! \param  rOperation - operation
+        \param  sID - session id
         */
     void Invoke(COperation& rOperation, const rise::CString& sID);
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get component, bound to service
+    /*! \return component
     */
     const CComponent* GetComponent() const;
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get component, bound to service
+    /*! \return component
     */
     CComponent* GetComponent();
 
-    //!         получить указатель на реализацию сервиса(только для локальных сервисов)
-    /*! \param  sID - идентификатор сервиса в группе
-        \return указатель на реализацию сервиса
+    //!         get service implementation pointer
+    /*! \param  sID - session id
+        \return pointer to service implementation
         */
     void* GetImpl(const rise::CString& sID);
 
+    //!         get services map
+    /*! \return services map
+    */
     TRemoteServiceMap& GetServices();
 
   private:
-    TRemoteServiceMap m_mServices;
-    CComponent* m_pComponent;
+    TRemoteServiceMap m_mServices; //!< services map
+    CComponent* m_pComponent;      //!< component
   };
 }
 

@@ -47,7 +47,7 @@ namespace rise
   {
     COStringStream tOStringStream;
     tOStringStream << rtData;
-    sResult = tOStringStream.str().c_str(); // иначе не совпадет длинна
+    sResult = tOStringStream.str().c_str();
   }
 
 } // namespace rise

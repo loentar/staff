@@ -30,39 +30,39 @@ namespace rise
 {
   namespace plugin
   {
-    //!        класс работы с динамическими библиотеками
+    //!        dynamic library
     class RISE_EXPORT CDynamicLibrary
     {
     public:
+      //!        constructor
       CDynamicLibrary();
 
+      //!        destructor
       virtual ~CDynamicLibrary();
       
-      //!        подгрузка динамической библиотеки
+      //!         load dynamic library
+      /*! \param  sLibName - library name
+          \param  bRawName - true, given full library name with extension
+          */
       virtual void Load(const CString& sLibName, bool bRawName = false);
 
-      //!        получение имени
-      /*
-         \return имя библиотеки
+      //!         get library name
+      /*! \return library name
       */
       const CString& GetName() const;
 
-      //!        получение указателя на символ в библиотеке
-      /*
-           CLogicNoItemException - указанный символ не найден
-         \param  sSymName - имя символа
-         \return указатель на функцию, NULL при ошибке
+      //!        get library symbol pointer
+      /*! \param  sSymName - symbol name
+          \return pointer to symbol
       */
       PLibSymbol GetSymbol(const CString& sSymName) const;
 
-      //!        выгрузка библиотеки
-      /*         CFileCloseException
-      */
+      //!        unload library
       void UnloadLibrary();
 
     private:
-      HDynamicLib  m_hDynLib; //! дескриптор модуля
-      CString      m_sName;   //! имя модуля
+      HDynamicLib  m_hDynLib; //!< library handle
+      CString      m_sName;   //!< library name
     };
   } //  namespace plugin
 } // namespace rise

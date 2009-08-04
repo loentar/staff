@@ -29,31 +29,11 @@
 
 namespace rise
 {
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osCreateSocket
-  //    DESCRIPTION:    создание сокета
-  //    PARAMETRS:      af - спецификация адреса
-  //                    type - тип сокета (SOCK_STREAM или SOCK_DGRAM)
-  //                    protocol - протокол
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   SOCKET osCreateSocket(int af, int type, int protocol)
   {
     return socket(af, type, protocol);
   }
 
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osCloseSocket
-  //    DESCRIPTION:    закрытие сокета
-  //    PARAMETRS:      s - идентификатор сокета
-  //    RETURN:         true, если закрытие произошло успешно
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   bool osCloseSocket(SOCKET s)
   {
 #ifdef WIN32
@@ -63,16 +43,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osIOCtlSocket
-  //    DESCRIPTION:    управление режимом ввода/вывода
-  //    PARAMETRS:      s - дескриптор сокета
-  //                    cmd - команда
-  //                    argp - указатель на параметр команды
-  //    RETURN:         true, если команда выполнена успешно
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   bool osIOCtlSocket(SOCKET s, long cmd, unsigned long *argp)
   {
 #ifdef WIN32
@@ -82,14 +52,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osGetLastSocketError
-  //    DESCRIPTION:    получение кода последней ошибки работы с сокетом
-  //    PARAMETRS:      none
-  //    RETURN:         код последней ошибки работы с сокетом
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osGetLastSocketError()
   {
 #ifdef WIN32
@@ -99,16 +61,6 @@ namespace rise
 #endif
   }
 
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osSocketWaitForRecv
-  //    DESCRIPTION:    ожидание данных для чтения из сокета
-  //    PARAMETRS:      sock - дескриптор сокета
-  //                    nSeconds - время ожидания в секундах
-  //                    nUSeconds - время ожидания в микросекундах
-  //    RETURN:         true, если есть данные для чтения
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osSocketWaitForRecv(SOCKET sock, unsigned long nSeconds, unsigned long nUSeconds)
   {
     fd_set rfds;
@@ -130,13 +82,6 @@ namespace rise
     return select(int(sock + 1), &rfds, NULL, NULL, &tv);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osSocketWaitForRecvInfinite
-  //    DESCRIPTION:    ожидание данных неопределенное время
-  //    PARAMETRS:      sock - дескриптор сокета
-  //    RETURN:         true, если есть данные для чтения
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osSocketWaitForRecvInfinite(SOCKET sock)
   {
     fd_set rfds;

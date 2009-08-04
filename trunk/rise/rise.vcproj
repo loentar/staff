@@ -648,6 +648,10 @@
 					RelativePath=".\rise\string\String.h"
 					>
 				</File>
+				<File
+					RelativePath=".\rise\string\String.hpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="tools"

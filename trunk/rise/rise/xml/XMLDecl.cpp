@@ -32,32 +32,15 @@ namespace rise
   namespace xml
   {
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLDecl
-    //    DESCRIPTION:    default constructor
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLDecl::CXMLDecl():
       m_sVersion("1.0"), m_eStandalone(EXMLSAUndefined)
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     ~CXMLDecl
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLDecl::~CXMLDecl()
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLDecl& rXMLDecl)
     {
       rStream << "<?xml";
@@ -76,14 +59,6 @@ namespace rise
       return rStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLIStream& operator>>(CXMLIStream& rStream, CXMLDecl& rXMLDecl)
     {
       CString sTmp;
@@ -129,36 +104,17 @@ namespace rise
       return rStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLDecl& rXMLDecl)
     {
       CXMLOStream tTmpStream(rStream);
       return operator<<(tTmpStream, rXMLDecl);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CLogicFormatException - неверный формат файла
-    //                    CXMLNoItemException - файл не начинается с декларации XML
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLDecl& rXMLDecl)
     {
       CXMLIStream tTmpStream(rStream);
       return operator>>(tTmpStream, rXMLDecl);
     }
-
-
 
   } // namespace xml
 } // namespace rise

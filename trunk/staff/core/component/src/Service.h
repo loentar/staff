@@ -31,47 +31,47 @@ namespace staff
   class COperation;
   class CComponent;
 
-  //!  сервис диспетчера
+  //!  Service
   class STAFF_COMPONENT_EXPORT CService
   {
   public:
-    //!        деструктор
+    //!        destructor
     virtual ~CService();
 
-    //!         получить имя сервиса
-    /*! \return имя сервиса
+    //!         get service name
+    /*! \return service name
     */
     virtual const rise::CString& GetName() const = 0;
 
-    //!         получить описание сервиса
-    /*! \return описание сервиса
+    //!         get service description
+    /*! \return service description
     */
     virtual const rise::CString& GetDescr() const = 0;
     
-    //!         получить описание операций
-    /*! \return описание операций
+    //!         get service operations
+    /*! \return service operations
     */
     virtual CDataObject GetOperations() const = 0;
     
-    //!         вызвать операцию сервиса
-    /*! \param  rOperation - операция
-        \param  sID - идентификатор сервиса
+    //!         invoke service operation
+    /*! \param  rOperation - operation
+        \param  sID - service session id
         */
     virtual void Invoke(COperation& rOperation, const rise::CString& sID) = 0;
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get service's component
+    /*! \return service's component
     */
     virtual const CComponent* GetComponent() const = 0;
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get service's component
+    /*! \return service's component
     */
     virtual CComponent* GetComponent() = 0;
 
-    //!         получить указатель на реализацию сервиса(только для локальных сервисов)
-    /*! \param  sID - идентификатор сервиса в группе
-        \return указатель на реализацию сервиса
+    //!         get pointer to service implementation(only for local services)
+    /*! \param  sID - service session id
+        \return pointer to service implementation or NULL, if service non-local
         */
     virtual void* GetImpl(const rise::CString& sID) = 0;
   };

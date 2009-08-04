@@ -29,36 +29,14 @@ namespace rise
   namespace sockets
   {
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CServerSocket
-    //    DESCRIPTION:    default constructor
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
-    CServerSocket::CServerSocket() /*throw()*/
+    CServerSocket::CServerSocket()
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     CServerSocket
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
-    CServerSocket::~CServerSocket() /*throw()*/
+    CServerSocket::~CServerSocket()
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Create(...)
-    //    DESCRIPTION:    создание сокета
-    //    PARAMETRS:      (in) ushPort - номер порта
-    //                         nType - тип сокета ST_STREAM или ST_DGRAM 
-    //                         nBacklog - максимальная длина очереди входящих подключений
-    //    RETURN:         none
-    //    EXCEPTIONS:     
-    //       CLogicAlreadyExistsException - инициализация уже произведена
-    //       CFileCreateException - ошибка при создании сокета
-    //       CFileOpenException - ошибка при переходе в режим прослушивания
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CServerSocket::Create( ushort ushPort, ulong unAddress /*= INADDR_ANY*/, int nType /*= CSocket::ST_STREAM*/, int nBacklog /*= 5*/ )
     {
       struct sockaddr_in saddr;
@@ -95,14 +73,6 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Accept(...)
-    //    DESCRIPTION:    принятие входящего подключения
-    //    PARAMETRS:      sRecv - принятый сокет
-    //    RETURN:         true, если входящее подключение принято
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CServerSocket::Accept(CRecvSocket& rRecv)
     {
       RISE_ASSERTE(IsInit(), CLogicNoInitException);

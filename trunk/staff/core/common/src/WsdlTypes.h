@@ -78,6 +78,7 @@ namespace staff
 
 
   /* SOAP types */
+  //! SOAP Array
   template<typename Item> 
   class Array: public std::list<Item>
   {

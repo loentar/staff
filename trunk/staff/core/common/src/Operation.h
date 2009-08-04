@@ -30,43 +30,43 @@ namespace staff
 {
   class CValue;
 
-  //!  операция(описание функции, параметров, значений параметров, возвращаемого значения и ошибок)
+  //!  Service Operation
   class STAFF_COMMON_EXPORT COperation
   {
   public:
-    //!        конструктор по умолчанию
+    //!        constructor
     COperation(const std::string& sName = "", const std::string& sResponseName = "", const std::string& sResultName = "");
 
-    //!        деструктор
+    //!        destructor
     virtual ~COperation();
 
-    //!         установить имя операции
-    /*! \param  sName - имя операции
+    //!         set operation name
+    /*! \param  sName - operation name
         */
     void SetName(const std::string& sName);
 
-    //!         получить имя операции
-    /*! \return имя операции
+    //!         get operation name
+    /*! \return operation name
     */
     const std::string GetName() const;
 
-    //!         установить имя ответа
-    /*! \param  sName - имя операции
+    //!         set response node name
+    /*! \param  sResponseName - response node name
         */
     void SetResponseName(const std::string& sResponseName);
 
-    //!         получить имя ответа
-    /*! \return имя операции
+    //!         get response node name
+    /*! \return response node name
     */
     const std::string GetResponseName() const;
 
-    //!         установить имя ответа
-    /*! \param  sName - имя операции
+    //!         set result node name
+    /*! \param  sResultName - result node name
         */
-    void SetResultName(const std::string& sResponseName);
+    void SetResultName(const std::string& sResultName);
 
-    //!         получить имя ответа
-    /*! \return имя операции
+    //!         get result node name
+    /*! \return result node name
     */
     const std::string& GetResultName() const;
 
@@ -80,118 +80,126 @@ namespace staff
         */
     const std::string& GetSoapAction() const;
 
-    //!         добавить параметр
-    /*! \param  sName - имя
-        \param  tValue - значение
+    //!         add operation parameter
+    /*! \param  sName - parameter name
+        \param  tValue - parameter value
         */
     void AddParameter(const std::string& sName, const CValue& tValue);
     
-    //!         добавить параметр как обьект данных
-    /*! \param  rDataObject - обьект данных
+    //!         add operation parameter as DataObject
+    /*! \param  rDataObject - DataObject
         */
     void AddParameter(CDataObject& rDataObject);
 
-    //!         получить обьект даных запроса
+    //!         get request DataObject
+    /*! \return request DataObject
+    */
     const CDataObject& Request() const;
 
-    //!         получить обьект даных запроса
+    //!         get request DataObject
+    /*! \return request DataObject(mutable)
+    */
     CDataObject& Request();
 
-    //!         получить обьект даных результата
+    //!         get result DataObject
+    /*! \return result DataObject
+    */
     const CDataObject& Result() const;
 
-    //!         получить обьект даных результата
+    //!         get result DataObject
+    /*! \return result DataObject(mutable)
+    */
     CDataObject& Result();
 
-    //!         подготовить результат к отправке
+    //!         prepare Operation for sending result
     void PrepareResult();
 
-    //!         Get response object
-    /*! \return response object
+    //!         get response DataObject
+    /*! \return response DataObject
         */
     CDataObject& GetResponse();
 
-    //!         Get response object
-    /*! \return response object
+    //!         get response DataObject
+    /*! \return response DataObject
         */
     const CDataObject& GetResponse() const;
 
-    //!         set response object
-    /*! \param  rdoResponse - response object
+    //!         set response DataObject
+    /*! \param  rdoResponse - response DataObject
         */
     void SetResponse(staff::CDataObject& rdoResponse);
 
-    //!         получить/установить результат(простой)
-    /*! \return ссылка на значение результата
+    //!         get/set result value
+    /*! \return value
     */
     CValue ResultValue();
 
-    //!         получить/установить результат(простой)
-    /*! \return ссылка на значение результата
+    //!         get result value
+    /*! \return value
     */
     const CValue ResultValue() const;
 
-    //!         установить результат
-    /*! \param  rDataObject - обьект данных с результатом
+    //!         set result
+    /*! \param  rDataObject - DataObject with results
         */
     void SetResult(CDataObject& rDataObject);
 
-    //!         установить результат(простой)
-    /*! \param  rValue - значение результата
+    //!         set result value
+    /*! \param  rValue - result value
         */
     void SetResultValue(const CValue& rValue);
 
-    //!         проверить, является ли результат ошибкой?
-    /*! \return 
+    //!         check an operation is fault or not
+    /*! \return true - operation is fault
         */
     bool IsFault() const;
 
-    //!         получить полное описание ошибки
-    /*! \return описание ошибки, если ошибки нет - пустая строка
+    //!         get fault description
+    /*! \return fault description or empty string
         */
     std::string GetFaultString() const;
 
-    //!         получить причину ошибки
-    /*! \return причина ошибки, если ошибки нет - пустая строка
+    //!         get fault reason
+    /*! \return fault reason or empty string
     */
     std::string GetFaultReason() const;
 
-    //!         получить код ошибки
-    /*! \return код ошибки, если ошибки нет - пустая строка
+    //!         get fault code
+    /*! \return fault code or empty string
         */
     std::string GetFaultCode() const;
 
-    //!         получить подробное описание ошибки
-    /*! \return подробное описание ошибки, если ошибки нет - пустая строка
+    //!         get fault detail
+    /*! \return fault detail or empty string
     */
     std::string GetFaultDetail() const;
 
-    //!         получить ошибку
-    /*! \return ошибка
+    //!         get fault DataObject
+    /*! \return fault DataObject
         */
     const CDataObject GetFault() const;
 
-    //!         установить признак результата-ошибки
-    /*! \param  sReason - причина ошибки
-        \param  sFaultDetail - описание ошибки
-        \param  sFaultCode - код ошибки
+    //!         set fault
+    /*! \param  sReason - fault reason
+        \param  sFaultDetail - fault detail
+        \param  sFaultCode - fault code
         */
     void SetFault(const std::string& sReason, const std::string& sFaultDetail = "", const std::string& sFaultCode = "");
 
-    //!         установить/снять признак результата-ошибки
+    //!         reset fault
     void ResetFault();
 
-    //!         установить признак результата-ошибки
-    /*! \param  rDataObject - обьект данных для описания ошибки
+    //!         set fault as DataObject
+    /*! \param  rDataObjectFault - DataObject with fault description
         */
     void SetUserFault(CDataObject& rDataObjectFault);
 
   private:
-    CDataObject m_tdoRequest;
-    CDataObject m_tdoResponse;
-    mutable CDataObject m_tdoResult;
-    std::string m_sResultName;
-    std::string m_sSoapAction;
+    CDataObject m_tdoRequest;        //!<  request DataObject
+    CDataObject m_tdoResponse;       //!<  response DataObject
+    mutable CDataObject m_tdoResult; //!<  result DataObject
+    std::string m_sResultName;       //!<  result name
+    std::string m_sSoapAction;       //!<  SOAP action
   };
 }
 

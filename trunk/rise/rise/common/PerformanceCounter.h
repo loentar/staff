@@ -26,34 +26,32 @@
 
 namespace rise
 {
-  //!        счетчик быстродействия
+  //!        performance counter
   class RISE_EXPORT CPerformanceCounter
   {
   public:
-    //!        конструктор
+    //!        constructor
     CPerformanceCounter();
 
-    //!        деструктор
+    //!        destructor
     ~CPerformanceCounter();
 
-    //!        начать измерение
+    //!        start counting time
     void Start();
 
-    //!        завершить измерение
-    /*
-       \return измеренное значение времени в микросекундах
+    //!        finish counting time
+    /*! \return difference between finish and start in microseconds
     */
     long long Finish();
 
-    //!        получить последнее измеренное значение
-    /*
-       \return последнее измеренное значение времени в микросекундах
+    //!        get last measured value
+    /*! \return last measured value in microseconds
     */
     long long GetLastMeasuredValue() const;
 
   private:
-    long long m_llStartValue;         //!< начальное значение
-    long long m_llLastMeasuredValue;  //!< последнее измеренное значение
+    long long m_llStartValue;         //!< start value
+    long long m_llLastMeasuredValue;  //!< last measured value
   };
 
 }; // namespace rise

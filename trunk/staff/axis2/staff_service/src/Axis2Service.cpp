@@ -249,7 +249,6 @@ rise::LogLabel();
 
     if (tOperation.IsFault())
     {
-     //!!! при ошибке в нескольких потоках одновременно, сообщения могут перепутаться ..
       m_sLastFaultDetail = tOperation.GetFaultDetail();
       m_sLastFaultReason = tOperation.GetFaultReason();
       rise::LogWarning() << "Fault: \n" << tOperation.GetFaultString() << "\n";

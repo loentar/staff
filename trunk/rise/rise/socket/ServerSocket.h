@@ -30,33 +30,27 @@ namespace rise
 {
   namespace sockets
   {
-    //!        серверный сокет
+    //!        Server socket
     class RISE_EXPORT CServerSocket: public CSocket  
     {
     public:
-      //!        конструктор
-      CServerSocket() /*throw()*/;
+      //!        constructor
+      CServerSocket();
       
-      //!        деструктор
-      ~CServerSocket() /*throw()*/;
+      //!        destructor
+      ~CServerSocket();
       
-      //!        создание сокета
-      /*
-         исключения:
-           CLogicAlreadyExistsException - инициализация уже произведена
-           CFileCreateException - ошибка при создании сокета
-           CFileOpenException - ошибка при переходе в режим прослушивания
-         \param  ushPort - номер порта
-         \param  nType - тип сокета ST_STREAM или ST_DGRAM 
-         \param  nBacklog - максимальная длина очереди входящих подключений
-         \return none
+      //!        create server socket
+      /*! \param  ushPort - port
+          \param  unAddress - bind address
+          \param  nType - socket type ST_STREAM or ST_DGRAM 
+          \param  nBacklog - incoming queue size
       */
       void Create(ushort ushPort, ulong unAddress = INADDR_ANY, int nType = CSocket::ST_STREAM, int nBacklog = 5);
 
-      //!        принятие входящего подключения
-      /*
-         \param  sRecv - принятый сокет
-         \return true, если входящее подключение принято
+      //!        accept incoming connection
+      /*! \param  rRecv - data socket
+          \return true, connection was established and new socket(rRecv) was created
       */
       bool Accept(CRecvSocket& rRecv);
 

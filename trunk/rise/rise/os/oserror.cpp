@@ -24,14 +24,6 @@
 
 namespace rise
 {
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osGetErrorStr
-  //    DESCRIPTION:    получение строкового описания ошибки
-  //    PARAMETRS:      nError - код ошибки
-  //    RETURN:         строковое описание ошибки
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   RISE_EXPORT CString osGetErrorStr( int nError )
   {
 #ifdef WIN32
@@ -44,7 +36,7 @@ namespace rise
               const_cast<TChar*>(sMsg.c_str()), static_cast<DWORD>(sMsg.size()), NULL );
 
     if (dwChars == 0)
-      return "<Неизвестная ошибка>";
+      return "<Unknown error>";
 
     sMsg.erase(dwChars);
 

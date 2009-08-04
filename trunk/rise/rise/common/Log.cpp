@@ -70,11 +70,6 @@ namespace rise
     }
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CLog
-  //    DESCRIPTION:    default constructor
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CLog::CLog():
     m_eLogLevel(ELL_INFO), m_nLogVerbosity(ELV_DEFAULT)
   {
@@ -234,23 +229,10 @@ namespace rise
     }
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    DESTRUCTOR:     ~CLog
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CLog::~CLog()
   {
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       SetLogStream
-  //    DESCRIPTION:    установка потока вывода лога
-  //    PARAMETRS:      rOutStream - поток вывода
-  //                    nLogLevel - уровени для которых необходимо установить поток
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CLog::SetLogStream( COStream* pOutStream, int nLogLevel /*= ELL_ALL*/ )
   {
     for (int i = ELL_ALERT, nPos = 0; i <= ELL_DEBUG3; i <<= 1, ++nPos)
@@ -275,43 +257,43 @@ namespace rise
 
       switch(eLogLevel)
       {
-      case ELL_ALERT:    // требуется немедленное вмешательство
+      case ELL_ALERT:
         tStream << ColorFlashOn << ColorBright << ColorPaperBrown << ColorInkRed;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "ALERT ";
         break;
-      case ELL_CRIT:     // критические условия
+      case ELL_CRIT:
         tStream << ColorFlashOn << ColorBright << ColorPaperBrown << ColorInkRed;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "CRITICAL ";
         break;
-      case ELL_ERROR:    // ошибки
+      case ELL_ERROR:
         tStream << ColorBright << ColorInkRed;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "ERROR ";
         break;
-      case ELL_WARNING:  // предупреждения
+      case ELL_WARNING:
         tStream << ColorInkBrown;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "WARNING ";
         break;
-      case ELL_NOTICE:   // важные рабочие условия
+      case ELL_NOTICE:
         tStream << ColorInkCyan;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "NOTICE ";
         break;
-      case ELL_INFO:     // информационные сообщения
+      case ELL_INFO:
         tStream << ColorInkGrey;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "INFO ";
         break;
-      case ELL_DEBUG:    // сообщения об отладке
+      case ELL_DEBUG:
         tStream << ColorInkBlack << ColorBright;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "DEBUG ";
         break;
-      case ELL_DEBUG1:    // сообщения об отладке
+      case ELL_DEBUG1:
         tStream << ColorInkBlack << ColorBright;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "DEBUG1 ";
         break;
-      case ELL_DEBUG2:    // сообщения об отладке
+      case ELL_DEBUG2:
         tStream << ColorInkBlack << ColorBright;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "DEBUG2 ";
         break;
-      case ELL_DEBUG3:    // сообщения об отладке
+      case ELL_DEBUG3:
         tStream << ColorInkBlack << ColorBright;
         if ((m_nLogVerbosity & ELV_LEVEL) != 0) tStream << "DEBUG3 ";
         break;
@@ -367,10 +349,8 @@ namespace rise
       
       m_pLogStream = NULL;
     }
-    catch(...) // исключение в деструкторе - это очень плохо!
+    catch(...)
     {}
-
-//    m_rCriticalSection.Leave();
   }
 
   COStream* CLogStream::GetStream() const
@@ -442,11 +422,11 @@ namespace rise
           CEncoding::Convert(tData, sTmp, 
             static_cast<CEncoding::EType>(m_nSrcRecode), static_cast<CEncoding::EType>(m_nDstRecode));
           *m_pLogStream << sTmp;
-	}
-	catch(...)
-	{
+        }
+        catch(...)
+        {
           *m_pLogStream << " *** " << tData << " *** ";
-	}
+        }
       }
       else
       {
@@ -464,12 +444,12 @@ namespace rise
     m_nLine(nLine),
     m_sFunction(sFunction)
   {
-    tLog.Log(m_eLevel, sFile, nLine, sFunction) << "Вход";
+    tLog.Log(m_eLevel, sFile, nLine, sFunction) << "Enter";
   }
 
   CLogEntry::~CLogEntry()
   {
-    tLog.Log(m_eLevel, m_sFile.c_str(), m_nLine, m_sFunction.c_str()) << "Выход";
+    tLog.Log(m_eLevel, m_sFile.c_str(), m_nLine, m_sFunction.c_str()) << "Exit";
   }
 
   void CLogEntry::SetLogLevelDefault( CLog::ELogLevel eLevel /*= rise::CLog::ELL_DEBUG*/ )

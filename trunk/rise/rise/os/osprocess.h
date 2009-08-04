@@ -43,77 +43,72 @@
 namespace rise
 {
 #ifdef WIN32
-  //!   дескриптор процесса
+  //!   process handle
   typedef HANDLE HProcess;
   #define PID_0 NULL
 #else
-  //!   дескриптор процесса
+  //!   process handle
   typedef pid_t HProcess;
   #define PID_0 0
 #endif
 
-  //! ошибка
+  //! error
   const int g_nResultError = 1000;
 
-  //! процедура обработки сигнала(внутренняя)
+  //! internal function for signal handling
   typedef void (*PSignalProc) (int nSignal);
 
-  //!        послать сигнал процессу
-  /*
-     \param  hProcess - номер процесса
-     \param  nSignal - номер сигнала
-     \return 0, если успешно
+  //!         send signal to process
+  /*! \param  hProcess - process handle
+      \param  nSignal - signal
+      \return 0, if success
   */
   int osKill(HProcess hProcess, int nSignal);
 
-  //!        установка обработчика сигналов
-  /*
-     \param pSignalProc - процедура обработки сигналов
-     \param nSignal - номер сигнала
+  //!         set signal handler
+  /*! \param  pSignalProc - signal handler proc
+      \param  nSignal - signal
   */
   void osSetSignalHandler(PSignalProc pSignalProc, int nSignal);
 
-  //!        выполнение приложения
-  /*
-             аргументы разделяются символом табуляции '\t'
-     \param  szCommand - команда с параметрами
-     \return дескриптор процесса
+  //!         execute process
+  /*! arguments must be splitted with '\\t'
+      example: 
+      HProcess hProc = osExecute("ls\\t-l\\t/home");
+      \param  sCmdArgs - command and arguments
+      \return process handle
   */
   HProcess osExecute(const CString& sCmdArgs);
 
-  //!        ждать завершения процесса и получить его код возврата
-  /*
-     \param  hProcess - ид. процесса
-     \param  piStatus - статус процесса
-     \param  bWait = true - ждать завершения процесса
-     \return -1: ошибка, 0 - процесс еще запущен
+  //!         wait for process end and get return code
+  /*! \param  hProcess - process handle
+      \param  piStatus - pointer to status
+      \param  bWait = true - wait for process
+      \return -1: error, 0 - process is running(if bWait = false)
   */
   int osWaitPid(HProcess hProcess, int* piStatus, bool bWait = false);
 
-  //!        получить идентификатор текущего процесса
-  /*
-     \return идентификатор процесса из которого была вызвана эта функция
+  //!         get current process handle
+  /*! \return current process handle
   */
   HProcess osGetCurrentProcessID();
 
-  //!         получить имя исполняемого файла с полным путем текущего процесса
-  /*! \return имя исполняемого файла с полным путем текущего процесса
+  //!         get current process executable file name
+  /*! \return current process executable file name
   */
   rise::CString osGetCurrentExecPath();
 
-  //!        создание демона
-  /*
-     \return 0, если успешно
+  //!         switch to daemon
+  /*! \return 0, if daemonizing is sucessed
   */
   int osDaemon();
 
-  //!        приостановить выполнение процесса до прихода сообщения/сигнала
+  //!         wait for signal
   void osPause();
 
-  //!        завершить процесс
-  /*
-     \param  hProcess - идентификатор процесса
-     \return 0 - ok,  1 - процесс не найден,  2 - нет прав
+  //!         terminate process
+  /*! \param  hProcess - process handle
+      \return 0 - ok,  1 - process is not found,  2 - access denied
   */
   int osTerminateProcess(HProcess hProcess);
 };

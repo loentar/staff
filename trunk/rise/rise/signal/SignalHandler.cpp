@@ -29,10 +29,10 @@
 
 namespace rise
 {
-  class CSignalCatcher  // диспетчер сигналов
+  class CSignalCatcher
   {
   public:
-    typedef std::multimap<int, CSignalHandler*>  TSignalHandlerMap;  // тип - список обработчиков сигнала
+    typedef std::multimap<int, CSignalHandler*>  TSignalHandlerMap;
     typedef std::map<int, CString>               TStrSignalMap;
 #ifndef WIN32
     typedef std::map<int, struct sigaction>      TSignalActionMap;
@@ -127,7 +127,7 @@ namespace rise
     void MapSignal(int nSignal)
     {
 #ifndef WIN32
-      UnMapSignal(nSignal); // чтобы при второй регистрации не затерся старый обработчик
+      UnMapSignal(nSignal);
       m_stAction.sa_handler = SignalCatcherInternal;
       struct sigaction& rSigaction = m_mSignalAction[nSignal];
       sigaction(nSignal, &m_stAction, &rSigaction);
@@ -155,44 +155,39 @@ namespace rise
   
     void RegisterSignal(int nSignal, CSignalHandler* pSignalHandler)
     {
-      RISE_ASSERTP(pSignalHandler);  // проверка параметров
+      RISE_ASSERTP(pSignalHandler);
     
       LogDebug2() << "registering signal " << CSignalHandler::GetSignalStr(nSignal) << 
                           " on handler: " << pSignalHandler;
 
-      if ( m_mHandlers.find(nSignal) == m_mHandlers.end() )  // если еще нет обработчика сигнала
-        MapSignal(nSignal);                                  // установка обработчика
+      if ( m_mHandlers.find(nSignal) == m_mHandlers.end() )
+        MapSignal(nSignal);
       
-      // вставка в список обработчиков сигнала
       m_mHandlers.insert(std::make_pair(nSignal, pSignalHandler));
     }
 
     void UnRegisterSignal(int nSignal, CSignalHandler* pSignalHandler)
     {
-      RISE_ASSERTP(pSignalHandler);  // проверка параметров
+      RISE_ASSERTP(pSignalHandler);
 
-      // поиск обработчика по сигналу
       TSignalHandlerMap::iterator iter = m_mHandlers.find(nSignal);
     
-      // поиск подходящего обработчика
       for(; iter != m_mHandlers.end() && iter->first == nSignal; ++iter)
-        if ( iter->second == pSignalHandler ) // если обработчик тот
+        if ( iter->second == pSignalHandler )
         {
-          m_mHandlers.erase(iter);  // удаление его из массива
-          // если это был последний обработчик этого сигнала
+          m_mHandlers.erase(iter);
           if ( m_mHandlers.find(nSignal) == m_mHandlers.end() )
-            UnMapSignal(nSignal);  // снятие обработки этого сигнала
+            UnMapSignal(nSignal);
           return;
         }
 
-      // сигнал не найден
       RISE_THROWS(CLogicNoItemException, "Signal #" + CSignalHandler::GetSignalStr(nSignal) + 
           " does not registered on handler " + ToStr(pSignalHandler));
     }
     
     void UnRegisterAll(CSignalHandler* pSignalHandler)
     {
-      RISE_ASSERTP(pSignalHandler);  // проверка параметров
+      RISE_ASSERTP(pSignalHandler);
 
       for(TSignalHandlerMap::iterator iter = m_mHandlers.begin(); iter != m_mHandlers.end(); )
       {
@@ -204,7 +199,7 @@ namespace rise
           if ( m_mHandlers.find(nSignal) == m_mHandlers.end() )
             UnMapSignal(nSignal);
 
-          iter = m_mHandlers.begin(); // MCBC bug
+          iter = m_mHandlers.begin();
         } else
           ++iter;
       }

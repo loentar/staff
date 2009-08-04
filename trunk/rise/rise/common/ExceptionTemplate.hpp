@@ -30,30 +30,11 @@
 
 namespace rise
 {
-  //////////////////////////////////////////////////////////////////////////////
-  //    CLASS:        CExceptionTemplate
-  //    DESCRIPTION:  шаблонный класс исключений
-  //////////////////////////////////////////////////////////////////////////////  
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    DESTRUCTOR:     CExceptionTemplate
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     CExceptionTemplate<CLASS>::~CExceptionTemplate() throw()
   {
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Create
-  //    DESCRIPTION:    создание исключения
-  //    PARAMETRS:      (in) sFile - имя файла исходника
-  //                         nLine - номер строки в файле исходника 
-  //                         sFunction - имя функции в которой произошло исключение
-  //                         sDescr - описание исключения
-  //    RETURN:         none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     void CExceptionTemplate<CLASS>::Create(const CString& sFile, int nLine, const CString& sFunction, 
       const CString& sDescr /*= NULL*/, const CString& sExpr /*= NULL*/,
@@ -85,14 +66,6 @@ namespace rise
     }
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       =
-  //    DESCRIPTION:    оператор копирования
-  //    PARAMETRS:      none
-  //    RETURN:         ссылка на текущий обьект
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     CExceptionTemplate<CLASS>& CExceptionTemplate<CLASS>::operator=(const CExceptionTemplate& rException)
   {
@@ -101,65 +74,30 @@ namespace rise
     return *this;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetFileName()
-  //    DESCRIPTION:    получение файла в котором произошло исключение
-  //    PARAMETRS:      none
-  //    RETURN:         имя файла-исходника в котором произошло исключение
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     const CString& CExceptionTemplate<CLASS>::GetFileName() const throw() 
   { 
     return m_sFile; 
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetLine()
-  //    DESCRIPTION:    получение строки в файле в котором произошло исключение
-  //    PARAMETRS:      none
-  //    RETURN:         строка в файле в котором произошло исключение
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     int CExceptionTemplate<CLASS>::GetLine() const throw() 
   { 
     return m_nLine; 
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetFunction()
-  //    DESCRIPTION:    получение имени функции в которой произошло исключение
-  //    PARAMETRS:      none
-  //    RETURN:         имя функции в которой произошло исключение
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     const CString& CExceptionTemplate<CLASS>::GetFunction() const throw() 
   { 
     return m_sFunction; 
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetDescr()
-  //    DESCRIPTION:    получение описания исключения
-  //    PARAMETRS:      none
-  //    RETURN:         описание исключения
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     const CString& CExceptionTemplate<CLASS>::GetDescr() const throw()
   { 
     return m_sDescr;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetExpr()
-  //    DESCRIPTION:    получение выражения 
-  //    PARAMETRS:      none
-  //    RETURN:         выражение в результате которого возникло исключение
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     const CString& CExceptionTemplate<CLASS>::GetExpr() const throw()
   {
@@ -167,32 +105,18 @@ namespace rise
   }
 
       
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetObjectName()
-  //    DESCRIPTION:    получение обьекта исключения
-  //    PARAMETRS:      none
-  //    RETURN:         обьекта исключения
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     const CString& CExceptionTemplate<CLASS>::GetObjectName() const throw()
   {
     return m_sObject;
   }
+
   template<int CLASS>
     void CExceptionTemplate<CLASS>::SetObjectName(const CString& sObjectName) throw()
   {
     m_sObject = sObjectName;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetClass()
-  //    DESCRIPTION:    получение класса исключения
-  //    PARAMETRS:      none
-  //    RETURN:         код исключения
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     EXCLASS CExceptionTemplate<CLASS>::GetClass() const throw()
   {
@@ -207,14 +131,6 @@ namespace rise
       sFormat += "\nStack:\n{Stack}";
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetString(...)
-  //    DESCRIPTION:    получение полного описания исключения
-  //    PARAMETRS:      sFormat - строка для форматирования
-  //    RETURN:         описания исключения
-  //    EXCEPTIONS:     std
-  //    COMMENT:        см. SetFormat
-  //////////////////////////////////////////////////////////////////////////////
   template<int CLASS>
     CString CExceptionTemplate<CLASS>::GetString(const CString& sFormat /*= ""*/) const throw()
   {

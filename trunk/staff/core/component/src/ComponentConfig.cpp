@@ -74,8 +74,8 @@ namespace staff
     {
       if (bCreate)
       {
-        rise::LogDebug() << "Создание новой конфигурации для: " << m_pImpl->m_sComponent << ":" 
-              << m_pImpl->m_sConfig << " (при сохранении)";
+        rise::LogDebug() << "Creating new configuration for: " << m_pImpl->m_sComponent << ":" 
+              << m_pImpl->m_sConfig;
       }
       else
       {

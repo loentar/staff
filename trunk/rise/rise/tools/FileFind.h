@@ -28,17 +28,29 @@
 
 namespace rise
 {
+  //! File finder
   class RISE_EXPORT CFileFind
   {
   public:
-    enum EFindAttrs
+    enum EFindAttrs //!  find attributes
     {
-      EFA_FILE = 1,
-      EFA_DIR = 2
+      EFA_FILE = 1,  //!<  file
+      EFA_DIR = 2    //!<  directory
     };
 
   public:
+    //!         find file
+    /*! \param  sInDir - source dir
+        \param  rList - list of found files
+        \param  sMask - find mask
+        \param  nAttrs - file attributes
+        */
     static void Find(const CString& sInDir, std::list<CString>& rList, const CString& sMask = "*", int nAttrs = EFA_FILE | EFA_DIR);
+    
+    //!         is file name = "." or ".."
+    /*! \param  szName - filename
+        \return true if file name = "." or ".."
+        */
     static bool IsDots(const char* szName);
   };
 }

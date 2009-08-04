@@ -35,23 +35,18 @@
 
 namespace rise
 {
-  //////////////////////////////////////////////////////////////////////////////
-  //    CLASS:          CTimeCatcher
-  //    DESCRIPTION:    диспетчер сигналов от таймера
-  //////////////////////////////////////////////////////////////////////////////
   static class CTimeCatcher
 #ifndef WIN32
     : public CSignalHandler
 #endif
   {
     protected:
-      // тип - список таймеров
-      struct STimer // данные о таймере
+      struct STimer
       {
-        CTimerHandler::TTimerID  m_wID;      // идентификатор таймера
-        dword                    m_dwMSec;   // задержка между повторениями в милисекундах
-        dword                    m_dwRepeat; // количество срабатываний таймера
-        CTimerHandler*           m_pTimer;   // указатель на класс обработчика событий от таймера
+        CTimerHandler::TTimerID  m_wID;
+        dword                    m_dwMSec;
+        dword                    m_dwRepeat;
+        CTimerHandler*           m_pTimer;
         
         STimer(CTimerHandler::TTimerID wID, dword dwMSec, dword dwRepeat, CTimerHandler* pTimer):
           m_wID(wID), m_dwMSec(dwMSec), m_dwRepeat(dwRepeat), m_pTimer(pTimer)
@@ -65,20 +60,14 @@ namespace rise
   
       typedef std::list<STimer> CTimerList;  
   
-      CTimerList                m_lsTimer;      // список таймеров
+      CTimerList                m_lsTimer;
       CTimerHandler::TTimerID   m_wLastId;
 #ifndef WIN32
-      dword      m_dwTime;       // общее прошедшее время
-      dword      m_dwLastDelTimerta;  // последнее время срабатывания таймера
+      dword      m_dwTime;
+      dword      m_dwLastDelTimerta;
 #endif
 
     public:
-      //////////////////////////////////////////////////////////////////////////////
-      //    CONSTRUCTOR:    CTimeCatcher
-      //    DESCRIPTION:    default constructor
-      //    PARAMETRS:      none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       CTimeCatcher():
         m_wLastId(0)
 #ifndef WIN32
@@ -87,10 +76,6 @@ namespace rise
       {
       }
   
-      //////////////////////////////////////////////////////////////////////////////
-      //    DESTRUCTOR:     CTimeCatcher
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       virtual ~CTimeCatcher()
       {
         if ( !m_lsTimer.empty() )
@@ -98,7 +83,7 @@ namespace rise
           LogDebug2() << "timers list is not empty!";
   
           CTimerList::iterator iter = m_lsTimer.begin();
-          // поиск соответствующего(их) таймера(ов)
+
           while ( iter != m_lsTimer.end() )
           {
             LogDebug2() << "Erasing timer: ID=" << iter->m_wID <<
@@ -117,13 +102,6 @@ namespace rise
       friend void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD);
 #endif
 
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       AddTimer
-      //    DESCRIPTION:    добавление таймера в список
-      //    PARAMETRS:      none
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       CTimerHandler::TTimerID AddTimer(dword dwMSec, dword dwRepeat, CTimerHandler* pTimer)
       {
         RISE_ASSERTP(pTimer);
@@ -153,18 +131,10 @@ namespace rise
         return m_wLastId;
       }
   
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       DelTimer
-      //    DESCRIPTION:    удаление таймера из списка
-      //    PARAMETRS:      none
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       void DelTimer(CTimerHandler::TTimerID wID, CTimerHandler* pTimer)
       {
         RISE_ASSERTP(pTimer);
   
-        // поиск соответствующего таймера
         CTimerList::iterator iter = m_lsTimer.begin();
         for( ; iter != m_lsTimer.end(); ++iter )
           if ( iter->m_pTimer == pTimer && iter->m_wID == wID )
@@ -182,13 +152,6 @@ namespace rise
         RISE_THROW(CLogicNoItemException);
       }
   
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       DelAllTimers
-      //    DESCRIPTION:    очистка списка таймеров
-      //    PARAMETRS:      none
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       void DelAllTimers(CTimerHandler* pTimer)
       {
 #ifndef WIN32
@@ -196,7 +159,6 @@ namespace rise
 #endif
         
         CTimerList::iterator iter = m_lsTimer.begin();
-        // поиск соответствующего(их) таймера(ов)
         while( iter != m_lsTimer.end() )
           if ( iter->m_pTimer == pTimer )
           {
@@ -214,13 +176,6 @@ namespace rise
       }
   
 #ifndef WIN32
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       SetTimer
-      //    DESCRIPTION:    установить время срабатывания
-      //    PARAMETRS:      none
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       void SetTimer( dword dwTime )
       {
         RISE_ASSERTP(dwTime);
@@ -232,13 +187,6 @@ namespace rise
         RISE_ASSERTE(iRet != -1, CFileIOException);
       }
   
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       KillTimer
-      //    DESCRIPTION:    Удалить таймер
-      //    PARAMETRS:      none
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       void KillTimer()
       {
         itimerval value = { { 0, 0 }, { 0, 0 } };
@@ -251,29 +199,21 @@ namespace rise
 
     protected:
 #ifdef WIN32
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       OnTimer
-      //    DESCRIPTION:    функция обработки сигналов от таймера
-      //    PARAMETRS:      nIdEvent - идентификатор таймера
-      //    RETURN:         none
-      //    EXCEPTIONS:     none
-      //    COMMENT:        Win32
-      //////////////////////////////////////////////////////////////////////////////      
       void OnTimer( CTimerHandler::TTimerID nIDEvent )
       {      
         for(CTimerList::iterator iter = m_lsTimer.begin(); iter != m_lsTimer.end(); )
         {
-          if ( iter->m_wID == nIDEvent )  // текущий таймер должен сработать
+          if ( iter->m_wID == nIDEvent )
           {
-            iter->m_pTimer->OnTimer( iter->m_wID ); // вызов функции таймера
-            // если таймер не должен бесконечно повторяется
+            iter->m_pTimer->OnTimer( iter->m_wID );
+
             if ( iter->m_dwRepeat != CTimerHandler::EINFINITE )
             {
-              --(iter->m_dwRepeat);          // уменьшение числа оставшихся срабатываний
-              if ( iter->m_dwRepeat == 0 )   // последнее срабатывание
+              --(iter->m_dwRepeat);
+              if ( iter->m_dwRepeat == 0 )
               {
                 ::KillTimer( 0, iter->m_wID );
-                iter = m_lsTimer.erase(iter);  // удаление таймера
+                iter = m_lsTimer.erase(iter);
                 continue;
               }
             }
@@ -282,48 +222,41 @@ namespace rise
         }
       }
 #else
-      //////////////////////////////////////////////////////////////////////////////
-      //    FUNCTION:       SignalHandler(...)
-      //    DESCRIPTION:    обработчик сигнала
-      //    PARAMETRS:      (in) nSignal - номер сигнала
-      //    RETURN:         none
-      //    COMMENT:        none
-      //////////////////////////////////////////////////////////////////////////////
       void SignalHandler(int nSignal)
       {
         RISE_ASSERTP(nSignal == SIGALRM);
         
         CTimerList::iterator iter = m_lsTimer.begin();
   
-        m_dwTime += m_dwLastDelTimerta;  // общее прошедшее время
-        m_dwLastDelTimerta = 0;  // начальное значение
+        m_dwTime += m_dwLastDelTimerta;
+        m_dwLastDelTimerta = 0;
         
-        while ( iter != m_lsTimer.end() ) // поиск минимального времени срабатывания
+        while ( iter != m_lsTimer.end() )
         {
-          dword dwRest = m_dwTime % iter->m_dwMSec;  // время
+          dword dwRest = m_dwTime % iter->m_dwMSec;
   
-          if ( dwRest == 0 )  // текущий таймер должен сработать
+          if ( dwRest == 0 )
           {
-            iter->m_pTimer->OnTimer( iter->m_wID ); // вызов функции таймера
-             // если таймер не должен бесконечно повторяется
+            iter->m_pTimer->OnTimer( iter->m_wID );
+
             if ( iter->m_dwRepeat != CTimerHandler::EINFINITE )
             {
-              --(iter->m_dwRepeat);          // уменьшение числа оставшихся срабатываний
-              if ( iter->m_dwRepeat == 0 )   // последнее срабатывание
+              --(iter->m_dwRepeat);
+              if ( iter->m_dwRepeat == 0 )
               {
-                iter = m_lsTimer.erase(iter);  // удаление таймера
+                iter = m_lsTimer.erase(iter);
   
-                if ( m_lsTimer.empty() )      // если таймер был последним
-                  UnRegisterSignal(SIGALRM);  // снимаем обработчик сигнала
+                if ( m_lsTimer.empty() )
+                  UnRegisterSignal(SIGALRM);
   
                 continue;
               }
             }
-            // таймер сработал, но его значение тоже нужно учесть при поиске минимального
+
             if ( m_dwLastDelTimerta > iter->m_dwMSec || !m_dwLastDelTimerta )
               m_dwLastDelTimerta = iter->m_dwMSec;
   
-          } else  // время срабатывания таймера - остаток от деления = время до сл. срабатывания
+          } else
           if ( m_dwLastDelTimerta > (iter->m_dwMSec - dwRest) || !m_dwLastDelTimerta )
             m_dwLastDelTimerta = iter->m_dwMSec - dwRest;
   
@@ -339,74 +272,31 @@ namespace rise
   } timeCatcher;
 
 #ifdef WIN32
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       TimerProc
-  //    DESCRIPTION:    функция обработки сигналов от таймера
-  //    PARAMETRS:      nIdEvent - идентификатор таймера
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        Win32
-  //////////////////////////////////////////////////////////////////////////////      
   void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD)
   {
     timeCatcher.OnTimer(static_cast<CTimerHandler::TTimerID>(nIDEvent));
   }
 #endif
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CTimerHandler
-  //    PARAMETRS:      none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CTimerHandler::CTimerHandler()
   {
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    DESTRUCTOR:     CTimerHandler
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////
   CTimerHandler::~CTimerHandler()
   {
     timeCatcher.DelAllTimers(this);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       AddTimerTimer
-  //    DESCRIPTION:    добавление таймера
-  //    PARAMETERS:     wID - идентификатор таймера
-  //                    dwMSec - время милисекундах до срабатывания таймера
-  //                    dwRepeat  - количество повторений событий от таймера
-  //    RETURN:         none
-  //    EXCEPTIONS:     CAssertException - неверные параметры вызова
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CTimerHandler::TTimerID CTimerHandler::AddTimer( dword dwMSec, dword dwRepeat /*= EINFINITE*/ )
   {
     return timeCatcher.AddTimer(dwMSec, dwRepeat, this);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       DelTimerTimer
-  //    DESCRIPTION:    удаление таймера
-  //    PARAMETRS:      wID - идентификатор таймера
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CTimerHandler::DelTimer( TTimerID wID )
   {
     timeCatcher.DelTimer(wID, this);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       DelTimereteAllTimers
-  //    DESCRIPTION:    удаление всех таймеров
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CTimerHandler::DeleteAllTimers()
   {
     timeCatcher.DelAllTimers(this);

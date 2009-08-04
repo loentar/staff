@@ -28,83 +28,83 @@
 
 namespace rise
 {
-  //! описание кодировки
+  //!  Encoding description
   struct RISE_EXPORT SEncodingType
   {
-    int       nID;       //!< идентификатор кодировки
-    CString   sName;     //!< название кодировки
-    CString   sAltName;  //!< название кодировки для XML
-    CStringA  asTable;   //!< набор символов в однобайтной кодировке
-    CStringW  wsTable;   //!< набор символов многобайтной кодировке
-    CStringA  asMagic;   //!< Magic-байты для определения типа кодировки
+    int       nID;       //!< encoding id
+    CString   sName;     //!< encoding name
+    CString   sAltName;  //!< encoding name for XML
+    CStringA  asTable;   //!< single byte encoding
+    CStringW  wsTable;   //!< multi byte encoding
+    CStringA  asMagic;   //!< Magic-bytes for encoding detection
 
-    //!         конструктор
-    /*! \param  nIDInit - идентификатор кодировки
-        \param  sNameInit - название кодировки
-        \param  sAltNameInit - название кодировки для XML
-        \param  asTableInit - набор символов в однобайтной кодировке
-        \param  wsTableInit - набор символов многобайтной кодировке
-        \param  asMagicInit - Magic-байты для определения типа кодировки
+    //!         constructor for creating encoding description
+    /*! \param  nIDInit - encoding id
+        \param  sNameInit - encoding name
+        \param  sAltNameInit - encoding name for XML
+        \param  asTableInit - single byte encoding
+        \param  wsTableInit - multi byte encoding
+        \param  asMagicInit - Magic-bytes for encoding detection
         */
     SEncodingType(int nIDInit, const CString& sNameInit, const CString& sAltNameInit, const CStringA& asTableInit, const CStringW& wsTableInit = L"", const CStringA& asMagicInit = "");
   };
 
-  //!  класс преобразования кодировок
+  //!  Encoding type converter
   class RISE_EXPORT CEncoding
   {
   public:
-    //! тип кодировки
+    //! encoding type
     enum EType
     {
-      ET_UNKNOWN,    //!<  неизвестная
+      ET_UNKNOWN,    //!<  unknown
       ET_UTF_8,      //!<  utf-8
       ET_KOI8R,      //!<  koi8-r
       ET_WIN1251,    //!<  windows-1251
-      ET_CP866,      //!<  dos
+      ET_CP866,      //!<  dos(codepage 866)
       ET_MACINTOSH,  //!<  macintosh
       ET_ISO_8859_5, //!<  iso8859-5
-      ET_LAST,       //!<  последняя используемая кодировка
-      ET_USER        //!<  пользовательские кодировки
+      ET_LAST,       //!<  last used
+      ET_USER        //!<  user encoding
     };
 
   public:
-    //! тип: ассоциативный список поддерживаемых кодировок
+    //! encoding map
     typedef std::map<int, SEncodingType> TEncMap;
 
   public:
-    //!         Добавить пользовательскую кодировку
-    /*! \param  rstEncType - описание кодировки
+    //!         add user encoding
+    /*! \param  rstEncType - encoding type
         */
     static void AddUserEncodingType(const SEncodingType& rstEncType);
     
-    //!         получить ассоциативный список поддерживаемых кодировок
-    /*! \return ассоциативный список поддерживаемых кодировок
+    //!         get user encodings map
+    /*! \return user encodings map
     */
     static const TEncMap& GetEncMap();
 
-    //!         найти описание кодировки по идентификатору
-    /*! \param  nID - идентификатор
-        \return описание кодировки
+    //!         get encoding description by id
+    /*! \param  nID - identifier
+        \return encoding description
         */
     static const SEncodingType& FindEncodingTypeByID(int nID);
     
-    //!         найти описание кодировки по имени
-    /*! \param  sEncName - имя
-        \return описание кодировки
+    //!         get encoding description by name
+    /*! \param  sEncName - name
+        \return encoding description
         */
     static const SEncodingType& FindEncodingTypeByName(const CString& sEncName);
 
-    //!         преобразовать строку из одной кодировки в другую
-    /*! \param  sFrom - исходная строка
-        \param  sTo - результирующая строка
-        \param  nIdFrom - кодировка исходной строки
-        \param  nIdTo - кодировка результирующей строки
+    //!         convert string
+    /*! \param  sFrom - source string
+        \param  sTo - resulting string
+        \param  nIdFrom - source encoding
+        \param  nIdTo - resulting encoding
         \return 
         */
     static void Convert(const CString& sFrom, CString& sTo, EType nIdFrom, EType nIdTo);
 
   private:
-    static TEncMap  m_mEncMap; //!<  ассоциативный массив поддерживаемых кодировок
+    static TEncMap  m_mEncMap; //!<  encoding map
   };
 }
 

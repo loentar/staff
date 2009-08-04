@@ -38,7 +38,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct);
 #end
 
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
@@ -47,7 +47,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 \
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
@@ -144,7 +144,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 #foreach $(Interface.Typedefs)
 
 // $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
   for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
@@ -344,7 +344,7 @@ void $(Class.Name)Proxy::SetService(staff::CService* pService)
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
-  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.NodeName)");
+  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.ResponseName)", "$(Member.Return.NodeName)");
 #ifneq($(Member.SoapAction),)
 
   tOperation.SetSoapAction("$(Member.SoapAction)");

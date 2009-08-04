@@ -23,7 +23,6 @@
 #define _ATTRIBUTE_H_
 
 #include "staffcommonexport.h"
-//#include <rise/string/String.h>*/
 #include <string>
 
 typedef struct axiom_attribute axiom_attribute_t;
@@ -33,72 +32,85 @@ namespace staff
   class CDataObject;
   class CValue;
 
-  //! атрибут
+  //! Attribute
   class STAFF_COMMON_EXPORT CAttribute
   {
   public:
-    //!         конструктор по умолчанию
+    //!         constructor
     CAttribute();
 
-    //!         инициализирующий конструктор
+    //!         initializing constructor
+    /*! \param  pDataObject - owner dataobject
+        \param  pAxiomAttribute - axiom attribute
+        */
     CAttribute(CDataObject* pDataObject, axiom_attribute_t* pAxiomAttribute);
 
-    //!         конструктор передачи владения
+    //!         ownership transfer operator
+    /*! \param  rAttribute - attribute
+        */
     CAttribute(CAttribute& rAttribute);
 
+    //!         axiom_attribute_t* cast operator
     operator axiom_attribute_t*();
 
-    //!         инициализирующий конструктор
-    /*! \param  sLocalNameInit - локальное имя атрибута
-        \param  sNamespaceUriInit - URI пространства имен
+    //!         initializing constructor
+    /*! \param  sLocalNameInit - local name
+        \param  tValue - attribute value
         */
     CAttribute(const std::string& sLocalNameInit, const CValue& tValue);
 
-    //!         получить локальное имя атрибута
-    /*! \return локальное имя атрибута
+    //!         get local name
+    /*! \return local name
     */
     std::string GetLocalName() const;
 
-    //!         получить значение атрибута
-    /*! \return значение атрибута
+    //!         get value
+    /*! \return value
     */
     CValue GetValue() const;
 
-    //!         получить составное имя атрибута
-    /*! \return CQName атрибута
+    //!         get qname
+    /*! \return qname
     */
     const CQName GetQName() const;
 
-    //!         получить составное имя атрибута
-    /*! \return CQName атрибута
+    //!         get qname
+    /*! \return qname
     */
     CQName GetQName();
 
-    //!         оператор передачи владения
-    /*! \param  rstAttribute - исходный 
-        \return ссылка на текущее составное имя
+    //!         ownership transfer operation
+    /*! \param  rAttribute - source attribute
+        \return *this
         */
     CAttribute& operator=(CAttribute& rAttribute);
 
-    //!         оператор проверки на эквивалентность
-    /*! \param  rstAttribute - атрибут
-        \return true - текущий атрибут эквивалентен заданному
+    //!         tests a target attribute for equality with a specified attribute
+    /*! \param  rAttribute - attribute
+        \return true if the attributes are equal
         */
     bool operator==(const CAttribute& rAttribute) const;
 
-    //!         оператор проверки на не эквивалентность
-    /*! \param  rstAttribute - атрибут
-        \return true - текущий атрибут неэквивалентен заданному
+    //!         tests a target attribute for inequality with a specified attribute
+    /*! \param  rAttribute - attribute
+        \return true if the attributes are different
         */
     bool operator!=(const CAttribute& rAttribute) const;
 
+    //!         member access operator
+    /*! \return this
+    */
     CAttribute* operator->();
+    
+    //!         member access operator
+    /*! \return this
+    */
     const CAttribute* operator->() const;
 
   private:
-    bool m_bOwner;
-    CDataObject* m_pDataObject;
-    axiom_attribute_t* m_pAxiomAttribute;
+    bool m_bOwner; //!<  ownership flag
+    CDataObject* m_pDataObject; //!<  owner dataobject
+    axiom_attribute_t* m_pAxiomAttribute; //!<  axiom attribute
   };
 
 } // namespace staff

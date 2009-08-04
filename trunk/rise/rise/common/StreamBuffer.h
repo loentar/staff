@@ -27,458 +27,391 @@
 
 namespace rise
 {
-  //!        потоковый буфер
+  //!        stream buffer
   class RISE_EXPORT CStreamBuffer
   {
   public:
-    enum EFlags  //! флаги опций работы буфера
+    enum EFlags  //! flags
     {
-      EF_NONE = 0,                //!< нет флагов
-      EF_STR_NO_LEADING_ZERO = 1  //!< отключить добавление \0 при сериализации/десериализации строк
+      EF_NONE = 0,                //!< none
+      EF_STR_NO_LEADING_ZERO = 1  //!< disable '\\0' adding while string serializing
     };
 
   public:
-    //!        конструктор
+    //!         constructor
     CStreamBuffer();
 
-    //!        копирующий конструктор
-    /*
-       \param  rBuffer - исходный буфер
+    //!         copying constructor
+    /*! \param  rBuffer - source stream buffer
     */
     CStreamBuffer(const CStreamBuffer& rBuffer);
 
-    //!        деструктор
+    //!         destructor
     ~CStreamBuffer();
 
-    //!        оператор копирования
-    /*
-       \param  rBuffer - исходный буфер
-       \return ссылка на текущий буфер
+    //!         copy operator
+    /*! \param  rBuffer - source stream buffer
+        \return *this
     */
     CStreamBuffer& operator=(const CStreamBuffer& rBuffer);
 
-    //!        установка флагов ввода вывода
-    /*
-       \sa     EFlags
-       \param  nFlags
+    //!         set flags
+    /*! \sa     EFlags
+        \param  nFlags - flags
     */
     void SetFlags(int nFlags);
 
-    //!        установка флагов по умолчанию(применятся для всех ново созданных буферов)
-    /*
-       \sa     EFlags
-       \param  nFlags
+    //!         set default flags (for newly created stream buffers)
+    /*! \sa     EFlags
+        \param  nFlags - flags
     */
     static void SetDefaultFlags(int nFlags);
 
-    //!        получение флагов ввода вывода
-    /*
-       \return флаги
+    //!         get flags
+    /*! \return flags
     */
     int GetFlags() const;
 
-    //!        получение флагов по умолчанию ввода вывода
-    /*
-       \return флаги по умолчанию
+    //!         get default flags
+    /*! \return default flags
     */
     static int GetDefaultFlags();
 
-    //!        установить порядок байт
-    /*
-       \param  eByteOrder - порядок байт
+    //!         set byte order
+    /*! \param  eByteOrder - byte order
     */
     void SetByteOrder(CByteOrder::EByteOrder eByteOrder = CByteOrder::GetDefaultByteOrder());
 
-    //!        установить порядок байт по умолчанию(применятся для всех ново созданных буферов)
-    /*
-       \param  eByteOrder - порядок байт
+    //!         set default byte order (for all newly created stream buffers)
+    /*! \param  eByteOrder - byte order
     */
     static void SetDefaultByteOrder(CByteOrder::EByteOrder eByteOrder = CByteOrder::GetDefaultByteOrder());
 
-    //!        получить порядок байт
-    /*
-       \return порядок байт
+    //!         get byte order
+    /*! \return byte order
     */
     CByteOrder::EByteOrder GetByteOrder() const;
 
-    //!        получить порядок байт по умолчанию
-    /*
-       \return порядок байт
+    //!         get default byte order
+    /*! \return default byte order
     */
     static CByteOrder::EByteOrder GetDefaultByteOrder();
 
-    //!        поместить в буфер данные (скопировать данные из другого буфера)
-    /*
-       \param  pData - указатель на данные
-       \param  ulDataSize - размер данных(количество символов для строки)
-       \return ссылка на обьект буфера
+    //!         put data to stream buffer
+    /*! \param  pData - pointer to data
+        \param  ulDataSize - data size
+        \return *this
     */
     CStreamBuffer& Put(PCBuffer pData, TSize ulDataSize);
 
-    //!        поместить в буфер данные (скопировать данные из другого буфера)
-    /*
-       \param  rData - буфер данных
-       \param  ulDataSize - размер данных(количество символов для строки)
-       \return ссылка на обьект буфера
+    //!         put data to stream buffer
+    /*! \param  rData - stream buffer
+        \param  ulDataSize - data size
+        \return *this
     */
     CStreamBuffer& Put(const CStreamBuffer& rData, TSize ulDataSize);
 
-    //!        поместить в буфер однобайтовую строку
-    /*
-       \param  sData - однобайтовая строка
-       \return ссылка на обьект буфера
+    //!         put ansi string to buffer
+    /*! \param  sData - ansi string
+        \return *this
     */
     CStreamBuffer& Put(CStringA& sData);
 
-    //!        поместить в буфер двубайтовую строку
-    /*
-       \param  sData - двубайтовая строка
-       \return ссылка на обьект буфера
+    //!         put wide string to buffer
+    /*! \param  sData - wide string
+        \return *this
     */
     CStreamBuffer& Put(CStringW& sData);
 
-    //!        прочесть из буфера данные
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  pData - указатель на данные
-       \param  ulDataSize - размер данных
-       \return ссылка на обьект буфера
+    //!         get data from buffer
+    /*! \param  pData - buffer to put data
+        \param  ulDataSize - data size
+        \return *this
     */
     CStreamBuffer& Get(PBuffer pData, TSize ulDataSize);
 
-    //!        прочесть из буфера данные
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  rData - указатель на данные
-       \param  ulDataSize - размер данных
-       \return ссылка на обьект буфера
+    //!         get data from buffer
+    /*! \param  rData - buffer to put data
+        \param  ulDataSize - data size
+        \return *this
     */
     CStreamBuffer& Get(CStreamBuffer& rData, TSize ulDataSize);
 
-    //!        прочесть из буфера строку указанной длинны
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  sData - строка
-       \param  ulDataSize - количество символов для строки
-       \return ссылка на обьект буфера
+    //!         get ansi string from buffer
+    /*! \param  sData - ansi string
+        \param  ulDataSize - chars count
+        \return *this
     */
     CStreamBuffer& Get(CStringA& sData, TSize ulDataSize);
 
-    //!        прочесть из буфера строку указанной длинны
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  sData - строка
-       \param  ulDataSize - количество символов для строки
-       \return ссылка на обьект буфера
+    //!         get wide string from buffer
+    /*! \param  sData - wide string
+        \param  ulDataSize - chars count
+        \return *this
     */
     CStreamBuffer& Get(CStringW& sData, TSize ulDataSize);
 
-    //!        прочесть из буфера строку 
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  sData - строка
-       \return ссылка на обьект буфера
+    //!         get ansi string from buffer
+    /*! \param  sData - ansi string
+        \return *this
     */
     CStreamBuffer& Get(CStringA& sData);
 
-    //!        прочесть из буфера строку 
-    /*
-       исключения: CLogicSizeException - недостаточно данных для чтения
-       \param  sData - строка
-       \return ссылка на обьект буфера
+    //!         get wide string from buffer
+    /*! \param  sData - wide string
+        \return *this
     */
     CStreamBuffer& Get(CStringW& sData);
 
-    //!        пропустить чтение N байт
+    //!         skip n bytes
+    /*! \param  ulDataSize - bytes count
+        \return *this
+        */
     CStreamBuffer& Ignore(TSize ulDataSize);
 
-    //!        Записать данные в буфер со смещением
-    /*
-       исключения:     CLogicSizeException - несоответствие размеров буферов
-       \param  pData - указатель на буфер данных
-       \param  ulDataSize - размер данных
-       \param  ulOffset - смещение относительно начало буфера
-       \return ссылка на обьект буфера
+    //!         put data to buffer with offset
+    /*! \param  pData - data
+        \param  ulDataSize - data size
+        \param  ulOffset - offset
+        \return *this
     */
     CStreamBuffer& WriteBuffer(PCBuffer pData, TSize ulDataSize, TSize ulOffset);
 
-    //!        Записать данные в буфер со смещением
-    /*
-       исключения:     CLogicSizeException - несоответствие размеров буферов
-       \param  rsbData - буфер данных
-       \param  ulOffset - смещение относительно начало буфера
-       \return ссылка на обьект буфера
+    //!         put data to buffer with offset
+    /*! \param  rsbData - data buffer
+        \param  ulOffset - offset
+        \return *this
     */
     CStreamBuffer& WriteBuffer(const CStreamBuffer& rsbData, TSize ulOffset);
 
-    //!        сброс данных
+    //!         reset data
     void Reset();
 
-    //!        нормализация(перенос блока данных в начало буфера)
+    //!         buffer normalization (after put and get ops)
     void Normalize();
 
-    //!        получить указатель на начало данных
-    /*
-       \return:         указатель на начало данных, NULL - буфер пуст
+    //!         get raw pointer to data
+    /*! \return pointer to data, NULL, if buffer is empty
     */
     PBuffer GetData();
 
-    //!        получить константный указатель на начало данных
-    /*
-       \return:         константный указатель на начало данных, NULL - буфер пуст
+    //!         get raw pointer to data
+    /*! \return pointer to data, NULL, if buffer is empty
     */
     PCBuffer GetData() const;
    
-    //!        получить указатель на начало буфера
-    /*
-       \return указатель на начало буфера, NULL - буфер пуст
+    //!         get raw pointer to data
+    /*! \return pointer to data, NULL, if buffer is empty
     */
     PBuffer GetBuffer();
 
-    //!        получить константный указатель на начало буфера
-    /*
-       \return константный указатель на начало буфера, NULL - буфер пуст
+    //!         get raw pointer to data
+    /*! \return pointer to data, NULL, if buffer is empty
     */
     PCBuffer GetBuffer() const;
 
-    //!        получение текущего размера данных в буфере
-    /*
-       \return текущий размер данных в буфере
+    //!         get data size
+    /*! \return data size
     */
     TSize GetSize() const;
 
-    //!        получить размер всего буфера
-    /*
-       \return размер всего буфера
+    //!         get buffer size
+    /*! \return buffer size
     */
     TSize GetBufferSize() const;
 
-    //!        получить смещение чтения относительно начала буфера
-    /*
-       \return смещение чтения
+    //!         get read offset
+    /*! \return read offset
     */
     TSize GetROffset() const;
 
-    //!        получить смещение записи относительно начала буфера
-    /*
-       \return смещение записи
+    //!         get write offset
+    /*! \return write offset
     */
     TSize GetWOffset() const;
     
-    //!        увеличить размер данных в буфере
-    /*
-       \param  ulSize - размер на который необходимо увеличить буфер
-       \return указатель на начало выделенных данных
+    //!         grow buffer
+    /*! \param  ulSize - grow size
+        \return pointer to newly allocated data
     */
     PBuffer Grow(const TSize ulSize);
 
-    //!        изменение размера данных
-    /*
-       \param  ulSize - новый размер данных
-       \return none
+    //!         resize data
+    /*! \param  ulSize - new data size
     */
     void Resize(const TSize ulSize);
 
-    //!        при необходимости, выделить как минимум ulSize под буфер
-    /*
-       \param  ulSize - размер буфера
-       \return none
+    //!         allocate ulSize bytes for buffer, if needed
+    /*! \param  ulSize - new buffer size
     */
     void Reserve(const TSize ulSize);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(char& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(unsigned char& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(short& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(unsigned short& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(int& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(unsigned int& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(long& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(unsigned long& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(float& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(double& tData);  
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(CStringA& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(CStringW& tData);
 
-    //!        оператор сериализации
-    /*
-       \param  tData - ссылка на объект сериализации
-       \return ссылка на текущий буфер
+    //!         serializing operator
+    /*! \param  tData - reference to serializing object
+        \return *this
     */
     CStreamBuffer& operator>>(CStreamBuffer& tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const char tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const unsigned char tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const short tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const unsigned short tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const int tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const unsigned int tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const long tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const unsigned long tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const float tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const double tData);  
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const CStringA& tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const CStringW& tData);
 
-    //!        оператор десериализации
-    /*
-       \param  tData - ссылка на объект десериализации
-       \return ссылка на текущий буфер
+    //!         deserializing operator
+    /*! \param  tData - reference to deserializing object
+        \return *this
     */
     CStreamBuffer& operator<<(const CStreamBuffer& tData);
 
   private:
-    PBuffer m_pucBegin;                               //! указатель на начало буфера
-    TSize m_ulROffset;                                //! смещение для чтения
-    TSize m_ulWOffset;                                //! смещение для записи
-    TSize m_ulSize;                                   //! размер данных
-    TSize m_ulBufferSize;                             //! размер буфера
-    int   m_nFlags;                                   //! флаги io
-    CByteOrder::EByteOrder m_eByteOrder;              //! порядок байт
-    
-    static int m_nFlagsStatic;                        //! флаги io по умолчанию
-    static CByteOrder::EByteOrder m_eByteOrderStatic; //! кодировка по умолчанию
+    PBuffer m_pucBegin;                               //!< pointer to buffer begin
+    TSize m_ulROffset;                                //!< read offset
+    TSize m_ulWOffset;                                //!< write offset
+    TSize m_ulSize;                                   //!< data size
+    TSize m_ulBufferSize;                             //!< buffer size
+    int   m_nFlags;                                   //!< flags
+    CByteOrder::EByteOrder m_eByteOrder;              //!< byte order
+    static int m_nFlagsStatic;                        //!< default flags
+    static CByteOrder::EByteOrder m_eByteOrderStatic; //!< default byte order
   };
 
 } // namespace rise

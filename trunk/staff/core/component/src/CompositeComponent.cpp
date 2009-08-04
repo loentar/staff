@@ -44,7 +44,7 @@ namespace staff
   {
     RISE_ASSERTP(pComponent);
   
-    if (m_sName == "") // инициализация имени компонента
+    if (m_sName == "")
       m_sName = pComponent->GetName();
     else
       RISE_ASSERTP(m_sName == pComponent->GetName());

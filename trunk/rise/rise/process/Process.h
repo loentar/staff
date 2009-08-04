@@ -30,99 +30,90 @@
 
 namespace rise
 {
+  //!        process classes
   namespace process
   {
-    //!        класс запуска приложений
+    //!        Process
     class RISE_EXPORT CProcess
     {
     public:
-      enum ESTATUS     //! код возврата
+      enum ESTATUS     //! return code
       {
-        EESERROREXEC = g_nResultError,  //!<  ошибка при запуске приложения
-        EESRUNNING,                     //!<  процесс выполняется
-        EESNOTRUNNING,                  //!<  процесс не выполняется
-        EESUNKNOWN                      //!<  неизвестное состояние
+        EESERROREXEC = g_nResultError,  //!<  error while executing
+        EESRUNNING,                     //!<  process is running
+        EESNOTRUNNING,                  //!<  process is not running
+        EESUNKNOWN                      //!<  unknown state
       };
 
     public:
-      //!        конструктор
+      //!        constructor
       CProcess();
 
-      //!        деструктор
+      //!        destructor
       virtual ~CProcess();
 
-      //!        присоединиться к уже запущенному процессу
-      /*
-         \param  hProcess - идентификатор процесса
-         \return none
+      //!        attach to existing process
+      /*! \param  hProcess - process id
+          \return true, if attaching successes
       */
       bool Attach(HProcess hProcess);
 
-      //!        запуск приложения
-      /*
-         аргументы разделяются символом табуляции '\t'
-         \param  sCommand - приложение
-         \return none
+      //!        execute process
+      /*! arguments are splitted with '\\t'
+          example: 
+            CProcess tLsProc;
+            tLsProc.Exec("/bin/ls\t-l\t/home");
+          \param  sCommand - command to exec
+          \return true, if process started
       */
       bool Exec(const CString& sCommand);
 
-      //!        запущен ли процесс
-      /*
-         \return ESTATE
+      //!         is process running
+      /*! \return true, if process running
       */
       bool IsExists();
 
-      //!        получить код возврата процесса
-      /*
-         \return код возврата
+      //!         get process exit status
+      /*! \param  bWait - wait for process ends
+          \return process exit status
       */
       int GetExitStatus(bool bWait = false);
 
-      //!        получить идентификатор процесса связанного с обьектом класса
-      /*
-         \return идентификатор процесса связанного с обьектом класса
+      //!         get process handle
+      /*! \return process handle
       */
       HProcess GetProcessID();
 
-      //!        получить идентификатор текущего процесса
-      /*
-         \return идентификатор процесса из которого была вызвана эта функция
+      //!         get current process handle
+      /*! \return current process handle
       */
       static HProcess GetCurrentProcessID();
 
-      //!         получить имя исполняемого файла с полным путем текущего процесса
-      /*! \return имя исполняемого файла с полным путем текущего процесса
+      //!         get current process exec path
+      /*! \return current process exec path
       */
       static rise::CString GetCurrentExecPath();
 
-      //!        переключить процесс в фоновый режим
-      /*
-                 в WIN32 игнорируется
-         \return 0, если успешно
+      //!         daemonize process(run process in background)
+      /*!         WIN32: no implementation
+          \return 0, if daemonizing was successed
       */
       static void Daemon();
 
-      //!        приостановить выполнение процесса до прихода сообщения/сигнала
+      //!         wait for some signal
       static void Pause();
 
-      //!        завершить процесс, связанный с обьектом класса
-      /*
-         исключения:     CLogicNoItemException - процесс не найден
-                         CLogicPermissionException - нет прав
-      */
+      //!         terminate process
       void Terminate();
 
-      //!        завершить процесс
-      /*
-         исключения:     CLogicNoItemException - процесс не найден
-                         CLogicPermissionException - нет прав
-         \param  hProcess - идентификатор процесса
+      //!         terminate given process
+      /*! \param  hProcess - process handle
       */
       static void Terminate(HProcess hProcess);
 
     private:
-      int              m_nExitStatus; //! статус
-      HProcess         m_hProcess;    //! дескриптор процесса
+      int              m_nExitStatus; //!< exit status
+      HProcess         m_hProcess;    //!< process description
 
     };
   } // namespace process

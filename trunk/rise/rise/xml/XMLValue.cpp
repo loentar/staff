@@ -130,30 +130,12 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //                    (in) rXMLTypedNode - ссылка на корневой узел для сериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLValue& rXMLValue)
     {      
       rStream.WriteString(rXMLValue.AsString());
       return rStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //                    (in) rXMLNode - ссылка на корневой узел для десериализации
-    //    RETURN:         результирующий поток десериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, CXMLValue& rXMLValue)
     {
       rStream.ReadString(rXMLValue.AsString());
@@ -161,30 +143,12 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //                    (in) rXMLValue - ссылка на зачение
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLValue& rXMLValue)
     {
       CXMLOStream tTmpStream(rStream);
       return operator<<(tTmpStream, rXMLValue);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //                    (out) rXMLValue - ссылка на зачение
-    //    RETURN:         результирующий поток десериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLValue& rXMLValue)
     {
       CXMLIStream tTmpStream(rStream);

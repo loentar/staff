@@ -30,126 +30,116 @@
 
 namespace rise
 {
-  //!        шаблонный класс исключений
+  //!        template exceptions class 
   template<int CLASS>
     class CExceptionTemplate: public CException
   {
     public:
-      //!        деструктор
+      //!        destructor
       virtual ~CExceptionTemplate() throw();
 
-      //!        создание исключения
-      /*
-         \param  sFile - имя файла исходника
-         \param  nLine - номер строки в файле исходника 
-         \param  sFunction - имя функции в которой произошло исключение
-         \param  sDescr - описание исключения
-         \return none
+      //!        creating an exception
+      /*! \param  sFile - source file name
+          \param  nLine - source file line
+          \param  sFunction - function name
+          \param  sDescr - description
+          \param  sExpr - expression
+          \param  sObject - object
       */
       void Create(const CString& sFile, int nLine, const CString& sFunction, 
         const CString& sDescr = "", const CString& sExpr = "", 
         const CString& sObject = "") throw();
       
-      //!        оператор копирования
-      /*
-         \return ссылка на текущий обьект
+      //!        copy operator
+      /*! \return reference to *this
       */
       CExceptionTemplate& operator=(const CExceptionTemplate& rException);
       
-      //!        получение файла в котором произошло исключение
-      /*
-         \return имя файла-исходника в котором произошло исключение
+      //!        get file name
+      /*! \return source file name
       */
       const CString& GetFileName() const throw();
       
-      //!        получение строки в файле в котором произошло исключение
-      /*
-         \return строка в файле в котором произошло исключение
+      //!        get source file line
+      /*! \return source file line
       */
       int GetLine() const throw();
       
-      //!        получение имени функции в которой произошло исключение
-      /*
-         \return имя функции в которой произошло исключение
+      //!        get function
+      /*! \return function
       */
       const CString& GetFunction() const throw();
       
-      //!        получение описания исключения
-      /*
-         \return описание исключения
+      //!        get description
+      /*! \return description
       */
       const CString& GetDescr() const throw();
       
-      //!        получение выражения 
-      /*
-         \return выражение в результате которого возникло исключение
+      //!        get assert expression
+      /*! \return assert expression
       */
       const CString& GetExpr() const throw();
       
-      //!        получение обьекта исключения
-      /*
-         \return обьекта исключения
+      //!        get object
+      /*! \return object
       */
       const CString& GetObjectName() const throw();
 
-      //!        установка обьекта исключения
-      /*
-         \param  sObjectName обьект исключения
+      //!        set object name
+      /*! \param sObjectName - object name
       */
       void SetObjectName(const CString& sObjectName) throw();
       
-      //!        получение класса исключения
-      /*
-         \return код исключения
+      //!        get exception class
+      /*! \return exception class
       */
       EXCLASS GetClass() const throw();
 
-      //!        получение полного описания исключения
-      /*
-         \sa SetFormat
-         \param  sFormat - строка для форматирования
-         \return описания исключения
+      //!        get full description of exception
+      /*! \sa SetFormat
+          \param  sFormat - format for exception
+          \return exception description
       */
       CString GetString(const CString& sFormat = "") const throw();
 
-      //!        установка формата строки для функции GetString
-      /*
-         поддерживаются следующие метасимволы:
-         {File}   - имя исходного файла, в котором возникло исключение
-         {Line}   - строка в файле,  в котором возникло исключение
-         {Func}   - функция,  в котором возникло исключение
-         {Descr}  - описание исключения
-         {Expr}   - условие, из за невыполнения которого возникло исключение
-         {Class}  - класс исключения(файловое, логическое, внутреннее)
-         {Code}   - код исключения
-         {Object} - объект исключения(строка с описанием)
-         {Stack}  - стек вызовов
+      //!        set exception string format
+      /*! 
+         supported substitution symbols:
+         {File}   - source file name
+         {Line}   - source file line
+         {Func}   - function
+         {Descr}  - description
+         {Expr}   - assert expression
+         {Class}  - exception class (file, logic, internal)
+         {Code}   - exception code
+         {Object} - exception object (description string)
+         {Stack}  - call stack
          
-         стек вызовов будет доступен только при установленной переменной окружения RISE_EXCEPTION_STACKTRACING=1
+         call stack is available only if environment variable RISE_EXCEPTION_STACKTRACING=1
          
          \sa GetString
-         \param  sFormat - строка для форматирования
-         \return описания исключения
+         \param  sFormat - format for exception
       */
       virtual void SetFormat(CString& sFormat) const throw();
 
     private:
-      CString  m_sFile;           //!< файл в котором произошло исключение
-      int      m_nLine;           //!< строка в которой произошло исключение
-      CString  m_sFunction;       //!< функция в которой произошло исключение
-      CString  m_sExpr;           //!< выражение из за которого произошло исключение
-      CString  m_sDescr;          //!< описание исключения
-      CString  m_sObject;         //!< объект исключения
-      CString  m_sStack;          //!< стек вызовов
+      CString  m_sFile;           //!< source file name
+      int      m_nLine;           //!< source file line
+      CString  m_sFunction;       //!< function
+      CString  m_sExpr;           //!< assert expression
+      CString  m_sDescr;          //!< description
+      CString  m_sObject;         //!< exception object
+      CString  m_sStack;          //!< call stack
       CString  m_sFormat;
       bool     m_bStackTracing;
   }; // class CExceptionTemplate
 
-  //!        базовый класс для файловых исключений
+  //!        base class for file exceptions
   class RISE_EXPORT CFileException: public CExceptionTemplate<EXCFILE>
   {
   };
 
+  //!        base template class for file exceptions
   template<int CODE>
   class RISE_EXPORT CFileExceptionTemplate: public CFileException
   {
@@ -157,11 +147,12 @@ namespace rise
     EXCODE GetCode() const throw() { return static_cast<EXCODE>(CODE); }
   };
 
-  //!        базовый класс для логических исключений
+  //!        base class for logic exceptions
   class RISE_EXPORT CLogicException: public CExceptionTemplate<EXCLOGIC>
   {
   };
 
+  //!        base template class for logic exceptions
   template<int CODE>
   class RISE_EXPORT CLogicExceptionTemplate: public CLogicException
   {
@@ -169,11 +160,12 @@ namespace rise
     EXCODE GetCode() const throw() { return static_cast<EXCODE>(CODE); }
   };
 
-  //!        базовый класс для внутренних исключений
+  //!        base class for internal exceptions
   class RISE_EXPORT CInternalException: public CExceptionTemplate<EXCINTERNAL>
   {
   };
 
+  //!        base template class for internal exceptions
   template<int CODE>
   class RISE_EXPORT CInternalExceptionTemplate: public CInternalException
   {
@@ -181,66 +173,66 @@ namespace rise
     EXCODE GetCode() const throw() { return static_cast<EXCODE>(CODE); }
   };
 
-  //!        ошибка при создании файла
+  //!        error while creating file
   typedef CFileExceptionTemplate<EXCREATE>             CFileCreateException;
 
-  //!        ошибка при удалении файла
+  //!        error while deleting file
   typedef CFileExceptionTemplate<EXDELETE>             CFileDeleteException;
 
-  //!        ошибка при открытии файла
+  //!        error while opening file
   typedef CFileExceptionTemplate<EXOPEN>               CFileOpenException;
 
-  //!        ошибка при закрытии файла
+  //!        error while closing file
   typedef CFileExceptionTemplate<EXCLOSE>              CFileCloseException;
 
-  //!        ошибка при чтении файла
+  //!        error while reading file
   typedef CFileExceptionTemplate<EXREAD>               CFileReadException;
 
-  //!        ошибка при записи в файл
+  //!        error while write to file
   typedef CFileExceptionTemplate<EXWRITE>              CFileWriteException;
 
-  //!        ошибка ввода/вывода
+  //!        error while file I/O
   typedef CFileExceptionTemplate<EXIO>                 CFileIOException;
 
 
-  //!        ошибка не произведена инициализация
+  //!        error: not initialized
   typedef CLogicExceptionTemplate<EXNOINIT>            CLogicNoInitException;
 
-  //!        ошибка объект уже существует/инициализация уже произведена
+  //!        error: already initialized
   typedef CLogicExceptionTemplate<EXALREADYEXISTS>     CLogicAlreadyExistsException;
 
-  //!        ошибка неверный размер
+  //!        error: invalid size
   typedef CLogicExceptionTemplate<EXSIZE>              CLogicSizeException;
 
-  //!        ошибка не найден указанный элемент
+  //!        error: item not found
   typedef CLogicExceptionTemplate<EXNOITEM>            CLogicNoItemException;
 
-  //!        ошибка превышено время ожидания
+  //!        error: timeout
   typedef CLogicExceptionTemplate<EXTIMEOUT>           CLogicTimeoutException;
 
-  //!        ошибка нет прав
+  //!        error: permission 
   typedef CLogicExceptionTemplate<EXNOPERMISSION>      CLogicPermissionException;
 
-  //!        ошибка неверный формат
+  //!        error: invalid format
   typedef CLogicExceptionTemplate<EXFORMAT>            CLogicFormatException;
 
-  //!        ошибка переданы неверные параметра вызова
+  //!        error: invalid function params
   typedef CLogicExceptionTemplate<EXPARAM>             CLogicParamException;
 
 
-  //!        ошибка внутренняя
+  //!        internal error
   typedef CInternalExceptionTemplate<EXINTERNAL>       CInternalInternalException;
 
-  //!        ошибка недостаточно памяти для выполнения операции
+  //!        error: insufficient memory
   typedef CInternalExceptionTemplate<EXNOMEM>          CInternalNoMemException;
 
-  //!        ошибка при проверке утверждения
+  //!        assert error
   typedef CInternalExceptionTemplate<EXASSERT>         CInternalAssertException;
 
-  //!        ошибка отсутствует реализация функции
+  //!        error: function is not implemented
   typedef CInternalExceptionTemplate<EXNOTIMPLEMENTED> CInternalNotImplementedException;
 
-  //!        ошибка временное решение
+  //!        error: temporary decision was reached
   typedef CInternalExceptionTemplate<EXTEMPDECISION>   CInternalTempDecisionException;
 
 }  // namespace rise

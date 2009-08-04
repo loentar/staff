@@ -28,226 +28,98 @@ namespace rise
 {
   namespace xml
   {
-    //!        класс для потокового чтения XML
+    //!        internal class for stream xml file reading
     class RISE_EXPORT CXMLIStream
     {
     public:
-      //!        default constructor
-      CXMLIStream(CIStream& rSream, const CString& sFileName, int& nLine);
-      CXMLIStream(CIStream& rSream, const CString& sFileName);
-      CXMLIStream(CIStream& rSream);
+      CXMLIStream(CIStream& rStream, const CString& sFileName, int& nLine);
+      CXMLIStream(CIStream& rStream, const CString& sFileName);
+      CXMLIStream(CIStream& rStream);
       CXMLIStream(CXMLIStream& rStream);
-
       ~CXMLIStream();
-
       operator CIStream&();
-
-      //!        считать следующий символ из входного потока
-      /*
-         \return         true - символ успешно прочитан
-      */
       bool ReadChar(TChar& rChar);
-
-      //!        считать следующий символ из входного потока
-      /*
-         CXMLReadException - ошибка чтения (EOF)
-         \return считанный символ
-      */
       TChar ReadChar();
-
-      //!        чтение метасимвола из потока
-      /*
-          CXMLFormatException - неверный метасимвол
-         \return считанный метасимвол
-      */
       TChar ReadMetaChar();
-
-      //!        чтение метасимвола из потока
-      /*
-          CXMLFormatException - неверный метасимвол
-         \param  chData - считанный метасимвол
-      */
       bool ReadMetaChar(TChar& chData);
-
-      //!        получить следующий символ из входного потока не удаляя
-      /*
-         \return true - символ успешно прочитан
-         \param  chData - считанный метасимвол
-      */
       bool PeekChar(TChar& rChar);
-
-      //!        получить следующий символ из входного потока не удаляя
-      /*
-         CXMLReadException - ошибка чтения (EOF)
-         \return символ
-      */
       TChar PeekChar();
-
-      //!        пропустить пробельные символы
       void SkipWhitespace();
-
-      //!        чтение из потока строки до одного из символьных разделителей
-      /*
-         \param  sData - результат
-         \param  sDelimiters - разделители
-         \return номер разделителя по которому было прервано чтение
-      */
       int ReadString(CString& sData, const CString& sDelimiters = " \t\n\r");
-
-      //!        чтение из потока строки до маркера
-      /*
-            если маркер ="" читать до конца файла
-            
-         \param  sData - результат
-         \param  sMarker - маркер 
-         \return номер разделителя по которому было прервано чтение
-      */
       void ReadStringUntil(CString& sString, const CString& sMarker = "");
-
-      //!        чтение идентификатора
-      /*
-         \param   sId - идентификатор
-         \return none
-      */
       void ReadId(CString& sId);
-
-      //!        сравнение строки со значением во входном потоке
-      /*
-             при положительном результате совпадающие данные будут 
-             удалены из потока
-         \param   sValue - строка для теста
-         \param   bResult - результат теста
-         \return true, если входной поток совпадает со строкой
-      */
       bool Test(const CString& sValue);
-      
-      //! получить имя файла
       const CString& GetFileName() const;
-
-      //!  получить текущий номер строки
       int GetLine() const;
-
-      //! отменить чтение символа
       void UnGetChar(const TChar chData);
-
-      //!        Добавление текста в контент
-      /*
-         \param   rStream - поток
-         \param   sContent - контетн
-      */
       void AddContent(CString& sContent);
 
     private:
-      //! отмена чтения строки
       void UnGetString(const CString& sData);
 
     private:
-      int                 m_nLineInternal;     //! внутренний номер строки
-      int&                m_nLine;             //! текущий номер строки
-      const CString       m_sFileNameInternal; //! внутреннее имя файла
-      const CString&      m_sFileName;         //! имя файла
-      CIStream&           m_tIStream;          //! поток чтения
+      int                 m_nLineInternal;
+      int&                m_nLine;
+      const CString       m_sFileNameInternal;
+      const CString&      m_sFileName;
+      CIStream&           m_tIStream;
 
       CXMLIStream& operator =(const CXMLIStream&);
 
     };
 
-    //!        класс для потоковой записи XML
+    //!        internal class for stream xml file writing
     class RISE_EXPORT CXMLOStream
     {
     public:
-      //!        конструктор
       CXMLOStream(COStream& rOStream, const CString& sFileName);
-
-      //!        конструктор
       CXMLOStream(COStream& rOStream);
-
-      //!        конструктор
       CXMLOStream(CXMLOStream& rStream);
-
-      //!        деструктор
       ~CXMLOStream();
-
-      //!        записывает в поток строку с поддержкой метасимволов
-      /*
-         \param  sString - строка для записи
-      */
       void WriteString(const CString& sString);
-
-      //!        записывает в поток данные
-      /*
-         \param  tData - данные
-         \return ссылка на поток
-      */
       template<typename TDATA>
       CXMLOStream& operator<<( const TDATA& tData )
       {
         m_tOStream << tData;
         return *this;
       }
-
-      //!        оператор получения потока
       operator COStream&();
 
     private:
-      COStream&      m_tOStream;          //! ссылка на поток
-      const CString& m_sFileName;         //! имя файла
-      const CString  m_sFileNameInternal; //! внутреннее имя файла
-
+      COStream&      m_tOStream;
+      const CString& m_sFileName;
+      const CString  m_sFileNameInternal;
       CXMLOStream& operator=(const CXMLOStream&);
     };
 
-    //!        класс для потокового чтения XML-файла
+    //!        internal class for stream xml-file reading
     class RISE_EXPORT CXMLFileIStream: public CXMLIStream
     {
     public:
-      //!        конструктор
       CXMLFileIStream();
-
-      //!        деструктор
       ~CXMLFileIStream();
-
-      //!        открыть файл потока для чтения
-      /*
-          CXMLOpenException - ошибка открытия файла
-         \param  sFileName - имя файла
-      */
       void Open(const CString& sFileName);
-
-      //!        закрыть поток чтения
       void Close();
 
     private:
-      int             m_nLine;       //! текущий номер строки
-      CString         m_sFileName;   //! имя файла
-      CIFStream       m_tIFStream;   //! входной файловый поток
+      int             m_nLine;
+      CString         m_sFileName;
+      CIFStream       m_tIFStream;
     };
 
-    //!        класс для потоковой записи в  XML-файл
+    //!        internal class for stream xml-file writing
     class RISE_EXPORT CXMLFileOStream: public CXMLOStream
     {
     public:
-      //!        конструктор
       CXMLFileOStream();
-      
-      //!        деструктор      
       ~CXMLFileOStream();
-
-      //!        открыть файл потока для записи
-      /*
-         CXMLOpenException - ошибка открытия файла
-         \param  sFileName - имя файла
-      */
       void Open(const CString& sFileName);
-
-      //!        закрыть поток записи
       void Close();
 
     private:
-      COFStream         m_tOFStream;   //! файловый поток
-      CString           m_sFileName;   //! имя файла
+      COFStream         m_tOFStream;
+      CString           m_sFileName;
     };
-
 
   } // namespace xml
 } // namespace rise

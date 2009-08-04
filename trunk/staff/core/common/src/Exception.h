@@ -27,56 +27,74 @@
 
 namespace staff
 {
+  //! exception class
   enum EXCLASS
   {
-    EXCFIRST = rise::EXCLAST,
-    EXCDOM,
-    EXCREMOTE
+    EXCFIRST = rise::EXCLAST, //!<  first used
+    EXCDOM,                   //!<  DOM exception
+    EXCREMOTE                 //!<  remote exception
   };
 
+  //! exception code
   enum EXCODE
   {
-    EXFIRST = rise::EXTEMPDECISION,
-    EXPARAM,
-    EXTYPE,
-    EXNOITEM,
-    EXFORMAT,
-    EXINTERNAL
+    EXFIRST = rise::EXTEMPDECISION,  //!<  first used
+    EXPARAM,                         //!<  invalid param
+    EXTYPE,                          //!<  invalid type
+    EXNOITEM,                        //!<  item is not found
+    EXFORMAT,                        //!<  invalid format
+    EXINTERNAL                       //!<  internal
   };
 
+  //! basic exception for DOM exceptions
   class CDomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
   {
   };
 
 
+  //! template DOM exception 
   template<EXCODE CODE>
   class CDomExceptionTemplate: public CDomException
   {
   public:
+    //!         get exception code
+    /*! \return exception code
+    */
     rise::EXCODE GetCode() const throw() { return static_cast<rise::EXCODE>(static_cast<int>(CODE)); }  
   };
 
 
-
+  //! basic exception for remote exceptions
   class CRemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
   {
   };
 
 
+  //! template remote exception
   template<EXCODE CODE>
   class CRemoteExceptionTemplate: public CRemoteExceptionBase
   {
   public:
+    //!         get exception code
+    /*! \return exception code
+    */
     rise::EXCODE GetCode() const throw() { return static_cast<rise::EXCODE>(static_cast<int>(CODE)); }  
   };
 
+  //! invalid param
   typedef CDomExceptionTemplate<EXPARAM> CDomParamException;
+  //! invalid type
   typedef CDomExceptionTemplate<EXTYPE> CDomTypeException;
+  //! item is not found
   typedef CDomExceptionTemplate<EXNOITEM> CDomNoItemException;
+  //! invalid format
   typedef CDomExceptionTemplate<EXFORMAT> CDomFormatException;
+  //! internal
   typedef CDomExceptionTemplate<EXINTERNAL> CDomInternalException;
 
+  //! DOM exception
   typedef CRemoteExceptionTemplate<EXINTERNAL> CRemoteException;
+  //! remote exception
   typedef CRemoteExceptionTemplate<EXINTERNAL> CRemoteInternalException;
 }
 

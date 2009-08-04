@@ -30,56 +30,54 @@
 namespace rise 
 {
 #ifndef WIN32
-  //! входной строковый поток
+  //! input string stream
   typedef std::istringstream CIStringStream;
 
-  //! выходной строковый поток
+  //! output string stream
   typedef std::ostringstream COStringStream;
 #else
-  //! входной строковый поток
+  //! input string stream
   typedef std::basic_ostringstream<TChar, std::char_traits<TChar>, std::allocator<TChar> > COStringStream;
 
-  //! выходной строковый поток
+  //! output string stream
   typedef std::basic_istringstream<TChar, std::char_traits<TChar>, std::allocator<TChar> > CIStringStream;
 #endif
 
 #ifndef WIN32
-  //! выходной поток
+  //! output stream
   typedef std::ostream COStream;
 
-  //! входной поток
+  //! input stream
   typedef std::istream CIStream;
 #else
-  //! выходной поток
+  //! output stream
   typedef std::basic_ostream<TChar, std::char_traits<TChar> > COStream;
 
-  //! входной поток
+  //! input stream
   typedef std::basic_istream<TChar, std::char_traits<TChar> > CIStream;
 #endif
 
 #ifndef WIN32
-  //! выходной файловый поток
+  //! output file stream
   typedef std::ofstream COFStream;
 
-  //! входной файловый поток
+  //! input file stream
   typedef std::ifstream CIFStream;
 #else
-  //! входной файловый поток
+  //! input file stream
   typedef std::basic_ifstream<TChar, std::char_traits<TChar> > CIFStream;
 
-  //! выходной файловый поток
+  //! output file stream
   typedef std::basic_ofstream<TChar, std::char_traits<TChar> > COFStream;
 #endif
 
 // #ifdef UNICODE
 // #define tStdOut  std::wcout
-// #define tStdOutW std::wcout
-// #define tStdOutA std::cout
 // #else
 #define tStdOut  std::cout
+// #endif
 #define tStdOutA std::cout
 #define tStdOutW std::wcout
-// #endif
 }
 
 #endif // _STREAMTYPES_H_

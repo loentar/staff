@@ -101,7 +101,6 @@ namespace rise
     class CBfdReader::CBfdReaderImpl
     {
     public:
-      //!  структура для поиска адреса
       struct SFindAddrParam
       {
         bfd_vma tPc;
@@ -168,8 +167,8 @@ namespace rise
           &pParam->szFileName, &pParam->szFunctionName, &pParam->unLine);
       }
 
-      asymbol** m_ppSymbols;  //!<  символы файла
-      bfd* m_pBfd;            //!<  дескриптор файла
+      asymbol** m_ppSymbols;
+      bfd* m_pBfd;
       CString m_sFileName;
     };
 

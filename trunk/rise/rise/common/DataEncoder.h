@@ -28,44 +28,43 @@
 
 namespace rise
 {
-  //! кодировщик/декодировщик base64
+  //! base64 encoder/decoder
   class RISE_EXPORT CBase64Encoder
   {
   public:
-    //!         кодировать массив байт в строку base64
-    /*
-        \param  baIn - массив байт для кодирования
-        \param  asOut - результирующая строка
-        \param  nRowWidth - количество символов в результирующей строке
+    //!         encode byte array to base64
+    /*! \param  baIn - source array
+        \param  asOut - resulting base64 string
+        \param  nRowWidth - row width
       */
     static void Encode(const CByteArray& baIn, CStringA& asOut, int nRowWidth = 19);
 
-    //!         декодировать строку base64 в массив байт
-    /*
-        \param  asIn - строка в base64
-        \param  asOut - результирующий массив байт
+    //!         decode base64 string to byte array
+    /*! \param  asIn - source base64 string
+        \param  baOut - resulting byte array
       */
     static void Decode(const CStringA& asIn, CByteArray& baOut);
 
 
-    //!         кодировать буфер в строку base64
+    //!         encode byte buffer to base64 string
     /*
-        \param  baIn - буфер для кодирования
-        \param  asOut - результирующая строка
-        \param  nRowWidth - количество символов в результирующей строке
+        \param  pBuffIn - source buffer
+        \param  tBufferSize - buffer size in bytes
+        \param  asOut - resulting base64 string
+        \param  nRowWidth - row width
       */
     static void Encode(PCBuffer pBuffIn, TSize tBufferSize, CStringA& asOut, int nRowWidth = 19); // throw
 
-    //!         декодировать строку base64 в массив байт
-    /*
-        \param  asIn - строка в base64
-        \param  asOut - результирующий буфер
+    //!         encode base64 string to byte buffer 
+    /*! \param  asIn - source base64 string
+        \param  pBuffOut - resulting buffer
+        \param  tBufferSize - (i/o)buffer size in bytes
       */
     static void Decode(const CStringA& asIn, PBuffer pBuffOut, TSize& tBufferSize); // throw
   
   private:
-    static const CStringA m_sEncodeTable;             //! таблица кодировки
-    static const byte m_baDecodeTable['z' - '+' + 1]; //! таблица декодировки
+    static const CStringA m_sEncodeTable;             //!< encoding table
+    static const byte m_baDecodeTable['z' - '+' + 1]; //!< decoding table
   };
 }
 

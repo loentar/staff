@@ -29,107 +29,94 @@
 
 namespace rise
 {
+  //!        threading classes
   namespace threading
   {
-    //!        класс потока
+    //!        Thread class
     class RISE_EXPORT CThread
     {
       public:
-        //!        конструктор
+        //!        constructor
         CThread();
 
-        //!        деструктор
+        //!        destructor
         virtual ~CThread();
     
-        //!        создание и запуск потока
-        /*
-           \param  pparam - указатель на параметр передаваемый потоку
-           \return 0, если создание потока произошло успешно
+        //!         create and start thread
+        /*! \param  pParam - pointer to thread params
+            \return true, if thread created
         */
         virtual bool Start(void* pParam = NULL);
     
-        //!        запущен ли поток
-        /*
-           \return true если работает
+        //!         is thread running
+        /*! \return true, if thread running
         */
         bool IsWorking() const;
     
-        //!        получение идентификатора вызывающего потока
-        /*
-           \return идентификатор
+        //!         get current thread handle
+        /*! \return current thread handle
         */
         static HThread GetCurrentId();
 
-        //!        получение идентификатора потока, связаного с обьектом класса
-        /*
-           \return идентификатор
+        //!         get thread handle
+        /*! \return thread handle
         */
         HThread GetId() const;
     
-        //!        выход из потока, в котором была вызвана эта функция
+        //!        exit from current thread
         static void Exit();
     
-        //!        завершает работу потока, связанным с обьектом класса
-        /*
-              ВНИМАНИЕ! опасная функция! 
-              память выделенная локальными обьектами, критические секции,
-                дескрипторы, не будет освобождены!
-        */
+        //!        terminate thread
         bool Cancel();
     
-        //!        ожидание завершения потока
-        /*
-           \param  hThread - дескриптор потока
-        */
+        //!         wait for thread end
         void JoinThread();
 
-        //!        устанавливает флаг остановки потока
-        /*
-           CLogicNoInitException
-           \param  ulTimeout - таймаут, если равен=0 ждать бесконечно
+        //!        stop thread
+        /*! set Stop flag and waits for thread end
+            \param  ulTimeout - wait timeout, 0 - wait infinite
         */
         void Stop(ulong ulTimeout = 0ul);
 
-        //!        возвращает признак необходимости остановки потока
-        /*
-           \return  true - поток необходимо остановить
+        //!         is thread stopping
+        /*! \return  true - thread is stopping
         */
         bool IsStopping();
 
-        //!        приостановить выполнение текущего потока на ulMSec милисекунд
-        /*
-           \param  ulMSec - количество милисекунд
+        //!        sleeps current thread to ulMSec msec
+        /*! \param  ulMSec - msec
         */
         static void Sleep(unsigned long ulMSec);
 
-        //!        получить критическую секцию для межпотоковой синхронизации
+        //!         get thread's critical section
+        /*! \return thread's critical section
+        */
         CCriticalSection& GetCS();
 
       protected:
-        //!        функция потока
-        /*         функция, которую должен перекрывать унаследованный класс
-                   pParam - параметр
+        //!        thread function
+        /*!        child class must override this function
+                   \param pParam - thread parameter
+                   \sa Start
         */
         virtual void Run(void* pParam) = 0;
 
-        //!        функция обработчик события при остановке
+        //!        on stop handler
         virtual void OnStop();
 
 
       private:
-        //!        внутренняя функция для запуска пользовательской функции потока
+        //!        internal function
         static void* InternalRun(void* pParam);
 
       private:
-        HThread m_hThread;      //! идентификатор потока
-        void*   m_pParam;       //! параметр, передаваемый потоку
-        CCriticalSection m_cs;  //! критическая секция
-        CCriticalData<bool> m_bStopping; //! признак остановки потока
+        HThread m_hThread;      //!< thread handle
+        void*   m_pParam;       //!< thread param
+        CCriticalSection m_cs;  //!< critical section
+        CCriticalData<bool> m_bStopping; //!< thread is stopping flag
 
-        // запрет копирования
         CThread(const CThread&);
         CThread& operator=(const CThread&);
-        
     };  
 
   } // namespace threading

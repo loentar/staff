@@ -27,45 +27,44 @@
 
 namespace rise
 {
-  //!        класс для работы с таймером
+  //!        Timer handler class
   class RISE_EXPORT CTimerHandler  
   {
   public:
-    typedef word TTimerID; //! идентификатор таймера
+    typedef word TTimerID; //! timer id
 
-    enum EREPEAT //! количество срабатываний таймера
+    enum EREPEAT //! timer repeats
     {
-      EINFINITE = 0  //!< бесконечное кол-во повторений
+      EINFINITE = 0  //!< infinite
     };
 
   public:
-    //!          конструктор
+    //!         constructor
     CTimerHandler();
 
-    //!          деструктор
+    //!         destructor
     virtual ~CTimerHandler();
 
-    //!        добавление таймера
-    /*
-       CAssertException - неверные параметры вызова
-       \param  PARAMETERS:     dwMSec - время милисекундах до срабатывания таймера
-       \param  dwRepeat  - количество срабатываний таймера
-       \return идентификатор добалвенного таймера
+    //!         add new timer
+    /*! \param  dwMSec - timer period
+        \param  dwRepeat - repeat count
+        \return timer id
     */
     TTimerID AddTimer( dword dwMSec, dword dwRepeat = EINFINITE );
 
-    //!        удаление таймера
-    /*
-       \param  wID - идентификатор таймера
+    //!        delete timer
+    /*! \param  wID - timer id
     */
     void DelTimer( TTimerID wID );
 
-    //!        удаление всех таймеров
+    //!        delete all timers
     void DeleteAllTimers();
 
   protected:
-    //!        обработчик таймера
-    /* эту функцию должен перекрыть унаследованный класс */
+    //!         timer handler
+    /*! child class must override this function
+        \param  wID - timer id
+    */
     virtual void OnTimer( word wID ) = 0;
 
     friend class CTimeCatcher;

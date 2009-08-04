@@ -97,7 +97,7 @@ namespace rise
   } tConsAttr;
 #endif
 
-  COStream& ColorDefault(COStream& rStream)            // все атрибуты по умолчанию 
+  COStream& ColorDefault(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -106,7 +106,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorBright(COStream& rStream)             // яркий цвет
+  COStream& ColorBright(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, FOREGROUND_INTENSITY | tConsAttr.GetAttribute());
@@ -115,7 +115,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorDim(COStream& rStream)                // полуяркий цвет
+  COStream& ColorDim(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_INTENSITY & BACKGROUND_INTENSITY) );
@@ -124,7 +124,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorBrightDefault(COStream& rStream)      // яркость по умолчанию
+  COStream& ColorBrightDefault(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_INTENSITY & BACKGROUND_INTENSITY) );
@@ -133,7 +133,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorFlashOn(COStream& rStream)            // включить мигание
+  COStream& ColorFlashOn(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, BACKGROUND_INTENSITY | tConsAttr.GetAttribute());
@@ -142,7 +142,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorFlashOff(COStream& rStream)           // отключить мигание
+  COStream& ColorFlashOff(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_INTENSITY );
@@ -151,7 +151,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInverseOn(COStream& rStream)          // включить инверсию
+  COStream& ColorInverseOn(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() | COMMON_LVB_REVERSE_VIDEO);
@@ -160,7 +160,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInverseOff(COStream& rStream)         // отключить инверсию
+  COStream& ColorInverseOff(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ COMMON_LVB_REVERSE_VIDEO);
@@ -169,7 +169,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorUnderlineOn(COStream& rStream)       // включить подчеркивание
+  COStream& ColorUnderlineOn(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() | COMMON_LVB_UNDERSCORE);
@@ -178,7 +178,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorUnderlineOff(COStream& rStream)      // отключить подчеркивание
+  COStream& ColorUnderlineOff(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ COMMON_LVB_UNDERSCORE);
@@ -187,8 +187,7 @@ namespace rise
 #endif
   }
 
-  // Цвет знаков 
-  COStream& ColorInkBlack(COStream& rStream)           // чёрный
+  COStream& ColorInkBlack(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE));
@@ -197,7 +196,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkRed(COStream& rStream)             // красный
+  COStream& ColorInkRed(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_GREEN | FOREGROUND_BLUE) | FOREGROUND_RED);
@@ -206,7 +205,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkGreen(COStream& rStream)           // зелёный
+  COStream& ColorInkGreen(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_BLUE) | FOREGROUND_GREEN);
@@ -215,7 +214,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkBrown(COStream& rStream)           // коричневый
+  COStream& ColorInkBrown(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
@@ -224,7 +223,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkBlue(COStream& rStream)            // синий
+  COStream& ColorInkBlue(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_GREEN) | FOREGROUND_BLUE);
@@ -233,7 +232,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkMagenta(COStream& rStream)         // фиолетовый
+  COStream& ColorInkMagenta(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
@@ -242,7 +241,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkCyan(COStream& rStream)            // циановый 
+  COStream& ColorInkCyan(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -251,7 +250,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorInkGrey(COStream& rStream)            // серый
+  COStream& ColorInkGrey(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -261,8 +260,7 @@ namespace rise
   }
 
 
-  // Цвет фона
-  COStream& ColorPaperBlack(COStream& rStream)           // чёрный
+  COStream& ColorPaperBlack(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE));
@@ -271,7 +269,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperRed(COStream& rStream)             // красный
+  COStream& ColorPaperRed(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_GREEN | BACKGROUND_BLUE) | BACKGROUND_RED);
@@ -280,7 +278,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperGreen(COStream& rStream)           // зелёный
+  COStream& ColorPaperGreen(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_BLUE) | BACKGROUND_GREEN);
@@ -289,7 +287,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperBrown(COStream& rStream)           // коричневый
+  COStream& ColorPaperBrown(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN);
@@ -298,7 +296,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperBlue(COStream& rStream)            // синий
+  COStream& ColorPaperBlue(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_GREEN) | BACKGROUND_BLUE);
@@ -307,7 +305,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperMagenta(COStream& rStream)         // фиолетовый
+  COStream& ColorPaperMagenta(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE);
@@ -316,7 +314,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperCyan(COStream& rStream)            // циановый 
+  COStream& ColorPaperCyan(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
@@ -325,7 +323,7 @@ namespace rise
 #endif
   }
 
-  COStream& ColorPaperGrey(COStream& rStream)            // серый
+  COStream& ColorPaperGrey(COStream& rStream)
   {
 #ifdef WIN32
     return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
@@ -334,7 +332,6 @@ namespace rise
 #endif
   }
 
-  // управление позицией курсора
   COStream& _CursorUp( COStream& rStream, short nValue )
   {
 #ifdef WIN32
@@ -345,7 +342,6 @@ namespace rise
 #endif
   }
 
-  // управление позицией курсора
   CManip1<short> CursorUp( short nValue )
   {
     return CManip1<short>(_CursorUp, nValue);
@@ -361,7 +357,7 @@ namespace rise
 #endif
   }
 
-  CManip1<short> CursorDown(short nValue)     // передвинуть курсор вниз на n строк 
+  CManip1<short> CursorDown(short nValue)
   {
     return CManip1<short>(_CursorDown, nValue);
   }
@@ -463,13 +459,11 @@ namespace rise
 #endif
   }
 
-  CManip2<short> CursorGoto(short shX, short shY) // задает абсолютные координаты курсора (строка, столбец) 
+  CManip2<short> CursorGoto(short shX, short shY)
   {
     return CManip2<short>(_CursorGoto, shX, shY);
   }
 
-  // работа с палитрой
-  // изменение палитры. nPaletteIndex - номер цвета nR, nG и nB -- значения RGB-компонент
   COStream& _PaletteSet(COStream& rStream, short nPaletteIndex, short nR, short nG, short nB)
   {
 #ifdef WIN32
@@ -486,17 +480,16 @@ namespace rise
     return CManip4<short>(_PaletteSet, nPaletteIndex, nR, nG, nB);
   }
 
-  COStream& PaletteReset(COStream& rStream)                   // восстановление палитры, принятую по умолчанию 
+  COStream& PaletteReset(COStream& rStream)
   {
 #ifdef WIN32
     return rStream;
 #else
-    return (rStream << "\033]R");                   // восстановление палитры, принятую по умолчанию 
+    return (rStream << "\033]R");
 #endif
   }
 
-  // Работа с виртуальными консолями 
-  COStream& _ConsoleSwitchTo(COStream& rStream, short nValue)    // сделать текущей консоль с указанным номером 
+  COStream& _ConsoleSwitchTo(COStream& rStream, short nValue)
   {
 #ifdef WIN32
     nValue;
@@ -506,12 +499,12 @@ namespace rise
 #endif
   }
 
-  CManip1<short> ConsoleSwitchTo(short nValue)    // сделать текущей консоль с указанным номером 
+  CManip1<short> ConsoleSwitchTo(short nValue)
   {
     return CManip1<short>(_ConsoleSwitchTo, nValue);
   }
 
-  COStream& _Console(COStream& rStream, CString nValue)    // сделать текущей консоль с указанным номером 
+  COStream& _Console(COStream& rStream, CString nValue)
   {
 #ifdef WIN32
     return rStream;
@@ -520,14 +513,13 @@ namespace rise
 #endif
   }
 
-  CManip1<CString> Console(const CString& nValue)    // сделать текущей консоль с указанным номером 
+  CManip1<CString> Console(const CString& nValue)
   {
     return CManip1<CString>(_Console, nValue);
   }
 
 
-  // работа с xterm 
-  COStream& _ConsoleSetWindowTextAndIcon(COStream& rStream, const CString& sText) // установка заголовка окна и иконки
+  COStream& _ConsoleSetWindowTextAndIcon(COStream& rStream, const CString& sText)
   {
 #ifdef WIN32
     tConsAttr.SetTitle(sText);
@@ -542,7 +534,7 @@ namespace rise
     return CManip1<const CString&>(_ConsoleSetWindowTextAndIcon, sText);
   }
 
-  COStream& _ConsoleSetIcon(COStream& rStream, const CString& sText) // установка иконки
+  COStream& _ConsoleSetIcon(COStream& rStream, const CString& sText)
   {
 #ifdef WIN32
     sText;
@@ -552,12 +544,12 @@ namespace rise
 #endif
   }
 
-  CManip1<const CString&> ConsoleSetIcon(const CString& sText)                // установка иконки
+  CManip1<const CString&> ConsoleSetIcon(const CString& sText)
   {
     return CManip1<const CString&>(_ConsoleSetIcon, sText);
   }
 
-  COStream& _ConsoleSetWindowText(COStream& rStream, const CString& sText)          // установка заголовка окна 
+  COStream& _ConsoleSetWindowText(COStream& rStream, const CString& sText)
   {
 #ifdef WIN32
     tConsAttr.SetTitle(sText);
@@ -567,7 +559,7 @@ namespace rise
 #endif
   }
 
-  CManip1<const CString&> ConsoleSetWindowText(const CString& sText)          // установка заголовка окна 
+  CManip1<const CString&> ConsoleSetWindowText(const CString& sText)
   {
     return CManip1<const CString&>(_ConsoleSetWindowText, sText);
   }

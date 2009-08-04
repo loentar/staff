@@ -32,65 +32,67 @@ namespace staff
 {
   class CService;
   class CComponent;
-  typedef rise::CMutablePtr<CCompositeComponent> PCompositeComponent; //!< Указатель на на обьект составного компонента
-  typedef std::map<rise::CString, PCompositeComponent> TCompositeComponentMap;  //!< Ассоциативный список обьектов составных компонентов
+  
+  //! Pointer to componsite component
+  typedef rise::CMutablePtr<CCompositeComponent> PCompositeComponent;
 
-  //!  общий контекст
+  //! Composite components map
+  typedef std::map<rise::CString, PCompositeComponent> TCompositeComponentMap;
+
+
+  //!  Shared context
   class STAFF_COMPONENT_EXPORT CSharedContext
   {
   public:
-    //!         получить общий контекст
-    /*! \return общий контекст
+    //!         get shared context instance
+    /*! \return shared context instance
     */
     static CSharedContext& Inst();
     
-    //!         добавить частный компонент
-    /*! \param  pComponent - указатель на компонент
+    //!         add component
+    /*! \param  pComponent - component
         */
     void AddComponent(CComponent* pComponent);
 
-    //!         получить составной компонент по имени
-    /*! \param  sName - имя компонента
-        \return указатель на составной компонет, NULL если компонент не найден
+    //!         get composite component by name
+    /*! \param  sName - component name
+        \return pointer to composite component, NULL, if no component found
         */
     const CCompositeComponent* GetComponent(const rise::CString& sName) const;
     
-    //!         получить составной компонент по имени
-    /*! \param  sName - имя компонента
-        \return указатель на составной компонет, NULL если компонент не найден
+    //!         get composite component by name
+    /*! \param  sName - component name
+        \return pointer to composite component, NULL, if no component found
         */
     CCompositeComponent* GetComponent(const rise::CString& sName);
     
-    //!         получить ассоциативный массив составных компонентов
-    /*! \return ассоциативный массив составных компонентов
+    //!         get available composite components map
+    /*! \return available composite components map
     */
     const TCompositeComponentMap& GetComponents() const;
 
-    //!         получить сервис по имени
-    /*! \param  sName - полное имя сервиса(включающее имя компонента)
-        \return указатель на сервис, NULL если сервис не найден
+    //!         get service by name
+    /*! \param  sName - full service name(including component name)
+        \return pointer to service, NULL, if no service found
         */
     const CService* GetService(const rise::CString& sName) const;
 
-    //!         получить сервис по имени
-    /*! \param  sName - полное имя сервиса(включающее имя компонента)
-        \return указатель на сервис, NULL если сервис не найден
+    //!         get service by name
+    /*! \param  sName - full service name(including component name)
+        \return pointer to service, NULL, if no service found
         */
     CService* GetService(const rise::CString& sName);
 
-    //!         получить полный список сервисов
-    /*! \return список сервисов
+    //!         get services list
+    /*! \return services list
         */
     TServiceMap GetServices() const;
 
-    //!         очистить список компонентов
+    //!         clear component list
     void Clear();
 
   protected:
-    //!         защищенный конструктор
     CSharedContext();
-    
-    //!         защищенный деструктор
     virtual ~CSharedContext();
 
   private:

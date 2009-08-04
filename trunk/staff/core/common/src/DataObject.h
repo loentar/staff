@@ -32,7 +32,7 @@ typedef struct axiom_attribute axiom_attribute_t;
 typedef struct axutil_hash_index_t axutil_hash_index_t;
 typedef struct axutil_env axutil_env_t;
 
-//! namespace
+// namespace
 namespace staff
 {
   class CQName;
@@ -40,364 +40,376 @@ namespace staff
   class CAttribute;
   class CValue;
 
-  //!  Объект данных
+  //!  DataObject
   class STAFF_COMMON_EXPORT CDataObject
   {
   public:
+    //! DataObject iterator
     class STAFF_COMMON_EXPORT Iterator;
+    //! DataObject const iterator
     class STAFF_COMMON_EXPORT ConstIterator;
+    //! DataObject namespace iterator
     class STAFF_COMMON_EXPORT NamespaceIterator;
+    //! DataObject namespace const iterator
     class STAFF_COMMON_EXPORT ConstNamespaceIterator;
+    //! DataObject attribute iterator
     class STAFF_COMMON_EXPORT AttributeIterator;
+    //! DataObject attribute const iterator
     class STAFF_COMMON_EXPORT ConstAttributeIterator;
 
   public:
-    //!        конструктор по умолчанию
-    /*! конструктор по умолчанию не создает элементов! */
+    //!        default constructor
     CDataObject(axiom_node_t* pAxiomNode = NULL);
 
-    //!        конструктор с передачей владения
+    //!        constructor with ownership transfer
     /*! \sa Clone */
     CDataObject(const CDataObject& rDataObject);
 
-    //!         конструктор узла с инициализацией
-    /*! \param  sLocalName - имя создаваемого узла
+    //!         initializing constructor
+    /*! \param  sLocalName - local name for creating node
     */
     CDataObject(const std::string& sLocalName);
 
-    //!         конструктор узла с инициализацией
-    /*! \param  sLocalName - имя создаваемого узла
-        \param  sText - текст узла
+    //!         initializing constructor
+    /*! \param  sLocalName - local name for creating node
+        \param  sText - node value(string)
     */
     explicit CDataObject(const std::string& sLocalName, const std::string& sText);
 
-    //!         конструктор узла с инициализацией
-    /*! \param  sLocalName - имя создаваемого узла
-        \param  rValue - значение узла
+    //!         initializing constructor
+    /*! \param  sLocalName - local name for creating node
+        \param  rValue - node value
     */
     CDataObject(const std::string& sLocalName, const CValue& rValue);
 
-    //!         конструктор узла с инициализацией
-    /*! \param  stQName
+    //!         initializing constructor
+    /*! \param  stQName - node qname
     */
     CDataObject(const CQName& stQName);
 
-    //!        деструктор
+    //!        destructor
     ~CDataObject();
 
-    //!         присоединить узел Axiom(к обьекту данных)
-    /*! для присоединения узла к дереву служит функция AttachNode 
-        \sa DetachNode 
-        \param  pAxiomNode - узел Axiom
-        \param  bOwner - true - установить обьект данных владельцем узла. 
-         В этом случае при освобождении обьекта данных связанное с ним дерево будет освобождено 
+    //!         attach AxiOM node to DataObject
+    /*! to attach child node to node tree use AttachNode
+        \sa Detach
+        \param  pAxiomNode - AxiOM Node
+        \param  bOwner - true - set ownership flag
         */
     void Attach(axiom_node_t* pAxiomNode, bool bOwner = false);
 
-    //!         отсоединить узел Axiom(от обьекта данных)
-    /*! если обьект данных является владельцем дерева, произойдет освобождение дерева
-        если у дерева был родитель, узел отсоединяется
-        для отсоединения узла от дерева служит функция DetachNode 
+    //!         detach DataObject from AxiOM node
+    /*! if this DataObject ownerships AxiOM node, AxiOM node will be freed
+        to detach nodes from tree use DetachNode 
         \sa DetachNode */
     void Detach();
 
-    //!         является ли обьект данных владельцем дерева
-    /*! \return true - обьект данных является владельцем дерева
+    //!         get ownership flag
+    /*! \return true - if ownership flag set
         */
     bool IsOwner();
 
-    //!         установить обьект данных владельцем узла. 
-    /*! \param  bOwner - true/false - установить/сбросить обьект данных владельцем узла
+    //!         set ownership flag
+    /*! \param  bOwner - ownership flag
         */
     void SetOwner(bool bOwner);
 
-    //!         оператор получения узла Axiom
-    /*! \return узел Axiom
+    //!         type cast operator to AxiOM node
+    /*! \return AxiOM node
     */
     operator axiom_node_t*();
 
-    //!         проверка на инициализаицю
-    /*! \return true - объект проинициализирован
+    //!         tests if the DataObject is initialized or not
+    /*! \return true if the DataObject is initialized
     */
     bool IsInit() const;
 
     //////////////////////////////////////////////////////////////////////////
-    // свойства узла
+    // Node properties
 
-    //!         получить составное имя
-    /*! \return составное имя
+    //!         get QName
+    /*! \return QName
     */
     CQName GetQName();
     
-    //!         установить составное имя
-    /*! \param  stQName - составное имя
+    //!         set QName
+    /*! \param  stQName - QName
         */
     void SetQName(const CQName& stQName) const;
 
-    //!         получить локальное имя
-    /*! \return локальное имя
+    //!         get local name
+    /*! \return local name
     */
     std::string GetLocalName() const;
     
-    //!         установить локальное имя
-    /*! \param  sLocalName - локальное имя
+    //!         set local name
+    /*! \param  sLocalName - local name
         */
     void SetLocalName(const std::string& sLocalName) const;
 
-    //!         получить префикс
-    /*! \return префикс
+    //!         get prefix
+    /*! \return prefix
     */
     std::string GetPrefix() const;
     
-    //!         установить префикс
-    /*! \param  sPrefix - префикс
+    //!         set prefix
+    /*! \param  sPrefix - prefix
         */
     void SetPrefix(const std::string& sPrefix) const;
 
-    //!         получить URI пространства имен
-    /*! \return URI пространства имен
+    //!         get default namespace URI
+    /*! \return namespace URI
     */
     std::string GetNamespaceUri() const;
     
-    //!         установить URI пространства имен
-    /*! \param  sUri - URI пространства имен
+    //!         set namespace URI
+    /*! \param  sUri - set namespace URI
         */
     void SetNamespaceUri(const std::string& sUri) const;
 
     //////////////////////////////////////////////////////////////////////////
-    // управление узлом
+    // node management
 
-    //!         создать узел и установить обьект данных владельцем узла
+    //!         create unnamed node and set ownership flag
     void Create();
 
-    //!         создать узел и установить обьект данных владельцем узла
-    /*! \param  sLocalName - локальное имя узла
+    //!         create named node and set ownership flag
+    /*! \param  sLocalName - node name
         */
     void Create(const std::string& sLocalName);
 
-    //!         создать узел и установить обьект данных владельцем узла
-    /*! \param  rstQName - составное имя узла
+    //!         create node with QName and set ownership flag
+    /*! \param  rstQName - QName
         */
     void Create(const CQName& rstQName);
 
-    //!         создать узел и установить обьект данных владельцем узла
-    /*! \param  sLocalName - имя создаваемого узла
-        \param  sText - текст узла
+    //!         create named node, set ownership flag, set node value(string)
+    /*! \param  sLocalName - node name
+        \param  sText - node value(string)
     */
     void Create(const std::string& sLocalName, const std::string& sText);
 
-    //!         создать узел и установить обьект данных владельцем узла
-    /*! \param  sLocalName - имя создаваемого узла
-        \param  rValue - значение узла
+    //!         create named node, set ownership flag, set node value
+    /*! \param  sLocalName - node name
+        \param  rValue - node value
     */
     void Create(const std::string& sLocalName, const CValue& rValue);
 
-    //!         удалить текущий узел и всё поддерево
-    /*!         узел удаляется в независимости от флага владения */
+    //!         free node tree
+    /*!         forced node tree freeing, even if owner flag is not set */
     void Free();
 
-    //!         отсоединить текущий узел от существующего поддерева
-    /*! \return ссылка на текущий обьект
+    //!         detach current node from existing node tree
+    /*! \return reference to current node
     */
     CDataObject& DetachNode();
 
-    //!         replace current node to given    
+    //!         replace current node with given    
     CDataObject& ReplaceNode(CDataObject& rNewNode);
 
-    //!         создание копии дерева
-    /*! текущий объект становится владельцем копии
-        \param  rDataObject - исходный обьект
-        \return ссылка на текущий обьект
+    //!         create tree node copy from given
+    /*! sets ownership flag for newly created tree
+        \param  rDataObject - source DataObject
+        \return reference to current node
         */
     CDataObject& Clone(const CDataObject& rDataObject);
 
-    //!         создание копии дерева
-    /*! возвращаемый объект становится владельцем копии
-        \return объект копии
+    //!         create tree node copy from given
+    /*! sets ownership flag for newly created tree
+        \return cloned DataObject
         */
     CDataObject Clone() const;
 
     //////////////////////////////////////////////////////////////////////////
-    // управление подузлами
+    // child nodes management
     
-    //!         создать дочерний узел
+    //!         create unnamed child node
+    /*! \return created child
+        */
     CDataObject CreateChild();
 
-    //!         создать дочерний узел
-    /*! \param  rstQName - составное имя узла
+    //!         create child node with QName
+    /*! \param  rstQName - QName
+        \return created child
         */
     CDataObject CreateChild(const CQName& rstQName);
 
-    //!         создать дочерний узел
-    /*! \param  sLocalName - имя создаваемого узла
-    */
+    //!         create child node with local name
+    /*! \param  sLocalName - child's local name
+        \return created child
+        */
     CDataObject CreateChild(const std::string& sLocalName);
 
-    //!         создать дочерний узел
-    /*! \param  sLocalName - имя создаваемого узла
-        \param  rValue - значение узла
-    */
+    //!         create child node with local name and value
+    /*! \param  sLocalName - child's local name
+        \param  rValue - child's value
+        \return created child
+        */
     CDataObject CreateChild(const std::string& sLocalName, const CValue& rValue);
 
-    //!         получить дочерний узел с указанным локальным именем, создать, если такой узел не существует
-    /*! \param  sLocalName - локальное имя дочернего узла
-        \return дочерний узел
+    //!         create child with given local name if no child nodes with given name exists
+    /*! \param  sLocalName - child's local name
+        \return created or already existing child
         */
     CDataObject CreateChildOnce(const std::string& sLocalName);
 
-    //!         добавить дочернее поддерево
-    /*! сбрасывает флаг владельца у rDataObject
-        \param  rDataObject - дочернее поддерево
+    //!         add given tree as child node
+    /*! resets rDataObject's ownership flag
+        \param  rDataObject - tree node to add
+        \return appended child
         */
     CDataObject AppendChild(CDataObject& rDataObject);
     
-    //!         добавить дочернее поддерево
-    /*! \param  rDataObject - дочернее поддерево
+    //!         add given tree as child node
+    /*! resets rDataObject's ownership flag
+        \param  rDataObject - tree node to add
+        \return appended child
         */
     CDataObject AppendChild(const CDataObject& rDataObject);
     
-    //!         отсоединить дочернее поддерево
-    /*! \param  itChild - итератор на дочерний узел для отсоединения
+    //!         detach child tree
+    /*! \param  itChild - child iterator
+        \return detached child
         */
     CDataObject DetachChild(Iterator& itChild);
 
-    //!         отсоединить и удалить дочернее поддерево
-    /*! \param  itChild - итератор на дочерний узел
+    //!         detach and free child tree
+    /*! \param  itChild - child iterator
         */
     void RemoveChild(Iterator& itChild);
 
-    //!         отсоединить и удалить дочернее поддерево
-    /*! \param  sName - имя поддерева
+    //!         detach and free child tree
+    /*! \param  sName - child iterator
         */
     void RemoveChildByLocalName(const std::string& sName);
 
-    //!         удалить все дочерние узлы
+    //!         remove all child nodes
     void RemoveAllChildren();
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return итератор на дочерний узел
+    //!         find child node by QName
+    /*! \param  stQName - QName
+        \return iterator to found child node or End()
         */
     Iterator FindChildByQName(const CQName& stQName);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return итератор на дочерний узел
+    //!         find child node by QName
+    /*! \param  stQName - QName
+        \return iterator to found child node or End()
         */
     ConstIterator FindChildByQName(const CQName& stQName) const;
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на дочерний узел
+    //!         find child node by QName
+    /*! \param  stQName - QName
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
         */
     Iterator FindChildByQName(const CQName& stQName, const Iterator& itStart);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на дочерний узел
+    //!         find child node by QName
+    /*! \param  stQName - QName
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
         */
     ConstIterator FindChildByQName(const CQName& stQName, const ConstIterator& itStart) const;
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return итератор на дочерний узел
+    //!         find child node by local name
+    /*! \param  sLocalName - local name
+        \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const std::string& sLocalName);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return итератор на дочерний узел
+    //!         find child node by local name
+    /*! \param  sLocalName - local name
+        \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const std::string& sLocalName) const;
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на дочерний узел
+    //!         find child node by local name
+    /*! \param  sLocalName - local name
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const std::string& sLocalName, const Iterator& itStart);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на дочерний узел
+    //!         find child node by local name
+    /*! \param  sLocalName - local name
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const std::string& sLocalName, const ConstIterator& itStart) const;
 
-    //!         получить дочерний узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get child node by QName
+    /*! \param  stQName - QName
+        \return child node
         */
     CDataObject GetChildByQName(const CQName& stQName);
 
-    //!         получить дочерний узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get child node by QName
+    /*! \param  stQName - QName
+        \return child node
         */
     const CDataObject GetChildByQName(const CQName& stQName) const;
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get child node by local name
+    /*! \param  sLocalName - local name
+        \return child node
         */
     CDataObject GetChildByLocalName(const std::string& sLocalName);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get child node by local name
+    /*! \param  sLocalName - local name
+        \return child node
         */
     const CDataObject GetChildByLocalName(const std::string& sLocalName) const;
 
     //////////////////////////////////////////////////////////////////////////
-    // управление данными
+    // data manipulation
 
-    //!         получение/установка значения объекта
-    /*! пример: 
-        int nValue = tDataObject.Value(); // чтение
-        tDataObject.Value() = 2.3; // запись
+    //!         get/set node value
+    /*! example: 
+        int nValue = tDataObject.Value(); // reading
+        tDataObject.Value() = 2.3; // writing
 
-        \return значение объекта
+        \return node value
     */
     CValue Value();
 
-    //!         получение копии значения объекта
-    /*! \return копия значения объекта
+    //!         get node value(copy)
+    /*! \return node value(copy)
         */
     CValue GetValue() const;
 
-    //!         установка значения объекта
-    /*! \param  rValue - значение объекта
+    //!         set node value
+    /*! \param  rValue - node value
     */
     void SetValue(const CValue& rValue);
 
-    //!         получить текст объекта
-    /*! \return текст объекта
+    //!         get node value(string)
+    /*! \return node value(string)
     */
     std::string GetText() const;
     
-    //!         установить текст
-    /*! \param  sText - текст
+    //!         set node value(string)
+    /*! \param  sText - node value(string)
         */
     void SetText(const std::string& sText);
 
-    //!         получение/установка значения дочернего объекта
-    /*! пример: 
-        int nValue = tDataObject["Param1"]; // чтение
-        tDataObject["Param1"] = 2.3; // запись
+    //!         get/set child's node value
+    /*! example: 
+        int nValue = tDataObject["Param1"]; // reading
+        tDataObject["Param1"] = 2.3; // writing
 
-        \param  sName - имя дочернего узла
-        \return значение дочернего узла
+        \param  sName - child's local name
+        \return child's node value
     */
     CValue operator[](const std::string& sName);
 
-    //!         получение значения дочернего объекта
-    /*! пример: 
-        int nValue = tDataObject["Param1"]; // чтение
+    //!         get child's node value
+    /*! example: 
+        int nValue = tDataObject["Param1"]; // reading
     
-        \param  sName - имя дочернего узла
-        \return значение дочернего узла
+        \param  sName - child's local name
+        \return child's node value
     */
     const CValue operator[](const std::string& sName) const;
 
@@ -410,7 +422,7 @@ namespace staff
     CNamespace GetDefaultNamespace() const;
 
     //!         declare default namespace for element
-    /*! \param  rNamespace - namespace
+    /*! \param  sUri - default namespace
         */
     void DeclareDefaultNamespace(const std::string& sUri);
 
@@ -438,6 +450,7 @@ namespace staff
 
     //!         find a namespace in the scope of the document.
     /*! \param  sUri - namespace URI
+        \param  sPrefix - prefix
         \return found namespace.
         */
     CNamespace FindNamespace(const std::string& sUri, const std::string& sPrefix);
@@ -450,6 +463,7 @@ namespace staff
 
     //!         finds a namespace in current element's scope, by uri and prefix
     /*! \param  sUri - namespace URI
+        \param  sPrefix - prefix
         \return found namespace.
         */
     CNamespace FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix);
@@ -462,206 +476,206 @@ namespace staff
 
 
     //////////////////////////////////////////////////////////////////////////
-    // управление атрибутами
+    // attribute management
 
-    //!         добавить атрибут
-    /*! сбрасывает флаг владельца у rAttribute
-        \param  rAttribute - атрибут
+    //!         add attribute
+    /*! resets rAttribute's owner flag
+        \param  rAttribute - attribute
         */
     void AppendAttribute(CAttribute& rAttribute);
     
-    //!         отсоединить и удалить дочернее поддерево
-    /*! \param  itAttribute - итератор на дочерний узел
+    //!         remove attribute
+    /*! \param  itAttribute - attribute's iterator
         */
     void RemoveAttribute(AttributeIterator& itAttribute);
 
-    //!         удалить атрибуты
+    //!         remove all attributes
     void RemoveAllAttributes();
 
-    //!         поиск атрибута по составному имени
-    /*! \param  stQName - составное имя
-        \return итератор на атрибут
+    //!         find attribute by QName
+    /*! \param  stQName - QName
+        \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByQName(const CQName& stQName);
 
-    //!         поиск атрибута по составному имени
-    /*! \param  stQName - составное имя атрибута
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на атрибут
+    //!         find attribute by QName
+    /*! \param  stQName - QName
+        \param  itStart - iterator to attribute to start with
+        \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByQName(const CQName& stQName, const AttributeIterator& itStart);
 
-    //!         поиск дочернего узла по локальному имени
-    /*! \param  stQName - составное имя узла
-        \return итератор на дочерний узел
+    //!         find attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \param  itStart - позиция, с которой будет производиться поиск
-        \return итератор на дочерний узел
+    //!         find attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \param  itStart - iterator to attribute to start with
+        \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName, const AttributeIterator& itStart);
 
-    //!         получить дочерний узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get attribute by QName
+    /*! \param  stQName - attribute's QName
+        \return attribute
         */
     CAttribute GetAttributeByQName(const CQName& stQName);
 
-    //!         поиск дочернего узла по составному имени
-    /*! \param  stQName - составное имя узла
-        \return дочерний узел
+    //!         get attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
         */
     CAttribute GetAttributeByLocalName(const std::string& sLocalName);
 
 
     //////////////////////////////////////////////////////////////////////////
-    // итерация
+    // iteration
 
-    //!         получить итератор на первый элемент
-    /*! \return итератор на первый элемент
+    //!         get iterator to the first child node
+    /*! \return iterator to the first child node
     */
     Iterator Begin();
 
-    //!         получить итератор на первый элемент
-    /*! \return итератор на первый элемент
+    //!         get iterator to the first child node
+    /*! \return iterator to the first child node
     */
     ConstIterator Begin() const;
 
-    //!         получить итератор на следующий за последним элемент
-    /*! \return итератор на следующий за последним элемент
+    //!         get iterator to the next by last child node
+    /*! \return iterator to the next by last child node
     */
     Iterator End();
 
-    //!         получить итератор на следующий за последним элемент
-    /*! \return итератор на следующий за последним элемент
+    //!         get iterator to the next by last child node
+    /*! \return iterator to the next by last child node
     */
     ConstIterator End() const;
 
-    //!         получить итератор на первый атрибут
-    /*! \return итератор на первый атрибут
+    //!         get iterator to the first node's attribute
+    /*! \return iterator to the first node's attribute
     */
     AttributeIterator AttributeBegin();
 
-    //!         получить итератор на следующий за последним атрибут
-    /*! \return итератор на следующий за последним атрибут
+    //!         get iterator to the next by last node's attribute
+    /*! \return iterator to the next by last node's attribute
     */
     AttributeIterator AttributeEnd();
 
-    //!         get iterator to first namespace
-    /*! \return iterator to first namespace
+    //!         get iterator to the first node's namespace
+    /*! \return iterator to the first node's namespace
     */
     NamespaceIterator NamespaceBegin();
 
-    //!         get iterator to next by last namespace
-    /*! \return iterator to next by last namespace
+    //!         get iterator to the next by last node's namespace
+    /*! \return iterator to the next by last node's namespace
     */
     NamespaceIterator NamespaceEnd();
 
     //////////////////////////////////////////////////////////////////////////
-    // операторы поддержки
+    // support operators
 
-    //!         оператор передачи владения деревом
-    /*! для копирования дерева используйте Clone
-        \param  rDataObject - исходный обьект данных
-        \return текущий обьект данных
+    //!         transfer ownership operator
+    /*! for tree copying use Clone
+        \param  rDataObject - source DataObject
+        \return current DataObject
         \sa Clone
         */
     CDataObject& operator=(const CDataObject& rDataObject);
     
-    //!         указывают ли оба объекта данных на одно дерево
-    /*! \param  rDataObject - второй объект данных
-        \return true - оба объекта данных указывают на одно дерево
+    //!         tests two DataObjects to equality
+    /*! \param  rDataObject - other DataObject
+        \return true - if both DataObjects points to the same AxiOM node
         */
     bool operator==(const CDataObject& rDataObject) const;
     
-    //!         не указывают ли оба объекта данных на одно дерево
-    /*! \param  rDataObject - второй объект данных
-        \return true - оба объекта данных не указывают на одно дерево
+    //!         tests two DataObjects to inequality
+    /*! \param  rDataObject - other DataObject
+        \return true - if DataObjects points to the different AxiOM nodes
         */
     bool operator!=(const CDataObject& rDataObject) const;
 
-    //!         преобразовать текущее дерево в строку xml
-    /*! \return строка xml
+    //!         returns DataObject representation in XML
+    /*! \return DataObject representation in XML
     */
     std::string ToString() const;
 
-    //!         создать дерево из строки xml
-    /*! \param  sXml - строка xml
-        \return ссылка на текущий обьект данных
+    //!         create DataObject from an XML
+    /*! \param  sXml - XML-string
+        \return reference to current DataObject
         */
     CDataObject& FromString(const std::string& sXml);
 
-    //!         оператор разыменования
+    //!         member access operator
     /*! \return this
     */
     CDataObject* operator->();
 
-    //!         оператор разыменования
+    //!         member access operator
     /*! \return this
     */
     const CDataObject* operator->() const;
 
 #ifndef STAFF_NO_DEPRECATED
     //////////////////////////////////////////////////////////////////////////
-    // устаревшие функции
+    // deprecated functions
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa CreateChildOnce
         */
     STAFF_DEPRECATED(CreateChildOnce) CDataObject GetOrAdd(const std::string& sName);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa FindChildByLocalName
         */
     STAFF_DEPRECATED(FindChildByLocalName) Iterator Find(const std::string& sLocalName);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa FindChildByLocalName
         */
     STAFF_DEPRECATED(FindChildByLocalName) ConstIterator Find(const std::string& sLocalName) const;
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa GetChildByLocalName
         */
     STAFF_DEPRECATED(GetChildByLocalName) const CDataObject operator()(const std::string& sLocalName) const;
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa GetChildByLocalName
         */
     STAFF_DEPRECATED(GetChildByLocalName) CDataObject operator()(const std::string& sLocalName);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa SetNamespaceUri
         */
     STAFF_DEPRECATED(SetNamespaceUri) void SetNamespace(const std::string& sNamespace);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa GetLocalName*/
     STAFF_DEPRECATED(GetLocalName) const std::string Name() const;
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa SetLocalName */
     STAFF_DEPRECATED(SetLocalName)void SetName(const std::string& sName);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa CreateChild
         */
     STAFF_DEPRECATED(CreateChild) CDataObject Add(const std::string& sName);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa CreateChild
         */
     STAFF_DEPRECATED(CreateChild) CDataObject Add(const std::string& sName, const CValue& rValue);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa AppendChild
         */
     STAFF_DEPRECATED(AppendChild) CDataObject Add(CDataObject rDataObject);
 
-    //!         устаревшая функция 
+    //!         deprecated function
     /*! \sa GetValue
     */
     STAFF_DEPRECATED(GetValue) const CValue Value() const;
@@ -669,13 +683,19 @@ namespace staff
 #endif
 
   private:
+    //!         internal clone function
+    /*! \param  pNodeIn - source node
+        \param  pNodeOutParent - parent node
+        \return copied result
+        */
     axiom_node_t* Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent);
 
   private:
-    axiom_node_t* m_pAxiomNode;
-    axiom_element_t* m_pAxiomElement;
-    static axutil_env_t* m_pEnv;
-    bool m_bOwner;
+    axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node
+    axiom_element_t* m_pAxiomElement;   //!<  DataObject's AxiOM node element
+    static axutil_env_t* m_pEnv;        //!<  Axis2/C environment
+    bool m_bOwner;                      //!<  ownership flag
+    
     friend class Iterator;
     friend class ConstIterator;
     friend class NamespaceIterator;
@@ -684,85 +704,163 @@ namespace staff
     friend class ConstAttributeIterator;
   };
 
-  //! итератор узлов
+  //! DataObject child iterator
   class CDataObject::Iterator
   {
   public:
-    //!         конструктор
+    //!         constructor
     Iterator();
     
-    //!         инициализирующий конструктор 
-    /*! \param  pDataObject - объект данных итератора
-        \param  pAxiomNode - узел итератора
+    //!         initializing constructor
+    /*! \param  pDataObject - iterator's DataObject
+        \param  pAxiomNode - current AxiOM node
         */
     Iterator(CDataObject* pDataObject, axiom_node_t* pAxiomNode);
     
-    //!         копирующий конструктор
-    /*! \param  rIter - итератор
+    //!         copy constructor
+    /*! \param  rIter - other iterator
         */
     Iterator(const Iterator& rIter);
     
-    //!         деструктор
+    //!         destructor
     ~Iterator();
 
+    //!         copy operator
+    /*! \param  rIter - other iterator
+        \return current iterator
+        */
     Iterator& operator=(const Iterator& rIter);
     
+    //!         predecrement operator
+    /*! \return new value
+    */
     Iterator& operator--();
+
+    //!         preincrement operator
+    /*! \return new value
+    */
     Iterator& operator++();
+
+    //!         postdecrement operator
+    /*! \return new value
+    */
     Iterator operator--(int);
+
+    //!         postincrement operator
+    /*! \return new value
+    */
     Iterator operator++(int);
+    
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
+        */
     bool operator==(const Iterator& rIter) const;
+
+    //!         test target iterator for inequality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are different
+        */
     bool operator!=(const Iterator& rIter) const;
 
+    //!         object access operator
+    /*! \return DataObject
+    */
     CDataObject operator*();
+
+    //!         object access operator
+    /*! \return DataObject
+    */
     const CDataObject operator*() const;
 
+    //!         object members access operator
+    /*! \return DataObject
+    */
     CDataObject operator->();
+
+    //!         object members access operator
+    /*! \return DataObject
+    */
     const CDataObject operator->() const;
 
   private:
-    CDataObject* m_pDataObject;
-    axiom_node_t* m_pAxiomNode;
+    CDataObject* m_pDataObject; //!<  bound DataObject
+    axiom_node_t* m_pAxiomNode; //!<  current child node
     friend class CDataObject;
   };
 
-  //! константный итератор узлов
+  //! DataObject child const iterator
   class CDataObject::ConstIterator
   {
   public:
-    //!         конструктор
+    //!         constructor
     ConstIterator();
     
-    //!         инициализирующий конструктор 
-    /*! \param  pDataObject - объект данных итератора
-        \param  pAxiomNode - узел итератора
+    //!         initializing constructor
+    /*! \param  pDataObject - iterator's DataObject
+        \param  pAxiomNode - current AxiOM node
         */
     ConstIterator(const CDataObject* pDataObject, axiom_node_t* pAxiomNode);
     
-    //!         копирующий конструктор
-    /*! \param  rIter - итератор
+    //!         copy constructor
+    /*! \param  rIter - other iterator
         */
     ConstIterator(const ConstIterator& rIter);
     
-    //!         деструктор
+    //!         destructor
     ~ConstIterator();
 
+    //!         copy operator
+    /*! \param  rIter - other iterator
+        \return current iterator
+        */
     ConstIterator& operator=(const ConstIterator& rIter);
     
+    //!         predecrement operator
+    /*! \return new value
+    */
     ConstIterator& operator--();
+
+    //!         preincrement operator
+    /*! \return new value
+    */
     ConstIterator& operator++();
+
+    //!         postdecrement operator
+    /*! \return new value
+    */
     ConstIterator operator--(int);
+
+    //!         postincrement operator
+    /*! \return new value
+    */
     ConstIterator operator++(int);
+
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
+        */
     bool operator==(const ConstIterator& rIter) const;
+    
+    //!         test target iterator for inequality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are different
+        */
     bool operator!=(const ConstIterator& rIter) const;
 
+    //!         object access operator
+    /*! \return DataObject
+    */
     const CDataObject operator*() const;
 
+    //!         object members access operator
+    /*! \return DataObject
+    */
     const CDataObject operator->() const;
 
   private:
-    const CDataObject* m_pDataObject;
-    axiom_node_t* m_pAxiomNode;
+    const CDataObject* m_pDataObject; //!<  bound DataObject
+    axiom_node_t* m_pAxiomNode;       //!<  current child node
     friend class CDataObject;
   };
 
@@ -774,8 +872,8 @@ namespace staff
     NamespaceIterator();
 
     //!         initializing constructor
-    /*! \param  pDataObject - dataobject
-        \param  pNamespaceHash - list of namespaces
+    /*! \param  pDataObject - DataObject
+        \param  pNamespaceIndex - AxiOM namespace index
         */
     NamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
 
@@ -793,45 +891,45 @@ namespace staff
         */
     NamespaceIterator& operator=(const NamespaceIterator& rIter);
 
-    //!         pre-increment
+    //!         preincrement
     /*! \return ref to current iterator
         */
     NamespaceIterator& operator++();
 
-    //!         post-increment
+    //!         postincrement
     /*! \return copy of old iterator
         */
     NamespaceIterator operator++(int);
 
-    //!         equality check operator
-    /*! \param  rIter - iterator
-        \return true, if iterators equals
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
         */
     bool operator==(const NamespaceIterator& rIter) const;
 
-    //!         non-equality check operator
+    //!         test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
-        \return true, if iterators is not equals
+        \return true if the iterators are different
         */
     bool operator!=(const NamespaceIterator& rIter) const;
 
-    //!         get current namespace operator
+    //!         namespace access operator
     /*! \return namespace
     */
     CNamespace operator*();
 
-    //!         get current namespace operator
+    //!         namespace members access operator
     /*! \return namespace
     */
     CNamespace operator->();
 
   private:
-    CDataObject* m_pDataObject;
-    axutil_hash_index_t* m_pNamespaceIndex;
+    CDataObject* m_pDataObject;             //!<  bound DataObject
+    axutil_hash_index_t* m_pNamespaceIndex; //!<  namespace index
     friend class CDataObject;
   };
 
-  //! Namespace iterator
+  //! Namespace const iterator
   class CDataObject::ConstNamespaceIterator
   {
   public:
@@ -840,7 +938,7 @@ namespace staff
 
     //!         initializing constructor
     /*! \param  pDataObject - dataobject
-        \param  pNamespaceHash - list of namespaces
+        \param  pNamespaceIndex - AxiOM namespace index
         */
     ConstNamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
 
@@ -858,186 +956,186 @@ namespace staff
         */
     ConstNamespaceIterator& operator=(const ConstNamespaceIterator& rIter);
 
-    //!         pre-increment
+    //!         preincrement
     /*! \return ref to current iterator
         */
     ConstNamespaceIterator& operator++();
 
-    //!         post-increment
+    //!         postincrement
     /*! \return copy of old iterator
         */
     ConstNamespaceIterator operator++(int);
 
-    //!         equality check operator
-    /*! \param  rIter - iterator
-        \return true, if iterators equals
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
         */
     bool operator==(const ConstNamespaceIterator& rIter) const;
 
-    //!         non-equality check operator
+    //!         test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
-        \return true, if iterators is not equals
+        \return true if the iterators are different
         */
     bool operator!=(const ConstNamespaceIterator& rIter) const;
 
-    //!         get current namespace operator
+    //!         namespace access operator
     /*! \return namespace
     */
     const CNamespace operator*() const;
 
-    //!         get current namespace operator
+    //!         namespace members access operator
     /*! \return namespace
     */
     const CNamespace operator->() const;
 
   private:
-    const CDataObject* m_pDataObject;
-    axutil_hash_index_t* m_pNamespaceIndex;
+    const CDataObject* m_pDataObject;       //!<  bound DataObject
+    axutil_hash_index_t* m_pNamespaceIndex; //!<  namespace index
     friend class CDataObject;
   };
 
 
-  //! итератор атрибутов
+  //! attributes iterator
   class CDataObject::AttributeIterator
   {
   public:
-    //!         конструктор
+    //!         constructor
     AttributeIterator();
 
-    //!         инициализирующий конструктор 
-    /*! \param  pDataObject - объект данных итератора
-        \param  pAttributeHash - список атрибутов
+    //!         initializing constructor
+    /*! \param  pDataObject - DataObject
+        \param  pAttributeIndex - AxiOM attribute index
         */
     AttributeIterator(CDataObject* pDataObject, axutil_hash_index_t* pAttributeIndex);
 
-    //!         копирующий конструктор
-    /*! \param  rIter - итератор
+    //!         copy constructor
+    /*! \param  rIter - iterator
     */
     AttributeIterator(const AttributeIterator& rIter);
 
-    //!         деструктор
+    //!         destructor
     ~AttributeIterator();
 
-    //!         оператор копирования
-    /*! \param  rIter - исходный итератор
-        \return ссылка на текущий итератор
+    //!         copy operator
+    /*! \param  rIter - source iterator
+        \return ref to current iterator
         */
     AttributeIterator& operator=(const AttributeIterator& rIter);
 
-    //!         оператор преинкремента
-    /*! \return ссылка на текущий итератор
+    //!         preincrement
+    /*! \return ref to current iterator
         */
     AttributeIterator& operator++();
 
-    //!         оператор постинкремента
-    /*! \return новый итератор
-        */
+    //!         postincrement
+    /*! \return copy of old iterator
+    */
     AttributeIterator operator++(int);
 
-    //!         оператор проверки на эквивалентность
-    /*! \param  rIter - итератор
-        \return ссылка на текущий итератор
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
         */
     bool operator==(const AttributeIterator& rIter) const;
 
-    //!         оператор проверки на неэквивалентность
-    /*! \param  rIter - итератор
-        \return ссылка на текущий итератор
+    //!         test target iterator for inequality with specified iterator
+    /*! \param  rIter - iterator
+        \return true if the iterators are different
         */
     bool operator!=(const AttributeIterator& rIter) const;
 
-    //!         оператор разыменовывания
-    /*! \return атрибут
+    //!         attribute access operator
+    /*! \return attribute
     */
     CAttribute operator*();
 
-    //!         оператор разыменовывания
-    /*! \return атрибут
+    //!         attribute members access operator
+    /*! \return attribute
     */
     CAttribute operator->();
 
   private:
-    CDataObject* m_pDataObject;
-    axutil_hash_index_t* m_pAttributeIndex;
+    CDataObject* m_pDataObject;             //!<  bound DataObject
+    axutil_hash_index_t* m_pAttributeIndex; //!<  attribute index
     friend class CDataObject;
   };
 
-  //! константный итератор атрибутов
+  //! attributes const iterator
   class CDataObject::ConstAttributeIterator
   {
   public:
-    //!         конструктор
+    //!         constructor
     ConstAttributeIterator();
 
-    //!         инициализирующий конструктор 
-    /*! \param  pDataObject - объект данных итератора
-        \param  pAttributeHash - список атрибутов
+    //!         initializing constructor
+    /*! \param  pDataObject - DataObject
+        \param  pAttributeIndex - AxiOM attribute index
         */
     ConstAttributeIterator(const CDataObject* pDataObject, axutil_hash_index_t* pAttributeIndex);
 
-    //!         копирующий конструктор
-    /*! \param  rIter - итератор
+    //!         copy constructor
+    /*! \param  rIter - iterator
     */
     ConstAttributeIterator(const ConstAttributeIterator& rIter);
 
-    //!         деструктор
+    //!         destructor
     ~ConstAttributeIterator();
 
-    //!         оператор копирования
-    /*! \param  rIter - исходный итератор
-        \return ссылка на текущий итератор
+    //!         copy operator
+    /*! \param  rIter - source iterator
+        \return ref to current iterator
         */
     ConstAttributeIterator& operator=(const ConstAttributeIterator& rIter);
 
-    //!         оператор преинкремента
-    /*! \return ссылка на текущий итератор
-        */
+    //!         preincrement
+    /*! \return ref to current iterator
+    */
     ConstAttributeIterator& operator++();
 
-    //!         оператор постинкремента
-    /*! \return новый итератор
-        */
+    //!         postincrement
+    /*! \return copy of old iterator
+    */
     ConstAttributeIterator operator++(int);
 
-    //!         оператор проверки на эквивалентность
-    /*! \param  rIter - итератор
-        \return ссылка на текущий итератор
+    //!         test target iterator for equality with specified iterator
+    /*! \param  rIter - other iterator
+        \return true if the iterators are the same
         */
     bool operator==(const ConstAttributeIterator& rIter) const;
 
-    //!         оператор проверки на неэквивалентность
-    /*! \param  rIter - итератор
-        \return ссылка на текущий итератор
+    //!         test target iterator for inequality with specified iterator
+    /*! \param  rIter - iterator
+        \return true if the iterators are different
         */
     bool operator!=(const ConstAttributeIterator& rIter) const;
 
-    //!         оператор разыменовывания
-    /*! \return атрибут
+    //!         attribute access operator
+    /*! \return attribute
     */
     const CAttribute operator*() const;
 
-    //!         оператор разыменовывания
-    /*! \return атрибут
+    //!         attribute members access operator
+    /*! \return attribute
     */
     const CAttribute operator->() const;
 
   private:
-    const CDataObject* m_pDataObject;
-    axutil_hash_index_t* m_pAttributeIndex;
+    const CDataObject* m_pDataObject;       //!<  bound DataObject
+    axutil_hash_index_t* m_pAttributeIndex; //!<  attribute index
     friend class CDataObject;
   };
 
-  //!         сериализатор значения в объект данных
-  /*! \param  rDataObject - объект данных
-      \param  rValue - значение
-      \return объект данных
+  //!         put value to DataObject's value
+  /*! \param  rDataObject - DataObject
+      \param  rValue - value
+      \return DataObject
       */
   STAFF_COMMON_EXPORT CDataObject& operator<<(CDataObject& rDataObject, const CValue& rValue);
 
-  //!         десериализатор значения в объект данных
-  /*! \param  rDataObject - объект данных
-      \param  rValue - значение
-      \return объект данных
+  //!         get value from DataObject
+  /*! \param  rDataObject - DataObject
+      \param  rValue - value
+      \return DataObject
       */
   STAFF_COMMON_EXPORT const CDataObject& operator>>(const CDataObject& rDataObject, CValue& rValue);
 }

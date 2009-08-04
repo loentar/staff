@@ -101,40 +101,39 @@ rise::LogEntry();
     {
       try
       {
-        rise::LogDebug() << "Сигнал: " << nSignal;
+        rise::LogDebug() << "Signal: " << nSignal;
         if(nSignal == SIGINT)
         {
-          if(m_pSelf->GetId() == CThread::GetCurrentId()) // поток диспетчера
+          if(m_pSelf->GetId() == CThread::GetCurrentId()) // dispatcher's thread
           {
-            rise::LogDebug1() << "поток диспетчера: Останов";
+            rise::LogDebug1() << "dispatcher\'s thread: stop";
             m_pSelf->Stop();
           }
-          else // поток axis2c
+          else // axis2c thread
           {
 #ifndef OS_MCBC
             pthread_kill(m_pSelf->GetId(), SIGINT);
 #endif
-            rise::LogDebug() << "Ожидание завершения диспетчера";
+            rise::LogDebug() << "waiting for dispatcher stops";
             for(int i = 0; i < 200 && m_pSelf->IsWorking(); ++i)
               Sleep(10);
               
             if(m_pSelf->IsWorking())
             {
-              rise::LogError() << "Поток диспетчера всё еще запущен: уничтожение!!!";
+              rise::LogError() << "dispatcher is still running, terminating!!!";
               m_pSelf->Cancel();
             } else
             {
-              rise::LogDebug() << "Диспетчер завершил работу";
+              rise::LogDebug() << "dispatcher stopped";
             }
 
-            rise::LogDebug() << "Отправка сигнала Axis2/C";
+            rise::LogDebug() << "Sending signal to Axis2/C";
 
-            // восстанавливаем обработчик сигнала и посылаем сигнал axis2c
-            // явный вызов разрушает стек
+            // restore signal mapping
             signal(SIGINT, m_pSigHandler);
             if(kill(0, SIGINT) != 0)
             {
-              rise::LogError() << "Ошибка отправки сигнала Axis2/c";
+              rise::LogError() << "Can\'t send signal to Axis2/c";
             }
           }
         }
@@ -149,7 +148,6 @@ rise::LogEntry();
 
     bool WaitService( const rise::CString& sServiceName, const rise::CString& sSessionId, PRemoteService& rpService )
     {
-      // ожидание готовности сервиса
       for(int nRetry = 0; nRetry < 20; ++nRetry)
       {
         rise::threading::CThread::Sleep(500);
@@ -192,11 +190,11 @@ rise::LogEntry();
         SPendingService stService(sServiceName, sServiceID);
         std::pair<TPendingServiceSet::iterator, bool> tpInsPendingService = m_tsPendingServiceSet.insert(stService);
         if (!tpInsPendingService.second)
-        {  // если не была вставка, значит сервис уже в очереди, ожидаем его
+        {  // service already in queue
           if (WaitService(sServiceName, sServiceID, rpRemoteService))
             return;
         } else
-        { // сервиса еще нет в очереди
+        { // service is not found in queue
           rise::LogDebug2() << ">>> Service [" << sServiceName << "] with SSessionId=[" << sServiceID << "] is not found, trying to create...";
           itLastFind->second->CreateServiceID(sServiceID);
 
@@ -295,19 +293,19 @@ rise::LogEntry();
         {
           CService* pExistingService = m_pComponent->GetService(sServiceName);
 
-          // локального сервиса с таким именем нет?
+          // find local service with same name
           if (pExistingService == NULL || pExistingService->GetImpl(sServiceID) == NULL && 
             m_mRemoteServiceMap.find(sServiceNameID) == m_mRemoteServiceMap.end())
           {
             CRemoteServiceWrapper* pRemoteServiceWrapper = reinterpret_cast<CRemoteServiceWrapper*>(pExistingService);
 
-            if (pRemoteServiceWrapper == NULL) // нет еще сервисов в этой группе
+            if (pRemoteServiceWrapper == NULL) // no remote service found
             {
-              pRemoteServiceWrapper = new CRemoteServiceWrapper(m_pComponent); // создаем новый менеджер удаленыых сервисв группы
-              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
-              m_pComponent->AddService(pRemoteServiceWrapper); // добавляем сервис в компонент
+              pRemoteServiceWrapper = new CRemoteServiceWrapper(m_pComponent);
+              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService;
+              m_pComponent->AddService(pRemoteServiceWrapper);
             } else
-              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService; // добавляем сервим в менеджер группы
+              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService;
 
             rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sServiceID << ")\" connected...";
             m_mRemoteServiceMap[sServiceNameID] = pNewService;
@@ -347,7 +345,7 @@ rise::LogEntry();
 
       CService* pExistingService = m_pComponent->GetService(sServiceName);
 
-      // сервис не локальный
+      // service is remote
       if (pExistingService != NULL && pExistingService->GetImpl(sServiceID) == NULL)
       {
         TRemoteServiceMap& rmServices = dynamic_cast<CRemoteServiceWrapper*>(pExistingService)->GetServices();
@@ -381,7 +379,7 @@ rise::LogEntry();
 
       int nRes = select(hSockMax + 1, &stRead, NULL, NULL, NULL);
       
-      if (nRes > 0) // если есть среагировавшие сокеты 
+      if (nRes > 0) // some sockets are signalled
       {
         if (FD_ISSET(m_tServerSocket.GetHandle(), &stRead))
         {
@@ -489,17 +487,17 @@ rise::LogEntry();
       CSharedContext& rSharedContext = CSharedContext::Inst();
       rise::CStringList lsComponentDirs;
       
-      // поиск каталогов с компонентами
+      // find directories with components
       rise::CFileFind::Find(sComponentsDir, lsComponentDirs, "*", rise::CFileFind::EFA_DIR);
       if(lsComponentDirs.size() == 0)
       {
-        rise::LogDebug() << "не найдено ни одного компонента";
+        rise::LogDebug() << "components is not found";
       }
 
       for (rise::CStringList::const_iterator itDir = lsComponentDirs.begin(); 
                 itDir != lsComponentDirs.end(); ++itDir )
       {
-        // поиск библиотек с компонентами
+        // finding libraries with components
         rise::CStringList lsComponents;
         rise::CString sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
 #ifdef __linux__
@@ -513,7 +511,7 @@ rise::LogEntry();
         {
           try
           {
-            // загрузка компонента
+            // loading component
             rise::LogDebug() << "Loading component: " << (sComponentDir + *itComponent);
             CComponent* pComponent = m_lsComponents.LoadPlugin(sComponentDir + *itComponent, true);
             rSharedContext.AddComponent(pComponent);
@@ -614,7 +612,7 @@ rise::LogEntry();
 rise::LogEntry();
     if(m_pRemoteImpl != NULL && m_pRemoteImpl->IsWorking())
     {
-      rise::LogError() << "удаленный диспетчер всё еще запущен!!";
+      rise::LogError() << "Remote dispatcher is still runnung!!";
     }
 
     if(m_pLocalImpl != NULL)

@@ -29,81 +29,70 @@
 
 namespace rise 
 {
-  //!        абстрактный базовый класс исключений
+  //!        abstract class for exceptions
   class RISE_EXPORT CException
   {
   public:
-    //!        деструктор
+    //!        destructor
     virtual ~CException() throw() {}
   
-    //!        создание исключения
-    /*
-       \param  szFile - имя файла исходника
-       \param  nLine - номер строки в файле исходника 
-       \param  szFunction - имя функции в которой произошло исключение
-       \param  eCode - код исключения
-       \param  szDescr - описание исключения
-       \param  szObject - объект исключения
+    //!        creating an exception
+    /*! \param  sFile - source file name
+        \param  nLine - source file line
+        \param  sFunction - function name
+        \param  sDescr - description
+        \param  sExpr - expression
+        \param  sObject - object
     */
-    virtual void Create(const CString& /*szFile*/, int /*nLine*/, const CString& /*szFunction*/, 
-      const CString& /*szDescr*/ = "", const CString& /*szExpr*/ = "", 
-      const CString& /*szObject*/ = "") throw() = 0;
+    virtual void Create(const CString& sFile, int nLine, const CString& sFunction, 
+      const CString& sDescr = "", const CString& sExpr = "", 
+      const CString& sObject = "") throw() = 0;
   
-    //!        получение файла в котором произошло исключение
-    /*
-       \return имя файла-исходника в котором произошло исключение
+    //!        get file name
+    /*! \return source file name
     */
     virtual const CString& GetFileName() const throw() = 0;
 
-    //!        получение строки в файле в котором произошло исключение
-    /*
-       \return строка в файле в котором произошло исключение
+    //!        get source file line
+    /*! \return source file line
     */
     virtual int GetLine() const throw() = 0;
 
-    //!        получение имени функции в которой произошло исключение
-    /*
-       \return имя функции в которой произошло исключение
+    //!        get function
+    /*! \return function
     */
     virtual const CString& GetFunction() const throw() = 0;
 
-    //!        получение описания исключения
-    /*
-       \return описание исключения
+    //!        get description
+    /*! \return description
     */
     virtual const CString& GetDescr() const throw() = 0;
 
-    //!        получение выражения 
-    /*
-       \return выражение в результате которого возникло исключение
+    //!        get assert expression
+    /*! \return assert expression
     */
     virtual const CString& GetExpr() const throw() = 0;
 
-    //!        получение обьекта исключения
-    /*
-       \return обьекта исключения
+    //!        get object
+    /*! \return object
     */
     virtual const CString& GetObjectName() const throw() = 0;
     
-    //!        получение класса исключения
-    /*
-       \return код исключения
+    //!        get exception class
+    /*! \return exception class
     */
     virtual EXCLASS GetClass() const throw() = 0;
   
-    //!        получение кода исключения
-    /*
-       \return код исключения
+    //!        get exception code
+    /*! \return exception code
     */
     virtual EXCODE GetCode() const throw() = 0;
 
-    //!        получение полного описания исключения
-    /*
-       \sa SetFormat
-       \param  sFormat - строка для форматирования
-       \return описания исключения
+    //!        get full description of exception
+    /*! \param  sFormat - output exception format
+        \return exception description
     */
-    virtual CString GetString(const CString& /*szFormat*/ = "") const throw() = 0;
+    virtual CString GetString(const CString& sFormat = "") const throw() = 0;
 
   };  // class CException ///////////////////////////////////////////
 

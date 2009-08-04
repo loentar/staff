@@ -24,74 +24,80 @@
 
 #include <exception>
 
+//! throw exception 1 arg
 #define RISE_THROW1(RISE_EXCEPTION)\
   {RISE_EXCEPTION cException; \
     cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, #RISE_EXCEPTION); \
     throw cException;}
 
+//! throw exception 2 arg
 #define RISE_THROW2(RISE_EXCEPTION, RISE_DESCRIPTION)\
   {RISE_EXCEPTION cException; \
     cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, RISE_DESCRIPTION); \
     throw cException;}
 
+//! throw exception 3 arg
 #define RISE_THROW3(RISE_EXCEPTION, RISE_DESCRIPTION, RISE_EXPRESSION)\
   {RISE_EXCEPTION cException; \
     cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, RISE_DESCRIPTION, RISE_EXPRESSION); \
     throw cException;}
 
-//! генерация исключения
+//! throw exception
 #define RISE_THROW(RISE_EXCEPTION) \
   RISE_THROW1(RISE_EXCEPTION)
 
-//! генерация исключения со строкой описания
+//! throw exception with description
 #define RISE_THROWS(RISE_EXCEPTION, RISE_DESCRIPTION) \
   RISE_THROW2(RISE_EXCEPTION, RISE_DESCRIPTION)
 
-//! генерация исключения с выражением
+//! throw exception with expression
 #define RISE_THROWE(RISE_EXCEPTION, RISE_EXPRESSION) \
   RISE_THROW3(RISE_EXCEPTION, #RISE_EXCEPTION, #RISE_EXPRESSION)
 
-//! генерация исключения с выражением и строкой описания
+//! throw exception with description and expression
 #define RISE_THROWES(RISE_EXCEPTION, RISE_DESCRIPTION, RISE_EXPRESSION) \
   RISE_THROW3(RISE_EXCEPTION, RISE_DESCRIPTION, #RISE_EXPRESSION)
 
 //////////////////////////////////////////////////////////////////////////
 //!  ASSERT
 
-//! проверка утверждения, генерация исключения CAssertException, если утверждение ложно
+//! check for expression, throw CAssertException, if expression false
 #define RISE_ASSERT(RISE_EXPRESSION) \
   RISE_ASSERTE(RISE_EXPRESSION, rise::CInternalAssertException)
 
+//! check for expression, throw CAssertException with description, if expression false
 #define RISE_ASSERTS(RISE_EXPRESSION, RISE_DESCRIPTION) \
   RISE_ASSERTES(RISE_EXPRESSION, rise::CInternalAssertException, RISE_DESCRIPTION)
 
-//! проверка утверждения, генерация исключения CLogicParamException, если утверждение ложно
+//! check for expression, throw CLogicParamException, if expression false
 #define RISE_ASSERTP(RISE_EXPRESSION) \
   RISE_ASSERTE(RISE_EXPRESSION, rise::CLogicParamException)
 
+//! check for expression, throw CLogicParamException with description, if expression false
 #define RISE_ASSERTPS(RISE_EXPRESSION, RISE_DESCRIPTION) \
   RISE_ASSERTES(RISE_EXPRESSION, rise::CLogicParamException, RISE_DESCRIPTION)
 
-//! проверка утверждения, генерация исключения CNotImplementedException, если утверждение ложно
+//! check for expression, throw CNotImplementedException, if expression false
 #define RISE_ASSERTN(RISE_EXPRESSION) \
   RISE_ASSERTE(RISE_EXPRESSION, rise::CInternalNotImplementedException)
 
+//! check for expression, throw CNotImplementedException with description, if expression false
 #define RISE_ASSERTNS(RISE_EXPRESSION, RISE_DESCRIPTION) \
   RISE_ASSERTE(RISE_EXPRESSION, rise::CInternalNotImplementedException, RISE_DESCRIPTION)
 
 
-//! проверка утверждения. генерация заданного исключения если утверждение ложно
+//! check for expression, throw given exception, if expression false
 #define RISE_ASSERTE(RISE_EXPRESSION, RISE_EXCEPTION) \
   if (!(RISE_EXPRESSION)) \
     RISE_THROWE(RISE_EXCEPTION, RISE_EXPRESSION);
 
-//! проверка утверждения. генерация заданного исключения со строкой описания если утверждение ложно
+//! check for expression, throw given exception with description, if expression false
 #define RISE_ASSERTES(RISE_EXPRESSION, RISE_EXCEPTION, RISE_DESCRIPTION) \
  if (!(RISE_EXPRESSION)) RISE_THROWES(RISE_EXCEPTION, RISE_DESCRIPTION, RISE_EXPRESSION);
 
-//    СБОР ИСКЛЮЧЕНИЙ
+//    exception catching
 
-//! перехват исключений с описанием и действием в случае исключения
+//! catch all exception, make description and some action
 #define RISE_CATCH_ALL_DESCR_ACTION(RISE_DESCRIPTION, RISE_ACTION) \
   catch (const rise::CException& rException) \
   {\
@@ -115,11 +121,11 @@
   }
  
 
-//! перехват исключений без описания
+//! catch all exceptions
 #define RISE_CATCH_ALL \
   RISE_CATCH_ALL_DESCR_ACTION("",)
 
-//! перехват исключений с описанием
+//! catch all exceptions and give description
 #define RISE_CATCH_ALL_DESCR(RISE_DESCRIPTION) \
   RISE_CATCH_ALL_DESCR_ACTION(RISE_DESCRIPTION,)
 

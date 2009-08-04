@@ -27,7 +27,6 @@
 
 namespace rise
 {
-
   template<class TDATA> struct CManip1;
   template<class TDATA> struct CManip2;
   template<class TDATA> struct CManip4;
@@ -36,68 +35,113 @@ namespace rise
   template<class TDATA> COStream& operator<<(COStream& rStream, const CManip2<TDATA>& cManipValue);
   template<class TDATA> COStream& operator<<(COStream& rStream, const CManip4<TDATA>& cManipValue);
 
-  RISE_EXPORT COStream& ColorDefault(COStream& rStream);            //! все атрибуты по умолчанию 
+  //! use default color
+  RISE_EXPORT COStream& ColorDefault(COStream& rStream);
 
-  RISE_EXPORT COStream& ColorBright(COStream& rStream);             //! яркий цвет
-  RISE_EXPORT COStream& ColorDim(COStream& rStream);                //! полуяркий цвет
-  RISE_EXPORT COStream& ColorBrightDefault(COStream& rStream);      //! яркость по умолчанию
-  RISE_EXPORT COStream& ColorFlashOn(COStream& rStream);            //! включить мигание
-  RISE_EXPORT COStream& ColorFlashOff(COStream& rStream);           //! отключить мигание
-  RISE_EXPORT COStream& ColorInverseOn(COStream& rStream);          //! включить инверсию
-  RISE_EXPORT COStream& ColorInverseOff(COStream& rStream);         //! отключить инверсию
-  RISE_EXPORT COStream& ColorUnderlineOn(COStream& rStream);        //! включить подчеркивание
-  RISE_EXPORT COStream& ColorUnderlineOff(COStream& rStream);       //! отключить подчеркивание
+  //! bright color
+  RISE_EXPORT COStream& ColorBright(COStream& rStream);
+  //! dim color
+  RISE_EXPORT COStream& ColorDim(COStream& rStream);
+  //! default bright
+  RISE_EXPORT COStream& ColorBrightDefault(COStream& rStream);
+  //! enable flashing
+  RISE_EXPORT COStream& ColorFlashOn(COStream& rStream);
+  //! disable flashing
+  RISE_EXPORT COStream& ColorFlashOff(COStream& rStream);
+  //! enable inversion
+  RISE_EXPORT COStream& ColorInverseOn(COStream& rStream);
+  //! disable inversion
+  RISE_EXPORT COStream& ColorInverseOff(COStream& rStream);
+  //! enable underlining
+  RISE_EXPORT COStream& ColorUnderlineOn(COStream& rStream);
+  //! disable underlining
+  RISE_EXPORT COStream& ColorUnderlineOff(COStream& rStream);
   
-  //! Цвет знаков 
-  RISE_EXPORT COStream& ColorInkBlack(COStream& rStream);           //! чёрный
-  RISE_EXPORT COStream& ColorInkRed(COStream& rStream);             //! красный
-  RISE_EXPORT COStream& ColorInkGreen(COStream& rStream);           //! зелёный
-  RISE_EXPORT COStream& ColorInkBrown(COStream& rStream);           //! коричневый
-  RISE_EXPORT COStream& ColorInkBlue(COStream& rStream);            //! синий
-  RISE_EXPORT COStream& ColorInkMagenta(COStream& rStream);         //! фиолетовый
-  RISE_EXPORT COStream& ColorInkCyan(COStream& rStream);            //! циановый 
-  RISE_EXPORT COStream& ColorInkGrey(COStream& rStream);            //! серый
+  // text color
+  //! black text
+  RISE_EXPORT COStream& ColorInkBlack(COStream& rStream);
+  //! red text
+  RISE_EXPORT COStream& ColorInkRed(COStream& rStream);
+  //! green text
+  RISE_EXPORT COStream& ColorInkGreen(COStream& rStream);
+  //! brown text
+  RISE_EXPORT COStream& ColorInkBrown(COStream& rStream);
+  //! blue text
+  RISE_EXPORT COStream& ColorInkBlue(COStream& rStream);
+  //! magenta text
+  RISE_EXPORT COStream& ColorInkMagenta(COStream& rStream);
+  //! cyan text
+  RISE_EXPORT COStream& ColorInkCyan(COStream& rStream);
+  //! gray text
+  RISE_EXPORT COStream& ColorInkGrey(COStream& rStream);
   
-  //! Цвет фона
-  RISE_EXPORT COStream& ColorPaperBlack(COStream& rStream);         //! чёрный
-  RISE_EXPORT COStream& ColorPaperRed(COStream& rStream);           //! красный
-  RISE_EXPORT COStream& ColorPaperGreen(COStream& rStream);         //! зелёный 
-  RISE_EXPORT COStream& ColorPaperBrown(COStream& rStream);         //! коричневый
-  RISE_EXPORT COStream& ColorPaperBlue(COStream& rStream);          //! синий
-  RISE_EXPORT COStream& ColorPaperMagenta(COStream& rStream);       //! фиолетовый
-  RISE_EXPORT COStream& ColorPaperCyan(COStream& rStream);          //! циановый
-  RISE_EXPORT COStream& ColorPaperGrey(COStream& rStream);          //! серый
+  // background color
+  //! black background
+  RISE_EXPORT COStream& ColorPaperBlack(COStream& rStream);
+  //! red background
+  RISE_EXPORT COStream& ColorPaperRed(COStream& rStream);
+  //! green background
+  RISE_EXPORT COStream& ColorPaperGreen(COStream& rStream);
+  //! brown background
+  RISE_EXPORT COStream& ColorPaperBrown(COStream& rStream);
+  //! blue background
+  RISE_EXPORT COStream& ColorPaperBlue(COStream& rStream);
+  //! magenta background
+  RISE_EXPORT COStream& ColorPaperMagenta(COStream& rStream);
+  //! cyan background
+  RISE_EXPORT COStream& ColorPaperCyan(COStream& rStream);
+  //! gray background
+  RISE_EXPORT COStream& ColorPaperGrey(COStream& rStream);
 
-  //! управление позицией курсора
-  RISE_EXPORT CManip1<short> CursorUp(short nValue);                //! передвинуть курсор вверх на n строк 
-  RISE_EXPORT CManip1<short> CursorDown(short nValue);              //! передвинуть курсор вниз на n строк 
-  RISE_EXPORT CManip1<short> CursorRight(short nValue);             //! передвинуть курсор вправо на n столбцов 
-  RISE_EXPORT CManip1<short> CursorLeft(short nValue);              //! передвинуть курсор влево на n столбцов 
-  RISE_EXPORT CManip1<short> CursorDownNl(short nValue);            //! передвинуть курсор вниз на n строк и поставить в начало строки 
-  RISE_EXPORT CManip1<short> CursorUpNl(short nValue);              //! передвинуть курсор вверх на n строк и поставить в начало строки 
-  RISE_EXPORT CManip1<short> CursorTab(short nValue);               //! переместить курсор в n-й столбец текущей строки 
-  RISE_EXPORT CManip2<short> CursorGoto(short nX, short nY);        //! задает абсолютные координаты курсора (строка, столбец) 
+  // cursor position management manipulators
+  //! move cursor up to n lines
+  RISE_EXPORT CManip1<short> CursorUp(short nValue);
+  //! move cursor down to n lines
+  RISE_EXPORT CManip1<short> CursorDown(short nValue);
+  //! move cursor right to n columns
+  RISE_EXPORT CManip1<short> CursorRight(short nValue);
+  //! move cursor left to n columns
+  RISE_EXPORT CManip1<short> CursorLeft(short nValue);
+  //! move cursor down to n lines, and move to line begin
+  RISE_EXPORT CManip1<short> CursorDownNl(short nValue);
+  //! move cursor up to n lines, and move to line begin
+  RISE_EXPORT CManip1<short> CursorUpNl(short nValue);
+  //! move cursor to n'th column of current line
+  RISE_EXPORT CManip1<short> CursorTab(short nValue);
+  //! set absolute cursor position
+  RISE_EXPORT CManip2<short> CursorGoto(short nX, short nY);
 
-  //! работа с палитрой
-  /*  изменение палитры. 
-     \param nPaletteIndex - номер цвета;
-     \param nR nG nB - значения RGB-компонент
+  //! change palette manipulator
+  /*! \param nPaletteIndex - color index
+	    \param nR - red
+	    \param nG - green
+      \param nB - blue
   */
   RISE_EXPORT CManip4<short> PaletteSet(short nPaletteIndex, short nR, short nG, short nB);
   
-  // сброс палитры
-  RISE_EXPORT COStream& PaletteReset(COStream& rStream);       //! восстановление палитры, принятую по умолчанию 
+  //! reset palette manipulator
+  RISE_EXPORT COStream& PaletteReset(COStream& rStream);
   
-  // Работа с виртуальными консолями 
-  RISE_EXPORT CManip1<short> ConsoleSwitchTo(short nValue);    //! сделать текущей консоль с указанным номером 
+  //! switch to virtual console manipulator
+  RISE_EXPORT CManip1<short> ConsoleSwitchTo(short nValue);
   
-  // работа с xterm 
-  RISE_EXPORT CManip1<const CString&> ConsoleSetWindowTextAndIcon(const CString& sText);   //! установка заголовка окна и иконки
-  RISE_EXPORT CManip1<const CString&> ConsoleSetIcon(const CString& sText);                //! установка иконки
-  RISE_EXPORT CManip1<const CString&> ConsoleSetWindowText(const CString& sText);          //! установка заголовка окна 
+  //! set console window caption and icon
+  /*! \param sText - window caption and icon name
+  */
+  RISE_EXPORT CManip1<const CString&> ConsoleSetWindowTextAndIcon(const CString& sText);
 
-}  //! namespace rise
+  //! set console window icon
+  /*! \param sText - window icon name
+  */
+  RISE_EXPORT CManip1<const CString&> ConsoleSetIcon(const CString& sText);
+  
+  //! set console window caption
+  /*! \param sText - window caption
+  */
+RISE_EXPORT CManip1<const CString&> ConsoleSetWindowText(const CString& sText);
+
+}  // namespace rise
 
 #include "console.hpp"
 
-#endif //! #ifndef _CONSOLE_H_
+#endif // #ifndef _CONSOLE_H_

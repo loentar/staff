@@ -35,25 +35,23 @@ namespace rise
 
 namespace staff
 {
-  //! singleton - класс конфигурации
+  //! Config class
   class STAFF_COMMON_EXPORT CConfig
   {
   public:
-    //!         получить ссылку на конфигурацию
-    /*! \return ссылка на конфигурацию
+    //!         get config instance
+    /*! \return config instance
     */
     static CConfig& Inst();
 
-    //!         получить конфигурацию для модуля
-    /*! \param  sModuleName - имя модуля
-        \return конфигурация
+    //!         get module config
+    /*! \param  sModuleName - module name
+        \return config
         */
     rise::xml::CXMLNode& GetModuleConfig(const rise::CString& sModuleName);
 
   protected:
-    //! защищенный конструктор(запрет прямого создания)
     CConfig();
-
     ~CConfig();
 
   private:

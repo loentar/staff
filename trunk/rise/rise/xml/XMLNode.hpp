@@ -26,15 +26,6 @@ namespace rise
 {
   namespace xml
   {
-
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       FindAttribute
-    //    DESCRIPTION:    поиск артибутов по предикату
-    //    PARAMETRS:      pFindFunction - унарный предикат поиска
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename UNARY_PREDICATE>
     CXMLNode::TXMLAttrConstIterator CXMLNode::FindAttributeIf(UNARY_PREDICATE pFindFunction) const
     {
@@ -51,15 +42,6 @@ namespace rise
       return itAttr;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       FindNode
-    //    DESCRIPTION:    поиск подузлов по предикату
-    //    PARAMETRS:      pFindFunction - унарный предикат поиска
-    //                    itNode - итератор на узел, начиная с которого будет производиться поиск
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename UNARY_PREDICATE>
     CXMLNode::TXMLNodeConstIterator CXMLNode::FindNodeIf(UNARY_PREDICATE pFindFunction) const
     {
@@ -86,28 +68,12 @@ namespace rise
       return itNode;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       SortAttrs
-    //    DESCRIPTION:    сортировка атрибутов по заданному условию
-    //    PARAMETRS:      pCompareFunction - бинарный предикат сортировки
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename BINARY_PREDICATE>
     void CXMLNode::SortAttrs(BINARY_PREDICATE pCompareFunction)
     {
       m_tAttr.sort(pCompareFunction);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       SortNodes
-    //    DESCRIPTION:    сортировка подузлов по заданному условию
-    //    PARAMETRS:      pCompareFunction - бинарный предикат сортировки
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename BINARY_PREDICATE>
     void CXMLNode::SortNodes(BINARY_PREDICATE pCompareFunction)
     {

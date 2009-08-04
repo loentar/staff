@@ -26,20 +26,18 @@
 
 namespace rise
 {
-  //! класс изменяемого указателя
-  /*! в основном предназначен для применения в контейнерах для обеспечения 
-      неконстантного доступа к хранимым обьектам константного контейнера*/
+  //! mutable pointer class
   template<typename Type>
   class CMutablePtr
   {
   public:
-    //!         конструктор по умолчанию
+    //!         constructor
     CMutablePtr():
       m_pnCounter(NULL), m_pData(NULL) 
     {}
       
-    //!         конструктор распределения владением
-    /*! \param  rPtr - ссылка на другой обьект класса
+    //!         constructor with counting refs
+    /*! \param  rPtr - reference to source object
         */
     CMutablePtr(const CMutablePtr& rPtr):
       m_pnCounter(NULL), m_pData(NULL) 
@@ -47,8 +45,8 @@ namespace rise
       operator=(rPtr);
     }
 
-    //!         инициализирующий конструктор
-    /*! \param  pData - обьект
+    //!         initializing constructor
+    /*! \param  pData - object
         */
     CMutablePtr(Type* pData):
       m_pnCounter(NULL), m_pData(NULL) 
@@ -56,15 +54,15 @@ namespace rise
       operator=(pData);
     }
 
-    //!         деструктор
+    //!         destructor
     ~CMutablePtr()
     {
       Release();
     }
       
-    //!         оператор распределения владением
-    /*! \param  rPtr - ссылка на другой обьект класса 
-        \return ссылка на текущий обьект
+    //!         operator with counting refs
+    /*! \param  rPtr - ref to source object
+        \return ref to current object
         */
     CMutablePtr& operator=(const CMutablePtr& rPtr)
     {
@@ -73,9 +71,9 @@ namespace rise
       return *this;
     }
     
-    //!         оператор инициализации владения
-    /*! \param  pData - обьект
-        \return ссылка на текущий обьект
+    //!         initialization
+    /*! \param  pData - pointer to object
+        \return reference to current object
         */
     CMutablePtr& operator=(Type* pData)
     {
@@ -84,34 +82,34 @@ namespace rise
       return *this;
     }
 
-    //!         оператор проверки на эквивалентность
-    /*! \param  rPtr - ссылка на другой обьект класса 
-        \return true - изменяемые указатели эквивалентны
+    //!         tests a target pointer for equality with a specified pointer
+    /*! \param  rPtr - reference to another object
+        \return true - pointers are equals
         */
     bool operator==(const CMutablePtr& rPtr) const
     {
       return rPtr.m_pData == m_pData && rPtr.m_pnCounter == m_pnCounter;
     }
     
-    //!         оператор проверки на эквивалентность
-    /*! \param  rPtr - ссылка на другой обьект класса 
-        \return true - изменяемые указатели эквивалентны
+    //!         tests a target pointer for inequality with a specified pointer
+    /*! \param  rPtr - reference to another object
+        \return true - pointers are not equals
         */
     bool operator!=(const CMutablePtr& rPtr) const
     {
       return !operator==(rPtr);
     }
     
-    //!         получить указатель на хранимый обьект
-    /*! \return указатель на хранимый обьект
+    //!         get pointer to storing object
+    /*! \return pointer to storing object
     */
     Type* Get() const
     {
       return m_pData;
     }
     
-    //!         оператор получения ссылки на хранимый обьект
-    /*! \return ссылка 
+    //!         get reference to storing object
+    /*! \return reference to storing object
     */
     Type& operator*() const
     {
@@ -120,26 +118,26 @@ namespace rise
       return *m_pData;
     }
     
-    //!         оператор разыменования
-    /*! \return указатель на обьект
+    //!         operator->
+    /*! \return pointer to storing object
     */
     Type* operator->() const
     {
       return m_pData;
     }
     
-    //!         оператор приведения к хранимому обьекту
-    /*! \return указатель на хранимый объект
+    //!         cast operator
+    /*! \return pointer to storing object
     */
     operator Type*() const
     {
       return m_pData;
     }
     
-    //!         установка хранимого объекта
-    /*! \param  pData - указатель на хранимый обьект
-        \param  pnCounter - счетчик ссылок на обьект
-        \return указатель на хранимый объект
+    //!         set storing object
+    /*! \param  pData - pointer to object
+        \param  pnCounter - object references counter
+        \return pointer to object
         */
     Type* Set(Type* pData, int* pnCounter = NULL)
     {
@@ -159,8 +157,9 @@ namespace rise
       return m_pData;
     }
     
-    //!         освободить хранимый объект
-    /*! метод уменьшает внутрений счетчик ссылок на обьект. обьект будет удален когда счетчик будет = 0 */
+    //!         free storing object
+    /*! decrease internal counter to object. 
+       object will be deleted when ref count = 0 */
     void Release()
     {
       if(m_pnCounter != NULL)
@@ -177,8 +176,8 @@ namespace rise
     }
     
   private:
-    int* m_pnCounter; //!<  счетчик ссылок на объект
-    mutable Type* m_pData; //!<  объект
+    int* m_pnCounter;      //!<  reference counter
+    mutable Type* m_pData; //!<  pointer to object
   };
 }
 

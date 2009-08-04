@@ -30,201 +30,182 @@ namespace rise
 {
   namespace xml
   {
-    //!        xml-значение
+    //!        xml value
     class RISE_EXPORT CXMLValue
     {
     public:
-      //!        конструктор
+      //!        constructor
       CXMLValue();
       
-      //!        конструктор
+      //!         constructor
+      /*! \param  rValue - value
+          */
       CXMLValue(const CXMLValue& rValue);
 
-      //!        конструктор
+      //!         constructor
+      /*! \param  rValue - value
+      */
       template<typename TTYPE>
       CXMLValue(const TTYPE rValue);
 
-      //!        конструктор
+      //!         constructor
+      /*! \param  rValue - value
+      */
       CXMLValue(const CString& rValue);
 
 
-      //!        оператор копирования
-      /*
-         \param  исходный объект
-         \return ссылка на текущий объект
+      //!         copy operator
+      /*! \param  rValue - source value
+          \return *this
       */
       CXMLValue& operator=(const CXMLValue& rValue);
 
-      //!        оператор копирования
-      /*
-         \param  исходный объект
-         \return ссылка на текущий объект
+      //!         copy operator
+      /*! \param  rValue - source value
+          \return *this
       */
       template<typename TTYPE>
       CXMLValue& operator=(TTYPE rValue);
 
-      //!        оператор копирования
-      /*
-         \param  исходный объект
-         \return ссылка на текущий объект
+      //!         copy operator
+      /*! \param  rValue - source value
+          \return *this
       */
       CXMLValue& operator=(const CString& rValue);
 
-      //!        оператор копирования
-      /*
-         \param  исходный объект
-         \return ссылка на текущий объект
+      //!         copy operator
+      /*! \param  rValue - source value
+          \return *this
       */
       CXMLValue& operator=(const TChar* rValue);
 
-      //!        оператор проверки на равенство
-      /*
-         \param  RETURN:         true - значения равны
+      //!         check values for equality
+      /*! \param  rValue - other value
+          \return true, if values are equal
       */
       template<typename TTYPE>
       bool operator==(const TTYPE rValue) const;
 
-      //!        оператор проверки на равенство
-      /*
-         \param  RETURN:         true - значения равны
+      //!         check values for equality
+      /*! \param  rXMLValue - other value
+          \return true, if values are equal
       */
       bool operator==(const CXMLValue& rXMLValue) const;
 
-      //!        оператор проверки на равенство
-      /*
-         \param  RETURN:         true - значения равны
+      //!         check values for equality
+      /*! \param  rValue - other value
+          \return true, if values are equal
       */
-      bool operator==(const TChar* szValue) const;
+      bool operator==(const TChar* rValue) const;
 
-      //!        оператор проверки на равенство
-      /*
-         \param  RETURN:         true - значения равны
+      //!         check values for equality
+      /*! \param  rValue - other value
+          \return true, if values are equal
       */
       bool operator==(const CString& rValue) const;
 
-      //!        оператор проверки на неравенство
-      /*
-         \param  значение
-         \return true - значения не равны
+      //!         check values for inequality
+      /*! \param  rValue - other value
+          \return true, if values are inequal
       */
       template<typename TTYPE>
       bool operator!=(const TTYPE rValue) const;
 
-      //!        оператор проверки на неравенство
-      /*
-         \param  значение
-         \return true - значения не равны
+      //!         check values for inequality
+      /*! \param  rXMLValue - other value
+          \return true, if values are inequal
       */
       bool operator!=(const CXMLValue& rXMLValue) const;
 
-      //!        оператор проверки на неравенство
-      /*
-         \param  значение
-         \return true - значения не равны
+      //!         check values for inequality
+      /*! \param  rValue - other value
+          \return true, if values are inequal
       */
       bool operator!=(const TChar* rValue) const;
 
-      //!        оператор проверки на неравенство
-      /*
-         \param  значение
-         \return true - значения не равны
+      //!         check values for inequality
+      /*! \param  rValue - other value
+          \return true, if values are inequal
       */
       bool operator!=(const CString& rValue) const;
 
-      //!        оператор приведения к заданнуму типу
-      /*
-         \return результат в заданном типе
+      //!         type cast operator
+      /*! \return casted result
       */
       template<typename TTYPE>
       operator const TTYPE() const;
 
-      //!        оператор приведения к заданнуму типу
-      /*
-         \return результат в заданном типе
+      //!         type cast operator
+      /*! \return casted result
       */
       template<typename TTYPE>
       operator TTYPE();
 
-      //!        оператор приведения к строке
-      /*
-         \return строка
+      //!         type cast operator
+      /*! \return casted result
       */
       operator const CString&() const;
 
-      //!        оператор приведения к строке
-      /*
-         \return строка
+      //!         type cast operator
+      /*! \return casted result
       */
       operator CString&();
 
-      //!        приведение к строке
-      /*
-         \return строка
+      //!         cast to string
+      /*! \return string value
       */
       const CString& AsString() const;
 
-      //!        приведение к строке
-      /*
-         \return строка
+      //!         cast to string
+      /*! \return string value
       */
       CString& AsString();
 
-      //!        приведение к целому
-      /*
-         \return целое
+      //!         cast to int
+      /*! \return int value
       */
       int AsInt() const;
 
-      //!        приведение к числу с плавающей точкой
-      /*
-         \return целое
+      //!         cast to float
+      /*! \return float value
       */
       float AsFloat() const;
 
-      //!        приведение к числу с плавающей точкой
-      /*
-         \return целое
+      //!         cast to double
+      /*! \return double value
       */
       double AsDouble() const;
 
     private:
-      CString m_sValue; // значение
+      CString m_sValue; //!< value
 
     };
 
-    //!        оператор сериализации
-    /*
-        CLogicFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLValue - ссылка на зачение
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLValue - reference to value
+        \return  serializing stream
     */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLValue& rXMLValue);
 
-    //!        оператор десериализации
-    /*
-        CLogicFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLValue - ссылка на зачение
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLValue - reference to value
+        \return  deserializing stream
     */
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, CXMLValue& rXMLValue);
 
-    //!        оператор сериализации
-    /*
-        CLogicFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLValue - ссылка на зачение
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLValue - reference to value
+        \return  serializing stream
     */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLValue& rXMLValue);
 
-    //!        оператор десериализации
-    /*
-        CLogicFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLValue - ссылка на зачение
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLValue - reference to value
+        \return  deserializing stream
     */
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLValue& rXMLValue);
 

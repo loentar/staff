@@ -129,12 +129,6 @@ namespace rise
       {  '>',  "&gt;"   }
     };
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLIStream
-    //    DESCRIPTION:    default constructor
-    //    PARAMETRS:      none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLIStream::CXMLIStream(CIStream& rStream, const CString& sFileName, int& nLine/* = 0*/):
       m_nLineInternal(0), m_nLine(nLine), m_sFileName(sFileName), m_tIStream(rStream)
     {
@@ -155,10 +149,6 @@ namespace rise
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     ~CXMLIStream
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLIStream::~CXMLIStream()
     {
     }
@@ -169,14 +159,6 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadChar
-    //    DESCRIPTION:    считать следующий символ из входного потока
-    //    PARAMETRS:      none
-    //    RETURN:         true - символ успешно прочитан
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CXMLIStream::ReadChar(TChar& rChar)
     {
       m_tIStream.get(rChar);
@@ -189,14 +171,6 @@ namespace rise
       return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadChar
-    //    DESCRIPTION:    считать следующий символ из входного потока
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     CXMLReadException - ошибка чтения (EOF)
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     TChar CXMLIStream::ReadChar()
     {
       TChar chData;
@@ -204,28 +178,12 @@ namespace rise
       return chData;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       PeekChar
-    //    DESCRIPTION:    получить следующий символ из входного потока не удаляя
-    //    PARAMETRS:      none
-    //    RETURN:         true - символ успешно прочитан
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CXMLIStream::PeekChar( TChar& rChar )
     {
       rChar = static_cast<TChar>(m_tIStream.peek());
       return m_tIStream.good();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       PeekChar
-    //    DESCRIPTION:    получить следующий символ из входного потока не удаляя
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     CXMLReadException - ошибка чтения (EOF)
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     TChar CXMLIStream::PeekChar()
     {
       TChar chData = '\0';
@@ -233,14 +191,6 @@ namespace rise
       return chData;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadMetaChar
-    //    DESCRIPTION:    чтение метасимвола из потока
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     CXMLFormatException - неверный метасимвол
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     TChar CXMLIStream::ReadMetaChar()
     {
       TChar chTmp = '\0';
@@ -271,14 +221,6 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       SkipWhitespace
-    //    DESCRIPTION:    пропустить пробельные символы
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLIStream::SkipWhitespace()
     {
       TChar chWhitespace = '\0';
@@ -287,15 +229,6 @@ namespace rise
         ReadChar();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadString
-    //    DESCRIPTION:    чтение из потока строки до одного из символьных разделителей
-    //    PARAMETRS:      sData - результат
-    //                    sDelimiters - разделители
-    //    RETURN:         номер разделителя по которому было прервано чтение
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     int CXMLIStream::ReadString( CString& sData, const CString& sDelimiters /*= " \t\n\r"*/ )
     {
       sData = "";
@@ -318,15 +251,6 @@ namespace rise
       return static_cast<int>(nPos);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadString
-    //    DESCRIPTION:    чтение из потока строки до маркера
-    //    PARAMETRS:      sData - результат
-    //                    sMarker - маркер 
-    //    RETURN:         номер разделителя по которому было прервано чтение
-    //    EXCEPTIONS:     none
-    //    COMMENT:        если маркер ="" читать до конца файла
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLIStream::ReadStringUntil( CString& sString, const CString& sMarker /*= ""*/ )
     {
       sString = "";
@@ -342,14 +266,6 @@ namespace rise
       }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadId(...)
-    //    DESCRIPTION:    чтение идентификатора
-    //    PARAMETRS:      (out) sId - идентификатор
-    //    RETURN:         none
-    //    EXCEPTIONS:     
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLIStream::ReadId( CString& sId )
     {
       bool bisNameSpace = false;
@@ -358,7 +274,7 @@ namespace rise
       TChar ch = PeekChar();
       sId = "";
 
-      if ( ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' ) // проверка 1-го символа
+      if ( ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' )
       {
         sId += ch;
         for(;;)
@@ -400,16 +316,6 @@ namespace rise
       RISE_ASSERT(m_tIStream.good());
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Test(...)
-    //    DESCRIPTION:    сравнение строки со значением во входном потоке
-    //    PARAMETRS:      (in) sValue - строка для теста
-    //                    (out) bResult - результат теста
-    //    RETURN:         true, если входной поток совпадает со строкой
-    //    EXCEPTIONS:     
-    //    COMMENT:        при положительном результате совпадающие данные будут 
-    //                    удалены из потока
-    //////////////////////////////////////////////////////////////////////////////
     bool CXMLIStream::Test( const CString& sValue )
     {
       TChar chTmp = '\0';
@@ -440,15 +346,6 @@ namespace rise
       return m_nLine;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AddContent
-    //    DESCRIPTION:    Добавление текста в контент
-    //    PARAMETRS:      (in) rStream - поток
-    //                    (out) sContent - контетн
-    //    RETURN:         
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLIStream::AddContent( CString& sContent )
     {
       CString sTmp;
@@ -462,12 +359,6 @@ namespace rise
 
     //////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLOStream
-    //    DESCRIPTION:    default constructor
-    //    PARAMETRS:      none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLOStream::CXMLOStream( COStream& rOStream, const CString& sFileName):
       m_tOStream(rOStream), m_sFileName(sFileName)
     {
@@ -483,22 +374,10 @@ namespace rise
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     CXMLOStream
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLOStream::~CXMLOStream()
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       WriteString
-    //    DESCRIPTION:    записывает в поток строку с поддержкой метасимволов
-    //    PARAMETRS:      sString - строка для записи
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLOStream::WriteString( const CString& sString )
     {
       CString sTmp;
@@ -516,34 +395,16 @@ namespace rise
       return m_tOStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLFileIStream
-    //    DESCRIPTION:    default constructor
-    //    PARAMETRS:      none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLFileIStream::CXMLFileIStream():
       CXMLIStream(m_tIFStream, m_sFileName, m_nLine), m_nLine(0)
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     ~CXMLFileIStream
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLFileIStream::~CXMLFileIStream()
     {
       Close();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Open
-    //    DESCRIPTION:    открыть файл потока для чтения
-    //    PARAMETRS:      sFileName - имя файла
-    //    RETURN:         none
-    //    EXCEPTIONS:     CXMLOpenException - ошибка открытия файла
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLFileIStream::Open( const CString& sFileName )
     {
       Close();
@@ -554,26 +415,12 @@ namespace rise
       m_nLine = 0;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Close
-    //    DESCRIPTION:    закрыть поток чтения
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLFileIStream::Close()
     {
       if (m_tIFStream.is_open())
         m_tIFStream.close();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLFileOStream
-    //    DESCRIPTION:    default constructor
-    //    PARAMETRS:      none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLFileOStream::CXMLFileOStream():
       CXMLOStream(m_tOFStream, m_sFileName)
     {
@@ -585,10 +432,6 @@ namespace rise
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CLASS:          CXMLOStream
-    //    DESCRIPTION:    none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLFileOStream::Open( const CString& sFileName )
     {
       Close();

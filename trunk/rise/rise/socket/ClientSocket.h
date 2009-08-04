@@ -29,31 +29,27 @@ namespace rise
 {
   namespace sockets
   {
-    //!           клиентский сокет
+    //!           client socket
     class RISE_EXPORT CClientSocket: public CRecvSocket  
     {
     public:
-      //! конструктор
+      //!         constructor
       CClientSocket();
       
-      //! деструктор
+      //!         destructor
       virtual ~CClientSocket();
       
-      //!         соединение с удаленным сокетом
-      /*! 
-          CLogicParamException - при инициализации и при вызове этой функции не был указан корректный порт
-          \param  ulAddr - IP-адрес сокета
-          \param  ushPort - порт
-          \return true - соединение прошло успешно
+      //!         connect with remote server socket
+      /*! \param  ulAddr - server socket address
+          \param  ushPort - port
+          \return true - connection established
           */
       bool Connect(ulong ulAddr, ushort ushPort = 0);
 
-      //!         соединение с удаленным сокетом
-      /*! 
-          CLogicParamException - при инициализации и при вызове этой функции не был указан корректный порт
-          \param  szAddr - IP-адрес сокета в формате "0.0.0.0"
-          \param  ushPort - порт
-          \return true - соединение прошло успешно
+      //!         connect with remote server socket
+      /*! \param  szAddr - IP-address with format "0.0.0.0"
+          \param  ushPort - port
+          \return true - connection established
           */
       bool Connect(const CString& szAddr, ushort ushPort = 0);
     };

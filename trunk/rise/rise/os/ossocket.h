@@ -78,68 +78,63 @@
 namespace rise
 {
 #ifdef WIN32
-  //! длинна типа данных сокета
+  //! socklen_t for win32
   typedef int socklen_t;
 
-  //! тип: сокет
+  //! using global socker
   using ::SOCKET;
 #else
-  //! тип: сокет
+  //! type: socket
   typedef int SOCKET;
 #define INVALID_SOCKET  (rise::SOCKET)(~0)
 #define SOCKET_ERROR                  (-1)
 #endif
 
-  //!        создание сокета
-  /*
-     \param  af - спецификация адреса
-     \param  type - тип сокета (SOCK_STREAM или SOCK_DGRAM)
-     \param  protocol - протокол
-     \return none
+  //!        create socket
+  /*! \param  af - address format
+      \param  type - socket type (SOCK_STREAM or SOCK_DGRAM)
+      \param  protocol - protocol
+      \return socket handle
   */
   SOCKET osCreateSocket(int af, int type, int protocol);
 
-  //!        закрытие сокета
-  /*
-     \param  s - идентификатор сокета
-     \return true, если закрытие произошло успешно
+  //!        close socket
+  /*! \param  s - socket 
+      \return true, if socket was successfully closed
   */
   bool osCloseSocket(SOCKET s);
 
-  //!        управление режимом ввода/вывода
-  /*
-     \param  s - дескриптор сокета
-     \param  cmd - команда
-     \param  argp - указатель на параметр команды
-     \return true, если команда выполнена успешно
+  //!        set io mode
+  /*! \param  s - socket handle
+      \param  cmd - command
+      \param  argp - command param
+      \return true, if io mode was set
   */
   bool osIOCtlSocket(SOCKET s, long cmd, unsigned long *argp); 
 
-  //!        ожидание данных для чтения из сокета
-  /*
-     \param  sock - дескриптор сокета
-     \param  nSeconds - время ожидания в секундах
-     \param  nUSeconds - время ожидания в микросекундах
-     \return true, если есть данные для чтения
+  //!         wait for data
+  /*! \param  sock - socket handle
+      \param  nSeconds - seconds
+      \param  nUSeconds - microseconds
+      \return true, some data is available for reading
   */
   int osSocketWaitForRecv(SOCKET sock, unsigned long nSeconds, unsigned long nUSeconds);
 
-  //!        ожидание данных неопределенное время
-  /*
-     \param  sock - дескриптор сокета
-     \return true, если есть данные для чтения
+  //!         wait for data undefined time
+  /*! \param  sock - socket handle
+      \return true, some data is available for reading
   */
   int osSocketWaitForRecvInfinite(SOCKET sock);
 
-  //!        получение кода последней ошибки работы с сокетом
+  //!        get last socket error
   /*
-     \return код последней ошибки работы с сокетом
+     \return last socket error
   */
   int osGetLastSocketError();
 
-  //!        получение кода последней ошибки работы с сокетом
+  //!        get last socket error description
   /*
-     \return код последней ошибки работы с сокетом
+     \return last socket error description
   */
   CString osGetLastSocketErrorStr();
 

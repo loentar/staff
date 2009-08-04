@@ -26,47 +26,47 @@
 
 namespace rise 
 {
-  //! однобайтный символ
+  //! ansi char
   typedef char TCharA;    
-  //! двубайтный символ
+  //! wide char
   typedef wchar_t TCharW; 
 
-  //! символ в текущей кодировке
+  //! char
   typedef TCharA TChar;  
 
-  //! константная однобайтная С-строка
+  //! const ansi C-string
   typedef const char* pcstring;
-  //! однобайтная С-строка
+  //! ansi C-string
   typedef char* pstring;
-  //! константная двубайтная С-строка
+  //! const wide C-string
   typedef const wchar_t* pcwstring;
-  //! двубайтная С-строка
+  //! wide C-string
   typedef wchar_t* pwstring;
-  //! С-строка в текущей кодировке
+  //! const С-string
   typedef const TChar* pctstring;
-  //! С-строка в текущей кодировке
+  //! С-string
   typedef TChar* ptstring;
 
-  //! байт
+  //! byte
   typedef unsigned char byte;
-  //! слово
+  //! word
   typedef unsigned short word;
-  //! двубайтовое беззнаковое целое
+  //! ushort
   typedef unsigned short ushort;
-  //! двойное слово
+  //! dword
   typedef unsigned long dword;
-  //! беззнаковое длинное целое
+  //! ulong
   typedef unsigned long ulong;
-  //! беззнаковае целое
+  //! uint
   typedef unsigned int uint;
 
-  //! размер
+  //! size type
   typedef ulong TSize;
-  //! тип буфера
+  //! buffer type
   typedef byte TBuffer;
-  //! указатель на буфер
+  //! pointer to buffer
   typedef TBuffer* PBuffer;
-  //! константный указатель на буфер
+  //! const pointer to buffer
   typedef const TBuffer* PCBuffer;
 }
 

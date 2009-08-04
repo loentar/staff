@@ -29,23 +29,26 @@ namespace staff
   class COperation;
   class CServiceWrapper;
   
-  //!  часть sdk для сервиса staff. принимает запросы от диспетчера staff и передает их сервису staff
+  //!  Service dispatcher client
+  /*! part of dynamic service */
   class STAFF_SERVICE_EXPORT CServiceDispatcherClient
   {
   public:
-    //!         получить ссылку на реализацию
+    //!         get instance
+    /*! \return instance
+    */
     static CServiceDispatcherClient& ServiceDispatcherClient();
 
-    //!         запустить клиент
-    /*! \param  bSingleThread - не запускать отдельный поток для клиента, обрабатывать запросы в текущем потоке
+    //!         connect to service dispatcher and start service
+    /*! \param  bSingleThread - do no start new thread
         */
     void Start(bool bSingleThread = true);
 
-    //!         остановить клиент
+    //!         disconnect from service dispatcher and stop service
     void Stop();
 
-    //!         установить обертку
-    /*! \param  rServiceWrapper - обертка сервиса
+    //!         set service wrapper
+    /*! \param  rServiceWrapper - service wrapper
         */
     void SetWrapper(CServiceWrapper& rServiceWrapper);
 

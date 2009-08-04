@@ -24,45 +24,45 @@
 
 namespace rise
 {
-  enum EXCLASS  //! классы исключений
+  enum EXCLASS  //! exception classes
   {
-    EXCFILE,     //!< файловые исключения
-    EXCLOGIC,    //!< логические исключения
-    EXCINTERNAL, //!< внутренние исключения
-    EXCXML,      //!< XML исключения
-    EXCLAST
+    EXCFILE,     //!< file exceptions
+    EXCLOGIC,    //!< logic exceptions
+    EXCINTERNAL, //!< internal exceptions
+    EXCXML,      //!< XML exceptions
+    EXCLAST      //!< last class
   };
 
-  enum EXCODE  //! коды исключений
+  enum EXCODE  //! exception codes
   {
-    EXCGENERIC,        //!< стандартное
+    EXCGENERIC,        //!< generic
 
-    // файловые исключения
-    EXCREATE,          //!< создание
-    EXDELETE,          //!< удаление
-    EXOPEN,            //!< открытие
-    EXCLOSE,           //!< закрытие
-    EXREAD,            //!< чтение
-    EXWRITE,           //!< запись
-    EXIO,              //!< установка режима ввода/вывода
+    // file exceptions
+    EXCREATE,          //!< creating
+    EXDELETE,          //!< deleting
+    EXOPEN,            //!< opening
+    EXCLOSE,           //!< closing
+    EXREAD,            //!< reading
+    EXWRITE,           //!< writing
+    EXIO,              //!< io mode setting
 
-    // логические исключения
-    EXNOINIT = 32,     //!< не произведена инициализация
-    EXALREADYEXISTS,   //!< попытка повторной инициализации/создания
-    EXCONTINUE,        //!< продолжить операцию
-    EXSIZE,            //!< неверный размер
-    EXNOITEM,          //!< заданный элемент не найден
-    EXTIMEOUT,         //!< истекло время ожидания
-    EXNOPERMISSION,    //!< нет прав
-    EXFORMAT,          //!< неверный формат
-    EXPARAM,           //!< неверный параметр
+    // logic exceptions
+    EXNOINIT = 32,     //!< not initialized
+    EXALREADYEXISTS,   //!< already initialized
+    EXCONTINUE,        //!< it's need to continue
+    EXSIZE,            //!< invalid size
+    EXNOITEM,          //!< item not found
+    EXTIMEOUT,         //!< timeout
+    EXNOPERMISSION,    //!< permission
+    EXFORMAT,          //!< invalid format
+    EXPARAM,           //!< invalid parameter
 
-    // внутренние исключения
-    EXINTERNAL = 64,   //!< внутренняя ошибка
-    EXNOMEM,           //!< ошибка при выделении памяти
-    EXASSERT,          //!< проверка утверждения
-    EXNOTIMPLEMENTED,  //!< не реализовано
-    EXTEMPDECISION     //!< временное решение
+    // internal exceptions
+    EXINTERNAL = 64,   //!< internal error
+    EXNOMEM,           //!< memory allocation failed
+    EXASSERT,          //!< assert failed
+    EXNOTIMPLEMENTED,  //!< not implemented
+    EXTEMPDECISION     //!< temporary decision was reached
   };
 
 } // namespace rise

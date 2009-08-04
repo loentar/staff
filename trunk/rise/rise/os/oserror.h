@@ -28,10 +28,9 @@
 
 namespace rise
 {
-  //!        получение строкового описания ошибки
-  /*
-     \param  nError - код ошибки
-     \return строковое описание ошибки
+  //!        get error description
+  /*! \param  nError - error code
+      \return error description
   */
   RISE_EXPORT CString osGetErrorStr( int nError );
 }

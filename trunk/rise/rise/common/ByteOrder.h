@@ -53,101 +53,90 @@
 
 namespace rise
 {
-  //!        класс поддержки конвертации порядка байт
+  //!        byte order conversion class
   class RISE_EXPORT CByteOrder
   {
   public:
-    enum EByteOrder //! порядок байт
+    enum EByteOrder //! byte order
     {
       EBO_LITTLE_ENDIAN = __LITTLE_ENDIAN, //!< Little Endian (intel)
       EBO_BIG_ENDIAN = __BIG_ENDIAN        //!< Big Endian (MIPS)
     };
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*!
+       \param  tData - bytes
+       \return reversed byte order
     */
     static bool   SwapBytes(bool tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static char   SwapBytes(char tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static byte   SwapBytes(unsigned char tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static short  SwapBytes(short tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /* \param  tData - bytes
+       \return reversed byte order
     */
     static ushort SwapBytes(ushort tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static int    SwapBytes(int tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static uint   SwapBytes(uint tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static long   SwapBytes(long tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static ulong  SwapBytes(ulong tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static float  SwapBytes(float tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     static double SwapBytes(double tData);
 
-    //!        обратить порядок байт
-    /*
-       \param  tData - данные
-       \return перевернутый порядок байт
+    //!        reverse byte order
+    /*! \param  tData - bytes
+        \return reversed byte order
     */
     template<typename TDATA>
-    static TDATA SwapBytesN(TDATA tData)  // VC++ 2005 не находит символы при линковке
-    {                                     // если поместить реализацию в hpp файл
+    static TDATA SwapBytesN(TDATA tData)  // VC++ 2005 can't find this symbol,
+    {                                     // if move implementation into hpp file
       TDATA tDataRet; 
       byte uchSize = sizeof(tData);
       const byte* pSrc = reinterpret_cast<const byte*>(&tData);
@@ -157,34 +146,30 @@ namespace rise
       return tDataRet;
     }
 
-    //!        преобразование кодировки в BigEndian
-    /*
-       \param  tData - данные для преобразования
-       \return преобразованные данные
+    //!        convert data to BigEndian
+    /*! \param  tData - source bytes
+        \return converted bytes
     */
     template<typename TDATA>
     static TDATA ToBigEndian(const TDATA& tData);
 
-    //!        преобразование кодировки в LittleEndian
-    /*
-       \param  tData - данные для преобразования
-       \return преобразованные данные
+    //!        convert data to LittleEndian
+    /*! \param  tData - source bytes
+        \return converted bytes
     */
     template<typename TDATA>
     static TDATA ToLittleEndian(const TDATA& tData);
 
-    //!        преобразование кодировки в указанную
-    /*
-       \param  tData - данные для преобразования
-       \param  eByteOrder - кодировка
-       \return преобразованные данные
+    //!        convert data to LittleEndian
+    /*! \param  tData - source bytes
+        \param  eByteOrder - bytes order
+	      \return converted bytes
     */
     template<typename TDATA>
     static TDATA ToByteOrder(const TDATA& tData, EByteOrder eByteOrder);
 
-    //!        получение текущего порядка байтов
-    /*
-       \return текущий порядок байтов 
+    //!        get current byte order
+    /*! \return current byte order
     */
     static EByteOrder GetDefaultByteOrder();
   };

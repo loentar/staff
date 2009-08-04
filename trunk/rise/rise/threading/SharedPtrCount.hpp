@@ -26,12 +26,6 @@
 
 namespace rise
 {
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CSharedPtrCount
-  //    PARAMETRS:      pContainer - указатель на обьект
-  //    EXCEPTIONS:     std::bad_alloc
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     CSharedPtrCount<Type>::CSharedPtrCount(Type* pObject):
     m_pObject(pObject)
@@ -39,11 +33,6 @@ namespace rise
     m_pObject->Increment();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CSharedPtrCount
-  //    PARAMETRS:      none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     CSharedPtrCount<Type>::CSharedPtrCount(const CSharedPtrCount& rSharedPtrCount):
     m_pObject(rSharedPtrCount.m_pObject)
@@ -51,10 +40,6 @@ namespace rise
     m_pObject->Increment();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    DESTRUCTOR:     ~CSharedPtrCount
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     CSharedPtrCount<Type>::~CSharedPtrCount()
   {
@@ -62,28 +47,12 @@ namespace rise
       delete m_pObject;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       *
-  //    DESCRIPTION:    получение указателя на обьект
-  //    PARAMETRS:      none
-  //    RETURN:         указатель на обьект
-  //    EXCEPTIONS:     CLogicNoInitException - обьект не проинициализирован
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     Type& CSharedPtrCount<Type>::operator*() throw()
   {
     return *GetPointer();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       ->
-  //    DESCRIPTION:    оператор разыменовывания
-  //    PARAMETRS:      none
-  //    RETURN:         указатель на обьект
-  //    EXCEPTIONS:     CLogicNoInitException - обьект не проинициализирован
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     Type* CSharedPtrCount<Type>::operator->() throw()
   {
@@ -96,28 +65,12 @@ namespace rise
     return GetPointer();
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       Type&
-  //    DESCRIPTION:    получение ссылки на контролируемый обьект
-  //    PARAMETRS:      none
-  //    RETURN:         ссылка на контролируемый объект
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     CSharedPtrCount<Type>::operator Type&()
   {
     return static_cast<Type&>(*m_pObject);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       Type&
-  //    DESCRIPTION:    получение константной ссылки на контролируемый обьект
-  //    PARAMETRS:      none
-  //    RETURN:         константная ссылка на контролируемый объект
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     CSharedPtrCount<Type>::operator const Type&() const
   {
@@ -125,70 +78,30 @@ namespace rise
   }
   
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetPointer()
-  //    DESCRIPTION:    получение указателя на объект
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     Type* CSharedPtrCount<Type>::GetPointer() throw()
   {
     return m_pObject;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetPointer()
-  //    DESCRIPTION:    получение константного указателя на объект
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     Type* CSharedPtrCount<Type>::GetPointer() const throw()
   {
     return m_pObject;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetRefCount()
-  //    DESCRIPTION:    получение количества ссылок
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     long CSharedPtrCount<Type>::GetRefCount() const throw()
   {
     return m_pObject->GetValue();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       IsUnique()
-  //    DESCRIPTION:    уникален ли объект
-  //    PARAMETRS:      none
-  //    RETURN:         true, если объект уникален
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     bool CSharedPtrCount<Type>::IsUnique() const
   {
     return 1 == m_pObject->GetValue();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Swap(...)
-  //    DESCRIPTION:    обмен указателей на объект
-  //    PARAMETRS:      rOther - ссылка на другой объект
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     void CSharedPtrCount<Type>::Swap(CSharedPtrCount<Type>& rOther)
   {
@@ -197,56 +110,24 @@ namespace rise
     rOther.m_pObject = pTmp;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       ==
-  //    DESCRIPTION:    один обьект пренадлежит двум контейнерам?
-  //    PARAMETRS:      ссылки на объекты
-  //    RETURN:         true, если если оба контейнера содержат один обьект
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class TypeLeft, class TypeRight>
     bool operator==(const CSharedPtrCount<TypeLeft>& rLeft, const CSharedPtrCount<TypeRight>& rRight) throw()
   {
     return rLeft.GetPointer() == rRight.GetPointer();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       !=
-  //    DESCRIPTION:    разные ли обьект пренадлежит двум контейнерам?
-  //    PARAMETRS:      ссылки на объекты
-  //    RETURN:         true, если если контейнеры содержат разные обьект
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class TypeLeft, class TypeRight>
     bool operator!=(const CSharedPtrCount<TypeLeft>& rLeft, const CSharedPtrCount<TypeRight>& rRight) throw()
   {
     return rLeft.GetPointer() != rRight.GetPointer();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       <
-  //    DESCRIPTION:    оператор меньше
-  //    PARAMETRS:      ссылки на объекты
-  //    RETURN:         true, если если левый операнд меньше правого
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     bool operator<(const CSharedPtrCount<Type>& rLeft, const CSharedPtrCount<Type>& rRight) throw()
   {
     return rLeft.operator const Type&() < rRight.operator const Type&();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       >
-  //    DESCRIPTION:    оператор больше
-  //    PARAMETRS:      ссылки на объекты
-  //    RETURN:         true, если если левый операнд больше правого
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   template<class Type>
     bool operator>(const CSharedPtrCount<Type>& rLeft, const CSharedPtrCount<Type>& rRight) throw()
   {

@@ -31,10 +31,10 @@
 
 namespace rise 
 {
-  //! массив байт
+  //! byte array
   typedef std::vector<byte> CByteArray;
   
-  //! список строк
+  //! string array
   typedef std::list<CString> CStringList;
 }
 

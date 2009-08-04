@@ -273,7 +273,7 @@ int main(int argc, const rise::TChar* argv[])
 
   tStdOut << rise::ConsoleSetWindowText("rise test");
 
-  std::ofstream fLog; // переменная должна существовать пока ведется логгинг!!!!!
+  std::ofstream fLog; // custom log: variable must be in log scope!!!!!
 
   rise::CPerformanceCounter tPerfCounter;
 
@@ -302,7 +302,7 @@ int main(int argc, const rise::TChar* argv[])
   tStdOut << "Тест русского языка" << std::endl;
 
   //////////////////////////////////////////////////////////////////////////////
-  //    Тест на правильность подключения библиотеки stdc++ к rise
+  //    testing std c++ linking to rise
   //////////////////////////////////////////////////////////////////////////////
   {
     try 
@@ -555,7 +555,7 @@ int main(int argc, const rise::TChar* argv[])
     {
       tStdOut << "CBase64Encoder_1" << std::flush;
       
-      rise::CString sMessage = "Тестовое приложениs123234";
+      rise::CString sMessage = "test string 123234 test string 123234";
       rise::CString sStrOut;
       rise::CBase64Encoder::Encode(reinterpret_cast<rise::PCBuffer>(sMessage.c_str()), sMessage.size(), sStrOut);
 
@@ -831,7 +831,7 @@ int main(int argc, const rise::TChar* argv[])
       rise::sockets::CClientSocket cClientSocket;
       cServerSocket.Start();
       
-      rise::threading::CThread::Sleep(1000); // подождать пока сервер застартует...
+      rise::threading::CThread::Sleep(1000); // wait while server starts...
 
       cClientSocket.Create();
       cClientSocket.Connect("127.0.0.1", 8023);
@@ -864,7 +864,7 @@ int main(int argc, const rise::TChar* argv[])
     }*/
 
   }
-  RISE_CATCH_ALL_DESCR_ACTION("\nошибка при тестировании!", tStdOut << rise::LogResultFailed);
+  RISE_CATCH_ALL_DESCR_ACTION("\nError while testing!", tStdOut << rise::LogResultFailed);
 
   return 0;
 }
