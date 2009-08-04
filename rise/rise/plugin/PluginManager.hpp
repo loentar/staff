@@ -30,14 +30,6 @@ namespace rise
 {
   namespace plugin
   {
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       LoadPlugin(...)
-    //    DESCRIPTION:    Загрузка подгружаемого модуля
-    //    PARAMETRS:      sPluginName - имя подгружаемого модуля
-    //    RETURN:         идентификатор модуля
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename TPluginBaseClass> 
     TPluginBaseClass* CPluginManager<TPluginBaseClass>::LoadPlugin( const CString& sPluginName, bool bRawName /*= false*/ )
     {
@@ -53,7 +45,7 @@ namespace rise
       pPlugin = reinterpret_cast<TPluginBaseClass*>(pDynLib->GetSymbol(RISE_PLUGIN_EXPORTED_SYMBOL_STR));
 #endif
 
-      RISE_ASSERTES(pPlugin != NULL, rise::CFileOpenException, "Ошибка получение адреса обьекта модуля");
+      RISE_ASSERTES(pPlugin != NULL, rise::CFileOpenException, "Error while getting plugin object");
 
       m_lsPluginMap[sPluginName] = pPlugin;
       m_lsDynLibMap[sPluginName] = pDynLib.release();
@@ -61,35 +53,19 @@ namespace rise
       return pPlugin;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       GetPlugin(...)
-    //    DESCRIPTION:    Получение указателя на обьект подгружаемого модуля
-    //    PARAMETRS:      sPluginName - имя подгружаемого модуля
-    //    RETURN:         указатель на обьект модуля
-    //    EXCEPTIONS:     
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename TPluginBaseClass> 
     TPluginBaseClass* CPluginManager<TPluginBaseClass>::GetPlugin(const CString& sPluginName)
     {
       TPluginIterator itPlugin = m_lsPluginMap.find(sPluginName);
-      RISE_ASSERTES(itPlugin != m_lsPluginMap.end(), rise::CLogicNoItemException, "Ошибка при выгрузке библиотеки...");
+      RISE_ASSERTES(itPlugin != m_lsPluginMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
       return itPlugin->second;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       UnLoadPlugin(...)
-    //    DESCRIPTION:    Выгрузка подгружаемого модуля
-    //    PARAMETRS:      itPlugin - итератор модуля
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     template<typename TPluginBaseClass> 
     void CPluginManager<TPluginBaseClass>::UnLoadPlugin( const CString& sPluginName )
     {
       TDynLibMap::iterator itPlugin = m_lsDynLibMap.find(sPluginName);
-      RISE_ASSERTES(itPlugin != m_lsDynLibMap.end(), rise::CLogicNoItemException, "Ошибка при выгрузке библиотеки...");
+      RISE_ASSERTES(itPlugin != m_lsPluginMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
       itPlugin->second->UnloadLibrary();
       m_lsPluginMap.erase(sPluginName);
       m_lsDynLibMap.erase(sPluginName);

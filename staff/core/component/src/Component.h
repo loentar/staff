@@ -34,35 +34,39 @@ namespace rise
 namespace staff
 {
   class CService;
-  typedef rise::CMutablePtr<CService> PService; //!< Указатель на обьект сервиса
-  typedef std::map<rise::CString, PService> TServiceMap; //!< Ассоциативный список сервисов
+  
+  //! Pointer to service object
+  typedef rise::CMutablePtr<CService> PService;
+  //! Pointer to service object map
+  typedef std::map<rise::CString, PService> TServiceMap;
 
-  //!  компонент диспетчера
+
+  //!  Component
   class STAFF_COMPONENT_EXPORT CComponent
   {
   public:
-    //!        деструктор
+    //!        destructor
     virtual ~CComponent() {}
 
-    //!         получить имя компонента
-    /*! \return имя компонента
+    //!         get component name
+    /*! \return component name
     */
     virtual const rise::CString& GetName() const = 0;
 
-    //!         получить сервис
-    /*! \param  sService - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get service with given name
+    /*! \param  sService - service name
+        \return pointer to service or NULL, if no service found
         */
     virtual const CService* GetService(const rise::CString& sService) const = 0;
 
-    //!         получить сервис
-    /*! \param  sService - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get service with given name
+    /*! \param  sService - service name
+        \return pointer to service or NULL, if no service found
         */
     virtual CService* GetService(const rise::CString& sService) = 0;
 
-    //!         получить список сервисов
-    /*! \return список сервисов
+    //!         get component's services map
+    /*! \return component's services map
     */
     virtual const TServiceMap& GetServices() const = 0;
   };

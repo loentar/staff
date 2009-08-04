@@ -29,100 +29,104 @@
 
 namespace rise
 {
-  typedef std::string CString; //!< Класс "строка а текущей кодировке"
+  typedef std::string CString; //!< string
 
-  typedef std::string CStringA; //!< Класс "строка в однобайтной кодировке"
+  typedef std::string CStringA; //!< ansi string
 #ifndef WIN32
-  typedef std::basic_string<wchar_t> CStringW; //!< Класс "строка в двубайтной кодировке"
+  typedef std::basic_string<wchar_t> CStringW; //!< wide string
 #else
-  typedef std::wstring CStringW; //!< Класс "строка в двубайтной кодировке"
+  typedef std::wstring CStringW; //!< wide string
 #endif
 
-  //!         произвести замену в строке
-  /*! \param  sWhere - строка где происходит замена
-      \param  sWhat - что заменить 
-      \param  sWith - чем заменить
-      \param  bAll - true - заменить все вхождения, false - только первое найденное
-      \return количество произведеных замен
+  //!         replace
+  /*! \param  sWhere - string
+      \param  sWhat - what data replace
+      \param  sWith - replace with data
+      \param  bAll - true - replace all, false - replace only first
+      \return number of replaces made
       */
   RISE_EXPORT int StrReplace(CString& sWhere, const CString& sWhat, const CString& sWith, bool bAll = false);
 
-  //!         удалить ведущие и ведомые пробельные символы в строке
-  /*! \param  rStrIn - строка
-      \param  tszCharset - пробельные символы
+  //!         trim string
+  /*! \param  rStrIn - string
+      \param  tszCharset - space symbols
       */
   RISE_EXPORT void StrTrim(CString& rStrIn, const TChar* tszCharset = " \n\r\t");
 
-  //!         удалить ведущие пробельные символы в строке
-  /*! \param  rStrIn - строка
-      \param  tszCharset - пробельные символы
+  //!         trim string left
+  /*! \param  rStrIn - string
+      \param  tszCharset - space symbols
       */
   RISE_EXPORT void StrTrimLeft(CString& rStrIn, const TChar* tszCharset = " \n\r\t");
 
-  //!         удалить ведомые пробельные символы в строке
-  /*! \param  rStrIn - строка
-      \param  tszCharset - пробельные символы
+  //!         trim string right
+  /*! \param  rStrIn - string
+      \param  tszCharset - space symbols
       */
   RISE_EXPORT void StrTrimRight(CString& rStrIn, const TChar* tszCharset = " \n\r\t");
 
-  //!         выделить первых nCount символов из строки
-  /*! \param  nCount - количество выделяемых символов
-      \return результирующая подстрока
+  //!         get n first symbols
+  /*! \param  rStrIn - source string
+      \param  nCount - count of first symbols
+      \return resulting string
       */
   RISE_EXPORT CString StrLeft(const CString& rStrIn, CString::size_type nCount);
 
-  //!         выделить первых nCount символов из строки
-  /*! \param  rtStrOut результирующая подстрока
-      \param  nCount - количество выделяемых символов
+  //!         get n first symbols
+  /*! \param  rStrIn - source string
+      \param  nCount - count of first symbols
+      \param  rtStrOut - resulting string
       */
   RISE_EXPORT void StrLeft(const CString& rStrIn, CString& rtStrOut, CString::size_type nCount);
 
-  //!         выделить последних nCount символов из строки
-  /*! \param  nCount - количество выделяемых символов
-      \return результирующая подстрока
+  //!         get last n symbols
+  /*! \param  rStrIn - source string
+      \param  nCount - count of symbols
+      \return resulting string
       */
   RISE_EXPORT CString StrRight(const CString& rStrIn, CString::size_type nCount);
 
-  //!         выделить последних nCount символов из строки
-  /*! \param  rtStrOut результирующая подстрока
-      \param  nCount - количество выделяемых символов
+  //!         get last n symbols
+  /*! \param  rStrIn - source string
+      \param  nCount - count of symbols
+      \param  rtStrOut - resulting string
       */
   RISE_EXPORT void StrRight(const CString& rStrIn, CString& rtStrOut, CString::size_type nCount);
 
-  //!         выделить подстроку
-  /*! \param  rStrIn - входная строка
-      \param  nOffset - смещение относительно начала строки
-      \param  nCount - количество символов
-      \return результирующая подстрока
+  //!         get substring
+  /*! \param  rStrIn - source string
+      \param  nOffset - offset
+      \param  nCount - count
+      \return resulting string
       */
   RISE_EXPORT CString StrMid(const CString& rStrIn, CString::size_type nOffset, CString::size_type nCount = CString::npos);
 
-  //!         выделить подстроку
-  /*! \param  rStrIn - входная строка
-      \param  nOffset - смещение относительно начала строки
-      \param  nCount - количество символов
-      \param  rtStrOut - результирующая подстрока
+  //!         get substring
+  /*! \param  rStrIn - source string
+      \param  rStrOut - resulting string
+      \param  nOffset - offset
+      \param  nCount - count
       */
-  RISE_EXPORT void StrMid(const CString& rStrIn, CString& rtStrOut, CString::size_type nOffset, CString::size_type nCount = CString::npos);
+  RISE_EXPORT void StrMid(const CString& rStrIn, CString& rStrOut, CString::size_type nOffset, CString::size_type nCount = CString::npos);
   
-  //!         преобразовать строку в перечислимый тип
-  /*! \param  sData - строка
-      \param  tResult - результат
-      \return результат
+  //!         convert string to object
+  /*! \param  sData - source string
+      \param  tResult - resulting object
+      \return resulting object
       */
   template<class TData>
   TData& FromStr(const CString& sData, TData& tResult);
 
-  //!         преобразовать перечислимый тип в строку
-  /*! \param  sData - значение
-      \return результирующая строка
+  //!         convert object to string
+  /*! \param  rtData - source data
+      \return resulting string
       */
   template<class TData>
   CString ToStr(const TData& rtData);
 
-  //!         преобразовать перечислимый тип в строку
-  /*! \param  sData - значение
-      \param  tResult - результирующая строка
+  //!         convert object to string
+  /*! \param  rtData - object
+      \param  sResult - resulting string
       */
   template<class TData>
   void ToStr(const TData& rtData, CString& sResult);

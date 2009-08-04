@@ -29,62 +29,62 @@
 
 namespace staff
 {
-  //!  составной компонент
+  //!  Composite component
   class STAFF_COMPONENT_EXPORT CCompositeComponent: public CComponent
   {
   public:
-    //!        конструктор
+    //!        constructor
     CCompositeComponent();
 
-    //!        деструктор
+    //!        destructor
     virtual ~CCompositeComponent();
 
-    //!         составить компонент с уже имеющимся
-    /*! \param  pComponent - компонент
+    //!         compose component(add partial component to composite)
+    /*! \param  pComponent - component
         */
     void Compose(CComponent* pComponent);
 
-    //!         получить имя компонента
-    /*! \return имя компонента
+    //!         get component name
+    /*! \return component name
     */
     const rise::CString& GetName() const;
 
-    //!         получить сервис
-    /*! \param  sName - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get component service
+    /*! \param  sName - service name
+        \return pointer to service, NULL if no service found
         */
     const CService* GetService(const rise::CString& sName) const;
 
-    //!         получить сервис
-    /*! \param  sName - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get component service
+    /*! \param  sName - service name
+        \return pointer to service, NULL if no service found
         */
     CService* GetService(const rise::CString& sName);
 
-    //!         добавить сервис
-    /*! \param  pService - указатель на сервис
+    //!         add service into component
+    /*! \param  pService - service
         */
     void AddService(CService* pService);
 
-    //!         удалить сервис
-    /*! \param  sName - имя сервиса
+    //!         remove service from component
+    /*! \param  sName - service name
         */
     void RemoveService(const rise::CString& sName);
 
-    //!         получить список сервисов
-    /*! \return список сервисов
+    //!         get services map
+    /*! \return services map
     */
     const TServiceMap& GetServices() const;
 
-    //!         получить свойства компонента
-    /*! \return свойства компонента
+    //!         get component properties
+    /*! \return component properties
     */
     CDataObject& GetProperties();
   
   private:
-    rise::CString m_sName;
-    TServiceMap m_mServices;
-    CDataObject m_doProperties;
+    rise::CString m_sName;        //!<  component name
+    TServiceMap m_mServices;      //!<  services map
+    CDataObject m_doProperties;   //!<  component properties
   };
 }
 

@@ -39,41 +39,41 @@ namespace staff
 {
   class CDataObject;
 
-  //!  помощник для работы с DataObject
+  //!  DataObject Helper
   class STAFF_COMMON_EXPORT CDataObjectHelper
   {
   public:
-    //!         преобразовать xml-объект в объект данных
-    /*! \param  rXmlNode - ссылка на xml-объект
-        \param  rDataObject - объект данных
+    //!         convert rise xml to DataObject
+    /*! \param  rXmlNode - rise xml node
+        \param  rDataObject - resulting DataObject
         */
     static void XmlToDataObject(const rise::xml::CXMLNode& rXmlNode, CDataObject& rDataObject);
 
-    //!         преобразовать объект данных в xml-объект
-    /*! \param  rDataObject - объект данных
-        \param  rXmlNode - ссылка на xml-объект
+    //!         convert DataObject to rise xml
+    /*! \param  rDataObject - DataObject
+        \param  rXmlNode - resulting rise xml
         */
     static void DataObjectToXml(const CDataObject& rDataObject, rise::xml::CXMLNode& rXmlNode);
 
 #if defined _DEBUG || defined DEBUG
-    //!         вывести отладочную информацию(структуру) об обьекте данных
-    /*! \param  rDataObject - объект данных
+    //!         dump DataObject
+    /*! \param  rDataObject - DataObject
         */
     static void Dump(const CDataObject& rDataObject);
 #endif
   };  
 
-  //!         оператор сериализаиции
-  /*! \param  rBuffer - буфер сериализации
-      \param  rDataObject - обьект данных для сериализации
-      \return буфер сериализации
+  //!         serialize DataObject into buffer
+  /*! \param  rBuffer - serialization buffer
+      \param  rDataObject - DataObject
+      \return serialization buffer
       */
   STAFF_COMMON_EXPORT rise::CStreamBuffer& operator<<(rise::CStreamBuffer& rBuffer, const CDataObject& rDataObject);
 
-  //!         оператор десериализаиции
-  /*! \param  rBuffer - буфер десериализации
-      \param  rDataObject - обьект данных для десериализации
-      \return буфер сериализации
+  //!         deserialize DataObject from buffer
+  /*! \param  rBuffer - deserialization buffer
+      \param  rDataObject - DataObject
+      \return deserialization buffer
       */
   STAFF_COMMON_EXPORT rise::CStreamBuffer& operator>>(rise::CStreamBuffer& rBuffer, CDataObject& rDataObject);
 }

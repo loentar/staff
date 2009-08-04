@@ -29,14 +29,14 @@ namespace rise
 {
   namespace tools
   {
-    //!  класс получения информации об адресе
+    //!  Physical address info reader
     class RISE_EXPORT CAddrInfoReader
     {
     public:
-      //!         получить информацию об адресе
-      /*! \param  pAddr - адрес
-          \param  rAddrInfo - результирующая информация
-          \return bool - информация успешно получена
+      //!         lookup address info
+      /*! \param  pAddr - address
+          \param  rAddrInfo - resulting info
+          \return bool - info was successfully get
           */
       static bool LookupAddr(const void* pAddr, SAddrInfo& rAddrInfo);
 

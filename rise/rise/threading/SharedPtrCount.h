@@ -26,120 +26,101 @@
 
 namespace rise
 {
-  //!  "Умный" потоковобезопасный указатель на обьект, поддерживающий счет
+  //!  smart thread-safe pointer, using ref counting objects
   template<class Type>
   class CSharedPtrCount
   {
   public:
-    //! конструктор
-    /*
-       std::bad_alloc
-       \param  pContainer - указатель на обьект
-    */
+    //!         default constructor
     CSharedPtrCount(Type* pObject);
 
-    //! конструктор
+    //!         constructor
+    /*! \param  rSharedPtrCount - another shared ptr object
+        */
     CSharedPtrCount(const CSharedPtrCount& rSharedPtrCount);
 
-    //! деструктор
+    //!         destructor
     ~CSharedPtrCount();
 
-    //!        получение ссылки на обьект
-    /*
-        CLogicNoInitException - обьект не проинициализирован
-       \return указатель на обьект
+    //!         get reference to object
+    /*! \return reference to object
     */
     Type& operator*() throw();
 
-    //!        оператор разыменовывания
-    /*
-       CLogicNoInitException - обьект не проинициализирован
-       \return указатель на обьект
+    //!         operator ->
+    /*! \return pointer to object
     */
     Type* operator->() throw();
 
-    //!        оператор разыменовывания
-    /*
-       CLogicNoInitException - обьект не проинициализирован
-       \return указатель на обьект
+    //!         operator ->
+    /*! \return const pointer to object
     */
     const Type* operator->() const throw();
 
-    //!        получение ссылки на контролируемый обьект
-    /*
-       \return ссылка на контролируемый объект
-    */
+    //!         type cast operator
     operator Type&();
 
-    //!        получение константной ссылки на контролируемый обьект
-    /*
-       \return константная ссылка на контролируемый объект
-    */
+    //!         type cast operator
     operator const Type&() const;
 
-    //!        получение указателя на объект
-    /*
-       \return указатель на объект
+    //!         get pointer to object
+    /*! \return pointer to object
     */
     Type* GetPointer() throw();
     
-    //!        получение указателя на объект
-    /*
-       \return указатель на объект
+    //!         get const pointer to object
+    /*! \return const pointer to object
     */
     Type* GetPointer() const throw();
     
-    //!        получение количества ссылок
-    /*
-       \return количество ссылок
+    //!         get reference count to object
+    /*! \return reference count to object
     */
     long GetRefCount() const throw();
     
-    //!        уникален ли объект
-    /*
-       \return true, если объект уникален(количество ссылок = 1)
+    //!         is object unique? ref=1
+    /*! \return true if object unique
     */
     bool IsUnique() const;
     
-    //!        обмен указателей на объект
-    /*
-       \param  rOther - ссылка на другой объект
+    //!         swap pointers
+    /*! \param  rOther - other pointer
     */
     void Swap(CSharedPtrCount<Type>& rOther);
 
   private:
-    Type* m_pObject;         //! указатель на обьект
+    Type* m_pObject;         //!< pointer to object
   };
 
-  //!        один обьект пренадлежит двум контейнерам?
-  /*
-     \param  ссылки на объекты
-     \return true, если если оба контейнера содержат один обьект
-  */
+  //!         is pointers are equal
+  /*! \param  rLeft - pointer1
+      \param  rRight - pointer2
+      \return true, if pointers are equal
+      */
   template<class TypeLeft, class TypeRight>
   bool operator==(const CSharedPtrCount<TypeLeft>& rLeft, const CSharedPtrCount<TypeRight>& rRight) throw();
   
-  //!        разные ли обьект пренадлежит двум контейнерам?
-  /*
-     \param  ссылки на объекты
-     \return true, если если контейнеры содержат разные обьект
-  */
+  //!         is pointers are inequal
+  /*! \param  rLeft - pointer1
+      \param  rRight - pointer2
+      \return true, if pointers are inequal
+      */
   template<class TypeLeft, class TypeRight>
   bool operator!=(const CSharedPtrCount<TypeLeft>& rLeft, const CSharedPtrCount<TypeRight>& rRight) throw();
 
-  //!        оператор меньше
-  /*
-     \param  ссылки на объекты
-     \return true, если если левый операнд меньше правого
-  */
+  //!         operator less
+  /*! \param  rLeft - pointer1
+      \param  rRight - pointer2
+      \return true, if pointer1 < pointer2
+      */
   template<class Type>
   bool operator<(const CSharedPtrCount<Type>& rLeft, const CSharedPtrCount<Type>& rRight) throw();
   
-  //!        оператор больше
-  /*
-     \param  ссылки на объекты
-     \return true, если если левый операнд больше правого
-  */
+  //!         operator greater
+  /*! \param  rLeft - pointer1
+      \param  rRight - pointer2
+      \return true, if pointer1 > pointer2
+      */
   template<class Type>
   bool operator>(const CSharedPtrCount<Type>& rLeft, const CSharedPtrCount<Type>& rRight) throw();
 

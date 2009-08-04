@@ -29,20 +29,20 @@ namespace staff
 {
   class CComponentConfig;
 
-  //! хранитель конфигураций компонентов
+  //! Component config manager
   class STAFF_COMPONENT_EXPORT CComponentConfigManager
   {
   public:
-    //!         получить экземпляр
-    /*! \return экземпляр
+    //!         get Component config manager instance
+    /*! \return Component config manager instance
     */
     static CComponentConfigManager& Inst();
 
-    //!         получить(и загрузить) конфигурацию компонента
-    /*! \param  sComponent - имя компонента
-        \param  sConfig - имя конфигурационного файла
-        \param  bCreate - создать новую конфиграцию при ошибке загрузки
-        \return конфигурация компонента
+    //!         get component config (load, if not loaded)
+    /*! \param  sComponent - component name
+        \param  sConfig - config file name
+        \param  bCreate - create new config, if given config is not exists
+        \return loaded or created component config
         */
     CComponentConfig& GetComponentConfig(const rise::CString& sComponent, const rise::CString& sConfig = "config.xml", 
       bool bCreate = false);

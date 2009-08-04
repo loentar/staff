@@ -37,7 +37,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct);
 #end
 
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
@@ -46,7 +46,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
 \
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
@@ -143,7 +143,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Struct.Name)& rstStruct)
 #foreach $(Interface.Typedefs)
 
 // $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
   for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
@@ -254,7 +254,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
     tKey = (*it)["Key"];
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
-    tKey = (*it)["Key"];
+    tKey = (*it)["Key"].AsString();
 #else
     (*it)("Key") >> tKey;
 #ifeqend
@@ -263,7 +263,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
     tValue = (*it)["Value"];
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)    // !!string!!
-    tValue = (*it)["Value"];
+    tValue = (*it)["Value"].AsString();
 #else
     (*it)("Value") >> tValue;
 #ifeqend
@@ -274,7 +274,7 @@ CDataObject& operator>>(CDataObject& rdoParam, $(Typedef.Name)& rtType)
     tItem = (*it)["Item"];
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
-    tItem = (*it)["Item"];
+    tItem = (*it)["Item"].AsString();
 #else
     CDataObject tdoItem(*it);
     tdoItem >> tItem;

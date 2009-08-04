@@ -49,7 +49,7 @@ namespace staff
     void Deinit();
 
     //!         set target namespace
-    /*! \param sTarget namespace - target namespace
+    /*! \param sTargetNamespace - target namespace
         */
     void SetTargetNamespace(const std::string& sTargetNamespace);
 

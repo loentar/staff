@@ -31,30 +31,29 @@
 $(Class.OpeningNs)
   class $(Class.Name)Impl;
   
-  //!  контекст сервиса $(Class.Name)
+  //!  $(Class.Name) Service context
   class $(Class.Name)Context
   {
   public:
-    //!
+    //!         get context instance
+    /*! \return context instance
+        */
     static $(Class.Name)Context& GetContext();
 
-    //!         получить указатель на реализацию сервиса(только для локальных сервисов)
-    /*! \param  sID - идентификатор сервиса в группе
-        \return указатель на реализацию сервиса
+    //!         get service implementation(only for local)
+    /*! \param  sID - service session id
+        \return pointer to service implementation
         */
     $(Class.Name)Impl* GetServiceImpl(const rise::CString& sID);
 
-    //!         получить идентификатор сервиса в группе по реализации
-    /*! \param  pImpl - реализация
-        \return идентификатор сервиса группы
+    //!         get service session id
+    /*! \param  pImpl - service implementation
+        \return service session id
         */
     const rise::CString& GetServiceID(const $(Class.Name)Impl* pImpl) const;
 
   protected:
-    //!        защищенный конструктор
     $(Class.Name)Context();
-    
-    //!        защищенный деструктор
     ~$(Class.Name)Context();
 
   private:

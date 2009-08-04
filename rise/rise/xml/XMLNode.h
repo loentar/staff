@@ -36,541 +36,477 @@ namespace rise
 {
   namespace xml
   {
-    //!        узел XML
+    //!        xml node
     class RISE_EXPORT CXMLNode
     {
     public:
-      enum ENodeType //! тип узла
+      enum ENodeType //! node type
       { 
-        ENTGENERIC,  //!< обычный узел
-        ENTCDATA,    //!< секция CDATA
-        ENTCOMMENT   //!< комментарий
+        ENTGENERIC,  //!< generic node
+        ENTCDATA,    //!< CDATA section
+        ENTCOMMENT   //!< comment
       };
 
-      typedef std::list<CXMLNode> TXMLNodeList;                   //!<  тип - список узлов
-      typedef std::list<SXMLAttribute> TXMLAttrList;              //!<  тип - список атрибутов
-      typedef std::list<SXMLNamespace> TXMLNsList;                //!<  тип - список пространств имен
-      typedef TXMLNodeList::iterator TXMLNodeIterator;            //!<  тип - итератор по подузлам
-      typedef TXMLAttrList::iterator TXMLAttrIterator;            //!<  тип - итератор по атрибутам
-      typedef TXMLNsList::iterator TXMLNsIterator;                //!<  тип - итератор по пространствам имен
-      typedef TXMLNodeList::const_iterator TXMLNodeConstIterator; //!<  тип - константный итератор по подузлам
-      typedef TXMLAttrList::const_iterator TXMLAttrConstIterator; //!<  тип - константный итератор по атрибутам
-      typedef TXMLNsList::const_iterator TXMLNsConstIterator;     //!<  тип - константный итератор по пространствам имен
+      //! xmlnodes list
+      typedef std::list<CXMLNode> TXMLNodeList;
+      //! attributes list
+      typedef std::list<SXMLAttribute> TXMLAttrList;
+      //! namespaces list
+      typedef std::list<SXMLNamespace> TXMLNsList;
+
+      //! nodes iterator
+      typedef TXMLNodeList::iterator TXMLNodeIterator;
+      //! attributes iterator
+      typedef TXMLAttrList::iterator TXMLAttrIterator;
+      //! namespaces iterator
+      typedef TXMLNsList::iterator TXMLNsIterator;
+      
+      //! nodes const iterator
+      typedef TXMLNodeList::const_iterator TXMLNodeConstIterator;
+      //! attributes const iterator
+      typedef TXMLAttrList::const_iterator TXMLAttrConstIterator;
+      //! namespaces const iterator
+      typedef TXMLNsList::const_iterator TXMLNsConstIterator;
 
     public:
-      //!         конструктор по умолчанию
-      /*! \param  pParentNode - родительский узел
-          \return 
+      //!         constructor
+      /*! \param  pParentNode - parent node
           */
       CXMLNode(CXMLNode* pParentNode = NULL);
 
-      //!         инициализирующий конструктор
-      /*! \param  sNodeText - имя создаваемого узла, если eNodeType = ENTGENERIC, иначе контент узла, имя может содержать знак пространства имен
-          \param  pParentNode - родительский узел
-          \param  eNodeType - eNodeType - тип узла
-          \return 
+      //!         initializing constructor
+      /*! \param  sNodeText - node name, if eNodeType = ENTGENERIC, else node content
+          \param  pParentNode - parent node
+          \param  eNodeType - node type
           */
       CXMLNode(const CString& sNodeText, CXMLNode* pParentNode = NULL, ENodeType eNodeType = ENTGENERIC); 
 
-      //!         копирующий конструктор
-      /*! \param  rNode - ссылка на существующий узел
+      //!         copying constructor
+      /*! \param  rNode - existing node
           */
       CXMLNode(const CXMLNode& rNode);
 
-      //!         деструктор
+      //!         destructor
       virtual ~CXMLNode();
 
-      //!         оператор копирования
-      /*! \param  rNode - исходный узел
-          \return копия узла
+      //!         copy operator
+      /*! \param  rNode - source node
+          \return *this
           */
       CXMLNode& operator=(const CXMLNode& rNode);
 
-      //!         получить родительский узел
-      /*! \return указатель на родительский узел или NULL
+      //!         get parent node
+      /*! \return pointer to parent node or NULL
           */
       CXMLNode* GetParent();
 
-      //!         получить родительский узел
-      /*! \return const-указатель на родительский узел или NULL
+      //!         get parent node
+      /*! \return pointer to parent node or NULL
           */
       const CXMLNode* GetParent() const;
 
-      //!         установить для узла пространство имен и имя
-      /*! \param  sNsName - namespace:name
+      //!         set node prefix and name
+      /*! \param  sNsName - prefix:name
           */
       void SetNodeNsName(const CString& sNsName);
 
-      //!         получить для узла пространство имен и имя
-      /*! \return  sNsName - namespace:name
+      //!         get node prefix and name
+      /*! \return sNsName - prefix:name
       */
       CString GetNodeNsName() const;
 
-      //!        функция доступа к атрибутам по имени
-      /*
-         CLogicNoItemException
-         \param   sName - имя атрибута
-         \return значение атрибута
+      //!        get attribute
+      /*! \param  sName - attribute name
+          \return attribute value
       */
       const CXMLValue& Attribute(const CString& sName) const;
 
-      //!        функция доступа к атрибутам по имени
-      /*
-         CLogicNoItemException
-         \param   sName - имя атрибута
-         \return значение атрибута
+      //!        get attribute
+      /*! \param  sName - attribute name
+          \return attribute value
       */
       CXMLValue& Attribute(const CString& sName);
 
-      //!        существует ли атрибут с заданным именем
+      //!        is attribute exists
       /*
-         \param   sName - имя атрибута
-         \param  RETURN:         true - атрибут существует
+         \param  sName - attribute name
+         \return true, if attribute exists
       */
       bool IsAttributeExists(const CString& sName) const;
 
-      //!        функция доступа к подузлам по имени
-      /*
-          CLogicNoItemException, если атрибут не найден
-         \param   sName - имя подузла
-         \return подузел
+      //!        get child node
+      /*! \param  sName - child node name
+          \return ref to child node
       */
       const CXMLNode& Subnode(const CString& sName) const;
 
-      //!        функция доступа к подузлам по имени
-      /*
-          CLogicNoItemException, если атрибут не найден
-         \param   sName - имя подузла
-         \return подузел
+      //!        get child node
+      /*! \param  sName - child node name
+          \return ref to child node
       */
       CXMLNode& Subnode(const CString& sName);
 
-      //!        существует ли подузел с заданным именем
-      /*
-         \param   sName - имя подузла
-         \param  RETURN:         true - подузел с заданным именем существует
+      //!        is child node exists
+      /* \param  sName - child node name
+         \return true, if child node exists
       */
       bool IsSubnodeExists(const CString& sName) const;
 
-      //!        получение итератора на первый подузел
-      /*
-         \return итератор на первый подузел
+      //!         get iterator to first child
+      /*! \return iterator to first child
       */
       TXMLNodeConstIterator NodeBegin() const;
 
-      //!        получение итератора на первый подузел
-      /*
-         \return итератор на первый подузел
+      //!         get iterator to first child
+      /*! \return iterator to first child
       */
       TXMLNodeIterator NodeBegin();
 
-      //!        получение итератора на подузел за последним подузлом
-      /*
-         \return итератор на подузел за последним подузлом
+      //!         get iterator to next by last child
+      /*! \return iterator to next by last child
       */
       TXMLNodeConstIterator NodeEnd() const;
 
-      //!        получение итератора на подузел за последним подузлом
-      /*
-         \return итератор на подузел за последним подузлом
+      //!         get iterator to next by last child
+      /*! \return iterator to next by last child
       */
       TXMLNodeIterator NodeEnd();
 
-      //!        получение итератора на первый атрибут
-      /*
-         \return итератор на первый атрибут
+      //!         get iterator to first attribute
+      /*! \return iterator to first attribute
       */
       TXMLAttrConstIterator AttrBegin() const;
 
-      //!        получение итератора на первый атрибут
-      /*
-         \return итератор на первый атрибут
+      //!         get iterator to first attribute
+      /*! \return iterator to first attribute
       */
       TXMLAttrIterator AttrBegin();
 
-      //!        получение итератора на атрибут за последним атрибутом
-      /*
-         \return итератор на атрибут за последним атрибутом
+      //!         get iterator to next by last attribute
+      /*! \return iterator to next by last attribute
       */
       TXMLAttrConstIterator AttrEnd() const;
 
-      //!        получение итератора на атрибут за последним атрибутом
-      /*
-         \return итератор на атрибут за последним атрибутом
+      //!         get iterator to next by last attribute
+      /*! \return iterator to next by last attribute
       */
       TXMLAttrIterator AttrEnd();
 
-      //!        получение имени узла
-      /*
-         \return ссылка на имя узла
+      //!         get node name
+      /*! \return const reference to node name
       */
       const CString& NodeName() const;
 
-      //!        получение/установка имени узла
-      /*
-         \return ссылка на имя узла
+      //!         get and set node name
+      /*! \return reference to node name
       */
       CString& NodeName();
 
-      //!        получение контента узла
-      /*
-         \return ссылка на контент текущего узла
+      //!         get node value
+      /*! \return const reference to node value
       */
       const CXMLValue& NodeContent() const;
 
-      //!        получение/установка контента узла
-      /*
-         \return ссылка на контент текущего узла
+      //!         get and set node value
+      /*! \return reference to node value
       */
       CXMLValue& NodeContent();
 
-      //!        доступ к значению подузла
-      /*
-          rise::CLogicNoItemException
-          не-const функция добавляет подузел, если такового не существует
-         \param  sName - имя подузла
-         \return ссылка на контент подузла
-      */
+      //!         get child node value
+      /*! \param  sName - child node name
+          \return child node value
+          */
       const CXMLValue& operator[](const CString& sName) const;
 
-      //!        доступ к значению подузла
-      /*
-          rise::CLogicNoItemException
-          не-const функция добавляет подузел, если такового не существует
-         \param  sName - имя подузла
-         \return ссылка на контент подузла
-      */
+      //!         get and set child node value
+      /*! \param  sName - child node name
+          \return child node value
+          */
       CXMLValue& operator[](const CString& sName);
 
-      //!        добавление подузла с заданным именем, если узла с таким именем еще не существует
-      /*
-         \param   sNodeName - имя создаваемого узла, 
-         \return ссылка на добавленный или найденный подузел
-      */
+      //!         find child node with given name, add, if no child node found
+      /*! \param  sNodeName - node name
+          \return reference to child node
+          */
       CXMLNode& GetOrAddSubNode(const CString& sNodeName);
 
-      //!        получение/установка типа узла
-      /*
-         \return ссылка на тип узла
+      //!         get node type
+      /*! \return reference to node type
       */
       const ENodeType& NodeType() const;
 
-      //!        получение/установка типа узла
-      /*
-         \return ссылка на тип узла
+      //!         get/set node type
+      /*! \return reference to node type
       */
       ENodeType& NodeType();
 
-      //!        получение количества подузлов
-      /*
-         \return количество подузлов
+      //!         get child count
+      /*! \return child nodes counts
       */
       int SubNodesCount() const;
 
-      //!        добавление атрибута
-      /*
-          CLogicAlreadyExistsException
-         \param   sAttrName - имя атрибута
-         \param   sAttrValue - значение атрибута
-         \return ссылка на атрибут
-      */
+      //!         add attribute
+      /*! \param  sAttrName - attribute name
+          \param  sAttrValue - attribute value
+          \return added attribute
+          */
       SXMLAttribute& AddAttribute(const CString& sAttrName, const CXMLValue& sAttrValue);
 
-      //!        добавление атрибута
-      /*
-          CLogicAlreadyExistsException
-         \param   sAttrName - имя атрибута
-         \param   sAttrValue - значение атрибута
-         \return ссылка на атрибут
-      */
+      //!         add attribute
+      /*! \param  stAttribute - attribute
+          \return added attribute
+          */
       SXMLAttribute& AddAttribute(const SXMLAttribute& stAttribute);
 
-      //!        добавление атрибута
-      /*
-         CLogicAlreadyExistsException
-         \param   stAttribute - атрибут
-         \param   itAttr - позиция куда будет вставлен указанный атрибут
-         \return итератор
-      */
+      //!         add attribute
+      /*! \param  sAttrName - attribute name
+          \param  sAttrValue - attribute value
+          \param  itAttr - attribute iterator
+          \return added attribute
+          */
       TXMLAttrIterator AddAttribute(const CString& sAttrName, const CXMLValue& sAttrValue, TXMLAttrIterator itAttr);
 
-      //!        добавление атрибута
-      /*
-         CLogicAlreadyExistsException
-         \param   stAttribute - атрибут
-         \param   itAttr - позиция куда будет вставлен указанный атрибут
-         \return итератор
-      */
+      //!         add attribute
+      /*! \param  stAttribute - attribute
+          \param  itAttr - attribute iterator
+          \return added attribute
+          */
       TXMLAttrIterator AddAttribute(const SXMLAttribute& stAttribute, TXMLAttrIterator itAttr);
 
-      //!        удаление атрибута
-      /*
-         \param   itAttr - позиция удаляемого атрибута
-         \return none
+      //!        remove attribute
+      /*! \param itAttr - attribute iterator
       */
-      //    EXCEPTIONS:     CLogicNoItemException
       void DelAttribute(TXMLAttrIterator itAttr);
 
-      //!        добавление подузла
-      /*
-         \param   sNodeText - имя создаваемого узла, если eNodeType = ENTGENERIC, иначе контент узла
-         \param   eNodeType - тип узла
-         \return ссылка на добавленный подузел
+
+
+      //!         add child node
+      /*! \param  sNodeText - node name, if eNodeType = ENTGENERIC, else nodecontent
+          \param  eNodeType - node type
+          \return reference to added child node
       */
       CXMLNode& AddSubNode(const CString& sNodeText, ENodeType eNodeType = ENTGENERIC);
 
-      //!        добавление подузла
-      /*
-         \param   sNodeText - имя создаваемого узла, если eNodeType = ENTGENERIC, иначе контент узла
-         \param   eNodeType - тип узла
-         \return ссылка на добавленный подузел
+      //!         add child node
+      /*! \param  sNodeText - node name, if eNodeType = ENTGENERIC, else nodecontent
+          \param  itNode - node iterator
+          \param  eNodeType - node type
+          \return reference to added child node
       */
       CXMLNode& AddSubNode(const CString& sNodeText, TXMLNodeIterator itNode, ENodeType eNodeType = ENTGENERIC);
 
-      //!        удаление подузла
-      /*
-         \param   itAttr - позиция удаляемого атрибута
-         \return none
-      */
-      //    EXCEPTIONS:     CLogicNoItemException
+      //!         remove child node
+      /*! \param  itNode - iterator to child node
+          */
       void DelSubNode(TXMLNodeIterator itNode);
 
-      //!        удаление всех подузлов и атрибутов
+      //!        remove all childs and attributes
       void Clear();
 
-      //!        функция поиска атрибута по имени
-      /*
-         \param   sName - имя атрибута
-         \return итератор на найденный атрибут с заданным именем. если атрибут не найден, то итератор == AttrEnd()
+      //!        find attribute by name
+      /*! \param  sName - attribute name
+          \return iterator to found attribute or AttrEnd()
       */
       TXMLAttrConstIterator FindAttribute(const CString& sName) const;
 
-      //!        функция поиска атрибута по имени
-      /*
-         \param   sName - имя атрибута
-         \return итератор на найденный атрибут с заданным именем. если атрибут не найден, то итератор == AttrEnd()
+      //!        find attribute by name
+      /*! \param  sName - attribute name
+          \return iterator to found attribute or AttrEnd()
       */
       TXMLAttrIterator FindAttribute(const CString& sName);
 
-      //!        поиск артибутов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \return none
+      //!        find attribute, using unary predicate
+      /*! \param  pFindFunction - unary predicate
+          \return iterator to found attribute or AttrEnd()
       */
       template<typename UNARY_PREDICATE>
       TXMLAttrConstIterator FindAttributeIf(UNARY_PREDICATE pFindFunction) const;
 
-      //!        поиск артибутов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \return none
+      //!        find attribute, using unary predicate
+      /*! \param  pFindFunction - unary predicate
+          \return iterator to found attribute or AttrEnd()
       */
       template<typename UNARY_PREDICATE>
       TXMLAttrIterator FindAttributeIf(UNARY_PREDICATE pFindFunction);
 
-      //!        функция поиска подузлов по имени
-      /*
-                если атрибут не найден, то итератор == AttrEnd()
-         \param   sName - имя подузла
-         \return итератор на первый назденный подузел с заданным именем
-      */
+
+      //!         find child node by name
+      /*! \param  sName - child node name
+          \return iterator to found child node or NodeEnd() if no child node found
+          */
       TXMLNodeConstIterator FindSubnode(const CString& sName) const;
 
-      //!        функция поиска подузлов по имени
-      /*
-                 если атрибут не найден, то итератор == AttrEnd()
-         \param   sName - имя подузла
-         \return итератор на первый назденный подузел с заданным именем
-      */
+      //!         find child node by name
+      /*! \param  sName - child node name
+          \return iterator to found child node or NodeEnd() if no child node found
+          */
       TXMLNodeIterator FindSubnode(const CString& sName);
 
-      //!        функция поиска подузлов по имени
-      /*
-                 если атрибут не найден, то итератор == AttrEnd()
-         \param   sName - имя подузла
-         \param   itNode - итератор, с которого следует произвести поиск
-         \return итератор на первый назденный подузел с заданным именем
-      */
+      //!         find child node by name
+      /*! \param  sName - child node name
+          \param  itNode - iterator
+          \return iterator to found child node or NodeEnd() if no child node found
+          */
       TXMLNodeConstIterator FindSubnode(const CString& sName, TXMLNodeConstIterator itNode) const;
 
-      //!        функция поиска подузлов по имени
-      /*
-                 если атрибут не найден, то итератор == AttrEnd()
-         \param   sName - имя подузла
-         \param   itNode - итератор, с которого следует произвести поиск
-         \return итератор на первый назденный подузел с заданным именем
-      */
+      //!         find child node by name
+      /*! \param  sName - child node name
+          \param  itNode - iterator
+          \return iterator to found child node or NodeEnd() if no child node found
+          */
       TXMLNodeIterator FindSubnode(const CString& sName, TXMLNodeIterator itNode);
 
-      //!        поиск подузла с заданным значением атрибута
-      /*
-         \param   sNodeName - имя подузла
-         \param   stAttribute - атрибут
-         \return итератор на найденный подузел
+      //!         find child node with given node name and attribute
+      /*! \param  sNodeName - node name
+          \param  stAttribute - attribute
+          \return iterator to found node
       */
       TXMLNodeConstIterator FindNodeMatch(
         const CString& sNodeName,
         const SXMLAttribute& stAttribute) const;
 
-      //!        поиск подузла с заданным значением атрибута
-      /*
-         \param   sNodeName - имя подузла
-         \param   stAttribute - атрибут
-         \return итератор на найденный подузел
+      //!         find child node with given node name and attribute
+      /*! \param  sNodeName - node name
+          \param  stAttribute - attribute
+          \return iterator to found node
       */
       TXMLNodeIterator FindNodeMatch(
         const CString& sNodeName,
         const SXMLAttribute& stAttribute);
 
-      //!        поиск подузла с заданным значением атрибута
-      /*
-         \param   sNodeName - имя подузла
-         \param   stAttribute - атрибут
-         \param   itNode - итератор на дочерний подузел, с которого следует продолжить поиск
-         \return итератор на найденный подузел
+      //!         find child node with given node name and attribute
+      /*! \param  sNodeName - node name
+          \param  stAttribute - attribute
+          \param  itNode - iterator to child node
+          \return iterator to found node
       */
       TXMLNodeConstIterator FindNodeMatch(
         const CString& sNodeName,
         const SXMLAttribute& stAttribute,
         TXMLNodeConstIterator itNode) const;
 
-      //!        поиск подузла с заданным значением атрибута
-      /*
-         \param   sNodeName - имя подузла
-         \param   stAttribute - атрибут
-         \param   itNode - итератор на дочерний подузел, с которого следует продолжить поиск
-         \return итератор на найденный подузел
+      //!         find child node with given node name and attribute
+      /*! \param  sNodeName - node name
+          \param  stAttribute - attribute
+          \param  itNode - iterator to child node
+          \return iterator to found node
       */
       TXMLNodeIterator FindNodeMatch(
         const CString& sNodeName,
         const SXMLAttribute& stAttribute,
         TXMLNodeIterator itNode);
 
-      //!        поиск подузлов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \param  itNode - итератор на узел, начиная с которого будет производиться поиск
+      //!         find child node by predicate
+      /*! \param  pFindFunction - find node predicate
+          \return iterator to found node
       */
       template<typename UNARY_PREDICATE>
       TXMLNodeConstIterator FindNodeIf(UNARY_PREDICATE pFindFunction) const;
 
-      //!        поиск подузлов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \param  itNode - итератор на узел, начиная с которого будет производиться поиск
+      //!         find child node by predicate
+      /*! \param  pFindFunction - find node predicate
+          \return iterator to found node
       */
       template<typename UNARY_PREDICATE>
       TXMLNodeIterator FindNodeIf(UNARY_PREDICATE pFindFunction);
 
-      //!        поиск подузлов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \param  itNode - итератор на узел, начиная с которого будет производиться поиск
+      //!         find child node by predicate
+      /*! \param  pFindFunction - find node predicate
+          \param  itNode - child node iterator
+          \return iterator to found node
       */
       template<typename UNARY_PREDICATE>
       TXMLNodeConstIterator FindNodeIf(UNARY_PREDICATE pFindFunction, TXMLNodeConstIterator itNode) const;
 
-      //!        поиск подузлов по предикату
-      /*
-         \param  pFindFunction - унарный предикат поиска
-         \param  itNode - итератор на узел, начиная с которого будет производиться поиск
+      //!         find child node by predicate
+      /*! \param  pFindFunction - find node predicate
+          \param  itNode - child node iterator
+          \return iterator to found node
       */
       template<typename UNARY_PREDICATE>
       TXMLNodeIterator FindNodeIf(UNARY_PREDICATE pFindFunction, TXMLNodeIterator itNode);
 
-      //!        сортировка атрибутов по заданному условию
-      /*
-         \param  pCompareFunction - бинарный предикат сортировки
-         \return none
+      //!        sort attributes by binary predicate
+      /*! \param  pCompareFunction - binary predicate
       */
       template<typename BINARY_PREDICATE>
       void SortAttrs(BINARY_PREDICATE pCompareFunction);
 
-      //!        сортировка подузлов по заданному условию
-      /*
-         \param  pCompareFunction - бинарный предикат сортировки
-         \return none
+      //!        sort nodes by binary predicate
+      /*! \param  pCompareFunction - binary predicate
       */
       template<typename BINARY_PREDICATE>
       void SortNodes(BINARY_PREDICATE pCompareFunction);
 
-      //!         получить пространство имен узла
-      /*! \return const пространство имен узла
-          */
+      //!         get default namespace
+      /*! \return namespace
+      */
       const CString& Namespace() const;
 
-      //!         получить пространство имен узла
-      /*! \return пространство имен узла
-          */
+      //!         get/set default namespace
+      /*! \return namespace
+      */
       CString& Namespace();
 
-      //!         получить список пространств имен
-      /*! \return список пространств имен
+      //!         get namespaces list
+      /*! \return namespaces list
           */
       const TXMLNsList& GetNsList() const;
 
-      //!         получить список пространств имен
-      /*! \return список пространств имен
-          */
+      //!         get namespaces list
+      /*! \return namespaces list
+      */
       TXMLNsList& GetNsList();
 
-      //!         найти узел с описанием пространства имен среди родительских узлов
-      /*! \param  sNamespace - пространство имен
-          \return узел узел с описанием пространства имен или NULL, если узел не найден
+      //!         find namespace declaration
+      /*! \param  sNamespace - prefix
+          \return node with namespace declaration
           */
       CXMLNode* FindNamespaceDecl(const CString& sNamespace);
 
-      //!         найти узел с описанием пространства имен среди родительских узлов
-      /*! \param  sNamespace - пространство имен
-          \return const узел узел с описанием пространства имен или NULL, если узел не найден
+      //!         find namespace declaration
+      /*! \param  sNamespace - prefix
+          \return node with namespace declaration
           */
       const CXMLNode* FindNamespaceDecl(const CString& sNamespace) const;
 
     private:
-      CXMLNode*        m_pNodeParent;     //!<  родительский узел
-      TXMLAttrList     m_tAttr;           //!<  список атрибутов
-      TXMLNodeList     m_tSubNodes;       //!<  список подузлов
-      CString          m_sName;           //!<  имя узла
-      CXMLValue        m_sContent;        //!<  контент узла
-      ENodeType        m_eNodeType;       //!<  тип узла
-      CString          m_sNamespace;      //!<  пространство имен узла
-      TXMLNsList       m_tNsList;         //!<  список пространств имен определяемых в текущем узле
+      CXMLNode*        m_pNodeParent;     //!<  parent node
+      TXMLAttrList     m_tAttr;           //!<  attributes list
+      TXMLNodeList     m_tSubNodes;       //!<  subnode list
+      CString          m_sName;           //!<  node name
+      CXMLValue        m_sContent;        //!<  node value
+      ENodeType        m_eNodeType;       //!<  node type
+      CString          m_sNamespace;      //!<  default namespace
+      TXMLNsList       m_tNsList;         //!<  node namespaces
 
     }; // class CXMLNode //////////////////////////////////////////////////
 
-    //!        оператор сериализации
-    /*
-       CXMLFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLNode - ссылка на корневой узел для сериализации
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLNode - reference to node
+        \return  serializing stream
     */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLNode& rXMLNode);
 
-    //!        оператор десериализации
-    /*
-      CXMLFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLNode - ссылка на корневой узел для десериализации
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLNode - reference to node
+        \return  deserializing stream
     */
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, CXMLNode& rXMLNode);
 
-    //!        оператор сериализации
-    /*
-      CXMLFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLNode - ссылка на корневой узел для сериализации
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLNode - reference to node
+        \return  serializing stream
     */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLNode& rXMLNode);
 
-    //!        оператор десериализации
-    /*
-      CXMLFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLNode - ссылка на корневой узел для десериализации
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLNode - reference to node
+        \return  deserializing stream
     */
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLNode& rXMLNode);
 

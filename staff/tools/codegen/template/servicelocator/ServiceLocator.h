@@ -29,26 +29,23 @@
 
 namespace staff
 {
-  //!  класс для получения обьекта для работы с сервисом по имени
+  //!  Service locator
   class CServiceLocator
   {
   public:
-    //!         получить ссылку на обьект локатора
-    /*! \return ссылка на обьект локатора
+    //!         get instance
+    /*! \return instance
     */
     static CServiceLocator& Inst();
     
-    //!         получить указатель на обьект для работы с сервисом
-    /*! \param  sServiceName - имя сервиса
-        \param  sID - идентификатор
+    //!         get pointer to service wrapper
+    /*! \param  sServiceName - service name
+        \param  sID - service session id
         */
     void* LocateService(const rise::CString& sServiceName, const rise::CString& sID);
 
   protected:
-    //!        конструктор по умолчанию
     CServiceLocator();
-    
-    //!        деструктор
     ~CServiceLocator();
   
   private:

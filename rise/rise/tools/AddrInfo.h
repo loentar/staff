@@ -29,19 +29,19 @@ namespace rise
 {
   namespace tools
   {
-    //!  Информация об адресе
+    //!  Physical address info
     struct RISE_EXPORT SAddrInfo
     {
-      CString sContext;       //!<  контекст (имя исполняемого файла или библиотеки)
-      CString sAddrHex;       //!<  адрес в шестнадцатеричной форме
-      CString sFileName;      //!<  имя исходного файла
-      CString sFunctionName;  //!<  имя функции(завернутое по правилам С)
-      unsigned int unLine;    //!<  строка в исходном файле
+      CString sContext;       //!<  context (library or executable file name)
+      CString sAddrHex;       //!<  hex decimal address
+      CString sFileName;      //!<  source file name
+      CString sFunctionName;  //!<  mangled function name
+      unsigned int unLine;    //!<  source code line number
 
-      //!         конструктор
+      //!         constructor
       SAddrInfo();
 
-      //!         сброс информации
+      //!         reset info
       void Reset();
     };
   }

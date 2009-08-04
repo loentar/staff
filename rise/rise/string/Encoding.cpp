@@ -163,23 +163,23 @@ namespace rise
         nCharPos = rstEncFrom.asTable.find(chTmp);
       }
 
-      // кодировка назначения
+      // destination encoding
       if (nIdTo == ET_UTF_8)
       { // utf-8
         if (nCharPos == CString::npos)
-        { // если не нашли в таблице перекодировки, значит обычный символ(<128)
+        { // if not found, there is a generic symbol(<128)
           sTo += chTmp;
         } else
-        { // нашли в таблице перекодировки
+        { // found
           sTo += (char)((rstEncTo.wsTable[nCharPos] >> 8) & 0xff);
           sTo += (char)(rstEncTo.wsTable[nCharPos] & 0xff);
         }
       } else
       { // single-byte encoding
         if (nCharPos == CString::npos)
-        { // если не нашли в таблице перекодировки, значит обычный символ(<128)
+        { // if not found, there is a generic symbol(<128)
           sTo += chTmp;
-        } else // нашли в таблице перекодировки
+        } else // found
           sTo += rstEncTo.asTable[nCharPos];
       }
     }

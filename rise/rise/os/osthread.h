@@ -32,105 +32,102 @@
 
 namespace rise
 {
-  //! указатель на процедуру потока
+  //! pointer to thread proc
   typedef void *(*PThreadProc) (void *);
 #ifdef WIN32
-  //! дескриптор потока
+  //! thread handle
   typedef HANDLE HThread;
 #else
-  //! дескриптор потока
+  //! thread handle
   typedef pthread_t HThread;
 #endif
 
-  //!     создание потока
-  /*
-     \param  pProc - процедура потока
-     \param  pParam - параметр, передаваемый в поток
-     \return идентификатор потока
+  //!     creating a thread
+  /*! \param  pProc - thread proc
+      \param  hThread - resulting thread id
+      \param  pParam - thread param proc
+      \return thread handle
   */
   bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam = NULL);
   
-  //!     получение текущего потока
-  /*
-     \return идентификатор текущего потока
+  //!     get current thread handle
+  /*! \return current thread handle
   */
   HThread osGetCurrentThread();
   
-  //!     завершение текущего потока
+  //!     ends and exit from current thread
   void osExitThread();
   
-  //!     уничтожение потока
-  /*
-     \param  hThread - дескриптор потока
-     \return  true - если завершение потока произошло успешно
+  //!     terminate thread
+  /*! \param  hThread - thread handle
+      \return true - thread was successfully terminated
   */
   bool osTerminateThread(HThread hThread);
   
-  //!     ожидание завершения потока
-  /*
-     \param  hThread - дескриптор потока
-     \return none
+  //!     wait for thread ends
+  /*! \param  hThread - thread handle
   */
   void osJoinThread(HThread hThread);
   
-  //!     существует ли поток с заданным идентификатором
-  /*
-     \return true, если существует
+  //!     is thread exists
+  /*! \param  hThread - thread id
+      \return true - thread exists
   */
   bool osIsThreadExists(HThread hThread);
   
-  //!     ожидание завершения потока ограниченное время
-  /*
-     \param  ulMSec - количество милисекунд
-     \return  true - поток завершился за указанный таймаут
+  //!     wait for thread exit
+  /*! \param  hThread - thread id
+      \param  ulMSec - wait milliseconds
+      \return true - thread was ended
   */
   bool osWaitForThreadExit(HThread hThread, unsigned long ulMSec);
   
   //    Locking
 #ifdef WIN32
-  //! дескриптор критической сессии
+  //! critical section handle
   typedef CRITICAL_SECTION HCriticalSection;
-  //! указатель на дескриптор критической сессии
+  //! critical section handle pointer
   typedef LPCRITICAL_SECTION PCriticalSection;
 #else
-  //! дескриптор критической сессии
+  //! critical section handle
   typedef pthread_mutex_t HCriticalSection;
-  //! указатель на дескриптор критической сессии
+  //! critical section handle pointer
   typedef pthread_mutex_t* PCriticalSection;
 #endif
   
-  //!   инициализация критической секции
-  /*
-     (WIN32) STATUS_NO_MEMORY - при отсутствии своб. памяти
-     \param  hCriticalSection - критическая секция
+  //!         initializing critical section
+  /*! \param  pCriticalSection - pointer to critical section
   */
   void osInitializeCriticalSection(PCriticalSection pCriticalSection);
   
-  //!     удаление критической секции
+  //!         delete critical section
+  /*! \param  pCriticalSection - critical section
+      */
   void osDeleteCriticalSection(PCriticalSection pCriticalSection);
   
-  //!     вход в критическую секцию
+  //!         enter into critical section
+  /*! \param  pCriticalSection - critical section
+      */
   void osEnterCriticalSection(PCriticalSection pCriticalSection);
   
-  //!     попытка войти в критическую секцию без блокирования
-  /*
-     \return true, если попытка успешна
-  */
+  //!         enter into critical section without locking
+  /*! \param  pCriticalSection - critical section
+      \return true if success
+      */
   bool osTryEnterCriticalSection(PCriticalSection pCriticalSection);
   
-  //!     выход из критической секции
+  //!         leave critical section
+  /*! \param  pCriticalSection - critical section
+      */
   void osLeaveCriticalSection(PCriticalSection pCriticalSection);
   
-  //!     приостановить выполнение потока на ulMSec милисекунд
-  /*
-     \param  ulMSec - количество милисекунд
-     \return none
-  */
+  //!         sleep for ulMSec millisecond
+  /*! \param  ulMSec - millisecond to sleep
+      */
   void osSleep(unsigned long ulMSec);
   
-  //!     запросить значение счетчика микросекунд
-  /*
-     \return счетчик в микросекундах
+  //!         query millisecond counter
+  /*! \return millisecond counter
   */
   long long osQueryPerfomance();
 

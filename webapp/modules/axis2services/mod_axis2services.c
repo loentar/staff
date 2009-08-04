@@ -166,7 +166,6 @@ int CreateSocket()
     setsockopt(nSockID, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
   }
 
-  // таймаут на recv: 10 сек.
   tv.tv_sec = 60;
   tv.tv_usec = 0;
   setsockopt(nSockID, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
@@ -283,7 +282,7 @@ LABEL
   
 LABEL
   //////////////////////////////////////////////////
-  // сначала получаем и разбираем HttpHeader
+  // retrive and parse HttpHeader
   {
     int bHeaderParsed = 0;
     int nReceived = 0;
@@ -291,7 +290,7 @@ LABEL
     char szLineEnd[4] = "";
     int nLineEndLength = 0;
 
-    char* szCurr = szHttpHeader; // текущий адрес для получения блока
+    char* szCurr = szHttpHeader; // current address for data block receiving
 
     const char* szBegin = szCurr;
     const char* szEnd = NULL;
@@ -317,7 +316,7 @@ dump(szCurr, nRet);
       
       szEnd = strpbrk(szBegin, "\n\r");
 
-      // детект конца строк заголовка
+      // detect line end of header
       if (nLineEndLength == 0 && szEnd != NULL)
       {
         szLineEnd[0] = *szEnd;
@@ -334,13 +333,13 @@ dump(szCurr, nRet);
       }
 
 LABEL  
-      // разбор заголовка    
+      // parse header
       while (szEnd != NULL)
       {
 LABEL  
-        if (szEnd == szBegin && strncmp(szBegin + nLineEndLength, szLineEnd, nLineEndLength)) // пошел основной текст сообщения
+        if (szEnd == szBegin && strncmp(szBegin + nLineEndLength, szLineEnd, nLineEndLength)) // there is body part
         {
-          if(*pszAnswer == NULL) // основной текст без заголовка!!
+          if(*pszAnswer == NULL) // body part without header!!
           {
 LABEL  
             CloseSocket(nSockID);
@@ -414,7 +413,7 @@ LABEL
 
 
     ///////////////////////////////////////////////////////////
-    // тело сообщения
+    // body message
     while(nReceived < *pnAnswerSize)
     {
       nRet = recv(nSockID, szCurr, *pnAnswerSize - nReceived, 0);
@@ -435,7 +434,7 @@ LABEL
   return 0;
 }
 
-/* The sample content handler */
+/* content handler */
 static int axis2services_handler(request_rec* pReq)
 {
   int nRet = OK;

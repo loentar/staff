@@ -34,14 +34,14 @@ namespace staff
 
   typedef rise::CMutablePtr<CRemoteService> PRemoteService;
 
-  //!  диспетчер сервисов
+  //!  Service dispatcher
   class CServiceDispatcher
   {
   public:
     struct SEvents
     {
-      void (*pOnConnect)(const std::string& sService, const CService* pService); //!< функция обработки события при присоединении сервисного клиента
-      void (*pOnDisconnect)(const std::string& sServiceName); //!< функция обработки события при отсоединении сервисного клиента
+      void (*pOnConnect)(const std::string& sService, const CService* pService);
+      void (*pOnDisconnect)(const std::string& sServiceName);
 
       SEvents();
       SEvents(void (*pOnConnectInit)(const std::string&, const CService*), void (*pOnDisconnectInit)(const std::string&));
@@ -49,32 +49,38 @@ namespace staff
     };
 
   public:
-    //!         получить ссылку на реализацию диспетчера
-    /*! \return ссылка на диспетчер
+    //!         get reference to dispatcher instance
+    /*! \return reference to dispatcher instance
     */
     static CServiceDispatcher& Inst();
 
-    //!         освободить экземпляр диспетчера    
+    //!         free instance
     static void FreeInst();
 
-    //!         инициализация/запуск диспетчера
-    /*! \param  stEvents - события
+    //!         initialize dispatcher
+    /*! \param  stEvents - events struct
         */
     void Init(const SEvents& stEvents);
 
-    //!         деинициализация/останов диспетчера
+    //!         deinitialize dispatcher
     void Deinit();
 
-    //!         вызвать свою функцию(получение информации о сервисах)
-    /*! \param  rOperation - операция
+    //!         invoke dispatcher's function
+    /*! \param  rOperation - operation
         */
     void InvokeSelf(COperation& rOperation);
 
+    //!         get remote service
+    /*! \param  sServiceName - service name
+        \param  sSessionId - session id
+        \param  rpService - service
+        */
     void GetRemoteService( const rise::CString& sServiceName, const rise::CString& sSessionId, PRemoteService& rpService );
 
   private:
     CServiceDispatcher();
     ~CServiceDispatcher();
+  
   private:
     class CLocalServiceDispatcherImpl;
     class CRemoteServiceDispatcherImpl;

@@ -30,29 +30,12 @@ namespace rise
 {
   namespace xml
   {
-    /////////////////////////////////////////////////////////////////////////////
-    //    CLASS:        CXMLNode
-    //    DESCRIPTION:  узел XML
-    /////////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLNode
-    //    DESCRIPTION:    конструктор по умолчанию
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::CXMLNode(CXMLNode* pParentNode /*= NULL*/):
       m_pNodeParent(pParentNode), m_eNodeType(ENTGENERIC)
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLNode(...)
-    //    DESCRIPTION:    конструктор с параметрами
-    //    PARAMETRS:      (in) sNodeText - имя создаваемого узла, 
-    //                         если eNodeType = ENTGENERIC, иначе контент узла
-    //                    (in) eNodeType - тип узла
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
+
     CXMLNode::CXMLNode(const CString& sNodeText, CXMLNode* pParentNode /*= NULL*/, ENodeType eNodeType /*= ENTGENERIC*/): 
       m_pNodeParent(pParentNode), m_eNodeType(eNodeType)
     {
@@ -62,32 +45,15 @@ namespace rise
         m_sContent = sNodeText;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CXMLNode(...)
-    //    DESCRIPTION:    копирующий конструктор
-    //    PARAMETRS:      (in) rNode - ссылка на существующий узел
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::CXMLNode(const CXMLNode& rNode)
     {
       *this = rNode;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     ~CXMLNode
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::~CXMLNode() 
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       =
-    //    DESCRIPTION:    оператор копирования
-    //    PARAMETRS:      (in) rNode - исходный узел
-    //    RETURN:         копия узла
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode& CXMLNode::operator=(const CXMLNode& rNode)
     {
       m_sName = rNode.m_sName;
@@ -101,17 +67,11 @@ namespace rise
       return *this;
     }
 
-    //!         получить родительский узел
-    /*! \return указатель на родительский узел или NULL
-        */
     CXMLNode* CXMLNode::GetParent()
     {
       return m_pNodeParent;
     }
 
-    //!         получить родительский узел
-    /*! \return const-указатель на родительский узел или NULL
-        */
     const CXMLNode* CXMLNode::GetParent() const
     {
       return m_pNodeParent;
@@ -129,14 +89,6 @@ namespace rise
         m_sName = sNsName;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Attribute()
-    //    DESCRIPTION:    функция доступа к атрибутам по имени
-    //    PARAMETRS:      (in) sName - имя атрибута
-    //    RETURN:         значение атрибута
-    //    EXCEPTIONS:     CLogicNoItemException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     const CXMLValue& CXMLNode::Attribute( const CString& sName ) const
     {
       for ( TXMLAttrConstIterator itAttr = AttrBegin(); itAttr != AttrEnd(); ++itAttr)
@@ -155,15 +107,6 @@ namespace rise
       RISE_THROW(CLogicNoItemException);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       FindAttribute()
-    //    DESCRIPTION:    функция поиска атрибута по имени
-    //    PARAMETRS:      (in) sName - имя атрибута
-    //    RETURN:         итератор на найденный атрибут с заданным именем
-    //                    если атрибут не найден, то итератор == AttrEnd()
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLAttrConstIterator CXMLNode::FindAttribute(const CString& sName) const
     {
       TXMLAttrConstIterator itAttr = AttrBegin();
@@ -178,14 +121,6 @@ namespace rise
       return itAttr;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       IsAttributeExists()
-    //    DESCRIPTION:    существует ли атрибут с заданным именем
-    //    PARAMETRS:      (in) sName - имя атрибута
-    //    RETURN:         true - атрибут существует
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CXMLNode::IsAttributeExists(const CString& sName) const
     {
       for ( TXMLAttrConstIterator itAttr = AttrBegin(); itAttr != AttrEnd(); ++itAttr)
@@ -195,16 +130,6 @@ namespace rise
       return false;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       FindSubnode(...)
-    //    DESCRIPTION:    функция поиска подузлов по имени
-    //    PARAMETRS:      (in) sName - имя подузла
-    //                    (in) itNode - итератор, с которого следует произвести поиск
-    //    RETURN:         итератор на первый назденный подузел с заданным именем
-    //                    если атрибут не найден, то итератор == AttrEnd()
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLNodeConstIterator CXMLNode::FindSubnode(const CString& sName) const
     {
       return FindSubnode(sName, NodeBegin());
@@ -229,14 +154,6 @@ namespace rise
       return itNode;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Subnode(...)
-    //    DESCRIPTION:    функция доступа к подузлам по имени
-    //    PARAMETRS:      (in) sName - имя подузла
-    //    RETURN:         подузел
-    //    EXCEPTIONS:     CLogicNoItemException, если атрибут не найден
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     const CXMLNode& CXMLNode::Subnode(const CString& sName) const
     {
       TXMLNodeConstIterator itNode = FindSubnode(sName);
@@ -251,14 +168,6 @@ namespace rise
       return *itNode;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       IsSubnodeExists()
-    //    DESCRIPTION:    существует ли подузел с заданным именем
-    //    PARAMETRS:      (in) sName - имя подузла
-    //    RETURN:         true - подузел с заданным именем существует
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CXMLNode::IsSubnodeExists(const CString& sName) const
     {
       for ( TXMLNodeConstIterator itNode = NodeBegin(); itNode != NodeEnd(); ++itNode)
@@ -268,14 +177,6 @@ namespace rise
       return false;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       NodeBegin()
-    //    DESCRIPTION:    получение итератора на первый подузел
-    //    PARAMETRS:      none
-    //    RETURN:         итератор на первый подузел
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLNodeConstIterator CXMLNode::NodeBegin() const
     {
       return m_tSubNodes.begin();
@@ -286,14 +187,6 @@ namespace rise
       return m_tSubNodes.begin();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       NodeEnd()
-    //    DESCRIPTION:    получение итератора на последний подузел
-    //    PARAMETRS:      none
-    //    RETURN:         итератор на последний подузел
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLNodeConstIterator CXMLNode::NodeEnd() const
     {
       return m_tSubNodes.end();
@@ -304,14 +197,6 @@ namespace rise
       return m_tSubNodes.end();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AttrBegin()
-    //    DESCRIPTION:    получение итератора на первый атрибут
-    //    PARAMETRS:      none
-    //    RETURN:         итератор на первый атрибут
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLAttrConstIterator CXMLNode::AttrBegin() const
     {  
       return m_tAttr.begin();
@@ -322,14 +207,6 @@ namespace rise
       return m_tAttr.begin();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AttrEnd()
-    //    DESCRIPTION:    получение итератора на атрибут за последним атрибут
-    //    PARAMETRS:      none
-    //    RETURN:         итератор на атрибут за последним атрибутом
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLAttrConstIterator CXMLNode::AttrEnd() const
     {
       return m_tAttr.end();
@@ -340,14 +217,6 @@ namespace rise
       return m_tAttr.end();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       NodeName() 
-    //    DESCRIPTION:    получение/установка имени узла
-    //    PARAMETRS:      none
-    //    RETURN:         ссылка на имя узла
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     const CString& CXMLNode::NodeName() const
     {
       return m_sName;
@@ -358,14 +227,6 @@ namespace rise
       return m_sName;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       NodeContent() 
-    //    DESCRIPTION:    получение/установка контента узла
-    //    PARAMETRS:      none
-    //    RETURN:         ссылка на контент текущего узла
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     const CXMLValue& CXMLNode::NodeContent() const
     {
       return m_sContent;
@@ -376,14 +237,6 @@ namespace rise
       return m_sContent;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       operator[]
-    //    DESCRIPTION:    оператор доступа к значению подузла
-    //    PARAMETRS:      sName - имя подузла
-    //    RETURN:         ссылка на контент подузла
-    //    EXCEPTIONS:     rise::CLogicNoItemException
-    //    COMMENT:        не-const функция добавляет подузел, если такового не существует
-    //////////////////////////////////////////////////////////////////////////////      
     const CXMLValue& CXMLNode::operator[](const CString& sName) const
     {
       return Subnode(sName).NodeContent();
@@ -394,14 +247,6 @@ namespace rise
       return GetOrAddSubNode(sName).NodeContent();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       GetOrAddSubNode
-    //    DESCRIPTION:    добавление подузла с заданным именем, если узла с таким именем еще не существует
-    //    PARAMETRS:      (in) sNodeName - имя создаваемого узла, 
-    //    RETURN:         ссылка на добавленный или найденный подузел
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode& CXMLNode::GetOrAddSubNode(const CString& sNodeName)
     {
       TXMLNodeIterator itNode = FindSubnode(sNodeName);
@@ -411,14 +256,6 @@ namespace rise
         return AddSubNode(sNodeName);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       NodeType
-    //    DESCRIPTION:    получение/установка типа узла
-    //    PARAMETRS:      none
-    //    RETURN:         ссылка на тип узла
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     const CXMLNode::ENodeType& CXMLNode::NodeType() const
     {
       return m_eNodeType;
@@ -429,29 +266,11 @@ namespace rise
       return m_eNodeType;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       SubNodesCount()
-    //    DESCRIPTION:    получение количества подузлов
-    //    PARAMETRS:      none
-    //    RETURN:         количество подузлов
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     int CXMLNode::SubNodesCount() const
     {
       return (int)m_tSubNodes.size();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       FindMatch()
-    //    DESCRIPTION:    поиск подузла с заданным значением атрибута
-    //    PARAMETRS:      (in) sNodeName - имя подузла
-    //                    (in) sAttrName - имя атрибута
-    //                    (in) sAttrValue - значение атрибута
-    //    RETURN:         итератор на найденный подузел
-    //    EXCEPTIONS:     CLogicNoItemException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLNodeConstIterator CXMLNode::FindNodeMatch(
       const CString& sNodeName,
       const SXMLAttribute& stAttribute) const
@@ -471,12 +290,9 @@ namespace rise
       const SXMLAttribute& stAttribute,
       TXMLNodeConstIterator itNode) const
     {
-      // ищем ноду с подходящем именем
       for(; itNode != NodeEnd(); itNode = FindSubnode(sNodeName, itNode))
       {
-        // ищем аттрибут с подходящем именем
         TXMLAttrConstIterator itAttr = itNode->FindAttribute(stAttribute.sAttrName);
-        // сравниваем значение
         if ((itAttr != itNode->AttrEnd()) && (*itAttr == stAttribute))
           return itNode;
         ++itNode;
@@ -490,12 +306,9 @@ namespace rise
       const SXMLAttribute& stAttribute,
       TXMLNodeIterator itNode)
     {
-      // ищем ноду с подходящем именем
       for(; itNode != NodeEnd(); itNode = FindSubnode(sNodeName, itNode))
       {
-        // ищем аттрибут с подходящем именем
         TXMLAttrIterator itAttr = itNode->FindAttribute(stAttribute.sAttrName);
-        // сравниваем значение
         if ((itAttr != itNode->AttrEnd()) && (*itAttr == stAttribute))
           return itNode;
         ++itNode;
@@ -504,15 +317,6 @@ namespace rise
       return NodeEnd();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AddAttribute(...)
-    //    DESCRIPTION:    добавление атрибута
-    //    PARAMETRS:      (in) sAttrName - имя атрибута
-    //                    (in) sAttrValue - значение атрибута
-    //    RETURN:         ссылка на атрибут
-    //    EXCEPTIONS:     CLogicAlreadyExistsException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     SXMLAttribute& CXMLNode::AddAttribute( const CString& sAttrName, const CXMLValue& sAttrValue )
     {
       return AddAttribute(SXMLAttribute(sAttrName, sAttrValue));
@@ -525,15 +329,6 @@ namespace rise
       return *m_tAttr.insert(AttrEnd(), stAttribute);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AddAttribute(...)
-    //    DESCRIPTION:    добавление атрибута
-    //    PARAMETRS:      (in) stAttribute - атрибут
-    //                    (in) itAttr - позиция куда будет вставлен указанный атрибут
-    //    RETURN:         итератор
-    //    EXCEPTIONS:     CLogicAlreadyExistsException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode::TXMLAttrIterator CXMLNode::AddAttribute(const CString& sAttrName, const CXMLValue& sAttrValue, TXMLAttrIterator itAttr)
     {
       return AddAttribute(SXMLAttribute(sAttrName, sAttrValue), itAttr);
@@ -546,28 +341,12 @@ namespace rise
       return m_tAttr.insert(itAttr, stAttribute);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       DelAttribute(...)
-    //    DESCRIPTION:    удаление атрибута
-    //    PARAMETRS:      (in) itAttr - позиция удаляемого атрибута
-    //    RETURN:         none
-    //    EXCEPTIONS:     CLogicNoItemException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLNode::DelAttribute(CXMLNode::TXMLAttrIterator itAttr)
     {
       RISE_ASSERTES(itAttr != AttrEnd(), CLogicNoItemException, "invalid iterator value");
       m_tAttr.erase(itAttr);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       AddSubNode
-    //    DESCRIPTION:    добавление подузла
-    //    PARAMETRS:      sNodeName - имя подузла
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        если тип узла не ENTGENERIC, sNodeName будет служить контентом
-    //////////////////////////////////////////////////////////////////////////////
     CXMLNode& CXMLNode::AddSubNode(const CString& sNodeText, CXMLNode::ENodeType eNodeType/* = ENTGENERIC*/)
     {
       return *m_tSubNodes.insert(NodeEnd(), CXMLNode(sNodeText, this, eNodeType));
@@ -578,28 +357,12 @@ namespace rise
       return *m_tSubNodes.insert(itNode, CXMLNode(sNodeText, this, eNodeType));
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       DelSubNode(...)
-    //    DESCRIPTION:    удаление подузла
-    //    PARAMETRS:      (in) itAttr - позиция удаляемого атрибута
-    //    RETURN:         none
-    //    EXCEPTIONS:     CLogicNoItemException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLNode::DelSubNode(CXMLNode::TXMLNodeIterator itNode)
     {
       RISE_ASSERTES(itNode != NodeEnd(), CLogicNoItemException, "invalid iterator value");
       m_tSubNodes.erase(itNode);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Clear
-    //    DESCRIPTION:    удаление всех подузлов и атрибутов
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     CLogicNoItemException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CXMLNode::Clear()
     {
       m_tSubNodes.clear();
@@ -657,14 +420,6 @@ namespace rise
 
     // class CXMLNode /////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       WriteNode
-    //    DESCRIPTION:    запись узла
-    //    PARAMETRS:      (in) rXMLNode - ссылка на узел XML-дерева
-    //    RETURN:         none
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLOStream& WriteNode(CXMLOStream& rStream, const CXMLNode& rXMLNode, int nLevel = 0 )
     {
       for ( int i = 0; i < nLevel; ++i )
@@ -723,30 +478,11 @@ namespace rise
       return rStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //                    (in) rXMLNode - ссылка на корневой узел для сериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLNode& rXMLNode)
     {
       return WriteNode(rStream, rXMLNode);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       ReadSubNodes
-    //    DESCRIPTION:    рекурсивное чтение узла
-    //    PARAMETRS:      (in)  rStream - поток
-    //                    (out) rXMLNode - ссылка на узел XML-дерева к которому 
-    //                            будут добавляться подузлы
-    //    RETURN:         поток
-    //    EXCEPTIONS:     CLogicFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLIStream& ReadSubNodes(CXMLIStream& rStream, CXMLNode& rXMLNode)
     {
       SXMLAttribute stAttribute;
@@ -755,11 +491,10 @@ namespace rise
       for(;;)
       {
         rStream.SkipWhitespace();
-        // тег
         ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
           rStream.GetFileName(), rStream.GetLine());
 
-        if (rStream.Test("/")) // закрывающий тег
+        if (rStream.Test("/"))
           return rStream;
 
         if (rStream.Test("!"))  // special
@@ -786,7 +521,7 @@ namespace rise
             if(rStream.Test(">"))
               break;
             else
-            if(rStream.Test("/>")) // пустой тег
+            if(rStream.Test("/>"))
             {
               bIsEmptyTag = true;
               break; // end reading node
@@ -801,16 +536,15 @@ namespace rise
 
           }  // while reading attrs
 
-          // проверить ns
           if (rXMLNodeNew.Namespace() != "")
             if(rXMLNodeNew.FindNamespaceDecl(rXMLNodeNew.Namespace()) == NULL)
               LogDebug2() << "Could\'nt find xmlns declaration: \"" + rXMLNodeNew.Namespace() + "\"";
 
           if (!bIsEmptyTag)
           {
-            rStream.AddContent(rXMLNodeNew.NodeContent()); // чтение контента узла
-            if (!rStream.Test("</"))  // если не закрывающий тег, то подузел
-              ReadSubNodes(rStream, rXMLNodeNew); // read subnodes
+            rStream.AddContent(rXMLNodeNew.NodeContent());
+            if (!rStream.Test("</"))
+              ReadSubNodes(rStream, rXMLNodeNew); 
 
             rStream.ReadId(sTmp);
             ASSERTXMLS(sTmp == rXMLNodeNew.GetNodeNsName(), CXMLFormatException, 
@@ -823,19 +557,10 @@ namespace rise
               rStream.GetFileName(), rStream.GetLine());
           }
         }
-        rStream.AddContent(rXMLNode.NodeContent()); // чтение контента узла
+        rStream.AddContent(rXMLNode.NodeContent());
       }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //                    (in) rXMLNode - ссылка на корневой узел для десериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CXMLFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CXMLIStream& operator>>(CXMLIStream& rStream, CXMLNode& rXMLNode)
     {
       CString sTmp;
@@ -844,7 +569,7 @@ namespace rise
       rStream.SkipWhitespace();
       ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
         rStream.GetFileName(), rStream.GetLine());
-      while(rStream.Test("!--"))  // !!!! комментарий перед корневым узлом
+      while(rStream.Test("!--"))
       {
         rStream.ReadStringUntil(sTmp, "-->");
         rStream.SkipWhitespace();
@@ -874,7 +599,7 @@ namespace rise
             rStream.GetFileName(), rStream.GetLine() );
           break;
         } else
-        if(rStream.Test("/>"))  // пустой элемент?
+        if(rStream.Test("/>"))
           break;// end reading root node
         
         rStream >> stAttribute;
@@ -893,30 +618,12 @@ namespace rise
       return rStream;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       <<
-    //    DESCRIPTION:    оператор сериализации
-    //    PARAMETRS:      (in/out) rStream - поток сериализации
-    //                    (in) rXMLNode - ссылка на корневой узел для сериализации
-    //    RETURN:         результирующий поток сериализации
-    //    EXCEPTIONS:     CXMLFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLNode& rXMLNode)
     {
       CXMLOStream tTmpStream(rStream);
       return operator<<(tTmpStream, rXMLNode);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    OPERATOR:       >>
-    //    DESCRIPTION:    оператор десериализации
-    //    PARAMETRS:      (in/out) rStream - поток десериализации
-    //                    (in) rXMLNode - ссылка на корневой узел для десериализации
-    //    RETURN:         результирующий поток десериализации
-    //    EXCEPTIONS:     CXMLFormatException
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLNode& rXMLNode)
     {
       CXMLIStream tTmpStream(rStream);

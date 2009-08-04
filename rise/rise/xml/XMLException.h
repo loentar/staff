@@ -24,17 +24,19 @@
 
 #include <rise/common/ExceptionTemplate.h>
 
-// генерация исключения с кодом и строкой описания
+//! throw xml exception
 #define THROWXML(RISE_LOCAL_EXCEPTION, RISE_LOCAL_DESCRIPTION, RISE_LOCAL_EXPRESSION, RISE_LOCAL_FILE, RISE_LOCAL_LINE) \
 { RISE_LOCAL_EXCEPTION cException; \
   cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, RISE_LOCAL_DESCRIPTION, \
                     #RISE_LOCAL_EXPRESSION, RISE_LOCAL_FILE, RISE_LOCAL_LINE); \
   throw cException;}
 
+//! assert xml
 #define ASSERTXMLS(RISE_LOCAL_EXPRESSION, RISE_LOCAL_EXCEPTION, RISE_LOCAL_DESCRIPTION, RISE_LOCAL_FILE, RISE_LOCAL_LINE) \
   if (!(RISE_LOCAL_EXPRESSION)) \
     THROWXML(RISE_LOCAL_EXCEPTION, RISE_LOCAL_DESCRIPTION, RISE_LOCAL_EXPRESSION, RISE_LOCAL_FILE, RISE_LOCAL_LINE)
 
+//! assert
 #define ASSERTXML(RISE_LOCAL_EXPRESSION, RISE_LOCAL_EXCEPTION, RISE_LOCAL_FILE, RISE_LOCAL_LINE) \
   ASSERTXMLS(RISE_LOCAL_EXPRESSION, RISE_LOCAL_EXCEPTION, RISE_LOCAL_FILE, RISE_LOCAL_LINE)
 
@@ -42,12 +44,12 @@ namespace rise
 {
   namespace xml
   {
-    //!        базовый класс исключений XML
+    //!        base class for xml exceptions
     class CXMLException: public CExceptionTemplate<EXCXML>
     {
     };
 
-    //!        шаблонный класс исключений XML
+    //!        template class for xml exceptions
     template<EXCODE CODE>
     class CXMLExceptionTemplate: public CXMLException
     {
@@ -57,13 +59,14 @@ namespace rise
           return CODE; 
         };
 
-        //!        создание исключения
-        /*
-           \param   szFile - имя файла исходника
-           \param  nLine - номер строки в файле исходника 
-           \param  szFunction - имя функции в которой произошло исключение
-           \param  szDescr - описание исключения
-           \return none
+        //!        creating an exception
+        /*! \param  szFile - source filename
+            \param  nLine - source line name
+            \param  szFunction - function name
+            \param  szDescr - exception description
+            \param  szExpr - expression
+            \param  szFileName - xml file name
+            \param  uLineNo - xml file line number
         */
         void Create( 
           const CString& szFile, 
@@ -78,21 +81,25 @@ namespace rise
           m_uLineNo = uLineNo;
         }
 
-        //!        получение номера строки XML файла в которой произошло исключение
+        //!         get xml file line number
+        /*! \return xml file line number
+        */
         virtual const int GetLineNo() const throw()
         {
           return m_uLineNo;
         }
 
+        //!         set string format
+        /*! \param  sFormat - string format
+            */
         virtual void SetFormat( CString& sFormat ) const throw()
         {
           sFormat = "{File}[{Line}] {Func}: {Descr}({Expr}); {Object}: {LineNo}\n";
         }
         
-        //!        получение полного описания исключения
-        /*
-           \param  sFormat - строка для форматирования
-           \return описания исключения
+        //!        get string exception description
+        /*! \param  sFormat - format string
+            \return exception description
         */
         CString GetString(const CString& sFormat = "") const throw()
         {
@@ -104,16 +111,23 @@ namespace rise
         }
      
       private:
-        unsigned m_uLineNo;  //! номер строки в XML файле
+        unsigned m_uLineNo;  //!< xml file line number
 
     };  // class CXMLException ///////////////////////////////////////
 
+    //! create exception
     typedef CXMLExceptionTemplate<EXCREATE> CXMLCreateException;
+    //! open exception
     typedef CXMLExceptionTemplate<EXOPEN>   CXMLOpenException;
+    //! close exception
     typedef CXMLExceptionTemplate<EXCLOSE>  CXMLCloseException;
+    //! read exception
     typedef CXMLExceptionTemplate<EXREAD>   CXMLReadException;
+    //! write exception
     typedef CXMLExceptionTemplate<EXWRITE>  CXMLWriteException;
+    //! format exception
     typedef CXMLExceptionTemplate<EXFORMAT> CXMLFormatException;
+    //! item not found exception
     typedef CXMLExceptionTemplate<EXNOITEM> CXMLNoItemException;
 
   } // namespace xml

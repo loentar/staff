@@ -36,56 +36,51 @@ namespace rise
 
 namespace staff
 {
-  //!  конфигурация компонента
+  //!  Component config
   class STAFF_COMPONENT_EXPORT CComponentConfig
   {
   public:
-    //!         деструктор
+    //!         destructor
     ~CComponentConfig();
 
-    //!         получить имя компонента
-    /*! \return имя компонента
+    //!         get component name
+    /*! \return component name
     */
     const rise::CString& GetComponent() const;
 
-    //!         получть имя конфигурационного файла
-    /*! \return имя конфигурационного файла
+    //!         get config file name
+    /*! \return config file name
     */
     const rise::CString& GetConfig() const;
 
-    //!         перезагрузить конфигурацию
-    /*! \param  bCreate - создать новую конфигурацию при ошибке загрузки
-        \return конфигурация
+    //!         reload config
+    /*! \param  bCreate - create new config, if no config found
+        \return xml-config
         */
     rise::xml::CXMLNode& ReloadConfig(bool bCreate = false);
     
-    //!         сохранить конфигурацию
+    //!         save config
     void SaveConfig();
 
-    //!         получить конфигурацию
-    /*! \return конфигурация
+    //!         get config
+    /*! \return config
     */
     rise::xml::CXMLNode& Config();
     
-    //!         получить конфигурацию
-    /*! \return конфигурация
+    //!         get config
+    /*! \return config
     */
     const rise::xml::CXMLNode& Config() const;
 
   protected:
-    //!         защищенный конструктор
+    //!         protected constructor
     CComponentConfig();
 
-    //!         инициализация
-    /*! внутренняя функция
-        */
+    //!         internal initialization
     void Init(const rise::CString& sComponent, const rise::CString& sConfig, bool bCreate);
 
   private:
-    //!         запрет копирования
     CComponentConfig& operator=(const CComponentConfig&);
-
-    //!         запрет копирования
     CComponentConfig(const CComponentConfig&);
 
     class CComponentConfigImpl;

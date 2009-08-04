@@ -28,41 +28,50 @@ namespace rise
 {
   namespace threading
   {
-    //!        класс данных с межпотоковой синхронизацией
+    //!         data with critical section
     template<typename Type>
     class CCriticalData  
     {
     public:
-      //!        копирующий конструктор
-      /*
-         \param  уже существующее значение
+      //!         initializing constructor
+      /*! \param  rValue - object
       */
-      CCriticalData(const Type &rValue);
+      CCriticalData(const Type& rValue);
 
-      //!        оператор получения ссылки на обьект данных
-      /*
-         \return ссылка на обьект данных
+      //!         get object operator
+      /*! \return reference to object
       */
       operator Type&();
       
-      //!        оператор для межпотоковой синхронизации
+      //!         atomic preincrement
+      /*! \return new object
+      */
       Type& operator++();
 
-      //!        оператор для межпотоковой синхронизации
+      //!         atomic post-increment
+      /*! \return old object
+      */
       Type& operator++(int);
 
-      //!        оператор для межпотоковой синхронизации
+      //!         atomic predecrement
+      /*! \return new object
+      */
       Type& operator--();
 
-      //!        оператор для межпотоковой синхронизации
+      //!         atomic predecrement
+      /*! \return old object
+      */
       Type& operator--(int);
 
-      //!        оператор для межпотоковой синхронизации
+      //!         init operator
+      /*! \param  rValue - object
+          \return reference to current object
+          */
       Type& operator=(const Type& rValue);
 
     private:
-      Type m_tValue;  //! значение
-      CCriticalSection m_cs; //! критическая секция
+      Type m_tValue;          //!< value
+      CCriticalSection m_cs;  //!< critical section
     };
   } // namespace threading
 }  // namespace rise

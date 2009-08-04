@@ -266,6 +266,10 @@
 				RelativePath=".\src\Value.h"
 				>
 			</File>
+			<File
+				RelativePath=".\src\WsdlTypes.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

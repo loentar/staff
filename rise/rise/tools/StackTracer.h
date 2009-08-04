@@ -29,23 +29,25 @@
 
 namespace rise
 {
+  //!        rise misc tools
   namespace tools
   {
-    typedef std::list<SAddrInfo> TAddrInfoList; //!<  результат трассировки стека
+    //!  stack tracing result
+    typedef std::list<SAddrInfo> TAddrInfoList;
 
-    //!  трассировщик стека
+    //!  Stack tracer
     class RISE_EXPORT CStackTracer
     {
     public:
-      //!         произвести трассировку стека
-      /*! \param  sTraceResult - строковый результат трассировки стека
-          \param  nSkip - пропустить nSkip верхних уровней стека
+      //!         trace stack
+      /*! \param  sTraceResult - string trace stack result
+          \param  nSkip - skip nSkip top stack levels
           */
       static void StackTraceStr(CString& sTraceResult, int nSkip = 0);
 
-      //!         произвести трассировку стека
-      /*! \param  rTraceResult - результат трассировки стека
-          \param  nSkip - пропустить nSkip верхних уровней стека
+      //!         trace stack
+      /*! \param  rTraceResult - trace stack result
+          \param  nSkip - skip nSkip top stack levels
           */
       static void StackTrace(TAddrInfoList& rTraceResult, int nSkip = 0);
     };

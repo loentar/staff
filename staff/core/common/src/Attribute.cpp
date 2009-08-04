@@ -61,11 +61,11 @@ namespace staff
   std::string CAttribute::GetLocalName() const
   {
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL, CDomNoItemException, 
-      "Непроинициализированный атрибут");
+      "Not Initialized");
 
     axis2_char_t* szLocalName = axiom_attribute_get_localname(m_pAxiomAttribute, 
       CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szLocalName != NULL, CDomNoItemException, "Ошибка получения атрибута");
+    RISE_ASSERTES(szLocalName != NULL, CDomNoItemException, "Can\'t get attribute");
     
     return szLocalName;
   }
@@ -73,11 +73,11 @@ namespace staff
   CValue CAttribute::GetValue() const
   {
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      CDomNoItemException, "Непроинициализированный атрибут");
+      CDomNoItemException, "Not Initialized");
 
     axis2_char_t* szValue = axiom_attribute_get_value(m_pAxiomAttribute, 
       CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szValue != NULL, CDomNoItemException, "Ошибка получения атрибута");
+    RISE_ASSERTES(szValue != NULL, CDomNoItemException, "Can\'t get attribute");
 
     return szValue;
   }
@@ -85,10 +85,10 @@ namespace staff
   const CQName CAttribute::GetQName() const
   {
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      CDomNoItemException, "Непроинициализированный атрибут");
+      CDomNoItemException, "Not Initialized");
 
     axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Ошибка получения составного имени атрибута");
+    RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Can\'t get attribute\'s QName");
     
     CQName tqName(pqName);
     return tqName;
@@ -99,14 +99,13 @@ namespace staff
   CQName CAttribute::GetQName()
   {
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      CDomNoItemException, "Непроинициализированный атрибут");
+      CDomNoItemException, "Not Initialized");
 
     axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Ошибка получения составного имени атрибута");
+    RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Can\'t get attribute\'s QName");
 
     CQName tqName(pqName);
     return tqName;
-//    return pqName; // old stdcpp
   }
 
   CAttribute& CAttribute::operator=( CAttribute& rAttribute )
@@ -122,9 +121,9 @@ namespace staff
   {
     RISE_ASSERTES(m_pDataObject != NULL && rAttribute.m_pDataObject != NULL
       && m_pAxiomAttribute != NULL && rAttribute.m_pAxiomAttribute != NULL,
-      CDomNoItemException, "Попытка сравнения с непроинициализированным атрибутом");
+      CDomNoItemException, "Not Initialized");
 
-    //! TODO: прямой вызов функций
+    //! TODO: compare using AxiOM functions
     return GetLocalName() == rAttribute.GetLocalName() && 
       GetValue() == rAttribute.GetValue();
   }

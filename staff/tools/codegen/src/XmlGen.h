@@ -31,6 +31,11 @@ namespace rise
   }
 }
 
+//!         process project struct into xml
+/*! \param  rRootNode - resulting xml-project node
+    \param  rProject - project
+    \return resulting xml-project node
+    */
 rise::xml::CXMLNode& operator<<(rise::xml::CXMLNode& rRootNode, const SProject& rProject);
 
 #endif // _XMLGEN_H_

@@ -31,58 +31,61 @@ namespace staff
   class CRemoteServiceWrapper;
   class CService;
 
-   //!  класс клиентской части для stateful сервиса
+   //!  client part for service
   class CRemoteService: public rise::sockets::CRecvSocket
   {
   public:
-    //!         конструктор
+    //!         constructor
     CRemoteService();
     
-    //!         деструктор
+    //!         destructor
     virtual ~CRemoteService();
 
+    //!         initialize
     void Init();
 
-    //!         получить имя сервиса
-    /*! \return имя сервиса
+    //!         get service name
+    /*! \return service name
     */
     const rise::CString& GetName() const;
 
-    //!         получить ID сервиса
-    /*! \return ID сервиса
+    //!         get service session id
+    /*! \return service session id
     */
     const rise::CString& GetID() const;
 
-    //!         получить описание сервиса
-    /*! \return описание сервиса
+    //!         get service description
+    /*! \return service description
     */
     const rise::CString& GetDescr() const;
 
-    //!         получить список операций сервиса
-    /*! \return список операций сервиса
+    //!         get service operations
+    /*! \return service operations
     */
     CDataObject GetOperations() const;
 
-    //!         создать сервис с указанным идентифиактором
-    /*! \param  sID - идентификатор сервиса
+    //!         create service with given session id
+    /*! \param  sID - session id
         */
     void CreateServiceID(const rise::CString& sID);
 
-    //!         выполнить операцию
-    /*! \param  rOperation - операция
+    //!         invoke operation
+    /*! \param  rOperation - operation
         */
     void Invoke(COperation& rOperation);
 
-    //!         проверка соединения
-    /*! \return true - соединение в норме
+    //!         check connection
+    /*! \return true - connection is good
         */
     bool CheckConnection();
 
-    //!         установить ссылку на обьект для работы с удаленным сервисом
+    //!         set service wrapper
+    /*! \param  pRemoteServiceWrapper - service wrapper
+        */
     void SetRemoteServiceWrapper(CRemoteServiceWrapper* pRemoteServiceWrapper);
 
-    //!         получить ссылку на обьект для работы с удаленным сервисом
-    /*! \return обьект для работы с удаленным сервисом
+    //!         get service wrapper
+    /*! \return service wrapper
     */
     CRemoteServiceWrapper* GetRemoteServiceWrapper();
   

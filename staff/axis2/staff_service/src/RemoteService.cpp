@@ -147,7 +147,7 @@ namespace staff
     rise::LogDebug2() << "invoking operation";
 #endif
 
-    // отправка запроса
+    // sending request
     {
       rise::ulong ulSent = 0;
       rise::ulong ulBuffPos = 0;
@@ -170,7 +170,7 @@ namespace staff
 #if defined DEBUG || defined _DEBUG
     rise::LogDebug2() << "receiving result";
 #endif
-    // принятие ответа
+    // receiving response
     {
       bool bRcvd = true;
       rise::ulong ulCurrentSize = 0;

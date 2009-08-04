@@ -30,61 +30,53 @@ namespace rise
   namespace threading
   {
 
-    //!  атомарный счетчик(потоко-безопасный)
+    //!  atomic counter(thread-safe)
     class RISE_EXPORT CAtomicCount  
     {
     public:
-      //!        конструктор
+      //!        constructor
       CAtomicCount() throw();
 
-      //!        конструктор
+      //!        constructor with initialization
       CAtomicCount(long lValue) throw();
 
-      //!        атомарный инкремент
-      /*
-         \return новое значение
+      //!         atomic increment
+      /*! \return new value
       */
       long Increment() throw();
 
-      //!        атомарный декремент
-      /*
-         \return новое значение
+      //!         atomic decrement
+      /*! \return new value
       */
       long Decrement() throw();
 
-      //!        получение значения счетчика
-      /*
-         \return текущее значение счетчика
+      //!         get value
+      /*! \return current value
       */
       long GetValue() const throw();
 
-      //!        атомарный преинкремент
-      /*
-         \return новое значение
+      //!         atomic preincrement
+      /*! \return new value
       */
       long operator++() throw();
 
-      //!        атомарный предекремент
-      /*
-         \return новое значение
+      //!         atomic predecrement
+      /*! \return new value
       */
       long operator--() throw();
 
-      //!        атомарный постинкремент
-      /*
-         \return новое значение
+      //!         atomic post-increment
+      /*! \return old value
       */
       long operator++(int) throw();
     
-      //!        атомарный постдекремент
-      /*
-         \return новое значение
+      //!         atomic predecrement
+      /*! \return old value
       */
       long operator--(int) throw();
     
-      //!        получение значения счетчика
-      /*
-         \return текущее значение счетчика
+      //!         get current value
+      /*! \return current value
       */
       operator long() const throw();
 
@@ -92,7 +84,7 @@ namespace rise
       CAtomicCount(CAtomicCount&);
       CAtomicCount operator=(const CAtomicCount&);
     
-      volatile long m_lValue;  //! текущее значение
+      volatile long m_lValue;  //! current value
 #ifndef WIN32
       CCriticalSection m_csLock;
 #endif

@@ -29,57 +29,54 @@ namespace rise
 {
   namespace threading
   {
-    //!        класс критическй секции
+    //!        Critical section
     class RISE_EXPORT CCriticalSection  
     {
     public:
-      //!        конструктор
+      //!        constructor
       CCriticalSection();
 
+      //!        destructor
       virtual ~CCriticalSection();
 
-      //!        вход в критическую секцию
+      //!        enter critical section
       void Enter();
 
-      //!        попытка войти в критическую секцию без блокирования
-      /*
-         \return true, если попытка успешна
+      //!        try enter critical section without locking
+      /*! \return true, enter successes
       */
       bool TryEnter();
 
-      //!        выход из критической секции
+      //!        leave critical section
       void Leave();
 
     private:
-      HCriticalSection m_hCriticalSection; //! критическая секция
+      HCriticalSection m_hCriticalSection; //!< critical section handle
     
-      // запрет копирования
       CCriticalSection(const CCriticalSection&);
       CCriticalSection operator=(const CCriticalSection&);
-
     };  // CCriticalSection
 
-    //!  критическая секция области видимости
+
+
+
+    //!  Scope critical section
     class RISE_EXPORT CScopedCriticalSection
     {
       public:
-        //!        конструктор
-        /*
-           \param  cs - ссылка на существующую критическую секцию
+        //!        constructor
+        /*! \param cs - ref to existing critical section
         */
         CScopedCriticalSection(CCriticalSection& cs);
 
-        //!        деструктор
-        /*         класс не предназначен для наследования */
+        //!        destructor
         ~CScopedCriticalSection();
 
       private:
-        CCriticalSection& m_cs;  //! ссылка на критическую секцию
+        CCriticalSection& m_cs;  //! reference to critical section
 
-        // запрет копирования
        CScopedCriticalSection(const CScopedCriticalSection&);
        CScopedCriticalSection& operator=(const CScopedCriticalSection&);
-
     };
   } // namespace threading
 } // namespace rise

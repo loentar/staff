@@ -45,11 +45,11 @@
 
 #include <string>
 
+//!        rise root namespace
 namespace rise
 {
-  //!  тестирование правильности линковки символов библиотеки
-  /*
-    \param  sResult - строка
+  //!  test stl-library linking(win32)
+  /*! \param  sResult - output string
   */
   void RISE_EXPORT RiseLinkRuntimeTest(std::string& sResult);
 }

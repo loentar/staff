@@ -31,63 +31,68 @@
 $(Class.OpeningNs)
   class $(Class.Name)Impl;
 
-  //! класс обертки для сервиса $(Class.ServiceName)
+  //! $(Class.ServiceName) service wrapper
   class $(Class.Name)Wrapper: public staff::CService
   {
   public:
-    //!         конструктор по умолчанию
+    //!         default constructor
     $(Class.Name)Wrapper();
 
-    //!         конструктор
-    /*! \param  pComponent - компонент, к которому принадлежит сервис
+    //!         initializing constructor
+    /*! \param  pComponent - service's component
     */
     $(Class.Name)Wrapper(staff::CComponent* pComponent);
 
-    //!         деструктор
+    //!         destructor
     virtual ~$(Class.Name)Wrapper();
 
-    //!         получить имя сервиса
-    /*! \return имя сервиса
+    //!         get service name
+    /*! \return service name
     */
     const rise::CString& GetName() const;
 
-    //!         получить описание сервиса
-    /*! \return описание сервиса
+    //!         get service description
+    /*! \return service description
     */
     const rise::CString& GetDescr() const;
     
-    //!         получить описание операций
-    /*! \return описание операций
+    //!         get service operations
+    /*! \return service operations DataObject
     */
     virtual staff::CDataObject GetOperations() const;
 
-    //!         получить описание сервиса
-    /*! \return описание сервиса
+    //!         get service description
+    /*! \return service description
     */
     virtual staff::CDataObject GetServiceDescription() const;
     
-    //!         вызвать операцию сервиса
-    /*! \param  rOperation - операция
+    //!         invoke service operation
+    /*! \param  rOperation - service operation
+        \param  sID - service session id
         */
     void Invoke(staff::COperation& rOperation, const rise::CString& sID);
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get service's component
+    /*! \return service's component
     */
     const staff::CComponent* GetComponent() const;
 
-    //!         получить связанный с сервисом компонент
-    /*! \return связанный с сервисом компонент
+    //!         get service's component
+    /*! \return service's component
     */
     staff::CComponent* GetComponent();
 
-    //!         получить указатель на реализацию сервиса(только для локальных сервисов)
-    /*! \param  sID - идентификатор сервиса в группе
-        \return указатель на реализацию сервиса
+    //!         get pointer to service implementation(only for local)
+    /*! \param  sID - service session id
+        \return pointer to service implementation
         */
     void* GetImpl(const rise::CString& sID);
 
   protected:
+    //!         get service implementation
+    /*! \param  sID - session id
+        \return service implementation
+    */
     $(Class.Name)Impl& ServiceImpl(const rise::CString& sID);
   
   private:

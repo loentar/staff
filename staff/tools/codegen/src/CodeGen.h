@@ -32,10 +32,16 @@ namespace rise
   }
 }
 
-//!  ClientGen
+//!  Code generator
 class CCodeGen
 {
 public:
+  //!         start code generation
+  /*! \param  sTemplateDir - path to templates
+      \param  sOutDir - output directory
+      \param  rRootNode - root node, describing project
+      \param  bUpdateOnly - true: update files if needed, false: always update files
+      */
   void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly);
 };
 

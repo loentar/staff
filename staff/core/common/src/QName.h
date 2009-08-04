@@ -30,119 +30,122 @@ typedef struct axutil_qname axutil_qname_t;
 namespace staff
 {
 
-  //! составное имя - обертка для axutil_qname
+  //! Qualified name
   class STAFF_COMMON_EXPORT CQName
   {
   public:
-    //!         конструктор по умолчанию
+    //!         default constructor
     CQName();
 
-    //!         конструктор 
+    //!         initializing constructor
+    /*! \param  pQName - existing AxiOM QName
+        */
     explicit CQName(axutil_qname_t* pQName);
 
-    //!         конструктор передачи владения
+    //!        constructor with ownership transfer
+    /*! \param  rstQName - existing QName
+        */
     CQName(CQName& rstQName);
 
-    //!         инициализирующий конструктор
-    /*! \param  sLocalPart - локальная часть (может быть в виде local или prefix:local)
-        \param  sNamespaceURI - URI пространства имен
+    //!         initializing constructor
+    /*! \param  sLocalPart - local part (may contain prefix)
+        \param  sNamespaceUri - namespace URI
         */
     CQName(const std::string& sLocalPart, const std::string& sNamespaceUri);
 
-    //!         инициализирующий конструктор
-    /*! \param  sLocalPart - локальная часть
-        \param  sNamespaceURI - URI пространства имен
-        \param  sPrefix - префикс
+    //!         initializing constructor
+    /*! \param  sLocalPart - local part
+        \param  sNamespaceUri - namespace URI
+        \param  sPrefix - prefix
         */
     CQName(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix);
 
-    //!         деструктор
+    //!         destructor
     ~CQName();
 
-    //!         оператор передачи владения
-    /*! \param  rQName - исходный 
-        \return ссылка на текущее составное имя
+    //!         ownership transfer operator
+    /*! \param  rQName - source QName
+        \return reference to current QName
         */
     CQName& operator=( CQName& rQName );
 
-    //!         оператор передачи владения
-    /*! \param  pQName - составное имя AxiOM
-        \return ссылка на текущее составное имя
+    //!         initialization operator
+    /*! \param  pQName - AxiOM QName
+        \return reference to current QName
         */
     CQName& operator=( axutil_qname_t* pQName );
 
-    //!         оператор проверки на эквивалентность
-    /*! 
-        на эквивалентность проверяются только локальная часть и URI
-        \param  rstQName - составное имя
-        \return true - текущее составное имя эквивалентно заданному
+    //!         test target QName for equality with specified QName
+    /*! compare only local part and URI
+        \param  rstQName - QName
+        \return true - QNames are equals
         */
     bool operator==(const CQName& rstQName) const;
 
-    //!         оператор проверки на не эквивалентность
-    /*! \param  rstQName - составное имя
-        \return true - текущее составное имя не эквивалентно заданному
+    //!         test target QName for inequality with specified QName
+    /*! compare only local part and URI
+        \param  rstQName - QName
+        \return true - QNames are inequals
         */
     bool operator!=(const CQName& rstQName) const;
 
-    //!         получить локальную часть
-    /*! \return локальная часть
+    //!         get local part
+    /*! \return local part
     */
     std::string GetLocalPart() const;
     
-    //!         получить URI пространства имен
-    /*! \return URI пространства имен
+    //!         get namespace URI
+    /*! \return namespace URI
     */
     std::string GetNamespaceUri() const;
     
-    //!         получить префикс
-    /*! \return префикс
+    //!         get prefix
+    /*! \return prefix
     */
     std::string GetPrefix() const;
 
     // create/delete
     
-    //!         создание составного имени
-    /*! устанавливается флаг владения
-        \param  sLocalPart - локальная часть
-        \param  sNamespaceUri - URI пространства имен 
-        \param  sPrefix - префикс
-        \return ссылка на текущий обьект составного имени
+    //!         create QName with ownership flag
+    /*! \param  sLocalPart - local part
+        \param  sNamespaceUri - namespace URI
+        \param  sPrefix - prefix
+        \return reference to current QName
         */
     CQName& Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix = "");
 
-    //!         освободить составное имя(игнорируя владение)
+    //!         free QName (even if ownership flag is not set)
     void Free();
 
-    //!         присоединиться к обьекту axutils_qname
-    /*! \param  pQName - указатель на обьект axutils_qname
-        \return ссылка на текущий обьект составного имени
+    //!         attach QName object to AxiOM qname
+    /*! \param  pQName - AxiOM qname
+        \return reference to current QName
         */
     CQName& Attach(axutil_qname_t* pQName);
 
-    //!         отсоединиться от обьекта axutils_qname
-    /*! если установлен флаг владения, объект axutils_qname будет освобожден */
+    //!         detach QName object from AxiOM qname
+    /*! if ownership flag is set, QName will be freed */
     void Detach();
 
-    //!         создать копию обьекта из указанного составного имени
-    /*! \param  rQName - ссылка на исходный объект
-        \return ссылка на текущий обьект составного имени
+    //!         create QName clone from given
+    /*! \param  rQName - source object
+        \return reference to current QName
         */
     CQName& Clone(const CQName& rQName);
     
-    //!         создать копию обьекта составного имени
-    /*! \return копия обьекта составного имени
+    //!         create QName clone
+    /*! \return QName clone
     */
     CQName Clone();
 
-    //!         оператор преобразования в строку
+    //!         string cast operator
     /*! \return prefix:localPart
     */
     operator std::string() const;
   
   private:
-    bool m_bOwner;
-    axutil_qname_t* m_pAxutilQName;
+    bool m_bOwner;                   //!<  ownership flag
+    axutil_qname_t* m_pAxutilQName;  //!<  AxiOM qname
   };
 
 } // namespace staff

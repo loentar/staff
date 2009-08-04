@@ -100,21 +100,21 @@ namespace staff
   std::string CQName::GetLocalPart() const
   {
     axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Невозможно получить локальную часть");
+    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get local part");
     return szResult;
   }
 
   std::string CQName::GetNamespaceUri() const
   {
     axis2_char_t* szResult = axutil_qname_get_uri(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Невозможно получить Uri");
+    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get Uri");
     return szResult;
   }
 
   std::string CQName::GetPrefix() const
   {
     axis2_char_t* szResult = axutil_qname_get_prefix(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Невозможно получить префикс");
+    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get prefix");
     return szResult;
   }
 
@@ -122,7 +122,7 @@ namespace staff
   {
     axutil_qname_t* pAxutilQName = axutil_qname_create(CRuntime::Inst().GetAxis2Env(), 
         sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
-    RISE_ASSERTES(pAxutilQName != NULL, CDomFormatException, "Невозможно создать составное имя");
+    RISE_ASSERTES(pAxutilQName != NULL, CDomFormatException, "Can\'t create AxiOM qname");
 
     m_pAxutilQName = pAxutilQName;
     m_bOwner = true;

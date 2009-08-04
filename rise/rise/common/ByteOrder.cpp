@@ -28,14 +28,6 @@
 
 namespace rise
 {
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       SwapBytes
-  //    DESCRIPTION:    обратить порядок байт
-  //    PARAMETRS:      tData - ссылка на данные
-  //    RETURN:         перевернутый порядок байт
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   bool CByteOrder::SwapBytes(bool tData)
   {
     return tData;
@@ -91,13 +83,6 @@ namespace rise
     return SwapBytesN(tData);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetDefaultByteOrder
-  //    DESCRIPTION:    получение текущего порядка байтов 
-  //    RETURN:         текущий порядок байтов 
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CByteOrder::EByteOrder CByteOrder::GetDefaultByteOrder()
   {
     return static_cast<EByteOrder>(__BYTE_ORDER);

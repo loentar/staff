@@ -29,15 +29,9 @@
 
 namespace rise
 {
-  int CStreamBuffer::m_nFlagsStatic = CStreamBuffer::EF_NONE; // флаги io по умолчанию
-  CByteOrder::EByteOrder CStreamBuffer::m_eByteOrderStatic = CByteOrder::GetDefaultByteOrder(); // кодировка по умолчанию
+  int CStreamBuffer::m_nFlagsStatic = CStreamBuffer::EF_NONE;
+  CByteOrder::EByteOrder CStreamBuffer::m_eByteOrderStatic = CByteOrder::GetDefaultByteOrder();
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CStreamBuffer
-  //    DESCRIPTION:    default constructor
-  //    PARAMETRS:      none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer::CStreamBuffer():
     m_pucBegin(NULL),
     m_ulROffset(0),
@@ -49,35 +43,17 @@ namespace rise
   {
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    CONSTRUCTOR:    CStreamBuffer
-  //    DESCRIPTION:    копирующий конструктор
-  //    PARAMETRS:      none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer::CStreamBuffer(const CStreamBuffer& rBuffer)
   {
     operator=(rBuffer);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    DESTRUCTOR:     ~CStreamBuffer
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer::~CStreamBuffer()
   {
     if (m_pucBegin != NULL)
       delete[] m_pucBegin;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    OPERATOR:       =
-  //    DESCRIPTION:    оператор копирования
-  //    PARAMETRS:      rBuffer - исходный буфер
-  //    RETURN:         ссылка на текущий буфер
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer& CStreamBuffer::operator=(const CStreamBuffer& rBuffer)
   {
     Reset();
@@ -90,14 +66,6 @@ namespace rise
     return *this;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       SetFlags
-  //    DESCRIPTION:    установка флагов ввода вывода
-  //    PARAMETRS:      nFlags
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        см. EFlags
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::SetFlags(int nFlags)
   {
     m_nFlags = nFlags;
@@ -108,14 +76,6 @@ namespace rise
     m_nFlagsStatic = nFlags;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetFlags
-  //    DESCRIPTION:    получение флагов ввода вывода
-  //    PARAMETRS:      none
-  //    RETURN:         флаги
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int CStreamBuffer::GetFlags() const
   {
     return m_nFlags;
@@ -126,14 +86,6 @@ namespace rise
     return m_nFlagsStatic;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       SetByteOrder
-  //    DESCRIPTION:    установить порядок байт
-  //    PARAMETRS:      eByteOrder - порядок байт
-  //    RETURN:         void
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::SetByteOrder(CByteOrder::EByteOrder eByteOrder /*= __BYTE_ORDER*/)
   {
     m_eByteOrder = eByteOrder;
@@ -144,14 +96,6 @@ namespace rise
     m_eByteOrderStatic = eByteOrder;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetByteOrder
-  //    DESCRIPTION:    получить порядок байт
-  //    PARAMETRS:      none
-  //    RETURN:         порядок байт
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CByteOrder::EByteOrder CStreamBuffer::GetByteOrder() const
   {
     return m_eByteOrder;
@@ -162,15 +106,6 @@ namespace rise
     return m_eByteOrderStatic;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Put
-  //    DESCRIPTION:    поместить в буфер данные
-  //    PARAMETRS:      pData - указатель на данные
-  //                    ulDataSize - размер данных
-  //    RETURN:         ссылка на обьект буфера
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer& CStreamBuffer::Put(PCBuffer pData, TSize ulDataSize)
   {
     if (ulDataSize == 0)
@@ -183,7 +118,7 @@ namespace rise
   CStreamBuffer& CStreamBuffer::Put(const CStreamBuffer& rData, TSize ulDataSize)
   {
     RISE_ASSERTES((rData.GetSize() >= ulDataSize) && (rData.GetData() != NULL), rise::CLogicSizeException, 
-      "недостаточно данных в исходном буфере");
+      "insufficient data in source buffer");
     return Put(rData.GetData(), ulDataSize);
   }
 
@@ -198,24 +133,15 @@ namespace rise
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Get
-  //    DESCRIPTION:    прочесть из буфера данные
-  //    PARAMETRS:      pData - указатель на данные
-  //                    ulDataSize - размер данных
-  //    RETURN:         ссылка на обьект буфера
-  //    EXCEPTIONS:     CLogicSizeException - недостаточно данных для чтения
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer& CStreamBuffer::Get(PBuffer pData, TSize ulDataSize)
   {
     if (ulDataSize == 0)
       return *this;
 
-    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "попытка чтения за пределами буфера: (требуется: " + 
-                ToStr(m_ulROffset + ulDataSize) + "/имеется: " + ToStr(m_ulBufferSize) + ")");
-    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере: (требуется: " +
-                ToStr(m_ulROffset + ulDataSize) + "/имеется: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun: (needed: " + 
+                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer: (needed: " +
+                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
     
     memcpy(pData, m_pucBegin + m_ulROffset, ulDataSize);
     m_ulROffset += ulDataSize;
@@ -238,8 +164,8 @@ namespace rise
 
     TSize ulRealDataSize = ulDataSize * sizeof(TCharA);
 
-    RISE_ASSERTES((m_ulROffset + ulRealDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "попытка чтения за пределами буфера");
-    RISE_ASSERTES((m_ulSize >= ulRealDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере");
+    RISE_ASSERTES((m_ulROffset + ulRealDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun");
+    RISE_ASSERTES((m_ulSize >= ulRealDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer");
 
     sData.assign(reinterpret_cast<TCharA*>(GetData()), ulDataSize);
 
@@ -255,8 +181,8 @@ namespace rise
 
     TSize ulRealDataSize = ulDataSize * sizeof(TCharW);
 
-    RISE_ASSERTES((m_ulROffset + ulRealDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "попытка чтения за пределами буфера");
-    RISE_ASSERTES((m_ulSize >= ulRealDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере");
+    RISE_ASSERTES((m_ulROffset + ulRealDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun");
+    RISE_ASSERTES((m_ulSize >= ulRealDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer");
 
     sData.assign(reinterpret_cast<TCharW*>(GetData()), ulDataSize);
 
@@ -298,23 +224,16 @@ namespace rise
     m_ulSize -= ulSize;
     return *this;
   }
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Ignore
-  //    DESCRIPTION:    пропустить чтение N байт
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
+  
   CStreamBuffer& CStreamBuffer::Ignore(TSize ulDataSize)
   {
     if (ulDataSize == 0)
       return *this;
 
-    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "попытка игнорирования данных за пределами буфера: (требуется: " + 
-                ToStr(m_ulROffset + ulDataSize) + "/имеется: " + ToStr(m_ulBufferSize) + ")");
-    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере для игнорирования: (требуется: " +
-                ToStr(m_ulROffset + ulDataSize) + "/имеется: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun: (needed: " + 
+                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer: (needed: " +
+                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
 
     m_ulROffset += ulDataSize;
     m_ulSize -= ulDataSize;
@@ -322,24 +241,13 @@ namespace rise
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       WriteBuffer
-  //    DESCRIPTION:    Записать данные в буфер со смещением
-  //    PARAMETRS:      pData - указатель на буфер данных
-  //                    ulDataSize - размер данных
-  //                    rsbData - буфер данных
-  //                    ulOffset - смещение относительно начало буфера
-  //    RETURN:         ссылка на обьект буфера
-  //    EXCEPTIONS:     CLogicSizeException - несоответствие размеров буферов
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   CStreamBuffer& CStreamBuffer::WriteBuffer(PCBuffer pData, TSize ulDataSize, TSize ulOffset)
   {
     if (ulDataSize == 0)
       return *this;
 
-    RISE_ASSERTES((m_ulROffset + ulOffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "попытка записи за пределами буфера");
-    RISE_ASSERTES((m_ulSize >= (ulOffset + ulDataSize)) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере");
+    RISE_ASSERTES((m_ulROffset + ulOffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun");
+    RISE_ASSERTES((m_ulSize >= (ulOffset + ulDataSize)) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer");
 
     memcpy(m_pucBegin + ulOffset, pData, ulDataSize);
 
@@ -351,14 +259,6 @@ namespace rise
     return WriteBuffer(rsbData.GetData(), rsbData.GetSize(), ulOffset);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Reset
-  //    DESCRIPTION:    сброс данных
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::Reset()
   {
     m_ulROffset = 0;
@@ -366,14 +266,6 @@ namespace rise
     m_ulSize = 0;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Normalize
-  //    DESCRIPTION:    нормализация(перенос блока данных в начало буфера)
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::Normalize()
   {
     if(m_pucBegin == NULL || m_ulROffset == 0)
@@ -384,14 +276,6 @@ namespace rise
     m_ulROffset = 0;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetData
-  //    DESCRIPTION:    получить указатель на начало данных
-  //    PARAMETRS:      none
-  //    RETURN:         указатель на начало данных, NULL - буфер пуст
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   PBuffer CStreamBuffer::GetData()
   {
     return (m_pucBegin == NULL) ? NULL : m_pucBegin + m_ulROffset;
@@ -403,83 +287,36 @@ namespace rise
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetBuffer
-  //    DESCRIPTION:    получить указатель на начало буфера
-  //    PARAMETRS:      none
-  //    RETURN:         указатель на начало буфера, NULL - буфер пуст
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   PBuffer CStreamBuffer::GetBuffer()
   {
     return m_pucBegin;
   }
+
   PCBuffer CStreamBuffer::GetBuffer() const
   {
     return m_pucBegin;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetSize
-  //    DESCRIPTION:    получение текущего размера данных в буфере
-  //    PARAMETRS:      none
-  //    RETURN:         текущий размер данных в буфере
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   TSize CStreamBuffer::GetSize() const
   {
     return m_ulSize;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetBufferSize
-  //    DESCRIPTION:    получить размер всего буфера
-  //    PARAMETRS:      none
-  //    RETURN:         размер всего буфера
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   TSize CStreamBuffer::GetBufferSize() const
   {
     return m_ulBufferSize;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetROffset
-  //    DESCRIPTION:    получить смещение чтения относительно начала буфера
-  //    PARAMETRS:      none
-  //    RETURN:         смещение чтения
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   TSize CStreamBuffer::GetROffset() const
   {
     return m_ulROffset;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetWOffset
-  //    DESCRIPTION:    получить смещение записи относительно начала буфера
-  //    PARAMETRS:      none
-  //    RETURN:         смещение записи
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   TSize CStreamBuffer::GetWOffset() const
   {
     return m_ulWOffset;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Grow
-  //    DESCRIPTION:    увеличить размер данных в буфере
-  //    PARAMETRS:      ulSize - размер на который необходимо увеличить буфер
-  //    RETURN:         указатель на начало выделенных данных
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   PBuffer CStreamBuffer::Grow(const TSize ulSize)
   {
     ulong ulSizeOld = m_ulSize;
@@ -487,14 +324,6 @@ namespace rise
     return m_pucBegin + ulSizeOld;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Resize
-  //    DESCRIPTION:    изменение размера данных
-  //    PARAMETRS:      ulSize - новый размер данных
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::Resize(const TSize ulSize)
   {
     Reserve(ulSize);
@@ -502,21 +331,12 @@ namespace rise
     m_ulSize = ulSize;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Reserve
-  //    DESCRIPTION:    при необходимости, выделить как минимум ulSize под буфер
-  //    PARAMETRS:      ulSize - размер буфера
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void CStreamBuffer::Reserve(const TSize ulSize)
   {
     if (ulSize > m_ulBufferSize)
     {
       TSize ulNewMaxSize = ulSize;
       PBuffer pucBeginNew = new TBuffer[ulNewMaxSize];
-//      std::cout << "\nRESERVE NEW: " << ulNewMaxSize << std::endl;
 
       if (m_pucBegin != NULL)
       {
@@ -556,7 +376,7 @@ namespace rise
 
   CStreamBuffer& CStreamBuffer::operator>>(CStringA& tData )
   {
-    RISE_ASSERTES((m_ulSize > 0) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере");
+    RISE_ASSERTES((m_ulSize > 0) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer");
 
     TSize nReadSize = 0;
     PBuffer pBufferEnd = reinterpret_cast<PBuffer>(memchr(GetData(), '\0', GetSize() / sizeof(TCharA)));
@@ -573,7 +393,7 @@ namespace rise
 
   CStreamBuffer& CStreamBuffer::operator>>(CStringW& tData )
   {
-    RISE_ASSERTES((m_ulSize > 0) && (m_pucBegin != NULL), rise::CLogicSizeException, "недостаточно данных в буфере");
+    RISE_ASSERTES((m_ulSize > 0) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer");
     TSize nReadSize = 0;
     PBuffer pBufferEnd = 
       reinterpret_cast<PBuffer>(wmemchr(reinterpret_cast<TCharW*>(GetData()), L'\0', GetSize() / sizeof(TCharW)));
@@ -612,6 +432,5 @@ namespace rise
     Put(tData.GetBuffer(), tData.GetSize());
     return *this;
   }
-
 
 } // namespace rise

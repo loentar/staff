@@ -110,36 +110,36 @@ int CAccountAdminImpl::AddUser(const std::string& sUserName, const std::string& 
 {
   int tResult;
 
-  RISE_ASSERTES(StaffSecurityAdminAddUser(sUserName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Невозможно добавить пользователя");
+  RISE_ASSERTES(StaffSecurityAdminAddUser(sUserName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Can\'t add user");
   return tResult;  // result
 }
 
 void CAccountAdminImpl::RemoveUser(int nUserId)
 {
-  RISE_ASSERTES(StaffSecurityAdminRemoveUser(nUserId), staff::CRemoteException, "Невозможно удалить пользователя");
+  RISE_ASSERTES(StaffSecurityAdminRemoveUser(nUserId), staff::CRemoteException, "Can\'t remove user");
 }
 
 void CAccountAdminImpl::SetUserPassword(int nUserId, const std::string& sPass)
 {
-  RISE_ASSERTES(StaffSecurityAdminSetUserPassword(nUserId, sPass.c_str()), staff::CRemoteException, "Невозможно изменить пароль пользователя");
+  RISE_ASSERTES(StaffSecurityAdminSetUserPassword(nUserId, sPass.c_str()), staff::CRemoteException, "Can\'t set user password");
 }
 
 int CAccountAdminImpl::AddGroup(const std::string& sGroupName, const std::string& sDescription)
 {
   int tResult;
 
-  RISE_ASSERTES(StaffSecurityAdminAddGroup(sGroupName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Невозможно добавить группу");
+  RISE_ASSERTES(StaffSecurityAdminAddGroup(sGroupName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Can\'t add group");
   return tResult;  // result
 }
 
 void CAccountAdminImpl::RemoveGroup(int nGroupId)
 {
-  RISE_ASSERTES(StaffSecurityAdminRemoveGroup(nGroupId), staff::CRemoteException, "Невозможно удалить группу");
+  RISE_ASSERTES(StaffSecurityAdminRemoveGroup(nGroupId), staff::CRemoteException, "Can\'t remove group");
 }
 
 void CAccountAdminImpl::AddUserToGroup(int nUserId, int nGroupId)
 {
-  RISE_ASSERTES(StaffSecurityAdminAddUserToGroup(nUserId, nGroupId), staff::CRemoteException, "Невозможно добавить пользователя в группу");
+  RISE_ASSERTES(StaffSecurityAdminAddUserToGroup(nUserId, nGroupId), staff::CRemoteException, "Can\'t include user into group");
 }
 
 void CAccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
@@ -156,7 +156,7 @@ void CAccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::TIdLi
       pnGroups[i] = *itGroup;
     }
     
-    RISE_ASSERTES(StaffSecurityAdminAddUserToGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Невозможно добавить пользователя в группу");
+    RISE_ASSERTES(StaffSecurityAdminAddUserToGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Can\'t include user into groups");
   }
   catch(...)
   {
@@ -169,7 +169,7 @@ void CAccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::TIdLi
 
 void CAccountAdminImpl::RemoveUserFromGroup(int nUserId, int nGroupId)
 {
-  RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroup(nUserId, nGroupId), staff::CRemoteException, "Невозможно исключить пользователя из группы");
+  RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroup(nUserId, nGroupId), staff::CRemoteException, "Can\'t exclude user from group");
 }
 
 void CAccountAdminImpl::RemoveUserFromGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
@@ -186,7 +186,7 @@ void CAccountAdminImpl::RemoveUserFromGroups(int nUserId, const ::staff::admin::
       pnGroups[i] = *itGroup;
     }
     
-    RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Невозможно удалить пользователя из группы");
+    RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Can\'t exclude user from groups");
   }
   catch(...)
   {

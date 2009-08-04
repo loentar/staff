@@ -28,17 +28,16 @@
 
 namespace rise
 {
-  //!    обработчик сигнала
+  //!    Signal handler
   class RISE_EXPORT CSignalHandler
   {
   public:
-    enum ESIGNAL  //! список сигналов
+    enum ESIGNAL  //! Signals
     {
       ESIGNONE = 0, 
 #ifdef WIN32
-      //! в Win32 поддерживаются только
-      //! ESIGNONE, ESIGINT, ESIGILL, ESIGABRT_COMPAT, ESIGFPE, ESIGSEGV, ESIGTERM, ESIGABRT
-      //! остальные сигналы будут проигнорированы
+      // Win32 supports only
+      // ESIGNONE, ESIGINT, ESIGILL, ESIGABRT_COMPAT, ESIGFPE, ESIGSEGV, ESIGTERM, ESIGABRT
       ESIGHUP, ESIGINT, ESIGQUIT, ESIGILL, ESIGTRAP, ESIGABRT_COMPAT, ESIGBUS, ESIGFPE,
       ESIGKILL, ESIGUSR1, ESIGSEGV, ESIGUSR2, ESIGPIPE, ESIGALRM, ESIGTERM, ESIGCHLD,
       ESIGCONT, ESIGSTOP, ESIGTSTP, ESIGTTIN, ESIGTTOU, ESIGABRT, ESIGURG, ESIGXCPU, ESIGXFSZ,
@@ -84,31 +83,32 @@ namespace rise
     };
     
   public:
+    //!              destructor
     virtual ~CSignalHandler();
     
-    //!              подписка на сигнал nSignal
-    /*  \param nSignal - номер сигнала
+    //!              register for Signal
+    /*!  \param nSignal - signal
     */
     void RegisterSignal(int nSignal);
 
-    //!              отписка от сигнала nSignal
-    /*  \param nSignal - номер сигнала
+    //!              unregister for Signal
+    /*!  \param nSignal - signal
     */
     void UnRegisterSignal(int nSignal);
     
-    //!              отписка от всех сигналов
+    //!              unregister for all signals
     void UnRegisterAll();
  
-    //!              получить символическое описание сигнала
-    /*  \param nSignal - номер сигнала
-        \return символическое описание сигнала
+    //!              get signal name
+    /*!  \param nSignal - signal
+         \return signal name
     */
     static const CString& GetSignalStr(int nSignal);
 
   protected:
-    //!               обработчик сигнала
-    /*                эту функцию должен перекрыть потомок, чтобы обрабатывать сигналы
-        \param nSignal - номер сигнала
+    //!                signal handler
+    /*!                child class must overload this function
+        \param nSignal - catched signal
     */
     virtual void SignalHandler(int nSignal) = 0;
   

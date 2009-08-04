@@ -29,77 +29,75 @@
 
 namespace rise
 {
+  //!        plugin and dynamic library classes
   namespace plugin
   {
-    //!        Менеджер подключаемых модулей
+    //!        Plugin manager
     template<typename TPluginBaseClass>
     class CPluginManager
     {
     public:
-      typedef std::map<CString, TPluginBaseClass*> TPluginMap;           //! ассоциативный список подключаемых модулей
-      typedef typename TPluginMap::iterator TPluginIterator;             //! итератор по модулям
-      typedef typename TPluginMap::const_iterator TPluginConstIterator;  //! константный итератор по модулям
+      //! plugin map
+      typedef std::map<CString, TPluginBaseClass*> TPluginMap;
+      //! plugin iterator
+      typedef typename TPluginMap::iterator TPluginIterator;
+      //! const plugin iterator
+      typedef typename TPluginMap::const_iterator TPluginConstIterator;
 
     public:
-      //!        Загрузка подгружаемого модуля
-      /*
-         \param  sPluginName - имя подгружаемого модуля
-         \return указатель на обьект модуля
+      //!         load plugin
+      /*! \param  sPluginName - plugin name
+          \param  bRawName - use raw(platform specific) library name
+          \return pointer to plugin main class
       */
       TPluginBaseClass* LoadPlugin(const CString& sPluginName, bool bRawName = false);
 
-      //!        Получение указателя на обьект подгружаемого модуля
-      /*
-         \param  sPluginName - имя подгружаемого модуля
-         \return указатель на обьект модуля
+      //!         get pointer to plugin main class
+      /*! \param  sPluginName - plugin name
+          \return pointer to plugin main class
       */
       TPluginBaseClass* GetPlugin(const CString& sPluginName);
 
-      //!        Выгрузка подгружаемого модуля
-      /*
-         \param  sPluginName - подгружаемого модуля
+      //!         unload plugin
+      /*! \param  sPluginName - plugin name
       */
       void UnLoadPlugin(const CString& sPluginName);
 
-      //!        Выгрузка
+      //!         unload all plugins with given this type
       void UnloadAll();
 
-      //!        получить список загруженных модулей
-      /*
-         \return список загруженных модулей
+      //!         get loaded plugin map
+      /*! \return loaded plugin map
       */
       const TPluginMap& GetPluginMap() const;
       
-      //!        получить итератор на первый подключаемый модуль
-      /*
-         \return итератор на первый подключаемый модуль
+      //!         get iterator to first plugin
+      /*! \return iterator to first plugin
       */
       TPluginIterator PluginBegin();
 
-      //!        получить итератор на следующий ща последним подключаемый модуль
-      /*
-         \return итератор на первый подключаемый модуль
+      //!         get iterator to next by last plugin
+      /*! \return iterator to next by last plugin
       */
       TPluginIterator PluginEnd();
 
-      //!        получить константный итератор на первый подключаемый модуль
-      /*
-         \return константный итератор на первый подключаемый модуль
+      //!         get const iterator to first plugin
+      /*! \return const iterator to first plugin
       */
       TPluginConstIterator PluginBegin() const;
 
-      //!        получить константный итератор на следующий ща последним подключаемый модуль
-      /*
-         \return константный итератор на первый подключаемый модуль
+      //!         get const iterator to next by last plugin
+      /*! \return const iterator to next by last plugin
       */
       TPluginConstIterator PluginEnd() const;
 
     private:
-      typedef std::map<CString, CDynamicLibrary*> TDynLibMap; //! ассоциативный список библиотек
+      //! dynamic library map type
+      typedef std::map<CString, CDynamicLibrary*> TDynLibMap;
 
     private:
-      TPluginMap m_lsPluginMap;  //! список модулей для пользователя
-      TDynLibMap m_lsDynLibMap;  //! список динамических библиотек
+      TPluginMap m_lsPluginMap;  //!< plugin map
+      TDynLibMap m_lsDynLibMap;  //!< dynamic library map
     };
   } // namespace plugin
 } // namespace rise

@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\DB\PostgreSQL 8.1\include&quot;"
+				AdditionalIncludeDirectories="&quot;c:\Program Files\PostgreSQL\8.3\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				AdditionalDependencies="libpq.lib ws2_32.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\Program Files\DB\PostgreSQL 8.1\lib\ms"
+				AdditionalLibraryDirectories="&quot;c:\Program Files\PostgreSQL\8.3\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"

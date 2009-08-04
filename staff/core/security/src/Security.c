@@ -1106,10 +1106,10 @@ bool StaffSecurityGetPermissionForUser( const TObject* pstObject, int nUserId, T
   STAFF_SECURITY_ASSERT(pstPermission);
 
   if (nUserId == pstObject->nUserId) 
-  { //возвращаем права владельца
+  {
     *pstPermission = pstObject->stPermissionUser;
   }
-  else // юзер не владелец, проверим пренадлежит ли он группе
+  else
   {
     int nUserBelong = 0;
     STAFF_SECURITY_ASSERT(IsUserBelongsToGroup(nUserId, pstObject->nGroupId, &nUserBelong));
@@ -1153,9 +1153,9 @@ bool StaffSecurityGetUserPermissionForServiceOperation( const char* szService, c
       szComponent[nLen] = '\0';
 
       if(!StaffSecurityGetObjectByName(szComponent, EObjectTypeComponent, pnComponentId, &stObjectComponent))
-      { // не найдено описание компонента очередного уровня вложенности, возьмем права текущего
-        if (!pnComponentId) // если не находили компонент
-        { // берем права для корневого компонента
+      {
+        if (!pnComponentId)
+        {
           STAFF_SECURITY_ASSERT(StaffSecurityGetObjectByName("ROOTCOMPONENT", EObjectTypeComponent, NULL, &stObjectComponent));
         }
 
@@ -1171,23 +1171,22 @@ bool StaffSecurityGetUserPermissionForServiceOperation( const char* szService, c
     szService = szCompBegin;
   }
 
-  // пробуем получить права на сервис
   if(StaffSecurityGetObjectByName(szService, EObjectTypeService, pnComponentId, &stObjectService))
   {
     if(szOperation && StaffSecurityGetObjectByName(szOperation, EObjectTypeOperation, 
           &stObjectService.nObjectId, &stObjectOperation))
-    { // берем права на операцию
+    {
       STAFF_SECURITY_ASSERT(StaffSecurityGetPermissionForUser(&stObjectOperation, nUserId, pstPermission));
     } 
     else
-    { // берем права на сервис
+    {
       STAFF_SECURITY_ASSERT(StaffSecurityGetPermissionForUser(&stObjectService, nUserId, pstPermission));
     }
-  } // если не получилось, то возвращаем права на компонент
+  }
   else
   {
-    if (!pnComponentId) // если не находили компонент
-    { // берем права для корневого компонента
+    if (!pnComponentId)
+    {
       STAFF_SECURITY_ASSERT(StaffSecurityGetObjectByName("ROOTCOMPONENT", EObjectTypeComponent, NULL, &stObjectComponent));
     }
 

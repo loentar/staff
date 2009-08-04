@@ -27,86 +27,84 @@
 
 namespace rise
 {
+  //!        rise xml-DOM classes
   namespace xml
   {
-    //! класс XML-Документ
+    //! XML-Document
     class RISE_EXPORT CXMLDocument
     {
     public:
-      //!         загрузка XML-документа из файла
-      /*! CXMLOpenException - ошибка открытия файла
-          CXMLFormatException - неверный формат файла
-          \param  sFileName - имя файла для загрузки
+      //!         load xml document from file
+      /*! \param  sFileName - filename
           */
       void LoadFromFile(const CString& sFileName);
 
-      //!         загрузка xml-документа из потока
-      /*! \param  rStream - поток
+      //!         load xml document from stream
+      /*! \param  rStream - stream
           */
       void LoadFromStream(CIStream& rStream);
 
-      //!         сохранение XML-документа в файл 
-      /*! CXMLOpenException - ошибка открытия файла
-          \param  sFileName - имя файла для сохранения
+      //!         save xml document to file
+      /*! \param  sFileName - filename
           */
       void SaveToFile(const CString& sFileName) const;
 
-      //!         сохранение XML-документа в поток 
-      /*! \param  rStream - поток
+      //!         save xml document to stream
+      /*! \param  rStream - stream
           */
       void SaveToStream(COStream& rStream) const;
 
-      //!         получение декларации документа
-      /*! \return ссылка на декларацию документа
+      //!         get document declaration
+      /*! \return document declaration
           */
       const CXMLDecl& GetDecl() const;
 
-      //!         получение декларации документа
-      /*! \return ссылка на декларацию документа
+      //!         get document declaration
+      /*! \return document declaration
           */
       CXMLDecl& GetDecl();
 
-      //!         получение корневого узла XML
-      /*! \return ссылка на корневой узел XML
+      //!         get root node
+      /*! \return root node
           */
       const CXMLNode& GetRoot() const;
 
-      //!         получение корневого узла XML
-      /*! \return ссылка на корневой узел XML
+      //!         get root node
+      /*! \return root node
           */
       CXMLNode& GetRoot();
 
     private:
-      CXMLDecl m_tDecl;  //!  декларация 
-      CXMLNode m_tRoot;  //!  корневой узел
+      CXMLDecl m_tDecl;  //!< xml-declaration
+      CXMLNode m_tRoot;  //!< root node
     };
 
-    //!         оператор вывода XML-документа в xml-поток
-    /*! \param  rStream - поток вывода
-        \param  rXMLDoc - XML-документ
-        \return поток вывода
-        */
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLDoc - reference to xml document
+        \return  serializing stream
+    */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const CXMLDocument& rXMLDoc);
     
-    //!         оператор ввода XML-документа из xml-потока
-    /*! \param  rStream - поток ввода
-        \param  rXMLDoc - XML-документ
-        \return поток ввода
-        */
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLDoc - reference to xml document
+        \return  deserializing stream
+    */
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, CXMLDocument& rXMLDoc);
 
-    //!         оператор вывода XML-документа в поток
-    /*! \param  rStream - поток вывода
-        \param  rXMLDoc - XML-документ
-        \return поток вывода
-        */
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLDoc - reference to xml document
+        \return  serializing stream
+    */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const CXMLDocument& rXMLDoc);
 
-    //!         оператор ввода XML-документа из потока
-    /*! \param  rStream - поток ввода
-        \param  rXMLDoc - XML-документ
-        \return поток ввода
-        */
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLDoc - reference to xml document
+        \return  deserializing stream
+    */
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, CXMLDocument& rXMLDoc);
 
   } // namespace xml

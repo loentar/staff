@@ -45,14 +45,6 @@ bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam /*= NULL*/
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osGetCurrentThread(...)
-//    DESCRIPTION:    получение текущего потока
-//    PARAMETRS:      none
-//    RETURN:         идентификатор текущего потока
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 HThread osGetCurrentThread()
 {
   return 
@@ -63,14 +55,6 @@ HThread osGetCurrentThread()
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osExitThread
-//    DESCRIPTION:    завершение текущего потока
-//    PARAMETRS:      none
-//    RETURN:         none
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osExitThread()
 {
 #ifdef WIN32
@@ -80,14 +64,6 @@ void osExitThread()
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osTerminateThread
-//    DESCRIPTION:    уничтожение потока
-//    PARAMETRS:      hThread - дескриптор потока
-//    RETURN:         true - если завершение потока произошло успешно
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 bool osTerminateThread(HThread hThread)
 {
   return 
@@ -98,14 +74,6 @@ bool osTerminateThread(HThread hThread)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osJoinThread
-//    DESCRIPTION:    ожидание завершения потока
-//    PARAMETRS:      hThread - дескриптор потока
-//    RETURN:         none
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osJoinThread(HThread hThread)
 {
 #ifdef WIN32
@@ -115,14 +83,6 @@ void osJoinThread(HThread hThread)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osIsThreadExists
-//    DESCRIPTION:    существует ли поток с заданным идентификатором
-//    PARAMETRS:      none
-//    RETURN:         true, если существует
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 bool osIsThreadExists(HThread hThread)
 {
   return
@@ -133,14 +93,6 @@ bool osIsThreadExists(HThread hThread)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osWaitForThreadExit()
-//    DESCRIPTION:    ожидание завершения потока ограниченное время
-//    PARAMETRS:      ulMSec - количество милисекунд
-//    RETURN:         true - поток завершился за указанный таймаут
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 bool osWaitForThreadExit( HThread hThread, unsigned long ulMSec )
 {
 #ifdef WIN32
@@ -183,15 +135,6 @@ bool osWaitForThreadExit( HThread hThread, unsigned long ulMSec )
 //    Threading
 //////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osInitializeCriticalSection(...)
-//    DESCRIPTION:    инициализация критической секции
-//    PARAMETRS:      hCriticalSection - критическая секция
-//    RETURN:         none
-//    EXCEPTIONS:     (WIN32) STATUS_NO_MEMORY - при отсутствии своб. памяти
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////  
 void osInitializeCriticalSection(PCriticalSection pCriticalSection)
 {
 #ifdef WIN32
@@ -207,14 +150,6 @@ void osInitializeCriticalSection(PCriticalSection pCriticalSection)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osDeleteCriticalSection(...)
-//    DESCRIPTION:    удаление критической секции
-//    PARAMETRS:      none
-//    RETURN:         none
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osDeleteCriticalSection(PCriticalSection pCriticalSection)
 {
 #ifdef WIN32
@@ -224,14 +159,6 @@ void osDeleteCriticalSection(PCriticalSection pCriticalSection)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osEnterCriticalSection(...)
-//    DESCRIPTION:    вход в критическую секцию
-//    PARAMETRS:      none
-//    RETURN:         none
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osEnterCriticalSection(PCriticalSection pCriticalSection)
 {
 #ifdef WIN32
@@ -241,14 +168,6 @@ void osEnterCriticalSection(PCriticalSection pCriticalSection)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osTryEnterCriticalSection(...)
-//    DESCRIPTION:    попытка войти в критическую секцию без блокирования
-//    PARAMETRS:      none
-//    RETURN:         true, если попытка успешна
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 bool osTryEnterCriticalSection(PCriticalSection pCriticalSection)
 {
 #ifdef WIN32
@@ -263,14 +182,6 @@ bool osTryEnterCriticalSection(PCriticalSection pCriticalSection)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osLeaveCriticalSection(...)
-//    DESCRIPTION:    выход из критической секции
-//    PARAMETRS:      none
-//    RETURN:         none
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osLeaveCriticalSection(PCriticalSection pCriticalSection)
 {
 #ifdef WIN32
@@ -280,14 +191,6 @@ void osLeaveCriticalSection(PCriticalSection pCriticalSection)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osSleep
-//    DESCRIPTION:    приостановить выполнение потока на ulMSec милисекунд
-//    PARAMETRS:      ulMSec количество милисекунд
-//    RETURN:         none
-//    EXCEPTIONS:     none
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 void osSleep(unsigned long ulMSec)
 {
 #ifdef WIN32
@@ -297,14 +200,6 @@ void osSleep(unsigned long ulMSec)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//    FUNCTION:       osQueryPerfomance
-//    DESCRIPTION:    запросить значение счетчика микросекунд
-//    PARAMETRS:      none
-//    RETURN:         счетчик в микросекундах
-//    EXCEPTIONS:     
-//    COMMENT:        none
-//////////////////////////////////////////////////////////////////////////////
 long long osQueryPerfomance()
 {
 #ifdef WIN32

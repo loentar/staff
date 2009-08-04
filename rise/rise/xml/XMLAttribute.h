@@ -31,76 +31,70 @@ namespace rise
 {
   namespace xml
   {
-    //! атрибут
+    //! xml-attribute
     struct RISE_EXPORT SXMLAttribute
     {
-      CString sAttrName;  //! имя атрибута
-      CXMLValue sAttrValue; //! значение атрибута
+      CString sAttrName;  //!< attribute name
+      CXMLValue sAttrValue; //!< attribute value
 
-      //!        конструктор
+      //!         constructor
       SXMLAttribute();
 
-      //!        копирующий конструктор
+      //!         copy constructor
+      /*! \param  rAttribute - source attribute
+          */
       SXMLAttribute(const SXMLAttribute& rAttribute);
 
-      //!        инициализирующий конструктор
+      //!         initializing constructor
+      /*! \param  rAttrName - attribute name
+          \param  rAttrValue - attribute value
+          */
       SXMLAttribute(const CString& rAttrName, const CXMLValue& rAttrValue);
 
-      //!        оператор копирования
-      /*
-         \param  rAttribute - другой атрибут
-         \return ссылка на текущий объект
+      //!         copy operator
+      /*! \param  rAttribute - source attribute
+          \return *this
       */
       SXMLAttribute& operator=(const SXMLAttribute& rAttribute);
 
-      //!        оператор проверки на равенство
-      /*
-         \param  rAttribute - другой атрибут
-         \return true, если атрибуты эквивалентны
+      //!         check attributes for equality
+      /*! \param  rAttribute - other attribute
+          \return true, if attributes are equal
       */
       bool operator==(const SXMLAttribute& rAttribute) const;
 
-      //!        оператор проверки на неравенство
-      /*
-         \param  rAttribute - другой атрибут
-         \return true, если атрибуты не эквивалентны
+      //!         check attributes for inequality
+      /*! \param  rAttribute - other attribute
+          \return true, if attributes are inequal
       */
       bool operator!=(const SXMLAttribute& rAttribute) const;
     };
 
-    //!        оператор сериализации
-    /*
-       CLogicFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLAttr - ссылка на атрибут
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLAttr - reference to attribute
+        \return  serializing stream
     */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const SXMLAttribute& rXMLAttr);
 
-    //!        оператор десериализации
-    /*
-       CLogicFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLAttr - ссылка на атрибут
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLAttr - reference to attribute
+        \return  deserializing stream
     */
     RISE_EXPORT CXMLIStream& operator>>(CXMLIStream& rStream, SXMLAttribute& rXMLAttr);
 
-    //!        оператор сериализации
-    /*
-       CLogicFormatException
-       \param   rStream - поток сериализации
-       \param   rXMLAttr - ссылка на атрибут
-       \return результирующий поток сериализации
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLAttr - reference to attribute
+        \return  serializing stream
     */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const SXMLAttribute& rXMLAttr);
 
-    //!        оператор десериализации
-    /*
-       CLogicFormatException
-       \param   rStream - поток десериализации
-       \param   rXMLAttr - ссылка на атрибут
-       \return результирующий поток десериализации
+    //!          deserializing operator
+    /*! \param   rStream - deserializing stream
+        \param   rXMLAttr - reference to attribute
+        \return  deserializing stream
     */
     RISE_EXPORT CIStream& operator>>(CIStream& rStream, SXMLAttribute& rXMLAttr);
 

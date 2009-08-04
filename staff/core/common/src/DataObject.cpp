@@ -95,11 +95,11 @@ namespace staff
   {
     RISE_ASSERTP(pAxiomNode);
     RISE_ASSERTES(axiom_node_get_node_type(pAxiomNode, m_pEnv) == AXIOM_ELEMENT, 
-      CDomTypeException, "Указанный узел не является элементом");
+      CDomTypeException, "Given node is not a element");
 
     axiom_element_t* pAxiomElement = 
       reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pAxiomNode, m_pEnv));
-    RISE_ASSERTES(pAxiomElement != NULL, CDomNoItemException, "Не найден элемент данных");
+    RISE_ASSERTES(pAxiomElement != NULL, CDomNoItemException, "Can\'t get data element");
 
     Detach();
     m_pAxiomNode = pAxiomNode;
@@ -138,9 +138,8 @@ namespace staff
 
     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
       m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Невозможно получить составное имя узла");
+    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
-//    return pqName;
     CQName tqName(pqName);
     return tqName;
   }
@@ -150,22 +149,13 @@ namespace staff
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
 
-//     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
-//       m_pAxiomNode);
-//     RISE_ASSERTES(pqName != NULL, CDomFormatException, "Невозможно получить QName");
-//     axiom_attribute_t* pAttr = axiom_element_get_attribute(m_pAxiomElement, 
-//       m_pEnv, pqName);
-//     RISE_ASSERTES(pAttr != NULL, CDomFormatException, "Невозможно получить attr");
-
     axiom_element_set_localname(m_pAxiomElement, m_pEnv, stQName.GetLocalPart().c_str());
 
     axiom_namespace_t* pNewNamespace = axiom_namespace_create(m_pEnv, stQName.GetNamespaceUri().c_str(), 
       stQName.GetPrefix().c_str());
-    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Невозможно создать namespace");
+    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
-
-//    axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, pAttr);
   }
 
   std::string CDataObject::GetLocalName() const
@@ -174,7 +164,7 @@ namespace staff
 
     const axis2_char_t* szLocalName = axiom_element_get_localname(m_pAxiomElement, m_pEnv);
 
-    RISE_ASSERTES(szLocalName != NULL, CDomFormatException, "Невозможно получить локальное имя узла");
+    RISE_ASSERTES(szLocalName != NULL, CDomFormatException, "Can\'t get local name");
     
     return szLocalName;
   }
@@ -193,7 +183,7 @@ namespace staff
 
     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
       m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Невозможно получить составное имя узла");
+    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
     const axis2_char_t* szPrefix = axutil_qname_get_prefix(pqName, m_pEnv);
 
@@ -213,12 +203,10 @@ namespace staff
     if (pOldNamespace != NULL)
     {
       szUri = axiom_namespace_get_uri(pOldNamespace, m_pEnv);
-//      RISE_ASSERTES(szUri != NULL, CDomFormatException, "Невозможно получить URI узла");
-
     }
 
     pNewNamespace = axiom_namespace_create(m_pEnv, szUri != NULL ? szUri : "", sPrefix.c_str());
-    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Невозможно создать namespace");
+    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
@@ -230,10 +218,9 @@ namespace staff
 
     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
       m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Невозможно получить составное имя узла");
+    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
     const axis2_char_t* szUri = axutil_qname_get_uri(pqName, m_pEnv);
-//    RISE_ASSERTES(szUri != NULL, CDomFormatException, "Невозможно получить URI узла");
 
     return szUri != NULL ? szUri : "";
   }
@@ -251,18 +238,17 @@ namespace staff
     if (pOldNamespace != NULL)
     {
       szPrefix = axiom_namespace_get_prefix(pOldNamespace, m_pEnv);
-      //RISE_ASSERTES(szPrefix != NULL, CDomFormatException, "Невозможно получить префикс узла");
     }
 
     pNewNamespace = axiom_namespace_create(m_pEnv, sUri.c_str(), szPrefix != NULL ? "" : szPrefix );
 
-    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Невозможно создать namespace");
+    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
 
   //////////////////////////////////////////////////////////////////////////
-  // управление узлом
+  // node management
 
   void CDataObject::Create()
   {
@@ -326,7 +312,7 @@ namespace staff
   CDataObject& CDataObject::DetachNode()
   {
     RISE_ASSERTES(axiom_node_detach(m_pAxiomNode, m_pEnv), CDomNoItemException, 
-      "Ошибка отсоединения узла");
+      "Error while node detaching");
     return *this;
   }
 
@@ -520,8 +506,7 @@ namespace staff
   }
 
   //////////////////////////////////////////////////////////////////////////
-  // управление подузлами
-
+  // child nodes management
   CDataObject CDataObject::CreateChild()
   {
     CDataObject tdoChild;
@@ -578,8 +563,8 @@ namespace staff
   staff::CDataObject CDataObject::DetachChild( Iterator& itChild )
   {
     RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
-    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, CDomNoItemException, "Итератор == End()");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
+    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, CDomNoItemException, "Iterator == End()");
 
     return CDataObject(axiom_node_detach(itChild.m_pAxiomNode, m_pEnv));
   }
@@ -588,8 +573,8 @@ namespace staff
   void CDataObject::RemoveChild( Iterator& itChild )
   {
     RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
-    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, CDomNoItemException, "Итератор == End()");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
+    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, CDomNoItemException, "Iterator == End()");
 
     axiom_node_free_tree(itChild.m_pAxiomNode, m_pEnv);
   }
@@ -718,7 +703,7 @@ namespace staff
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
 
     for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -770,7 +755,7 @@ namespace staff
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
 
     for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -871,7 +856,7 @@ namespace staff
     const axis2_char_t* szLocalName = NULL;
 
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
 
     for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -902,7 +887,7 @@ namespace staff
     const axis2_char_t* szLocalName = NULL;
 
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      CDomNoItemException, "Итератор не пренадлежит указанному узлу данных");
+      CDomNoItemException, "Iterator is not bound to current dataobject");
 
     for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -930,40 +915,34 @@ namespace staff
   CDataObject CDataObject::GetChildByQName(const CQName& stQName)
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Элемент не найден");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
     return CDataObject(pNode);
   }
 
   const CDataObject CDataObject::GetChildByQName(const CQName& stQName) const
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Элемент не найден");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
     return CDataObject(pNode);
   }
 
   CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName)
   {
     axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Элемент не найден");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
     return CDataObject(pNode);
   }
 
   const CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName) const
   {
     axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Элемент не найден");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
     return CDataObject(pNode);
   }
 
 
   //////////////////////////////////////////////////////////////////////////
-  // управление данными
-
-  //////////////////////////////////////////////////////////////////////////
-  // управление атрибутами
-
-  //////////////////////////////////////////////////////////////////////////
-  // итерация
+  // iteration
 
   CDataObject::Iterator CDataObject::Begin()
   {
@@ -1001,9 +980,6 @@ namespace staff
     return ConstIterator(this, NULL);
   }
 
-  //!         получить итератор на первый атрибут
-  /*! \return итератор на первый атрибут
-  */
   CDataObject::AttributeIterator CDataObject::AttributeBegin()
   {
     axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
@@ -1017,9 +993,6 @@ namespace staff
     return AttributeIterator(this, pIndex);
   }
 
-  //!         получить итератор на следующий за последним атрибут
-  /*! \return итератор на следующий за последним атрибут
-  */
   CDataObject::AttributeIterator CDataObject::AttributeEnd()
   {
     return AttributeIterator(this, NULL);
@@ -1045,7 +1018,7 @@ namespace staff
 
 
   //////////////////////////////////////////////////////////////////////////
-  // операторы поддержки
+  // support operators
 
   CDataObject& CDataObject::operator=( const CDataObject& rDataObject )
   {
@@ -1409,15 +1382,15 @@ namespace staff
         (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     }
     
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Попытка выйти за первый элемент");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Attempt to --begin()");
     m_pAxiomNode = pNode;
     return *this;
   }
 
   CDataObject::Iterator& CDataObject::Iterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAxiomNode != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAxiomNode != NULL, CDomNoItemException, "Attempt to ++end()");
 
     axiom_node_t* pNode = m_pAxiomNode;
     
@@ -1478,7 +1451,7 @@ namespace staff
   }
 
   //////////////////////////////////////////////////////////////////////////
-  // Iterator
+  // ConstIterator
 
   CDataObject::ConstIterator::ConstIterator():
     m_pDataObject(NULL),
@@ -1536,15 +1509,15 @@ namespace staff
         (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     }
     
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Попытка выйти за первый элемент");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Attempt to --begin()");
     m_pAxiomNode = pNode;
     return *this;
   }
 
   CDataObject::ConstIterator& CDataObject::ConstIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAxiomNode != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAxiomNode != NULL, CDomNoItemException, "Attempt to ++end()");
 
     axiom_node_t* pNode = m_pAxiomNode;
     
@@ -1800,8 +1773,8 @@ namespace staff
 
   CDataObject::AttributeIterator& CDataObject::AttributeIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     m_pAttributeIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pAttributeIndex);
     return *this;
@@ -1827,13 +1800,13 @@ namespace staff
 
   CAttribute CDataObject::AttributeIterator::operator*()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Невозможно получить атрибут");
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Can\'t get attribute");
 
     CAttribute tAttr(m_pDataObject, reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;
@@ -1841,13 +1814,13 @@ namespace staff
 
   CAttribute CDataObject::AttributeIterator::operator->()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Невозможно получить атрибут");
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Can\'t get attribute");
 
     CAttribute tAttr(m_pDataObject, reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;
@@ -1886,8 +1859,8 @@ namespace staff
 
   CDataObject::ConstAttributeIterator& CDataObject::ConstAttributeIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     m_pAttributeIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pAttributeIndex);
     return *this;
@@ -1913,13 +1886,13 @@ namespace staff
 
   const CAttribute CDataObject::ConstAttributeIterator::operator*() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Невозможно получить атрибут");
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Can\'t get attribute");
 
     //!!! const HACK
     CAttribute tAttr(const_cast<CDataObject*>(m_pDataObject), reinterpret_cast<axiom_attribute_t*>(pHashValue));
@@ -1928,13 +1901,13 @@ namespace staff
 
   const CAttribute CDataObject::ConstAttributeIterator::operator->() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Итератор не итерируемый");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Попытка выйти за последний элемент");
+    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
+    RISE_ASSERTES(m_pAttributeIndex != NULL, CDomNoItemException, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Невозможно получить атрибут");
+    RISE_ASSERTES(pHashValue != NULL, CDomNoItemException, "Can\'t get attribute");
 
     CAttribute tAttr(const_cast<CDataObject*>(m_pDataObject), reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;

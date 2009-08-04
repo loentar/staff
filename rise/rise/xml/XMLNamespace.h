@@ -32,51 +32,56 @@ namespace rise
 {
   namespace xml
   {
-
-    //! пространство имен XML
+    //! xml namespace
     struct RISE_EXPORT SXMLNamespace
     {
-      CString  sNs;    //!< имя пространства имен
+      CString  sNs;    //!< namespace
       CString  sUri;   //!< URI
 
-      //!         конструктор по умолчанию
+      //!         constructor
       SXMLNamespace();
 
-      //!         копирующий конструктор
+      //!         copying constructor
       SXMLNamespace(const SXMLNamespace& rNamespace);
 
-      //!         инициализирующий конструктор
-      /*! \param  sNsInit - имя пространства имен
+      //!         initializing
+      /*! \param  sNsInit - namespace
           \param  sUriInit - URI
           \return 
           */
       SXMLNamespace(const CString& sNsInit, const CString& sUriInit);
 
-      //!         оператор копирования
-      /*! \param  rNamespace - исходный 
-          \return 
+      //!         copy operator
+      /*! \param  rNamespace - source namespace
+          \return *this
           */
       SXMLNamespace& operator=(const SXMLNamespace& rNamespace);
 
-      //!         оператор проверки на равенство
+      //!         check namespaces for equality
+      /*! \param  rNamespace - other namespace
+          \return true, if namespaces are equal
+          */
       bool operator==(const SXMLNamespace& rNamespace) const;
 
-      //!         оператор проверки на неравенство
+      //!         check namespaces for inequality
+      /*! \param  rNamespace - other namespace
+          \return true, if namespaces are inequal
+          */
       bool operator!=(const SXMLNamespace& rNamespace) const;
     };
 
-    //!         оператор сериализации
-    /*! \param  rStream - поток сериализации
-        \param  rXMLNs - ссылка на пространство имен
-        \return поток сериализации
-        */
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLNs - reference to namespace
+        \return  serializing stream
+    */
     RISE_EXPORT CXMLOStream& operator<<(CXMLOStream& rStream, const SXMLNamespace& rXMLNs);
 
-    //!         оператор сериализации
-    /*! \param  rStream - поток сериализации
-        \param  rXMLNs - ссылка на пространство имен
-        \return поток сериализации
-        */
+    //!          serializing operator
+    /*! \param   rStream - serializing stream
+        \param   rXMLNs - reference to namespace
+        \return  serializing stream
+    */
     RISE_EXPORT COStream& operator<<(COStream& rStream, const SXMLNamespace& rXMLNs);
 
   } // namespace xml

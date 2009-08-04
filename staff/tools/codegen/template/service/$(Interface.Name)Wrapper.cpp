@@ -125,9 +125,9 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
   rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
 #else
 #ifeq($(Param.DataType.Type),string)
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"].AsString();
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"].AsString();
 #else
-  rstStruct.$(Param.Name) = rdoParam["$(Param.Name)"];
+  rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"];
 #ifeqend
 #ifeqend
 #ifeqend
@@ -144,7 +144,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 #foreach $(Interface.Typedefs)
 
 // $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.IsTemplate),1) // для всех контейнеров должен быть сериализатор
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
   for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
@@ -403,7 +403,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
   {
     rOperation.SetResponseName("$(Member.Return.ResponseName)");
     rOperation.SetResultName("$(Member.Return.NodeName)");
-#foreach $(Member.Params) // для структур и типов создаем локальные переменные 
+#foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
     $(Param.DataType.Name) $(Param.Name);
 #else
@@ -415,7 +415,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 #ifeqend
 #end
 \
-#foreach $(Member.Params) // для структур и типов заполняем локальные переменные 
+#foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
     rRequest("$(Param.Name)") >> $(Param.Name);
 #else
@@ -427,7 +427,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 #ifeqend
 #end
 \
-#ifeq($(Member.Return.Type),struct) // возвращаемое значение // !!struct!! 
+#ifeq($(Member.Return.Type),struct) // result value // !!struct!! 
     $(Member.Return.Name) tResult = \
 #else
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!
@@ -449,15 +449,15 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend // вызываем функцию
+#ifeqend // invoke an function
 \
 ServiceImpl().$(Member.Name)(\
 #foreach $(Member.Params)
-#ifeq($(Param.$Num),0) // запятая между параметрами
+#ifeq($(Param.$Num),0) // param splitter
 \
 #else
 , \
-#ifeqend // параметры
+#ifeqend // params
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
 rRequest["$(Param.Name)"]\
 #else
@@ -479,14 +479,14 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
-#end // конец параметров функции
+#end // end of funtion param list
 );
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
     rOperation.Result().AppendChild(tResultDO);
 #else
 \
-#ifeqend // конец вызова функции
-#ifeq($(Member.Return.Type),struct) // результат для структур и типов // !!struct!! 
+#ifeqend // end of function invokation
+#ifeq($(Member.Return.Type),struct) // result for structs and types // !!struct!! 
     rResult << tResult;
 #else
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!

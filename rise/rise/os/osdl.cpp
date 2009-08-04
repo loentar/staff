@@ -25,15 +25,6 @@
 
 namespace rise
 {
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osLoadLibrary
-  //    DESCRIPTION:    подгрузка библиотеки
-  //    PARAMETRS:      szLibraryName - имя библиотеки
-  //    RETURN:         идентификатор библиотеки, NULL при ошибке
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   rise::HDynamicLib osLoadLibrary( const CString& sLibraryName, bool bRawName )
   {
 #ifdef WIN32
@@ -55,15 +46,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osGetSymbol
-  //    DESCRIPTION:    получение указателя на символ в библиотеке
-  //    PARAMETRS:      hDynamicLib - идентификатор библиотеки
-  //                    szSymName - имя символа
-  //    RETURN:         указатель на функцию, NULL при ошибке
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   rise::PLibSymbol osGetSymbol( HDynamicLib hDynamicLib, const CStringA& sSymName )
   {
     return
@@ -74,14 +56,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osFreeLibrary
-  //    DESCRIPTION:    выгрузка библиотеки
-  //    PARAMETRS:      hDynamicLib - идентификатор библиотеки
-  //    RETURN:         true, если библиотека успешно выгружена
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   bool osFreeLibrary(HDynamicLib hDynamicLib)
   {
     return
@@ -92,14 +66,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osGetLastLibraryError
-  //    DESCRIPTION:    получение кода последней ошибки работы с библиотекой
-  //    PARAMETRS:      none
-  //    RETURN:         код последней ошибки работы с библиотекой
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   long osGetLastLibraryError()
   {
     return
@@ -110,14 +76,6 @@ namespace rise
 #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osGetLastLibraryErrorStr
-  //    DESCRIPTION:    получение кода последней ошибки работы с библиотекой
-  //    PARAMETRS:      none
-  //    RETURN:         код последней ошибки работы с библиотекой
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   const TChar* osGetLastLibraryErrorStr()
   {
     return

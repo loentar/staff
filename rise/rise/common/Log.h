@@ -27,50 +27,49 @@
 #include <rise/os/osdllexport.h>
 #include <rise/string/String.h>
 
-//! формат лога
-//! LogDebug() << "Timer no: " << nTimer << " was signalled" << EndLogLine;
+//! put data to log
 #define PutToLog(RISE_LOG_LEVEL)\
   tLog.Log(RISE_LOG_LEVEL, __FILE__, __LINE__, __FUNCTION__)
 
-//! запись в журнал сообщения о тревоге
+//! log alert message
 #define LogAlert()   PutToLog(rise::CLog::ELL_ALERT)
 
-//! запись в журнал сообщения о критичном событии
+//! log critical message
 #define LogCrit()    PutToLog(rise::CLog::ELL_CRIT)
 
-//! запись в журнал сообщения об ошибке
+//! log error message
 #define LogError()   PutToLog(rise::CLog::ELL_ERROR)
 
-//! запись в журнал сообщения о предупреждении
+//! log warning message
 #define LogWarning() PutToLog(rise::CLog::ELL_WARNING)
 
-//! запись в журнал сообщения об уведомлении
+//! log notice message
 #define LogNotice()  PutToLog(rise::CLog::ELL_NOTICE)
 
-//! запись в журнал информационного сообщения
+//! log info message
 #define LogInfo()    PutToLog(rise::CLog::ELL_INFO)
 
-//! запись в журнал отладочного сообщения высокого уровня
+//! log high level debug message
 #define LogDebug()   PutToLog(rise::CLog::ELL_DEBUG)
 
-//! запись в журнал отладочного сообщения среднего уровня
+//! log mid level debug message
 #define LogDebug1()  PutToLog(rise::CLog::ELL_DEBUG1)
 
-//! запись в журнал отладочного сообщения низкого уровня
+//! log low level debug message
 #define LogDebug2()  PutToLog(rise::CLog::ELL_DEBUG2)
 
-//! запись в журнал отладочного сообщения очень низкого уровня
+//! log very low level debug message
 #define LogDebug3()  PutToLog(rise::CLog::ELL_DEBUG3)
 
-//! запись в журнал стандартного отладочного сообщения
+//! log standard debug message
 #define LogLabel()   PutToLog(rise::CLog::ELL_DEBUG) << "*";
 
 
-//! запись в журнал сообщения о входе/выходе в функцию
+//! log enter/exit function message
 #define LogEntry() \
   CLogEntry tLogEntry(__FILE__, __LINE__, __FUNCTION__);
 
-//! запись в журнал сообщения о входе/выходе в функцию с указанным уровнем
+//! log enter/exit function message with given level
 #define LogEntryL(RISE_LOG_LEVEL) \
   CLogEntry tLogEntry(__FILE__, __LINE__, __FUNCTION__, RISE_LOG_LEVEL);
 
@@ -78,36 +77,53 @@ namespace rise
 {
   class CLogStream;
 
-  //!        поддержка журналирования
+  //!        Logger class
+  /*!   putting to log example:
+        LogDebug() << "Timer no: " << nTimer << " was signaled";
+
+        there is an log macros list:
+        - LogAlert()    - log alert message
+        - LogCrit()     - log critical message
+        - LogError()    - log error message
+        - LogWarning()  - log warning message
+        - LogNotice()   - log notice message
+        - LogInfo()     - log info message
+        - LogDebug()    - log high level debug message
+        - LogDebug1()   - log mid level debug message
+        - LogDebug2()   - log low level debug message
+        - LogDebug3()   - log very low level debug message
+        - LogLabel()    - log standard debug message
+        - LogEntry()    - log enter/exit function(scope) message
+  */
   class RISE_EXPORT CLog
   {
   public:
-    enum ELogLevel  //! уровень журналирования
+    enum ELogLevel  //! log level
     {
-      ELL_ALERT   = (1 << 0), //!< требуется немедленное вмешательство
-      ELL_CRIT    = (1 << 1), //!< критические условия
-      ELL_ERROR   = (1 << 2), //!< ошибки
-      ELL_WARNING = (1 << 3), //!< предупреждения
-      ELL_NOTICE  = (1 << 4), //!< важные рабочие условия
-      ELL_INFO    = (1 << 5), //!< информационные сообщения
-      ELL_DEBUG   = (1 << 6), //!< сообщения отладки
-      ELL_DEBUG1  = (1 << 7), //!< сообщения отладки 1-го уровня
-      ELL_DEBUG2  = (1 << 8), //!< сообщения отладки 2-го уровня
-      ELL_DEBUG3  = (1 << 9), //!< сообщения отладки 3-го уровня
+      ELL_ALERT   = (1 << 0), //!< alert
+      ELL_CRIT    = (1 << 1), //!< critical
+      ELL_ERROR   = (1 << 2), //!< error
+      ELL_WARNING = (1 << 3), //!< warning
+      ELL_NOTICE  = (1 << 4), //!< notice
+      ELL_INFO    = (1 << 5), //!< information
+      ELL_DEBUG   = (1 << 6), //!< debug message
+      ELL_DEBUG1  = (1 << 7), //!< debug message 1 level
+      ELL_DEBUG2  = (1 << 8), //!< debug message 2 level
+      ELL_DEBUG3  = (1 << 9), //!< debug message 3 level
       ELL_ALL = ELL_ALERT | ELL_CRIT | ELL_ERROR | ELL_WARNING | ELL_NOTICE |
-        ELL_INFO | ELL_DEBUG | ELL_DEBUG1 | ELL_DEBUG2 | ELL_DEBUG3 //!< все сообщения
+        ELL_INFO | ELL_DEBUG | ELL_DEBUG1 | ELL_DEBUG2 | ELL_DEBUG3 //!< all messages
     };
 
-    enum ELogVerbosity      //! информативность сообщений
+    enum ELogVerbosity      //! log verbosity
     {
-      ELV_NONE      = 0,        //!< выводить только текст
-      ELV_LEVEL     = (1 << 1), //!< выводить уроввень журналирования (ERROR, WARNING, etc.)
-      ELV_FILE_LINE = (1 << 2), //!< выводить имя исходного файла и строку в нем
-      ELV_FUNCTION  = (1 << 4), //!< выводить имя функции
-      ELV_PID       = (1 << 5), //!< выводить идентификатор процесса и потока
-      ELV_DEFAULT = ELV_LEVEL | //!< значение по умолчанию
+      ELV_NONE      = 0,        //!< out text only
+      ELV_LEVEL     = (1 << 1), //!< out message level (ERROR, WARNING, etc.)
+      ELV_FILE_LINE = (1 << 2), //!< out source file name and file line
+      ELV_FUNCTION  = (1 << 4), //!< out function name
+      ELV_PID       = (1 << 5), //!< out process id and thread id
+      ELV_DEFAULT = ELV_LEVEL | //!< default
          ELV_FILE_LINE | ELV_FUNCTION,
-      ELV_ALL = ELV_LEVEL | //!< выводить всё
+      ELV_ALL = ELV_LEVEL | //!< all
          ELV_FILE_LINE | ELV_FUNCTION | ELV_PID
     };
 
@@ -117,52 +133,48 @@ namespace rise
 
     virtual ~CLog();
 
-    //!        установка потока вывода лога
+    //!        set log stream
     /*
-               установить поток (маска)
-       \param  rOutStream - поток вывода (NULL - не выводить)
-       \param  nLogLevel - уровени для которых необходимо 
+       \param  rOutStream - log stream (NULL - do not output)
+       \param  nLogLevel - combination of levels for this stream
     */
     void SetLogStream(COStream* pOutStream, int nLogLevel = ELL_ALL);
 
-    //!        установить уровень журналирования.
-    /*         в журнал будут выводиться только сообщения 
-               с критичностью равной или выше указанной
-               пример: запрет вывода сообщений отладки
-                      SetLogLevel(rise::CLog::ELL_INFO)
+    //!        set log level
+    /*!        log messages with level equal or higher that set
+               example: disable log messages
+                       SetLogLevel(rise::CLog::ELL_INFO)
 
-       \param  eLogLevel - уровень журналирования
+       \param  eLogLevel - log level
     */
     void SetLogLevel(ELogLevel eLogLevel);
 
-    //!        установить уровень информативности журналирования
-    /*
-               пример: выводить только текст
+    //!        set log verbosity
+    /*!        example: log text only
                        SetLogLevel(rise::CLog::ELV_NONE)
-       \param  nLogVerbosity - уровень информативности 
+       
+       \param  nLogVerbosity - log verbosity
     */
     void SetLogVerbosity(int nLogVerbosity);
 
-    //!        вывод сообщения в журнал
-    /*         пример:
-               LogDebug() << "Timer no: " << nTimer << " was signalled " << nTimerCount << " times";
-       \param   eType - уровень сообщения
-       \param  sFile - имя исходного файла
-       \param  nLine - номер строки в исходном файле
-       \param  sFunction - функция из которой был вызван лог
-       \return поток для вывода
+    //!        put message to log
+    /*! \param  eLogLevel - message log level
+        \param  sFile - source file name
+        \param  nLine - source file line
+        \param  sFunction - function
+        \return log stream
     */
     CLogStream Log(int eLogLevel, const TChar* sFile, unsigned nLine, const TChar* sFunction);
 
   private:
-    COStream*    m_pLogStream[10];       //! потоки журналирования
-    ELogLevel    m_eLogLevel;            //! уровень журналирования
-    int          m_nLogVerbosity;        //! уровень информативности
-    int          m_nSrcRecode;
-    int          m_nDstRecode;
+    COStream*    m_pLogStream[10];       //! log streams
+    ELogLevel    m_eLogLevel;            //! log level
+    int          m_nLogVerbosity;        //! verbosity level
+    int          m_nSrcRecode;           //! source encoding
+    int          m_nDstRecode;           //! destination(screen) encoding
   };
 
-  //!          класс-помощник вывода в журнал - для внутреннего использования
+  //!          log stream - log output helper(internal use only)
   class RISE_EXPORT CLogStream
   {
   public:
@@ -179,54 +191,66 @@ namespace rise
     const CLogStream& operator<<( TDATA tData ) const;
 
   private:
-    mutable COStream*            m_pLogStream;  // поток вывода
-    bool                         m_bOutEndLine; // выводить перевод строки
+    mutable COStream*            m_pLogStream;
+    bool                         m_bOutEndLine;
     int          m_nSrcRecode;
     int          m_nDstRecode;
 
   private:
     void OutRecoded( const std::string& tData ) const;
 
-    CLogStream& operator=(const CLogStream&); // запрет копирования
+    CLogStream& operator=(const CLogStream&);
 
     friend RISE_EXPORT CLogStream& LogEndLOff(CLogStream& rLogStream);
     friend RISE_EXPORT CLogStream& LogEndLOn(CLogStream& rLogStream);
   };
 
-  //!  класс лога в области видимости
+  //!  log entry
   class RISE_EXPORT CLogEntry
   {
   public:
+    //!        log entry message
+    /*         
+       \param  eType - message level
+       \param  sFile - source file name
+       \param  nLine - source file line
+       \param  sFunction - function
+       \return log stream
+    */
     CLogEntry(const TChar* sFile, unsigned nLine, const TChar* sFunction, CLog::ELogLevel eLevel = m_eLevelDefault);
 
+    //! destructor
     ~CLogEntry();
 
+    //! set default log level for log entry
+    /*! \param eLevel - default log level
+    */
     static void SetLogLevelDefault(CLog::ELogLevel eLevel = rise::CLog::ELL_DEBUG);
 
   private:
-    static CLog::ELogLevel   m_eLevelDefault;
-    CLog::ELogLevel          m_eLevel;
-    CString                  m_sFile;
-    unsigned                 m_nLine;
-    CString                  m_sFunction;
+    static CLog::ELogLevel   m_eLevelDefault; //! default log level
+    CLog::ELogLevel          m_eLevel;        //! current log level
+    CString                  m_sFile;         //! file name
+    unsigned                 m_nLine;         //! line number
+    CString                  m_sFunction;     //! function
   };
 
-  //!           вывести в журнал сообщение о успехе выполнения операции
+  //!           log success message
   RISE_EXPORT COStream& LogResultSuccess(COStream& rLogStream);
 
-  //!           вывести в журнал сообщение о завершении выполнения операции
+  //!           log done message
   RISE_EXPORT COStream& LogResultDone(COStream& rLogStream);
 
-  //!           вывести в журнал сообщение о предупреждении при выполнения операции
+  //!           log warning message
   RISE_EXPORT COStream& LogResultWarning(COStream& rLogStream);
 
-  //!           вывести в журнал сообщение об ошибке при выполнения операции
+  //!           log fail message
   RISE_EXPORT COStream& LogResultFailed(COStream& rLogStream);
 
-  //! отключить автоматический перевод строки в конце сообщения
+  //!           disable carriage return
   RISE_EXPORT CLogStream& LogEndLOff(CLogStream& rLogStream);
 
-  //! включить автоматический перевод строки в конце сообщения (по умолчанию)
+  //!           enable carriage return
   RISE_EXPORT CLogStream& LogEndLOn(CLogStream& rLogStream);
 
   RISE_EXPORT extern CLog tLog;

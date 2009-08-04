@@ -44,15 +44,14 @@ int main(int nArgs, const char* paszArgs[])
 
       RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
 
-      // Invoke service
-
-      std::cout << "Получение истечения сессии = ";
+      // Invoke login service
+      std::cout << "Session expiration = ";
       int nEx = pLogin->GetSessionExpiration();
-      std::cout << nEx << ": Успешно" << std::endl;
+      std::cout << nEx << ": Success" << std::endl;
 
-      std::cout << "Регистрация пользователя ";
+      std::cout << "User login ";
       sSessionID = pLogin->Login("test", "test");
-      std::cout << (sSessionID != "" ? ": Успешно" : ": ОШИБКА") << std::endl;
+      std::cout << (sSessionID != "" ? ": Success" : ": Error") << std::endl;
     }
     
     {
@@ -61,29 +60,29 @@ int main(int nArgs, const char* paszArgs[])
 
       RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
 
-      std::cout << "Проверка сессии ";
+      std::cout << "Validating session ";
       bool bSessionValid = pLogin->ValidateSession();
-      std::cout << (bSessionValid ? ": Успешно" : ": ОШИБКА") << std::endl;
+      std::cout << (bSessionValid ? ": Success" : ": Error") << std::endl;
 
-      std::cout << "Получение имени пользователя ";
+      std::cout << "Getting user name ";
       std::string sUser = pLogin->GetUserName();
-      std::cout << ": Успешно: sUser = " << sUser << std::endl;
+      std::cout << ": Success: sUser = " << sUser << std::endl;
       
-      std::cout << "Разрегистрация пользователя ";
+      std::cout << "Logout user ";
       pLogin->Logout();
-      std::cout << ": Успешно" << std::endl;
+      std::cout << ": Success" << std::endl;
 
-      // модуль безопасности не пустит такой запрос
+      // security module must not pass this request
       try
       {
-        std::cout << "Проверка сессии ";
+        std::cout << "Validating closed session ";
         bSessionValid = pLogin->ValidateSession();
         RISE_THROW(rise::CLogicNoItemException);
-//        std::cout << (!bSessionValid ? ": Успешно" : ": ОШИБКА") << std::endl;
+//        std::cout << (!bSessionValid ? ": Success" : ": Error") << std::endl;
       }
       catch(const staff::CRemoteException& /*rEx*/)
       {
-        std::cout << ": Успешно" << std::endl;
+        std::cout << ": Success" << std::endl;
       }
       
       // pLogin->KeepAliveSessionID(sSessionID);
@@ -91,7 +90,7 @@ int main(int nArgs, const char* paszArgs[])
   }
   catch(const staff::CRemoteException& rEx)
   {
-    std::cout << ": ОШИБКА" << std::endl;
+    std::cout << ": Error" << std::endl;
     rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL

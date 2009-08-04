@@ -28,35 +28,35 @@
 #include <staff/component/Component.h>
 
 $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
-  //!  ComponentImpl
+  //!  Component implementation
   class CComponentImpl: public staff::CComponent
   {
   public:
-    //!        конструктор по умолчанию
+    //!        default constructor
     CComponentImpl();
 
-    //!        деструктор
+    //!        destructor
     virtual ~CComponentImpl();
 
-    //!         получить имя компонента
-    /*! \return имя компонента
+    //!         get component name
+    /*! \return component name
     */
     const rise::CString& GetName() const;
 
-    //!         получить сервис
-    /*! \param  sService - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get service
+    /*! \param  sService - service name
+        \return pointer to work with service, NULL if no service found
         */
     const staff::CService* GetService(const rise::CString& sService) const;
 
-    //!         получить сервис
-    /*! \param  sService - имя сервиса
-        \return указатель на обьект для работы с сервисом, NULL если сервис не найден
+    //!         get service
+    /*! \param  sService - service name
+        \return pointer to work with service, NULL if no service found
         */
     staff::CService* GetService(const rise::CString& sService);
 
-    //!         получить список сервисов
-    /*! \return список сервисов
+    //!         get services map
+    /*! \return services map
     */
     const staff::TServiceMap& GetServices() const;
 

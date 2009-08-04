@@ -25,130 +25,131 @@
 #ifdef WIN32
 
 ////////////////////////////////////////////////////////////////////
-// WINDOWS
-#define COLOR_DEFAULT        "" //! все атрибуты по умолчанию 
+// WINDOWS does'nt support static coloring
 
-#define COLOR_BRIGHTNESS_ON  "" //! яркий цвет
-#define COLOR_DIM_ON         "" //! полуяркий цвет
-#define COLOR_UNDERLINE_ON   "" //! подчеркивание
-#define COLOR_FLASH_ON       "" //! мигающий 
-#define COLOR_INVERSE_ON     "" //! инверсия
+// basic attrs
+#define COLOR_DEFAULT        ""
 
-#define COLOR_BRIGHTNESS_OFF "" //! отмена яркого цвета
-#define COLOR_UNDERLINE_OFF  "" //! отмена подчеркивание 
-#define COLOR_FLASH_OFF      "" //! отмена мигание 
-#define COLOR_INVERSE_OFF    "" //! отмена инверсию 
+#define COLOR_BRIGHTNESS_ON  ""
+#define COLOR_DIM_ON         ""
+#define COLOR_UNDERLINE_ON   ""
+#define COLOR_FLASH_ON       ""
+#define COLOR_INVERSE_ON     ""
 
-//! Цвет знаков 
-#define COLOR_INK_BLACK      "" //! чёрный
-#define COLOR_INK_RED        "" //! красный
-#define COLOR_INK_GREEN      "" //! зелёный
-#define COLOR_INK_BROWN      "" //! коричневый
-#define COLOR_INK_BLUE       "" //! синий
-#define COLOR_INK_MAGENTA    "" //! фиолетовый
-#define COLOR_INK_CYAN       "" //! циановый 
-#define COLOR_INK_GREY       "" //! серый
+#define COLOR_BRIGHTNESS_OFF ""
+#define COLOR_UNDERLINE_OFF  ""
+#define COLOR_FLASH_OFF      ""
+#define COLOR_INVERSE_OFF    ""
 
-//! Цвет фона
-#define COLOR_PAPER_BLACK    "" //! чёрный
-#define COLOR_PAPER_RED      "" //! красный
-#define COLOR_PAPER_GREEN    "" //! зелёный 
-#define COLOR_PAPER_BROWN    "" //! коричневый
-#define COLOR_PAPER_BLUE     "" //! синий
-#define COLOR_PAPER_MAGENTA  "" //! фиолетовый
-#define COLOR_PAPER_CYAN     "" //! циановый
-#define COLOR_PAPER_GREY     "" //! серый
+// text color
+#define COLOR_INK_BLACK      ""
+#define COLOR_INK_RED        ""
+#define COLOR_INK_GREEN      ""
+#define COLOR_INK_BROWN      ""
+#define COLOR_INK_BLUE       ""
+#define COLOR_INK_MAGENTA    ""
+#define COLOR_INK_CYAN       ""
+#define COLOR_INK_GREY       ""
 
-
-//! управление позицией курсора
-#define CURSOR_UP(n)         "" //! передвинуть курсор вверх на n строк 
-#define CURSOR_DOWN(n)       "" //! передвинуть курсор вниз на n строк 
-#define CURSOR_RIGHT(n)      "" //! передвинуть курсор вправо на n столбцов 
-#define CURSOR_LEFT(n)       "" //! передвинуть курсор влево на n столбцов 
-#define CURSOR_DOWN_NL(n)    "" //! передвинуть курсор вниз на n строк и поставить в начало строки 
-#define CURSOR_UP_NL(n)      "" //! передвинуть курсор вверх на n строк и поставить в начало строки 
-#define CURSOR_TAB(n)        "" //! переместить курсор в n-й столбец текущей строки 
-#define CURSOR_GOTO(x,y)     "" //! задает абсолютные координаты курсора (строка, столбец) 
+// background color
+#define COLOR_PAPER_BLACK    ""
+#define COLOR_PAPER_RED      ""
+#define COLOR_PAPER_GREEN    ""
+#define COLOR_PAPER_BROWN    ""
+#define COLOR_PAPER_BLUE     ""
+#define COLOR_PAPER_MAGENTA  ""
+#define COLOR_PAPER_CYAN     ""
+#define COLOR_PAPER_GREY     ""
 
 
-// Работа с палитрой 
+// cursor position management
+#define CURSOR_UP(n)         ""
+#define CURSOR_DOWN(n)       ""
+#define CURSOR_RIGHT(n)      ""
+#define CURSOR_LEFT(n)       ""
+#define CURSOR_DOWN_NL(n)    ""
+#define CURSOR_UP_NL(n)      ""
+#define CURSOR_TAB(n)        ""
+#define CURSOR_GOTO(x,y)     ""
+
+
+// palette
   
-//! Изменяет палитру. n -- номер цвета; rr, gg и bb -- значения RGB-компонент в шестнадцатеричной форме 
+// set palette. n -- color number; r, g & b -- RGB-components in hex
 #define PALETTE_SET(n,r,g,b) ""
-#define PALETTE_RESET        "" //! Восстанавливает палитру, принятую по умолчанию 
+#define PALETTE_RESET        ""
 
-//! Работа с виртуальными консолями 
-#define CONSOLE_SWITCHTO(n)  ""  //! сделать текущей консоль с указанным номером 
+// console
+#define CONSOLE_SWITCHTO(n)  ""
 
-// Работа с xterm 
-   
-#define CONSOLE_ICONTEXT(s) ""   //! Присваивает имя окну и иконке 
-#define CONSOLE_ICON(s) "" //! Присваивает имя иконке 
-#define CONSOLE_TEXT(s) "" //! Присваивает имя окну 
+// xterm
+#define CONSOLE_ICONTEXT(s) ""
+#define CONSOLE_ICON(s) ""
+#define CONSOLE_TEXT(s) ""
 
 #else  
 //////////////////////////////////////////////////////////////////////////
 //  LINUX
 
-#define COLOR_DEFAULT        "\033[0m" //! все атрибуты по умолчанию 
+// basic attrs
+#define COLOR_DEFAULT        "\033[0m"
 
-#define COLOR_BRIGHTNESS_ON  "\033[1m" //! яркий цвет
-#define COLOR_DIM_ON         "\033[2m" //! полуяркий цвет
-#define COLOR_UNDERLINE_ON   "\033[4m" //! подчеркивание
-#define COLOR_FLASH_ON       "\033[5m" //! мигающий 
-#define COLOR_INVERSE_ON     "\033[7m" //! инверсия
+#define COLOR_BRIGHTNESS_ON  "\033[1m"
+#define COLOR_DIM_ON         "\033[2m"
+#define COLOR_UNDERLINE_ON   "\033[4m"
+#define COLOR_FLASH_ON       "\033[5m"
+#define COLOR_INVERSE_ON     "\033[7m"
 
-#define COLOR_BRIGHTNESS_OFF "\033[22m" //! отмена яркого цвета
-#define COLOR_UNDERLINE_OFF  "\033[24m" //! отмена подчеркивание 
-#define COLOR_FLASH_OFF      "\033[25m" //! отмена мигание 
-#define COLOR_INVERSE_OFF    "\033[27m" //! отмена инверсию 
+#define COLOR_BRIGHTNESS_OFF "\033[22m"
+#define COLOR_UNDERLINE_OFF  "\033[24m" 
+#define COLOR_FLASH_OFF      "\033[25m"
+#define COLOR_INVERSE_OFF    "\033[27m"
 
-//! Цвет знаков 
-#define COLOR_INK_BLACK      "\033[30m" //! чёрный
-#define COLOR_INK_RED        "\033[31m" //! красный
-#define COLOR_INK_GREEN      "\033[32m" //! зелёный
-#define COLOR_INK_BROWN      "\033[33m" //! коричневый
-#define COLOR_INK_BLUE       "\033[34m" //! синий
-#define COLOR_INK_MAGENTA    "\033[35m" //! фиолетовый
-#define COLOR_INK_CYAN       "\033[36m" //! циановый 
-#define COLOR_INK_GREY       "\033[37m" //! серый
+// text color
+#define COLOR_INK_BLACK      "\033[30m"
+#define COLOR_INK_RED        "\033[31m"
+#define COLOR_INK_GREEN      "\033[32m"
+#define COLOR_INK_BROWN      "\033[33m"
+#define COLOR_INK_BLUE       "\033[34m"
+#define COLOR_INK_MAGENTA    "\033[35m"
+#define COLOR_INK_CYAN       "\033[36m"
+#define COLOR_INK_GREY       "\033[37m"
 
-//! Цвет фона
-#define COLOR_PAPER_BLACK    "\033[40m" //! чёрный
-#define COLOR_PAPER_RED      "\033[41m" //! красный
-#define COLOR_PAPER_GREEN    "\033[42m" //! зелёный 
-#define COLOR_PAPER_BROWN    "\033[43m" //! коричневый
-#define COLOR_PAPER_BLUE     "\033[44m" //! синий
-#define COLOR_PAPER_MAGENTA  "\033[45m" //! фиолетовый
-#define COLOR_PAPER_CYAN     "\033[46m" //! циановый
-#define COLOR_PAPER_GREY     "\033[47m" //! серый
-
-
-//! управление позицией курсора
-#define CURSOR_UP(n)         "\033["#n"A" //! передвинуть курсор вверх на n строк 
-#define CURSOR_DOWN(n)       "\033["#n"B" //! передвинуть курсор вниз на n строк 
-#define CURSOR_RIGHT(n)      "\033["#n"С" //! передвинуть курсор вправо на n столбцов 
-#define CURSOR_LEFT(n)       "\033["#n"D" //! передвинуть курсор влево на n столбцов 
-#define CURSOR_DOWN_NL(n)    "\033["#n"E" //! передвинуть курсор вниз на n строк и поставить в начало строки 
-#define CURSOR_UP_NL(n)      "\033["#n"F" //! передвинуть курсор вверх на n строк и поставить в начало строки 
-#define CURSOR_TAB(n)        "\033["#n"G" //! переместить курсор в n-й столбец текущей строки 
-#define CURSOR_GOTO(x,y)     "\033["#x";"#y"H" //! задает абсолютные координаты курсора (строка, столбец) 
+// background color
+#define COLOR_PAPER_BLACK    "\033[40m"
+#define COLOR_PAPER_RED      "\033[41m"
+#define COLOR_PAPER_GREEN    "\033[42m"
+#define COLOR_PAPER_BROWN    "\033[43m"
+#define COLOR_PAPER_BLUE     "\033[44m"
+#define COLOR_PAPER_MAGENTA  "\033[45m"
+#define COLOR_PAPER_CYAN     "\033[46m"
+#define COLOR_PAPER_GREY     "\033[47m"
 
 
-// Работа с палитрой 
-  
-// Изменяет палитру. n -- номер цвета; rr, gg и bb -- значения RGB-компонент в шестнадцатеричной форме 
+// cursor position management
+#define CURSOR_UP(n)         "\033["#n"A"
+#define CURSOR_DOWN(n)       "\033["#n"B"
+#define CURSOR_RIGHT(n)      "\033["#n"С"
+#define CURSOR_LEFT(n)       "\033["#n"D"
+#define CURSOR_DOWN_NL(n)    "\033["#n"E"
+#define CURSOR_UP_NL(n)      "\033["#n"F"
+#define CURSOR_TAB(n)        "\033["#n"G"
+#define CURSOR_GOTO(x,y)     "\033["#x";"#y"H"
+
+
+// palette
+
+// set palette. n -- color number; r, g & b -- RGB-components in hex
 #define PALETTE_SET(n,r,g,b) "\033]P"#n#r#g#b 
-#define PALETTE_RESET        "\033]R" //! Восстанавливает палитру, принятую по умолчанию 
+#define PALETTE_RESET        "\033]R"
 
-// Работа с виртуальными консолями 
-#define CONSOLE_SWITCHTO(n)  "\033[12;"#n"]"  //! сделать текущей консоль с указанным номером 
+// console
+#define CONSOLE_SWITCHTO(n)  "\033[12;"#n"]"
 
-// Работа с xterm 
-   
-#define CONSOLE_ICONTEXT(s) "\033]0;" s "\007"   //! Присваивает имя окну и иконке 
-#define CONSOLE_ICON(s) "\033]1;" s "\007" //! Присваивает имя иконке 
-#define CONSOLE_TEXT(s) "\033]2;" s "\007" //! Присваивает имя окну 
+// xterm
+#define CONSOLE_ICONTEXT(s) "\033]0;" s "\007"
+#define CONSOLE_ICON(s) "\033]1;" s "\007"
+#define CONSOLE_TEXT(s) "\033]2;" s "\007"
 
 #endif
 

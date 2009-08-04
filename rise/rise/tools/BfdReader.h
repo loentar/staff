@@ -30,46 +30,46 @@ namespace rise
 {
   namespace tools
   {
-    //!  класс для дампа бинарных(исполняемых) файлов (для linux)
+    //!  Binary File Descriptor reader
     class RISE_EXPORT CBfdReader
     {
     public:
-      //!         конструктор
+      //!         constructor
       CBfdReader();
 
-      //!         деструктор
+      //!         destructor
       ~CBfdReader();
       
-      //!         открыть бинарный файл для дампа
-      /*! \param  sFileName - имя файла
-          \return true - файл успешно открыт
+      //!         open binary file for dump
+      /*! \param  sFileName - file name
+          \return true - file successfully opened
           */
       bool Open(const CString& sFileName);
 
-      //!         закрыть файл
+      //!         close file
       void Close();
       
-      //!         открыт ли файл
-      /*! \return true - файл открыт
+      //!         if file open
+      /*! \return true - file is open
       */
       bool IsOpen();
 
-      //!         получить имя файла
-      /*! \return имя открытого файла
+      //!         get file name
+      /*! \return file name
           */
       const rise::CString& GetFileName();
 
-      //!         найти информацию об адресе
-      /*! \param  pAddr - указатель на адрес
-          \param  rAddrInfo - информация об адресе
-          \return true - информация успешно получена
+      //!         lookup address info by pointer
+      /*! \param  pAddr - address pointer
+          \param  rAddrInfo - address info
+          \return true - info was successfully get
           */
       bool LookupAddrPtr( const void* pAddr, SAddrInfo& rAddrInfo );
 
-      //!         найти информацию об адресе
-      /*! \param  pAddr - адрес в шестнадцатеричной форме
-          \param  rAddrInfo - информация об адресе
-          \return true - информация успешно получена
+      //!         lookup address info by pointer
+      /*! \param  sAddrHex - hexdecimal address
+          \param  rAddrInfo - address info
+          \return true - info was successfully get
           */
       bool LookupAddr( const CString& sAddrHex, SAddrInfo& rAddrInfo );
 

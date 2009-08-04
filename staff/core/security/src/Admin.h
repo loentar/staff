@@ -170,14 +170,14 @@ STAFF_SECURITY_EXPORT bool StaffSecurityAdminRemoveUserFromGroups(int nUserId, c
 // objects admin
 
 //!         get object list of id
-/*! \param  pnObjectIds - list of object ids
+/*! \param  ppnObjectIds - list of object ids
     \param  pnObjectsCount - returns count of ids
     \return true, if operation successes
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectIdList(int** ppnObjectIds, int* pnObjectsCount);
 
 //!         get object list of id
-/*! \param  pnObjectIds - list of object ids
+/*! \param  ppnObjectIds - list of object ids
     \param  nParentId - parent object id
     \param  pnObjectsCount - returns count of ids
     \return true, if operation successes
@@ -195,6 +195,7 @@ STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectById(int nObjectId, TObjec
 /*! \param  pnObjectIds - list of objects ids
     \param  nObjectIdsCount - count of object ids
     \param  ppstObjects - returning list of objects
+    \param  pnObjectsCount - resulting objects count
     \return true, if operation successes
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectList(const int* pnObjectIds, int nObjectIdsCount, TObject** ppstObjects, int* pnObjectsCount);
@@ -226,11 +227,10 @@ STAFF_SECURITY_EXPORT bool StaffSecurityAdminReplaceObject(const TObject* pstObj
 STAFF_SECURITY_EXPORT void StaffSecurityAdminFreeObjectIds(int* pObjects);
 
 
-
 //!         get object type list
-/*! \param  nObjectTypeIdsCount - count of type ids
-    \param  ppstObjectTypes - returning list of objects
-    \return true, if operation successes
+/*! \param  ppstObjectTypes - resulting list of objects
+    \param  pnObjectTypesCount - resulting list size
+    \return 
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityAdminGetObjectTypeList(TObjectType** ppstObjectTypes, int* pnObjectTypesCount);
 

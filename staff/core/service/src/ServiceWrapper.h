@@ -29,33 +29,30 @@ namespace staff
 {
   class COperation;
 
-  //!  класс обработчика запросов
-  /*   от этого класса наследуется упаковщик для обработки запросов(сервисная часть)
-  */
+  //!  Service wrapper
   class STAFF_SERVICE_EXPORT CServiceWrapper
   {
   public:
-    //!         виртуальный деструктор
+    //!         destructor
     virtual ~CServiceWrapper();
     
-    //!         выполнить запрос
-    /*!         эту функцию необходимо перекрыть в дочернем классе
-        \param  rOperation - операция
+    //!         invoke service operation
+    /*! \param  rOperation - service operation
         */
     virtual void Invoke(COperation& rOperation) = 0;
 
-    //!         получить SessionId сервиса
-    /*! \return SessionId сервиса
+    //!         get service session id
+    /*! \return service session id
     */
     const rise::CString& GetSessionId() const;
   
-    //!         установить SessionId сервиса
-    /*! \param  sSessionId - SessionId сервиса
+    //!         set service session id
+    /*! \param  sSessionId - session id
         */
     void SetSessionId(const rise::CString& sSessionId);
 
   private:
-    rise::CString m_sSessionId;
+    rise::CString m_sSessionId; //!<  service session id
   };
 }
 

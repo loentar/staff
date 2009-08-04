@@ -30,408 +30,423 @@ namespace staff
 {
   class CDataObject;
 
-  //! класс "Значение"
-  /*! предназначен для прозрачного хранения и преобразования перечислимых и строковых типов данных */
+  //! Value
   class STAFF_COMMON_EXPORT CValue
   {
   public:
-    enum EType      //!  тип значения
+    enum EType      //!  value type
     {
-      ET_NOTINIT,   //!<  не проинициализирован
-      ET_UNKNOWN,   //!<  тип не известен
-      ET_TEXT,      //!<  текст
+      ET_NOTINIT,   //!<  not initialized
+      ET_UNKNOWN,   //!<  unknown
+      ET_TEXT,      //!<  text
 
-      // числовые типы
-      ET_FLOAT,     //!<  число с плавающей точкой
-      ET_DOUBLE,    //!<  двойное число с плавающей точкой
+      ET_FLOAT,     //!<  float
+      ET_DOUBLE,    //!<  double
 
       ET_BYTE,      //!<  byte
-      ET_INT,       //!<  целое
-      ET_SHORT,     //!<  короткое
-      ET_LONG,      //!<  длинное
-      ET_LONGLONG,  //!<  двойное длинное
+      ET_INT,       //!<  int
+      ET_SHORT,     //!<  short
+      ET_LONG,      //!<  long
+      ET_LONGLONG,  //!<  long long
 
       ET_UBYTE,     //!<  unsigned byte
-      ET_UINT,      //!<  беззнаковое целое
-      ET_USHORT,    //!<  беззнаковое короткое
-      ET_ULONG,     //!<  беззнаковое длинное
-      ET_ULONGLONG, //!<  беззнаковое двойное длинное
+      ET_UINT,      //!<  unsigned int
+      ET_USHORT,    //!<  unsigned short
+      ET_ULONG,     //!<  unsigned long
+      ET_ULONGLONG, //!<  unsigned long long
 
-      ET_BOOL       //!<  логическая переменная
+      ET_BOOL       //!<  bool
     };
 
   public:
-    //!         конструктор по умолчанию
+    //!         default constructor
     CValue();
 
-    //!         конструктор инициализации от объекта данных
-    /*! \param  pDataObject - указатель на объект данных
+    //!         initializing constructor
+    /*! initialization from DataObject's value
+        \param  pDataObject - DataObject
         */
     CValue(CDataObject* pDataObject);
     
-    //!         инициализирующий конструктор
-    /*! \param  sValue - значение
+    //!         initializing constructor
+    /*! \param  sValue - value
         */
     CValue(const std::string& sValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  szValue - значение
+    //!         initializing constructor
+    /*! \param  szValue - value
     */
     CValue(const char* szValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  fValue - значение
+    //!         initializing constructor
+    /*! \param  fValue - value
     */
     CValue(float fValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  dValue - значение
+    //!         initializing constructor
+    /*! \param  dValue - value
         */
     CValue(double dValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  nValue - значение
+    //!         initializing constructor
+    /*! \param  btValue - value
     */
     CValue(byte btValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  nValue - значение
+    //!         initializing constructor
+    /*! \param  nValue - value
         */
     CValue(int nValue);
     
-    //!         инициализирующий конструктор
-    /*! \param  shValue - значение
+    //!         initializing constructor
+    /*! \param  shValue - value
     */
     CValue(short shValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  lValue - значение
+    //!         initializing constructor
+    /*! \param  lValue - value
         */
     CValue(long lValue);
     
-    //!         инициализирующий конструктор
-    /*! \param  llValue - значение
+    //!         initializing constructor
+    /*! \param  llValue - value
     */
     CValue(long long llValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  unValue - значение
+    //!         initializing constructor
+    /*! \param  ubtValue - value
     */
     CValue(unsignedByte ubtValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  unValue - значение
+    //!         initializing constructor
+    /*! \param  unValue - value
     */
     CValue(unsigned int unValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  ushValue - значение
+    //!         initializing constructor
+    /*! \param  ushValue - value
     */
     CValue(unsigned short ushValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  ulValue - значение
+    //!         initializing constructor
+    /*! \param  ulValue - value
     */
     CValue(unsigned long ulValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  ullValue - значение
+    //!         initializing constructor
+    /*! \param  ullValue - value
     */
     CValue(unsigned long long ullValue);
 
-    //!         инициализирующий конструктор
-    /*! \param  bValue - значение
+    //!         initializing constructor
+    /*! \param  bValue - value
         */
     CValue(bool bValue);
 
+    //!         destructor
     ~CValue();
 
-    //!         оператор копирования
-    /*! \param  bValue - значение
+    //!         copy operator
+    /*! \param  rValue - value
         */
     CValue& operator=(const CValue& rValue);
 
-    //!         оператор копирования
-    /*! \param  sValue - значение
+    //!         copy operator
+    /*! \param  sValue - value
         */
     CValue& operator=(const std::string& sValue);
 
-    //!         оператор копирования
-    /*! \param  szValue - значение
+    //!         copy operator
+    /*! \param  szValue - value
         */
     CValue& operator=(const char* szValue);
 
-    //!         оператор копирования
-    /*! \param  fValue - значение
+    //!         copy operator
+    /*! \param  fValue - value
         */
     CValue& operator=(float fValue);
 
-    //!         оператор копирования
-    /*! \param  dValue - значение
+    //!         copy operator
+    /*! \param  dValue - value
         */
     CValue& operator=(double dValue);
 
-    //!         оператор копирования
-    /*! \param  btValue - значение
+    //!         copy operator
+    /*! \param  btValue - value
     */
     CValue& operator=(byte btValue);
 
-    //!         оператор копирования
-    /*! \param  nValue - значение
+    //!         copy operator
+    /*! \param  nValue - value
     */
     CValue& operator=(int nValue);
 
-    //!         оператор копирования
-    /*! \param  shValue - значение
+    //!         copy operator
+    /*! \param  shValue - value
     */
     CValue& operator=(short shValue);
 
-    //!         оператор копирования
-    /*! \param  lValue - значение
+    //!         copy operator
+    /*! \param  lValue - value
     */
     CValue& operator=(long lValue);
 
-    //!         оператор копирования
-    /*! \param  llValue - значение
+    //!         copy operator
+    /*! \param  llValue - value
     */
     CValue& operator=(long long llValue);
 
-    //!         оператор копирования
-    /*! \param  ubtValue - значение
+    //!         copy operator
+    /*! \param  ubtValue - value
         */
     CValue& operator=(unsignedByte ubtValue);
 
-    //!         оператор копирования
-    /*! \param  unValue - значение
+    //!         copy operator
+    /*! \param  unValue - value
         */
     CValue& operator=(unsigned int unValue);
 
-    //!         оператор копирования
-    /*! \param  ushValue - значение
+    //!         copy operator
+    /*! \param  ushValue - value
         */
     CValue& operator=(unsigned short ushValue);
 
-    //!         оператор копирования
-    /*! \param  ulValue - значение
+    //!         copy operator
+    /*! \param  ulValue - value
         */
     CValue& operator=(unsigned long ulValue);
 
-    //!         оператор копирования
-    /*! \param  ulValue - значение
+    //!         copy operator
+    /*! \param  ulValue - value
     */
     CValue& operator=(unsigned long long ulValue);
 
-    //!         оператор копирования
-    /*! \param  bValue - значение
+    //!         copy operator
+    /*! \param  bValue - value
         */
     CValue& operator=(bool bValue);
 
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const std::string&() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const float() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const double() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const byte() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const int() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const short() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const long() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const long long() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const unsignedByte() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const unsigned int() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const unsigned short() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const unsigned long() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const unsigned long long() const;
 
-    //!         const-оператор приведения к типу
-    /*! \return const-значение приведенное к типу
+    //!         const value cast operator
+    /*! \return casted const value
         */
     operator const bool() const;
 
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator std::string&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator float&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator double&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator byte&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator int&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator short&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator long&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator long long&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator unsignedByte&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator unsigned int&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator unsigned short&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator unsigned long&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator unsigned long long&();
 
-    //!         оператор приведения к типу
-    /*! \return значение приведенное к типу
+    //!         value cast operator
+    /*! \return casted value
         */
     operator bool&();
 
-    //!         явное получение const-строкового значение
-    /*! \return const-строковое значение
+    //!         explicit conversion to const string
+    /*! \return const string value
         */
     const std::string& AsString() const;
 
-    //!         явное получение строкового значение
-    /*! \return строковое значение
+    //!         explicit conversion to string
+    /*! \return string value
         */
     std::string& AsString();
 
-    //!         получить тип значения
-    /*! \return тип значения
+    //!         get stored value type
+    /*! \return stored value type
         */
     const EType GetType() const;
 
-    //!         является ли хранимый тип - числовой
-    /*! \return true - хранимый тип - числовой
+    //!         is stored type number
+    /*! \return true - stored type is number
     */
     bool IsNumber() const;
 
-    //!         является ли указанный тип - числовой
-    /*! \param  eType - типп
-        \return true - указанный тип - числовой
+    //!         is given type number
+    /*! \param  eType - type
+        \return true - given type is number
         */
     bool IsNumber(EType eType) const;
 
+    //!         test target value for equality with specified value
+    /*! \param  rValue - other value
+        \return true, if values are equals
+        */
     bool operator==(const CValue& rValue) const;
 
+    //!         force type conversion
     void Flush();
 
   private:
-    union UValue
+    union UValue //!  value storing union
     {
-      bool                bValue;
-
-      float               fValue;
-      double              dValue;
-      
-      byte                btValue;
-      int                 nValue;
-      short               shValue;
-      long                lValue;
-      long long           llValue;
-
-      unsignedByte        ubtValue;
-      unsigned int        unValue;
-      unsigned short      ushValue;
-      unsigned long       ulValue;
-      unsigned long long  ullValue;
+      bool                bValue;   //!<  bool               
+                                          
+      float               fValue;   //!<  float              
+      double              dValue;   //!<  double             
+                                          
+      byte                btValue;  //!<  byte               
+      int                 nValue;   //!<  int                
+      short               shValue;  //!<  short              
+      long                lValue;   //!<  long               
+      long long           llValue;  //!<  long long          
+                                          
+      unsignedByte        ubtValue; //!<  unsignedByte       
+      unsigned int        unValue;  //!<  unsigned int       
+      unsigned short      ushValue; //!<  unsigned short     
+      unsigned long       ulValue;  //!<  unsigned long      
+      unsigned long long  ullValue; //!<  unsigned long long 
     };
 
   private:
+    //!         synchronize types
+    /*! \param  eTypeFrom - source type
+        \param  eTypeTo - destination type
+        */
     void Sync( EType eTypeFrom, EType eTypeTo ) const;
+
+    //!         synchronize types
     void Sync() const;
+    
+    //!         synchronize type to
+    /*! \param  eTypeTo - convert to type
+        */
     void SyncTo( EType eTypeTo ) const;
 
   private:
-    mutable EType m_eType;
-    mutable EType m_ePrevType;
+    mutable EType m_eType;                //!<  current type
+    mutable EType m_ePrevType;            //!<  previous type
 
-    mutable std::string  m_sValue;
-    mutable UValue m_uValue;
-    bool m_bChanged;
-    mutable CDataObject* m_pDataObject;
+    mutable std::string m_sValue;         //!<  string value
+    mutable UValue m_uValue;              //!<  numeral value
+    bool m_bChanged;                      //!<  is value was changed
+    mutable CDataObject* m_pDataObject;   //!<  bound DataObject
   };
 }
 

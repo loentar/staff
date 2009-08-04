@@ -25,16 +25,6 @@
 
 namespace rise
 {
-
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osKill(...)
-  //    DESCRIPTION:    послать сигнал процессу
-  //    PARAMETRS:      hProcess - номер процесса
-  //                    nSignal - номер сигнала
-  //    RETURN:         0, если успешно
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osKill(HProcess hProcess, int nSignal)
   {
   #ifdef WIN32
@@ -55,14 +45,6 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osSetSignalHandler
-  //    DESCRIPTION:    установка обработчика сигналов
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void osSetSignalHandler(PSignalProc pSignalProc, int nSignal)
   {
   #ifdef WIN32
@@ -82,20 +64,11 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osExecute(...)
-  //    DESCRIPTION:    выполнение приложения
-  //    PARAMETRS:      szCommand - команда с параметрами
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        аргументы разделяются символом табуляции '\t'
-  //////////////////////////////////////////////////////////////////////////////
   HProcess osExecute( const CString& sCmdArgs )
   {
     HProcess hProcess = PID_0;
 
     CStringA asCmdArgs = sCmdArgs;
-//    sCmdArgs.ToA(asCmdArgs);
 
     TCharA* szCmd = const_cast<TCharA*>(asCmdArgs.c_str());
     TCharA* szArgs[256];
@@ -136,16 +109,6 @@ namespace rise
     return hProcess;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osWaitPid()
-  //    DESCRIPTION:    ждать завершения процесса и получить его код возврата
-  //    PARAMETRS:      hProcess - ид. процесса
-  //                    piStatus - статус процесса
-  //                    bWait = true - ждать завершения процесса
-  //    RETURN:         идентификатор процесса, в случае ошибки -1 или 0
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osWaitPid( HProcess hProcess, int* piStatus, bool bWait /*= false*/ )
   {
   #ifdef WIN32
@@ -177,14 +140,6 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       GetCurrentProcessID
-  //    DESCRIPTION:    получить идентификатор текущего процесса
-  //    PARAMETRS:      none
-  //    RETURN:         идентификатор вызывающего процесса из которого была вызвана эта функция
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   HProcess osGetCurrentProcessID()
   {
   #ifdef WIN32
@@ -194,14 +149,6 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osDaemon
-  //    DESCRIPTION:    создание демона
-  //    PARAMETRS:      none
-  //    RETURN:         0, если успешно
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osDaemon()
   {
   #ifdef WIN32
@@ -212,14 +159,6 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       osPause
-  //    DESCRIPTION:    приостановить выполнение процесса до прихода сообщения
-  //    PARAMETRS:      none
-  //    RETURN:         none
-  //    EXCEPTIONS:     none
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   void osPause()
   {
   #ifdef WIN32
@@ -234,14 +173,6 @@ namespace rise
   #endif
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  //    FUNCTION:       Terminate
-  //    DESCRIPTION:    завершить процесс
-  //    PARAMETRS:      hProcess - идентификатор процесса
-  //    RETURN:         1 - процесс не найден
-  //                    2 - нет прав
-  //    COMMENT:        none
-  //////////////////////////////////////////////////////////////////////////////
   int osTerminateProcess(HProcess hProcess)
   {
   #ifdef WIN32

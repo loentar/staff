@@ -33,21 +33,11 @@ namespace rise
 {
   namespace threading
   {
-
-    //////////////////////////////////////////////////////////////////////////////
-    //    CONSTRUCTOR:    CThread
-    //    DESCRIPTION:    default constructor
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CThread::CThread():
       m_hThread(0), m_bStopping(false)
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    DESTRUCTOR:     ~CThread
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     CThread::~CThread()
     {
       try
@@ -62,20 +52,13 @@ namespace rise
       {
         if (m_hThread != 0)
         {
-          rise::LogWarning() << "уничтожение потока #" << m_hThread << " по таймауту!";
+          rise::LogWarning() << "Terminating thread #" << m_hThread << " by timeout!";
           Cancel();
         }
       }
       RISE_CATCH_ALL
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Start
-    //    DESCRIPTION:    создание и запуск потока
-    //    PARAMETRS:      (in) pparam - указатель на параметр передаваемый потоку
-    //    RETURN:         0, если создание потока произошло успешно
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CThread::Start(void* pParam /*= NULL*/)
     {
       CScopedCriticalSection cs(m_cs);
@@ -84,66 +67,31 @@ namespace rise
       return osCreateThread(InternalRun, &m_hThread, this);
     }
     
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       IsWorking
-    //    DESCRIPTION:    запущен ли поток
-    //    PARAMETRS:      none
-    //    RETURN:         true если работает
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CThread::IsWorking() const
     {
       return m_hThread != 0 && osIsThreadExists(m_hThread);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       GetCurrentId
-    //    DESCRIPTION:    получение идентификатора вызывающего потока
-    //    PARAMETRS:      none
-    //    RETURN:         идентификатор
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     HThread CThread::GetCurrentId()
     {
       return osGetCurrentThread();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       GetId
-    //    DESCRIPTION:    получение идентификатора потока, связаного с обьектом класса
-    //    PARAMETRS:      none
-    //    RETURN:         идентификатор
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     HThread CThread::GetId() const
     {
       return m_hThread;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Exit
-    //    DESCRIPTION:    выход из потока, в котором была вызвана эта функция
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CThread::Exit()
     {
       osExitThread();
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Cancel
-    //    DESCRIPTION:    завершает работу потока, связанным с обьектом класса
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CThread::Cancel()
     {
       CScopedCriticalSection cs(m_cs);
       
-      LogWarning() << "Уничтожение потока без вызова деструкторов локально созданных обьектов, освобожения памяти, дескрипторов и средств межпотоковых синхронизаций. Возможна нестабильная работа приложения!";
+      LogWarning() << "Terminating thread!";
     
       if ( m_hThread == 0 )
       {
@@ -162,31 +110,15 @@ namespace rise
       return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       JoinThread
-    //    DESCRIPTION:    ожидание завершения потока
-    //    PARAMETRS:      hThread - дескриптор потока
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CThread::JoinThread()
     {
       osJoinThread(m_hThread);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Stop
-    //    DESCRIPTION:    устанавливает флаг остановки потока
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CThread::Stop( ulong ulTimeout /*= 0ul*/ )
     {
       CScopedCriticalSection cs(m_cs);
-      RISE_ASSERTES(IsWorking(), CLogicNoInitException, "Поток не запущен");
+      RISE_ASSERTES(IsWorking(), CLogicNoInitException, "Thread does not exists");
       m_bStopping = true;
       OnStop();
       if(GetId() != GetCurrentId())
@@ -196,39 +128,16 @@ namespace rise
       }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       IsStopping
-    //    DESCRIPTION:    возвращает признак необходимости остановки потока
-    //    PARAMETRS:      none
-    //    RETURN:         true - поток необходимо остановить
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     bool CThread::IsStopping()
     {
       return m_bStopping;
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       Sleep
-    //    DESCRIPTION:    приостановить выполнение текущего потока на ulMSec милисекунд
-    //    PARAMETRS:      ulMSec - количество милисекунд
-    //    RETURN:         none
-    //    EXCEPTIONS:     none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void CThread::Sleep(unsigned long ulMSec)
     {
       osSleep(ulMSec);
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //    FUNCTION:       InternalRun
-    //    DESCRIPTION:    внутренняя функция для запуска пользовательской
-    //    PARAMETRS:      none
-    //    RETURN:         none
-    //    COMMENT:        none
-    //////////////////////////////////////////////////////////////////////////////
     void* CThread::InternalRun(void* pParam)
     {
       CThread* pThread = static_cast<CThread*>(pParam);
@@ -252,7 +161,6 @@ namespace rise
 
     void CThread::OnStop()
     {
-    
     }
 
     CCriticalSection& CThread::GetCS()

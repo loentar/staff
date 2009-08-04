@@ -45,9 +45,8 @@ namespace staff
         */
     CNamespace(CNamespace& rNamespace);
 
-    //!         initializing constructor (bound to dataobject or not)
-    /*          
-        \param  pAxiomNamespace - existing axiom namespace
+    //!         initializing constructor
+    /*! \param  pAxiomNamespace - existing axiom namespace
         \param  pDataObject - bound dataobject or NULL
         \param  bOwner - owner flag (if set, namespace will be deleted while object destructs)
         */
@@ -124,29 +123,36 @@ namespace staff
         */
     CNamespace& operator=(CNamespace& rNamespace);
 
-    //!         equality check
+    //!         tests a target namespace for equality with a specified namespace
     /*! \param  rNamespace - namespace to check with
-        \return true - namespaces is equal
+        \return true - namespaces are the same
         */
     bool operator==(const CNamespace& rNamespace) const;
 
-    //!         non equality check
+    //!         tests a target namespace for inequality with a specified namespace
     /*! \param  rNamespace - namespace to check with
-        \return true - namespaces is not equal
+        \return true - namespaces are different
         */
     bool operator!=(const CNamespace& rNamespace) const;
 
-    //!         operator for conversion to axiom_namespace_t
+    //!         type cast operator
     operator axiom_namespace_t*();
 
+    //!         member access operator
+    /*! \return this
+    */
     CNamespace* operator->();
+    
+    //!         member access operator
+    /*! \return this
+    */
     const CNamespace* operator->() const;
 
   private:
-    bool m_bOwner;
-    CDataObject* m_pDataObject;
-    axiom_namespace_t* m_pAxiomNamespace;
-    static axutil_env_t* m_pEnv;
+    bool m_bOwner;                        //!<  owner flag
+    CDataObject* m_pDataObject;           //!<  bound DataObject
+    axiom_namespace_t* m_pAxiomNamespace; //!<  AxiOM namespace
+    static axutil_env_t* m_pEnv;          //!<  Axis2/C environment
   };
 
 } // namespace staff
