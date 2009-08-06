@@ -393,10 +393,10 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const rise::CS
 \
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct)     // !!struct!! 
-    rRequest("$(Param.Name)") >> $(Param.Name);
+    rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
-    rRequest("$(Param.Name)") >> $(Param.Name);
+    rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #else
 \
 #ifeqend

@@ -39,8 +39,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../rise/deploy/win32/include"
+				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +65,7 @@
 				AdditionalDependencies="rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../../rise/deploy/win32/lib"
+				AdditionalLibraryDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

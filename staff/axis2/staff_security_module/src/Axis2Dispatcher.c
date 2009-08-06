@@ -24,6 +24,7 @@
 #pragma warning(disable: 4091)
 #endif
 
+#include <stdlib.h>
 #include <axis2_module.h>
 #include <axis2_addr_mod.h>
 #include <axis2_disp.h>

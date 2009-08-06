@@ -1,6 +1,6 @@
 set projectname=ObjectAdmin
 
-set deploydir=%cd%\..\..\..\deploy\win32
+set deploydir=%cd%\..\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
 set componentdir=%deploydir%\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%

@@ -1,6 +1,6 @@
 set projectname=staff_codegen
 
-set deploydir=%cd%\..\..\deploy\win32
+set deploydir=%cd%\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
 set bindir=%deploydir%\bin
 set templatedir=%bindir%\template
 
@@ -13,5 +13,5 @@ xcopy /Y /S debug\*.exe %bindir%
 set outdir=%STAFF_HOME%\bin
 if not EXIST %outdir% mkdir %outdir%
 xcopy /Y /S debug\*.exe %outdir%
-rem if not EXIST %outdir%\template mkdir %outdir%\template
-rem xcopy /Y /S template %outdir%\template
+if not EXIST %outdir%\template mkdir %outdir%\template
+xcopy /Y /S template %outdir%\template
