@@ -40,8 +40,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;..\..\deploy\win32\include"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MODULE_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +65,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_security.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;..\..\deploy\win32\lib"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
