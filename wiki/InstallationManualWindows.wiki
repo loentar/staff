@@ -48,16 +48,22 @@ Or checkout the [http://code.google.com/p/staff/downloads/list Download] section
 
 === 3.1 Compiling and installing rise ===
 
-Open file rise/rise.vcproj from Visual studio 2005.
-Build library (Build -> Build Solution)
-Copy files Debug/rise.lib Debug/rise.dll into directory c:\ws\staff\lib\
-Copy directory contents staff\rise\rise\ into directory c:\ws\staff\include\rise\ and staff\rise\deploy\win32\, excliding cpp-files.
+The compilation is available from the command line or from the IDE:
+  - To compile from the command line, start rebuild.cmd from the directory rise.
+  - To compile from the IDE Visual Studio 2005, start rise.sln from the directory rise, then build the library (menu Build->Build Solution).
+Copy directory contents staff\rise\deploy\win_x86 into directory c:\ws\staff\.
 
 === 3.2 Compiling and installing Staff ===
 
-Open solution file staff/staff.sln into Visual studio 2005.
-Edit Postgres paths into staff_security project properties.
-Build solution (Build -> Build Solution)
+If necessary, edit the postgres include paths:
+  - Staff\components\admin\AccountAdmin\staff.admin.AccountAdmin_service.vcproj;
+  - Staff\components\admin\ObjectAdmin\staff.admin.ObjectAdmin_service.vcproj;
+  - Staff\components\login_component\staff_login_service.vcproj;
+  - Staff\core\security\staff_security.vcproj.
+
+The compilation is available from the command line or from the IDE:
+  - To compile from the command line, start rebuild.cmd from the directory staff.
+  - To compile from the IDE Visual Studio 2005, start staff.sln directory staff. Compile the project solution (menu Build->Build Solution)
 
 Make sure that postgres is installed and running.
 Start psql and enter these commands for installing DB:

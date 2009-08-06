@@ -50,16 +50,22 @@ http://localhost:9090/axis2/services/
 
 === 3.1 Компиляция и установка rise ===
 
-Откройте файл rise.vcproj в Visual studio 2005 из каталога rise.
-Откомпилируйте библиотеку (меню Build -> Build Solution)
-Скопируйте файлы Debug/rise.lib Debug/rise.dll в каталог c:\ws\staff\lib\
-Скопируйте содержимое каталога staff\rise\rise\ в каталог c:\ws\staff\include\rise\ и в каталог staff\rise\deploy\win32\, исключая файлы cpp.
+Компиляция возможна из коммандной строки либо из IDE:
+ - Для компиляции из коммандной строки запустите файл rebuild.cmd из каталога rise.
+ - Для компиляции из IDE Visual Studio 2005 запустите файл rise.sln из каталога rise, затем откомпилируйте библиотеку (меню Build -> Build Solution).
+Скопируйте содержимое каталога staff\rise\deploy\win_x86 в каталог c:\ws\staff\.
 
 === 3.2 Компиляция и установка Staff ===
 
-Откройте файл staff.sln в Visual studio 2005 из каталога staff.
-Отредактируйте пути включаемых файлов и пути библиотек к СУБД Postgres в свойствах проекта staff_security.
-Откомпилируйте проектное решение (меню Build -> Build Solution)
+При необходимости, отредактируйте пути включаемых файлов и пути библиотек к СУБД Postgres в свойствах проектов:
+ - staff\components\admin\AccountAdmin\staff.admin.AccountAdmin_service.vcproj;
+ - staff\components\admin\ObjectAdmin\staff.admin.ObjectAdmin_service.vcproj;
+ - staff\components\login_component\staff_login_service.vcproj;
+ - staff\core\security\staff_security.vcproj.
+
+Компиляция возможна из коммандной строки либо из IDE:
+ - Для компиляции из коммандной строки запустите файл rebuild.cmd из каталога staff.
+ - Для компиляции из IDE Visual Studio 2005 запустите файл staff.sln из каталога staff. Откомпилируйте проектное решение (меню Build -> Build Solution)
 
 Убедитесь что postgres установлен и запущен.
 Запустите psql к posgres и введите следующие команды для установки БД.
