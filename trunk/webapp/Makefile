@@ -26,6 +26,6 @@ include $(MAKEFILES_DEP)
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=webapp
-VERSION=1.0.0
+VERSION=1.0.1
 
 include ../Makefile.distrib
