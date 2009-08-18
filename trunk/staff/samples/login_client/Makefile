@@ -25,7 +25,7 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+$(OUTDIR)$(TARGETNAME): $(CODEGEN) $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
@@ -36,8 +36,8 @@ $(CODEGEN): $(HEADERS)
 	[ "$@" -nt "$^" ] || (cd src && $(STAFF_CODEGEN) $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $^
+deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
 
 # == distrib =========================================
 distrib:;

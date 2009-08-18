@@ -26,7 +26,7 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)"
+deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
 	cp -f --parents $$(find template -type f | grep -v '.svn') $(DEPLOYDIR)$(BINDIR)
 

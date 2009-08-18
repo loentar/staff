@@ -30,10 +30,10 @@ SOURCES = $(filter-out $(CODEGEN_SOURCES) ,$(wildcard $(SRCDIR)*.cpp)) $(CODEGEN
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+$(OUTDIR)$(TARGETNAME): codegen $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
@@ -66,8 +66,8 @@ $(OUTDIR)%.wsdl: $(SRCDIR)%.h
 	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
-	cp -f $(OUTDIR)$(TARGETNAME) $^
+deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
 
 # == distrib =========================================
 distrib:;

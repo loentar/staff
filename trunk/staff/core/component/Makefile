@@ -28,7 +28,7 @@ $(OBJDIR)%.o: %.cpp
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers
 
-deploy_libs: "$(DEPLOYDIR)$(LIBDIR)"
+deploy_libs: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(LIBDIR)$(TARGETNAME)
 
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
