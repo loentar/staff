@@ -23,10 +23,10 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 .SECONDARY: $(CODEGEN)
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(CODEGEN) $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+$(OUTDIR)$(TARGETNAME): $(CODEGEN) $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
@@ -40,7 +40,7 @@ $(CODEGEN): $(HEADERS) $(WSDLS)
 	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
+deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
 
 # == distrib =========================================

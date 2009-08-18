@@ -29,7 +29,7 @@ $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 
 # == deploy ========================================
-deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)"
+deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
 	cp config/module.xml $(DEPLOYLIBDIR)
 

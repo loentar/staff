@@ -35,8 +35,8 @@ $(CODEGEN): $(HEADERS)
 	cd src && $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $^
+deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
 
 # == distrib =========================================
 distrib:;
