@@ -30,7 +30,7 @@ clean:
 	rm -Rf .libs
 
 # == deploy ==========================================
-deploy:
+deploy: $(TARGETNAME)
 	mkdir -p $(DEPLOYDIR)www/conf/mods-enabled/ $(DEPLOYDIR)www/modules/
 	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > $(DEPLOYDIR)/www/conf/mods-enabled/$(TARGET).conf
 #	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
