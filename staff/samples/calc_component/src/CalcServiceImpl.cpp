@@ -81,7 +81,7 @@ namespace samples
     {
       if (m_pConfig == NULL)
       {
-        m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("calc", "CalcService.xml", true);
+        m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
       }
 
       return *m_pConfig;
