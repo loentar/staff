@@ -351,7 +351,8 @@ bool GetSessionByContextId(int nContextId, int nExtraSessionId, char* szSessionI
   int anParamFormats[2] = { 1, 1 };
   const char* aszParams[2] = { (const char*)&nContextIdReq, (const char*)&nExtraSessionIdReq };
 
-  pPGResult = PQexecParamsLock(g_pConn, "select \"sid\" from \"session\" where \"contextid\" = $1::int4 and \"extraid\" = $2::int4;",
+  pPGResult = PQexecParamsLock(g_pConn, "select \"sid\" from \"session\" where \"contextid\" = $1::int4 and \"extraid\" = $2::int4 "
+                               "and \"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",
     2, NULL, aszParams, anParamLengths, anParamFormats, 0);
 
   tQueryStatus = PQresultStatus(pPGResult);
@@ -364,7 +365,7 @@ bool GetSessionByContextId(int nContextId, int nExtraSessionId, char* szSessionI
 
   if(PQntuples(pPGResult) <= 0)
   {
-    dprintf("can't get session for context: %d\n", nContextId);
+    dprintf("can't get session %d for context: %d\n", nExtraSessionId, nContextId);
     PQclearLock(pPGResult);
     return false;
   }
@@ -554,16 +555,22 @@ bool StaffSecurityValidateSessionID( const char* szSessionId )
   ExecStatusType tQueryStatus;
   PGresult* pPGResult = NULL;
   const char* pResult = NULL;
-  int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(g_nSessionExpiration) };
+  int nSessionExpirationReq = htonl(g_nSessionExpiration);
+  int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(nSessionExpirationReq) };
   int anParamFormats[2] = { 0, 1 };
-  const char* aszParams[2] = { szSessionId, (const char*)&g_nSessionExpiration };
+  const char* aszParams[2] = { szSessionId, (const char*)&nSessionExpirationReq };
 
   STAFF_SECURITY_ASSERT(g_pConn);
   STAFF_SECURITY_ASSERT(szSessionId);
 
   pPGResult = PQexecParamsLock(g_pConn,
-    "select \"sid\" from \"session\" where \"sid\" = $1 and "
-        "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",
+/*    "select \"sid\" from \"session\" where \"sid\" = $1 and "
+        "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",*/
+
+    "select \"sid\" from \"session\" where "
+      "( \"sid\"=$1 or \"contextid\"=(select \"contextid\" from \"session\" where \"sid\"=$1))"
+      "and \"extraid\"=0"
+      "and \"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",
     2, NULL, aszParams, anParamLengths, anParamFormats, 0);
 
   tQueryStatus = PQresultStatus(pPGResult);
@@ -597,16 +604,23 @@ bool StaffSecurityKeepAliveSession( const char* szSessionId )
 
   {
     PGresult* pPGResult = NULL;
-    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(g_nSessionExpiration) };
+    int nSessionExpirationReq = htonl(g_nSessionExpiration);
+    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(nSessionExpirationReq) };
     int anParamFormats[2] = { 0, 1 };
-    const char* aszParams[2] = { szSessionId, (const char*)&g_nSessionExpiration };
+    const char* aszParams[2] = { szSessionId, (const char*)&nSessionExpirationReq };
 
     pPGResult = PQexecParamsLock(g_pConn, 
-      "update \"session\" set \"time\" = DEFAULT where \"sid\" = $1 and "
-        "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",
-      1, NULL, aszParams, anParamLengths, anParamFormats, 0);
+/*      "update \"session\" set \"time\" = DEFAULT where \"sid\" = $1 and "
+        "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",*/
+      "update \"session\" set \"time\" = DEFAULT where "
+      "( \"sid\"=$1 or \"contextid\"=(select \"contextid\" from \"session\" where \"sid\"=$1))"
+          "and \"extraid\"=0"
+          "and \"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)));",
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
     if (PQresultStatus(pPGResult) != PGRES_COMMAND_OK)
     {
+      dprintf("can\'t keepalive session: %s\n", PQerrorMessage(g_pConn));
       PQclearLock(pPGResult);
       return false;
     }
@@ -629,15 +643,24 @@ bool StaffSecurityGetUserIdBySessionId(const char* szSessionId, int* pnUserId)
 
   if (g_nSessionExpiration > 0)
   {
-    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(g_nSessionExpiration) };
+    int nSessionExpirationReq = htonl(g_nSessionExpiration);
+    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(nSessionExpirationReq) };
     int anParamFormats[2] = { 0, 1 };
-    const char* aszParams[2] = { szSessionId, (const char*)&g_nSessionExpiration };
+    const char* aszParams[2] = { szSessionId, (const char*)&nSessionExpirationReq };
 
+//! TODO: проверка базовой сессии а не экстра сессий
     pPGResult = PQexecParamsLock(g_pConn,
-      "select \"userid\" from \"context\" where \"contextid\" = "
+/*      "select \"userid\" from \"context\" where \"contextid\" = "
       "( select \"contextid\" from \"session\" "
           "where \"sid\" = $1 and "
-                "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval))));",
+                "\"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval)))"
+      ");",*/
+
+      "select \"userid\" from \"context\" where \"contextid\" = "
+      "( select \"contextid\" from \"session\" where "
+        "( \"sid\"=$1 or \"contextid\"=(select \"contextid\" from \"session\" where \"sid\"=$1))"
+        "and \"extraid\"=0"
+        "and \"time\" > (now() - (select cast (($2::int4 || ' minutes') as interval))) );",
       2, NULL, aszParams, anParamLengths, anParamFormats, 1);
   } 
   else
@@ -690,9 +713,10 @@ bool StaffSecurityGetUserNameBySessionId( const char* szSessionId,
 
   if (g_nSessionExpiration > 0)
   {
-    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(g_nSessionExpiration) };
+    int nSessionExpirationReq = htonl(g_nSessionExpiration);
+    int anParamLengths[2] = { (int)strlen(szSessionId), sizeof(nSessionExpirationReq) };
     int anParamFormats[2] = { 0, 1 };
-    const char* aszParams[2] = { szSessionId, (const char*)&g_nSessionExpiration };
+    const char* aszParams[2] = { szSessionId, (const char*)&nSessionExpirationReq };
 
     pPGResult = PQexecParamsLock(g_pConn,
       "select \"username\" from \"users\" where \"userid\" = ("
@@ -1104,6 +1128,8 @@ bool StaffSecurityGetPermissionForUser( const TObject* pstObject, int nUserId, T
   STAFF_SECURITY_ASSERT(g_pConn);
   STAFF_SECURITY_ASSERT(pstObject);
   STAFF_SECURITY_ASSERT(pstPermission);
+  
+  dprintf("\033[1mchecking user %d rights to %s\033[0m\n", nUserId, pstObject->szObjectName);
 
   if (nUserId == pstObject->nUserId) 
   {

@@ -29,6 +29,8 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 $(OUTDIR)$(TARGETNAME): $(CODEGEN) $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
+$(OBJECTS): $(CODEGEN)
+
 # compile
 $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
