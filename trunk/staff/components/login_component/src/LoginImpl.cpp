@@ -84,7 +84,7 @@ namespace staff
 
   void CLoginImpl::KeepAliveSession()
   {
-    if(!StaffSecurityKeepAliveSession(m_sSessionId.c_str()))
+    if(!StaffSecurityKeepAliveSession(GetSessionID().c_str()))
     {
       RISE_THROWS(staff::CRemoteException, "Cannot keepalive session");
     }

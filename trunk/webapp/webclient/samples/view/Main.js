@@ -132,6 +132,12 @@ webapp.sample.Application =
     webapp.view.MessageBox.ShowMessage(_('Example WEB-appplication for staff') + " 1.0<p/>&copy; 2008-2009", 'info');
   },
 
+  _KeepaliveSession: function()
+  {
+    webapp.Webapp.GetLoginService().KeepAliveSession();
+    setTimeout(this._KeepaliveSession.bindAsEventListener(this), this.nSessionExpiration);
+  },
+
   ///--------------------------------------------------------------------------------------
   
   OnInit: function()
@@ -141,8 +147,45 @@ webapp.sample.Application =
   
   InitControls: function()
   {
-    document.title = _('WEB Application sample');
-    
+    try
+    {
+      // staff_security must not pass this request, if session is expired
+      webapp.Webapp.GetLoginService().ValidateSession();
+    }
+    catch(tError)
+    {
+      var tDialog = new YAHOO.widget.SimpleDialog
+      (
+        'idSessionExpiresDlg',
+        {
+          fixedcenter: true,
+          modal: true,
+          width: '300px',
+          constraintoviewport: true,
+          close: false,
+          buttons:
+          [
+            { text: _('Relogin'), handler: this.Logout.bindAsEventListener(this), isDefault: true }
+          ]
+        }
+      );
+      tDialog.cfg.setProperty('icon', YAHOO.widget.SimpleDialog.ICON_BLOCK);
+      tDialog.setHeader(_('Error'));
+      tDialog.setBody(_('Session is expired, please, relogin.'));
+      tDialog.render(document.body);
+      tDialog.bringToTop();
+      tDialog.show();
+      return;
+    }
+
+    var nSessionExpiration = parseInt(webapp.Webapp.GetLoginService().GetSessionExpiration());
+    if (nSessionExpiration != 0)
+    {
+      this.nSessionExpiration = nSessionExpiration * 1000 * 60 - 20000;
+
+      setTimeout(this._KeepaliveSession.bindAsEventListener(this), this.nSessionExpiration);
+    }
+
     // init menu
     this.tMenuBar = new YAHOO.widget.MenuBar('MainMenuBar', {itemdata: this._GetMenuItems()});
     this.tMenuBar.render(document.body);
@@ -172,6 +215,8 @@ webapp.sample.Application =
 
     var tDivLoading = $('divLoading');
     tDivLoading.parentNode.removeChild(tDivLoading);
+
+    document.title = _('WEB Application sample') + '(' + webapp.Webapp.GetLoginService().GetUserName() + ')';
   },
 
   Init: function()
