@@ -629,6 +629,21 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     return false;
   },
   
+  SetActiveItemByLabel: function(sLabel)
+  {
+    var atSelOptions = this.Element().options;
+    for(var nIndex = 0; nIndex < atSelOptions.length; ++nIndex)
+    {
+      if(atSelOptions[nIndex].text == sLabel)
+      {
+        atSelOptions.selectedIndex = nIndex;
+        return true;
+      }
+    }
+
+    return false;
+  },
+
   RemoveItemByIndex: function(nIndex)
   {
     var tItemElem = this.Element()[nIndex];
