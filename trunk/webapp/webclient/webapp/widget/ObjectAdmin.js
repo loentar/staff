@@ -281,7 +281,7 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
   
   _CreateTreeNode: function(sCaption, tParentNode, tData)
   {
-    var tNode = new YAHOO.widget.TextNode(sCaption, tParentNode, true);
+    var tNode = new YAHOO.widget.TextNode(sCaption, tParentNode, false);
     
     tNode.tData = tData;
     tNode.href = '#';

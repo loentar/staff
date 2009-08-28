@@ -138,7 +138,7 @@ staff.Client.prototype =
       tOperation.SetResultEvenlope(new SOAP.Envelope(tResponseXml.documentElement));
       if (tOperation.IsFault())
       {
-        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString());
+        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString() + "\n" + tOperation.GetException());
       }
     }
     else
@@ -316,6 +316,12 @@ staff.Operation.prototype =
   GetFaultString: function()
   {
     return this.SubNodeNoCaseText('FaultString', this.tFaultElement);
+  },
+  
+  GetException: function()
+  {
+    var tDetailNode = this.SubNode('detail', this.tFaultElement);
+    return tDetailNode ? this.SubNodeNoCaseText('Exception', tDetailNode) : '';
   },
   
   SetResultEvenlope: function(tEnvelope)

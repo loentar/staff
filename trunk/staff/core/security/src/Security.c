@@ -451,7 +451,7 @@ bool StaffSecurityOpenExtraSession( const char* szExistingSessionId,
 
   if(!GetSessionByContextId(nContextId, nExtraSessionId, szSessionId, nSessionIdSize))
   {
-    if(!CreateSession(nContextId, szSessionId, nSessionIdSize, false, nExtraSessionId))
+    if(!CreateSession(nContextId, szSessionId, nSessionIdSize, true, nExtraSessionId))
     {
       dprintf("error creating session for user: %d\n", nUserId);
       return false;
@@ -925,7 +925,7 @@ bool ParseObjectInfoResponse(PGresult* pPGResult, TObject* pstObject, int nRow)
   dprintf("name: %s, type: %d, description: %s, parent: %d, user: %d, group: %d, perm: %d([%d]%d-%d-%d) sizeof=%d\n", 
     pstObject->szObjectName, pstObject->nType, pstObject->szDescription, pstObject->nParentObjectId,
     pstObject->nUserId, pstObject->nGroupId, 
-    *(int*)&stPermissions, stPermissions.nDummy, stPermissions.nUser, stPermissions.nGroup, stPermissions.nOthers, sizeof(stPermissions));
+    *(int*)&stPermissions, stPermissions.nDummy, stPermissions.nUser, stPermissions.nGroup, stPermissions.nOthers, (unsigned)sizeof(stPermissions));
 #endif // _DEBUG
   
   return true;
