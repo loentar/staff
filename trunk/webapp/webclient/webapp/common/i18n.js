@@ -35,7 +35,9 @@ i18n =
       tOpts.sLocale = webapp.Env.lang || navigator.userLanguage || navigator.language;
     }
     
-    if (tOpts.sLocale == 'en' || tOpts.sLocale == 'en-US')
+    tOpts.sLocale = tOpts.sLocale.substr(0, 2);
+    
+    if (tOpts.sLocale == 'en')
     { // do not load default language
       LoadingDone();
       return;
