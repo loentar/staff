@@ -48,6 +48,8 @@ i18n.webapp =
   'Failed to invoke service': 'Ошибка при вызове сервиса',
   'Failed to get': 'Ошибка при получении',
   'Access denied': 'В доступе отказано',
+  'Session is expired, please, relogin.': 'Сессия истекла, пожалуйста, выполните повторный вход',
+  'Relogin': 'Повторный вход',
   
   // view.DlgList
   'List': 'Список',

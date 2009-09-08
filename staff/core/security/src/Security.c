@@ -198,6 +198,41 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
       PQclearLock(pPGResult);
     }
   }
+  else
+  { // remove only expired sessions
+    int nSessionExpirationReq = htonl(g_nSessionExpiration);
+
+    if(nExtraSessionId == 0)
+    {
+      int anParamLengths[2] = { sizeof(nContextIdReq), sizeof(nSessionExpirationReq) };
+      int anParamFormats[2] = { 1, 1 };
+      const char* aszParams[2] = { (const char*)&nContextIdReq, (const char*)&nSessionExpirationReq };
+
+      // delete old sessions
+      pPGResult = PQexecParamsLock(g_pConn,
+        "delete from \"session\" where \"contextid\" = $1::int4"
+             " and \"time\" < (now() - (select cast (($2::int4 || ' minutes') as interval)));",
+        2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+      PQclearLock(pPGResult);
+    }
+    else
+    {
+      int nExtraSessionIdReq = htonl(nExtraSessionId);
+      int anParamLengths[3] = { sizeof(nContextIdReq), sizeof(nExtraSessionIdReq), sizeof(nSessionExpirationReq) };
+      int anParamFormats[3] = { 1, 1, 1 };
+      const char* aszParams[3] = { (const char*)&nContextIdReq, (const char*)&nExtraSessionIdReq, (const char*)&nSessionExpirationReq };
+
+      // delete old session
+      pPGResult = PQexecParamsLock(g_pConn,
+        "delete from \"session\" where \"contextid\" = $1::int4 and \"extraid\" = $2::int4 and "
+             "( select \"extraid\" from \"session\" where \"contextid\" = $1::int4 and \"extraid\" = 0"
+               " and \"time\" < (now() - (select cast (($3::int4 || ' minutes') as interval))) limit 1) = 0;",
+        3, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+      PQclearLock(pPGResult);
+    }
+  }
 
   // create session id
   pPGResult = PQexecLock(g_pConn, "select md5(cast (now() as text));");
@@ -389,6 +424,7 @@ bool GetSessionByContextId(int nContextId, int nExtraSessionId, char* szSessionI
 
 bool StaffSecurityOpenSession( const char* szUser, 
                                const char* szPassword,
+                               bool bCloseExisting,
                                char* szSessionId,
                                int nSessionIdSize )
 {
@@ -411,13 +447,18 @@ bool StaffSecurityOpenSession( const char* szUser,
     return false;
   }
 
-  if(!GetSessionByContextId(nContextId, 0, szSessionId, nSessionIdSize))
+  if (!bCloseExisting)
   {
-    if(!CreateSession(nContextId, szSessionId, nSessionIdSize, true, 0))
+    if(GetSessionByContextId(nContextId, 0, szSessionId, nSessionIdSize))
     {
-      dprintf("error creating session for user: %s\n", szUser);
-      return false;
+      return true;
     }
+  }
+ 
+  if(!CreateSession(nContextId, szSessionId, nSessionIdSize, bCloseExisting, 0))
+  {
+    dprintf("error creating session for user: %s\n", szUser);
+    return false;
   }
 
   return true;

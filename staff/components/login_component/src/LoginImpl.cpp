@@ -46,7 +46,27 @@ namespace staff
       rise::CLogicAlreadyExistsException, 
       "Cannot login from non-guest session");
     
-    if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), szSessionId, sizeof(szSessionId)))
+    if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), true, szSessionId, sizeof(szSessionId)))
+    {
+      RISE_THROWS(staff::CRemoteException, "Cannot open session");
+    }
+
+    tResult.assign(szSessionId);
+
+    return tResult;  // result
+  }
+
+  std::string CLoginImpl::OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting)
+  {
+    const std::string& sCurrentSessionId = GetSessionID();
+    std::string tResult;
+    char szSessionId[33];
+
+    RISE_ASSERTES(sCurrentSessionId == STAFF_SECURITY_GUEST_SESSION_ID,
+      rise::CLogicAlreadyExistsException,
+      "Cannot login from non-guest session");
+
+    if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), bCloseExisting, szSessionId, sizeof(szSessionId)))
     {
       RISE_THROWS(staff::CRemoteException, "Cannot open session");
     }
