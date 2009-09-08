@@ -23,6 +23,12 @@
 // namespace staff
 namespace('staff');
 
+// global error handler
+staff.GlobalErrorHandler =
+{
+  OnError: function() {}
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // class client
 staff.Client = Class.create();
@@ -138,7 +144,11 @@ staff.Client.prototype =
       tOperation.SetResultEvenlope(new SOAP.Envelope(tResponseXml.documentElement));
       if (tOperation.IsFault())
       {
-        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + tOperation.GetFaultString() + "\n" + tOperation.GetException());
+        var sFaultString = tOperation.GetFaultString();
+        var sException = tOperation.GetException();
+
+        staff.GlobalErrorHandler.OnError(sFaultString, sException);
+        throw Error(_('Failed to invoke service') + " " + this.sServiceUri + ": " + sFaultString + "\n" + sException);
       }
     }
     else
