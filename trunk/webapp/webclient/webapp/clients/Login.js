@@ -27,6 +27,11 @@ staff.Login.prototype =
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
+  SetDataObjectAsXml: function(bDataObjectAsXml)
+  {
+    this.bDataObjectAsXml = bDataObjectAsXml;
+  },
+  
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -39,6 +44,31 @@ staff.Login.prototype =
     
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sPassword', sPassword);
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation.ResultValue(), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+      return tOperation.ResultValue();
+    }
+  },
+
+  OpenSession: function(sUserName, sPassword, bCloseExisting, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('OpenSession', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
+    
+    tOperation.AddParameter('sUserName', sUserName);
+    tOperation.AddParameter('sPassword', sPassword);
+    tOperation.AddParameter('bCloseExisting', bCloseExisting);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

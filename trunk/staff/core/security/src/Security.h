@@ -150,12 +150,14 @@ STAFF_SECURITY_EXPORT void StaffSecurityFree();
 //!         login user and open/get session
 /*! \param  szUser - user name
     \param  szPassword - password
+    \param  bCloseExisting - close existing session
     \param  szSessionId - result: session id
     \param  nSessionIdSize - szSessionId size
     \return true if operation successes
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityOpenSession( const char* szUser, 
                                                      const char* szPassword,
+                                                     bool bCloseExisting,
                                                      char* szSessionId,
                                                      int nSessionIdSize );
 

@@ -42,6 +42,15 @@ namespace staff
         */
     virtual std::string Login(const std::string& sUserName, const std::string& sPassword) = 0;
 
+    //!         login and create session
+    /*! this operation must be called from guest session
+        \param  sUserName - username
+        \param  sPassword - password
+        \param  bCloseExisting - close existing session if exists
+        \return created session id
+        */
+    virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting) = 0;
+
     //!         open extra session
     /*! \param  nExtraSessionId - extra session number
         */
