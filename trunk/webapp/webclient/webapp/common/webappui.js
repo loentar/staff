@@ -386,9 +386,7 @@ webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
   
   Create: function(tParent, tOpt)
   {
-    var tInput = document.createElement('input');
-    
-    tInput.type = "button";
+    var tInput = document.createElement('button');
     
     tInput.value = tOpt.sCaption || '';
 
