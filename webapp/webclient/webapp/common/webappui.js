@@ -503,7 +503,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
           if (tOption[tParseOpts.sKey] != null && tOption[tParseOpts.sLabel] != null &&
             (tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
           {
-            atSelOptions[nOptIndex] = new Option(_(tOption[tParseOpts.sLabel]), tOption[tParseOpts.sKey]);
+            atSelOptions[nOptIndex] = new Option(tOption[tParseOpts.sLabel], tOption[tParseOpts.sKey]);
             ++nOptIndex;
           }
         }
@@ -522,7 +522,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               if (tOption[0] != null && tOption[1] != null &&
                 (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(_(tOption[1]), tOption[0]);
+                atSelOptions[nOptIndex] = new Option(tOption[1], tOption[0]);
                 ++nOptIndex;
               }
             }
@@ -536,7 +536,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
                    (tParseOpts == null || tParseOpts.fnFilter == null || 
                       tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(_(tOption), nIndex);
+                atSelOptions[nOptIndex] = new Option(tOption, nIndex);
                 ++nOptIndex;
               }
             }
@@ -553,7 +553,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               (tParseOpts == null || tParseOpts.fnFilter == null || 
                 tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
             {
-              atSelOptions[nOptIndex] = new Option(_(tOption.toString()), tIndex);
+              atSelOptions[nOptIndex] = new Option(tOption.toString(), tIndex);
               ++nOptIndex;
             }
           }
@@ -908,6 +908,16 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
       {
         tTd.className = tOpt.sClass;
       }
+
+      if (tOpt.nColSpan != null)
+      {
+        tTd.colSpan = tOpt.nColSpan;
+      }
+
+      if (tOpt.nRowSpan != null)
+      {
+        tTd.rowSpan = tOpt.nRowSpan;
+      }
     }
     
     return tTd;
@@ -988,7 +998,8 @@ webapp.ui.Link.prototype.extend(webapp.ui.Generic.prototype).extend
   Create: function(tParent, tOpt)
   {
     var tElem = document.createElement('a');
-    tElem.href = tOpts.sUrl;
+    tElem.href = tOpt.sUrl || '#';
+    tElem.appendChild(document.createTextNode(tOpt.sCaption || '...'));
     return tElem;
   }
 });

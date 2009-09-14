@@ -224,6 +224,17 @@ namespace staff
       return tResult;  // result
     }
 
+    ::staff::admin::SObject CObjectAdminImpl::GetObjectByNameAndType(const std::string& sObjectName, int nType)
+    {
+      ::staff::admin::SObject tResult;
+      TObject tObject;
+
+      StaffSecurityGetObjectByName(sObjectName.c_str(), nType, NULL, &tObject);
+      tResult << tObject;
+
+      return tResult;  // result
+    }
+
     ::staff::admin::TObjectList CObjectAdminImpl::GetObjectList(const ::staff::admin::TObjectIdList& rlsObjectIdList)
     {
       ::staff::admin::TObjectList tResult;
