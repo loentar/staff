@@ -74,7 +74,7 @@ namespace staff
     class CObjectAdmin
     {
     public:
-      virtual ~CObjectAdmin() {};
+      virtual ~CObjectAdmin() {}
 
       //!         get objectid list
       /*! \return objectid list
@@ -91,6 +91,12 @@ namespace staff
           \return object
           */
       virtual SObject GetObjectById(int nObjectId) = 0;
+
+      //!         get object by name
+      /*! \param  sObjectName - object name
+          \return object
+          */
+      virtual SObject GetObjectByNameAndType(const std::string& sObjectName, int nType) = 0;
 
       //!         get object list by id list
       /*! \param  rlsObjectIdList - list of ids of objects

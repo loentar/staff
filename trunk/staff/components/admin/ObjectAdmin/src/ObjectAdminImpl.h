@@ -40,6 +40,7 @@ namespace staff
       virtual ::staff::admin::TObjectIdList GetObjectIdList();
       virtual ::staff::admin::TObjectIdList GetObjectIdListWithParent(int nParentId);
       virtual ::staff::admin::SObject GetObjectById(int nObjectId);
+      virtual ::staff::admin::SObject GetObjectByNameAndType(const std::string& sObjectName, int nType);
       virtual ::staff::admin::TObjectList GetObjectList(const ::staff::admin::TObjectIdList& rlsObjectIdList);
       virtual int AddObject(const ::staff::admin::SObject& rstObject);
       virtual void RemoveObject(int nObjectId);

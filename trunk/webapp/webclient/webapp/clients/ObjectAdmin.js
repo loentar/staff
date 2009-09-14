@@ -215,6 +215,11 @@ staff.admin.ObjectAdmin.prototype =
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
   
+  SetDataObjectAsXml: function(bDataObjectAsXml)
+  {
+    this.bDataObjectAsXml = bDataObjectAsXml;
+  },
+  
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -273,6 +278,31 @@ staff.admin.ObjectAdmin.prototype =
     tOperation.SetSoapAction("");
     
     tOperation.AddParameter('nObjectId', nObjectId);
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeStruct_staff_admin_SObject(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeStruct_staff_admin_SObject(tOperation);
+    }
+  },
+
+  GetObjectByNameAndType: function(sObjectName, nType, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetObjectByNameAndType', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
+    
+    tOperation.AddParameter('sObjectName', sObjectName);
+    tOperation.AddParameter('nType', nType);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,

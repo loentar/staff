@@ -136,8 +136,10 @@ staff.Client.prototype =
     if(tAjaxRequest.transport.status == 200)
     {
       var tResponseXml = tAjaxRequest.transport.responseXML;
-      if (tResponseXml == null || tResponseXml.documentElement == null)
+      if (tResponseXml == null || tResponseXml.documentElement == null
+            || tResponseXml.documentElement.localName == "parsererror")
       {
+        staff.GlobalErrorHandler.OnError("Malformed response.");
         throw Error(_('Error while parsing response') + "!");
       }
       
