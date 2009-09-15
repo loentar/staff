@@ -94,7 +94,7 @@ i18n =
   
   GetLocale: function()
   {
-    return sLocale;
+    return this.sLocale;
   },
   
   Translate: function(sText)

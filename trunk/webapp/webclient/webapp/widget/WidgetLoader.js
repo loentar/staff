@@ -66,7 +66,7 @@ webapp.widget.WidgetLoader.prototype =
   {
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Add widget'), sLabel: _('Select widget from list') + ":" });
     tDlgList.On("confirm", this._OnConfirmNewWidget, this);
-    tDlgList.SetItems(this.mAvailableWidgets, { fnFilter: this._FilterOutSingle, tObj: this });
+    tDlgList.SetItems(this.mAvailableWidgets, { fnFilter: this._FilterOutSingle, tObj: this, bTranslate: true });
     tDlgList.Show();
   },
 
@@ -92,7 +92,7 @@ webapp.widget.WidgetLoader.prototype =
 
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Add widget'), sLabel: _('Select layout unit') + ":" });
     tDlgList.On("confirm", this._OnConfirmUnit, this, tEvent.tItem);
-    tDlgList.SetItems(tUnits, { sKey: "sId", sLabel: "sName" });
+    tDlgList.SetItems(tUnits, { sKey: "sId", sLabel: "sName", bTranslate: true });
     tDlgList.Show();
   },
   
@@ -110,7 +110,7 @@ webapp.widget.WidgetLoader.prototype =
   {
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Remove widget'), sLabel: _('Select widget from list') + ":" });
     tDlgList.On("confirm", this._OnConfirmRemoveWidget, this);
-    tDlgList.SetItems(this.mActiveWidgets, { sKey: "sId", sLabel: "sDescr", fnFilter: this._FilterOutMainLayout });
+    tDlgList.SetItems(this.mActiveWidgets, { sKey: "sId", sLabel: "sDescr", fnFilter: this._FilterOutMainLayout, bTranslate: true });
     tDlgList.Show();
   },
 
@@ -124,7 +124,7 @@ webapp.widget.WidgetLoader.prototype =
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Configure widget'), sLabel: _('Select widget from list') });
     tDlgList.On("confirm", this._OnConfirmConfigureWidget, this);
     tDlgList.SetItems(this.mActiveWidgets, 
-      { sKey: "sId", sLabel: "sDescr", fnFilter: this._FilterOutNonConfigurableWidgets });
+      { sKey: "sId", sLabel: "sDescr", fnFilter: this._FilterOutNonConfigurableWidgets, bTranslate: true });
     tDlgList.Show();
   },
 
@@ -424,7 +424,7 @@ webapp.widget.WidgetLoader.prototype =
   {
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Activate widget group'), sLabel: _('Select widget group from list') });
     tDlgList.On("confirm", this._OnConfirmActivateWidgetGroup, this);
-    tDlgList.SetItems(this.mAvailableWidgetGroups, { fnFilter: this._FilterOutActiveWidgetGroups, tObj: this });
+    tDlgList.SetItems(this.mAvailableWidgetGroups, { fnFilter: this._FilterOutActiveWidgetGroups, tObj: this, bTranslate: true });
     tDlgList.Show();
   },
 
@@ -452,7 +452,7 @@ webapp.widget.WidgetLoader.prototype =
       };
     }
     
-    tDlgList.SetItems(mActiveWidgets, { sKey: "sGroupId", sLabel: "sDescr" });
+    tDlgList.SetItems(mActiveWidgets, { sKey: "sGroupId", sLabel: "sDescr", bTranslate: true });
     tDlgList.Show();
   },
 
@@ -561,7 +561,7 @@ webapp.widget.WidgetLoader.prototype =
       }
     }
 
-    tDlgList.SetItems(tActiveWidgetGroups);
+    tDlgList.SetItems(tActiveWidgetGroups, {bTranslate: true});
     tDlgList.Show();
   },
 
@@ -682,7 +682,7 @@ webapp.widget.WidgetLoader.prototype =
   {
     var tDlgList = new webapp.view.DlgList({ sCaption: _('Delete widget group'), sLabel: _('Select widget group from list') });
     tDlgList.On("confirm", this._OnConfirmRemoveWidgetGroup, this);
-    tDlgList.SetItems(this.mAvailableWidgetGroups);
+    tDlgList.SetItems(this.mAvailableWidgetGroups, {bTranslate: true});
     tDlgList.Show();
   },
 

@@ -503,7 +503,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
           if (tOption[tParseOpts.sKey] != null && tOption[tParseOpts.sLabel] != null &&
             (tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
           {
-            atSelOptions[nOptIndex] = new Option(tOption[tParseOpts.sLabel], tOption[tParseOpts.sKey]);
+            atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption[tParseOpts.sLabel]) : tOption[tParseOpts.sLabel], tOption[tParseOpts.sKey]);
             ++nOptIndex;
           }
         }
@@ -522,7 +522,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               if (tOption[0] != null && tOption[1] != null &&
                 (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(tOption[1], tOption[0]);
+                atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption[1]) : tOption[1], tOption[0]);
                 ++nOptIndex;
               }
             }
@@ -536,7 +536,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
                    (tParseOpts == null || tParseOpts.fnFilter == null || 
                       tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(tOption, nIndex);
+                atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption) : tOption, nIndex);
                 ++nOptIndex;
               }
             }
@@ -553,7 +553,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               (tParseOpts == null || tParseOpts.fnFilter == null || 
                 tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
             {
-              atSelOptions[nOptIndex] = new Option(tOption.toString(), tIndex);
+              atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption.toString()) : tOption.toString(), tIndex);
               ++nOptIndex;
             }
           }
@@ -940,6 +940,14 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
     else
     {
       this.tCaptionText.nodeValue = sCaption;
+    }
+  },
+
+  RemoveAllRows: function()
+  {
+    while(this.tTBody.lastChild)
+    {
+      this.tTBody.removeChild(this.tTBody.lastChild);
     }
   }
 });
