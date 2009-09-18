@@ -522,7 +522,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               if (tOption[0] != null && tOption[1] != null &&
                 (tParseOpts == null || tParseOpts.fnFilter == null || tParseOpts.fnFilter(tOption, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption[1]) : tOption[1], tOption[0]);
+                atSelOptions[nOptIndex] = new Option((tParseOpts && tParseOpts.bTranslate) ? _(tOption[1]) : tOption[1], tOption[0]);
                 ++nOptIndex;
               }
             }
@@ -534,9 +534,9 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               var tOption = atOptions[nIndex];
               if (tOption != null && typeof tOption != 'function' && 
                    (tParseOpts == null || tParseOpts.fnFilter == null || 
-                      tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
+                      tParseOpts.fnFilter({ sKey: nIndex, sLabel: tOption }, tParseOpts.tObj)))
               {
-                atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption) : tOption, nIndex);
+                atSelOptions[nOptIndex] = new Option((tParseOpts && tParseOpts.bTranslate) ? _(tOption) : tOption, nIndex);
                 ++nOptIndex;
               }
             }
@@ -553,7 +553,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
               (tParseOpts == null || tParseOpts.fnFilter == null || 
                 tParseOpts.fnFilter({ sKey: tIndex, sLabel: tOption }, tParseOpts.tObj)))
             {
-              atSelOptions[nOptIndex] = new Option(tParseOpts.bTranslate ? _(tOption.toString()) : tOption.toString(), tIndex);
+              atSelOptions[nOptIndex] = new Option((tParseOpts && tParseOpts.bTranslate) ? _(tOption.toString()) : tOption.toString(), tIndex);
               ++nOptIndex;
             }
           }
