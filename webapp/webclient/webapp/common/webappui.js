@@ -598,10 +598,15 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     var nIndex = this.Element().selectedIndex;
     if (nIndex != -1)
     {
-      return this.Element()[nIndex]
+      return this.Element()[nIndex];
     }
   },
   
+  GetActiveItemIndex: function()
+  {
+    return this.Element().selectedIndex;
+  },
+
   GetActiveItemId: function()
   {
     return this.Element()[this.Element().selectedIndex].value;
@@ -612,6 +617,11 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.Element()[this.Element().selectedIndex].text;
   },
   
+  SetActiveItemByIndex: function(nIndex)
+  {
+    this.Element().selectedIndex = nIndex;
+  },
+
   SetActiveItemById: function(nId)
   {
     var atSelOptions = this.Element().options;
@@ -642,6 +652,28 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     return false;
   },
 
+  GetItemIdByIndex: function(nIndex)
+  {
+    return this.Element()[nIndex].value;
+  },
+
+  GetItemLabelByIndex: function(nIndex)
+  {
+    return this.Element()[nIndex].text;
+  },
+
+  AddItem: function(tId, sLabel, bSelect)
+  {
+    var atSelOptions = this.Element().options;
+    var nOptIndex = atSelOptions.length;
+    var tNewOption = new Option(sLabel, tId);
+    atSelOptions[nOptIndex] = tNewOption;
+    if (bSelect)
+    {
+      this.Element().selectedIndex = tNewOption.index;
+    }
+  },
+
   RemoveItemByIndex: function(nIndex)
   {
     var tItemElem = this.Element()[nIndex];
@@ -665,7 +697,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
     }
   },
   
-  RemoveActiveItem: function(tParseOpts)
+  RemoveActiveItem: function()
   {
     var tActiveItemElem = this.GetActiveItemElement();
     if (tActiveItemElem)
