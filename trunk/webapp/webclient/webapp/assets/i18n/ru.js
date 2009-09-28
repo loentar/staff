@@ -112,6 +112,7 @@ i18n.webapp =
   'Resize': 'Измененяемый размер',
   'Scroll': 'Прокрутка',
   'After changing layout it\'s recommended to save widgets and reload page': 'После изменения раскладки рекомендуется сохранить виджеты и перезагрузить страницу',
+  'Invalid value of field': 'Неверное значение поля',
   
   // Object Admin
   'Object administrator': 'Администратор объектов',
