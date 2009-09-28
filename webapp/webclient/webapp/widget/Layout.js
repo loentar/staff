@@ -292,12 +292,74 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     this.tCtrl.gutter.On('click', this._OnConfigCheck, this);
     this.tCtrl.width.On('click', this._OnConfigCheck, this);
     this.tCtrl.height.On('click', this._OnConfigCheck, this);
-    
+
+    this.tUnitRestrictValues =
+    {
+      top:
+      {
+        header: false,
+        gutter: '5px',
+        width: null,
+        height: '250px',
+        resize: true,
+        scroll: false
+      },
+
+      left:
+      {
+        header: false,
+        gutter: '5px',
+        width: '100px',
+        height: null,
+        resize: true,
+        scroll: true
+      },
+
+      center:
+      {
+        header: false,
+        gutter: '5px',
+        width: null,
+        height: null,
+        resize: true,
+        scroll: true
+      },
+
+      right:
+      {
+        header: false,
+        gutter: '5px',
+        width: '500px',
+        height: null,
+        resize: true,
+        scroll: true
+      },
+
+      bottom:
+      {
+        header: false,
+        gutter: '5px',
+        width: null,
+        height: '250px',
+        resize: true,
+        scroll: false
+      }
+    };
+
     this._tLayoutUnitsCfg = this.tLayoutUnits.clone();
 
     this.tConfigureDlg.show();
     this._OnSelectUnit({target: tCellUnitTop});
     tCellUnitTop.focus();
+
+    for (var itUnit in this._tLayoutUnitsCfg)
+    {
+      var tUnit = this._tLayoutUnitsCfg[itUnit];
+      if (tUnit.position)
+      {
+        this.tCells[tUnit.position].className += ' cellUnitActive';
+      }
+    }
 
     addHandler(tBody, 'keydown', this._OnKeyDown.bindAsEventListener(this));
   },
@@ -330,13 +392,18 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
       // unselect old unit
       if(this.tUnit)
       {
-        this.tUnit.className = 'cellUnit';
+        if (!this._CheckUnit(this.sUnit))
+        {
+          return;
+        }
+
+        this.tUnit.className = this.tUnit.className.replace(/ cellUnitSel/, '');
         this._SaveUnit(this.sUnit);
       }
       
       // save and select new unit
       this.tUnit = tTarget;
-      this.tUnit.className = 'cellUnitSel';
+      this.tUnit.className += ' cellUnitSel';
       
       this.sUnit = '';
 
@@ -356,21 +423,39 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
   
   _OnConfigEnabled: function(tEvent)
   {
+    var tRestrValue = this.tUnitRestrictValues[this.sUnit];
+
     var bEnable = this.tCtrl.enabled.GetChecked();
     for(var tIndex in this.tCtrl)
     {
       var tCtrl = this.tCtrl[tIndex];
-      if(tCtrl.Element && tCtrl != this.tCtrl.enabled)
+      if(tCtrl.Element)
       {
-        if(tIndex.substr(0, 3) == 'val')
+        if (tCtrl != this.tCtrl.enabled)
         {
-          tCtrl.Enable(bEnable && this.tCtrl[tIndex.substr(3)].GetChecked());
-        }
-        else
-        {
-          tCtrl.Enable(bEnable);
+          if (tIndex.substr(0, 3) == 'val')
+          {
+            var sCtrlName = tIndex.substr(3);
+            var bCtrlEnable = bEnable && tRestrValue[sCtrlName] !== null && tRestrValue[sCtrlName] !== false;
+            tCtrl.Enable(bCtrlEnable);
+            tCtrl.SetText(bCtrlEnable ? tRestrValue[sCtrlName] : '');
+          }
+          else
+          {
+            tCtrl.Enable(bEnable && (tRestrValue[tIndex] !== null));
+            tCtrl.SetChecked(tRestrValue[tIndex] !== null && tRestrValue[tIndex] !== false);
+          }
         }
       }
+    }
+
+    if (bEnable)
+    {
+      this.tUnit.className += ' cellUnitActive';
+    }
+    else
+    {
+      this.tUnit.className = this.tUnit.className.replace(/ cellUnitActive/, '');
     }
   },
   
@@ -393,6 +478,32 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
         }
       }
     }
+  },
+
+  _CheckUnit: function(sUnit)
+  {
+    for(var tIndex in this.tCtrl)
+    {
+      var tCtrl = this.tCtrl[tIndex];
+      if(tCtrl && tCtrl.Element)
+      {
+        if(tCtrl != this.tCtrl.enabled && tCtrl.Enabled())
+        {
+          if(tIndex.substr(0, 3) == 'val')
+          {
+            var sCtlName = tIndex.substr(3);
+            var sValue = tCtrl.GetValue();
+            if (!sValue || ((sValue[0].search(/[^0-9]/) == 0) && (sCtlName != 'header')))
+            {
+              tCtrl.Focus();
+              alert(_('Invalid value of field') + ' \"' + this.tCtrl[sCtlName].GetCaption() + '\"');
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
   },
   
   _SaveUnit: function(sUnit)
@@ -474,6 +585,18 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
             tCtrl.Enable(tUnit != null);
           }
         }
+        else
+        {
+          if (sUnit == 'center')
+          {
+            tCtrl.Enable(false);
+            tCtrl.SetChecked(true);
+          }
+          else
+          {
+            tCtrl.Enable(true);
+          }
+        }
       }
     }
 
@@ -502,6 +625,28 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
             {
               tCtrl.SetValue(tProp);
             }
+          }
+        }
+      }
+    }
+
+    var bEnable = this.tCtrl.enabled.GetChecked();
+    var tRestrValue = this.tUnitRestrictValues[sUnit];
+    for(var tIndex in this.tCtrl)
+    {
+      var tCtrl = this.tCtrl[tIndex];
+      if(tCtrl.Element)
+      {
+        if (tCtrl != this.tCtrl.enabled)
+        {
+          if (tIndex.substr(0, 3) == 'val')
+          {
+            var sCtrlName = tIndex.substr(3);
+            tCtrl.Enable(bEnable && (tRestrValue[sCtrlName] !== null) && this.tCtrl[sCtrlName].GetChecked());
+          }
+          else
+          {
+            tCtrl.Enable(bEnable && (tRestrValue[tIndex] !== null));
           }
         }
       }
