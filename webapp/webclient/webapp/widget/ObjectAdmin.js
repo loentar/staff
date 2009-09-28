@@ -581,7 +581,7 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
       webapp.view.MessageBox.ShowMessage(_('Save object first') + ' ' + tParentNode.tData.sObjectName, 'error');
       return;
     }
-    
+
     var tData = 
     {
       nObjectId: -1,
@@ -593,29 +593,12 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
       
       nParentObjectId: tParentNode.tData.nObjectId,
 
-      stPermissions: tParentNode.tData.clone()
-/*      {
-        stUser:
-        {
-          bRead: true,
-          bWrite: true,
-          bExecute: true
-        },
-
-        stGroup:
-        {
-          bRead: true,
-          bWrite: true,
-          bExecute: true
-        },
-
-        stOthers:
-        {
-          bRead: false,
-          bWrite: false,
-          bExecute: false
-        }
-      }*/
+      stPermissions:
+      {
+        stUser: tParentNode.tData.stPermissions.stUser.clone(),
+        stGroup: tParentNode.tData.stPermissions.stGroup.clone(),
+        stOthers: tParentNode.tData.stPermissions.stOthers.clone()
+      }
     };
 
     var tNode = this._CreateTreeNode('*' + tData.sObjectName, tParentNode, tData);
