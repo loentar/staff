@@ -32,6 +32,12 @@ a.newObject
   color: blue;
 }
 
+a.selectedObject
+{
+  border: 1px dotted black;
+  -moz-outline: none;
+}
+
 table#tTableProps, table#tTableAccess
 {
   width: 100%;
@@ -102,4 +108,3 @@ a.treeViewItemHighlight
   text-decoration: none;
   background: ActiveCaption;
 }
-
