@@ -57,7 +57,7 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
   
   _CreateLayout: function(tParentDiv)
   {
-    var tResize = new YAHOO.util.Resize(tParentDiv.Element(), { handles: ['br'], minWidth: 481, minHeight: 281 });
+    var tResize = new YAHOO.util.Resize(tParentDiv.Element(), { handles: ['br'], minWidth: 551, minHeight: 281 });
     
     var tDivTree = new webapp.ui.Div(tParentDiv, { sId: 'tDivTree' });
     var tDivProps = new webapp.ui.Div(tParentDiv, { sId: 'tDivProps' });
@@ -67,7 +67,7 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
       tParentDiv.Element(),
       {
         height: 280,
-        width: 480,
+        width: 550,
         units:
         [
           { body: tDivTree.Element(),   position: 'center', gutter: '5px 0px 5px 5px', scroll: true },
@@ -253,6 +253,8 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
         }
       }
     };
+
+    this._CheckPropCtls();
   },
   
   _LoadAccountData: function()
@@ -267,7 +269,8 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
   _LoadObjectTypes: function()
   {
     this._aObjectTypes = this._tObjectAdminService.GetObjectTypeList();
-    this._tPropControls.tSelectType.SetItems(this._aObjectTypes, { sKey: 'nId', sLabel: 'sDescription' });
+    this._tPropControls.tSelectType.SetItems(this._aObjectTypes, { sKey: 'nId', sLabel: 'sDescription', bTranslate: true });
+    this._tPropControls.tSelectType.Element()[0].disabled = true;
   },
 
   _ReloadObjectsTree: function()
@@ -275,8 +278,10 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
     var tRoot = this._tObjectsTreeView.getRoot();
     var tData = this._tObjectAdminService.GetObjectById(0);
 
-    this._CreateTreeNode(tData.sObjectName, tRoot, tData);
+    var tNode = this._CreateTreeNode(tData.sObjectName, tRoot, tData);
     this._tObjectsTreeView.draw();
+
+    this._ShowProps(tNode);
   },
   
   _CreateTreeNode: function(sCaption, tParentNode, tData)
@@ -393,6 +398,19 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
   {
     if (tNode)
     {
+      if (tNode == this._tActiveNode)
+      {
+        return true;
+      }
+
+      if (this._tActiveNode)
+      {
+        var tLabElem = this._tActiveNode.getLabelEl();
+        if (tLabElem)
+        {
+          tLabElem.className = tLabElem.className.replace(/ selectedObject/, '');
+        }
+      }
       this._tActiveNode = tNode;
     }
     
@@ -400,7 +418,13 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
     {
       return;
     }
-    
+
+    var tLabElem = this._tActiveNode.getLabelEl();
+    if (tLabElem)
+    {
+      tLabElem.className += ' selectedObject';
+    }
+
 //!          tData.nObjectId = this._tPropControls.;
     this._tPropControls.tEditName.SetText(this._tActiveNode.tData.sObjectName);
     this._tPropControls.tSelectType.SetActiveItemById(this._tActiveNode.tData.nType);
@@ -420,8 +444,24 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
     this._tPropControls.tAccess.tOthers.tLcbRead.SetChecked(this._tActiveNode.tData.stPermissions.stOthers.bRead);
     this._tPropControls.tAccess.tOthers.tLcbWrite.SetChecked(this._tActiveNode.tData.stPermissions.stOthers.bWrite);
     this._tPropControls.tAccess.tOthers.tLcbExec.SetChecked(this._tActiveNode.tData.stPermissions.stOthers.bExecute);
-    
+
+    this._CheckPropCtls();
+
     return false;
+  },
+
+  _CheckPropCtls: function()
+  {
+    var bEnable = this._tActiveNode != null && (this._tActiveNode.tData.sObjectName != "root");
+
+    for (var itCtl in this._tPropControls)
+    {
+      var tCtl = this._tPropControls[itCtl];
+      if (tCtl.Element)
+      {
+        tCtl.Enable(bEnable);
+      }
+    }
   },
   
   _CommitProps: function()
@@ -466,7 +506,8 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
     
     this._tActiveNode.getLabelEl().firstChild.nodeValue = tData.sObjectName;
     this._tActiveNode.data = tData.sObjectName;
-    
+    this._tActiveNode.label = tData.sObjectName;
+
     return tData;
   },
   
@@ -545,15 +586,15 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
     {
       nObjectId: -1,
       sObjectName: 'NewObject',
-      nType: 0,
-      sDescription: _('New object'),
-      nUserId: 0,
-      nGroupId: 0,
+      nType: tParentNode.tData.nType == 0 ? 1 : tParentNode.tData.nType,
+      sDescription: '',
+      nUserId: tParentNode.tData.nUserId,
+      nGroupId: tParentNode.tData.GroupId,
       
       nParentObjectId: tParentNode.tData.nObjectId,
 
-      stPermissions:
-      {
+      stPermissions: tParentNode.tData.clone()
+/*      {
         stUser:
         {
           bRead: true,
@@ -574,7 +615,7 @@ webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).exten
           bWrite: false,
           bExecute: false
         }
-      }
+      }*/
     };
 
     var tNode = this._CreateTreeNode('*' + tData.sObjectName, tParentNode, tData);
