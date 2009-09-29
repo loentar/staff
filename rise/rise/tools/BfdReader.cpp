@@ -33,10 +33,6 @@
 #include <limits.h>
 #include <rise/common/Log.h>
 
-#ifndef bfd_get_section_size_before_reloc // for mcbc 2008
-#define bfd_get_section_size_before_reloc(section) (section->reloc_done ? (abort(),1): (section)->rawsize)
-#endif				 
-
 namespace rise
 {
   namespace tools
@@ -159,7 +155,7 @@ namespace rise
         if (pParam->tPc < tVma)
           return;
 
-        bfd_size_type size = bfd_get_section_size_before_reloc(pSection);
+        bfd_size_type size = bfd_get_section_size(pSection);
         if (pParam->tPc >= tVma + size)
           return;
 

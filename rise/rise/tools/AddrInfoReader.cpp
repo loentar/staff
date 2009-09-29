@@ -22,6 +22,7 @@
 
 #ifdef __linux__
 #define _GNU_SOURCE 1
+#include <fcntl.h>
 #include <dlfcn.h>
 #include <map>
 #include <memory>
@@ -51,13 +52,19 @@ namespace rise
         Dl_info tInfo;
         if(dladdr(pAddr, &tInfo) != 0)
         {
-        // library
-          rAddrInfo.sContext = tInfo.dli_fname;
-          pAddr = reinterpret_cast<const void*>(reinterpret_cast<long>(pAddr) - reinterpret_cast<long>(tInfo.dli_fbase));
+          if (m_sExeName == tInfo.dli_fname)
+          { // executable
+            rAddrInfo.sContext = m_sExeName;
+          }
+          else
+          { // library
+            rAddrInfo.sContext = tInfo.dli_fname;
+            pAddr = reinterpret_cast<const void*>(reinterpret_cast<long>(pAddr) - reinterpret_cast<long>(tInfo.dli_fbase));
+          }
         }
         else
         {
-        // executable
+        // executable(compat)
           rAddrInfo.sContext = m_sExeName;
         }
         
@@ -74,9 +81,31 @@ namespace rise
         return rpReader->LookupAddrPtr(pAddr, rAddrInfo);
       }
       
-      CAddrInfoReaderImpl():
-        m_sExeName(rise::process::CProcess::GetCurrentExecPath())
+      CAddrInfoReaderImpl()
       {
+        char szPath[PATH_MAX];
+        int nFileArgs = open("/proc/self/cmdline", O_RDONLY);
+        
+        if (nFileArgs)
+        {
+          int nReaded = read(nFileArgs, szPath, PATH_MAX);
+          if (nReaded > 0)
+          {
+            szPath[nReaded] = '\0';
+          }
+          else
+          {
+            rise::LogError() << "Can\'t read cmdline";
+            szPath[0] = '\0';
+          }
+
+          m_sExeName = szPath;
+          close(nFileArgs);
+        }
+        else
+        {
+          rise::LogError() << "Can\'t open file /proc/self/cmdline";
+        }
       }
 
     private:

@@ -4,7 +4,7 @@ DISTRIB=../staff_tmp$(printf %x $(date +%s))/
 REVISION=$(LANG=en svn info --non-interactive 2>&- | grep 'Revision: ' | cut -d' ' -f2)
 TARBALLNAME=../staff-r${REVISION}.tar.bz2
 
-test -z "$(svn st | wc -l)" || echo "\033[1mWARNING: working copy was locally modified\033[0m"
+test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || echo "\033[1mWARNING: working copy was locally modified\033[0m"
 
 echo "creating tarball..."
 
