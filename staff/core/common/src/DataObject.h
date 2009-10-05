@@ -511,24 +511,35 @@ namespace staff
         */
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName);
 
-    //!         find attribute by local name
-    /*! \param  sLocalName - attribute's local name
-        \param  itStart - iterator to attribute to start with
-        \return iterator to found attribute or AttributeEnd()
-        */
-    AttributeIterator FindAttributeByLocalName(const std::string& sLocalName, const AttributeIterator& itStart);
-
     //!         get attribute by QName
     /*! \param  stQName - attribute's QName
         \return attribute
         */
     CAttribute GetAttributeByQName(const CQName& stQName);
 
-    //!         get attribute by local name
+    //!         get attribute value by name
     /*! \param  sLocalName - attribute's local name
         \return attribute
         */
-    CAttribute GetAttributeByLocalName(const std::string& sLocalName);
+    CValue GetAttributeValueByName(const std::string& sLocalName);
+
+    //!         get attribute value by name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    CValue GetAttributeValueByName(const std::string& sLocalName) const;
+
+    //!         get attribute text by name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    std::string GetAttributeTextByName(const std::string& sLocalName);
+
+    //!         get attribute text by name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    std::string GetAttributeTextByName(const std::string& sLocalName) const;
 
 
     //////////////////////////////////////////////////////////////////////////

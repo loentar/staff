@@ -83,11 +83,22 @@ namespace staff
     bool operator==(const CQName& rstQName) const;
 
     //!         test target QName for inequality with specified QName
-    /*! compare only local part and URI
-        \param  rstQName - QName
+    /*! \param  rstQName - QName
         \return true - QNames are inequals
         */
     bool operator!=(const CQName& rstQName) const;
+
+    //!         test target QName for equality with specified QName
+    /*! \param  pQName - QName
+        \return true - QNames are equals
+        */
+    bool operator==(axutil_qname_t* pQName) const;
+
+    //!         test target QName for inequality with specified QName
+    /*! \param  pQName - QName
+        \return true - QNames are inequals
+        */
+    bool operator!=(axutil_qname_t* pQName) const;
 
     //!         get local part
     /*! \return local part
@@ -142,7 +153,17 @@ namespace staff
     /*! \return prefix:localPart
     */
     operator std::string() const;
-  
+
+    //!         axiom qname cast operator
+    /*! \raturn axiom qname
+      */
+    operator axutil_qname_t*() const;
+
+    //!         axiom qname cast operator
+    /*! \raturn axiom qname
+      */
+    operator axutil_qname_t*();
+
   private:
     bool m_bOwner;                   //!<  ownership flag
     axutil_qname_t* m_pAxutilQName;  //!<  AxiOM qname
