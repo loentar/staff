@@ -91,6 +91,16 @@ namespace staff
     return !(operator==(rstQName));
   }
 
+  bool CQName::operator==(axutil_qname_t* pQName) const
+  {
+    return axutil_qname_equals(m_pAxutilQName, CRuntime::Inst().GetAxis2Env(), pQName) != 0;
+  }
+
+  bool CQName::operator!=(axutil_qname_t* pQName) const
+  {
+    return !(operator==(pQName));
+  }
+
   CQName::operator std::string() const
   {
     const std::string& sPrefix = GetPrefix();
@@ -169,6 +179,16 @@ namespace staff
   {
     CQName tqClone(axutil_qname_clone(m_pAxutilQName, CRuntime::Inst().GetAxis2Env()));
     return tqClone;
+  }
+
+  CQName::operator axutil_qname_t*() const
+  {
+    return m_pAxutilQName;
+  }
+
+  CQName::operator axutil_qname_t*()
+  {
+    return m_pAxutilQName;
   }
 
 } // namespace staff

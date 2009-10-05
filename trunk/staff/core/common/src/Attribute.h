@@ -31,6 +31,7 @@ namespace staff
 {
   class CDataObject;
   class CValue;
+  class CQName;
 
   //! Attribute
   class STAFF_COMMON_EXPORT CAttribute

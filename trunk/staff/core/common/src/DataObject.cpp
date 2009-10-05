@@ -131,6 +131,14 @@ namespace staff
     return m_pAxiomNode;
   }
 
+  bool CDataObject::IsInit() const
+  {
+    return (m_pAxiomNode != NULL && m_pAxiomElement != NULL);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  // Node properties
+
   CQName CDataObject::GetQName()
   {
     RISE_ASSERT(m_pAxiomNode);
@@ -940,6 +948,268 @@ namespace staff
     return CDataObject(pNode);
   }
 
+  //////////////////////////////////////////////////////////////////////////
+  // data manipulation
+
+  CValue CDataObject::Value()
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return CValue(this);
+  }
+
+  const CValue CDataObject::Value() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    return CValue(const_cast<CDataObject*>(this));
+  }
+
+  CValue CDataObject::GetValue() const
+  {
+    return GetText();
+  }
+
+  void CDataObject::SetValue( const CValue& rValue )
+  {
+    SetText(rValue.AsString());
+  }
+
+  std::string CDataObject::GetText() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axis2_char_t* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+
+    return szText != NULL ? szText : "";
+  }
+
+  void CDataObject::SetText( const std::string& sText )
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
+  }
+
+  CValue CDataObject::operator[]( const std::string& sName )
+  {
+    return GetChildByLocalName(sName).GetValue();
+  }
+
+  const CValue CDataObject::operator[]( const std::string& sName ) const
+  {
+    return GetChildByLocalName(sName).GetValue();
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  // namespace management
+
+  CNamespace CDataObject::GetDefaultNamespace() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    return tNs;
+  }
+
+  void CDataObject::DeclareDefaultNamespace(const std::string& sUri)
+  {
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(sUri.c_str()));
+  }
+
+  CNamespace CDataObject::GetNamespace() const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    return tNs;
+  }
+
+  void CDataObject::DeclareNamespace(CNamespace& rNamespace)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, rNamespace);
+    rNamespace.SetDataObject(this);
+  }
+
+  void CDataObject::SetNamespace(CNamespace& rNamespace)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
+    rNamespace.SetDataObject(this);
+  }
+
+  CNamespace CDataObject::FindNamespace( const std::string& sUri )
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL));
+    return tNs;
+  }
+
+  CNamespace CDataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str()));
+    return tNs;
+  }
+
+  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL));
+    return tNs;
+  }
+
+  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str()));
+    return tNs;
+  }
+
+  CNamespace CDataObject::FindNamespaceUri(const std::string& sPrefix) const
+  {
+    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERT(m_pAxiomElement);
+    CNamespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv,
+      const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
+    return tNs;
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  // attribute management
+
+  void CDataObject::AppendAttribute( CAttribute& rAttribute )
+  {
+    axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
+  }
+
+  void CDataObject::RemoveAttribute( AttributeIterator& itAttribute )
+  {
+    axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
+  }
+
+  void CDataObject::RemoveAllAttributes()
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return;
+    }
+
+    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, reinterpret_cast<axiom_attribute_t*>(pHashValue));
+      }
+    }
+  }
+
+  CDataObject::AttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName)
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return AttributeIterator(this, NULL);
+    }
+
+    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (stQName == axiom_attribute_get_qname(pAttr, m_pEnv))
+        {
+          return AttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return AttributeIterator(this, NULL);
+  }
+
+  CDataObject::AttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName, const AttributeIterator& itStart)
+  {
+    for (axutil_hash_index_t* pIndex = itStart.m_pAttributeIndex;
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (stQName == axiom_attribute_get_qname(pAttr, m_pEnv))
+        {
+          return AttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return AttributeIterator(this, NULL);
+  }
+
+  CDataObject::AttributeIterator CDataObject::FindAttributeByLocalName(const std::string& sLocalName)
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return AttributeIterator(this, NULL);
+    }
+
+    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (sLocalName == axiom_attribute_get_localname(pAttr, m_pEnv))
+        {
+          return AttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return AttributeIterator(this, NULL);
+  }
+
+  CAttribute CDataObject::GetAttributeByQName(const CQName& stQName)
+  {
+    CAttribute tAttr(this, axiom_element_get_attribute(m_pAxiomElement, m_pEnv, stQName));
+    return tAttr;
+  }
+
+  CValue CDataObject::GetAttributeValueByName(const std::string& sLocalName) const
+  {
+    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv, const_cast<char*>(sLocalName.c_str()));
+    return CValue(szValue ? szValue : "");
+  }
+
+  std::string CDataObject::GetAttributeTextByName(const std::string& sLocalName) const
+  {
+    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv, const_cast<char*>(sLocalName.c_str()));
+    return szValue ? std::string(szValue) : "";
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
   // iteration
@@ -1114,145 +1384,8 @@ namespace staff
     return this;
   }
 
-  CNamespace CDataObject::GetDefaultNamespace() const
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
-    return tNs;
-  }
-
-  void CDataObject::DeclareDefaultNamespace(const std::string& sUri)
-  {
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(sUri.c_str()));
-  }
-
-  CNamespace CDataObject::GetNamespace() const
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
-    return tNs;
-  }
-
-  void CDataObject::DeclareNamespace(CNamespace& rNamespace)
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, rNamespace);
-    rNamespace.SetDataObject(this);
-  }
-
-  void CDataObject::SetNamespace(CNamespace& rNamespace)
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
-    rNamespace.SetDataObject(this);
-  }
-
-  CNamespace CDataObject::FindNamespace( const std::string& sUri )
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL));
-    return tNs;
-  }
-
-  CNamespace CDataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str()));
-    return tNs;
-  }
-
-  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri)
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL));
-    return tNs;
-  }
-
-  CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str()));
-    return tNs;
-  }
-
-  CNamespace CDataObject::FindNamespaceUri(const std::string& sPrefix) const
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    CNamespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv, 
-      const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
-    return tNs;
-  }
-
-
-  void CDataObject::AppendAttribute( CAttribute& rAttribute )
-  {
-    axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
-  }
-
-  void CDataObject::RemoveAttribute( AttributeIterator& itAttribute )
-  {
-    axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
-  }
-
-  CValue CDataObject::Value()
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    return CValue(this);
-  }
-
-  const CValue CDataObject::Value() const
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    return CValue(const_cast<CDataObject*>(this));
-  }
-
-  CValue CDataObject::GetValue() const
-  {
-    return GetText();
-  }
-
-  void CDataObject::SetValue( const CValue& rValue )
-  {
-    SetText(rValue.AsString());
-  }
-
-  std::string CDataObject::GetText() const
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    axis2_char_t* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-
-    return szText != NULL ? szText : "";
-  }
-
-  void CDataObject::SetText( const std::string& sText )
-  {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
-  }
-
-  CValue CDataObject::operator[]( const std::string& sName )
-  {
-    return GetChildByLocalName(sName).GetValue();
-  }
-
-  const CValue CDataObject::operator[]( const std::string& sName ) const
-  {
-    return GetChildByLocalName(sName).GetValue();
-  }
+  //////////////////////////////////////////////////////////////////////////
+  // deprecated functions
 
   CDataObject CDataObject::GetOrAdd( const std::string& sName )
   {
@@ -1314,11 +1447,6 @@ namespace staff
   CDataObject CDataObject::Add( CDataObject rDataObject )
   {
     return AppendChild(rDataObject);
-  }
-
-  bool CDataObject::IsInit() const
-  {
-    return (m_pAxiomNode != NULL && m_pAxiomElement != NULL);
   }
 
   axutil_env_t* CDataObject::m_pEnv = CRuntime::Inst().GetAxis2Env();
