@@ -34,3 +34,4 @@ staff/tools/codegen/template/serviceimpl
 staff/tools/codegen/template/servicelocator
 webapp/services/fileuploader/src
 webapp/services/widget_service/src
+/usr/local/axis2c/include/axis2-1.6.0

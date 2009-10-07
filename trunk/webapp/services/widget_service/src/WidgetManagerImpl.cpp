@@ -27,6 +27,7 @@
 #include <rise/string/String.h>
 #include <rise/string/Encoding.h>
 #include <rise/xml/XMLException.h>
+#include <rise/tools/FileFind.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
@@ -102,11 +103,204 @@ namespace widget
   {
   }
 
+  TStringList CWidgetManagerImpl::GetBaseProfiles()
+  {
+    TStringList tResult;
+
+    rise::CFileFind::Find(m_sComponentHome + "/db", tResult, "widgetdb_classes.*.xml", rise::CFileFind::EFA_FILE);
+    for (TStringList::iterator itFile = tResult.begin(); itFile != tResult.end(); ++itFile)
+    {
+      *itFile = itFile->substr(17, itFile->size() - 17 - 4);
+    }
+
+    return tResult;  // result
+  }
+
+  TProfileList CWidgetManagerImpl::GetProfiles()
+  {
+    TProfileList tResult;
+
+    const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
+
+    try
+    {
+      rise::xml::CXMLDocument tDoc;
+      tDoc.LoadFromFile(sProfilesListFileName);
+
+      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeProfile = rNodeRoot.NodeBegin();
+          itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
+      {
+        const rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+        SProfile stProfile;
+        stProfile.sId = rNodeProfile["Id"].AsString();
+        stProfile.sName = rNodeProfile["Name"].AsString();
+        stProfile.sBase = rNodeProfile["Base"].AsString();
+        tResult.push_back(stProfile);
+      }
+    }
+    catch(...)
+    {
+      rise::LogWarning() << "loading default profile list";
+      SProfile stDefault;
+      stDefault.sId = "default";
+      stDefault.sName = "Default profile";
+      stDefault.sBase = "default";
+      tResult.push_back(stDefault);
+    }
+
+    return tResult;  // result
+  }
+
+  void CWidgetManagerImpl::AddProfile(const SProfile& stProfile)
+  {
+    {
+      const std::string& sProfileBase = m_sComponentHome + "/db/widgetdb.";
+      const std::string& sBaseDbFileName = sProfileBase + stProfile.sBase + ".xml";
+      const std::string& sUserDbFileName = sProfileBase + stProfile.sId + "." + rise::ToStr(GetUserId()) + ".xml";
+
+      rise::xml::CXMLDocument tDoc;
+
+      try
+      {
+        rise::LogDebug2() << "Loading " << sBaseDbFileName;
+        tDoc.LoadFromFile(sBaseDbFileName);
+      }
+      catch(...)
+      {
+        rise::LogWarning() << "Using DEFAULT DB as base for profile " << stProfile.sId << " : " << sProfileBase << "default.xml";
+        rise::LogDebug2() << "Loading " << sProfileBase << "default.xml";
+        tDoc.LoadFromFile(sProfileBase + "default.xml");
+      }
+
+      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+      rNodeRoot.AddAttribute("base", stProfile.sBase);
+
+      rise::LogDebug2() << "Saving " << sUserDbFileName;
+      tDoc.SaveToFile(sUserDbFileName);
+    }
+
+    // changing profile list
+
+    {
+      const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
+
+      rise::xml::CXMLDocument tDoc;
+      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+      try
+      {
+        rise::LogDebug2() << "Loading " << sProfilesListFileName;
+        tDoc.LoadFromFile(sProfilesListFileName);
+      }
+      catch(...)
+      {
+        rise::LogWarning() << "creating default profile list";
+        rNodeRoot.NodeName() = "ProfileList";
+        rise::xml::CXMLNode& rNodeProfile = rNodeRoot.AddSubNode("Profile");
+        rNodeProfile.AddSubNode("Id").NodeContent() = "default";
+        rNodeProfile.AddSubNode("Name").NodeContent() = "Default profile";
+        rNodeProfile.AddSubNode("Base").NodeContent() = "default";
+      }
+
+      rise::xml::CXMLNode& rNodeProfile = rNodeRoot.AddSubNode("Profile");
+      rNodeProfile.AddSubNode("Id").NodeContent() = stProfile.sId;
+      rNodeProfile.AddSubNode("Name").NodeContent() = stProfile.sName;
+      rNodeProfile.AddSubNode("Base").NodeContent() = stProfile.sBase;
+
+      rise::LogDebug2() << "Saving " << sProfilesListFileName;
+      tDoc.SaveToFile(sProfilesListFileName);
+    }
+  }
+
+  void CWidgetManagerImpl::DeleteProfile(const std::string& sProfile)
+  {
+    const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
+
+    rise::xml::CXMLDocument tDoc;
+    rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+    try
+    {
+      tDoc.LoadFromFile(sProfilesListFileName);
+    }
+    catch(...)
+    {
+      return;
+    }
+
+    for (rise::xml::CXMLNode::TXMLNodeIterator itNodeProfile = rNodeRoot.NodeBegin();
+        itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
+    {
+      const rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+      if (rNodeProfile["Id"] == sProfile)
+      {
+        rNodeRoot.DelSubNode(itNodeProfile);
+        tDoc.SaveToFile(sProfilesListFileName);
+        break;
+      }
+    }
+
+    const std::string& sProfileFile = m_sComponentHome + "/db/widgetdb." + sProfile + "." + rise::ToStr(GetUserId()) + ".xml";
+    unlink(sProfileFile.c_str());
+  }
+
+  void CWidgetManagerImpl::SetProfile(const SProfile& stProfile)
+  {
+    {
+      const std::string& sProfileBase = m_sComponentHome + "/db/widgetdb.";
+      const std::string& sUserDbFileName = sProfileBase + stProfile.sId + "." + rise::ToStr(GetUserId()) + ".xml";
+
+      rise::xml::CXMLDocument tDoc;
+      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+      rise::LogDebug2() << "Loading " << sUserDbFileName;
+      tDoc.LoadFromFile(sUserDbFileName);
+
+      if (rNodeRoot.Attribute("base") != stProfile.sBase)
+      {
+        rNodeRoot.Attribute("base") = stProfile.sBase;
+        rise::LogDebug2() << "Saving " << sUserDbFileName;
+        tDoc.SaveToFile(sUserDbFileName);
+      }
+    }
+
+    // changing profile list
+
+    {
+      const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
+
+      rise::xml::CXMLDocument tDoc;
+      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+      rise::LogDebug2() << "Loading " << sProfilesListFileName;
+      tDoc.LoadFromFile(sProfilesListFileName);
+      rise::LogDebug2() << "ok";
+
+      for (rise::xml::CXMLNode::TXMLNodeIterator itNodeProfile = rNodeRoot.NodeBegin();
+          itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
+      {
+        rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+        rise::LogDebug2() << "id: " << rNodeProfile["Id"].AsString();
+        if (rNodeProfile["Id"] == stProfile.sId)
+        {
+          rNodeProfile["Name"] = stProfile.sName;
+          rNodeProfile["Base"] = stProfile.sBase;
+          break;
+        }
+      }
+
+      rise::LogDebug2() << "Saving " << sProfilesListFileName;
+      tDoc.SaveToFile(sProfilesListFileName);
+      rise::LogDebug2() << "ok";
+    }
+  }
+
+
+
   void CWidgetManagerImpl::Open(const std::string& sProfile)
   {
     Close();
-
-    LoadWidgetClasses(sProfile);
 
     const std::string& sProfileBase = m_sComponentHome + "/db/widgetdb.";
     const std::string& sUserDbFileName = sProfileBase + sProfile + "." + rise::ToStr(GetUserId()) + ".xml";
@@ -134,6 +328,10 @@ namespace widget
 
     RISE_ASSERTES(rNodeRoot.Attribute("type") == "user", rise::CFileOpenException, "Widget DB type mismatch");
     RISE_ASSERTES(rNodeRoot.Attribute("version") == "2.0", rise::CFileOpenException, "Widget DB version mismatch");
+
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttrBase = rNodeRoot.FindAttribute("base");
+
+    LoadWidgetClasses(itAttrBase != rNodeRoot.AttrEnd() ? itAttrBase->sAttrValue.AsString() : sProfile);
 
     // Load widgets
     LoadWidgets(rNodeRoot.Subnode("Widgets"), m_mActiveWidgets);

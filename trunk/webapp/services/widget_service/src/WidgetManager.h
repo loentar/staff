@@ -58,13 +58,48 @@ namespace widget
   //! widget map pair(group id, widget group instance)
   typedef std::map<std::string, SWidgetGroup> TWidgetGroupMap;
 
+  //! profile
+  struct SProfile
+  {
+    std::string sId;    //!< profile id
+    std::string sName;  //!< profile name
+    std::string sBase;  //!< base profile id
+  };
+
+  //! profile list
+  typedef std::list<SProfile> TProfileList;
 
   //!  Widget Manager
   class CWidgetManager
   {
   public:
     //!        destructor
-    virtual ~CWidgetManager() {};
+    virtual ~CWidgetManager() {}
+
+    //!         get base profiles list
+    /*! \return base profiles list
+      */
+    virtual TStringList GetBaseProfiles() = 0;
+
+    //!         get user profiles
+    /*! \return user profiles list
+        */
+    virtual TProfileList GetProfiles() = 0;
+
+    //!         add user profile
+    /*! \param  sProfile - profile name
+        */
+    virtual void AddProfile(const SProfile& stProfile) = 0;
+
+    //!         delete user profile
+    /*! \param  sProfile - profile name
+        */
+    virtual void DeleteProfile(const std::string& sProfile) = 0;
+
+    //!         set user profile
+    /*! \param  sProfile - profile name
+        */
+    virtual void SetProfile(const SProfile& stProfile) = 0;
 
     //!         open widget db
     /*! \param  sProfile - db name

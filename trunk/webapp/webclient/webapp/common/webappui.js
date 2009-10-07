@@ -353,6 +353,12 @@ webapp.ui.Edit.prototype.extend(webapp.ui.Generic.prototype).extend
     {
       tInput.type = "password";
     }
+
+    if (tOpt.sText)
+    {
+      tInput.value = tOpt.sText;
+    }
+
     return tInput;
   },
   
@@ -386,21 +392,21 @@ webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
   
   Create: function(tParent, tOpt)
   {
-    var tInput = document.createElement('button');
+    var tButton = document.createElement('button');
     
-    tInput.value = tOpt.sCaption || '';
+    tButton.appendChild(document.createTextNode(tOpt.sCaption || ''));
 
-    return tInput;
+    return tButton;
   },
   
   GetCaption: function()
   {
-    return this.Element().value;
+    return this.Element().firstChild.nodeValue;
   },
   
   SetCaption: function(sCaption)
   {
-    return this.Element().value = sCaption;
+    return this.Element().firstChild.nodeValue = sCaption;
   },
   
   GetValue: function()
@@ -872,7 +878,7 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
   
   Head: function()
   {
-    if (this.tTHeader == null)
+    if (this.tTHead == null)
     {
       this.tTHead = document.createElement('thead');
       this.tTable.appendChild(this.tTHead);
@@ -881,6 +887,11 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.tTHead;
   },
   
+  Body: function()
+  {
+    return this.tTBody;
+  },
+
   AddHeadRow: function(tOpt)
   {
     var tTr = document.createElement('tr');
