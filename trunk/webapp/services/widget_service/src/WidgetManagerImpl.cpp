@@ -141,12 +141,7 @@ namespace widget
     }
     catch(...)
     {
-      rise::LogWarning() << "loading default profile list";
-      SProfile stDefault;
-      stDefault.sId = "default";
-      stDefault.sName = "Default profile";
-      stDefault.sBase = "default";
-      tResult.push_back(stDefault);
+      rise::LogWarning() << "using default profile list";
     }
 
     return tResult;  // result
@@ -197,10 +192,6 @@ namespace widget
       {
         rise::LogWarning() << "creating default profile list";
         rNodeRoot.NodeName() = "ProfileList";
-        rise::xml::CXMLNode& rNodeProfile = rNodeRoot.AddSubNode("Profile");
-        rNodeProfile.AddSubNode("Id").NodeContent() = "default";
-        rNodeProfile.AddSubNode("Name").NodeContent() = "Default profile";
-        rNodeProfile.AddSubNode("Base").NodeContent() = "default";
       }
 
       rise::xml::CXMLNode& rNodeProfile = rNodeRoot.AddSubNode("Profile");
