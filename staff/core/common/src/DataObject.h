@@ -521,19 +521,7 @@ namespace staff
     /*! \param  sLocalName - attribute's local name
         \return attribute
         */
-    CValue GetAttributeValueByName(const std::string& sLocalName);
-
-    //!         get attribute value by name
-    /*! \param  sLocalName - attribute's local name
-        \return attribute
-        */
     CValue GetAttributeValueByName(const std::string& sLocalName) const;
-
-    //!         get attribute text by name
-    /*! \param  sLocalName - attribute's local name
-        \return attribute
-        */
-    std::string GetAttributeTextByName(const std::string& sLocalName);
 
     //!         get attribute text by name
     /*! \param  sLocalName - attribute's local name

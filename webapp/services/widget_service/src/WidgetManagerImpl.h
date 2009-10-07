@@ -36,6 +36,12 @@ namespace widget
     CWidgetManagerImpl();
     virtual ~CWidgetManagerImpl();
     
+    virtual TStringList GetBaseProfiles();
+    virtual TProfileList GetProfiles();
+    virtual void AddProfile(const SProfile& stProfile);
+    virtual void DeleteProfile(const std::string& sProfile);
+    virtual void SetProfile(const SProfile& stProfile);
+
     virtual void Open(const std::string& sProfile);
     virtual void Close();
     virtual void Commit();
