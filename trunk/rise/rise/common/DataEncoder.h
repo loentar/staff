@@ -28,42 +28,44 @@
 
 namespace rise
 {
+  class CStreamBuffer;
+
   //! base64 encoder/decoder
   class RISE_EXPORT CBase64Encoder
   {
   public:
-    //!         encode byte array to base64
-    /*! \param  baIn - source array
-        \param  asOut - resulting base64 string
-        \param  nRowWidth - row width
+    //!         encode buffer to base64
+    /*! \param  rBuffIn - source buffer
+        \param  sOut - resulting base64 string
+        \param  nRowWidth - row width. 0 - do not align
       */
-    static void Encode(const CByteArray& baIn, CStringA& asOut, int nRowWidth = 19);
+    static void Encode(const CStreamBuffer& rBuffIn, CStringA& sOut, int nRowWidth = 0);
 
-    //!         decode base64 string to byte array
-    /*! \param  asIn - source base64 string
-        \param  baOut - resulting byte array
+    //!         decode base64 string to buffer
+    /*! \param  sIn - source base64 string
+        \param  rBuffOut - resulting buffer
       */
-    static void Decode(const CStringA& asIn, CByteArray& baOut);
+    static void Decode(const CStringA& sIn, CStreamBuffer& rBuffOut);
 
 
     //!         encode byte buffer to base64 string
     /*
         \param  pBuffIn - source buffer
         \param  tBufferSize - buffer size in bytes
-        \param  asOut - resulting base64 string
-        \param  nRowWidth - row width
+        \param  sOut - resulting base64 string
+        \param  nRowWidth - row width. 0 - do not align
       */
-    static void Encode(PCBuffer pBuffIn, TSize tBufferSize, CStringA& asOut, int nRowWidth = 19); // throw
+    static void Encode(PCBuffer pBuffIn, TSize tBufferSize, CStringA& sOut, int nRowWidth = 0); // throw
 
     //!         encode base64 string to byte buffer 
-    /*! \param  asIn - source base64 string
+    /*! \param  sIn - source base64 string
         \param  pBuffOut - resulting buffer
         \param  tBufferSize - (i/o)buffer size in bytes
       */
-    static void Decode(const CStringA& asIn, PBuffer pBuffOut, TSize& tBufferSize); // throw
+    static void Decode(const CStringA& sIn, PBuffer pBuffOut, TSize& tBufferSize); // throw
   
   private:
-    static const CStringA m_sEncodeTable;             //!< encoding table
+    static const char m_sEncodeTable[65];             //!< encoding table
     static const byte m_baDecodeTable['z' - '+' + 1]; //!< decoding table
   };
 }
