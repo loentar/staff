@@ -27,6 +27,10 @@
       <Descr>Object administrator</Descr>
     </Class>
     <Class>
+      <Name>webapp.widget.ProfileAdmin</Name>
+      <Descr>Profile administrator</Descr>
+    </Class>
+    <Class>
       <Name>webapp.widget.FileUploader</Name>
       <Descr>File uploader</Descr>
     </Class>

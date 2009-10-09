@@ -189,6 +189,31 @@ i18n.webapp =
   'Active services': 'Активные сервисы',
   'Service name': 'Имя сервиса',
   'Service operations': 'Операции сервиса',
-  'No description': 'Описание отсутствует'
+  'No description': 'Описание отсутствует',
+
+  // Profile admin
+  'Profile administrator': 'Администратор профилей',
+  'Profiles list': 'Список профилей',
+  'Profile properties': 'Свойства профиля',
+  'Profile name': 'Имя профиля',
+  'Invalid profile name': 'Неверное имя профиля',
+  'Profile name must contain only latin letters, digits and underline sign': 'Имя профиля должно содержать только латинские буквы, цифры и знак подчеркивания',
+  'Add profile': 'Добавление профиля',
+  'Select a profile': 'Выберите профиль',
+  'Edit profile': 'Изменить профиль',
+  'Widgets list': 'Список виджетов',
+  'Class name': 'Имя класса',
+  'Add widget': 'Добавить виджет',
+  'Edit widget': 'Изменить виджет',
+  'Delete widget': 'Удалить виджет',
+  'Invalid class name': 'Неверное имя класса',
+  'Class name must contain only latin letters, digits, dots and underline sign': 'Имя класса должно содержать только латинские буквы, цифры, точки и знак подчеркивания',
+  'Widget with class': 'Виджет с классом',
+  'already exists': 'уже существует',
+  'Widget description cannot be empty': 'Описание виджета не может быть пустым',
+  'Select a widget': 'Выберите виджет',
+  'is requid and cannot be deleted': 'необходим для функционирования системы и не может быть удален',
+  'is requid and cannot be changed': 'необходим для функционирования системы и не может быть изменен',
+  'Profile': 'Профиль'
 
 };

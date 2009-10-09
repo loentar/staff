@@ -238,6 +238,9 @@ webapp/services/widget_service/config/widgetdb_classes.webapp_sample.xml
 webapp/services/widget_service/src/WidgetManager.h
 webapp/services/widget_service/src/WidgetManagerImpl.cpp
 webapp/services/widget_service/src/WidgetManagerImpl.h
+webapp/services/ProfileAdmin/src/ProfileAdmin.h
+webapp/services/ProfileAdmin/src/ProfileAdminImpl.cpp
+webapp/services/ProfileAdmin/src/ProfileAdminImpl.h
 webapp/webclient/samples/assets/i18n/ru.js
 webapp/webclient/samples/view/Login.js
 webapp/webclient/samples/view/Main.js
@@ -274,5 +277,17 @@ webapp/webclient/webapp/widget/ActiveServices.js
 webapp/webclient/webapp/widget/FileUploader.js
 webapp/webclient/webapp/widget/Layout.js
 webapp/webclient/webapp/widget/ObjectAdmin.js
+webapp/webclient/webapp/widget/ProfileAdmin.js
 webapp/webclient/webapp/widget/Widget.js
 webapp/webclient/webapp/widget/WidgetLoader.js
+webapp/webclient/webapp/assets/view/WidgetFrame/WidgetFrame.css
+webapp/webclient/webapp/assets/view/DlgWidgetGroup/DlgWidgetGroup.css
+webapp/webclient/webapp/assets/tree/tree.css
+webapp/webclient/webapp/assets/widgets/ActiveServices/ActiveServices.css
+webapp/webclient/webapp/assets/widgets/FileUploader/FileUploaderFrame.css
+webapp/webclient/webapp/assets/widgets/FileUploader/FileUploader.css
+webapp/webclient/webapp/assets/widgets/Layout/Layout.css
+webapp/webclient/webapp/assets/widgets/ProfileAdmin/ProfileAdmin.css
+webapp/webclient/webapp/assets/widgets/ObjectAdmin/ObjectAdmin.css
+webapp/webclient/samples/assets/pages/Main.css
+webapp/webclient/samples/assets/pages/Login.css
