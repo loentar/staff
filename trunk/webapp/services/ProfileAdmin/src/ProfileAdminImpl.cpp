@@ -2,6 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
+#include <unistd.h>
 #include <rise/string/String.h>
 #include <rise/tools/FileFind.h>
 #include <rise/xml/XMLDocument.h>
