@@ -107,6 +107,12 @@ namespace staff
     return sPrefix != "" ? sPrefix + ":" + GetLocalPart() : GetLocalPart();
   }
 
+  std::string CQName::ToString() const
+  {
+    const std::string& sPrefix = GetPrefix();
+    return sPrefix != "" ? sPrefix + ":" + GetLocalPart() : GetLocalPart();
+  }
+
   std::string CQName::GetLocalPart() const
   {
     axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
