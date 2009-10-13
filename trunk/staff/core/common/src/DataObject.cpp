@@ -923,28 +923,28 @@ namespace staff
   CDataObject CDataObject::GetChildByQName(const CQName& stQName)
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + stQName.ToString() + "\" is not found");
     return CDataObject(pNode);
   }
 
   const CDataObject CDataObject::GetChildByQName(const CQName& stQName) const
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + stQName.ToString() + "\" is not found");
     return CDataObject(pNode);
   }
 
   CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName)
   {
     axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + sLocalName + "\" is not found");
     return CDataObject(pNode);
   }
 
   const CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName) const
   {
     axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Item is not found");
+    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + sLocalName + "\" is not found");
     return CDataObject(pNode);
   }
 

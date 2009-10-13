@@ -154,6 +154,11 @@ namespace staff
     */
     operator std::string() const;
 
+    //!         string cast
+    /*! \return prefix:localPart
+    */
+    std::string ToString() const;
+
     //!         axiom qname cast operator
     /*! \raturn axiom qname
       */
