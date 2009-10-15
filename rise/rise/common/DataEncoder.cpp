@@ -41,7 +41,7 @@ namespace rise
     
     int nBytesRow = nRowWidth <= 0 ? 0 : (tBufferSize * 4 / 3 / nRowWidth);
     
-    sOut.resize( tBufferSize * 4 / 3 + nBytesRow + stRest + 1 );
+    sOut.resize( tBufferSize * 4 / 3 + nBytesRow + stRest + 2 ); // +1 '=', +1 '\0'
 
     CStringA::iterator iterOut = sOut.begin();
 
