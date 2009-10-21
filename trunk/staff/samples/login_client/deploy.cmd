@@ -5,4 +5,12 @@ set bindir=%deploydir%\bin
 
 if not EXIST %bindir% mkdir %bindir%
 
-xcopy /Y /S debug\*.exe %bindir%
+
+
+if exist Debug (
+  xcopy /Y /S debug\*.exe %bindir%
+) else (
+  if exist Release (
+    xcopy /Y /S Release\*.exe %bindir%
+  )
+)

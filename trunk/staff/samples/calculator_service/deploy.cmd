@@ -10,4 +10,11 @@ if not EXIST %incdir% mkdir %incdir%
 if not EXIST %libdir% mkdir %libdir%
 if not EXIST %bindir% mkdir %bindir%
 
-xcopy /Y /S debug\*.exe %bindir%
+
+if exist Debug (
+  xcopy /Y /S debug\*.exe %bindir%
+) else (
+  if exist Release (
+    xcopy /Y /S Release\*.exe %bindir%
+  )
+)

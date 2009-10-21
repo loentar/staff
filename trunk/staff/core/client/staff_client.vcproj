@@ -98,9 +98,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -121,7 +121,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;staff_SERVICE_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\include\"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -139,11 +140,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib staff_common.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -169,6 +174,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd"
 			/>
 		</Configuration>
 	</Configurations>
