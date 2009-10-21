@@ -12,17 +12,25 @@ if not EXIST %bindir% mkdir %bindir%
 if not EXIST %thisincdir% mkdir %thisincdir%
 
 xcopy /Y /S src\*.h %thisincdir%
-xcopy /Y /S Debug\*.lib %libdir%
-xcopy /Y /S Debug\*.dll %libdir%
 
 set outdir=%STAFF_HOME%\lib
 if not EXIST %outdir% mkdir %outdir%
-xcopy /Y /S debug\*.lib %outdir%
-xcopy /Y /S debug\*.dll %outdir%
 
 set outdir2=%STAFF_HOME%\include\component
 if not EXIST %outdir2% mkdir %outdir2%
 xcopy /Y /S src\*.h %outdir2%
 
 
-echo ____  %cd% _________
+if exist Debug (
+  xcopy /Y /S Debug\*.lib %libdir%
+  xcopy /Y /S Debug\*.dll %libdir%
+  xcopy /Y /S debug\*.lib %outdir%
+  xcopy /Y /S debug\*.dll %outdir%
+) else (
+  if exist Release (
+    xcopy /Y /S Release\*.lib %libdir%
+    xcopy /Y /S Release\*.dll %libdir%
+    xcopy /Y /S Release\*.lib %outdir%
+    xcopy /Y /S Release\*.dll %outdir%
+  )
+)

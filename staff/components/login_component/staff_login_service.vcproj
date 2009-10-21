@@ -100,7 +100,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -123,9 +123,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include;&quot;C:\Program Files\DB\PostgreSQL 8.1\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -141,7 +142,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib staff_component.lib rise.lib ws2_32.lib libpq.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib;&quot;c:\Program Files\PostgreSQL\8.3\lib&quot;;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -171,6 +174,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd"
 			/>
 		</Configuration>
 	</Configurations>

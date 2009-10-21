@@ -5,9 +5,13 @@ set componentdir=%deploydir%\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%
 
-echo "debug\*.dll => %componentdir%"
-xcopy /Y /S debug\*.dll %componentdir%\
-
-echo "debug\*.dll => %STAFF_HOME%\components\%projectname%"
-xcopy /Y /S debug\*.dll %STAFF_HOME%\components\%projectname%\
+if exist Debug (
+  xcopy /Y /S debug\*.dll %componentdir%\
+  xcopy /Y /S debug\*.dll %STAFF_HOME%\components\%projectname%\
+) else (
+  if exist Release (
+    xcopy /Y /S Release\*.dll %componentdir%\
+    xcopy /Y /S Release\*.dll %STAFF_HOME%\components\%projectname%\
+  )
+)
 
