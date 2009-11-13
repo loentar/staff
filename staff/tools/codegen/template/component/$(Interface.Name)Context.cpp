@@ -62,6 +62,19 @@ $(Class.OpeningNs)
     RISE_THROWS(rise::CLogicNoItemException, "ID not found");
   }
 
+  rise::CStringList $(Class.Name)Context::GetServiceIds() const
+  {
+    rise::CStringList lsServiceIds;
+
+    for($(Class.Name)ContextImpl::TServiceImplMap::const_iterator itService = m_pImpl->m_mServices.begin();
+      itService != m_pImpl->m_mServices.end(); ++itService)
+    {
+      lsServiceIds.push_back(itService->first);
+    }
+
+    return lsServiceIds;
+  }
+
   $(Class.Name)Context* $(Class.Name)Context::m_pInst = NULL;
   $(Class.EndingNs)
 

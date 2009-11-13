@@ -498,6 +498,11 @@ void* $(Class.Name)Wrapper::GetImpl(const rise::CString& sID)
   return $(Class.Name)Context::GetContext().GetServiceImpl(sID);
 }
 
+rise::CStringList $(Class.Name)Wrapper::GetServiceIds() const
+{
+  return $(Class.Name)Context::GetContext().GetServiceIds();
+}
+
 staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
 {
   staff::CDataObject tOperations("Operations");

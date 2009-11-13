@@ -24,6 +24,7 @@
 #pragma warning(disable: 4091)
 #endif
 
+#include <signal.h>
 #include <axis2_svc_skeleton.h>
 #include <axis2_conf.h>
 #include <axutil_array_list.h>
@@ -299,6 +300,27 @@ rise::LogLabel();
     return pErrorNode;
   }
 
+  static void OnSignal(int nSignal)
+  {
+    if(nSignal == SIGSEGV)
+    {
+      std::string sTracedStack;
+      rise::tools::CStackTracer::StackTraceStr(sTracedStack);
+      rise::LogError() << "Segmentation fault.\nTraced stack:\n" << sTracedStack;
+      exit(1);
+    }
+  }
+
+  static void Init()
+  {
+    m_pSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
+  }
+
+  static void Deinit()
+  {
+    signal(SIGSEGV, CAxis2Service::m_pSigSegvHandler);
+  }
+
 private:
   static axis2_svc_skeleton_ops_t m_stAxis2SkelOps;
   static axis2_svc_t* m_pAxis2Svc;
@@ -307,6 +329,7 @@ private:
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
+  static sighandler_t m_pSigSegvHandler;
 };
 
 
@@ -325,6 +348,7 @@ std::string CAxis2Service::m_sLastFaultReason;
 const axutil_env_t* CAxis2Service::m_pEnv = NULL; 
 axis2_conf* CAxis2Service::m_pConf = NULL;
 bool CAxis2Service::m_bShuttingDown = false;
+sighandler_t CAxis2Service::m_pSigSegvHandler = NULL;
 
 /**
  * Following block distinguish the exposed part of the dll.
@@ -347,6 +371,8 @@ rise::LogEntry();
   rise::LogInfo() << "StaffService started";
 #endif
 
+  CAxis2Service::Init();
+
   return AXIS2_SUCCESS;
 }
 
@@ -356,6 +382,8 @@ rise::LogEntry();
 #if defined DEBUG || defined _DEBUG
   rise::LogDebug() << "stopping StaffService";
 #endif
+
+  CAxis2Service::Deinit();
 
   axis2_status_t tStatus = AXIS2_FAILURE;
   if (pSvcSkeleton)

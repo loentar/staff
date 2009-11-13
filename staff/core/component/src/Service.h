@@ -23,6 +23,7 @@
 #define _SERVICE_H_
 
 #include <rise/string/String.h>
+#include <rise/common/containertypes.h>
 #include "staffcomponentexport.h"
 
 namespace staff
@@ -74,6 +75,11 @@ namespace staff
         \return pointer to service implementation or NULL, if service non-local
         */
     virtual void* GetImpl(const rise::CString& sID) = 0;
+
+    //!         get services ids
+    /*! \return service ids
+        */
+    virtual rise::CStringList GetServiceIds() const = 0;
   };
 }
 

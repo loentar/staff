@@ -68,6 +68,11 @@ $(Class.OpeningNs)
         */
     void* GetImpl(const rise::CString& sID);
 
+    //!         get services ids
+    /*! \return service ids
+        */
+    virtual rise::CStringList GetServiceIds() const;
+
   protected:
     //!         get service implementation
     /*! \param  sID - session id

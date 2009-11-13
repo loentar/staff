@@ -59,7 +59,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
   tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
-  tdoParam$(Param.Name).ApendChild(rstStruct.$(Param.Name));
+  tdoParam$(Param.Name).AppendChild(rstStruct.$(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),generic)
   tdoParam$(Param.Name).SetValue(rstStruct.$(Param.Name));

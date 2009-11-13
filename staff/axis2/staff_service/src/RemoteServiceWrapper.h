@@ -24,6 +24,7 @@
 
 #include <map>
 #include <rise/common/MutablePtr.h>
+#include <rise/common/containertypes.h>
 #include <staff/component/Service.h>
 
 namespace staff
@@ -92,6 +93,11 @@ namespace staff
     /*! \return services map
     */
     TRemoteServiceMap& GetServices();
+
+    //!         get services ids
+    /*! \return service ids
+        */
+    virtual rise::CStringList GetServiceIds() const;
 
   private:
     TRemoteServiceMap m_mServices; //!< services map
