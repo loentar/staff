@@ -48,6 +48,10 @@
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 
+#ifdef OS_MCBC
+#define sighandler_t __sighandler_t
+#endif
+
 class CAxis2Service
 {
 public:
