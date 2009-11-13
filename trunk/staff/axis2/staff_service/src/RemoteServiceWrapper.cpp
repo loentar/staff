@@ -93,4 +93,16 @@ namespace staff
     return m_mServices;
   }
 
+  rise::CStringList CRemoteServiceWrapper::GetServiceIds() const
+  {
+    rise::CStringList lsServiceIds;
+    for (TRemoteServiceMap::const_iterator itService = m_mServices.begin();
+          itService != m_mServices.end(); ++itService)
+    {
+      lsServiceIds.push_back(itService->first);
+    }
+
+    return lsServiceIds;
+  }
+
 }

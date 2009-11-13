@@ -6,6 +6,7 @@
 #define _$(Interface.Name)Context_h_
 
 #include <rise/string/String.h>
+#include <rise/common/containertypes.h>
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
@@ -31,6 +32,11 @@ $(Class.OpeningNs)
         \return service session id
         */
     const rise::CString& GetServiceID(const $(Class.Name)Impl* pImpl) const;
+
+    //!         get services ids
+    /*! \return service ids
+        */
+    rise::CStringList GetServiceIds() const;
 
   protected:
     $(Class.Name)Context();
