@@ -28,7 +28,7 @@ staff
 %pre
 
 %preun
-echo -n "Удаление БД..."
+echo -n "Удаление БД ПИ..."
 /etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
 sleep 1 ## database system is starting up
 cd /usr/local/staff/ && psql -q -U postgres template1 < db/uninstdb.sql && echo "     ОК"
@@ -54,7 +54,7 @@ AXIS2C_PATCH_END
 echo "Настройка СУБД"
 /etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
 sleep 1 ## database system is starting up
-patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_PATCH_END
+patch -f /var/lib/pgsql/data/pg_hba.conf << POSTGRES_PATCH_END
 --- pg_hba.conf	Wed Apr  8 09:43:12 2009
 +++ pg_hba.conf	Wed Apr  8 09:43:16 2009
 @@ -58,2 +58,3 @@ local   all         postgres            
@@ -69,14 +69,8 @@ chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
 /etc/init.d/postgresql reload
 
 ####################################
-echo -n "Установка БД..."
+echo -n "Установка БД ПИ..."
 cd /usr/local/staff/ && psql -q -U postgres template1 < db/instdb.sql >/dev/null && echo "     ОК"
-
-####################################
-cat << DONE_MESSAGE_END
-Установка завершена.
-Изменения вступят в силу при повторном входе в систему.
-DONE_MESSAGE_END
 
 %postun
 ####################################
