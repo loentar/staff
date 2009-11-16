@@ -625,14 +625,17 @@ staff.DataObject.prototype =
           var tSubObj = tObj[tIndex];
           if (typeof tSubObj != 'function')
           {
-            this._ToElement(tElem, tObj[tIndex], tIndex);
+            this._ToElement(tElem, tSubObj, tIndex);
           }
         }
       }
     }
     else
     {
-      tElem.set_value(tObj.toString());
+      if (tObj != null && typeof tObj.toString == 'function')
+      {
+        tElem.set_value(tObj.toString());
+      }
     }
 
     return tElem;
