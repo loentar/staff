@@ -117,7 +117,7 @@ namespace widget
     return tResult;  // result
   }
 
-  void LoadProfiles(const std::string& sFile, TProfileList& rlsProfiles)
+  void CWidgetManagerImpl::LoadProfiles(const std::string& sFile, TProfileList& rlsProfiles)
   {
     rise::xml::CXMLDocument tDoc;
     tDoc.LoadFromFile(sFile);

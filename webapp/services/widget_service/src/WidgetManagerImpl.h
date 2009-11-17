@@ -78,7 +78,8 @@ namespace widget
     int GetUserId();
 
     void LoadWidgets(const rise::xml::CXMLNode& rNodeWidgets, TWidgetInternalMap& mWidgets);
-    
+    void LoadProfiles(const std::string& sFile, TProfileList& rlsProfiles);
+
   private:
     TStringMap m_mWidgetClasses;
     TWidgetInternalMap m_mActiveWidgets;
