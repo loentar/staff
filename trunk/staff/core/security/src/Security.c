@@ -43,6 +43,10 @@
   typedef pthread_mutex_t* PLock;
 #endif
 
+#ifdef OS_MCBC
+extern int pthread_mutexattr_settype (pthread_mutexattr_t *__attr, int __kind)
+     __THROW;
+#endif
 
 PGconn* g_pConn = NULL;
 TLock g_tLock;
@@ -160,7 +164,7 @@ void StaffSecurityFree()
   }
 }
 
-bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool bRemoveOld, int nExtraSessionId)
+EStaffSecurityError CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool bRemoveOld, int nExtraSessionId)
 {
   ExecStatusType tQueryStatus;
   PGresult* pPGResult = NULL;
@@ -234,6 +238,36 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
     }
   }
 
+  // checking contextid <=> sessionid does not exists
+  {
+    int nExtraSessionIdReq = htonl(nExtraSessionId);
+    int anParamLengths[2] = { sizeof(nContextIdReq), sizeof(nExtraSessionIdReq) };
+    int anParamFormats[2] = { 1, 1 };
+    const char* aszParams[2] = { (const char*)&nContextIdReq, (const char*)&nExtraSessionIdReq };
+
+    // create new session
+    pPGResult = PQexecParamsLock(g_pConn,
+      "select \"contextid\" from \"session\" where \"contextid\" = $1::int4 and \"extraid\" = $2::int4;",
+      2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+    tQueryStatus = PQresultStatus(pPGResult);
+    if (tQueryStatus != PGRES_TUPLES_OK)
+    {
+      dprintf("failed to check contextid(%d) <=> extrasessionid(%d): %s\n", nContextId, nExtraSessionId, PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return EStaffSecurityErrorInternal;
+    }
+
+    if(PQntuples(pPGResult) > 0)
+    {
+      dprintf("User with sessionid: %s already opened extra session #%d: %s\n", szSessionId, nExtraSessionId, PQerrorMessage(g_pConn));
+      PQclearLock(pPGResult);
+      return EStaffSecurityErrorAlreadyExists;
+    }
+
+    PQclearLock(pPGResult);
+  }
+
   // create session id
   pPGResult = PQexecLock(g_pConn, "select md5(cast (now() as text));");
   
@@ -242,15 +276,15 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
   {
     dprintf("failed to create new session(get created session): %s\n", PQerrorMessage(g_pConn));
     PQclearLock(pPGResult);
-    return false;
+    return EStaffSecurityErrorInternal;
   }
 
   pResult = PQgetvalue(pPGResult, 0, 0);
   if(!pResult)
   {
-    dprintf("error getting result\n");
+    dprintf("error getting result while generating sessionid\n");
     PQclearLock(pPGResult);
-    return false;
+    return EStaffSecurityErrorInternal;
   }
 
   nSize = min(nSessionIdSize - 1, (int)strlen(pResult));
@@ -260,6 +294,7 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
 
   dprintf("new session id: %s\n", szSessionId);
 
+  // creating session
   {
     int nExtraSessionIdReq = htonl(nExtraSessionId);
     int anParamLengths[3] = { nSize, sizeof(nContextIdReq), sizeof(nExtraSessionIdReq) };
@@ -276,13 +311,13 @@ bool CreateSession(int nContextId, char* szSessionId, int nSessionIdSize, bool b
     {
       dprintf("failed to create new session: %s\n", PQerrorMessage(g_pConn));
       PQclearLock(pPGResult);
-      return false;
+      return EStaffSecurityErrorInternal;
     }
 
     PQclearLock(pPGResult);
   }
 
-  return true;
+  return EStaffSecurityErrorOK;
 }
 
 bool GetUserIdByNameAndPasswd( const char* szUser, 
@@ -422,12 +457,13 @@ bool GetSessionByContextId(int nContextId, int nExtraSessionId, char* szSessionI
   return true;
 }
 
-bool StaffSecurityOpenSession( const char* szUser, 
-                               const char* szPassword,
-                               bool bCloseExisting,
-                               char* szSessionId,
-                               int nSessionIdSize )
+EStaffSecurityError StaffSecurityOpenSession( const char* szUser,
+                                            const char* szPassword,
+                                            bool bCloseExisting,
+                                            char* szSessionId,
+                                            int nSessionIdSize )
 {
+  EStaffSecurityError eResult = EStaffSecurityErrorInternal;
   int nUserId = -1;
   int nContextId = -1;
 
@@ -438,34 +474,26 @@ bool StaffSecurityOpenSession( const char* szUser,
   if(!GetUserIdByNameAndPasswd(szUser, szPassword, &nUserId))
   {
     dprintf("error authenticating user: %s\n", szUser);
-    return false;
+    return EStaffSecurityErrorAccessDenied;
   }
 
   if(!GetContextIdByUserId(nUserId, &nContextId))
   {
     dprintf("error getting context for user: %s\n", szUser);
-    return false;
+    return EStaffSecurityErrorInternal;
   }
 
-  if (!bCloseExisting)
-  {
-    if(GetSessionByContextId(nContextId, 0, szSessionId, nSessionIdSize))
-    {
-      return true;
-    }
-  }
- 
-  if(!CreateSession(nContextId, szSessionId, nSessionIdSize, bCloseExisting, 0))
+  eResult = CreateSession(nContextId, szSessionId, nSessionIdSize, bCloseExisting, 0);
+  if(eResult != EStaffSecurityErrorOK)
   {
     dprintf("error creating session for user: %s\n", szUser);
-    return false;
   }
 
-  return true;
+  return eResult;
 }
 
 
-bool StaffSecurityOpenExtraSession( const char* szExistingSessionId,
+EStaffSecurityError StaffSecurityOpenExtraSession( const char* szExistingSessionId,
                                     int nExtraSessionId,
                                     char* szSessionId,
                                     int nSessionIdSize )
@@ -481,25 +509,26 @@ bool StaffSecurityOpenExtraSession( const char* szExistingSessionId,
   if(!StaffSecurityGetUserIdBySessionId(szExistingSessionId, &nUserId))
   {
     dprintf("error validating session: %s\n", szExistingSessionId);
-    return false;
+    return EStaffSecurityErrorAccessDenied;
   }
 
   if(!GetContextIdByUserId(nUserId, &nContextId))
   {
     dprintf("error getting context for user: %d\n", nUserId);
-    return false;
+    return EStaffSecurityErrorInternal;
   }
 
   if(!GetSessionByContextId(nContextId, nExtraSessionId, szSessionId, nSessionIdSize))
   {
-    if(!CreateSession(nContextId, szSessionId, nSessionIdSize, true, nExtraSessionId))
+    EStaffSecurityError eResult = CreateSession(nContextId, szSessionId, nSessionIdSize, true, nExtraSessionId);
+    if(eResult != EStaffSecurityErrorOK)
     {
-      dprintf("error creating session for user: %d\n", nUserId);
-      return false;
+      dprintf("error creating session for user with sessionid: %s\n", szExistingSessionId);
+      return eResult;
     }
   }
 
-  return true;
+  return EStaffSecurityErrorOK;
 }
 
 bool StaffSecurityCloseSession( const char* szSessionId )
@@ -1276,6 +1305,21 @@ bool StaffSecurityIsInit()
 int StaffSecurityGetSessionExpiration()
 {
   return g_nSessionExpiration;
+}
+
+STAFF_SECURITY_EXPORT const char* StaffSecurityGetErrorStr(EStaffSecurityError eError)
+{
+  switch (eError)
+  {
+    case EStaffSecurityErrorAccessDenied:
+      return "Access denied";
+    case EStaffSecurityErrorAlreadyExists:
+      return "Already exists";
+    case EStaffSecurityErrorInternal:
+      return "Internal error";
+    default:
+      return "Unknown error";
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

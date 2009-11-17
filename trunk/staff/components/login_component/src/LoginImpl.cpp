@@ -45,10 +45,12 @@ namespace staff
     RISE_ASSERTES(sCurrentSessionId == STAFF_SECURITY_GUEST_SESSION_ID,
       rise::CLogicAlreadyExistsException, 
       "Cannot login from non-guest session");
-    
-    if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), true, szSessionId, sizeof(szSessionId)))
+
+    EStaffSecurityError eError = StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(),
+                                                        true, szSessionId, sizeof(szSessionId));
+    if(eError != EStaffSecurityErrorOK)
     {
-      RISE_THROWS(staff::CRemoteException, "Cannot open session");
+      RISE_THROWS(staff::CRemoteException, "Cannot open session: " + std::string(StaffSecurityGetErrorStr(eError)));
     }
 
     tResult.assign(szSessionId);
@@ -66,9 +68,10 @@ namespace staff
       rise::CLogicAlreadyExistsException,
       "Cannot login from non-guest session");
 
-    if(!StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), bCloseExisting, szSessionId, sizeof(szSessionId)))
+    EStaffSecurityError eError = StaffSecurityOpenSession(sUserName.c_str(), sPassword.c_str(), bCloseExisting, szSessionId, sizeof(szSessionId));
+    if(eError != EStaffSecurityErrorOK)
     {
-      RISE_THROWS(staff::CRemoteException, "Cannot open session");
+      RISE_THROWS(staff::CRemoteException, "Cannot open session: " + std::string(StaffSecurityGetErrorStr(eError)));
     }
 
     tResult.assign(szSessionId);
@@ -82,9 +85,10 @@ namespace staff
     std::string tResult;
     char szSessionId[33];
 
-    if(!StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), nExtraSessionId, szSessionId, sizeof(szSessionId)))
+    EStaffSecurityError eError = StaffSecurityOpenExtraSession(sCurrentSessionId.c_str(), nExtraSessionId, szSessionId, sizeof(szSessionId));
+    if(eError != EStaffSecurityErrorOK)
     {
-      RISE_THROWS(staff::CRemoteException, "Cannot open extra session");
+      RISE_THROWS(staff::CRemoteException, "Cannot open session: " + std::string(StaffSecurityGetErrorStr(eError)));
     }
 
     tResult.assign(szSessionId);

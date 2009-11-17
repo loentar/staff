@@ -95,14 +95,14 @@ extern "C"
   };
   typedef struct SPermissions TPermissions;
 
-  enum EObjectType //!<  Object type
+  typedef enum //!<  Object type
   {
     EObjectTypeUnknown,     //!<  unknown
     EObjectTypeComponent,   //!<  component
     EObjectTypeService,     //!<  service
     EObjectTypeOperation,   //!<  operation
     EObjectTypeLast         //!<  last
-  };
+  } EObjectType;
 
   //! Object
   struct SObject
@@ -121,6 +121,14 @@ extern "C"
   typedef struct SObject TObject;
 
 #pragma pack()
+
+typedef enum
+{
+  EStaffSecurityErrorOK,
+  EStaffSecurityErrorAccessDenied,
+  EStaffSecurityErrorAlreadyExists,
+  EStaffSecurityErrorInternal
+} EStaffSecurityError;
 
 //!         initialize security module(internal function)
 /*! \param  szHost - DBMS host
@@ -153,22 +161,24 @@ STAFF_SECURITY_EXPORT void StaffSecurityFree();
     \param  bCloseExisting - close existing session
     \param  szSessionId - result: session id
     \param  nSessionIdSize - szSessionId size
-    \return true if operation successes
+    \return EStaffSecurityError - result
+    \sa     EStaffSecurityError
     */
-STAFF_SECURITY_EXPORT bool StaffSecurityOpenSession( const char* szUser, 
-                                                     const char* szPassword,
-                                                     bool bCloseExisting,
-                                                     char* szSessionId,
-                                                     int nSessionIdSize );
+STAFF_SECURITY_EXPORT EStaffSecurityError StaffSecurityOpenSession( const char* szUser,
+                                                                  const char* szPassword,
+                                                                  bool bCloseExisting,
+                                                                  char* szSessionId,
+                                                                  int nSessionIdSize );
 
 //!         open/get an extra session for user
 /*! \param  szExistingSessionId - existing session id
     \param  nExtraSessionId - extra session number
     \param  szSessionId - result: extra session id
     \param  nSessionIdSize - szExtraSessionId size
-    \return true if operation successes
+    \return EStaffSecurityError - result
+    \sa     EStaffSecurityError
     */
-STAFF_SECURITY_EXPORT bool StaffSecurityOpenExtraSession( const char* szExistingSessionId,
+STAFF_SECURITY_EXPORT EStaffSecurityError StaffSecurityOpenExtraSession( const char* szExistingSessionId,
                                                           int nExtraSessionId,
                                                           char* szSessionId,
                                                           int nSessionIdSize );
@@ -284,6 +294,12 @@ STAFF_SECURITY_EXPORT bool StaffSecurityGetUserPermissionForServiceOperation( co
 /*! \return session expiration in minutes
 */
 STAFF_SECURITY_EXPORT int StaffSecurityGetSessionExpiration();
+
+//!         get error description
+/*! \param  nError
+    \return error description
+  */
+STAFF_SECURITY_EXPORT const char* StaffSecurityGetErrorStr(EStaffSecurityError eError);
 
 #ifdef __cplusplus
 }
