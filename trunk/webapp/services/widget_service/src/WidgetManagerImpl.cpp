@@ -117,32 +117,53 @@ namespace widget
     return tResult;  // result
   }
 
+  void LoadProfiles(const std::string& sFile, TProfileList& rlsProfiles)
+  {
+    rise::xml::CXMLDocument tDoc;
+    tDoc.LoadFromFile(sFile);
+
+    rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+    for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeProfile = rNodeRoot.NodeBegin();
+        itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
+    {
+      const rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+      SProfile stProfile;
+      stProfile.sId = rNodeProfile["Id"].AsString();
+      stProfile.sName = rNodeProfile["Name"].AsString();
+      stProfile.sBase = rNodeProfile["Base"].AsString();
+      rlsProfiles.push_back(stProfile);
+    }
+  }
+
   TProfileList CWidgetManagerImpl::GetProfiles()
   {
     TProfileList tResult;
 
-    const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
-
     try
     {
-      rise::xml::CXMLDocument tDoc;
-      tDoc.LoadFromFile(sProfilesListFileName);
-
-      rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeProfile = rNodeRoot.NodeBegin();
-          itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
-      {
-        const rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
-        SProfile stProfile;
-        stProfile.sId = rNodeProfile["Id"].AsString();
-        stProfile.sName = rNodeProfile["Name"].AsString();
-        stProfile.sBase = rNodeProfile["Base"].AsString();
-        tResult.push_back(stProfile);
-      }
+      const std::string& sProfilesListFileName = m_sComponentHome + "/db/user_profiles." + rise::ToStr(GetUserId()) + ".xml";
+      LoadProfiles(sProfilesListFileName, tResult);
     }
     catch(...)
     {
       rise::LogWarning() << "using default profile list";
+      int nResult = 0;
+      if (!StaffSecurityIsUserMemberOf(GetUserId(), 0, &nResult))
+      {
+        rise::LogError() << "can\'t recognize user is admin. Threating as non admin";
+      }
+
+      const std::string& sProfilesListFileName = m_sComponentHome +
+        (nResult ? "/db/user_profiles.admin.default.xml" : "/db/user_profiles.user.default.xml");
+
+      try
+      {
+        LoadProfiles(sProfilesListFileName, tResult);
+      }
+      catch(...)
+      {
+        rise::LogError() << "Can't load default profile list";
+      }
     }
 
     return tResult;  // result

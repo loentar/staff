@@ -204,11 +204,19 @@ STAFF_SECURITY_EXPORT bool StaffSecurityGetUserIdBySessionId( const char* szSess
 /*! \param  szSessionId - session id
     \param  szUserName - result: user name
     \param  nUserNameSize - szUserName size
-    \return 
+    \return true if operation successes
     */
 STAFF_SECURITY_EXPORT bool StaffSecurityGetUserNameBySessionId( const char* szSessionId, 
                                                                 char* szUserName, 
                                                                 int nUserNameSize );
+
+//!         is user member of group
+/*! \param  nUserId - user id
+    \param  nGroupId - group id
+    \param  pnResult - true, if user is member of group
+    \return true if operation successes
+    */
+STAFF_SECURITY_EXPORT bool StaffSecurityIsUserMemberOf(int nUserId, int nGroupId, int* pnResult);
 
 // ------------------- access to objects -----------------------
 

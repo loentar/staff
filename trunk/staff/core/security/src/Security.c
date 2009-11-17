@@ -862,6 +862,10 @@ bool IsUserBelongsToGroup(int nUserId, int nGroupId, int* pnResult)
   return true;
 }
 
+bool StaffSecurityIsUserMemberOf(int nUserId, int nGroupId, int* pnResult)
+{
+  return IsUserBelongsToGroup(nUserId, nGroupId, pnResult);
+}
 
 bool ParseObjectInfoResponse(PGresult* pPGResult, TObject* pstObject, int nRow)
 {
