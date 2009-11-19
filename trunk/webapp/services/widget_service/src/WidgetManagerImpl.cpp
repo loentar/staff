@@ -212,8 +212,26 @@ namespace widget
       }
       catch(...)
       {
-        rise::LogWarning() << "creating default profile list";
-        rNodeRoot.NodeName() = "ProfileList";
+        rise::LogWarning() << "using default profile list";
+        int nResult = 0;
+        if (!StaffSecurityIsUserMemberOf(GetUserId(), 0, &nResult))
+        {
+          rise::LogError() << "can\'t recognize user is admin. Threating as non admin";
+        }
+
+        const std::string& sProfilesListFileName = m_sComponentHome +
+          (nResult ? "/db/user_profiles.admin.default.xml" : "/db/user_profiles.user.default.xml");
+
+        try
+        {
+          rise::LogDebug2() << "Loading " << sProfilesListFileName;
+          tDoc.LoadFromFile(sProfilesListFileName);
+        }
+        catch(...)
+        {
+          rise::LogWarning() << "creating default profile list";
+          rNodeRoot.NodeName() = "ProfileList";
+        }
       }
 
       rise::xml::CXMLNode& rNodeProfile = rNodeRoot.AddSubNode("Profile");
