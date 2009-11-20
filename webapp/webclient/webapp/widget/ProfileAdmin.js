@@ -255,7 +255,7 @@ webapp.widget.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
       tData =
       {
         sName: "",
-        lsWidgets: []
+        lsWidgets: tWidgets
       };
     }
 
