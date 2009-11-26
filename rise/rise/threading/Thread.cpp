@@ -59,12 +59,12 @@ namespace rise
       RISE_CATCH_ALL
     }
 
-    bool CThread::Start(void* pParam /*= NULL*/)
+    bool CThread::Start(void* pParam /*= NULL*/, bool bDetached /* = true*/)
     {
       CScopedCriticalSection cs(m_cs);
 //      m_hThread = reinterpret_cast<HThread>(0xFFFFFFFFul);   // WARN!! isWorking = true;
       m_pParam = pParam;
-      return osCreateThread(InternalRun, &m_hThread, this);
+      return osCreateThread(InternalRun, &m_hThread, this, bDetached);
     }
     
     bool CThread::IsWorking() const
@@ -115,6 +115,16 @@ namespace rise
       osJoinThread(m_hThread);
     }
 
+    bool CThread::Wait()
+    {
+      return osWaitForThread(m_hThread);
+    }
+
+    bool CThread::Wait(unsigned long ulTimeout)
+    {
+      return osWaitForThreadExit(m_hThread, ulTimeout);
+    }
+
     void CThread::Stop( ulong ulTimeout /*= 0ul*/ )
     {
       CScopedCriticalSection cs(m_cs);
@@ -123,7 +133,7 @@ namespace rise
       OnStop();
       if(GetId() != GetCurrentId())
       {
-        RISE_ASSERTE(osWaitForThreadExit(m_hThread, ulTimeout), CLogicTimeoutException);
+        RISE_ASSERTE(Wait(ulTimeout), CLogicTimeoutException);
         m_bStopping = false;
       }
     }

@@ -26,6 +26,11 @@
 #include <strstream>
 #include <stdlib.h>
 #include <locale.h>
+#include <iomanip>
+#ifdef __linux__
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 // #include <rise/common/Exception.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -95,6 +100,17 @@ public:
         break;
       }
     }
+  }
+};
+
+class CMyThread1: public rise::threading::CThread 
+{
+public:
+  void Run(void* /*pparam*/)
+  {
+    rise::LogDebug1() << "ChildThread. start";
+    Sleep(1000);
+    rise::LogDebug1() << "ChildThread. end";
   }
 };
 
@@ -289,17 +305,17 @@ int main(int argc, const rise::TChar* argv[])
        bLogToFile = true;
        
   rise::tLog.SetLogLevel(rise::CLog::ELL_INFO);
+  
+  mkdir("out", 0777);
 
   if (!bLogToFile)
   {
     fLog.open("out/rise_test.log", std::ios::out | std::ios::binary);
-    rise::tLog.SetLogLevel(rise::CLog::ELL_DEBUG3);
+//    rise::tLog.SetLogLevel(rise::CLog::ELL_DEBUG3);
 //   rise::Log.SetLogStream(&fLog, rise::CLog::ELL_INFO | rise::CLog::ELL_DEBUG | rise::CLog::ELL_DEBUG1 | rise::CLog::ELL_DEBUG2 | rise::CLog::ELL_DEBUG3);
 //   rise::Log.SetLogStream(&fLog, rise::CLog::ELL_ALL);
   }
 
-
-  tStdOut << "Тест русского языка" << std::endl;
 
   //////////////////////////////////////////////////////////////////////////////
   //    testing std c++ linking to rise
@@ -331,6 +347,8 @@ int main(int argc, const rise::TChar* argv[])
     }
 
     {
+      tStdOut << "CEncoding::Convert" << std::flush;
+
       rise::CStringA sIn = "\xd4\xc5\xd3\xd4test";
       rise::CStringA sOutWin;
       rise::CStringA sOutUtf8;
@@ -344,15 +362,18 @@ int main(int argc, const rise::TChar* argv[])
       rise::CEncoding::Convert(sOutUtf8, sOutSrc, rise::CEncoding::ET_UTF_8, rise::CEncoding::ET_KOI8R);
       RISE_ASSERTS( sOutSrc == sIn, "Convert back");
 
+      tStdOut << rise::LogResultSuccess;
     }
 
     //////////////////////////////////////////////////////////////////////////////
     //    FileFind
     //////////////////////////////////////////////////////////////////////////////
     {
+      tStdOut << "FileFind" << std::flush;
       rise::CStringList slsTest;
-      rise::CFileFind::Find(".", slsTest, "*.xml", rise::CFileFind::EFA_FILE);
-      rise::CFileFind::Find(".", slsTest, "*", rise::CFileFind::EFA_DIR);
+      rise::CFileFind::Find(".", slsTest, "data/*.xml", rise::CFileFind::EFA_FILE);
+      rise::CFileFind::Find(".", slsTest, "data/*", rise::CFileFind::EFA_DIR);
+      tStdOut << rise::LogResultSuccess;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -431,19 +452,6 @@ int main(int argc, const rise::TChar* argv[])
 
       //////////////////////////////////////////////////////////////////////////
       // Find
-//       RISE_ASSERTS( rise::StrFind("34")) == 2, _T("Find1" );
-//       RISE_ASSERTS( rise::StrFind("as34")) == rise::CString::npos, _T("Find2" );
-//       RISE_ASSERTS( rise::StrFindFirstOf("53")) == 2, _T("Find3" );
-//       RISE_ASSERTS( rise::StrFindFirstOf(" ")) == rise::CString::npos, _T("Find4" );
-//       RISE_ASSERTS( rise::StrFindLastOf("53")) == 4, _T("Find5" );
-//       RISE_ASSERTS( rise::StrFindLastOf(" ")) == rise::CString::npos, _T("Find6" );
-//       RISE_ASSERTS( rise::StrFindFirstNotOf("1")) == 1, _T("Find7" );
-//       RISE_ASSERTS( rise::StrFindFirstNotOf(" ")) == 0, _T("Find8" );
-//       RISE_ASSERTS( rise::StrFindLastNotOf("6")) == 5, _T("Find9" );
-//       RISE_ASSERTS( rise::StrFindLastNotOf(" ")) == rise::CString::npos, _T("Find10" );
-
-//      tStdOut << rise::LogResultSuccess;
-
     //    FromStr
       int nVal = 0;
       rise::FromStr("123", nVal);
@@ -461,13 +469,20 @@ int main(int argc, const rise::TChar* argv[])
     //    rise::CProcess test
     //////////////////////////////////////////////////////////////////////////////
     {
-      rise::LogNotice() << rise::process::CProcess::GetCurrentExecPath();
+      tStdOut << "CProcess:GetCurrentExecPath" << std::flush;
+      rise::CString sPath = rise::process::CProcess::GetCurrentExecPath();
+      RISE_ASSERTS(sPath != "", "GetCurrentExecPath");
+      rise::LogDebug() << sPath;
+      tStdOut << rise::LogResultSuccess;
     }
 
     {
+      tStdOut << "StackTracer" << std::flush;
       rise::CString sTrace;
       rise::tools::CStackTracer::StackTraceStr(sTrace);
-      rise::LogInfo() << "trace:\n" << sTrace;
+      rise::LogDebug() << "trace:\n" << sTrace;
+      RISE_ASSERTS(sTrace != "", "StackTraceStr");
+      tStdOut << rise::LogResultSuccess;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -503,7 +518,35 @@ int main(int argc, const rise::TChar* argv[])
     //    CStreamBuffer
     //////////////////////////////////////////////////////////////////////////////
     {
-      //CStreamBuffer
+      tStdOut << "CStreamBuffer" << std::flush;
+      rise::CStreamBuffer sb1;
+      rise::CStreamBuffer sb2;
+
+      RISE_ASSERT(sb1 == sb2);
+     
+      sb1 << "asd" << 1 << 2.0;
+      
+      std::string a;
+      int b = 0;
+      double c = 0.0;
+
+      RISE_ASSERT(sb1 != sb2);
+      
+      sb1 >> a >> b >> c;
+      
+      RISE_ASSERT(a == "asd" );
+      RISE_ASSERT(b == 1 );
+      RISE_ASSERT(c == 2.0 );
+      
+      RISE_ASSERT(sb1 == sb2);
+
+
+      sb1 << "asd" << 1 << 2.0;
+      sb2 << "asd" << 1 << 2.0;
+      
+      RISE_ASSERT(sb1 == sb2);
+      
+      tStdOut << rise::LogResultSuccess;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -538,11 +581,13 @@ int main(int argc, const rise::TChar* argv[])
       tStdOut << "CBase64Encoder" << std::flush;
 
       rise::CStringA sOut;
-      rise::CByteArray baTest;
-      rise::CByteArray baTestResult;
-      baTest.resize(256);
-      for(rise::CByteArray::iterator iter = baTest.begin(); iter != baTest.end(); ++iter)
-        *iter = (unsigned char)(iter - baTest.begin());
+      rise::CStreamBuffer baTest;
+      rise::CStreamBuffer baTestResult;
+
+      for(int i = 0; i < 256; ++i)
+      {
+        baTest << static_cast<rise::byte>(i);
+      }
 
       rise::CBase64Encoder::Encode(baTest, sOut);
 
@@ -553,40 +598,7 @@ int main(int argc, const rise::TChar* argv[])
     }
 
     {
-      tStdOut << "CBase64Encoder_1" << std::flush;
-      
-      rise::CString sMessage = "test string 123234 test string 123234";
-      rise::CString sStrOut;
-      rise::CBase64Encoder::Encode(reinterpret_cast<rise::PCBuffer>(sMessage.c_str()), sMessage.size(), sStrOut);
-
-/*      rise::CStringA sOut;
-      bool bOk = true;
-      rise::TBuffer tBuffIn[20];
-      rise::TBuffer tBuffOut[512];
-      rise::TSize tOutSize = sizeof(tBuffOut);
-
-      for(int i = 0; i < sizeof(tBuffIn); ++i)
-        tBuffIn[i] = 0;//static_cast<rise::TBuffer>(i);
-
-      for(int i = 0; i < 253; ++i)
-        tBuffIn[i] = static_cast<rise::TBuffer>(i);
-
-      rise::CBase64Encoder::Encode(tBuffIn, sizeof(tBuffIn), sOut);
-      rise::CBase64Encoder::Decode(sOut, tBuffOut, tOutSize);
-
-      for(int i = 0; i < sizeof(tBuffIn); ++i)
-        if(tBuffIn[i] != tBuffOut[i])
-        {
-          bOk = false;
-          break;
-        }
-
-      RISE_ASSERT(bOk);*/
-      tStdOut << rise::LogResultSuccess;
-    }
-
-    {
-      tStdOut << "CBase64Encoder_2" << std::flush;
+      tStdOut << "CBase64Encoder 2" << std::flush;
 
       rise::CStringA sOut;
       bool bOk = true;
@@ -594,16 +606,16 @@ int main(int argc, const rise::TChar* argv[])
       rise::TBuffer tBuffOut[512];
       rise::TSize tOutSize = sizeof(tBuffOut);
 
-      for(int i = 0; i < sizeof(tBuffIn); ++i)
+      for(rise::TSize i = 0; i < sizeof(tBuffIn); ++i)
         tBuffIn[i] = 0;//static_cast<rise::TBuffer>(i);
 
-      for(int i = 0; i < 253; ++i)
+      for(rise::TSize i = 0; i < 253; ++i)
         tBuffIn[i] = static_cast<rise::TBuffer>(i);
 
       rise::CBase64Encoder::Encode(tBuffIn, sizeof(tBuffIn), sOut);
       rise::CBase64Encoder::Decode(sOut, tBuffOut, tOutSize);
 
-      for(int i = 0; i < sizeof(tBuffIn); ++i)
+      for(rise::TSize i = 0; i < sizeof(tBuffIn); ++i)
         if(tBuffIn[i] != tBuffOut[i])
         {
           bOk = false;
@@ -625,7 +637,7 @@ int main(int argc, const rise::TChar* argv[])
       rise::xml::CXMLNode cXMLNodeRoot;
 
       rise::xml::CXMLFileIStream ifStream;
-      ifStream.Open("test_meta.xml");
+      ifStream.Open("data/test_meta.xml");
       ifStream >> cXMLDecl;
       ifStream >> cXMLNodeRoot;
       ifStream.Close();
@@ -651,7 +663,7 @@ int main(int argc, const rise::TChar* argv[])
       rise::xml::CXMLDecl cXMLDecl;
       rise::xml::CXMLNode cXMLNodeRoot;
       rise::CIFStream ifStream;
-      ifStream.open("test.xml", std::ios::in | std::ios::binary);
+      ifStream.open("data/test.xml", std::ios::in | std::ios::binary);
       RISE_ASSERT(ifStream.good());
       ifStream >> cXMLDecl;
       ifStream >> cXMLNodeRoot;
@@ -683,7 +695,7 @@ int main(int argc, const rise::TChar* argv[])
 //      CXMLDecl& rXMLDecl = tDoc.GetDecl();
       CXMLNode& rXMLNodeRoot = tDoc.GetRoot();
     
-      tDoc.LoadFromFile("test.xml");
+      tDoc.LoadFromFile("data/test.xml");
 
       tPerfCounter.Start();
       rXMLNodeRoot.SortNodes(SNodeSort());
@@ -705,8 +717,10 @@ int main(int argc, const rise::TChar* argv[])
       tDoc.SaveToFile("out/test_sorted_attr_value_out.xml");
 
       CXMLNode::TXMLAttrConstIterator itAttr = rXMLNodeRoot.FindAttributeIf(SAttrFind());
+      RISE_ASSERT(itAttr != rXMLNodeRoot.AttrEnd());
 
-      CXMLNode::TXMLNodeConstIterator itNode = rXMLNodeRoot.FindNodeIf(SNodeFind());
+      /*CXMLNode::TXMLNodeConstIterator itNode =*/ rXMLNodeRoot.FindNodeIf(SNodeFind());
+//      RISE_ASSERT(itNode != rXMLNodeRoot.NodeEnd());
 
       tStdOut << rise::LogResultSuccess;
     }
@@ -778,7 +792,7 @@ int main(int argc, const rise::TChar* argv[])
       
       tPerfCounter.Start();
       rise::xml::CXMLDocument tDoc;
-      tDoc.LoadFromFile("test_meta.xml");
+      tDoc.LoadFromFile("data/test_meta.xml");
       tDoc.GetDecl().m_eStandalone = rise::xml::CXMLDecl::EXMLSAYes;
       tDoc.GetRoot().AddSubNode("test", rise::xml::CXMLNode::ENTCDATA);
       tDoc.SaveToFile("out/test_meta_out.xml");
@@ -793,7 +807,7 @@ int main(int argc, const rise::TChar* argv[])
     //////////////////////////////////////////////////////////////////////////////
     {
       rise::xml::CXMLDocument tDoc;
-      tDoc.LoadFromFile("Calculator.wsdl");
+      tDoc.LoadFromFile("data/Calculator.wsdl");
       tDoc.SaveToFile("out/Calculator_copy.wsdl");
     }
 
@@ -802,19 +816,65 @@ int main(int argc, const rise::TChar* argv[])
     //    CThread
     //////////////////////////////////////////////////////////////////////////////
     {
-      tStdOut << "CThread" << std::flush;
+      tStdOut << "CThread(Stop)" << std::flush;
       CMyThread th;
       th.Start();
       RISE_ASSERT(th.IsWorking());
 
-/*      for (int i =0; i < 10; ++i)
-      {
-       rise::LogDebug1() << "MainThread. no:" << i;
-      }*/
-
       rise::LogDebug1() << "stopping child thread";
       th.Stop(300);
       rise::LogDebug1() << "stopped";
+
+      th.JoinThread();
+      tStdOut << rise::LogResultSuccess;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    CThread
+    //////////////////////////////////////////////////////////////////////////////
+    {
+      tStdOut << "CThread(Wait)" << std::flush;
+      CMyThread1 th;
+      th.Start();
+      RISE_ASSERT(th.IsWorking());
+      
+      rise::threading::CThread::Sleep(100);
+
+      rise::LogDebug1() << "Joining thread";
+
+      th.Wait();
+      tStdOut << rise::LogResultSuccess;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    CThread
+    //////////////////////////////////////////////////////////////////////////////
+    {
+      tStdOut << "CThread(Limited Wait)" << std::flush;
+      CMyThread1 th;
+      th.Start();
+      RISE_ASSERT(th.IsWorking());
+      
+      rise::threading::CThread::Sleep(100);
+
+      rise::LogDebug1() << "Joining thread";
+
+      RISE_ASSERT(th.Wait(2100));
+      tStdOut << rise::LogResultSuccess;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //    CThread
+    //////////////////////////////////////////////////////////////////////////////
+    {
+      tStdOut << "CThread(Join)" << std::flush;
+      CMyThread1 th;
+      th.Start(NULL, true);
+      RISE_ASSERT(th.IsWorking());
+      
+      rise::threading::CThread::Sleep(100);
+
+      rise::LogDebug1() << "Joining thread";
 
       th.JoinThread();
       tStdOut << rise::LogResultSuccess;
@@ -848,20 +908,22 @@ int main(int argc, const rise::TChar* argv[])
     //////////////////////////////////////////////////////////////////////////////
     //    plugin system
     //////////////////////////////////////////////////////////////////////////////
-/*    {
+    {
       tStdOut << "plugin system" << std::flush;
 
-      rise::CString sPluginName = "myplugin";
-      typedef rise::plugin::CPluginManager<plugin_template::CPluginTemplate> CMyPluginManager;
-      CMyPluginManager tPluginManager;
-      plugin_template::CPluginTemplate* pPlugin = tPluginManager.LoadPlugin(sPluginName);
+      rise::CString sPluginName = "MyPlugin";
+      
+      typedef rise::plugin::CPluginManager<myplugin::CMyPlugin> CMyPluginManager;
 
-      tStdOut << "PluginResult=" << pPlugin->Sum(2, 3);
+      CMyPluginManager tPluginManager;
+      myplugin::CMyPlugin* pPlugin = tPluginManager.LoadPlugin(sPluginName);
+
+      tStdOut << "PluginResult: Sum(2,3) = " << pPlugin->Sum(2, 3);
 
       tPluginManager.UnLoadPlugin(sPluginName);
 
       tStdOut << rise::LogResultSuccess;
-    }*/
+    }
 
   }
   RISE_CATCH_ALL_DESCR_ACTION("\nError while testing!", tStdOut << rise::LogResultFailed);

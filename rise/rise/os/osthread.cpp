@@ -20,6 +20,8 @@
  */
 
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "osthread.h"
 
 namespace rise
@@ -31,7 +33,7 @@ namespace rise
 #endif
 
 
-bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam /*= NULL*/ )
+bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam /*= NULL*/, bool bDetached /* = true*/ )
 {
 #ifdef WIN32
   DWORD dwTreadId;
@@ -40,7 +42,10 @@ bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam /*= NULL*/
 #else
   pthread_attr_t tAttr;
   pthread_attr_init(&tAttr);
-  pthread_attr_setdetachstate(&tAttr, PTHREAD_CREATE_DETACHED);
+  if (bDetached)
+  {
+    pthread_attr_setdetachstate(&tAttr, PTHREAD_CREATE_DETACHED);
+  }
   return pthread_create(hThread, &tAttr, pProc, pParam) == 0;
 #endif
 }
@@ -104,7 +109,7 @@ bool osWaitForThreadExit( HThread hThread, unsigned long ulMSec )
   {
     for(;;)
     {
-      if (pthread_kill(hThread, 0) == 0)
+      if (pthread_kill(hThread, 0) != 0)
         return true;
       osSleep(10);
     }
@@ -112,7 +117,7 @@ bool osWaitForThreadExit( HThread hThread, unsigned long ulMSec )
   
   for(; ulMSec != 0;)
   {
-    if (pthread_kill(hThread, 0) == 0)
+    if (pthread_kill(hThread, 0) != 0)
       return true;
 
     if (ulMSec > 10)
@@ -127,6 +132,20 @@ bool osWaitForThreadExit( HThread hThread, unsigned long ulMSec )
   }
 
   return false;
+#endif
+}
+
+bool osWaitForThread( HThread hThread )
+{
+#ifdef WIN32
+  return WaitForSingleObject(hThread, INFINITE) == WAIT_OBJECT_0;
+#else
+  int nStatus = 0;
+  if (waitpid(hThread, &nStatus, 0))
+  {
+    return false;
+  }
+  return WIFEXITED(nStatus) != 0;
 #endif
 }
 
