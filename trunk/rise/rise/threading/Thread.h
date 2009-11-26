@@ -46,7 +46,7 @@ namespace rise
         /*! \param  pParam - pointer to thread params
             \return true, if thread created
         */
-        virtual bool Start(void* pParam = NULL);
+        virtual bool Start(void* pParam = NULL, bool bDetached = true);
     
         //!         is thread running
         /*! \return true, if thread running
@@ -69,8 +69,19 @@ namespace rise
         //!        terminate thread
         bool Cancel();
     
-        //!         wait for thread end
+        //!         wait for thread end (only for joined threads)
         void JoinThread();
+        
+        //!         wait for thread end (for joined and detached threads, using waitpid)
+        /*! \return true, if thread has finished
+        */
+        bool Wait();
+
+        //!         wait for thread end (for joined and detached threads, using pthread_kill in cycle)
+        /*! \param  ulTimeout - timeout in milliseconds, if = 0 wait infinite
+            \return true, if thread has finished
+        */
+        bool Wait(unsigned long ulTimeout);
 
         //!        stop thread
         /*! set Stop flag and waits for thread end

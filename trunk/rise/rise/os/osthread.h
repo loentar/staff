@@ -48,7 +48,7 @@ namespace rise
       \param  pParam - thread param proc
       \return thread handle
   */
-  bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam = NULL);
+  bool osCreateThread(PThreadProc pProc, HThread* hThread, void* pParam = NULL, bool bDetached = true);
   
   //!     get current thread handle
   /*! \return current thread handle
@@ -81,6 +81,12 @@ namespace rise
       \return true - thread was ended
   */
   bool osWaitForThreadExit(HThread hThread, unsigned long ulMSec);
+  
+  //!     wait for thread
+  /*! \param  hThread - thread id
+      \return true - thread was ended
+  */
+  bool osWaitForThread(HThread hThread);
   
   //    Locking
 #ifdef WIN32

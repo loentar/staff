@@ -51,7 +51,9 @@ namespace rise
   CStreamBuffer::~CStreamBuffer()
   {
     if (m_pucBegin != NULL)
-      delete[] m_pucBegin;
+    {
+      free(m_pucBegin);
+    }
   }
 
   CStreamBuffer& CStreamBuffer::operator=(const CStreamBuffer& rBuffer)
@@ -136,12 +138,14 @@ namespace rise
   CStreamBuffer& CStreamBuffer::Get(PBuffer pData, TSize ulDataSize)
   {
     if (ulDataSize == 0)
+    {
       return *this;
+    }
 
-    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun: (needed: " + 
-                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
-    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer: (needed: " +
-                ToStr(m_ulROffset + ulDataSize) + "/available: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulROffset + ulDataSize) <= m_ulBufferSize, rise::CLogicSizeException, "buffer overrun: (requested offset: " + 
+                ToStr(m_ulROffset) + "/size: " + ToStr(ulDataSize) + "/buffer size: " + ToStr(m_ulBufferSize) + ")");
+    RISE_ASSERTES((m_ulSize >= ulDataSize) && (m_pucBegin != NULL), rise::CLogicSizeException, "insufficient data in source buffer: (requested: " +
+                ToStr(ulDataSize) + "/available: " + ToStr(m_ulSize) + ")");
     
     memcpy(pData, m_pucBegin + m_ulROffset, ulDataSize);
     m_ulROffset += ulDataSize;
@@ -319,33 +323,24 @@ namespace rise
 
   PBuffer CStreamBuffer::Grow(const TSize ulSize)
   {
-    ulong ulSizeOld = m_ulSize;
+    TSize ulWOffsetOld = m_ulWOffset;
     Resize(m_ulSize + ulSize);
-    return m_pucBegin + ulSizeOld;
+    return m_pucBegin + ulWOffsetOld;
   }
 
   void CStreamBuffer::Resize(const TSize ulSize)
   {
-    Reserve(ulSize);
-    m_ulWOffset += ulSize - m_ulSize;
+    Reserve(m_ulBufferSize - m_ulSize + ulSize);
     m_ulSize = ulSize;
+    m_ulWOffset = m_ulSize + m_ulROffset;
   }
 
   void CStreamBuffer::Reserve(const TSize ulSize)
   {
     if (ulSize > m_ulBufferSize)
     {
-      TSize ulNewMaxSize = ulSize;
-      PBuffer pucBeginNew = new TBuffer[ulNewMaxSize];
-
-      if (m_pucBegin != NULL)
-      {
-        memcpy(pucBeginNew, m_pucBegin, m_ulBufferSize);
-        delete[] m_pucBegin;
-      }
-
-      m_pucBegin = pucBeginNew;
-      m_ulBufferSize = ulNewMaxSize;
+      m_pucBegin = reinterpret_cast<PBuffer>(realloc(m_pucBegin, ulSize));
+      m_ulBufferSize = ulSize;
     }
   }
 
@@ -431,6 +426,21 @@ namespace rise
   {
     Put(tData.GetBuffer(), tData.GetSize());
     return *this;
+  }
+
+  bool CStreamBuffer::operator==(const CStreamBuffer& tData) const
+  {
+    if (m_ulSize != tData.m_ulSize)
+    {
+      return false;
+    }
+    
+    return memcmp(GetData(), tData.GetData(), m_ulSize) == 0;
+  }
+
+  bool CStreamBuffer::operator!=(const CStreamBuffer& tData) const
+  {
+    return !operator==(tData);
   }
 
 } // namespace rise

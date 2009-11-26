@@ -401,6 +401,18 @@ namespace rise
         \return *this
     */
     CStreamBuffer& operator<<(const CStreamBuffer& tData);
+    
+    //!         compare data
+    /*! \param  tData - reference to another stream buffer
+        \return true, if dataobjects is equal
+    */
+    bool operator==(const CStreamBuffer& tData) const;
+
+    //!         compare data
+    /*! \param  tData - reference to another stream buffer
+        \return true, if dataobjects is not equal
+    */
+    bool operator!=(const CStreamBuffer& tData) const;
 
   private:
     PBuffer m_pucBegin;                               //!< pointer to buffer begin
