@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "cleaning project..."
+(make clean && make distclean) >/dev/null 2>&1
+echo "updating file list..."
+find rise staff webapp -type f -name '*.h' -o -name '*.hpp' -o -name '*.cpp' -o -name '*.c' -o -name '*.xml' -o -name '*.js' -o -name '*.htm' -o -name '*.html' -o -name '*.css' -o -name '*.png'  -o -name '*.png' -o -name '*.gif' | sort >staff.files
