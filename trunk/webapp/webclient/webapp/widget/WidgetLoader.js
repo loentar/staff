@@ -72,16 +72,37 @@ webapp.widget.WidgetLoader.prototype =
 
   _OnConfirmNewWidget: function(tEvent)
   {
-    var tUnits;
+    var tUnits = {};
     var tWidgetLayout = this.GetWidgetByClass("webapp.widget.Layout");
 
     if(tWidgetLayout != null)
     {
-      tUnits = tWidgetLayout.GetUnits();
+      var tLayoutUnits = tWidgetLayout.GetUnits();
+      for (var itUnit in tLayoutUnits)
+      {
+        var tUnit = tLayoutUnits[itUnit];
+        if (tUnit.sId)
+        {
+          var bFound = false;
+          for (var itWidget in this.mActiveWidgets)
+          {
+            var tWidget = this.mActiveWidgets[itWidget];
+            if ( ((tWidget.sClass == tEvent.tItem.sKey) || (tWidget.IsFullUnit && tWidget.IsFullUnit())) &&
+                 (tWidget.tWidgetParent == tUnit.tBody.tElement) )
+            {
+              bFound = true;
+            }
+          }
+
+          if (!bFound)
+          {
+            tUnits[itUnit] = tUnit;
+          }
+        }
+      }
     }
     else
     {
-      tUnits = {};
       tUnits[this.tOptions.tParent.Element().id] = 
         { 
           sName: _("Main unit"),
@@ -164,7 +185,7 @@ webapp.widget.WidgetLoader.prototype =
   {
     if (sClass)
     {
-      for(nId in this.mActiveWidgets)
+      for(var nId in this.mActiveWidgets)
       {
         if(this.mActiveWidgets[nId].sClass == sClass) 
         {
@@ -176,7 +197,7 @@ webapp.widget.WidgetLoader.prototype =
   
   GetWidgetByName: function(sName)
   {
-    for(nId in this.mActiveWidgets)
+    for(var nId in this.mActiveWidgets)
     {
       if(this.mActiveWidgets[nId].sName == sName) 
       {
