@@ -33,6 +33,10 @@
 #include <limits.h>
 #include <rise/common/Log.h>
 
+#ifdef RISE_USE_DEMANGLE
+extern "C" const char* cplus_demangle(const char* sym, int opts);
+#endif
+
 namespace rise
 {
   namespace tools
@@ -166,7 +170,14 @@ namespace rise
       asymbol** m_ppSymbols;
       bfd* m_pBfd;
       CString m_sFileName;
+#ifdef RISE_USE_DEMANGLE
+      static bool m_bExtractFunctionParams;
+#endif
     };
+    
+#ifdef RISE_USE_DEMANGLE
+    bool CBfdReader::CBfdReaderImpl::m_bExtractFunctionParams = getenv("RISE_DEMANGLE_PARAMS") != NULL;
+#endif
 
 
     CBfdReader::CBfdReader()
@@ -276,9 +287,18 @@ namespace rise
 
       // function name
       if (stParam.bFound && stParam.szFunctionName != NULL && *stParam.szFunctionName != '\0')
+      {
+#ifdef RISE_USE_DEMANGLE
+        const char* szDemangled = cplus_demangle(stParam.szFunctionName, CBfdReaderImpl::m_bExtractFunctionParams ? 1 : 0);
+        rAddrInfo.sFunctionName = szDemangled != NULL ? szDemangled : stParam.szFunctionName;
+#else
         rAddrInfo.sFunctionName = stParam.szFunctionName;
+#endif
+      }
       else
+      {
         rAddrInfo.sFunctionName = "??";
+      }
 
       rAddrInfo.sAddrHex = sAddrHex;
 

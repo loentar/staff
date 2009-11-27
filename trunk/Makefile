@@ -9,6 +9,8 @@ endif
 MAKEFILES_DEP = $(wildcard */Makefile.dep)
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 
+.NOTPARALLEL: $(MAKE_ORDER_DEPS)
+
 #.PHONY: $(MAKECMDGOALS)
 
 #

@@ -45,8 +45,6 @@ DEPLOYINCDIR = $(DEPLOYDIR)usr/include/
 DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise-$(VERSION)/
 DEPLOYLIBDIR = $(DEPLOYDIR)usr/lib/
 
-#DISTRIBDIR = $(TOPDIR)/../distrib/
-
 CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC
 LIBS = -ldl -lpthread -lstdc++
 
@@ -57,6 +55,22 @@ endif
 ifndef ("$(DEBUG)","")
   CXXFLAGS += -DDEBUG -g -O0
   LDFLAGS += -g -O0
+endif
+
+ifeq ($(RISE_NO_DEMANGLE),)
+ifneq ($(wildcard /usr/lib/libiberty_pic.a),)
+  DEMANGLELIBNAME = /usr/lib/libiberty_pic.a
+  CXXFLAGS += -DRISE_USE_DEMANGLE=1
+  DEMANGLEOBJDIR = $(OBJDIR)iberty/
+  LIBS += $(DEMANGLEOBJDIR)*.o
+else
+ifneq ($(wildcard /usr/lib/libiberty.a),)
+  DEMANGLELIBNAME = /usr/lib/libiberty.a
+  CXXFLAGS += -DRISE_USE_DEMANGLE=1
+  DEMANGLEOBJDIR = $(OBJDIR)iberty/
+  LIBS += $(DEMANGLEOBJDIR)*.o
+endif
+endif
 endif
 
 SRCDIRS := $(wildcard $(SRCDIR)*)
@@ -77,6 +91,7 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) -I. -c $(CXXFLAGS) $< -o $@
 
 $(OUTDIR)$(TARGETLIBVER): $(OBJECTS)
+	[ ! -z "$(DEMANGLEOBJDIR)" ] && mkdir -p $(DEMANGLEOBJDIR) && cd $(DEMANGLEOBJDIR) && ar -x $(DEMANGLELIBNAME)
 	$(CXX) -shared -Wl,-soname,$(TARGETLIBVER) $(LIBS) $(CXXFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETLIBVER)
 
 # == deploy  ========================================
@@ -96,19 +111,6 @@ deploy_headers: "$(DEPLOYINCDIRVER)"
  ln -nsf rise-$(VERSION) $(DEPLOYINCDIR)rise
 
 include ../Makefile.distrib
-
-# == distrib  ========================================
-#distrib:
-#	make -C distrib distrib
-# "$(DISTRIBDIR)" $(patsubst $(DISTRIBSCRIPTSDIR)%,%,$(wildcard $(DISTRIBSCRIPTSDIR)*))
-
-#%.spec:
-#	@/bin/echo -e "\n\n\033[1mbuilding rise-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm\033[0m\n"
-#	sed "s/__version__/$(VERSION)/g" $(DISTRIBSCRIPTSDIR)$@ >/tmp/buildrpm_$@; \
-# rpmbuild -bb /tmp/buildrpm_$@ --buildroot $(DEPLOYDIR) --target $(PLATFORM) --quiet; \
-# mv /usr/src/RPM/RPMS/$(PLATFORM)/rise-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm $(DISTRIBDIR); \
-# rm -f /tmp/buildrpm_$@.spec
-
 
 # == install ========================================
 install: install_headers install_libs
