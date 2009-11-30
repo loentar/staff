@@ -52,22 +52,28 @@ namespace rise
       saServer.sin_addr.s_addr = ulAddr;
 
       int nRet = connect(GetHandle(), reinterpret_cast<sockaddr*>(&saServer), sizeof(saServer));
-      rise::LogDebug3() << "connect: " << osGetLastSocketErrorStr();
       if(nRet == SOCKET_ERROR)
+      {
+        rise::LogError() << "connect: " << osGetLastSocketErrorStr();
         return false;
+      }
 
       {
         int nNodelay = 1;
-        setsockopt(GetHandle(), IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&nNodelay), sizeof(nNodelay));
-        rise::LogDebug3() << "setopt(nodelay): " << osGetLastSocketErrorStr();
+        if (setsockopt(GetHandle(), IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&nNodelay), sizeof(nNodelay)) != 0)
+        {
+          rise::LogError() << "setopt(nodelay): " << osGetLastSocketErrorStr();
+        }
       }
 
       {
         struct linger stLinger;
         stLinger.l_onoff = 1;
         stLinger.l_linger = 5;
-        SetSockOpt(ESO_LINGER, stLinger);
-        rise::LogDebug3() << "setopt(linger): " << osGetLastSocketErrorStr();
+        if (!SetSockOpt(ESO_LINGER, stLinger))
+        {
+          rise::LogError() << "setopt(linger): " << osGetLastSocketErrorStr();
+        }
       }
 
       return true;

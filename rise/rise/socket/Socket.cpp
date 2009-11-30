@@ -31,8 +31,10 @@
 
 #ifdef WIN32
 #define RISE_SHUT_WR SD_SEND
+#define RISE_SHUT_RD SD_RECV
 #else
 #define RISE_SHUT_WR SHUT_WR
+#define RISE_SHUT_RD SHUT_RD
 #endif
 
 namespace rise
@@ -66,7 +68,7 @@ namespace rise
 #endif
 
     CSocket::CSocket():
-      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false)
+      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false), m_nShutdown(0)
     {
     }
 
@@ -84,6 +86,7 @@ namespace rise
 
       m_tSock = tSock;
       m_ushPort = ushPort;
+      m_nShutdown = 0;
     }
 
     void CSocket::Assign(SOCKET& rSocket)
@@ -93,6 +96,7 @@ namespace rise
 
       m_tSock = rSocket;
       m_ushPort = GetRemotePort();
+      m_nShutdown = 0;
     }
 
     SOCKET CSocket::GetHandle() const
@@ -148,10 +152,36 @@ namespace rise
       return htons(stAddr.sin_port);
     }
 
+    bool CSocket::Shutdown(EShutdown eShutdown /*= ES_WRITE*/)
+    {
+      int nShutdown = 0;
+      if ((eShutdown & ES_WRITE) != 0)
+      {
+        nShutdown |= RISE_SHUT_WR;
+      }
+      
+      if ((eShutdown & ES_READ) != 0)
+      {
+        nShutdown |= RISE_SHUT_RD;
+      }
+      
+      if (shutdown(m_tSock, nShutdown) != 0)
+      {
+        rise::LogError() << "shutdown: " << osGetLastSocketErrorStr();
+        return false;
+      }
+      
+      m_nShutdown |= nShutdown;
+      
+      return true;
+    }
+
     void CSocket::Close()
     {
       if (m_tSock <= 0)
+      {
         return;
+      }
         
 #ifdef WIN32
       DWORD tTimeValue = 1;
@@ -161,19 +191,22 @@ namespace rise
       tTimeValue.tv_usec = 1000;
 #endif
 
-      shutdown(m_tSock, RISE_SHUT_WR);
-      rise::LogDebug3() << "shutdown: " << osGetLastSocketErrorStr();
+      if ((m_nShutdown & RISE_SHUT_WR) == 0)
+      {
+        Shutdown();
+      }
 
       SetSockOpt(ESO_RCVTIMEO, tTimeValue);
 
       {                                                
         char szTmpBuf[32];
-        int nRcvd = recv(m_tSock, szTmpBuf, sizeof(szTmpBuf), 0);
-        rise::LogDebug3() << "recv: " << nRcvd << "bytes: " << osGetLastSocketErrorStr();
+        recv(m_tSock, szTmpBuf, sizeof(szTmpBuf), 0);
       }
     
       if(!osCloseSocket(m_tSock))
+      {
         rise::LogWarning() << "can't closesocket: " << osGetLastSocketErrorStr();
+      }
       m_tSock = 0;
     }
 
@@ -210,12 +243,12 @@ namespace rise
       LogDebug2() << "set non-blocking mode: " << bNonBlock << " OK";
     }
 
-    int CSocket::GetError()
+    int CSocket::GetError() const
     {
       return osGetLastSocketError();
     }
 
-    CString CSocket::GetErrorStr()
+    CString CSocket::GetErrorStr() const
     {
       return osGetLastSocketErrorStr();
     }
@@ -229,9 +262,9 @@ namespace rise
     {
       bool bOK = getsockopt(GetHandle(), SOL_SOCKET, eSockOpt, szValue, reinterpret_cast<socklen_t*>(&nParamSize) ) == 0;
       if(!bOK)
+      {
         LogError() << "Error: " << osGetLastSocketErrorStr();
-      else
-        LogDebug3() << "GetSockOpt: " << osGetLastSocketErrorStr();
+      }
       return bOK;
     }
 
@@ -239,9 +272,9 @@ namespace rise
     {
       bool bOK = setsockopt(GetHandle(), SOL_SOCKET, eSockOpt, szValue, static_cast<socklen_t>(nParamSize)) == 0;
       if(!bOK)
+      {
         LogError() << "Error: " << osGetLastSocketErrorStr();
-      else
-        LogDebug3() << "SetSockOpt: " << osGetLastSocketErrorStr();
+      }
       return bOK;
     }
 
