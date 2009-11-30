@@ -56,6 +56,13 @@ namespace rise
         ESO_RCVTIMEO   = SO_RCVTIMEO,   //!< timeval
         ESO_SNDTIMEO   = SO_SNDTIMEO,   //!< timeval
       };
+      
+      enum EShutdown //! shutdown
+      {
+        ES_READ = 1,   //!< shutdown for read
+        ES_WRITE = 2,  //!< shutdown for write
+        ES_BOTH = ES_READ | ES_WRITE  //!< shutdown for both
+      };
 
     public:
       //!        constructor
@@ -74,6 +81,13 @@ namespace rise
       /*! \param  rSocket - socket
           */
       virtual void Assign(SOCKET& rSocket);
+      
+      //!         shutdown socket and break blocked recv/send call
+      /*! \param  eShutdown - shutdown direction 
+          \return true shutdown successes
+          \sa EShutdown
+      */
+      bool Shutdown(EShutdown eShutdown = ES_WRITE);
 
       //!         close socket
       virtual void Close();
@@ -149,12 +163,12 @@ namespace rise
       //!         get last error
       /*! \return last error
       */
-      int GetError();
+      int GetError() const;
 
       //!         get last error string
       /*! \return last error string
       */
-      CString GetErrorStr();
+      CString GetErrorStr() const;
 
       //!         get socket option
       /*! \param  eSockOpt - socket option
@@ -215,6 +229,7 @@ namespace rise
       SOCKET   m_tSock;       //!< socket handle
       ushort   m_ushPort;     //!< socket port
       bool     m_bUseSigPipe; //!< uses SIGPIPE
+      int      m_nShutdown;   //!< shutdown state
     }; // class CSocket
 
   } // namespace sockets
