@@ -54,14 +54,15 @@ namespace rise
         ESO_REUSEADDR  = SO_REUSEADDR,  //!< BOOL
         ESO_SNDBUF     = SO_SNDBUF,     //!< int
         ESO_RCVTIMEO   = SO_RCVTIMEO,   //!< timeval
-        ESO_SNDTIMEO   = SO_SNDTIMEO,   //!< timeval
+        ESO_SNDTIMEO   = SO_SNDTIMEO    //!< timeval
       };
       
       enum EShutdown //! shutdown
       {
-        ES_READ = 1,   //!< shutdown for read
+        ES_NONE  = 0,  //!< not shutted down
+        ES_READ  = 1,  //!< shutdown for read
         ES_WRITE = 2,  //!< shutdown for write
-        ES_BOTH = ES_READ | ES_WRITE  //!< shutdown for both
+        ES_BOTH  = 3   //!< shutdown for both
       };
 
     public:
@@ -88,6 +89,11 @@ namespace rise
           \sa EShutdown
       */
       bool Shutdown(EShutdown eShutdown = ES_WRITE);
+      
+      //!         get shutdown state
+      /*! \return shutdown state
+      */
+      EShutdown GetShutdown() const;
 
       //!         close socket
       virtual void Close();

@@ -54,7 +54,7 @@ namespace rise
         {
           if (m_sExeName == tInfo.dli_fname)
           { // executable
-            rAddrInfo.sContext = m_sExeName;
+            rAddrInfo.sContext = m_sExePath;
           }
           else
           { // library
@@ -106,10 +106,13 @@ namespace rise
         {
           rise::LogError() << "Can\'t open file /proc/self/cmdline";
         }
+        
+        m_sExePath = process::CProcess::GetCurrentExecPath();
       }
 
     private:
       CString m_sExeName;
+      CString m_sExePath;
       TBfdMap m_tBfdMap;
     };
   }
