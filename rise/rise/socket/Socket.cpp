@@ -31,10 +31,12 @@
 
 #ifdef WIN32
 #define RISE_SHUT_WR SD_SEND
-#define RISE_SHUT_RD SD_RECV
+#define RISE_SHUT_RD SD_RECEIVE
+#define RISE_SHUT_RW SD_BOTH
 #else
 #define RISE_SHUT_WR SHUT_WR
 #define RISE_SHUT_RD SHUT_RD
+#define RISE_SHUT_RW SHUT_RDWR
 #endif
 
 namespace rise
@@ -68,7 +70,7 @@ namespace rise
 #endif
 
     CSocket::CSocket():
-      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false), m_nShutdown(0)
+      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false), m_nShutdown(ES_NONE)
     {
     }
 
@@ -152,18 +154,28 @@ namespace rise
       return htons(stAddr.sin_port);
     }
 
-    bool CSocket::Shutdown(EShutdown eShutdown /*= ES_WRITE*/)
+    bool CSocket::Shutdown(EShutdown eShutdown /*= ES_BOTH*/)
     {
       int nShutdown = 0;
-      if ((eShutdown & ES_WRITE) != 0)
+      switch (eShutdown)
       {
-        nShutdown |= RISE_SHUT_WR;
+        case ES_WRITE:
+          nShutdown = RISE_SHUT_WR;
+          break;
+          
+        case ES_READ:
+          nShutdown = RISE_SHUT_RD;
+          break;
+          
+        case ES_BOTH:
+          nShutdown = RISE_SHUT_RW;
+          break;
+        
+        default:
+          rise::LogError() << "Invalid shutdown mode: " << eShutdown;
       }
       
-      if ((eShutdown & ES_READ) != 0)
-      {
-        nShutdown |= RISE_SHUT_RD;
-      }
+      rise::LogDebug3() << "Shutting down: " << nShutdown;
       
       if (shutdown(m_tSock, nShutdown) != 0)
       {
@@ -174,6 +186,11 @@ namespace rise
       m_nShutdown |= nShutdown;
       
       return true;
+    }
+    
+    CSocket::EShutdown CSocket::GetShutdown() const
+    {
+      return static_cast<EShutdown>(m_nShutdown);
     }
 
     void CSocket::Close()
@@ -191,7 +208,7 @@ namespace rise
       tTimeValue.tv_usec = 1000;
 #endif
 
-      if ((m_nShutdown & RISE_SHUT_WR) == 0)
+      if ((m_nShutdown & ES_WRITE) == 0)
       {
         Shutdown();
       }

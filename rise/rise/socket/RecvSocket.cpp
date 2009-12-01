@@ -102,25 +102,36 @@ namespace rise
     {
       RISE_ASSERTES(IsInit(), CLogicNoInitException, "Can't read data: Not initialized");
 
-      ulong ulSize = GetReceiveSize();
-      if (ulSize == 0)
-      { // no data available. make blocking read call
-        char tBuf[32];
-        int nRecv = recv(GetHandle(), tBuf, sizeof(tBuf), MSG_PEEK | (IsUseSigPipe() ? 0 : MSG_NOSIGNAL));
+      char tBuf[32];
+      int nRecv = recv(GetHandle(), tBuf, sizeof(tBuf), MSG_PEEK | (IsUseSigPipe() ? 0 : MSG_NOSIGNAL));
 
-        RISE_ASSERTES(nRecv != 0, CFileCloseException, "Can't read from socket: Connection closed: " + osGetLastSocketErrorStr());
         
-        if (nRecv == SOCKET_ERROR)
-        { 
-          int nErr = GetError();
-          if (nErr == EWOULDBLOCK)
-          {
-            return false;
-          }
-
-          RISE_ASSERTES(nErr != EMSGSIZE, CFileReadException, "Can't read from socket: " + osGetLastSocketErrorStr());
+      if (nRecv == SOCKET_ERROR)
+      { 
+        int nErr = GetError();
+        if (nErr == EWOULDBLOCK)
+        {
+          return false;
         }
+
+        RISE_ASSERTES(nErr != EMSGSIZE, CFileReadException, "Can't read from socket: " + osGetLastSocketErrorStr());
       }
+      else
+      if (nRecv == 0)
+      {
+        // connection closed
+        if (pulReceived != NULL)
+        {
+          *pulReceived = 0;
+        }
+
+        LogDebug3() << "Connection closed.";
+        return true;
+      }
+      
+
+      ulong ulSize = GetReceiveSize();
+      RISE_ASSERTES(ulSize != 0, CFileReadException, "Error while getting receive size: " + osGetLastSocketErrorStr());
 
       PBuffer pBuff = NULL;
       if (bAppend)
@@ -135,7 +146,8 @@ namespace rise
       }
 
       RISE_ASSERT(pBuff);
-      int nRecv = recv(GetHandle(), reinterpret_cast<char*>(pBuff), static_cast<int>(ulSize), IsUseSigPipe() ? 0 : MSG_NOSIGNAL);
+      nRecv = recv(GetHandle(), reinterpret_cast<char*>(pBuff), static_cast<int>(ulSize), IsUseSigPipe() ? 0 : MSG_NOSIGNAL);
+
       if (pulReceived != NULL)
       {
         *pulReceived = static_cast<ulong>(nRecv);
@@ -143,11 +155,16 @@ namespace rise
 
       LogDebug3() << "received " << nRecv << "bytes";
 
-      if ( nRecv == SOCKET_ERROR )
+      if (nRecv == SOCKET_ERROR)
       {
-        RISE_ASSERTES(osGetLastSocketError() != EWOULDBLOCK, CFileReadException, 
-          "Can't read from socket: " + osGetLastSocketErrorStr());
+        RISE_ASSERTES(osGetLastSocketError() != EWOULDBLOCK, CFileReadException, "Can't read from socket: " + osGetLastSocketErrorStr());
         return false;
+      }
+      else
+      if (nRecv == 0)
+      {
+        LogDebug3() << "Connection closed.";
+        return true;
       }
 
       if (bAppend)
@@ -158,8 +175,6 @@ namespace rise
       {
         rBuff.Resize(nRecv);
       }
-
-      RISE_ASSERTES(nRecv != 0, CFileCloseException, "Can't read from socket: Connection closed: " + osGetLastSocketErrorStr());
 
       return true;
     }
