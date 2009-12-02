@@ -50,6 +50,10 @@
 
 #ifdef OS_MCBC
 #define sighandler_t __sighandler_t
+#else
+#ifdef WIN32
+typedef void (*sighandler_t)(int);
+#endif
 #endif
 
 class CAxis2Service
