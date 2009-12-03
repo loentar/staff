@@ -1056,6 +1056,36 @@ webapp.ui.Link.prototype.extend(webapp.ui.Generic.prototype).extend
 });
 
 //////////////////////////////////////////////////////////////////////////
+// A
+webapp.ui.A = Class.create();
+webapp.ui.A.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'A',
+
+  Create: function(tParent, tOpt)
+  {
+    var tElem = document.createElement('a');
+    tElem.appendChild(document.createTextNode(tOpt.sText || ''));
+    return tElem;
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// B
+webapp.ui.B = Class.create();
+webapp.ui.B.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'B',
+
+  Create: function(tParent, tOpt)
+  {
+    var tElem = document.createElement('b');
+    tElem.appendChild(document.createTextNode(tOpt.sText || ''));
+    return tElem;
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
 // Horizontal rule
 webapp.ui.Hr = Class.create();
 webapp.ui.Hr.prototype.extend(webapp.ui.Generic.prototype).extend
@@ -1090,7 +1120,21 @@ webapp.ui.P.prototype.extend(webapp.ui.Generic.prototype).extend
   
   Create: function(tParent, tOpt)
   {
-    return document.createElement('p');
+    var tElem = document.createElement('p');
+    tElem.appendChild(document.createTextNode(tOpt.sText || ''));
+    return tElem;
   }
 });
 
+//////////////////////////////////////////////////////////////////////////
+// Paragraph
+webapp.ui.Span = Class.create();
+webapp.ui.Span.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'Span',
+
+  Create: function(tParent, tOpt)
+  {
+    return document.createElement('span');
+  }
+});
