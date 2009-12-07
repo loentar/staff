@@ -37,20 +37,6 @@ cd /usr/local/staff/ && psql -q -U postgres template1 < db/uninstdb.sql && echo 
 cat /etc/ld.so.conf.d/*.conf | xargs ldconfig
 
 ####################################
-echo "Настройка Axis2/C"
-patch /usr/local/axis2c/axis2.xml << AXIS2C_PATCH_END
---- axis2.xml	Wed Apr  8 09:28:14 2009
-+++ axis2.xml	Wed Apr  8 09:30:30 2009
-@@ -83,4 +83,6 @@
-     <!-- Comment this to disable Addressing -->
-     <module ref="addressing"/>
-+    <module ref="staff"/>
-+    <module ref="staff_security"/>
- 
- 
-AXIS2C_PATCH_END
-
-####################################
 echo "Настройка СУБД"
 /etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
 sleep 1 ## database system is starting up
