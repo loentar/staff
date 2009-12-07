@@ -23,6 +23,7 @@
 // Service Implementation
 
 #include <rise/common/Log.h>
+#include <rise/string/String.h>
 #include <rise/common/exmacros.h>
 #include <staff/common/Exception.h>
 #include <staff/security/Admin.h>
@@ -218,7 +219,9 @@ namespace staff
       ::staff::admin::SObject tResult;
       TObject tObject;
 
-      StaffSecurityAdminGetObjectById(nObjectId, &tObject);
+      RISE_ASSERTES(StaffSecurityAdminGetObjectById(nObjectId, &tObject),
+        staff::CRemoteException, "Failed to get object by id: " + rise::ToStr(nObjectId));
+
       tResult << tObject;
 
       return tResult;  // result
@@ -229,7 +232,9 @@ namespace staff
       ::staff::admin::SObject tResult;
       TObject tObject;
 
-      StaffSecurityGetObjectByName(sObjectName.c_str(), nType, NULL, &tObject);
+      RISE_ASSERTES(StaffSecurityGetObjectByName(sObjectName.c_str(), nType, NULL, &tObject),
+        staff::CRemoteException, "Failed to get object by name and type. name: " + sObjectName + " typeid: " + rise::ToStr(nType) );
+      
       tResult << tObject;
 
       return tResult;  // result
@@ -244,7 +249,9 @@ namespace staff
 
       RISE_ASSERTES(rlsObjectIdList.size() > 0, staff::CRemoteException, "id list is empty");
 
-      StaffSecurityAdminGetObjectList(&rlsObjectIdList[0], rlsObjectIdList.size(), &pObjectList, &nObjectCount);
+      RISE_ASSERTES(StaffSecurityAdminGetObjectList(&rlsObjectIdList[0], rlsObjectIdList.size(), &pObjectList, &nObjectCount),
+        staff::CRemoteException, "Failed to get object list" );
+      
 
       try
       {
