@@ -62,6 +62,16 @@ HThread osGetCurrentThread()
 #endif
 }
 
+bool osIsCurrentThread(HThread hThread)
+{
+  return
+#ifndef WIN32
+    hThread == pthread_self();
+#else
+    GetCurrentThreadId() == GetThreadId(hThread);
+#endif
+}
+
 void osExitThread()
 {
 #ifdef WIN32
