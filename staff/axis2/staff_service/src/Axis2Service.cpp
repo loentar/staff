@@ -86,6 +86,29 @@ public:
     const axis2_char_t* service_name = "StaffService";
     m_pAxis2Svc = axis2_conf_get_svc(pConf, pEnv, service_name);
 
+    // check for staff module is engaged
+    axutil_qname_t* pQName = axutil_qname_create(pEnv, "staff", NULL, NULL);
+    axis2_bool_t bEngaged = axis2_svc_is_module_engaged(m_pAxis2Svc, pEnv, pQName);
+    axutil_qname_free(pQName, pEnv);
+
+    if (!bEngaged)    
+    {
+      rise::LogError() << "staff module is not engaged. Unable to continue.";
+      exit(1);
+    }
+
+    // check for staff_security is engaged
+    pQName = axutil_qname_create(pEnv, "staff_security", NULL, NULL);
+    bEngaged = axis2_svc_is_module_engaged(m_pAxis2Svc, pEnv, pQName);
+    axutil_qname_free(pQName, pEnv);
+
+    if (!bEngaged)    
+    {
+      rise::LogError() << "staff_security module is not engaged. Unable to continue.";
+      exit(1);
+    }
+
+
     m_pEnv = pEnv;
     m_pConf = pConf;
 
