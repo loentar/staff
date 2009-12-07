@@ -54,6 +54,9 @@ namespace rise
   /*! \return current thread handle
   */
   HThread osGetCurrentThread();
+
+  //!     is hThread current thread
+  bool osIsCurrentThread(HThread hThread);
   
   //!     ends and exit from current thread
   void osExitThread();
