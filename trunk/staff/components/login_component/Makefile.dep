@@ -1,2 +1,0 @@
-
-components/login_component.dep: core/common.dep core/component.dep core/security.dep tools/codegen.dep

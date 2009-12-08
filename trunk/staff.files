@@ -131,9 +131,9 @@ staff/components/admin/AccountAdmin/src/AccountAdminImpl.h
 staff/components/admin/ObjectAdmin/src/ObjectAdmin.h
 staff/components/admin/ObjectAdmin/src/ObjectAdminImpl.cpp
 staff/components/admin/ObjectAdmin/src/ObjectAdminImpl.h
-staff/components/login_component/src/Login.h
-staff/components/login_component/src/LoginImpl.cpp
-staff/components/login_component/src/LoginImpl.h
+staff/components/Login/src/Login.h
+staff/components/Login/src/LoginImpl.cpp
+staff/components/Login/src/LoginImpl.h
 staff/core/client/src/Axis2Client.cpp
 staff/core/client/src/Axis2Client.h
 staff/core/client/src/staffclientexport.h
