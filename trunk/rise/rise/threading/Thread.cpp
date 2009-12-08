@@ -131,7 +131,7 @@ namespace rise
       RISE_ASSERTES(IsWorking(), CLogicNoInitException, "Thread does not exists");
       m_bStopping = true;
       OnStop();
-      if(osIsCurrentThread(GetId()))
+      if(!osIsCurrentThread(GetId()))
       {
         RISE_ASSERTE(Wait(ulTimeout), CLogicTimeoutException);
         m_bStopping = false;
