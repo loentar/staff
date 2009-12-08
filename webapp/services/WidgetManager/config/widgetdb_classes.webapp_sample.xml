@@ -19,23 +19,23 @@
       <Descr>Sample widget</Descr>
     </Class>
     <Class>
-      <Name>webapp.widget.AccountAdmin</Name>
+      <Name>webapp.widget.admin.AccountAdmin</Name>
       <Descr>Account administrator</Descr>
     </Class>
     <Class>
-      <Name>webapp.widget.ObjectAdmin</Name>
+      <Name>webapp.widget.admin.ObjectAdmin</Name>
       <Descr>Object administrator</Descr>
     </Class>
     <Class>
-      <Name>webapp.widget.ProfileAdmin</Name>
+      <Name>webapp.widget.admin.ProfileAdmin</Name>
       <Descr>Profile administrator</Descr>
     </Class>
     <Class>
-      <Name>webapp.widget.FileUploader</Name>
+      <Name>webapp.widget.admin.FileUploader</Name>
       <Descr>File uploader</Descr>
     </Class>
     <Class>
-      <Name>webapp.widget.ActiveServices</Name>
+      <Name>webapp.widget.admin.ActiveServices</Name>
       <Descr>Active services</Descr>
     </Class>
   </Classes>

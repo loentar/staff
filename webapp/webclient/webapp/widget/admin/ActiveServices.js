@@ -19,14 +19,14 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-namespace('webapp.widget');
+namespace('webapp.widget.admin');
 IncludeCss("webapp/assets/widgets/ActiveServices/ActiveServices");
 
 ///////////////////////////////////////////////////////////////
 // class ActiveServices: service list widget
 
-webapp.widget.ActiveServices = Class.create();
-webapp.widget.ActiveServices.prototype.extend(webapp.widget.Widget.prototype).extend
+webapp.widget.admin.ActiveServices = Class.create();
+webapp.widget.admin.ActiveServices.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParentElem)
   {
