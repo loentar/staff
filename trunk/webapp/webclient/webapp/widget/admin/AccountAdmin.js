@@ -19,13 +19,13 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-namespace('webapp.widget');
+namespace('webapp.widget.admin');
 
 ///////////////////////////////////////////////////////////////
 // class AccountAdmin
 
-webapp.widget.AccountAdmin = Class.create();
-webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
+webapp.widget.admin.AccountAdmin = Class.create();
+webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParent, tOpts)
   {
@@ -225,6 +225,14 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     }
     
     var tRecord = this.tDataTableUsers.getRecord(tRows[0]);
+    var sUserName = tRecord.getData('sName');
+    var nUserId = tRecord.getData('nId');
+    if (nUserId < 100)
+    {
+      webapp.view.MessageBox.ShowMessage(_('User') + " " + sUserName
+                                         + " " + _('is requid and cannot be deleted'), 'error');
+      return;
+    }
 
     if(confirm(_('Remove user') + ": " + tRecord.getData('sName') + "?")) 
     {
@@ -484,6 +492,19 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
   _ReloadUsers: function()
   {
     this.tUsers = this.pAccountAdminService.GetUsers();
+    // filter-out system users except admin
+    for (var itUser in this.tUsers)
+    {
+      var tUser = this.tUsers[itUser];
+      if (tUser.nId != null)
+      {
+        var nId = parseInt(tUser.nId);
+        if (nId > 0 && nId < 100)
+        {
+          this.tUsers.splice(itUser, 1);
+        }
+      }
+    }
     this.tDataTableUsers.deleteRows(0, this.tDataTableUsers.getRecordSet().getLength());
     this.tDataTableUsers.addRows(this.tUsers);
     this.tDataTableUsers.render();
@@ -636,10 +657,18 @@ webapp.widget.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype).exte
     }
     
     var tRecord = this.tDataTableGroups.getRecord(tRows[0]);
-
-    if(confirm(_('Remove group') + ": " + tRecord.getData('sName') + "?")) 
+    var sGroupName = tRecord.getData('sName');
+    var nGroupId = tRecord.getData('nId');
+    if (nGroupId < 100)
     {
-      this.pAccountAdminService.RemoveGroup(tRecord.getData('nId'));
+      webapp.view.MessageBox.ShowMessage(_('Group') + " " + sGroupName
+                                         + " " + _('is requid and cannot be deleted'), 'error');
+      return;
+    }
+
+    if(confirm(_('Remove group') + ": " + sGroupName + "?"))
+    {
+      this.pAccountAdminService.RemoveGroup(nGroupId);
       this._ReloadGroups();
     }
   },

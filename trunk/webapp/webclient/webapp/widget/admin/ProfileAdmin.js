@@ -19,14 +19,14 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-namespace('webapp.widget');
+namespace('webapp.widget.admin');
 IncludeCss("webapp/assets/widgets/ProfileAdmin/ProfileAdmin");
 
 ///////////////////////////////////////////////////////////////
 // class ProfileAdmin
 
-webapp.widget.ProfileAdmin = Class.create();
-webapp.widget.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
+webapp.widget.admin.ProfileAdmin = Class.create();
+webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParentElem, tOpts)
   {

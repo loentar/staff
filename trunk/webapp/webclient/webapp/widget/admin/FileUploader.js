@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-namespace('webapp.widget');
+namespace('webapp.widget.admin');
 
 Include("webapp/clients/FileUploader");
 IncludeCss("webapp/assets/widgets/FileUploader/FileUploader");
@@ -27,8 +27,8 @@ IncludeCss("webapp/assets/widgets/FileUploader/FileUploader");
 ///////////////////////////////////////////////////////////////
 // class FileUploader
 
-webapp.widget.FileUploader = Class.create();
-webapp.widget.FileUploader.prototype.extend(webapp.widget.Widget.prototype).extend
+webapp.widget.admin.FileUploader = Class.create();
+webapp.widget.admin.FileUploader.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParent, tOpts)
   {
@@ -183,7 +183,7 @@ webapp.widget.FileUploader.prototype.extend(webapp.widget.Widget.prototype).exte
   {
     if(!this._tFileUploader)
     {
-      this._tFileUploader = new webapp.FileUploader();
+      this._tFileUploader = new webapp.admin.FileUploader();
     }
     return this._tFileUploader;
   },

@@ -19,13 +19,13 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-namespace('webapp.widget');
+namespace('webapp.widget.admin');
 
 ///////////////////////////////////////////////////////////////
 // class ObjectAdmin
 
-webapp.widget.ObjectAdmin = Class.create();
-webapp.widget.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
+webapp.widget.admin.ObjectAdmin = Class.create();
+webapp.widget.admin.ObjectAdmin.prototype.extend(webapp.widget.Widget.prototype).extend
 ({
   Create: function(tParent, tOpts)
   {
