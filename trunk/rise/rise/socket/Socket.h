@@ -208,6 +208,9 @@ namespace rise
       */
       bool IsUseSigPipe() const;
 
+      //!         set socket is needed to shutdown
+      void SetNeedShutdown(bool bNeedShutdown = true);
+
     protected:
       //!         set socket port
       /*! \param  ushPort - socket port
@@ -236,6 +239,7 @@ namespace rise
       ushort   m_ushPort;     //!< socket port
       bool     m_bUseSigPipe; //!< uses SIGPIPE
       int      m_nShutdown;   //!< shutdown state
+      bool     m_bNeedShutdown; //!< socked is needed to shutdown before close
     }; // class CSocket
 
   } // namespace sockets

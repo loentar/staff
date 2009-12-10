@@ -70,7 +70,7 @@ namespace rise
 #endif
 
     CSocket::CSocket():
-      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false), m_nShutdown(ES_NONE)
+      m_tSock(0), m_ushPort(0), m_bUseSigPipe(false), m_nShutdown(ES_NONE), m_bNeedShutdown(false)
     {
     }
 
@@ -208,7 +208,7 @@ namespace rise
       tTimeValue.tv_usec = 1000;
 #endif
 
-      if ((m_nShutdown & ES_WRITE) == 0)
+      if (m_bNeedShutdown && ((m_nShutdown & ES_WRITE) == 0))
       {
         Shutdown();
       }
@@ -303,6 +303,11 @@ namespace rise
     bool CSocket::IsUseSigPipe() const
     {
       return m_bUseSigPipe;
+    }
+
+    void CSocket::SetNeedShutdown( bool bNeedShutdown /*= true*/ )
+    {
+      m_bNeedShutdown = bNeedShutdown;
     }
 
   } // namespace sockets

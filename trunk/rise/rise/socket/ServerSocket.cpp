@@ -88,6 +88,7 @@ namespace rise
       LogDebug2() << "Accept OK!";
 
       rRecv.Assign(sock);
+      rRecv.SetNeedShutdown();
       
       return true;
     }

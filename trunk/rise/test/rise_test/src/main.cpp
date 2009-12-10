@@ -31,6 +31,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
+#ifdef WIN32
+#include <direct.h>
+#endif
+
 
 // #include <rise/common/Exception.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -59,8 +63,10 @@
 #include <rise/tools/FileFind.h>
 #include <rise/string/Encoding.h>
 
+#ifndef WIN32
 #include <rise/plugin/PluginManager.h>
 #include "../../myplugin/src/MyPlugin.h"
+#endif
 
 class CEntry
 {
@@ -306,7 +312,11 @@ int main(int argc, const rise::TChar* argv[])
        
   rise::tLog.SetLogLevel(rise::CLog::ELL_INFO);
   
+#ifdef WIN32
+  _mkdir("out");
+#else
   mkdir("out", 0777);
+#endif
 
   if (!bLogToFile)
   {
@@ -904,7 +914,7 @@ int main(int argc, const rise::TChar* argv[])
       cServerSocket.JoinThread();
     }
 
-
+#ifndef WIN32 // temporary disabled for win
     //////////////////////////////////////////////////////////////////////////////
     //    plugin system
     //////////////////////////////////////////////////////////////////////////////
@@ -924,6 +934,7 @@ int main(int argc, const rise::TChar* argv[])
 
       tStdOut << rise::LogResultSuccess;
     }
+#endif
 
   }
   RISE_CATCH_ALL_DESCR_ACTION("\nError while testing!", tStdOut << rise::LogResultFailed);
