@@ -26,12 +26,108 @@
 #endif
 #include "osthread.h"
 
+
 namespace rise
 {
 
 #ifdef WIN32
   LARGE_INTEGER g_llFrequency = {0};
   BOOL g_bQueryResult = QueryPerformanceFrequency(&g_llFrequency);
+
+  // windows version is lower 2003 server
+#if _WIN32_WINNT < 0x0502
+
+  typedef struct _CLIENT_ID
+  {
+    DWORD UniqueProcess; 
+    DWORD UniqueThread;
+  } CLIENT_ID, *PCLIENT_ID;
+
+  typedef LONG NTSTATUS;
+#define STATUS_SUCCESS ((NTSTATUS) 0x00000000)
+
+  typedef LONG KPRIORITY;
+
+  typedef struct _THREAD_BASIC_INFORMATION
+  {
+    NTSTATUS ExitStatus;
+    PVOID TebBaseAddress;
+    CLIENT_ID ClientId;
+    KAFFINITY AffinityMask;
+    KPRIORITY Priority;
+    KPRIORITY BasePriority;
+  } THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+
+  typedef enum _THREAD_INFORMATION_CLASS
+  {
+    ThreadBasicInformation = 0,
+  } THREAD_INFORMATION_CLASS, *PTHREAD_INFORMATION_CLASS;
+
+  class CThreadInfoLoader
+  {
+  public:
+    DWORD GetThreadId(HANDLE hThread)
+    {
+      if (m_pNtQueryInformationThread)
+      {
+        THREAD_BASIC_INFORMATION tInfo;
+        if (m_pNtQueryInformationThread(hThread, ThreadBasicInformation, &tInfo, sizeof(tInfo), NULL) == STATUS_SUCCESS)
+        {
+          return tInfo.ClientId.UniqueThread;
+        }
+      }
+      return static_cast<DWORD>(-1);
+    }
+
+    static CThreadInfoLoader& Inst()
+    {
+      if (!m_pInst)
+      {
+        m_pInst = new CThreadInfoLoader;
+      }
+      return *m_pInst;
+    }
+
+    static void FreeInst()
+    {
+      if (m_pInst)
+      {
+        delete m_pInst;
+        m_pInst = NULL;
+      }
+    }
+
+  private:
+    typedef NTSTATUS (__stdcall *pfnNtQueryInformationThread) (HANDLE, THREAD_INFORMATION_CLASS, PVOID, ULONG, PULONG);
+
+  private:
+    CThreadInfoLoader():
+      m_hModule(LoadLibrary("ntdll.dll")),
+      m_pNtQueryInformationThread(NULL)
+    {
+      m_pNtQueryInformationThread = reinterpret_cast<pfnNtQueryInformationThread>(GetProcAddress(m_hModule, "NtQueryInformationThread"));
+    }
+
+    ~CThreadInfoLoader()
+    {
+      if (m_hModule)
+      {
+        FreeLibrary(m_hModule);
+      }
+    }
+
+  private:
+    HMODULE m_hModule;
+    pfnNtQueryInformationThread m_pNtQueryInformationThread;
+    static CThreadInfoLoader* m_pInst;
+  };
+
+  CThreadInfoLoader* CThreadInfoLoader::m_pInst = NULL;
+
+#define rise_GetThreadId CThreadInfoLoader::Inst().GetThreadId
+#else
+#define rise_GetThreadId ::GetThreadId
+#endif
 #endif
 
 
@@ -68,7 +164,7 @@ bool osIsCurrentThread(HThread hThread)
 #ifndef WIN32
     hThread == pthread_self();
 #else
-    GetCurrentThreadId() == GetThreadId(hThread);
+    GetCurrentThreadId() == rise_GetThreadId(hThread);
 #endif
 }
 

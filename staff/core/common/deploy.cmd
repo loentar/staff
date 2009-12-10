@@ -16,7 +16,7 @@ xcopy /Y /S src\*.h %thisincdir%
 set outdir=%STAFF_HOME%\lib
 if not EXIST %outdir% mkdir %outdir%
 
-set outdir2=%STAFF_HOME%\include\%projectname%
+set outdir2=%STAFF_HOME%\include\staff\%projectname%
 if not EXIST %outdir2% mkdir %outdir2%
 xcopy /Y /S src\*.h %outdir2%
 

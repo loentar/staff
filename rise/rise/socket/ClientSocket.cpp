@@ -58,6 +58,8 @@ namespace rise
         return false;
       }
 
+      SetNeedShutdown();
+
       {
         int nNodelay = 1;
         if (setsockopt(GetHandle(), IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&nNodelay), sizeof(nNodelay)) != 0)

@@ -28,7 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.admin.AccountAdmin", 
 		{2F182FEC-9149-4670-A7C0-1665830EB6EA} = {2F182FEC-9149-4670-A7C0-1665830EB6EA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.Login", "components\login_component\staff_login_service.vcproj", "{6CBAF82D-29DA-4709-9151-3511B596C396}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.Login", "components\Login\staff_login_service.vcproj", "{6CBAF82D-29DA-4709-9151-3511B596C396}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0} = {F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}
 		{9B56D490-8915-402F-AC6D-96C5111DA67A} = {9B56D490-8915-402F-AC6D-96C5111DA67A}

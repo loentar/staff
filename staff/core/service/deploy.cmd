@@ -13,10 +13,6 @@ if not EXIST %thisincdir% mkdir %thisincdir%
 
 xcopy /Y /S src\*.h %thisincdir%
 
-set outdir=c:\ws\staff\lib
-if not EXIST %outdir% mkdir %outdir%
-
-
 if exist Debug (
   xcopy /Y /S debug\*.lib %libdir%
   xcopy /Y /S debug\*.dll %libdir%
