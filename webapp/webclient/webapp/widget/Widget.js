@@ -113,18 +113,18 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
       this._tWidgetFrame.destroy();
     }
     
-    if(this.pElement != null)
+    if(this.tElement != null)
     {
       // yui
-      if(this.pElement.destroy) // assert yui
+      if(this.tElement.destroy) // assert yui & webapp.ui
       {
-        this.pElement.destroy();
+        this.tElement.destroy();
       }
       else
       { // DOM
-        if(this.pElement.parentNode && this.pElement.parentNode.removeChild)
+        if(this.tElement.parentNode && this.tElement.parentNode.removeChild)
         {
-          this.pElement.parentNode.removeChild(this.pElement);
+          this.tElement.parentNode.removeChild(this.tElement);
         }
       }
     }
