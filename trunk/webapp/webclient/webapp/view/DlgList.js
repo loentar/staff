@@ -36,6 +36,7 @@ webapp.view.DlgList.prototype.extend(webapp.Event.prototype).extend
         fixedcenter: true,
         visible: false, 
         constraintoviewport: true,
+        modal: tOpts.bModal,
         buttons: 
         [ 
           { text: _('OK'), handler: this._OnConfirm.bind(this), isDefault: true },
