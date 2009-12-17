@@ -96,6 +96,16 @@ namespace staff
     return tResult;  // result
   }
 
+  void CLoginImpl::CloseExtraSession(int nExtraSessionId)
+  {
+    const std::string& sCurrentSessionId = GetSessionID();
+
+    if (!StaffSecurityCloseExtraSession(sCurrentSessionId.c_str(), nExtraSessionId))
+    {
+      RISE_THROWS(staff::CRemoteException, "Cannot close extra session: " + rise::ToStr(nExtraSessionId));
+    }
+  }
+
   void CLoginImpl::Logout()
   {
     const std::string& sCurrentSessionId = GetSessionID();
