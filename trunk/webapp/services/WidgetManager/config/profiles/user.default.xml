@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Profiles>
+  <Profile>
+    <Id>webapp_sample</Id>
+    <Name>Webapp Sample</Name>
+    <Base>webapp_sample</Base>
+  </Profile>
+</Profiles>

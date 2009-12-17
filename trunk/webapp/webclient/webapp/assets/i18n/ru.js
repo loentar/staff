@@ -26,6 +26,8 @@ i18n.webapp =
   'OK': 'ОК',
   'Cancel': 'Отмена',
   'Close': 'Закрыть',
+  'Yes': 'Да',
+  'No': 'Нет',
   'Add': 'Добавить',
   'Remove': 'Удалить',
   'Properties': 'Свойства',
@@ -214,6 +216,7 @@ i18n.webapp =
   'Select a widget': 'Выберите виджет',
   'is requid and cannot be deleted': 'необходим для функционирования системы и не может быть удален',
   'is requid and cannot be changed': 'необходим для функционирования системы и не может быть изменен',
-  'Profile': 'Профиль'
+  'Profile': 'Профиль',
+  'Admin': 'Админ'
 
 };

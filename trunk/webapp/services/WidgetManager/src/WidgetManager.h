@@ -58,6 +58,16 @@ namespace widget
   //! widget map pair(group id, widget group instance)
   typedef std::map<std::string, SWidgetGroup> TWidgetGroupMap;
 
+  //! base profile
+  struct SBaseProfile
+  {
+    std::string sId;    //!< profile id
+    std::string sName;  //!< profile name
+  };
+
+  //! base profile list
+  typedef std::list<SBaseProfile> TBaseProfileList;
+
   //! profile
   struct SProfile
   {
@@ -79,7 +89,7 @@ namespace widget
     //!         get base profiles list
     /*! \return base profiles list
       */
-    virtual TStringList GetBaseProfiles() = 0;
+    virtual TBaseProfileList GetBaseProfiles() = 0;
 
     //!         get user profiles
     /*! \return user profiles list

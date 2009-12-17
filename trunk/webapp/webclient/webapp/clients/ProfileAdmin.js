@@ -7,14 +7,16 @@ namespace('webapp.admin');
 // struct serializators
 function SerializeStruct_webapp_admin_SWidget(tOperation, rstStruct, tNode)
 {
+  tOperation.AddParameter('sClass', rstStruct.sClass, tNode);
   tOperation.AddParameter('sName', rstStruct.sName, tNode);
-  tOperation.AddParameter('sDescr', rstStruct.sDescr, tNode);
 }
 
 function SerializeStruct_webapp_admin_SProfile(tOperation, rstStruct, tNode)
 {
+  tOperation.AddParameter('sId', rstStruct.sId, tNode);
   tOperation.AddParameter('sName', rstStruct.sName, tNode);
-  SerializeTypedef_webapp_admin_TWidgetList(tOperation, rstStruct.lsWidgets, tOperation.AddParameter('lsWidgets', '', tNode));
+  tOperation.AddParameter('bIsAdmin', rstStruct.bIsAdmin, tNode);
+  SerializeTypedef_webapp_admin_TStringList(tOperation, rstStruct.lsWidgets, tOperation.AddParameter('lsWidgets', '', tNode));
 }
 
 
@@ -24,8 +26,8 @@ function DeserializeStruct_webapp_admin_SWidget(tOperation, tNode)
 {
   var tResult = {};
 
+  tResult.sClass = tOperation.SubNodeText("sClass", tNode);
   tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.sDescr = tOperation.SubNodeText("sDescr", tNode);
   return tResult;
 }
 
@@ -33,8 +35,10 @@ function DeserializeStruct_webapp_admin_SProfile(tOperation, tNode)
 {
   var tResult = {};
 
+  tResult.sId = tOperation.SubNodeText("sId", tNode);
   tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.lsWidgets = DeserializeTypedef_webapp_admin_TWidgetList(tOperation, tOperation.SubNode("lsWidgets", tNode));
+  tResult.bIsAdmin = tOperation.SubNodeText("bIsAdmin", tNode);
+  tResult.lsWidgets = DeserializeTypedef_webapp_admin_TStringList(tOperation, tOperation.SubNode("lsWidgets", tNode));
   return tResult;
 }
 
@@ -62,6 +66,17 @@ function SerializeTypedef_webapp_admin_TWidgetList(tOperation, rtType, tNode)
   {
 // Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
     SerializeStruct_webapp_admin_SWidget(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+  }
+  return tNode;
+}
+
+// ::webapp::admin::TProfileList  Typedef.DataType.Type template std::list
+function SerializeTypedef_webapp_admin_TProfileList(tOperation, rtType, tNode)
+{
+  for(var i = 0; i != rtType.length; ++i)
+  {
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
+    SerializeStruct_webapp_admin_SProfile(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
   }
   return tNode;
 }
@@ -110,6 +125,27 @@ function DeserializeTypedef_webapp_admin_TWidgetList(tOperation, tNode)
   return aResult;
 }
 
+function DeserializeTypedef_webapp_admin_TProfileList(tOperation, tNode)
+{
+// container :: std::list< ::webapp::admin::SProfile >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = new Array();
+  var j = 0;
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::list<::webapp::admin::SProfile>
+    aResult[j++] = DeserializeStruct_webapp_admin_SProfile(tOperation, tResult.childNodes[i]); // *** struct ::webapp::admin::SProfile
+    }
+  }
+
+  return aResult;
+}
+
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -146,9 +182,9 @@ webapp.admin.ProfileAdmin.prototype =
     this.tClient.SetSessionId(sSessionId);
   },
 
-  GetProfileList: function(pOnComplete, pOnError)
+  GetProfiles: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetProfileList', this.sTargetNamespace, '', '');
+    var tOperation = new staff.Operation('GetProfiles', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
     
     if(typeof pOnComplete == 'function')
@@ -156,7 +192,7 @@ webapp.admin.ProfileAdmin.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(DeserializeTypedef_webapp_admin_TStringList(tOperation), tOperation);
+          pOnComplete(DeserializeTypedef_webapp_admin_TProfileList(tOperation), tOperation);
         },
         pOnError
       );
@@ -165,16 +201,39 @@ webapp.admin.ProfileAdmin.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return DeserializeTypedef_webapp_admin_TStringList(tOperation);
+      return DeserializeTypedef_webapp_admin_TProfileList(tOperation);
     }
   },
 
-  RemoveProfile: function(sName, pOnComplete, pOnError)
+  GetWidgets: function(pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetWidgets', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
+    
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(DeserializeTypedef_webapp_admin_TWidgetList(tOperation), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return DeserializeTypedef_webapp_admin_TWidgetList(tOperation);
+    }
+  },
+
+  RemoveProfile: function(sId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveProfile', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
     
-    tOperation.AddParameter('sName', sName);
+    tOperation.AddParameter('sId', sId);
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -188,30 +247,6 @@ webapp.admin.ProfileAdmin.prototype =
     else
     {
       this.tClient.InvokeOperation(tOperation);
-    }
-  },
-
-  GetProfile: function(sName, pOnComplete, pOnError)
-  {
-    var tOperation = new staff.Operation('GetProfile', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
-    
-    tOperation.AddParameter('sName', sName);
-    if(typeof pOnComplete == 'function')
-    { // make async call
-      this.tClient.InvokeOperation(tOperation,
-        function(tOperation)
-        {
-          pOnComplete(DeserializeStruct_webapp_admin_SProfile(tOperation), tOperation);
-        },
-        pOnError
-      );
-    }
-    else
-    {
-      this.tClient.InvokeOperation(tOperation);
-
-      return DeserializeStruct_webapp_admin_SProfile(tOperation);
     }
   },
 

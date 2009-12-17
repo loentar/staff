@@ -50,19 +50,11 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
 
   _ReloadProfiles: function()
   {
-    this.aProfiles = this.tProfileAdmin.GetProfileList();
-    var aProfiles = [];
-    for (var itProfile in this.aProfiles)
-    {
-      var tProfile = this.aProfiles[itProfile];
-      if (typeof tProfile == 'string')
-      {
-        aProfiles.push({sName: tProfile});
-      }
-    }
+    this.aProfiles = this.tProfileAdmin.GetProfiles();
+    this.aWidgets = this.tProfileAdmin.GetWidgets();
 
     this.tDataTableProfiles.deleteRows(0, this.tDataTableProfiles.getRecordSet().getLength());
-    this.tDataTableProfiles.addRows(aProfiles);
+    this.tDataTableProfiles.addRows(this.aProfiles);
     this.tDataTableProfiles.refreshView();
   },
 
@@ -76,14 +68,30 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
 
     //////////////////////////////////////////////////////////////////////////
     // create profiles table
+
+
+    YAHOO.widget.DataTable.Formatter.fnBoolFormatter =
+      function(elLiner, oRecord, oColumn, oData)
+      {
+        if(oRecord.getData("bIsAdmin").toLowerCase() == "true")
+        {
+          elLiner.innerHTML = _('Yes');
+        }
+        else
+        {
+          elLiner.innerHTML = _('No');
+        }
+      };
+
     var tProfilesColumnDefs =
     [
-      { key: "sName", label: _("Name"), sortable: true, resizeable: true, width: 180 },
+      { key: "sName", label: _("Name"), sortable: true, resizeable: true, width: 210 },
+      { key: "bIsAdmin", label: _("Admin"), sortable: true, resizeable: true, width: 50, formatter: 'fnBoolFormatter' }
     ];
 
     this.tDataSourceProfiles = new YAHOO.util.DataSource(this.aProfiles);
     this.tDataSourceProfiles.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    this.tDataSourceProfiles.responseSchema = { fields: [ "sName" ] };
+    this.tDataSourceProfiles.responseSchema = { fields: [ "sId", "sName", "bIsAdmin" ] };
 
     this.tDataTableProfiles = new YAHOO.widget.DataTable(tDataTableParentDiv.Element(),
           tProfilesColumnDefs, this.tDataSourceProfiles,
@@ -134,13 +142,33 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
 
     function Confirm()
     {
+      if (!tData)
+      {
+        tData = {};
+        tData.sId = 'profile_' + new Date().getTime().toString(36);
+      }
       tData.sName = tEditName.GetText();
 
-      if (!tData.sName || (tData.sName.match(/\W/) != null))
+      if (!tData.sName)
       {
-        webapp.view.MessageBox.ShowMessage(_("Invalid profile name") + ".<br/>" + _("Profile name must contain only latin letters, digits and underline sign") + '.', 'error');
+        webapp.view.MessageBox.ShowMessage(_('Invalid profile name') + '.', 'error');
         return;
       }
+
+      tData.bIsAdmin = tLabCheckbox.GetChecked();
+
+      var tSelectedWidgets = [];
+      var tSelItems = tSelSelectedWidgets.GetItems();
+
+      for (var itItem in tSelItems)
+      {
+        var tItem = tSelItems[itItem];
+        if (tItem.sClass)
+        {
+          tSelectedWidgets.push(tItem.sClass);
+        }
+      }
+      tData.lsWidgets = tSelectedWidgets;
 
       // reload profiles list
       if (fnConfirm.call(this, tData))
@@ -159,13 +187,40 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
       }
     }
 
+    function OnInclude()
+    {
+      tSelAvailableWidgets.MoveActiveItem(tSelSelectedWidgets);
+      CheckButtons();
+    }
+
+    function OnExclude()
+    {
+      var sId = tSelSelectedWidgets.GetActiveItemId();
+
+      if (sId == 'webapp.widget.Layout' ||
+         ((sId == 'webapp.widget.admin.ProfileAdmin') && (tData.sId == 'admin')))
+      {
+        webapp.view.MessageBox.ShowMessage(_('Widget') + " \"" + tSelSelectedWidgets.GetActiveItemLabel() + "\" " + _('is requid and cannot be changed'), 'error');
+        return;
+      }
+
+      tSelSelectedWidgets.MoveActiveItem(tSelAvailableWidgets);
+      CheckButtons();
+    }
+
+    function CheckButtons()
+    {
+      tBtnExclude.Enable(tSelSelectedWidgets.GetItemCount() > 0);
+      tBtnInclude.Enable(tSelAvailableWidgets.GetItemCount() > 0);
+    }
+
     this.tDlgEditAddProfile = new YAHOO.widget.SimpleDialog
     (
       'ProfileAdminEditAddDialog',
       {
         fixedcenter: true,
         modal: true,
-        width: '410px',
+        width: '460px',
         constraintoviewport: true,
         close: false,
         buttons:
@@ -185,81 +240,106 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
     // creating dlg components
     var tTable = new webapp.ui.Table(this.tDlgEditAddProfile.body, { sClass: 'tableFullWidth' });
 
-    var tCellName = tTable.AddRowCell();
-    var tLabName = new webapp.ui.Label(tCellName, { sCaption: _('Profile name') });
-    var tEditName = new webapp.ui.Edit(tCellName);
+    var tRowName = tTable.AddRow();
+    var tLabName = new webapp.ui.Label(tTable.AddCell(tRowName), { sCaption: _('Profile name') + ':', sClass: 'labelProfileAdminProfileName' });
+    tTable.AddCell(tRowName, { sClass: 'tdSpacer' });
+    var tEditName = new webapp.ui.Edit(tTable.AddCell(tRowName));
     tLabName.SetBuddy(tEditName);
 
-    var tCellName = tTable.AddRowCell({sClass: 'tdSpacer'});
-    var tLabHeader = new webapp.ui.Label(tTable.AddRowCell(), { sCaption: _('Widgets list') });
+    tTable.AddRowCell({sClass: 'tdSpacer', nColSpan: 3});
+    var tLabCheckbox = new webapp.ui.LabeledCheckbox(tTable.AddRowCell({ nColSpan: 3}), { sCaption: _('This profile is administrative') });
+    if (tData)
+    {
+      tLabCheckbox.SetChecked(tData.bIsAdmin);
+    }
 
-    var tDataTableParentDiv = new webapp.ui.Div(tTable.AddRowCell(), {sClass: 'divParentDataTableWidgets' });
+    var tTable = new webapp.ui.Table(this.tDlgEditAddProfile.body, { sClass: 'tableFullWidth' });
 
-    //////////////////////////////////////////////////////////////////////////
-    // create profiles table
-    var tWidgetsColumnDefs =
-    [
-      { key: "sName", label: _("Name"), sortable: true, resizeable: true },
-      { key: "sDescr", label: _("Description"), sortable: true, resizeable: true }
-    ];
+    var tLabHeader = new webapp.ui.Label(tTable.AddRowCell({ nColSpan: 3 }), { sCaption: _('Widgets list') });
 
-    var tWidgets = (tData && tData.lsWidgets) || [{ sName: "webapp.widget.Layout", sDescr: "Layout" }];
+    tTable.AddRowCell({sClass: 'tdSpacer', nColSpan: 3});
 
-    this.tDataSourceWidgets = new YAHOO.util.DataSource(tWidgets);
-    this.tDataSourceWidgets.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    this.tDataSourceWidgets.responseSchema = { fields: [ "sName", "sDescr" ] };
+    // selects
+    var tRowSelectsHeader = tTable.AddRow();
 
-    this.tDataTableWidgets = new YAHOO.widget.DataTable(tDataTableParentDiv.Element(),
-          tWidgetsColumnDefs, this.tDataSourceWidgets,
-          { scrollable: true, height: "15em", width: "100%", selectionMode: "single" });
+    var tLabelSelectedWidgets = new webapp.ui.Label(tTable.AddCell(tRowSelectsHeader), { sCaption: _('Selected') });
+    tTable.AddCell(tRowSelectsHeader);
+    var tLabelAvailableWidgets = new webapp.ui.Label(tTable.AddCell(tRowSelectsHeader), { sCaption: _('Available') });
 
-    tDataTableParentDiv.Element().style.width = null; // yui override
 
-    //////////////////////////////////////////////////////////////////////////
-    // create context menu and events
-    this.tDataTableWidgets.subscribe("rowMousedownEvent", this.tDataTableWidgets.onEventSelectRow);
-    this.tDataTableWidgets.subscribe("cellDblclickEvent", this._OnConfigureEditWidget.bindAsEventListener(this) );
+    var tRowSelects = tTable.AddRow();
 
-    tTable.AddRowCell({sClass: 'tdSpacer'});
-    var tButtonsElem = new webapp.ui.Div(tTable.AddRowCell({sClass: "tdRight"})).Element();
-    var tBtnAdd = new YAHOO.widget.Button
-    ({
-      container: tButtonsElem,
-      label: _("Add"),
-      onclick: { fn: this._OnConfigureAddWidget, scope: this }
-    });
-    var tBtnEdit = new YAHOO.widget.Button
-    ({
-      container: tButtonsElem,
-      label: _("Edit"),
-      onclick: { fn: this._OnConfigureEditWidget, scope: this }
-    });
-    var tBtnDelete = new YAHOO.widget.Button
-    ({
-      container: tButtonsElem,
-      label: _("Delete"),
-      onclick: { fn: this._OnConfigureDeleteWidget, scope: this }
-    });
+    var tSelSelectedWidgets = new webapp.ui.Select(tTable.AddCell(tRowSelects, { sClass: 'tdProfileAdminWidgets' }), { sClass: 'selProfileAdminWidgets' });
+    var tCellButtons = tTable.AddCell(tRowSelects, { sClass: 'tdProfileAdminMoveButtons' });
+    var tSelAvailableWidgets = new webapp.ui.Select(tTable.AddCell(tRowSelects, { sClass: 'tdProfileAdminWidgets' }), { sClass: 'selProfileAdminWidgets' });
+    tSelSelectedWidgets.SetSize(10);
+    tSelAvailableWidgets.SetSize(10);
 
+    var tBtnInclude = new webapp.ui.Button(tCellButtons, { sClass: 'btnWidgetAdmin' } );
+    new webapp.ui.Br(tCellButtons);
+    var tBtnExclude = new webapp.ui.Button(tCellButtons, { sClass: 'btnWidgetAdmin' } );
+    new webapp.ui.Image(tBtnInclude, { sSrc: "webapp/assets/img/go-previous.png" });
+    new webapp.ui.Image(tBtnExclude, { sSrc: "webapp/assets/img/go-next.png" });
+
+    tTable.AddRowCell({sClass: 'tdSpacer', nColSpan: 3});
+
+    tBtnInclude.On('click', OnInclude, this);
+    tBtnExclude.On('click', OnExclude, this);
+
+    tSelAvailableWidgets.On('dblclick', OnInclude, this);
+    tSelSelectedWidgets.On('dblclick', OnExclude, this);
+
+
+    // load data
+
+    var asWidgets = (tData && tData.lsWidgets) || [ "webapp.widget.Layout" ];
+    var aSelectedWidgets = [];
+    for (var itWidget in asWidgets)
+    {
+      var sWidget = asWidgets[itWidget];
+      if (typeof sWidget == 'string')
+      {
+        for (var itAvailWidget in this.aWidgets)
+        {
+          var tAvailWidget = this.aWidgets[itAvailWidget];
+          if (tAvailWidget.sClass == sWidget)
+          {
+            aSelectedWidgets.push({sClass: tAvailWidget.sClass, sName: tAvailWidget.sName});
+            break;
+          }
+        }
+      }
+    }
+
+    function FilterOutAvailWidgets(tItem)
+    {
+      for (var itWidget in aSelectedWidgets)
+      {
+        var tWidget = aSelectedWidgets[itWidget];
+        if (tItem.sClass == tWidget.sClass)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    tSelSelectedWidgets.SetItems(aSelectedWidgets, { sKey: 'sClass', sLabel: 'sName', bTranslate: true });
+    tSelAvailableWidgets.SetItems(this.aWidgets, { sKey: 'sClass', sLabel: 'sName', bTranslate: true, fnFilter: FilterOutAvailWidgets });
+    CheckButtons();
+
+    this.tDlgEditAddProfile.center();
     this.tDlgEditAddProfile.bringToTop();
     this.tDlgEditAddProfile.show();
 
     if (tData)
     {
-      tEditName.Disable();
       tEditName.SetText(tData.sName);
-    }
-    else
-    {
-      tEditName.Focus();
-      tData =
-      {
-        sName: "",
-        lsWidgets: tWidgets
-      };
     }
 
     this.tCurrentProfileData = tData;
+    tEditName.Focus();
   },
 
   _OnConfigureAddProfile: function()
@@ -300,9 +380,18 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
 
     var tRecord = this.tDataTableProfiles.getRecord(tRows[0]);
 
-    var sProfileId = tRecord.getData('sName');
+    var sProfileId = tRecord.getData('sId');
 
-    var tProfile = this.tProfileAdmin.GetProfile(sProfileId);
+    var tEditProfile;
+    for (var itProfile in this.aProfiles)
+    {
+      var tProfile = this.aProfiles[itProfile];
+      if (tProfile.sId == sProfileId)
+      {
+        tEditProfile = tProfile;
+        break;
+      }
+    }
 
     this._AddEditProfileDlg(Confirm, _("Edit profile"), tProfile);
   },
@@ -318,9 +407,10 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
 
     var tRecord = this.tDataTableProfiles.getRecord(tRows[0]);
 
+    var sId = tRecord.getData('sId');
     var sName = tRecord.getData('sName');
 
-    if (sName == 'admin' || sName == 'default')
+    if (sId == 'admin')
     {
       webapp.view.MessageBox.ShowMessage(_('Profile') + " \"" + sName + "\" " + _('is requid and cannot be deleted'), 'error');
       return;
@@ -337,215 +427,6 @@ webapp.widget.admin.ProfileAdmin.prototype.extend(webapp.widget.Widget.prototype
         {
           this.aProfiles.splice(itProfile, 1);
           this.tDataTableProfiles.deleteRow(parseInt(itProfile));
-          break;
-        }
-      }
-    }
-  },
-
-  _OnCancelProperties: function()
-  {
-    this.tEditDiv.firstChild.nodeValue = this.sEditValue;
-    this.tEditProp.destroy();
-    delete this.tEditProp;
-  },
-
-  _OnConfigureEditWidget: function(tItem)
-  {
-    function OnConfirm(tEditedWidget)
-    {
-      for (var itWidget in this.tCurrentProfileData.lsWidgets)
-      {
-        var tWidget = this.tCurrentProfileData.lsWidgets[itWidget];
-        if (tWidget.sName == tEditData.sName)
-        {
-          this.tEditRecord.setData('sName', tEditedWidget.sName);
-          this.tEditRecord.setData('sDescr', tEditedWidget.sDescr);
-          tWidget.sName = tEditedWidget.sName;
-          tWidget.sDescr = tEditedWidget.sDescr;
-          this.tDataTableWidgets.refreshView();
-        }
-      }
-
-      return true;
-    }
-
-    var tTarget = tItem.target;
-    if (!tTarget || this.tEditProp)
-    {
-      return;
-    }
-
-    var tRows = this.tDataTableWidgets.getSelectedRows();
-    if(tRows.length == 0)
-    {
-      return;
-    }
-
-    this.tEditRecord = this.tDataTableWidgets.getRecord(tRows[0]);
-    var tEditData = this.tEditRecord.getData();
-
-    if (tEditData.sName == 'webapp.widget.Layout' ||
-        ((tEditData.sName == 'webapp.widget.ProfileAdmin') && (this.tCurrentProfileData.sName == 'admin')))
-    {
-      webapp.view.MessageBox.ShowMessage(_('Widget') + " \"" + tEditData.sName + "\" " + _('is requid and cannot be changed'), 'error');
-      return;
-    }
-
-    this._EditWidgetDlg(OnConfirm, _("Edit widget"), tEditData);
-  },
-
-  _OnConfigureAddWidget: function()
-  {
-    function OnConfirm(tNewWidget)
-    {
-      for (var itWidget in this.tCurrentProfileData.lsWidgets)
-      {
-        var tWidget = this.tCurrentProfileData.lsWidgets[itWidget];
-        if (tWidget.sName == tNewWidget.sName)
-        {
-          webapp.view.MessageBox.ShowMessage(_("Widget with class") + " \"" + tNewWidget.sName + "\" " + _("already exists"), 'error');
-          return;
-        }
-      }
-
-      this.tDataTableWidgets.addRow(tNewWidget);
-      this.tCurrentProfileData.lsWidgets.push(tNewWidget);
-      return true;
-    }
-
-    this._EditWidgetDlg(OnConfirm, _("Add widget"));
-  },
-
-  _EditWidgetDlg: function(fnConfirm, sHeader, tData)
-  {
-    function OnConfirm()
-    {
-      var sName = tEditName.GetText();
-      if (!sName || (sName.match(/[^A-Za-z0-9_\.]/) != null))
-      {
-        webapp.view.MessageBox.ShowMessage(_("Invalid class name") + ".<br/>" + _("Class name must contain only latin letters, digits, dots and underline sign") + '.', 'error');
-        return;
-      }
-
-      var sDescr = tEditDescr.GetText();
-      if (!sDescr)
-      {
-        webapp.view.MessageBox.ShowMessage(_("Widget description cannot be empty"), 'error');
-        return;
-      }
-
-      var tWidget =
-      {
-        sName: sName,
-        sDescr: sDescr,
-      };
-
-      if (fnConfirm)
-      {
-        fnConfirm.call(this, tWidget);
-      }
-      OnCancel.call(this);
-    }
-
-    function OnCancel()
-    {
-      this.tDialogWidgetEditAdd.hide();
-      this.tDialogWidgetEditAdd.destroy();
-      delete this.tDialogWidgetEditAdd;
-      this.tDataTableProfiles.getBody().focus();
-    }
-
-    function OnKeyDown(tEvent)
-    {
-      if (tEvent.keyCode == 27) // Escape
-      {
-        OnCancel.call(this);
-      }
-      else
-      if (tEvent.keyCode == 13) // Enter
-      {
-        OnConfirm.call(this);
-      }
-    }
-
-    this.tDialogWidgetEditAdd = new YAHOO.widget.SimpleDialog
-    (
-      'WidgetConfAddEditDialog',
-      {
-        fixedcenter: true,
-        modal: true,
-        width: '300px',
-        constraintoviewport: true,
-        close: false,
-        buttons:
-        [
-          { text: _('OK'), handler: OnConfirm.bind(this), isDefault: true },
-          { text: _('Cancel'), handler: OnCancel.bind(this) }
-        ]
-      }
-    );
-
-    this.tDialogWidgetEditAdd.setHeader(sHeader);
-    this.tDialogWidgetEditAdd.setBody("");
-    this.tDialogWidgetEditAdd.render(document.body);
-
-    addHandler(this.tDialogWidgetEditAdd.body, 'keydown', OnKeyDown.bind(this));
-
-    // creating dlg components
-    var tTable = new webapp.ui.Table(this.tDialogWidgetEditAdd.body, { sClass: 'tableFullWidth' });
-
-    var tRowName = tTable.AddRow();
-    var tLabName = new webapp.ui.Label(tTable.AddCell(tRowName), { sCaption: _('Class name') });
-    var tEditName = new webapp.ui.Edit(tTable.AddCell(tRowName));
-    tLabName.SetBuddy(tEditName);
-
-    var tRowDescr = tTable.AddRow();
-    var tLabDescr = new webapp.ui.Label(tTable.AddCell(tRowDescr), { sCaption: _('Description') });
-    var tEditDescr = new webapp.ui.Edit(tTable.AddCell(tRowDescr));
-    tLabDescr.SetBuddy(tEditDescr);
-
-    if (tData)
-    {
-      tEditName.SetText(tData.sName);
-      tEditDescr.SetText(tData.sDescr);
-    }
-
-    this.tDialogWidgetEditAdd.bringToTop();
-    this.tDialogWidgetEditAdd.show();
-
-    tEditName.Focus();
-  },
-
-  _OnConfigureDeleteWidget: function()
-  {
-    var tRows = this.tDataTableWidgets.getSelectedRows();
-    if(tRows.length == 0)
-    {
-      webapp.view.MessageBox.ShowMessage(_('Select a widget'), 'error');
-      return;
-    }
-
-    var tRecord = this.tDataTableWidgets.getRecord(tRows[0]);
-
-    var sName = tRecord.getData('sName');
-
-    if (sName == 'webapp.widget.Layout' ||
-        ((sName == 'webapp.widget.ProfileAdmin') && (this.tCurrentProfileData.sName == 'admin')))
-    {
-      webapp.view.MessageBox.ShowMessage(_('Widget') + " \"" + sName + "\" " + _('is requid and cannot be deleted'), 'error');
-      return;
-    }
-
-    if(confirm(_('Delete widget') + " \"" + tRecord.getData('sDescr') + "\"?"))
-    {
-      for (var itWidget in this.tCurrentProfileData.lsWidgets)
-      {
-        var tWidget = this.tCurrentProfileData.lsWidgets[itWidget];
-        if (tWidget.sName == sName)
-        {
-          this.tCurrentProfileData.lsWidgets.splice(itWidget, 1);
-          this.tDataTableWidgets.deleteRow(parseInt(itWidget));
           break;
         }
       }

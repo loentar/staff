@@ -6,7 +6,7 @@ table.tableFullWidth
 
 td.tdSpacer
 {
-  height: 16px;
+  height: 8px;
 }
 
 td.tdRight
@@ -34,4 +34,32 @@ div.divParentDataTable
 div.divParentDataTableWidgets
 {
   width: 382px;
+}
+
+label.labelProfileAdminProfileName
+{
+  width: 100%;
+}
+
+select.selProfileAdminWidgets
+{
+  width: 100%;
+}
+
+button.btnWidgetAdmin
+{
+  width: 24px;
+  height: 24px;
+}
+
+td.tdProfileAdminWidgets
+{
+  width: 145px;
+}
+
+td.tdProfileAdminMoveButtons
+{
+  width: 24;
+  text-align: center;
+  vertical-align: middle;
 }

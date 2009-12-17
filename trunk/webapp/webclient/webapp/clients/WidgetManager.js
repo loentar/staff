@@ -19,6 +19,12 @@ function SerializeStruct_widget_SWidgetGroup(tOperation, rstStruct, tNode)
   SerializeTypedef_widget_TWidgetMap(tOperation, rstStruct.mWidgets, tOperation.AddParameter('mWidgets', '', tNode));
 }
 
+function SerializeStruct_widget_SBaseProfile(tOperation, rstStruct, tNode)
+{
+  tOperation.AddParameter('sId', rstStruct.sId, tNode);
+  tOperation.AddParameter('sName', rstStruct.sName, tNode);
+}
+
 function SerializeStruct_widget_SProfile(tOperation, rstStruct, tNode)
 {
   tOperation.AddParameter('sId', rstStruct.sId, tNode);
@@ -47,6 +53,15 @@ function DeserializeStruct_widget_SWidgetGroup(tOperation, tNode)
   tResult.sId = tOperation.SubNodeText("sId", tNode);
   tResult.sDescr = tOperation.SubNodeText("sDescr", tNode);
   tResult.mWidgets = DeserializeTypedef_widget_TWidgetMap(tOperation, tOperation.SubNode("mWidgets", tNode));
+  return tResult;
+}
+
+function DeserializeStruct_widget_SBaseProfile(tOperation, tNode)
+{
+  var tResult = {};
+
+  tResult.sId = tOperation.SubNodeText("sId", tNode);
+  tResult.sName = tOperation.SubNodeText("sName", tNode);
   return tResult;
 }
 
@@ -121,6 +136,17 @@ function SerializeTypedef_widget_TWidgetGroupMap(tOperation, rtType, tNode)
       tOperation.AddParameter('Key', tKey, tItem);
       SerializeStruct_widget_SWidgetGroup(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
     }
+  }
+  return tNode;
+}
+
+// ::widget::TBaseProfileList  Typedef.DataType.Type template std::list
+function SerializeTypedef_widget_TBaseProfileList(tOperation, rtType, tNode)
+{
+  for(var i = 0; i != rtType.length; ++i)
+  {
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
+    SerializeStruct_widget_SBaseProfile(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
   }
   return tNode;
 }
@@ -234,6 +260,27 @@ function DeserializeTypedef_widget_TWidgetGroupMap(tOperation, tNode)
   return aResult;
 }
 
+function DeserializeTypedef_widget_TBaseProfileList(tOperation, tNode)
+{
+// container :: std::list< ::widget::SBaseProfile >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = new Array();
+  var j = 0;
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::list<::widget::SBaseProfile>
+    aResult[j++] = DeserializeStruct_widget_SBaseProfile(tOperation, tResult.childNodes[i]); // *** struct ::widget::SBaseProfile
+    }
+  }
+
+  return aResult;
+}
+
 function DeserializeTypedef_widget_TProfileList(tOperation, tNode)
 {
 // container :: std::list< ::widget::SProfile >
@@ -301,7 +348,7 @@ widget.WidgetManager.prototype =
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(DeserializeTypedef_widget_TStringList(tOperation), tOperation);
+          pOnComplete(DeserializeTypedef_widget_TBaseProfileList(tOperation), tOperation);
         },
         pOnError
       );
@@ -310,7 +357,7 @@ widget.WidgetManager.prototype =
     {
       this.tClient.InvokeOperation(tOperation);
 
-      return DeserializeTypedef_widget_TStringList(tOperation);
+      return DeserializeTypedef_widget_TBaseProfileList(tOperation);
     }
   },
 
