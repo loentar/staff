@@ -77,7 +77,9 @@ $(OUTDIR)%.wsdl: $(SRCDIR)%.h
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $<
-	cp -f config/*.xml $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type d | xargs chmod 777 
+	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type f | xargs chmod go+rw
 
 # == distrib =========================================
 distrib:;
@@ -86,8 +88,9 @@ distrib:;
 install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(TARGET)/"
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMPONENT)/
-	cp -f config/*.xml $(INSTALLDIR)$(TARGET)/db/
-	chmod 777 $(INSTALLDIR)$(TARGET)/db/
+	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(INSTALLDIR)$(TARGET)/db/
+	find $(INSTALLDIR)$(TARGET)/db/ -type d | xargs chmod 777 
+	find $(INSTALLDIR)$(TARGET)/db/ -type f | xargs chmod go+rw
 
 # == uninstall ======================================
 uninstall:

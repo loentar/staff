@@ -51,10 +51,10 @@
 
 .WidgetFrameHeaderTable
 {
-  height: 22px;
   width: 100%;
   vertical-align: middle;
   text-align: center;
+  margin: 2px;
 }
 
 .WidgetFrameHeaderLabel

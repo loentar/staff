@@ -13,8 +13,8 @@ namespace webapp
     //! widget description
     struct SWidget
     {
-      std::string sName;   //!< widget class name
-      std::string sDescr;  //!< widget description
+      std::string sClass; //!< widget class
+      std::string sName;  //!< widget name
     };
 
     typedef std::list<SWidget> TWidgetList; //!< widget list
@@ -22,9 +22,13 @@ namespace webapp
     //! profile
     struct SProfile
     {
+      std::string sId;        //!< profile id
       std::string sName;      //!< profile name
-      TWidgetList lsWidgets;  //!< widgets list
+      bool bIsAdmin;          //!< is admin profile
+      TStringList lsWidgets;  //!< widgets list
     };
+
+    typedef std::list<SProfile> TProfileList; //!< profile list
 
     //! base profile administrator
     class CProfileAdmin
@@ -35,18 +39,17 @@ namespace webapp
       //!         get profile list
       /*! \return profile list
           */
-      virtual TStringList GetProfileList() = 0;
+      virtual TProfileList GetProfiles() = 0;
+
+      //!         get widget list
+      /*! \return widgets list
+          */
+      virtual TWidgetList GetWidgets() = 0;
 
       //!         remove profile by name
-      /*! \param  sName - profile name
+      /*! \param  sName - profile id
           */
-      virtual void RemoveProfile(const std::string& sName) = 0;
-
-      //!         get profile by name
-      /*! \param  sName - profile name
-          \return profile
-          */
-      virtual SProfile GetProfile(const std::string& sName) = 0;
+      virtual void RemoveProfile(const std::string& sId) = 0;
 
       //!         set(create) profile
       /*! \param  rProfile - profile

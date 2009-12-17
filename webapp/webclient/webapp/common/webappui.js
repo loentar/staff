@@ -724,7 +724,7 @@ webapp.ui.Select.prototype.extend(webapp.ui.Generic.prototype).extend
       tActiveItemElem.parentNode.removeChild(tActiveItemElem);
     }
     
-    this.Element().selectedIndex = nIndex;
+    this.Element().selectedIndex = nIndex >= this.Element().options.length ? this.Element().options.length - 1 : nIndex;
   },
   
   GetItemCount: function()

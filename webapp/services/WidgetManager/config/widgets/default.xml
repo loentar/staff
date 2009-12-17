@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<WidgetDB version="2.0" type="user">
+<WidgetDB version="2.0">
   <!-- active widget list -->
   <Widgets>
     <Widget>
@@ -16,7 +16,7 @@
           <ArrayItem>
             <body>divright</body>
             <position>right</position>
-            <width>515</width>
+            <width>300</width>
             <resize>true</resize>
             <gutter>5px</gutter>
             <scroll>true</scroll>

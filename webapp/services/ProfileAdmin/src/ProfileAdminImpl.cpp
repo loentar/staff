@@ -2,9 +2,6 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <unistd.h>
-#include <rise/string/String.h>
-#include <rise/tools/FileFind.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
 #include <staff/common/Runtime.h>
@@ -23,75 +20,142 @@ CProfileAdminImpl::~CProfileAdminImpl()
 {
 }
 
-::webapp::admin::TStringList CProfileAdminImpl::GetProfileList()
+::webapp::admin::TProfileList CProfileAdminImpl::GetProfiles()
 {
-  ::webapp::admin::TStringList tResult;
-
-  rise::CFileFind::Find(m_sProfilesPath, tResult, "widgetdb_classes.*.xml", rise::CFileFind::EFA_FILE);
-  for (::webapp::admin::TStringList::iterator itFile = tResult.begin(); itFile != tResult.end(); ++itFile)
-  {
-    *itFile = itFile->substr(17, itFile->size() - 17 - 4);
-  }
-
-  return tResult;  // result
-}
-
-void CProfileAdminImpl::RemoveProfile(const std::string& sName)
-{
-  unlink((m_sProfilesPath + "widgetdb_classes." + sName + ".xml").c_str());
-}
-
-::webapp::admin::SProfile CProfileAdminImpl::GetProfile(const std::string& sName)
-{
-  ::webapp::admin::SProfile tResult;
+  ::webapp::admin::TProfileList tResult;
   rise::xml::CXMLDocument tDoc;
 
-  tDoc.LoadFromFile(m_sProfilesPath + "widgetdb_classes." + sName + ".xml");
+  tDoc.LoadFromFile(m_sProfilesPath + "baseprofiles.xml");
 
   const rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
 
-  tResult.sName = sName;
-
-  const rise::xml::CXMLNode& rNodeWidgets = rNodeRoot.Subnode("Classes");
-
-  for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeWidget = rNodeWidgets.NodeBegin();
-      itNodeWidget != rNodeWidgets.NodeEnd(); ++itNodeWidget)
+  for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeProfile = rNodeRoot.NodeBegin();
+      itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
   {
-    const rise::xml::CXMLNode& rNodeWidget = *itNodeWidget;
-    SWidget tWidget;
-    tWidget.sName = rNodeWidget["Name"].AsString();
-    tWidget.sDescr = rNodeWidget["Descr"].AsString();
-    tResult.lsWidgets.push_back(tWidget);
+    const rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+    if (rNodeProfile.NodeType() == rise::xml::CXMLNode::ENTGENERIC && rNodeProfile.NodeName() == "Profile")
+    {
+      SProfile stProfile;
+      stProfile.sId = rNodeProfile["Id"].AsString();
+      stProfile.sName = rNodeProfile["Name"].AsString();
+
+      const std::string& sIsAdmin = (*itNodeProfile)["IsAdmin"].AsString();
+      stProfile.bIsAdmin = sIsAdmin == "true" || sIsAdmin == "1";
+
+      const rise::xml::CXMLNode& rNodeWidgets = rNodeProfile.Subnode("Widgets");
+
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeWidget = rNodeWidgets.NodeBegin();
+          itNodeWidget != rNodeWidgets.NodeEnd(); ++itNodeWidget)
+      {
+        if (itNodeWidget->NodeType() == rise::xml::CXMLNode::ENTGENERIC && itNodeWidget->NodeName() == "Widget")
+        {
+          stProfile.lsWidgets.push_back(itNodeWidget->NodeContent().AsString());
+        }
+      }
+      tResult.push_back(stProfile);
+    }
   }
 
   return tResult;  // result
+}
+
+::webapp::admin::TWidgetList CProfileAdminImpl::GetWidgets()
+{
+  ::webapp::admin::TWidgetList tResult;
+  rise::xml::CXMLDocument tDoc;
+
+  tDoc.LoadFromFile(m_sProfilesPath + "widgets.xml");
+
+  const rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+  for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeWidget = rNodeRoot.NodeBegin();
+      itNodeWidget != rNodeRoot.NodeEnd(); ++itNodeWidget)
+  {
+    const rise::xml::CXMLNode& rNodeWidget = *itNodeWidget;
+    if (rNodeWidget.NodeType() == rise::xml::CXMLNode::ENTGENERIC && rNodeWidget.NodeName() == "Widget")
+    {
+      SWidget stWidget;
+      stWidget.sClass = rNodeWidget["Class"].AsString();
+      stWidget.sName = rNodeWidget["Name"].AsString();
+      tResult.push_back(stWidget);
+    }
+  }
+
+  return tResult;  // result
+}
+
+void CProfileAdminImpl::RemoveProfile(const std::string& sId)
+{
+  rise::xml::CXMLDocument tDoc;
+
+  tDoc.LoadFromFile(m_sProfilesPath + "baseprofiles.xml");
+
+  rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
+
+  for (rise::xml::CXMLNode::TXMLNodeIterator itNodeProfile = rNodeRoot.NodeBegin();
+      itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
+  {
+    rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+    if (rNodeProfile.NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+        rNodeProfile.NodeName() == "Profile" &&
+        rNodeProfile["Id"].AsString() == sId)
+    {
+      rNodeRoot.DelSubNode(itNodeProfile);
+      tDoc.SaveToFile(m_sProfilesPath + "baseprofiles.xml");
+      break;
+    }
+  }
 }
 
 void CProfileAdminImpl::SetProfile(const ::webapp::admin::SProfile& rProfile)
 {
   rise::xml::CXMLDocument tDoc;
 
+  tDoc.LoadFromFile(m_sProfilesPath + "baseprofiles.xml");
+
   rise::xml::CXMLNode& rNodeRoot = tDoc.GetRoot();
 
-  rNodeRoot.NodeName() = "WidgetDB";
-  rNodeRoot.AddAttribute("version", "1.0");
-  rNodeRoot.AddAttribute("type", "classes");
+  rise::xml::CXMLNode* pNodeProfile = NULL;
 
-  rise::xml::CXMLNode& rNodeWidgets = rNodeRoot.AddSubNode("Classes");
-
-  for (TWidgetList::const_iterator itWidget = rProfile.lsWidgets.begin();
-      itWidget != rProfile.lsWidgets.end(); ++itWidget)
+  for (rise::xml::CXMLNode::TXMLNodeIterator itNodeProfile = rNodeRoot.NodeBegin();
+       itNodeProfile != rNodeRoot.NodeEnd(); ++itNodeProfile)
   {
-    rise::xml::CXMLNode& rNodeWidget = rNodeWidgets.AddSubNode("Class");
-
-    rNodeWidget.AddSubNode("Name").NodeContent() = itWidget->sName;
-    rNodeWidget.AddSubNode("Descr").NodeContent() = itWidget->sDescr;
+    rise::xml::CXMLNode& rNodeProfile = *itNodeProfile;
+    if (rNodeProfile.NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+        rNodeProfile.NodeName() == "Profile" &&
+        rNodeProfile["Id"].AsString() == rProfile.sId)
+    {
+      pNodeProfile = &*itNodeProfile;
+      break;
+    }
   }
 
-  tDoc.SaveToFile(m_sProfilesPath + "widgetdb_classes." + rProfile.sName + ".xml");
+  if (!pNodeProfile)
+  {
+    pNodeProfile = &rNodeRoot.AddSubNode("Profile");
+  }
+  else
+  {
+    pNodeProfile->Clear();
+  }
+
+  pNodeProfile->AddSubNode("Id").NodeContent() = rProfile.sId;
+  pNodeProfile->AddSubNode("Name").NodeContent() = rProfile.sName;
+  pNodeProfile->AddSubNode("IsAdmin").NodeContent() = rProfile.bIsAdmin ? "true" : "false";
+
+  rise::xml::CXMLNode& rNodeWidgets = pNodeProfile->AddSubNode("Widgets");
+
+  for (TStringList::const_iterator itWidget = rProfile.lsWidgets.begin();
+        itWidget != rProfile.lsWidgets.end(); ++itWidget)
+  {
+    rNodeWidgets.AddSubNode("Widget").NodeContent() = *itWidget;
+  }
+
+  tDoc.SaveToFile(m_sProfilesPath + "baseprofiles.xml");
 }
 
 std::string CProfileAdminImpl::m_sProfilesPath = staff::CRuntime::Inst().GetComponentHome("widget") + "/db/";
+
 }
 }
 

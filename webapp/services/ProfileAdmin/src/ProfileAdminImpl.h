@@ -17,9 +17,9 @@ namespace admin
   public:
     CProfileAdminImpl();
     virtual ~CProfileAdminImpl();
-    virtual ::webapp::admin::TStringList GetProfileList();
-    virtual void RemoveProfile(const std::string& sName);
-    virtual ::webapp::admin::SProfile GetProfile(const std::string& sName);
+    virtual ::webapp::admin::TProfileList GetProfiles();
+    virtual ::webapp::admin::TWidgetList GetWidgets();
+    virtual void RemoveProfile(const std::string& sId);
     virtual void SetProfile(const ::webapp::admin::SProfile& rProfile);
 
   private:

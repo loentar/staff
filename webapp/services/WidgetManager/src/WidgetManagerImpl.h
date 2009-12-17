@@ -36,7 +36,7 @@ namespace widget
     CWidgetManagerImpl();
     virtual ~CWidgetManagerImpl();
     
-    virtual TStringList GetBaseProfiles();
+    virtual TBaseProfileList GetBaseProfiles();
     virtual TProfileList GetProfiles();
     virtual void AddProfile(const SProfile& stProfile);
     virtual void DeleteProfile(const std::string& sProfile);
@@ -73,15 +73,18 @@ namespace widget
     typedef std::map<std::string, SWidgetGroupInternal> TWidgetGroupInternalMap;
 
   private:
-    virtual void LoadWidgetClasses(const std::string& sProfile);
+    virtual void LoadProfileWidgetList(const std::string& sBaseProfile);
     const std::string& GetSessionId();
     int GetUserId();
+    bool IsUserAdmin();
 
     void LoadWidgets(const rise::xml::CXMLNode& rNodeWidgets, TWidgetInternalMap& mWidgets);
+    void LoadWidgetsNames();
     void LoadProfiles(const std::string& sFile, TProfileList& rlsProfiles);
 
   private:
     TStringMap m_mWidgetClasses;
+    TStringMap m_mWidgetsNames;
     TWidgetInternalMap m_mActiveWidgets;
     TStringList m_lsActiveWidgetGroups;
     TWidgetGroupInternalMap m_mWidgetGroups;
@@ -89,8 +92,9 @@ namespace widget
     std::string m_sUserDbFileName;
     std::string m_sProfile;
     std::string m_sSessionId;
-    static std::string m_sComponentHome;
+    const static std::string m_sDbPath;
     int m_nUserId;
+    int m_nIsUserAdmin;
   };
 }
 
