@@ -36,6 +36,7 @@ namespace staff
     virtual std::string Login(const std::string& sUserName, const std::string& sPassword);
     virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting);
     virtual std::string OpenExtraSession(int nExtraSessionId);
+    virtual void CloseExtraSession(int nExtraSessionId);
     virtual void Logout();
     virtual void KeepAliveSession();
     virtual std::string GetUserName();

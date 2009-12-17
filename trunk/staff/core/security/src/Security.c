@@ -474,6 +474,34 @@ EStaffSecurityError StaffSecurityOpenExtraSession( const char* szExistingSession
   return EStaffSecurityErrorOK;
 }
 
+STAFF_SECURITY_EXPORT EStaffSecurityError StaffSecurityCloseExtraSession( const char* szExistingSessionId,
+                                                                          int nExtraSessionId)
+{
+  ExecStatusType tQueryStatus;
+  PGresult* pPGResult = NULL;
+  int nExtraSessionIdReq = htonl(nExtraSessionId);
+  int anParamLengths[2] = { sizeof(nExtraSessionIdReq), (int)strlen(szExistingSessionId) };
+  int anParamFormats[2] = { 1, 0 };
+  const char* aszParams[2] = { (const char*)&nExtraSessionIdReq, szExistingSessionId };
+
+  pPGResult = PQexecParamsLock(g_pConn,
+    "DELETE FROM \"session\" WHERE \"userid\" IN "
+      "(SELECT \"userid\" FROM \"session\" WHERE \"sid\" = $2) AND \"extraid\" = $1;",
+    2, NULL, aszParams, anParamLengths, anParamFormats, 0);
+
+  tQueryStatus = PQresultStatus(pPGResult);
+  if (tQueryStatus != PGRES_COMMAND_OK)
+  {
+    dprintf("error executing query: %s\n", PQerrorMessage(g_pConn));
+    PQclearLock(pPGResult);
+    return false;
+  }
+
+  PQclearLock(pPGResult);
+  return true;
+}
+
+
 bool StaffSecurityCloseSession( const char* szSessionId )
 {
   ExecStatusType tQueryStatus;

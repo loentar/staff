@@ -183,6 +183,15 @@ STAFF_SECURITY_EXPORT EStaffSecurityError StaffSecurityOpenExtraSession( const c
                                                           char* szSessionId,
                                                           int nSessionIdSize );
 
+//!         close an extra session for user
+/*! \param  szExistingSessionId - parent session id
+    \param  nExtraSessionId - extra session number
+    \return EStaffSecurityError - result
+    \sa     EStaffSecurityError
+    */
+STAFF_SECURITY_EXPORT EStaffSecurityError StaffSecurityCloseExtraSession( const char* szExistingSessionId,
+                                                                          int nExtraSessionId);
+
 //!         logout user and close session
 /*! if closing main session, all extra sessions will be deleted
     \param  szSessionId - session id

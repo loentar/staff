@@ -56,6 +56,11 @@ namespace staff
         */
     virtual std::string OpenExtraSession(int nExtraSessionId) = 0;
 
+    //!         close extra session
+    /*! \param  nExtraSessionId - extra session number
+        */
+    virtual void CloseExtraSession(int nExtraSessionId) = 0;
+
     //!         logout and close session
     virtual void Logout() = 0;
 
