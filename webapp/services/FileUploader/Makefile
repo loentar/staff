@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
-COMPONENT = webapp
-TARGET = fileuploader
+COMPONENT = webapp.admin
+TARGET = FileUploader
 TARGETNAME = lib$(TARGET).so
 
 CXXFLAGS += -fPIC -fexceptions -D_REENTRANT -Wall

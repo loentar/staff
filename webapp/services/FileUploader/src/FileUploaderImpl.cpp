@@ -111,15 +111,17 @@ namespace webapp
       const std::string& sFilePathFrom = m_sUploadDir + sFileName;
       std::string::size_type nSize = sFilePathFrom.size();
       std::string sUnpackCmd;
+      
+      RISE_ASSERTES(m_tUnpacker.GetStatus() != CFileUnpacker::ERunning, rise::CLogicAlreadyExistsException, "Unpacking already running");
 
-      RISE_ASSERTES(!m_tUnpacker.GetStatus() != CFileUnpacker::ERunning, rise::CLogicAlreadyExistsException, "Unpacking already running");
+      mkdir(sPathTo.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 
       if (m_mUnpackers.size() == 0)
       { // load config
         rise::xml::CXMLDocument tDocConf;
         const rise::xml::CXMLNode& rNodeRoot = tDocConf.GetRoot();
 
-        tDocConf.LoadFromFile(staff::CRuntime::Inst().GetComponentHome("fileuploader") + "/config/FileUploader.xml");
+        tDocConf.LoadFromFile(staff::CRuntime::Inst().GetComponentHome("webapp.admin") + "/config/FileUploader.xml");
 
         const rise::xml::CXMLNode& rNodeUnpackers = rNodeRoot.Subnode("Unpackers");
         for (rise::xml::CXMLNode::TXMLNodeConstIterator itNode = rNodeUnpackers.NodeBegin();
