@@ -159,6 +159,7 @@ i18n.webapp =
   'Member of': 'Состоит в группах',
   'Available groups': 'Доступные группы',
   'User properties': 'Свойства пользователя',
+  'Set user password': 'Установка пароля пользователя',
   
   'Groups management': 'Управление группами',
   'Enter a group name': 'Введите имя группы',
