@@ -118,6 +118,7 @@ install: install_headers install_libs
 install_libs: $(OUTDIR)$(TARGETLIBVER)
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIBVER)
 	ln -sf $(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIB)
+	test -f /usr/lib/libbfd.so || ln -s $$(find /usr/lib/libbfd-*.so | head -1) /usr/lib/libbfd.so
 
 install_headers: "$(USRINCDIRVER)"
 	@echo "installing headers to $(USRINCDIRVER)";\

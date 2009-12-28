@@ -81,7 +81,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
 
     this.tDataSourceUsers = new YAHOO.util.DataSource(this.tUsers);
     this.tDataSourceUsers.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    this.tDataSourceUsers.responseSchema = { fields: [ "sName", "sDescription" ] };
+    this.tDataSourceUsers.responseSchema = { fields: [ "nId", "sName", "sDescription" ] };
 
     this.tDataTableUsers = new YAHOO.widget.DataTable(tContainer,
           tUsersColumnDefs, this.tDataSourceUsers, 
@@ -95,8 +95,8 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this.tUsersContextMenu = new YAHOO.widget.ContextMenu("AccountAdminUserContextMenu",
             {trigger: this.tDataTableUsers.getTbodyEl()});
     this.tUsersContextMenu.addItem(_("Add"));
-    this.tUsersContextMenu.addItem(_("Remove"));
-//    this.tUsersContextMenu.addItem(_("Set password"));
+    this.tUsersContextMenu.addItem(_("Delete"));
+    this.tUsersContextMenu.addItem(_("Set password"));
     this.tUsersContextMenu.addItem(_("Properties"));
     
     // Render the ContextMenu instance to the parent container of the DataTable
@@ -125,7 +125,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     
     var btnUserRemove = new YAHOO.widget.Button
     ({
-       label: _("Remove"),
+       label: _("Delete"),
        container: tContainer,
        onclick: { fn: this._OnRemoveUser, scope: this }
     });
@@ -162,13 +162,25 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
             break;
           }
 
-//           case 2: // change password
-//           {
-//             
-//             break;
-//           }
+          case 2: // change password
+          {
+            var tRows = tParams.tWidget.tDataTableUsers.getSelectedRows();
+            if (tRows.length == 0)
+            {
+              webapp.view.MessageBox.ShowMessage(_('Select a user'), 'error');
+              return;
+            }
+
+            var tRecord = tParams.tWidget.tDataTableUsers.getRecord(tRows[0]);
+
+            var nId = tRecord.getData('nId');
+            var sName = tRecord.getData('sName');
+
+            tParams.tWidget._OnSetPassword(sName, nId);
+            break;
+          }
           
-          case 2: // groups
+          case 3: // groups
           {
             tParams.tWidget._OnUserProperties();
             break;
@@ -177,6 +189,34 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
         }
       }
     }
+  },
+
+  _OnSetPassword: function(sUserName, nUserId)
+  {
+    function OnConfirm()
+    {
+      var sUserPasswd = document.getElementById("inpUserPasswd").value;
+      var sUserPasswdRetype = document.getElementById("inpUserPasswdRetype").value;
+
+      if(sUserPasswd != sUserPasswdRetype)
+      {
+        throw Error(_('Passwords does not match'));
+      }
+
+      this.pAccountAdminService.SetUserPassword(nUserId, sUserPasswd);
+    }
+
+    var tTable = document.createElement('table');
+    var tTableBody = document.createElement('tbody');
+    tTable.appendChild(tTableBody);
+    this._CreateTdWithDescription(tTableBody, _('User') + ":  ", "inpUserName");
+    this._CreateTdWithDescription(tTableBody, _('Password') + ":  ", "inpUserPasswd", true);
+    this._CreateTdWithDescription(tTableBody, _('Retype password') + ":  ", "inpUserPasswdRetype", true);
+
+    this._ShowDialog(_('Set user password'), tTable, OnConfirm);
+    document.getElementById("inpUserPasswd").focus();
+    document.getElementById("inpUserName").value = sUserName;
+    document.getElementById("inpUserName").disabled = "true";
   },
   
   _OnAddUser: function()
@@ -200,7 +240,9 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
       
       var nUserId = this.pAccountAdminService.AddUser(sUserName, sUserDescription);
       this.pAccountAdminService.SetUserPassword(nUserId, sUserPasswd);
+      this._OnUserProperties({ nUserId: nUserId, sUserName: sUserName, sDescr: sUserDescription });
       this._ReloadUsers();
+      return false;
     }
     
     var tTable = document.createElement('table');
@@ -211,7 +253,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this._CreateTdWithDescription(tTableBody, _('Retype password') + ":  ", "inpUserPasswdRetype", true);
     this._CreateTdWithDescription(tTableBody, _('Description') + ":  ", "inpUserDescription");
 
-    this._ShowDialog(_('Add user'), tTable, OnConfirm.bind(this));
+    this._ShowDialog(_('Add user'), tTable, OnConfirm);
     document.getElementById("inpUserName").focus();
   },
   
@@ -241,22 +283,28 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     }
   },
   
-  _OnUserProperties: function()
+  _OnUserProperties: function(tUserData)
   {
-    var tRows = this.tDataTableUsers.getSelectedRows();
-    if(tRows.length == 0)
+    if (!tUserData || !(tUserData.nUserId))
     {
-      webapp.view.MessageBox.ShowMessage(_('Select a user'), 'error');
-      return;
+      var tRows = this.tDataTableUsers.getSelectedRows();
+      if(tRows.length == 0)
+      {
+        webapp.view.MessageBox.ShowMessage(_('Select a user'), 'error');
+        return;
+      }
+
+      var tRecord = this.tDataTableUsers.getRecord(tRows[0]);
+      tUserData = {};
+      tUserData.nUserId = tRecord.getData('nId');
+      tUserData.sUserName = tRecord.getData('sName');
+      tUserData.sDescr = tRecord.getData('sDescription');
     }
-    
-    var tRecord = this.tDataTableUsers.getRecord(tRows[0]);
-    var nUserId = tRecord.getData('nId');
 
     var aUserGroupIds;
     try
     {
-      aUserGroupIds = this.pAccountAdminService.GetUserGroups(nUserId);
+      aUserGroupIds = this.pAccountAdminService.GetUserGroups(tUserData.nUserId);
     }
     catch(tError)
     {
@@ -282,7 +330,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
         
         if(aUserGroups.length > 0)
         {
-          this.pAccountAdminService.AddUserToGroups(nUserId, aUserGroups);
+          this.pAccountAdminService.AddUserToGroups(tUserData.nUserId, aUserGroups);
         }
       }
 
@@ -303,7 +351,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
         
         if(aUserGroups.length > 0)
         {
-          this.pAccountAdminService.RemoveUserFromGroups(nUserId, aUserGroups);
+          this.pAccountAdminService.RemoveUserFromGroups(tUserData.nUserId, aUserGroups);
         }
       }
     }
@@ -350,6 +398,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     var tTd2 = document.createElement('td');
     tTr.appendChild(tTd2);
     tTd2.style.width = "30px";
+    tTd2.style.verticalAlign = "middle";
     var tCenter = document.createElement('center');
     tTd2.appendChild(tCenter);
 
@@ -476,15 +525,15 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     
     CheckButtons();
 
-    this._ShowDialog(_('User properties'), tdivContainer, OnConfirm.bind(this));
+    this._ShowDialog(_('User properties'), tdivContainer, OnConfirm);
 
     var tinpUserName = document.getElementById("inpUserName");
     tinpUserName.readOnly = true;
-    tinpUserName.value = tRecord.getData('sName');
+    tinpUserName.value = tUserData.sUserName;
 
     var tinpUserDescription = document.getElementById("inpUserDescription");
     tinpUserDescription.readOnly = true;
-    tinpUserDescription.value = tRecord.getData('sDescription');
+    tinpUserDescription.value = tUserData.sDescr;
 
     tBtnInclude.focus();
   },
@@ -558,7 +607,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this.tGroupsContextMenu = new YAHOO.widget.ContextMenu("AccountAdminGroupContextMenu",
             {trigger: this.tDataTableGroups.getTbodyEl()});
     this.tGroupsContextMenu.addItem(_('Add'));
-    this.tGroupsContextMenu.addItem(_('Remove'));
+    this.tGroupsContextMenu.addItem(_('Delete'));
     
     // Render the ContextMenu instance to the parent container of the DataTable
     this.tGroupsContextMenu.render(tContainer);
@@ -586,7 +635,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     
     var btnGroupRemove = new YAHOO.widget.Button
     ({
-       label: _('Remove'),
+       label: _('Delete'),
        container: tContainer,
        onclick: { fn: this._OnRemoveGroup, scope: this }
     });
@@ -643,7 +692,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this._CreateTdWithDescription(tTableBody, _('Group') + ":  ", "inpGroupName");
     this._CreateTdWithDescription(tTableBody, _('Description') + ":  ", "inpGroupDescription");
 
-    this._ShowDialog(_('Add group'), tTable, OnConfirm.bind(this));
+    this._ShowDialog(_('Add group'), tTable, OnConfirm);
     document.getElementById("inpGroupName").focus();
   },
   
@@ -695,8 +744,10 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     {
       try
       {
-        OnConfirm();
-        this._DeleteDialog();
+        if (OnConfirm.call(this) !== false)
+        {
+          this._DeleteDialog();
+        }
       }
       catch(tError)
       {

@@ -47,6 +47,9 @@ webapp.Webapp =
     
     function LoadLocale()
     {
+      YAHOO.widget.DataTable.MSG_EMPTY = "";
+      YAHOO.widget.DataTable.MSG_LOADING = "";
+
       Include
       (
         ["i18n"], 
