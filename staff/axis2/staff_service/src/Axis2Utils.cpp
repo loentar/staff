@@ -40,6 +40,8 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
 
   std::string sServiceUri = "http://staff.tempui.org:9090/axis2/services/";
   sServiceUri += sServiceName.c_str();
+  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pService->GetComponent()->GetName()) 
+      + RISE_PATH_SEPARATOR + pService->GetName() + ".wsdl";
 
   axutil_qname_t* pQName = axutil_qname_create(pEnv, sServiceName.c_str(), sServiceUri.c_str(), NULL);
   if(pQName == NULL)
@@ -114,7 +116,19 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     return false;
   }
 
-  if(axis2_svc_set_svc_desc(pAxis2Service, pEnv, pService->GetDescr().c_str()) != AXIS2_SUCCESS)
+  std::string sServiceDescr = pService->GetDescr();
+  FILE* pFile = fopen(sWsdlPath.c_str(), "rb");
+  if (pFile)
+  {
+    fclose(pFile);
+    sServiceDescr += "&nbsp;<sup><a style='font-size: x-small' href='/axis2/services/" + sServiceName + "?wsdl'>[wsdl]</a></sup>";
+    if(axis2_svc_set_svc_wsdl_path(pAxis2Service, pEnv, sWsdlPath.c_str()) != AXIS2_SUCCESS)
+    {
+      printf("error axis2_svc_set_svc_wsdl_path\n");
+    }
+  }
+
+  if(axis2_svc_set_svc_desc(pAxis2Service, pEnv, sServiceDescr.c_str()) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
     printf("error axis2_svc_set_svc_desc\n");
@@ -159,13 +173,6 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     axis2_svc_grp_free(pServiceGroup, pEnv);
     printf("error axis2_conf_add_svc_grp\n");
     return false;
-  }
-  
-  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pService->GetComponent()->GetName()) 
-      + RISE_PATH_SEPARATOR + pService->GetName() + ".wsdl";
-  if(axis2_svc_set_svc_wsdl_path(pAxis2Service, pEnv, sWsdlPath.c_str()) != AXIS2_SUCCESS)
-  {
-    printf("error axis2_svc_set_svc_wsdl_path\n");
   }
 
   return true;
