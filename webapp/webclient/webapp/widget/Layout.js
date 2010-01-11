@@ -185,6 +185,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
         tUnits[sUnitId] = 
         {
           sName: _(this.tLayoutUnits[tUnit].position), 
+          sPos: this.tLayoutUnits[tUnit].position,
           sId: sUnitId, 
           tBody: this.tDiv[sUnitId]
         };
@@ -361,6 +362,8 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
       }
     }
 
+    this._WidgetsToRemove = {};
+
     addHandler(tBody, 'keydown', this._OnKeyDown.bindAsEventListener(this));
   },
   
@@ -373,15 +376,42 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     delete this.tUnit;
     delete this.tCtrl;
     delete this._tLayoutUnitsCfg;
+    delete this._WidgetsToRemove;
   },
   
   _OnConfirmConfigure: function()
   {
+  //remove widgets
+    var tWidgetLoader = window.parent.webapp.Webapp.GetWidgetLoader();
+    if (tWidgetLoader)
+    {
+      for (var itWidget in this._WidgetsToRemove)
+      {
+        var tWidgets = this._WidgetsToRemove[itWidget];
+        var nWidgetCount = tWidgets.length;
+        if (nWidgetCount)
+        {
+          for (var nWidget = 0; nWidget != nWidgetCount; ++nWidget)
+          {
+            try
+            {
+              tWidgetLoader.RemoveWidget(tWidgets[nWidget].sId);
+            }
+            catch(tErr)
+            {
+            }
+          }
+        }
+      }
+    }
+
     this._SaveUnit(this.sUnit);
     this._tLayoutUnitsCfg.clone(this.tLayoutUnits);
     this._Refresh();
     this._OnCancelConfigure();
     this.SetModify();
+
+    tWidgetLoader.SaveWidgets();
   },
   
   _OnSelectUnit: function(tEvent)
@@ -426,6 +456,28 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     var tRestrValue = this.tUnitRestrictValues[this.sUnit];
 
     var bEnable = this.tCtrl.enabled.GetChecked();
+    if (!bEnable)
+    {
+      var tWidgetLoader = window.parent.webapp.Webapp.GetWidgetLoader();
+      if (tWidgetLoader)
+      {
+        var aWidgets = tWidgetLoader.GetWidgetsByUnitPos(this.sUnit);
+        if (aWidgets.length > 0)
+        {
+          if (!confirm(_("This unit contain one or more widgets.\nPress \'OK\' to remove them.")))
+          {
+            this.tCtrl.enabled.SetChecked();
+            return;
+          }
+          this._WidgetsToRemove[this.sUnit] = aWidgets;
+        }
+      }
+    }
+    else
+    {
+      delete this._WidgetsToRemove[this.sUnit];
+    }
+
     for(var tIndex in this.tCtrl)
     {
       var tCtrl = this.tCtrl[tIndex];

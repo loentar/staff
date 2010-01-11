@@ -115,6 +115,7 @@ i18n.webapp =
   'Scroll': 'Прокрутка',
   'After changing layout it\'s recommended to save widgets and reload page': 'После изменения раскладки рекомендуется сохранить виджеты и перезагрузить страницу',
   'Invalid value of field': 'Неверное значение поля',
+  'This unit contain one or more widgets.\nPress \'OK\' to remove them.': 'Эта позиция содержит один или несколько виджетов.\nНажмите \'OK\' чтобы убрать их.',
   
   // Object Admin
   'Object administrator': 'Администратор объектов',
