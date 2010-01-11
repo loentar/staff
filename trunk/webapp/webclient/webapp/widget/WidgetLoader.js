@@ -223,6 +223,88 @@ webapp.widget.WidgetLoader.prototype =
     return tList;
   },
   
+  GetWidgetsByUnitPos: function(sUnitPos)
+  {
+    var aWidgets = [];
+
+    var tUnits = {};
+    var tWidgetLayout = this.GetWidgetByClass("webapp.widget.Layout");
+    var tLayoutUnits;
+
+    if(tWidgetLayout != null)
+    {
+      tLayoutUnits = tWidgetLayout.GetUnits();
+    }
+    else
+    {
+      tLayoutUnits[this.tOptions.tParent.Element().id] =
+        {
+          sName: _("Main unit"),
+          sId: this.tOptions.tParent.Element().id,
+          tBody: this.tOptions.tParent
+        };
+    }
+
+
+    for (var itWidget in this.mActiveWidgets)
+    {
+      var tWidget = this.mActiveWidgets[itWidget];
+      if (tWidget.sId)
+      {
+        for (var itUnit in tLayoutUnits)
+        {
+          var tUnit = tLayoutUnits[itUnit];
+          if (tUnit.sPos == sUnitPos && tWidget.tWidgetParent == tUnit.tBody.tElement)
+          {
+            aWidgets.push(tWidget);
+          }
+        }
+      }
+    }
+
+    return aWidgets;
+  },
+
+  IsUnitEmpty: function(sUnitPos)
+  {
+    var bEmpty = true;
+
+    var tWidgetLayout = this.GetWidgetByClass("webapp.widget.Layout");
+    var tLayoutUnits;
+
+    if(tWidgetLayout != null)
+    {
+      tLayoutUnits = tWidgetLayout.GetUnits();
+    }
+    else
+    {
+      tLayoutUnits[this.tOptions.tParent.Element().id] =
+        {
+          sName: _("Main unit"),
+          sId: this.tOptions.tParent.Element().id,
+          tBody: this.tOptions.tParent
+        };
+    }
+
+    for (var itWidget in this.mActiveWidgets)
+    {
+      var tWidget = this.mActiveWidgets[itWidget];
+      if (tWidget.sId)
+      {
+        for (var itUnit in tLayoutUnits)
+        {
+          var tUnit = tLayoutUnits[itUnit];
+          if (tUnit.sPos == sUnitPos && tWidget.tWidgetParent == tUnit.tBody.tElement)
+          {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  },
+
   GetWidgetById: function(nId)
   {
     return this.mActiveWidgets[nId];
