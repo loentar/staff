@@ -936,7 +936,7 @@ webapp.ui.Table.prototype.extend(webapp.ui.Generic.prototype).extend
         else
         if (typeof tOpt.tContent == 'object')
         {
-          if (tContent.Element == null)
+          if (tOpt.tContent.Element == null)
           {
             tTd.appendChild(tOpt.tContent);
           }
