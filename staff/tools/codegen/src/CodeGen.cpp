@@ -334,6 +334,32 @@ public:
       }
   }
 
+  void ProcessInclude(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine)
+  {
+    std::string sIncludeFileName;
+
+    std::string::size_type nPosStart = sLine.find('<', 9);
+    std::string::size_type nPosEnd = 0;
+
+    RISE_ASSERTS(nPosStart != std::string::npos, "cginclude expression is invalid!");
+    nPosEnd = sLine.find('>', nPosStart);
+    RISE_ASSERTS(nPosEnd != std::string::npos, "cginclude expression is invalid!");
+    sIncludeFileName = m_sInDir + "/../" + sLine.substr(nPosStart + 1, nPosEnd - nPosStart - 1);
+
+    std::ifstream fsIncFile;
+    fsIncFile.open(sIncludeFileName.c_str());
+
+    if (!fsIncFile.good())
+      throw std::string("can't include file: " + sIncludeFileName);
+
+    while (!fsIncFile.eof() && fsIncFile.good())
+    {
+      Process(fsIncFile, fsOut, rNode);
+    }
+
+    fsIncFile.close();
+  }
+
   void Process(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode)
   {
     std::string sLine;
@@ -383,6 +409,10 @@ public:
       if (sLine.substr(0, 9) == "#foreach ")
       {
         ProcessForEach(fsIn, fsOut, rNode, sLine);
+      } else
+      if (sLine.substr(0, 11) == "#cginclude ")
+      {
+        ProcessInclude(fsIn, fsOut, rNode, sLine);
       } else
       if (sLine.substr(0, 11) == "#cgwarning ")
       {
