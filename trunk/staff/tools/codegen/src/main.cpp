@@ -62,6 +62,7 @@ int main(int nArgs, const char* szArgs[])
   bool bGenXml = false;
   bool bUpdateOnly = false;
   bool bSourceIsWsdl = false;
+  int nResult = 0;
 
 
   if(szStaffHome == NULL)
@@ -220,14 +221,14 @@ int main(int nArgs, const char* szArgs[])
   catch (const std::string& sError)
   {
     rise::LogError() << sError << "\nLineNo: " << GetLine();
-    return 1;
+    nResult = 1;
   }
   catch (const char* szError)
   {
     rise::LogError() << szError << "\nLineNo: " << GetLine();
-    return 1;
+    nResult = 1;
   }
-  RISE_CATCH_ALL
+  RISE_CATCH_ALL_DESCR_ACTION("", nResult = 1;)
 
-  return 0;
+  return nResult;
 }

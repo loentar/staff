@@ -207,6 +207,7 @@ staff/tools/codegen/template/client/$(Interface.Name)Proxy.cpp
 staff/tools/codegen/template/client/$(Interface.Name)Proxy.h
 staff/tools/codegen/template/client/ServiceFactory.cpp
 staff/tools/codegen/template/client/ServiceFactory.h
+staff/tools/codegen/template/common/Serialization.cpp
 staff/tools/codegen/template/component/ComponentImpl.cpp
 staff/tools/codegen/template/component/ComponentImpl.h
 staff/tools/codegen/template/component/$(Interface.Name)Context.cpp
@@ -235,11 +236,11 @@ webapp/services/FileUploader/src/FileUploaderImpl.h
 webapp/services/ProfileAdmin/src/ProfileAdmin.h
 webapp/services/ProfileAdmin/src/ProfileAdminImpl.cpp
 webapp/services/ProfileAdmin/src/ProfileAdminImpl.h
-webapp/services/WidgetManager/config/user_profiles.admin.default.xml
-webapp/services/WidgetManager/config/user_profiles.user.default.xml
-webapp/services/WidgetManager/config/widgetdb_classes.default.xml
-webapp/services/WidgetManager/config/widgetdb_classes.webapp_sample.xml
-webapp/services/WidgetManager/config/widgetdb.default.xml
+webapp/services/WidgetManager/config/baseprofiles.xml
+webapp/services/WidgetManager/config/profiles/admin.default.xml
+webapp/services/WidgetManager/config/profiles/user.default.xml
+webapp/services/WidgetManager/config/widgets/default.xml
+webapp/services/WidgetManager/config/widgets.xml
 webapp/services/WidgetManager/src/WidgetManager.h
 webapp/services/WidgetManager/src/WidgetManagerImpl.cpp
 webapp/services/WidgetManager/src/WidgetManagerImpl.h
