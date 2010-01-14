@@ -87,7 +87,7 @@ webapp.Event.prototype =
           var tEventHandler = aEventHandlers[tHandler];
           if (tEventHandler.fnHandler != null)
           {
-            tEventHandler.fnHandler(tParam, tEventHandler.tObject);
+            tEventHandler.fnHandler(tParam, tEventHandler.tObject, this);
           }
         }
       }
