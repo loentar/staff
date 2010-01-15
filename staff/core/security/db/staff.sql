@@ -236,7 +236,6 @@ GRANT ALL ON TABLE objecttypes TO staffdbuser;
 --
 
 CREATE SEQUENCE objecttypes_sequence
-    START WITH 4
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
@@ -257,7 +256,10 @@ GRANT ALL ON TABLE objecttypes_sequence TO staffdbuser;
 
 COPY users (id, username, "password", description) FROM stdin;
 0	admin	admin	Administrator
-1	nobody	\N	System user for authenticating
+1	sysadmin	sysadmin	System administrator
+100	user	user	User
+101	guest	guest	Guest
+2	nobody	\N	System user
 \.
 
 
@@ -266,7 +268,7 @@ COPY users (id, username, "password", description) FROM stdin;
 --
 
 COPY "session" (id, sid, userid, "time", extraid) FROM stdin;
-0	00000000000000000000000000000000	1	9999-12-31 23:59:59.999999	0
+0	00000000000000000000000000000000	2	9999-12-31 23:59:59.999999	0
 \.
 
 
@@ -276,17 +278,28 @@ COPY "session" (id, sid, userid, "time", extraid) FROM stdin;
 
 COPY objects (id, name, "type", description, userid, groupid, parentid, permission) FROM stdin;
 0	root	0	root object	0	0	0	480
-1	ROOTCOMPONENT	1	root component	0	0	0	511
-2	ROOTWIDGET	4	root widget	0	0	0	511
-3	staff	1	Staff component	0	0	1	511
-4	admin	1	Staff administration component	0	0	3	504
-9	webapp	1	webapp	0	0	1	511
-10	admin	1		0	0	9	504
-12	webapp.widget.admin.AccountAdmin	4		0	0	2	504
-13	webapp.widget.admin.ActiveServices	4		0	0	2	504
-14	webapp.widget.admin.ObjectAdmin	4		0	0	2	504
-15	webapp.widget.admin.ProfileAdmin	4		0	0	2	504
-11	webapp.widget.admin.FileUploader	4		0	0	2	504
+1	ROOTCOMPONENT	1	root component	1	1	0	511
+2	ROOTWIDGET	4	root widget	1	1	0	511
+3	staff	1	Staff component	1	1	1	511
+4	admin	1	Staff administration component	1	1	3	504
+5	webapp	1	webapp	1	1	1	511
+6	admin	1		1	1	5	504
+7	webapp.widget.admin.FileUploader	4		0	0	2	504
+8	webapp.widget.admin.AccountAdmin	4		0	0	2	504
+9	webapp.widget.admin.ActiveServices	4		1	1	2	504
+10	webapp.widget.admin.ObjectAdmin	4		1	1	2	504
+11	webapp.widget.admin.ProfileAdmin	4		0	0	2	504
+12	AccountAdmin	2		1	0	4	504
+13	FileUploader	2		1	0	6	504
+14	ProfileAdmin	2		1	0	6	504
+15	Login	2		1	1	3	511
+16	Login	3		2	1	15	448
+17	OpenSession	3		2	1	15	448
+18	widget	1		1	1	1	511
+19	WidgetManager	2		1	2	18	511
+20	GetBaseProfiles	3		1	2	19	504
+21	AddProfile	3		1	2	19	504
+22	DeleteProfile	3		1	2	19	504
 \.
 
 
@@ -295,8 +308,10 @@ COPY objects (id, name, "type", description, userid, groupid, parentid, permissi
 --
 
 COPY groups (id, name, description) FROM stdin;
-1	user	Users
 0	admin	Admistrators
+2	user	Users
+3	guest	Guests
+1	sysadmin	System administrators
 \.
 
 
@@ -306,6 +321,12 @@ COPY groups (id, name, description) FROM stdin;
 
 COPY users_to_groups (id, userid, groupid) FROM stdin;
 0	0	0
+1	1	0
+2	1	1
+6	101	3
+3	0	2
+4	1	2
+5	100	2
 \.
 
 
@@ -454,7 +475,7 @@ ALTER TABLE ONLY objects
 -- Name: users_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('users_sequence', 100, true);
+SELECT pg_catalog.setval('users_sequence', 101, true);
 
 
 --
@@ -475,7 +496,7 @@ SELECT pg_catalog.setval('groups_sequence', 100, true);
 -- Name: users_to_groups_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('users_to_groups_sequence', 0, true);
+SELECT pg_catalog.setval('users_to_groups_sequence', 6, true);
 
 
 --
@@ -489,7 +510,7 @@ SELECT pg_catalog.setval('session_sequence', 0, true);
 -- Name: objecttypes_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('objecttypes_sequence', 4, false);
+SELECT pg_catalog.setval('objecttypes_sequence', 4, true);
 
 
 --
