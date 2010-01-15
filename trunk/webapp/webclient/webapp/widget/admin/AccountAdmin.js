@@ -97,7 +97,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this.tUsersContextMenu.addItem(_("Add"));
     this.tUsersContextMenu.addItem(_("Delete"));
     this.tUsersContextMenu.addItem(_("Set password"));
-    this.tUsersContextMenu.addItem(_("Properties"));
+    this.tUsersContextMenu.addItem(_("Groups"));
     
     // Render the ContextMenu instance to the parent container of the DataTable
     this.tUsersContextMenu.render(tContainer);
@@ -132,7 +132,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     
     var btnUserProperties = new YAHOO.widget.Button
     ({
-       label: _("Properties"),
+       label: _("Groups"),
        container: tContainer,
        onclick: { fn: this._OnUserProperties, scope: this }
     });
@@ -525,7 +525,19 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     
     CheckButtons();
 
-    this._ShowDialog(_('User properties'), tdivContainer, OnConfirm);
+    var fnConfirm;
+
+    if (tUserData.nUserId < 100)
+    {
+      tBtnInclude.disabled = true;
+      tBtnExclude.disabled = true;
+    }
+    else
+    {
+      fnConfirm = OnConfirm;
+    }
+
+    this._ShowDialog(_('User groups'), tdivContainer, fnConfirm);
 
     var tinpUserName = document.getElementById("inpUserName");
     tinpUserName.readOnly = true;
@@ -541,17 +553,13 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
   _ReloadUsers: function()
   {
     this.tUsers = this.pAccountAdminService.GetUsers();
-    // filter-out system users except admin
+    // users i18n
     for (var itUser in this.tUsers)
     {
       var tUser = this.tUsers[itUser];
-      if (tUser.nId != null)
+      if (tUser.sDescription)
       {
-        var nId = parseInt(tUser.nId);
-        if (nId > 0 && nId < 100)
-        {
-          this.tUsers.splice(itUser, 1);
-        }
+        tUser.sDescription = _(tUser.sDescription);
       }
     }
     this.tDataTableUsers.deleteRows(0, this.tDataTableUsers.getRecordSet().getLength());
@@ -725,6 +733,16 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
   _ReloadGroups: function()
   {
     this.tGroups = this.pAccountAdminService.GetGroups();
+    // groups i18n
+    for (var itGroup in this.tGroups)
+    {
+      var tGroup = this.tGroups[itGroup];
+      if (tGroup.sDescription)
+      {
+        tGroup.sDescription = _(tGroup.sDescription);
+      }
+    }
+
     this.tDataTableGroups.deleteRows(0, this.tDataTableGroups.getRecordSet().getLength());
     this.tDataTableGroups.addRows(this.tGroups);
     this.tDataTableGroups.render();
@@ -783,8 +801,8 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
         close: false,
         buttons: 
         [
-          { text: _('OK'), handler: OnConfirmDialog.bindAsEventListener(this), isDefault: true },
-          { text: _('Cancel'), handler: this._DeleteDialog.bindAsEventListener(this) }
+          { text: _('OK'), handler: OnConfirmDialog.bindAsEventListener(this), isDefault: OnConfirm != null },
+          { text: _('Cancel'), handler: this._DeleteDialog.bindAsEventListener(this), isDefault: OnConfirm == null }
         ]
       }
     );
@@ -792,6 +810,7 @@ webapp.widget.admin.AccountAdmin.prototype.extend(webapp.widget.Widget.prototype
     this.tDialog.setHeader(sCaption);
     this.tDialog.setBody(tBody);
     this.tDialog.render(document.body);
+    this.tDialog.getButtons()[0].set('disabled', OnConfirm == null);
     this.tDialog.bringToTop();
     this.tDialog.show();
     

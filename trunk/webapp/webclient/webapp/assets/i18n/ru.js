@@ -159,7 +159,7 @@ i18n.webapp =
   'Select a user': 'Выберите пользователя',
   'Member of': 'Состоит в группах',
   'Available groups': 'Доступные группы',
-  'User properties': 'Свойства пользователя',
+  'User groups': 'Группы пользователя',
   'Set user password': 'Установка пароля пользователя',
   
   'Groups management': 'Управление группами',
@@ -167,7 +167,17 @@ i18n.webapp =
   'Add group': 'Добавить группу',
   'Select a group': 'Выберите группу',
   'Remove group': 'Удалить группу',
-  
+
+  'Administrator': 'Администратор',
+  'System administrator': 'Системный администратор',
+  'System user': 'Системный пользователь',
+  'Guest': 'Гость',
+
+  'Administrators': 'Администратор',
+  'System administrators': 'Системные администраторы',
+  'System users': 'Системные пользователи',
+  'Guests': 'Гости',
+
   // File uploader
   'File uploader': 'Загрузка файлов',
   'Upload file': 'Загрузить файл',
