@@ -79,7 +79,7 @@ i18n.webapp =
   'Configure widget': 'Настроить виджет',
   'Cannot open widget DB': 'Невозможно открыть БД виджетов',
   'Cannot load widget': 'Невозможно загрузить виджет',
-  'Load this widget next time': 'Загружать его в слудеющий раз',
+  'Load this widget next time': 'Загружать его в следующий раз',
   'Cannot get active widget list': 'Невозможно получить список активных виджетов',
   'Remove widget': 'Убрать виджет',
   'Activate widget group': 'Активировать группу виджетов',
