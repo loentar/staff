@@ -300,6 +300,7 @@ COPY objects (id, name, "type", description, userid, groupid, parentid, permissi
 20	GetBaseProfiles	3		1	2	19	504
 21	AddProfile	3		1	2	19	504
 22	DeleteProfile	3		1	2	19	504
+23	ObjectAdmin	2		1	0	4	504
 \.
 
 
