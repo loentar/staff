@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 #include "oserror.h"
 #include "ossocket.h"
@@ -31,7 +32,11 @@ namespace rise
 {
   SOCKET osCreateSocket(int af, int type, int protocol)
   {
-    return socket(af, type, protocol);
+    SOCKET tSock = socket(af, type, protocol);
+#ifdef __linux__
+    fcntl(tSock, F_SETFD, FD_CLOEXEC);
+#endif
+    return tSock;
   }
 
   bool osCloseSocket(SOCKET s)

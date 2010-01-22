@@ -238,7 +238,7 @@ rise::LogEntry();
         catch(const rise::CException& rEx)
         {
           int nError = m_tServerSocket.GetError();
-          if(nError == EALREADY)
+          if(nError == EADDRINUSE)
           {
             rise::LogError() << "Can't Create ServiceDispatcher socket: " << rEx.GetDescr();
             return;
