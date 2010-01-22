@@ -48,6 +48,8 @@ namespace rise
       saddr.sin_port = htons(ushPort);
       saddr.sin_addr.s_addr = unAddress;
 
+      int nErrNo = 0;
+
       try
       {
         int nValue = 1;
@@ -58,6 +60,9 @@ namespace rise
 #endif
       
         int nRes = bind(GetHandle(), reinterpret_cast<struct sockaddr *>(&saddr), sizeof(saddr));
+
+        nErrNo = errno;
+
         RISE_ASSERTES( nRes != SOCKET_ERROR, CFileCreateException, osGetLastSocketErrorStr());
         LogDebug2() << "bind ok";
         nRes = listen(GetHandle(), nBacklog);
@@ -66,6 +71,7 @@ namespace rise
       } catch(...)
       {
         Close();
+        errno = nErrNo;
         throw;
       }
 
