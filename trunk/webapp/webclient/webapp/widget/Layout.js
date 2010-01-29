@@ -54,6 +54,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     );
     
     this.tLayout.on('beforeResize', this._OnBeforeResize.bind(this));
+    this.tLayout.on('resize', this._OnResize.bind(this));
     this.tLayout.render();
     
     this.AddWidgetMenu(_("Configure layout"), this.Configure.bind(this));
@@ -197,6 +198,11 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
   GetLayout: function()
   {
     return this.tLayout;
+  },
+
+  _OnResize: function()
+  {
+    this.SetModify();
   },
   
   _OnBeforeResize: function()
@@ -732,7 +738,26 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
         break;
       }
     }
-  }
+  },
   
+  SerializeData: function()
+  {
+    var tSizes = this.tLayout.getSizes();
+
+    for (var itUnit in this.tProperties.Layout)
+    {
+      var tUnit = this.tProperties.Layout[itUnit];
+
+      if (tUnit.width != null)
+      {
+        tUnit.width = tSizes[tUnit.position].w;
+      }
+      if (tUnit.height != null)
+      {
+        tUnit.height = tSizes[tUnit.position].h;
+      }
+    }
+  },
+
 });
 

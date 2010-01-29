@@ -59,19 +59,6 @@ echo -n "Установка БД ПИ..."
 cd /usr/local/staff/ && psql -q -U postgres template1 < db/instdb.sql >/dev/null && echo "     ОК"
 
 %postun
-####################################
-echo "Настройка Axis2/C"
-patch /usr/local/axis2c/axis2.xml << AXIS2C_UNPATCH_END
---- axis2.xml	Wed Apr  8 09:30:30 2009
-+++ axis2.xml	Wed Apr  8 09:28:14 2009
-@@ -83,6 +83,4 @@
-     <!-- Comment this to disable Addressing -->
-     <module ref="addressing"/>
--    <module ref="staff"/>
--    <module ref="staff_security"/>
- 
- 
-AXIS2C_UNPATCH_END
 
 ####################################
 patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_UNPATCH_END
