@@ -46,6 +46,9 @@ namespace widget
   //! widget map pair(widget id, widget instance)
   typedef std::map<std::string, SWidget> TWidgetMap;
 
+  //! widget list
+  typedef std::list<SWidget> TWidgetList;
+
 
   //! widget group
   struct SWidgetGroup
@@ -158,6 +161,11 @@ namespace widget
     /*! \param  rWidget - widget description
         */
     virtual void AlterWidget(const SWidget& rWidget) = 0;
+
+    //!         alter widgets list and commit db
+    /*! \param  rmWidgets - changed widgets list
+        */
+    virtual void AlterWidgetsListAndCommit(const TWidgetList& rlsWidgets) = 0;
 
 
     //!         get available widget groups

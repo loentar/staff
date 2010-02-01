@@ -38,7 +38,9 @@ webapp.widget.WidgetLoader.prototype =
   
   Init: function(tOptions)
   {
-    this.tOptions = tOptions;
+    this.tOptions = tOptions || {};
+
+    this.bUsingGroups = tOptions.bUseGroups;
 
     this.mActiveWidgets = {};
     this.mAvailableWidgets = {};
@@ -58,7 +60,10 @@ webapp.widget.WidgetLoader.prototype =
     if(this._Open())
     {
       this._LoadActiveWidgets();
-      this._LoadActiveWidgetGroups();
+      if (this.bUsingGroups)
+      {
+        this._LoadActiveWidgetGroups();
+      }
     }
   },
   
@@ -364,7 +369,10 @@ webapp.widget.WidgetLoader.prototype =
     {
       this.tWidgetManager.Open(this.tOptions.sProfile);
       this.mAvailableWidgets = this.tWidgetManager.GetWidgetClasses();
-      this.mAvailableWidgetGroups = this.tWidgetManager.GetAvailableWidgetGroups();
+      if (this.bUsingGroups)
+      {
+        this.mAvailableWidgetGroups = this.tWidgetManager.GetAvailableWidgetGroups();
+      }
       return true;
     }
     catch(tError)
@@ -444,61 +452,64 @@ webapp.widget.WidgetLoader.prototype =
   
   SaveWidgets: function()
   {
+    if (this.bUsingGroups)
+    {
+      for(var sWidgetGroupId in this.mActiveWidgetGroups)
+      {
+        var mWidgets = this.mActiveWidgetGroups[sWidgetGroupId];
+        if (typeof mWidgets == 'object')
+        {
+          var bGroupModified = false;
+
+          for (var sIndex in mWidgets)
+          {
+            var tWidget = mWidgets[sIndex];
+            if (tWidget.GetModify && tWidget.GetModify())
+            {
+              bGroupModified = true;
+              break;
+            }
+          }
+
+          if (bGroupModified)
+          {
+            var tWidgetGroupData =
+            {
+              sId: sWidgetGroupId,
+              sDescr: this.mAvailableWidgetGroups[sWidgetGroupId],
+              mWidgets: {}
+            };
+
+            var mNewWidgetGroup = {};
+
+            var aWidgets = [];
+            for(var sIndex in mWidgets)
+            {
+              var tWidget = mWidgets[sIndex]
+              if (tWidget.Serialize)
+              {
+                tWidgetGroupData.mWidgets[sIndex] = tWidget.Serialize();
+                tWidget.SetModify(false);
+              }
+            }
+
+            this.tWidgetManager.AlterWidgetGroup(tWidgetGroupData);
+          }
+        }
+      }
+    }
+
+    var aWidgets = [];
     for (var sIndex in this.mActiveWidgets)
     {
       var tWidget = this.mActiveWidgets[sIndex];
       if (tWidget.GetModify && tWidget.GetModify())
       {
-        this.tWidgetManager.AlterWidget(tWidget.Serialize());
+        aWidgets.push(tWidget.Serialize());
         tWidget.SetModify(false);
       }
     }
-
-    for(var sWidgetGroupId in this.mActiveWidgetGroups)
-    {
-      var mWidgets = this.mActiveWidgetGroups[sWidgetGroupId];
-      if (typeof mWidgets == 'object')
-      {
-        var bGroupModified = false;
-
-        for (var sIndex in mWidgets)
-        {
-          var tWidget = mWidgets[sIndex];
-          if (tWidget.GetModify && tWidget.GetModify())
-          {
-            bGroupModified = true;
-            break;
-          }
-        }
-
-        if (bGroupModified)
-        {
-          var tWidgetGroupData = 
-          {
-            sId: sWidgetGroupId,
-            sDescr: this.mAvailableWidgetGroups[sWidgetGroupId],
-            mWidgets: {}
-          };
-          
-          var mNewWidgetGroup = {};
-          
-          var aWidgets = [];
-          for(var sIndex in mWidgets)
-          {
-            var tWidget = mWidgets[sIndex]
-            if (tWidget.Serialize)
-            {
-              tWidgetGroupData.mWidgets[sIndex] = tWidget.Serialize();
-              tWidget.SetModify(false);
-            }
-          }
-          
-          this.tWidgetManager.AlterWidgetGroup(tWidgetGroupData);
-        }
-      }
-    }
-
-    this.tWidgetManager.Commit();
+    this.tWidgetManager.AlterWidgetsListAndCommit(aWidgets);
   },
   
   UnloadWidgets: function(mWidgets)
@@ -853,6 +864,11 @@ webapp.widget.WidgetLoader.prototype =
     
     this.tWidgetManager.DeleteWidgetGroup(sWidgetGroupId);
     delete this.mAvailableWidgetGroups[sWidgetGroupId];
+  },
+
+  IsUsingGroups: function()
+  {
+    return this.bUsingGroups || false;
   },
 
   _Dump: function()

@@ -616,6 +616,16 @@ namespace widget
     itWidget->second.FromWidget(rWidget);
   }
 
+  void CWidgetManagerImpl::AlterWidgetsListAndCommit(const TWidgetList& rlsWidgets)
+  {
+    for (TWidgetList::const_iterator itWidget = rlsWidgets.begin();
+         itWidget != rlsWidgets.end(); ++itWidget)
+    {
+      AlterWidget(*itWidget);
+    }
+
+    Commit();
+  }
 
 
   TStringMap CWidgetManagerImpl::GetAvailableWidgetGroups() const
