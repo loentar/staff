@@ -334,7 +334,7 @@ function addHandler(tElement, sEvent, fHandler)
 {
   if(tElement.addEventListener)
   {
-    tElement.addEventListener(sEvent, fHandler, null);
+    tElement.addEventListener(sEvent, fHandler, false);
   }
   else 
   {
@@ -353,7 +353,7 @@ function removeHandler(tElement, sEvent, fHandler)
 {
   if(tElement.removeEventListener)
   {
-    tElement.removeEventListener(sEvent, fHandler);
+    tElement.removeEventListener(sEvent, fHandler, false);
   }
   else 
   {
