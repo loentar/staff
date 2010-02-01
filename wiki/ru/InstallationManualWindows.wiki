@@ -21,7 +21,7 @@ PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/li
 == 1. Компиляция и установка зависимостей ==
 
 Необходимо сначала установить Axis2/С-1.5.0.
-Страница загрузки: http://ws.apache.org/Axis2/С/download.cgi
+Страница загрузки: http://ws.apache.org/axis2/c/download.cgi
 
 Распакуйте содержимое каталога axis2c-bin-1.5.0-win32 в каталог c:\ws\axis2c
 

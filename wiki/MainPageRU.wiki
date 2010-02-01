@@ -30,7 +30,7 @@ Staff представляет собой платформу (framework) на б
 
 == Инструкция по установке, конфигурации и тестированию ==
 
-Здесь вы можете найти инструкцию по установке, конфигурации и тестированию под Linux ([http://code.google.com/p/staff/wiki/InstallationManual LinuxManual])
+Здесь вы можете найти инструкцию по установке, конфигурации и тестированию под Linux ([http://code.google.com/p/staff/wiki/InstallationManualLinux LinuxManual])
 
 Здесь вы можете найти инструкцию по установке, конфигурации и тестированию под Windows ([http://code.google.com/p/staff/wiki/InstallationManualWindows WindowsManual])
 

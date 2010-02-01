@@ -175,7 +175,7 @@ make && sudo make install
   Component Services is ready, you can now run Axis2/C and verify the validity of the registration of the component service. 
   From another console, type: 
 {{{
-cd $AXIS2_HOME/bin
+cd $AXIS2C_HOME/bin
 ./axis2_http_server
 }}}
 
