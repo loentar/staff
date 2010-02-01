@@ -757,7 +757,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
         tUnit.height = tSizes[tUnit.position].h;
       }
     }
-  },
+  }
 
 });
 
