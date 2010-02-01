@@ -54,6 +54,7 @@ namespace widget
     virtual void DeleteWidget(const std::string& sId);
     virtual void DeleteWidgets(const TStringList& lsIds);
     virtual void AlterWidget(const SWidget& rWidget);
+    virtual void AlterWidgetsListAndCommit(const TWidgetList& rlsWidgets);
 
     virtual TStringMap GetAvailableWidgetGroups() const;
     virtual TWidgetGroupMap GetWidgetGroups(const TStringList& lsWidgetGroups) const;

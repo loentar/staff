@@ -124,6 +124,17 @@ function SerializeTypedef_widget_TWidgetMap(tOperation, rtType, tNode)
   return tNode;
 }
 
+// ::widget::TWidgetList  Typedef.DataType.Type template std::list
+function SerializeTypedef_widget_TWidgetList(tOperation, rtType, tNode)
+{
+  for(var i = 0; i != rtType.length; ++i)
+  {
+// Typedef.DataType.TemplateParams.TemplateParam1.Type = struct
+    SerializeStruct_widget_SWidget(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+  }
+  return tNode;
+}
+
 // ::widget::TWidgetGroupMap  Typedef.DataType.Type template std::map
 function SerializeTypedef_widget_TWidgetGroupMap(tOperation, rtType, tNode)
 {
@@ -229,6 +240,27 @@ function DeserializeTypedef_widget_TWidgetMap(tOperation, tNode)
       var tKey = pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic std::string
       var tValue = DeserializeStruct_widget_SWidget(tOperation, pValueElem); // *** struct ::widget::SWidget
       aResult[tKey] = tValue;
+    }
+  }
+
+  return aResult;
+}
+
+function DeserializeTypedef_widget_TWidgetList(tOperation, tNode)
+{
+// container :: std::list< ::widget::SWidget >
+  var tItem = null;
+
+  var tResult = tNode == null ? tOperation.ResultElement() : tNode;
+  var aResult = new Array();
+  var j = 0;
+
+  for (var i = 0; i < tResult.childNodes.length; i++)
+  {
+    if( tResult.childNodes[i].nodeName == "Item")
+    {
+//template std::list<::widget::SWidget>
+    aResult[j++] = DeserializeStruct_widget_SWidget(tOperation, tResult.childNodes[i]); // *** struct ::widget::SWidget
     }
   }
 
@@ -654,6 +686,28 @@ widget.WidgetManager.prototype =
     tOperation.SetSoapAction("");
     
     SerializeStruct_widget_SWidget(tOperation, rWidget, tOperation.AddParameter('rWidget'));
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+    }
+  },
+
+  AlterWidgetsListAndCommit: function(rlsWidgets, pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('AlterWidgetsListAndCommit', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
+    
+    SerializeTypedef_widget_TWidgetList(tOperation, rlsWidgets, tOperation.AddParameter('rlsWidgets'));
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
