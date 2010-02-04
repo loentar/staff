@@ -75,9 +75,9 @@ $(OUTDIR)%.wsdl: $(SRCDIR)%.h
 	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/config/" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) $<
-	cp -f config/*.xml $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/config/
+deploy: "$(DEPLOYDIR)usr/local/staff/components/$(COMPONENT)/config/" $(OUTDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)usr/local/staff/components/$(COMPONENT)/
+	cp -f config/*.xml $(DEPLOYDIR)usr/local/staff/components/$(COMPONENT)/config/
 
 # == distrib =========================================
 distrib:;
