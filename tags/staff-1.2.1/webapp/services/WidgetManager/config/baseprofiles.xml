@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<BaseProfiles version="1.0">
+  <Profile>
+    <Id>admin</Id>
+    <Name>Admin</Name>
+    <IsAdmin>true</IsAdmin>
+    <Widgets>
+      <Widget>webapp.widget.Layout</Widget>
+      <Widget>webapp.widget.admin.AccountAdmin</Widget>
+      <Widget>webapp.widget.admin.ObjectAdmin</Widget>
+      <Widget>widget.admin.MapAdmin</Widget>
+      <Widget>webapp.widget.admin.ProfileAdmin</Widget>
+      <Widget>webapp.widget.admin.ActiveServices</Widget>
+      <Widget>widget.admin.ServerStatus</Widget>
+    </Widgets>
+  </Profile>
+
+  <Profile>
+    <Id>default</Id>
+    <Name>Default</Name>
+    <IsAdmin>false</IsAdmin>
+    <Widgets>
+      <Widget>webapp.widget.Layout</Widget>
+    </Widgets>
+  </Profile>
+
+  <Profile>
+    <Id>webapp_sample</Id>
+    <Name>webapp_sample</Name>
+    <IsAdmin>false</IsAdmin>
+    <Widgets>
+      <Widget>webapp.widget.Layout</Widget>
+      <Widget>widget.Button</Widget>
+      <Widget>widget.Edit</Widget>
+      <Widget>widget.Sample</Widget>
+    </Widgets>
+  </Profile>
+</BaseProfiles>

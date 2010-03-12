@@ -1,0 +1,65 @@
+table.tableFullWidth
+{
+  width: 100%;
+  border: 10px solid #F2F2F2;
+}
+
+td.tdSpacer
+{
+  height: 8px;
+}
+
+td.tdRight
+{
+  text-align: right;
+  border-right: 0px solid transparent;
+}
+
+td.tdWidth240
+{
+  width: 240px;
+}
+
+tAlignRight
+{
+  width: 100%;
+  text-align: right;
+}
+
+div.divParentDataTable
+{
+  width: 322px;
+}
+
+div.divParentDataTableWidgets
+{
+  width: 382px;
+}
+
+label.labelProfileAdminProfileName
+{
+  width: 100%;
+}
+
+select.selProfileAdminWidgets
+{
+  width: 100%;
+}
+
+button.btnWidgetAdmin
+{
+  width: 24px;
+  height: 24px;
+}
+
+td.tdProfileAdminWidgets
+{
+  width: 145px;
+}
+
+td.tdProfileAdminMoveButtons
+{
+  width: 24;
+  text-align: center;
+  vertical-align: middle;
+}

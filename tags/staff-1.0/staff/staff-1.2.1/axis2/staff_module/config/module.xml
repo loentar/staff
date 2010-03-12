@@ -1,0 +1,7 @@
+<module name="staff" class="staff_module">
+  <inflow>
+    <handler name="StaffDispatcher" class="staff_module">
+      <order phase="Dispatch"/>
+    </handler>
+  </inflow>
+</module>

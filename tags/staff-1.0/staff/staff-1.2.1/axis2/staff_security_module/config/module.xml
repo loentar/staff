@@ -1,0 +1,14 @@
+<module name="staff_security" class="staff_security_module">
+  <parameter name="pgHost" locked="false">localhost</parameter>
+  <parameter name="pgPort" locked="false">5432</parameter>
+  <parameter name="pgDSN" locked="false">staff</parameter>
+  <parameter name="pgUser" locked="false">staffdbuser</parameter>
+  <parameter name="pgPassword" locked="false">staffdbuserpassword</parameter>
+  <parameter name="sessionExpiration" locked="false">10</parameter>
+
+  <inflow>
+    <handler name="StaffSecurity" class="staff_axis2_security_module">
+      <order phase="PreDispatch"/>
+    </handler>
+  </inflow>
+</module>
