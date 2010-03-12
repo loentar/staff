@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<WidgetDB version="1.0" type="classes">
+  <!-- widget classes list -->
+  <Classes>
+    <Class>
+      <Name>webapp.widget.Layout</Name>
+      <Descr>Layout</Descr>
+    </Class>
+  </Classes>
+</WidgetDB>

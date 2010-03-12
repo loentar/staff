@@ -1,0 +1,3 @@
+
+axis2/staff_module.dep: core/common.dep core/component.dep
+

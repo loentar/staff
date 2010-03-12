@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<WidgetDB version="1.0" type="classes">
+  <!-- widget classes list -->
+  <Classes>
+    <Class>
+      <Name>Button</Name>
+      <Descr>Sample Button</Descr>
+    </Class>
+    <Class>
+      <Name>Edit</Name>
+      <Descr>Sample Editor</Descr>
+    </Class>
+  </Classes>
+</WidgetDB>

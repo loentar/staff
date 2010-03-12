@@ -1,0 +1,13 @@
+set projectname=ObjectAdmin
+
+set deploydir=%cd%\..\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
+set componentdir=%deploydir%\components\%projectname%
+
+if not EXIST %componentdir% mkdir %componentdir%
+
+echo "debug\*.dll => %componentdir%"
+xcopy /Y /S debug\*.dll %componentdir%\
+
+echo "debug\*.dll => %STAFF_HOME%\components\%projectname%"
+xcopy /Y /S debug\*.dll %STAFF_HOME%\components\%projectname%\
+

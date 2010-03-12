@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<WidgetDB version="2.0" type="user">
+  <!-- active widget list -->
+  <Widgets>
+    <Widget>
+      <sClass>webapp.widget.Layout</sClass>
+      <sId>_idMainLayout</sId>
+      <Properties>
+        <sParent>divMain</sParent>
+        <Layout>
+          <ArrayItem>
+            <body>divcenter</body>
+            <position>center</position>
+            <gutter>5px 0px 5px 5px</gutter>
+          </ArrayItem>
+          <ArrayItem>
+            <body>divright</body>
+            <position>right</position>
+            <width>515</width>
+            <resize>true</resize>
+            <gutter>5px</gutter>
+            <scroll>true</scroll>
+          </ArrayItem>
+        </Layout>
+      </Properties>
+    </Widget>
+  </Widgets>
+
+  <!-- available groups -->
+  <WidgetGroups>
+  </WidgetGroups>
+
+  <!-- active widget groups -->
+  <ActiveWidgetGroups>
+  </ActiveWidgetGroups>
+</WidgetDB>
