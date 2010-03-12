@@ -7,7 +7,6 @@
 
 #include <typeinfo>
 #include <string>
-#include <staff/security/Security.h>
 
 //! service factory
 class CServiceFactory
@@ -26,7 +25,7 @@ public:
       */
   template<typename TServiceClientBaseType>
   TServiceClientBaseType* GetService( const std::string& sServiceUri = "",
-                                      const std::string& sSessionId = STAFF_SECURITY_GUEST_SESSION_ID )
+                                      const std::string& sSessionId = "" )
   {
     return reinterpret_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(), sServiceUri, sSessionId));
   }

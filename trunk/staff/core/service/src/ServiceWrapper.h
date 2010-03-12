@@ -23,7 +23,7 @@
 #define _SERVICEWRAPPER_H_
 
 #include "staffserviceexport.h"
-#include <rise/string/String.h>
+#include <string>
 
 namespace staff
 {
@@ -44,15 +44,15 @@ namespace staff
     //!         get service session id
     /*! \return service session id
     */
-    const rise::CString& GetSessionId() const;
+    const std::string& GetSessionId() const;
   
     //!         set service session id
     /*! \param  sSessionId - session id
         */
-    void SetSessionId(const rise::CString& sSessionId);
+    void SetSessionId(const std::string& sSessionId);
 
   private:
-    rise::CString m_sSessionId; //!<  service session id
+    std::string m_sSessionId; //!<  service session id
   };
 }
 

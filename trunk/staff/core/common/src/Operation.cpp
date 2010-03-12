@@ -182,7 +182,7 @@ namespace staff
     const std::string& sReason = GetFaultReason();
     const std::string& sCode = GetFaultCode();
     const std::string& sDetail = GetFaultDetail();
-    
+
     if (sReason != "")
     {
       sResult += "Reason: " + sReason + "\n";
@@ -203,11 +203,11 @@ namespace staff
   {
     static const std::string sEmpty = "";
 
-    CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Reason");
-    if (itFind == Result().End())
+    CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Reason");
+    if (itFind == m_tdoResponse.End())
     {
-      itFind = Result().FindChildByLocalName("faultstring");
-      if (itFind == Result().End())
+      itFind = m_tdoResponse.FindChildByLocalName("faultstring");
+      if (itFind == m_tdoResponse.End())
       {
         return sEmpty;
       }
@@ -228,11 +228,11 @@ namespace staff
   {
     static const std::string sEmpty = "";
 
-    CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Code");
-    if (itFind == Result().End())
+    CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Code");
+    if (itFind == m_tdoResponse.End())
     {
-      itFind = Result().FindChildByLocalName("faultcode");
-      if (itFind == Result().End())
+      itFind = m_tdoResponse.FindChildByLocalName("faultcode");
+      if (itFind == m_tdoResponse.End())
       {
         return sEmpty;
       }
@@ -253,11 +253,11 @@ namespace staff
   {
     static const std::string sEmpty = "";
 
-    CDataObject::ConstIterator itFind = Result().FindChildByLocalName("Detail");
-    if (itFind == Result().End())
+    CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Detail");
+    if (itFind == m_tdoResponse.End())
     {
-      itFind = Result().FindChildByLocalName("detail");
-      if (itFind == Result().End())
+      itFind = m_tdoResponse.FindChildByLocalName("detail");
+      if (itFind == m_tdoResponse.End())
       {
         return sEmpty;
       }

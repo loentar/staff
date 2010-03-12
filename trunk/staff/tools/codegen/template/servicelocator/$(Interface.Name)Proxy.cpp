@@ -15,7 +15,7 @@
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
-$(Class.Name)Proxy::$(Class.Name)Proxy(staff::CService* pService, const rise::CString& sID):
+$(Class.Name)Proxy::$(Class.Name)Proxy(staff::CService* pService, const std::string& sID):
   m_pService(pService), m_sID(sID)
 {
 }

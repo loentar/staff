@@ -274,14 +274,14 @@ namespace rise
       TChar ch = PeekChar();
       sId = "";
 
-      if ( ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' )
+      if ( (ch == '_') || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) )
       {
         sId += ch;
         for(;;)
         {
           ReadChar();
           ch = PeekChar();
-          if ( !(ch == '_' || ch == '-' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9') )
+          if ( !((ch == '_') || (ch == '-') || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) || ((ch >= '0') && (ch <= '9'))) )
           {
             if (ch != ':')
               break;

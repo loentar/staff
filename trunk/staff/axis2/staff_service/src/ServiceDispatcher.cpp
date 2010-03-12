@@ -34,7 +34,7 @@
 #include <rise/xml/XMLNode.h>
 #include <rise/tools/FileFind.h>
 #include <rise/plugin/PluginManager.h>
-#include <staff/security/Security.h>
+#include <staff/security/Sessions.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/Config.h>
 #include <staff/common/Operation.h>
@@ -57,17 +57,17 @@ namespace staff
     class CRemoteComponent: public CComponent
     {
     public:
-      const rise::CString& GetName() const
+      const std::string& GetName() const
       {
         return m_sName;
       }
 
-      const CService* GetService(const rise::CString& sService) const
+      const CService* GetService(const std::string& sService) const
       {
         return NULL;
       }
 
-      CService* GetService(const rise::CString& sService)
+      CService* GetService(const std::string& sService)
       {
         return NULL;
       }
@@ -78,7 +78,7 @@ namespace staff
       }
       
     private:
-      static rise::CString m_sName;
+      static std::string m_sName;
       static TServiceMap m_tMap;
     };
   public:
@@ -146,7 +146,7 @@ rise::LogEntry();
     using CThread::Stop;
     using CThread::IsWorking;
 
-    bool WaitService( const rise::CString& sServiceName, const rise::CString& sSessionId, PRemoteService& rpService )
+    bool WaitService( const std::string& sServiceName, const std::string& sSessionId, PRemoteService& rpService )
     {
       for(int nRetry = 0; nRetry < 20; ++nRetry)
       {
@@ -165,15 +165,15 @@ rise::LogEntry();
       return false;
     }
 
-    void GetService( const rise::CString& sServiceName, const rise::CString& sServiceID, PRemoteService& rpRemoteService )
+    void GetService( const std::string& sServiceName, const std::string& sSessionId, PRemoteService& rpRemoteService )
     {
-      rise::LogDebug2() << "GetService [" << sServiceName << "] with SSessionId=[" << sServiceID << "]...";
+      rise::LogDebug2() << "GetService [" << sServiceName << "] with SSessionId=[" << sSessionId << "]...";
 
       TRemoteServiceMap::iterator itLastFind = m_mRemoteServiceMap.end();
 
       rise::LogDebug2() << "services Count= " << m_mRemoteServiceMap.size();
 
-      const rise::CString& sServiceNameID = sServiceName + ":" + sServiceID;
+      const std::string& sServiceNameID = sServiceName + ":" + sSessionId;
 
 
       TRemoteServiceMap::iterator itFind = m_mRemoteServiceMap.find(sServiceNameID);
@@ -183,32 +183,32 @@ rise::LogEntry();
         return;
       }
 
-      itLastFind = m_mRemoteServiceMap.find(sServiceName + ":" + STAFF_SECURITY_GUEST_SESSION_ID);
+      itLastFind = m_mRemoteServiceMap.find(sServiceName + ":" + staff::security::CSessions::sNobodySessionId);
 
       if (itLastFind != m_mRemoteServiceMap.end())
       {
-        SPendingService stService(sServiceName, sServiceID);
+        SPendingService stService(sServiceName, sSessionId);
         std::pair<TPendingServiceSet::iterator, bool> tpInsPendingService = m_tsPendingServiceSet.insert(stService);
         if (!tpInsPendingService.second)
         {  // service already in queue
-          if (WaitService(sServiceName, sServiceID, rpRemoteService))
+          if (WaitService(sServiceName, sSessionId, rpRemoteService))
             return;
         } else
         { // service is not found in queue
-          rise::LogDebug2() << ">>> Service [" << sServiceName << "] with SSessionId=[" << sServiceID << "] is not found, trying to create...";
-          itLastFind->second->CreateServiceID(sServiceID);
+          rise::LogDebug2() << ">>> Service [" << sServiceName << "] with SSessionId=[" << sSessionId << "] is not found, trying to create...";
+          itLastFind->second->CreateServiceID(sSessionId);
 
           try
           {
-            bool bServiceReady = WaitService(sServiceName, sServiceID, rpRemoteService);
-            rise::LogDebug2() << ">>> Removing Service [" << sServiceName << "] with SSessionId=[" << sServiceID << "] from queue: " << (bServiceReady ? "Service Ready" : "Timeout");
+            bool bServiceReady = WaitService(sServiceName, sSessionId, rpRemoteService);
+            rise::LogDebug2() << ">>> Removing Service [" << sServiceName << "] with SSessionId=[" << sSessionId << "] from queue: " << (bServiceReady ? "Service Ready" : "Timeout");
             m_tsPendingServiceSet.erase(tpInsPendingService.first);
             if (bServiceReady)
               return;
           }
           catch(...)
           {
-            rise::LogDebug2() << ">>> Removing Service [" << sServiceName << "] with SSessionId=[" << sServiceID << "] from queue: Exception";
+            rise::LogDebug2() << ">>> Removing Service [" << sServiceName << "] with SSessionId=[" << sSessionId << "] from queue: Exception";
             m_tsPendingServiceSet.erase(tpInsPendingService.first);
           }
         }
@@ -282,34 +282,34 @@ rise::LogEntry();
 
     void OnServiceConnect(PRemoteService& pNewService)
     {
-      const rise::CString& sServiceName = pNewService->GetName();
-      const rise::CString& sServiceID = pNewService->GetID();
-      const rise::CString& sServiceNameID = sServiceName + ":" + sServiceID;
+      const std::string& sServiceName = pNewService->GetName();
+      const std::string& sSessionId = pNewService->GetID();
+      const std::string& sServiceNameID = sServiceName + ":" + sSessionId;
       if (sServiceName != "")
       {
-        rise::CString sError;
+        std::string sError;
 
-        if(StaffSecurityValidateSessionID(sServiceID.c_str()))
+        if(staff::security::CSessions::Inst().Validate(sSessionId))
         {
           CService* pExistingService = m_pComponent->GetService(sServiceName);
 
           // find local service with same name
-          if (pExistingService == NULL || pExistingService->GetImpl(sServiceID) == NULL && 
-            m_mRemoteServiceMap.find(sServiceNameID) == m_mRemoteServiceMap.end())
+          if (pExistingService == NULL || (pExistingService->GetImpl(sSessionId) == NULL &&
+            m_mRemoteServiceMap.find(sServiceNameID) == m_mRemoteServiceMap.end()))
           {
             CRemoteServiceWrapper* pRemoteServiceWrapper = reinterpret_cast<CRemoteServiceWrapper*>(pExistingService);
 
             if (pRemoteServiceWrapper == NULL) // no remote service found
             {
               pRemoteServiceWrapper = new CRemoteServiceWrapper(m_pComponent);
-              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService;
+              pRemoteServiceWrapper->GetServices()[sSessionId] = pNewService;
               m_pComponent->AddService(pRemoteServiceWrapper);
             } else
-              pRemoteServiceWrapper->GetServices()[sServiceID] = pNewService;
+              pRemoteServiceWrapper->GetServices()[sSessionId] = pNewService;
 
-            rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sServiceID << ")\" connected...";
+            rise::LogInfo() << "RemoteService \"" << sServiceName << "(" << sSessionId << ")\" connected...";
             m_mRemoteServiceMap[sServiceNameID] = pNewService;
-            if(m_stEvents.pOnConnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
+            if(m_stEvents.pOnConnect != NULL && sSessionId == staff::security::CSessions::sNobodySessionId)
             {
               m_stEvents.pOnConnect(sServiceName, pRemoteServiceWrapper);
             }
@@ -325,9 +325,9 @@ rise::LogEntry();
         }
 
         {
-          rise::LogWarning() << "Service \"" + sServiceName + "(" + sServiceID +  ")\" " + sError;
+          rise::LogWarning() << "Service \"" + sServiceName + "(" + sSessionId +  ")\" " + sError;
           COperation tOperation("Fault");
-          tOperation.Request().Value() = "Service \"" + sServiceName + "(" + sServiceID + ")\": " + sError;
+          tOperation.Request().Value() = "Service \"" + sServiceName + "(" + sSessionId + ")\": " + sError;
           pNewService->Invoke(tOperation);
         }
       } else
@@ -336,9 +336,9 @@ rise::LogEntry();
 
     void OnServiceDisconnect(PRemoteService& pService)
     {
-      const rise::CString& sServiceName = pService->GetName();
-      const rise::CString& sServiceID = pService->GetID();
-      if(m_stEvents.pOnDisconnect != NULL && sServiceID == STAFF_SECURITY_GUEST_SESSION_ID)
+      const std::string& sServiceName = pService->GetName();
+      const std::string& sSessionId = pService->GetID();
+      if(m_stEvents.pOnDisconnect != NULL && sSessionId == staff::security::CSessions::sNobodySessionId)
       {
         m_stEvents.pOnDisconnect(sServiceName);
       }
@@ -346,10 +346,10 @@ rise::LogEntry();
       CService* pExistingService = m_pComponent->GetService(sServiceName);
 
       // service is remote
-      if (pExistingService != NULL && pExistingService->GetImpl(sServiceID) == NULL)
+      if (pExistingService != NULL && pExistingService->GetImpl(sSessionId) == NULL)
       {
         TRemoteServiceMap& rmServices = dynamic_cast<CRemoteServiceWrapper*>(pExistingService)->GetServices();
-        rmServices.erase(sServiceID);
+        rmServices.erase(sSessionId);
         
         if (rmServices.size() == 0)
         {
@@ -437,10 +437,10 @@ rise::LogEntry();
   public:
     struct SPendingService
     {
-      rise::CString sName;
-      rise::CString sID;
+      std::string sName;
+      std::string sID;
       
-      SPendingService(const rise::CString& sNameInit, const rise::CString& sIDInit):
+      SPendingService(const std::string& sNameInit, const std::string& sIDInit):
         sName(sNameInit), sID(sIDInit)
       {
       }
@@ -451,7 +451,7 @@ rise::LogEntry();
       }
     };
     
-    typedef std::map<rise::CString, PRemoteService> TRemoteServiceMap;
+    typedef std::map<std::string, PRemoteService> TRemoteServiceMap;
     typedef std::set<SPendingService> TPendingServiceSet;
 
   private:
@@ -483,7 +483,7 @@ rise::LogEntry();
     void Init()
     {
 rise::LogEntry();
-      const rise::CString sComponentsDir = CRuntime::Inst().GetComponentsHome();
+      const std::string sComponentsDir = CRuntime::Inst().GetComponentsHome();
       CSharedContext& rSharedContext = CSharedContext::Inst();
       rise::CStringList lsComponentDirs;
       
@@ -499,7 +499,7 @@ rise::LogEntry();
       {
         // finding libraries with components
         rise::CStringList lsComponents;
-        rise::CString sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
+        std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
 #ifdef __linux__
         rise::CFileFind::Find(sComponentDir, lsComponents, "*.so", rise::CFileFind::EFA_FILE);
 #endif
@@ -625,14 +625,14 @@ rise::LogEntry();
   {
 rise::LogEntry();
     CSharedContext& rSharedContext = CSharedContext::Inst();
-    const rise::CString& sOpName = rOperation.GetName();
+    const std::string& sOpName = rOperation.GetName();
     if (sOpName == "GetServices")
     {
       const TServiceMap& rServices = rSharedContext.GetServices();
       for (TServiceMap::const_iterator itService = rServices.begin(); 
             itService != rServices.end(); ++itService)
       {
-        rise::CString sServiceName;
+        std::string sServiceName;
         const CComponent* pServiceComponent = itService->second->GetComponent();
 
         if(pServiceComponent != NULL)
@@ -680,7 +680,7 @@ rise::LogEntry();
     }
   }
 
-  void CServiceDispatcher::GetRemoteService( const rise::CString& sServiceName, const rise::CString& sSessionId, PRemoteService& rpService )
+  void CServiceDispatcher::GetRemoteService( const std::string& sServiceName, const std::string& sSessionId, PRemoteService& rpService )
   {
     m_pRemoteImpl->GetService(sServiceName, sSessionId, rpService);
   }
@@ -688,6 +688,6 @@ rise::LogEntry();
   CServiceDispatcher* CServiceDispatcher::m_pInst = NULL;
 
 
-  rise::CString CServiceDispatcher::CRemoteServiceDispatcherImpl::CRemoteComponent::m_sName = "";
+  std::string CServiceDispatcher::CRemoteServiceDispatcherImpl::CRemoteComponent::m_sName = "";
   TServiceMap CServiceDispatcher::CRemoteServiceDispatcherImpl::CRemoteComponent::m_tMap;
 }

@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <string>
 #include "osdllexport.h"
 
 namespace rise
@@ -28,4 +29,3 @@ namespace rise
     sResult = "test";
   }
 }
-

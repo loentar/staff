@@ -22,6 +22,7 @@
 #ifndef _REMOTESERVICE_H_
 #define _REMOTESERVICE_H_
 
+#include <string>
 #include <rise/socket/RecvSocket.h>
 
 namespace staff
@@ -47,17 +48,17 @@ namespace staff
     //!         get service name
     /*! \return service name
     */
-    const rise::CString& GetName() const;
+    const std::string& GetName() const;
 
     //!         get service session id
     /*! \return service session id
     */
-    const rise::CString& GetID() const;
+    const std::string& GetID() const;
 
     //!         get service description
     /*! \return service description
     */
-    const rise::CString& GetDescr() const;
+    const std::string& GetDescr() const;
 
     //!         get service operations
     /*! \return service operations
@@ -67,7 +68,7 @@ namespace staff
     //!         create service with given session id
     /*! \param  sID - session id
         */
-    void CreateServiceID(const rise::CString& sID);
+    void CreateServiceID(const std::string& sID);
 
     //!         invoke operation
     /*! \param  rOperation - operation

@@ -1,2 +1,2 @@
 
-core/security.dep:
+core/security.dep: core/common.dep

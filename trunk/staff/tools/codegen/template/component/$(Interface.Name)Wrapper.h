@@ -5,6 +5,7 @@
 #ifndef _$(Interface.Name)Wrapper_h_
 #define _$(Interface.Name)Wrapper_h_
 
+#include <string>
 #include <staff/component/Service.h>
 
 #foreach $(Interface.Classes)
@@ -29,12 +30,12 @@ $(Class.OpeningNs)
     //!         get service name
     /*! \return service name
     */
-    const rise::CString& GetName() const;
+    const std::string& GetName() const;
 
     //!         get service description
     /*! \return service description
     */
-    const rise::CString& GetDescr() const;
+    const std::string& GetDescr() const;
     
     //!         get service operations
     /*! \return service operations DataObject
@@ -50,7 +51,7 @@ $(Class.OpeningNs)
     /*! \param  rOperation - service operation
         \param  sID - service session id
         */
-    void Invoke(staff::COperation& rOperation, const rise::CString& sID);
+    void Invoke(staff::COperation& rOperation, const std::string& sID);
 
     //!         get service's component
     /*! \return service's component
@@ -66,7 +67,7 @@ $(Class.OpeningNs)
     /*! \param  sID - service session id
         \return pointer to service implementation
         */
-    void* GetImpl(const rise::CString& sID);
+    void* GetImpl(const std::string& sID);
 
     //!         get services ids
     /*! \return service ids
@@ -78,7 +79,7 @@ $(Class.OpeningNs)
     /*! \param  sID - session id
         \return service implementation
     */
-    $(Class.Name)Impl& ServiceImpl(const rise::CString& sID);
+    $(Class.Name)Impl& ServiceImpl(const std::string& sID);
   
   private:
     class $(Class.Name)WrapperImpl;

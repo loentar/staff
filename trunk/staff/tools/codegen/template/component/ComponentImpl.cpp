@@ -4,6 +4,7 @@
 
 #include <rise/plugin/PluginExport.h>
 #include <rise/common/MutablePtr.h>
+#include <rise/common/containertypes.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Wrapper.h"
 #end
@@ -25,12 +26,12 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
   {
   }
 
-  const rise::CString& CComponentImpl::GetName() const
+  const std::string& CComponentImpl::GetName() const
   {
     return m_sName;
   }
 
-  const staff::CService* CComponentImpl::GetService( const rise::CString& sService ) const
+  const staff::CService* CComponentImpl::GetService( const std::string& sService ) const
   {
     staff::TServiceMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
@@ -39,7 +40,7 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     return itService->second;
   }
 
-  staff::CService* CComponentImpl::GetService( const rise::CString& sService )
+  staff::CService* CComponentImpl::GetService( const std::string& sService )
   {
     staff::TServiceMap::iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
@@ -53,6 +54,6 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     return m_mServices;
   }
 
-  const rise::CString CComponentImpl::m_sName = "$(Project.Interfaces.Interface.Classes.Class.ComponentName)";
+  const std::string CComponentImpl::m_sName = "$(Project.Interfaces.Interface.Classes.Class.ComponentName)";
 
 $(Project.Interfaces.Interface.Classes.Class.EndingNs)

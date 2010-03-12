@@ -22,7 +22,7 @@
 #ifndef _SERVICE_H_
 #define _SERVICE_H_
 
-#include <rise/string/String.h>
+#include <string>
 #include <rise/common/containertypes.h>
 #include "staffcomponentexport.h"
 
@@ -42,12 +42,12 @@ namespace staff
     //!         get service name
     /*! \return service name
     */
-    virtual const rise::CString& GetName() const = 0;
+    virtual const std::string& GetName() const = 0;
 
     //!         get service description
     /*! \return service description
     */
-    virtual const rise::CString& GetDescr() const = 0;
+    virtual const std::string& GetDescr() const = 0;
     
     //!         get service operations
     /*! \return service operations
@@ -58,7 +58,7 @@ namespace staff
     /*! \param  rOperation - operation
         \param  sID - service session id
         */
-    virtual void Invoke(COperation& rOperation, const rise::CString& sID) = 0;
+    virtual void Invoke(COperation& rOperation, const std::string& sID) = 0;
 
     //!         get service's component
     /*! \return service's component
@@ -74,7 +74,7 @@ namespace staff
     /*! \param  sID - service session id
         \return pointer to service implementation or NULL, if service non-local
         */
-    virtual void* GetImpl(const rise::CString& sID) = 0;
+    virtual void* GetImpl(const std::string& sID) = 0;
 
     //!         get services ids
     /*! \return service ids

@@ -19,12 +19,12 @@ namespace staff
   class CServiceLocator::CServiceLocatorImpl
   {
   public:
-    typedef std::map<rise::CString, void*> TRemoteServicesMap;
+    typedef std::map<std::string, void*> TRemoteServicesMap;
     TRemoteServicesMap m_mRemoteServices;
 
-    void* CreateRemoteServiceProxy(staff::CService* pService, const rise::CString& sID)
+    void* CreateRemoteServiceProxy(staff::CService* pService, const std::string& sID)
     {
-      const rise::CString& sName = pService->GetName();
+      const std::string& sName = pService->GetName();
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
       if (sName == "$(Class.ServiceNsName)")
@@ -36,7 +36,7 @@ namespace staff
     
     void UpdateRemoteServiceProxy(void* pProxy, staff::CService* pService)
     {
-      const rise::CString& sName = pService->GetName();
+      const std::string& sName = pService->GetName();
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
       if (sName == "$(Class.ServiceNsName)")
@@ -88,7 +88,7 @@ namespace staff
     }
   }
 
-  void* CServiceLocator::LocateService(const rise::CString& sServiceName, const rise::CString& sID)
+  void* CServiceLocator::LocateService(const std::string& sServiceName, const std::string& sID)
   {
     staff::CService* pService = staff::CSharedContext::Inst().GetService(sServiceName);
     RISE_ASSERTES(pService != NULL, rise::CLogicNoItemException, "Service [" + sServiceName + "] with id [" + sID + "] not found");

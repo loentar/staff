@@ -44,7 +44,7 @@
 #include <staff/common/DataObjectHelper.h>
 #include <staff/component/Service.h>
 #include <staff/component/SharedContext.h>
-#include <staff/security/Security.h>
+#include <staff/security/Sessions.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 
@@ -237,17 +237,17 @@ rise::LogLabel();
 
     staff::COperation tOperation;
 
-    rise::CString sServiceName;
-    rise::CString sID = (szSessionId == NULL || szSessionId[0] == '\0') ? STAFF_SECURITY_GUEST_SESSION_ID : szSessionId;
+    std::string sServiceName;
+    std::string sID = (szSessionId == NULL || szSessionId[0] == '\0') ? staff::security::CSessions::sNobodySessionId : szSessionId;
 
     try
     {
       tOperation.Request().Attach(pAxiomNode);
       
-      rise::CString sUri = tOperation.Request().GetNamespaceUri();
+      std::string sUri = tOperation.Request().GetNamespaceUri();
 
       rise::TSize nPos = sUri.find_last_of('/');
-      if (nPos == rise::CString::npos)
+      if (nPos == std::string::npos)
         nPos = 0;
 
       rise::StrMid(sUri, sServiceName, nPos + 1);
@@ -264,19 +264,23 @@ rise::LogLabel();
     }
     catch(const staff::CRemoteException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.GetString());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
+                          + "(" + sID + ")", rEx.GetString());
     }
     catch(const rise::CException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.GetString());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
+                          + "(" + sID + ")", rEx.GetString());
     }
     catch(const std::exception& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.what());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
+                          + "(" + sID + ")", rEx.what());
     }
     catch(...)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", "Unknown exception");
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
+                          + "(" + sID + ")", "Unknown exception");
     }
 
     if (tOperation.IsFault())
@@ -312,7 +316,7 @@ rise::LogLabel();
     Axis2UtilsCreateVirtualService(sServiceName, pService, pSvcClass, m_pEnv, m_pConf);
   }
 
-  static void OnDisconnect(const rise::CString& sServiceName)
+  static void OnDisconnect(const std::string& sServiceName)
   {
     if (!m_bShuttingDown) // double free prevent
     {

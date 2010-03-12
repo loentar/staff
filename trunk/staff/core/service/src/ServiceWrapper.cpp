@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <staff/security/Security.h>
+#include <staff/security/Sessions.h>
 #include "ServiceWrapper.h"
 
 namespace staff
@@ -28,17 +28,17 @@ namespace staff
   {
   }
 
-  const rise::CString& CServiceWrapper::GetSessionId() const
+  const std::string& CServiceWrapper::GetSessionId() const
   {
     return m_sSessionId;
   }
 
-  void CServiceWrapper::SetSessionId( const rise::CString& sSessionId )
+  void CServiceWrapper::SetSessionId( const std::string& sSessionId )
   {
     if(sSessionId == "")
     {
-      m_sSessionId = STAFF_SECURITY_GUEST_SESSION_ID;
-    } 
+      m_sSessionId = staff::security::CSessions::sNobodySessionId;
+    }
     else
     {
       m_sSessionId = sSessionId;

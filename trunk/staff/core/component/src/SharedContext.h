@@ -23,7 +23,7 @@
 #define _SHAREDCONTEXT_H_
 
 #include "staffcomponentexport.h"
-#include <rise/string/String.h>
+#include <string>
 #include <rise/common/MutablePtr.h>
 #include <map>
 #include "CompositeComponent.h"
@@ -37,7 +37,7 @@ namespace staff
   typedef rise::CMutablePtr<CCompositeComponent> PCompositeComponent;
 
   //! Composite components map
-  typedef std::map<rise::CString, PCompositeComponent> TCompositeComponentMap;
+  typedef std::map<std::string, PCompositeComponent> TCompositeComponentMap;
 
 
   //!  Shared context
@@ -58,13 +58,13 @@ namespace staff
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    const CCompositeComponent* GetComponent(const rise::CString& sName) const;
+    const CCompositeComponent* GetComponent(const std::string& sName) const;
     
     //!         get composite component by name
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    CCompositeComponent* GetComponent(const rise::CString& sName);
+    CCompositeComponent* GetComponent(const std::string& sName);
     
     //!         get available composite components map
     /*! \return available composite components map
@@ -75,13 +75,13 @@ namespace staff
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    const CService* GetService(const rise::CString& sName) const;
+    const CService* GetService(const std::string& sName) const;
 
     //!         get service by name
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    CService* GetService(const rise::CString& sName);
+    CService* GetService(const std::string& sName);
 
     //!         get services list
     /*! \return services list

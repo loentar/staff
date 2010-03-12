@@ -4,8 +4,9 @@ TARGET = common
 TARGETNAME = libstaff$(TARGET).so
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lrise
+LDFLAGS += -fexceptions
+# -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
+LDFLAGS += -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

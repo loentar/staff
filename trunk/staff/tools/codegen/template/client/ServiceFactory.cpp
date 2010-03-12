@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 #include <memory>
+#include <staff/security/tools.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Proxy.h"
 #end
@@ -21,7 +22,7 @@ void* CServiceFactory::AllocateClient(const std::string& sClientType, const std:
 #else
 "$(Class.ServiceUri)"\
 #ifeqend
-, sSessionId);
+, sSessionId.size() == 0 ? STAFF_SECURITY_NOBODY_SESSION_ID : sSessionId );
     return pClientProxy.release();
   } else
 #end

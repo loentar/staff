@@ -24,7 +24,7 @@
 
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
-#include <rise/string/String.h>
+#include <string>
 #include <staff/service/ServiceDispatcherClient.h>
 #include "CalculatorWrapper.h"
 
@@ -32,8 +32,8 @@ int main(int nArgs, const char* paszArgs[])
 {
   try
   {
-    rise::CString sSessionId;
-    rise::CString sTmp;
+    std::string sSessionId;
+    std::string sTmp;
     for(int i = 1; i < nArgs; ++i)
     {
       if(paszArgs[i] != NULL)

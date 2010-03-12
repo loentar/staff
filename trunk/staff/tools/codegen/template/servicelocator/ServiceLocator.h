@@ -5,7 +5,7 @@
 #ifndef _SERVICELOCATOR_H_
 #define _SERVICELOCATOR_H_
 
-#include <rise/string/String.h>
+#include <string>
 
 namespace staff
 {
@@ -22,7 +22,7 @@ namespace staff
     /*! \param  sServiceName - service name
         \param  sID - service session id
         */
-    void* LocateService(const rise::CString& sServiceName, const rise::CString& sID);
+    void* LocateService(const std::string& sServiceName, const std::string& sID);
 
   protected:
     CServiceLocator();

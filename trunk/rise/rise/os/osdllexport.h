@@ -43,8 +43,7 @@
   #define RISE_DLL_IMPORT
 #endif
 
-#include <string>
-
+#ifdef RISE_TEST
 //!        rise root namespace
 namespace rise
 {
@@ -53,5 +52,6 @@ namespace rise
   */
   void RISE_EXPORT RiseLinkRuntimeTest(std::string& sResult);
 }
+#endif
 
 #endif // _osdllexport_h_
