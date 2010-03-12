@@ -7,7 +7,7 @@ HEADERS := $(filter-out %Wrapper.h %Impl.h,$(wildcard $(SRCDIR)*.h))
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffservice -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
+LDFLAGS += -lstaffcommon -lstaffservice -lstaffsecurity -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

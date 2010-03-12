@@ -2,6 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
+#include <string>
 #include <rise/process/Process.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
@@ -40,7 +41,7 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation )
 {
   const staff::CDataObject& rRequest = rOperation.Request();
   staff::CDataObject& rResult = rOperation.Result();
-  const rise::CString& sOperationName = rOperation.GetName();
+  const std::string& sOperationName = rOperation.GetName();
 
   if (sOperationName == "GetServiceDescription")
   {

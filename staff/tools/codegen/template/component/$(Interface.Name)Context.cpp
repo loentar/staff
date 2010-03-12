@@ -2,10 +2,11 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
+#include <string>
+#include <map>
 #include <rise/common/Exception.h>
 #include <rise/common/MutablePtr.h>
 #include <rise/common/ExceptionTemplate.h>
-#include <map>
 #include "$(Interface.Name)Context.h"
 #include "$(Interface.Name)Impl.h"
 
@@ -16,7 +17,7 @@ $(Class.OpeningNs)
   {
   public:
     typedef rise::CMutablePtr< $(Class.Name)Impl > P$(Class.ServiceName)Impl;
-    typedef std::map<rise::CString, P$(Class.ServiceName)Impl> TServiceImplMap;
+    typedef std::map<std::string, P$(Class.ServiceName)Impl> TServiceImplMap;
     TServiceImplMap m_mServices;
   };
 
@@ -39,7 +40,7 @@ $(Class.OpeningNs)
     return *m_pInst;
   }
 
-  $(Class.Name)Impl* $(Class.Name)Context::GetServiceImpl(const rise::CString& sID)
+  $(Class.Name)Impl* $(Class.Name)Context::GetServiceImpl(const std::string& sID)
   {
     $(Class.Name)ContextImpl::TServiceImplMap::iterator itFind = m_pImpl->m_mServices.find(sID);
     if (itFind == m_pImpl->m_mServices.end())
@@ -52,7 +53,7 @@ $(Class.OpeningNs)
     return itFind->second;
   }
 
-  const rise::CString& $(Class.Name)Context::GetServiceID(const $(Class.Name)Impl* pImpl) const
+  const std::string& $(Class.Name)Context::GetServiceID(const $(Class.Name)Impl* pImpl) const
   {
     for($(Class.Name)ContextImpl::TServiceImplMap::const_iterator itService = m_pImpl->m_mServices.begin(); 
       itService != m_pImpl->m_mServices.end(); ++itService)

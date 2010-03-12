@@ -22,7 +22,7 @@
 #ifndef _SERVICEDISPATCHER_H_
 #define _SERVICEDISPATCHER_H_
 
-#include <rise/string/String.h>
+#include <string>
 
 namespace rise { template<typename> class CMutablePtr; }
 
@@ -75,7 +75,7 @@ namespace staff
         \param  sSessionId - session id
         \param  rpService - service
         */
-    void GetRemoteService( const rise::CString& sServiceName, const rise::CString& sSessionId, PRemoteService& rpService );
+    void GetRemoteService( const std::string& sServiceName, const std::string& sSessionId, PRemoteService& rpService );
 
   private:
     CServiceDispatcher();

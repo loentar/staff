@@ -33,7 +33,10 @@
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/DataObjectHelper.h>
-#include <staff/security/Security.h>
+#include <staff/security/Sessions.h>
+#include <staff/security/Objects.h>
+#include <staff/security/UsersToGroups.h>
+#include <staff/security/Acl.h>
 #include "WidgetManagerContext.h"
 #include "WidgetManagerImpl.h"
 
@@ -702,12 +705,7 @@ namespace widget
   {
     if (m_nUserId == -1)
     {
-      const std::string& sSession = GetSessionId();
-
-      if(!StaffSecurityGetUserIdBySessionId(sSession.c_str(), &m_nUserId))
-      {
-        RISE_THROWS(staff::CRemoteException, "Unknown userid");
-      }
+      staff::security::CSessions::Inst().GetUserId(GetSessionId(), m_nUserId);
     }
 
     return m_nUserId;
@@ -717,11 +715,7 @@ namespace widget
   {
     if (m_nIsUserAdmin == -1)
     {
-      if (!StaffSecurityIsUserMemberOf(GetUserId(), 0, &m_nIsUserAdmin))
-      {
-        m_nIsUserAdmin = 0;
-        rise::LogError() << "can\'t recognize user is admin. Threating as non admin";
-      }
+      m_nIsUserAdmin = staff::security::CUsersToGroups::Inst().IsUserMemberOfGroup(GetUserId(), 0) ? 1 : 0;
     }
     return m_nIsUserAdmin == 1;
   }
@@ -787,95 +781,37 @@ namespace widget
 
     RISE_ASSERTES(pNodeWidgets, rise::CLogicNoItemException, "can't find base profile: " + sBaseProfile);
 
-    //!!! TODO: get type from db !!!
-    TPermission tRootWidgetPerm;
-    TObject tRootWidget;
-    int nRootObjectId = 0;
-    RISE_ASSERTS(StaffSecurityGetObjectByName("ROOTWIDGET", 4, &nRootObjectId, &tRootWidget), "Can't get root widget");
 
-    TObject* pWidgetList = NULL;
-    int nWidgetListSize = 0;
-    RISE_ASSERTS(StaffSecurityGetObjectListByType(4, &tRootWidget.nObjectId, &pWidgetList, &nWidgetListSize), "can't get objects list");
+    staff::security::CAcl& rAcl = staff::security::CAcl::Inst();
 
-
-    if(!StaffSecurityGetPermissionForUser(&tRootWidget, GetUserId(), &tRootWidgetPerm))
+    for(rise::xml::CXMLNode::TXMLNodeConstIterator itWidget = pNodeWidgets->NodeBegin();
+        itWidget != pNodeWidgets->NodeEnd(); ++itWidget)
     {
-      rise::LogWarning() << "can't get permission for root object " << tRootWidget.szObjectName << " setting no access(0-0-0)";
-      tRootWidgetPerm.bRead = 0;
-      tRootWidgetPerm.bWrite = 0;
-      tRootWidgetPerm.bExecute = 0;
-    }
-
-    try
-    {
-      TPermission tPerm;
-      
-      for(rise::xml::CXMLNode::TXMLNodeConstIterator itWidget = pNodeWidgets->NodeBegin();
-          itWidget != pNodeWidgets->NodeEnd(); ++itWidget)
+      if ((itWidget->NodeType() == rise::xml::CXMLNode::ENTGENERIC) &&
+          (itWidget->NodeName() == "Widget"))
       {
-        if ((itWidget->NodeType() == rise::xml::CXMLNode::ENTGENERIC) &&
-            (itWidget->NodeName() == "Widget"))
+        const std::string& sWidgetClass = itWidget->NodeContent();
+
+        TStringMap::const_iterator itWidgetName = m_mWidgetsNames.find(sWidgetClass);
+        if (itWidgetName == m_mWidgetsNames.end())
         {
-          bool bFound = false;
-          const std::string& sWidgetClass = itWidget->NodeContent();
+          rise::LogWarning() << "can't get widget name for class: " << sWidgetClass << ". skipping this widget.";
+          continue;
+        }
 
-          TStringMap::const_iterator itWidgetName = m_mWidgetsNames.find(sWidgetClass);
-          if (itWidgetName == m_mWidgetsNames.end())
-          {
-            rise::LogWarning() << "can't get widget name for class: " << sWidgetClass << ". skipping this widget.";
-            continue;
-          }
+        const std::string& sWidgetName = itWidgetName->second;
 
-          std::string sWidgetName = itWidgetName->second;
-
-          for(int i = 0; i < nWidgetListSize; ++i)
-          {
-            if(sWidgetClass == pWidgetList[i].szObjectName)
-            {
-              if(!StaffSecurityGetPermissionForUser(&pWidgetList[i], m_nUserId, &tPerm))
-              {
-                rise::LogWarning() << "can't get permission for object " << pWidgetList[i].szObjectName << " skipping..";
-                continue;
-              }
-
-              if(tPerm.bRead)
-              {
-                rise::LogDebug1() << "adding widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId;
-                m_mWidgetClasses[sWidgetClass] = sWidgetName;
-              } 
-              else
-              {
-                rise::LogDebug1() << "skipping widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId;
-              }
-
-              bFound = true;
-              break;
-            }
-          } // for
-
-          if(!bFound)
-          {
-            // using root widget permissions
-            if(tRootWidgetPerm.bRead)
-            {
-              rise::LogDebug1() << "adding widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId << " by root object rights";
-              m_mWidgetClasses[sWidgetClass] = sWidgetName;
-            } 
-            else
-            {
-              rise::LogDebug1() << "skipping widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId << " by root object rights";
-            }
-          }
+        if (rAcl.CalculateUserAccess(sWidgetName, m_nUserId))
+        {
+          rise::LogDebug1() << "adding widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId;
+          m_mWidgetClasses[sWidgetClass] = sWidgetName;
+        }
+        else
+        {
+          rise::LogDebug1() << "skipping widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId;
         }
       }
     }
-    catch(...)
-    {
-      StaffSecurityFreeObjectList(pWidgetList);
-      throw;
-    }
-
-    StaffSecurityFreeObjectList(pWidgetList);
   }
 
   const std::string CWidgetManagerImpl::m_sDbPath = staff::CRuntime::Inst().GetComponentHome("widget") + "/db/";

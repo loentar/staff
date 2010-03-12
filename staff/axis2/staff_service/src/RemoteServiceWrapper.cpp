@@ -41,12 +41,12 @@ namespace staff
   {
   }
 
-  const rise::CString& CRemoteServiceWrapper::GetName() const
+  const std::string& CRemoteServiceWrapper::GetName() const
   {
     return m_mServices.begin()->second->GetName();
   }
 
-  const rise::CString& CRemoteServiceWrapper::GetDescr() const
+  const std::string& CRemoteServiceWrapper::GetDescr() const
   {
     return m_mServices.begin()->second->GetDescr();
   }
@@ -56,7 +56,7 @@ namespace staff
     return m_mServices.begin()->second->GetOperations();
   }
 
-  void CRemoteServiceWrapper::Invoke( COperation& rOperation, const rise::CString& sID )
+  void CRemoteServiceWrapper::Invoke( COperation& rOperation, const std::string& sID )
   {
     TRemoteServiceMap::iterator it = m_mServices.find(sID);
     if (it == m_mServices.end())
@@ -83,7 +83,7 @@ namespace staff
     return m_pComponent;
   }
 
-  void* CRemoteServiceWrapper::GetImpl( const rise::CString& sID )
+  void* CRemoteServiceWrapper::GetImpl( const std::string& sID )
   {
     return NULL;
   }

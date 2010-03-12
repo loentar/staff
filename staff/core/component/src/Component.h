@@ -24,7 +24,7 @@
 
 #include "staffcomponentexport.h"
 #include <map>
-#include <rise/string/String.h>
+#include <string>
 
 namespace rise
 {
@@ -38,7 +38,7 @@ namespace staff
   //! Pointer to service object
   typedef rise::CMutablePtr<CService> PService;
   //! Pointer to service object map
-  typedef std::map<rise::CString, PService> TServiceMap;
+  typedef std::map<std::string, PService> TServiceMap;
 
 
   //!  Component
@@ -51,19 +51,19 @@ namespace staff
     //!         get component name
     /*! \return component name
     */
-    virtual const rise::CString& GetName() const = 0;
+    virtual const std::string& GetName() const = 0;
 
     //!         get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    virtual const CService* GetService(const rise::CString& sService) const = 0;
+    virtual const CService* GetService(const std::string& sService) const = 0;
 
     //!         get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    virtual CService* GetService(const rise::CString& sService) = 0;
+    virtual CService* GetService(const std::string& sService) = 0;
 
     //!         get component's services map
     /*! \return component's services map

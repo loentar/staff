@@ -76,9 +76,9 @@ namespace staff
     rise::threading::CCriticalSection m_tCs;
     rise::CStreamBuffer m_tRecvBuffer;
     rise::CStreamBuffer m_tSendBuffer;
-    rise::CString m_sName;
-    rise::CString m_sSessionId;
-    rise::CString m_sDescr;
+    std::string m_sName;
+    std::string m_sSessionId;
+    std::string m_sDescr;
     CDataObject m_tOperations;
     CRemoteServiceWrapper* m_pRemoteServiceWrapper;
   };
@@ -97,7 +97,7 @@ namespace staff
     }
   }
 
-  const rise::CString& CRemoteService::GetName() const
+  const std::string& CRemoteService::GetName() const
   {
     if (m_pImpl->m_sName.size() == 0)
     {
@@ -107,7 +107,7 @@ namespace staff
     return m_pImpl->m_sName;
   }
 
-  const rise::CString& CRemoteService::GetID() const
+  const std::string& CRemoteService::GetID() const
   {
     if (m_pImpl->m_sSessionId.size() == 0)
     {
@@ -117,7 +117,7 @@ namespace staff
     return m_pImpl->m_sSessionId;
   }
 
-  const rise::CString& CRemoteService::GetDescr() const
+  const std::string& CRemoteService::GetDescr() const
   {
     if (m_pImpl->m_sDescr.size() == 0)
     {
@@ -229,7 +229,7 @@ namespace staff
     return !((nRcvd == SOCKET_ERROR) && (nErr != EWOULDBLOCK) && (nErr != EMSGSIZE) || (nRcvd == 0));
   }
 
-  void CRemoteService::CreateServiceID( const rise::CString& sID )
+  void CRemoteService::CreateServiceID( const std::string& sID )
   {
     COperation tOperation("CreateServiceID");
     tOperation.AddParameter("sSessionId", sID);

@@ -23,7 +23,7 @@
 #define _CONFIG_H_
 
 #include "staffcommonexport.h"
-#include <rise/string/String.h>
+#include <string>
 
 namespace rise
 {
@@ -48,7 +48,7 @@ namespace staff
     /*! \param  sModuleName - module name
         \return config
         */
-    rise::xml::CXMLNode& GetModuleConfig(const rise::CString& sModuleName);
+    rise::xml::CXMLNode& GetModuleConfig(const std::string& sModuleName);
 
   protected:
     CConfig();

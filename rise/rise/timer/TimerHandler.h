@@ -22,6 +22,7 @@
 #ifndef _TIMERHANDLER_H_
 #define _TIMERHANDLER_H_
 
+#include <rise/os/osdllexport.h>
 #include <rise/common/types.h>
 #include <list>
 

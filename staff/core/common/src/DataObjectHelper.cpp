@@ -60,7 +60,7 @@ namespace staff
 
   rise::CStreamBuffer& operator>>( rise::CStreamBuffer& rBuffer, CDataObject& rDataObject )
   {
-    rise::CString sTmpData;
+    std::string sTmpData;
     rBuffer >> sTmpData;
     rDataObject.FromString(sTmpData);
 

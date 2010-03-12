@@ -38,7 +38,7 @@ namespace staff
   typedef rise::CMutablePtr<CRemoteService> PRemoteService;
 
   //! remote service map
-  typedef std::map<rise::CString, PRemoteService> TRemoteServiceMap;
+  typedef std::map<std::string, PRemoteService> TRemoteServiceMap;
 
   //!  remote service wrapper
   class CRemoteServiceWrapper: public CService
@@ -55,12 +55,12 @@ namespace staff
     //!         get service name
     /*! \return service name
     */
-    const rise::CString& GetName() const;
+    const std::string& GetName() const;
 
     //!         get service description
     /*! \return service description
     */
-    const rise::CString& GetDescr() const;
+    const std::string& GetDescr() const;
 
     //!         get service operations
     /*! \return service operations
@@ -71,7 +71,7 @@ namespace staff
     /*! \param  rOperation - operation
         \param  sID - session id
         */
-    void Invoke(COperation& rOperation, const rise::CString& sID);
+    void Invoke(COperation& rOperation, const std::string& sID);
 
     //!         get component, bound to service
     /*! \return component
@@ -87,7 +87,7 @@ namespace staff
     /*! \param  sID - session id
         \return pointer to service implementation
         */
-    void* GetImpl(const rise::CString& sID);
+    void* GetImpl(const std::string& sID);
 
     //!         get services map
     /*! \return services map

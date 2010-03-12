@@ -54,7 +54,7 @@ namespace staff
       itFind->second->Compose(pComponent);
   }
 
-  CCompositeComponent* CSharedContext::GetComponent( const rise::CString& sName )
+  CCompositeComponent* CSharedContext::GetComponent( const std::string& sName )
   {
     TCompositeComponentMap::iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -62,7 +62,7 @@ namespace staff
     return itFind->second;
   }
 
-  const CCompositeComponent* CSharedContext::GetComponent( const rise::CString& sName ) const
+  const CCompositeComponent* CSharedContext::GetComponent( const std::string& sName ) const
   {
     TCompositeComponentMap::const_iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -75,15 +75,15 @@ namespace staff
     return m_mComponents;
   }
 
-  const CService* CSharedContext::GetService( const rise::CString& sName ) const
+  const CService* CSharedContext::GetService( const std::string& sName ) const
   {
-    rise::CString sComponentName;
-    rise::CString sServiceName;
-    rise::CString::size_type nPos = sName.find_last_of('.');
-    if (nPos != rise::CString::npos)
+    std::string sComponentName;
+    std::string sServiceName;
+    std::string::size_type nPos = sName.find_last_of('.');
+    if (nPos != std::string::npos)
     {
       sComponentName.assign(sName, 0, nPos - 1);
-      sServiceName.assign(sName, nPos + 1, rise::CString::npos);
+      sServiceName.assign(sName, nPos + 1, std::string::npos);
     } else
       sServiceName = sName;
 
@@ -100,15 +100,15 @@ namespace staff
     return pComponent->GetService(sName);
   }
 
-  CService* CSharedContext::GetService( const rise::CString& sName )
+  CService* CSharedContext::GetService( const std::string& sName )
   {
-    rise::CString sComponentName;
-    rise::CString sServiceName;
-    rise::CString::size_type nPos = sName.find_last_of('.');
-    if (nPos != rise::CString::npos)
+    std::string sComponentName;
+    std::string sServiceName;
+    std::string::size_type nPos = sName.find_last_of('.');
+    if (nPos != std::string::npos)
     {
       sComponentName.assign(sName, 0, nPos);
-      sServiceName.assign(sName, nPos + 1, rise::CString::npos);
+      sServiceName.assign(sName, nPos + 1, std::string::npos);
     } else
       sServiceName = sName;
 

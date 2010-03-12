@@ -34,9 +34,9 @@ namespace staff
   class CComponentConfig::CComponentConfigImpl
   {
   public:
-    rise::CString m_sComponent;
-    rise::CString m_sConfig;
-    rise::CString m_sFileName;
+    std::string m_sComponent;
+    std::string m_sConfig;
+    std::string m_sFileName;
     rise::xml::CXMLDocument m_tConfig;
   };
 
@@ -54,12 +54,12 @@ namespace staff
     }
   }
 
-  const rise::CString& CComponentConfig::GetComponent() const
+  const std::string& CComponentConfig::GetComponent() const
   {
     return m_pImpl->m_sComponent;
   }
 
-  const rise::CString& CComponentConfig::GetConfig() const
+  const std::string& CComponentConfig::GetConfig() const
   {
     return m_pImpl->m_sConfig;
   }
@@ -106,7 +106,7 @@ namespace staff
     return m_pImpl->m_tConfig.GetRoot();
   }
 
-  void CComponentConfig::Init( const rise::CString& sComponent, const rise::CString& sConfig, bool bCreate )
+  void CComponentConfig::Init( const std::string& sComponent, const std::string& sConfig, bool bCreate )
   {
     m_pImpl->m_sComponent = sComponent;
     m_pImpl->m_sConfig = sConfig;

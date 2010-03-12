@@ -2,9 +2,9 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Stub
 
+#include <string>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
-#include <rise/string/String.h>
 #include <staff/service/ServiceDispatcherClient.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Wrapper.h"
@@ -15,8 +15,8 @@ int main(int nArgs, const char* paszArgs[])
 #foreach $(Project.Interfaces)
   try
   {
-    rise::CString sSessionId;
-    rise::CString sTmp;
+    std::string sSessionId;
+    std::string sTmp;
     for(int i = 1; i < nArgs; ++i)
     {
       if(paszArgs[i] != NULL)

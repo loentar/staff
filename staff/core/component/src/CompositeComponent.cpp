@@ -35,7 +35,7 @@ namespace staff
   {
   }
 
-  const rise::CString& CCompositeComponent::GetName() const
+  const std::string& CCompositeComponent::GetName() const
   {
     return m_sName;
   }
@@ -62,7 +62,7 @@ namespace staff
     }
   }
 
-  const CService* CCompositeComponent::GetService( const rise::CString& sName ) const
+  const CService* CCompositeComponent::GetService( const std::string& sName ) const
   {
     TServiceMap::const_iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
@@ -70,7 +70,7 @@ namespace staff
     return itService->second;
   }
 
-  CService* CCompositeComponent::GetService( const rise::CString& sName )
+  CService* CCompositeComponent::GetService( const std::string& sName )
   {
     TServiceMap::iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
@@ -96,7 +96,7 @@ namespace staff
     m_mServices[pService->GetName()] = pService;
   }
 
-  void CCompositeComponent::RemoveService( const rise::CString& sName )
+  void CCompositeComponent::RemoveService( const std::string& sName )
   {
     m_mServices.erase(sName);
   }

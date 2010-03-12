@@ -36,6 +36,7 @@ namespace staff
 
     //!         login user and create session
     /*! this operation must be called from guest session
+        alias for OpenSession(username, password, true)
         \param  sUserName - username
         \param  sPassword - password
         \return created session id

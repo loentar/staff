@@ -23,7 +23,7 @@
 #define _CCOMPONENTCONFIGMANAGER_H_
 
 #include "staffcomponentexport.h"
-#include <rise/string/String.h>
+#include <string>
 
 namespace staff
 {
@@ -44,7 +44,7 @@ namespace staff
         \param  bCreate - create new config, if given config is not exists
         \return loaded or created component config
         */
-    CComponentConfig& GetComponentConfig(const rise::CString& sComponent, const rise::CString& sConfig = "config.xml", 
+    CComponentConfig& GetComponentConfig(const std::string& sComponent, const std::string& sConfig = "config.xml", 
       bool bCreate = false);
   
   protected:

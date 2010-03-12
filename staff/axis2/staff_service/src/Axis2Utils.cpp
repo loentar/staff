@@ -60,7 +60,8 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   axutil_qname_free(pQName, pEnv);
 
   // set "virtual" service flag
-  axutil_param_t* pParam = axutil_param_create(pEnv, "IsStaffVirtualService", new bool(true));
+  static char szParamName[] = "IsStaffVirtualService";
+  axutil_param_t* pParam = axutil_param_create(pEnv, static_cast<axis2_char_t*>(szParamName), new bool(true));
   if(pParam == NULL)
   {
     axis2_svc_free(pAxis2Service, pEnv);

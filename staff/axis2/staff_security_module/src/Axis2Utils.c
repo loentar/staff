@@ -48,7 +48,7 @@ axiom_node_t* GetSoapOpNode(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv)
   return axiom_node_get_first_element(pBaseNode, pEnv);
 }
 
-axis2_status_t GetServiceNameAndOperation( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, const axis2_char_t** pszServiceName, const axis2_char_t** pszServiceOperation )
+axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, axis2_char_t** pszServiceOperationPath )
 {
   const axis2_char_t* szServiceUri = NULL;
   axis2_endpoint_ref_t* pEndPoint = NULL;
@@ -60,11 +60,13 @@ axis2_status_t GetServiceNameAndOperation( axis2_msg_ctx_t* pMsgCtx, const axuti
   axiom_soap_body_t* pSoapBody = NULL;
   axiom_node_t* pBaseNode = NULL;
 
+  const axis2_char_t* szServiceName = NULL;
+  const axis2_char_t* szServiceOperation = NULL;
+
 
   AXIS2_UTILS_CHECK(pMsgCtx);
   AXIS2_UTILS_CHECK(pEnv);
-  AXIS2_UTILS_CHECK(pszServiceName);
-  AXIS2_UTILS_CHECK(pszServiceOperation);
+  AXIS2_UTILS_CHECK(pszServiceOperationPath);
 
   // HTTP-request header
   pEndPoint = axis2_msg_ctx_get_to(pMsgCtx, pEnv);
@@ -102,15 +104,19 @@ axis2_status_t GetServiceNameAndOperation( axis2_msg_ctx_t* pMsgCtx, const axuti
 
   AXIS2_UTILS_CHECK(axiom_node_get_node_type(pNodeOperation, pEnv) == AXIOM_ELEMENT);
 
-  *pszServiceOperation = axiom_element_get_localname(pElementOperation, pEnv);
-  AXIS2_UTILS_CHECK(*pszServiceOperation);
+  szServiceOperation = axiom_element_get_localname(pElementOperation, pEnv);
+  AXIS2_UTILS_CHECK(szServiceOperation);
 
-  *pszServiceName = strrchr(szServiceUri, '/');
-  if(*pszServiceName == NULL)
+  szServiceName = strrchr(szServiceUri, '/');
+  if(szServiceName == NULL)
   {
-    *pszServiceName = szServiceUri;
+    szServiceName = szServiceUri;
   } else
-    ++*pszServiceName;
+  {
+    ++szServiceName;
+  }
+
+  *pszServiceOperationPath = axutil_strcat(pEnv, "component.", szServiceName, ".", szServiceOperation, NULL);
 
   return AXIS2_SUCCESS;
 }

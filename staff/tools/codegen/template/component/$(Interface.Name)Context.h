@@ -5,7 +5,7 @@
 #ifndef _$(Interface.Name)Context_h_
 #define _$(Interface.Name)Context_h_
 
-#include <rise/string/String.h>
+#include <string>
 #include <rise/common/containertypes.h>
 
 #foreach $(Interface.Classes)
@@ -25,13 +25,13 @@ $(Class.OpeningNs)
     /*! \param  sID - service session id
         \return pointer to service implementation
         */
-    $(Class.Name)Impl* GetServiceImpl(const rise::CString& sID);
+    $(Class.Name)Impl* GetServiceImpl(const std::string& sID);
 
     //!         get service session id
     /*! \param  pImpl - service implementation
         \return service session id
         */
-    const rise::CString& GetServiceID(const $(Class.Name)Impl* pImpl) const;
+    const std::string& GetServiceID(const $(Class.Name)Impl* pImpl) const;
 
     //!         get services ids
     /*! \return service ids

@@ -5,6 +5,7 @@
 #ifndef _COMPONENTIMPL_H_
 #define _COMPONENTIMPL_H_
 
+#include <string>
 #include <staff/component/Component.h>
 
 $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
@@ -21,19 +22,19 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     //!         get component name
     /*! \return component name
     */
-    const rise::CString& GetName() const;
+    const std::string& GetName() const;
 
     //!         get service
     /*! \param  sService - service name
         \return pointer to work with service, NULL if no service found
         */
-    const staff::CService* GetService(const rise::CString& sService) const;
+    const staff::CService* GetService(const std::string& sService) const;
 
     //!         get service
     /*! \param  sService - service name
         \return pointer to work with service, NULL if no service found
         */
-    staff::CService* GetService(const rise::CString& sService);
+    staff::CService* GetService(const std::string& sService);
 
     //!         get services map
     /*! \return services map
@@ -42,7 +43,7 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
 
   private:
     staff::TServiceMap m_mServices;
-    static const rise::CString m_sName;
+    static const std::string m_sName;
   };
 $(Project.Interfaces.Interface.Classes.Class.EndingNs)
 

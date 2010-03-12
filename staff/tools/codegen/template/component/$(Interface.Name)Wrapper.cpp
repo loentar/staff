@@ -20,11 +20,11 @@ class $(Class.Name)Wrapper::$(Class.Name)WrapperImpl
 {
 public:
   typedef rise::CMutablePtr< $(Class.Name)Impl > P$(Class.ServiceName)Impl;
-  typedef std::map<rise::CString, P$(Class.ServiceName)Impl> TServiceMap;
+  typedef std::map<std::string, P$(Class.ServiceName)Impl> TServiceMap;
   TServiceMap m_mServices;
   staff::CComponent* m_pComponent;
-  static rise::CString m_sName;
-  static rise::CString m_sDescr;
+  static std::string m_sName;
+  static std::string m_sDescr;
 };
 
 $(Class.Name)Wrapper::$(Class.Name)Wrapper(staff::CComponent* pComponent)
@@ -48,16 +48,16 @@ $(Class.Name)Wrapper::~$(Class.Name)Wrapper()
   }
 }
 
-$(Class.Name)Impl& $(Class.Name)Wrapper::ServiceImpl(const rise::CString& sID)
+$(Class.Name)Impl& $(Class.Name)Wrapper::ServiceImpl(const std::string& sID)
 {
   return *$(Class.Name)Context::GetContext().GetServiceImpl(sID);
 }
 
-void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const rise::CString& sID )
+void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const std::string& sID )
 {
   const staff::CDataObject& rRequest = rOperation.Request();
   staff::CDataObject& rResult = rOperation.Result();
-  const rise::CString& sOperationName = rOperation.GetName();
+  const std::string& sOperationName = rOperation.GetName();
 
   if (sOperationName == "GetServiceDescription")
   {
@@ -167,7 +167,7 @@ $(Param.Name)\
   }
 }
 
-const rise::CString& $(Class.Name)Wrapper::GetName() const
+const std::string& $(Class.Name)Wrapper::GetName() const
 {
   if($(Class.Name)WrapperImpl::m_sName.size() == 0)
   {
@@ -177,7 +177,7 @@ const rise::CString& $(Class.Name)Wrapper::GetName() const
   return $(Class.Name)WrapperImpl::m_sName;
 }
 
-const rise::CString& $(Class.Name)Wrapper::GetDescr() const
+const std::string& $(Class.Name)Wrapper::GetDescr() const
 {
   if($(Class.Name)WrapperImpl::m_sDescr.size() == 0)
   {
@@ -202,7 +202,7 @@ staff::CComponent* $(Class.Name)Wrapper::GetComponent()
   return m_pImpl->m_pComponent;
 }
 
-void* $(Class.Name)Wrapper::GetImpl(const rise::CString& sID)
+void* $(Class.Name)Wrapper::GetImpl(const std::string& sID)
 {
   return $(Class.Name)Context::GetContext().GetServiceImpl(sID);
 }
@@ -258,8 +258,8 @@ staff::CDataObject $(Class.Name)Wrapper::GetServiceDescription() const
   return tServiceDescription;
 }
 
-rise::CString $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sName;
-rise::CString $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sDescr;
+std::string $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sName;
+std::string $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sDescr;
 
 $(Class.EndingNs)
 #end

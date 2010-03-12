@@ -23,7 +23,7 @@
 #define _COMPOSITECOMPONENT_H_
 
 #include "staffcomponentexport.h"
-#include <rise/string/String.h>
+#include <string>
 #include <staff/common/DataObject.h>
 #include "Component.h"
 
@@ -47,19 +47,19 @@ namespace staff
     //!         get component name
     /*! \return component name
     */
-    const rise::CString& GetName() const;
+    const std::string& GetName() const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    const CService* GetService(const rise::CString& sName) const;
+    const CService* GetService(const std::string& sName) const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    CService* GetService(const rise::CString& sName);
+    CService* GetService(const std::string& sName);
 
     //!         add service into component
     /*! \param  pService - service
@@ -69,7 +69,7 @@ namespace staff
     //!         remove service from component
     /*! \param  sName - service name
         */
-    void RemoveService(const rise::CString& sName);
+    void RemoveService(const std::string& sName);
 
     //!         get services map
     /*! \return services map
@@ -82,7 +82,7 @@ namespace staff
     CDataObject& GetProperties();
   
   private:
-    rise::CString m_sName;        //!<  component name
+    std::string m_sName;        //!<  component name
     TServiceMap m_mServices;      //!<  services map
     CDataObject m_doProperties;   //!<  component properties
   };
