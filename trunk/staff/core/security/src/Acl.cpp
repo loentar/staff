@@ -358,8 +358,10 @@ namespace staff
       {
         GetUserAccess(nCurrentObjectId, nUserId, eAccess);
 
-//        rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
-//            << ", access = " << eAccess;
+#ifdef _DEBUG
+        rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
+            << ", access = " << eAccess;
+#endif
 
         if (eAccess != EAccessInherited)
         {
@@ -378,8 +380,10 @@ namespace staff
         {
           GetGroupAccess(nCurrentObjectId, *itGroupId, eAccess);
 
-//          rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
-//              << ", group id = " << *itGroupId << ", access = " << eAccess;
+#ifdef _DEBUG
+          rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
+              << ", group id = " << *itGroupId << ", access = " << eAccess;
+#endif
 
           if (eAccess != EAccessInherited)
           {
@@ -412,19 +416,33 @@ namespace staff
       std::string::size_type nPos = sObjectPath.find_first_of('.');
       std::string::size_type nBegin = 0;
 
+#ifdef _DEBUG
+      rise::LogDebug2() << "Calculating access to [" << sObjectPath << "] for user id=" << nUserId;
+#endif
+
       CObjects& rObjects = CObjects::Inst();
 
       int nObjectId = 0;
 
       for (;;)
       {
+#ifdef _DEBUG
+          rise::LogDebug2() << "Getting child object [" << sObjectPath.substr(0, nPos) << "]";
+#endif
         if (!rObjects.GetChildId(nObjectId, sObjectPath.substr(nBegin, nPos - nBegin), nObjectId))
         {
+#ifdef _DEBUG
+          rise::LogDebug2() << "Object [" << sObjectPath.substr(0, nPos)
+              << "] is not found. Access will be calculated for [" << sObjectPath.substr(0, nBegin - 1) << "] id=" << nObjectId;
+#endif
           break;
         }
 
         if (nPos == std::string::npos)
         {
+#ifdef _DEBUG
+          rise::LogDebug2() << "Object [" << sObjectPath << "] found. id=" << nObjectId;
+#endif
           break;
         }
 
