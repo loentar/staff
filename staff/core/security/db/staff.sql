@@ -151,12 +151,16 @@ INSERT INTO users(id, name, password, description) VALUES (1, 'admin', 'admin', 
 INSERT INTO users(id, name, password, description) VALUES (2, 'user', 'user', 'User');
 INSERT INTO users(id, name, password, description) VALUES (3, 'guest', 'guest', 'Guest');
 
+UPDATE sqlite_sequence SET seq=100 WHERE name='users';
+
 ---------------------------------------------
 -- groups
 
 INSERT INTO groups(id, name, description) VALUES (1, 'admin', 'Administrators');
 INSERT INTO groups(id, name, description) VALUES (2, 'user', 'Users');
 INSERT INTO groups(id, name, description) VALUES (3, 'guest', 'Guests');
+
+UPDATE sqlite_sequence SET seq=100 WHERE name='groups';
 
 ---------------------------------------------
 -- users to groups
@@ -177,30 +181,31 @@ INSERT INTO objects(id, name, description, parentid) VALUES (0, 'root', 'Root ob
 INSERT INTO objects(id, name, description, parentid) VALUES (1, 'component', 'Components', 0);
 INSERT INTO objects(id, name, description, parentid) VALUES (2, 'widget', 'Widgets', 0);
 
--- component.staff.admin
+-- component.staff.admin (access to admin services)
 INSERT INTO objects(id, name, description, parentid) VALUES (3, 'staff', 'staff component', 1);
 INSERT INTO objects(id, name, description, parentid) VALUES (4, 'admin', 'staff.admin component', 3);
 
--- webapp.admin
-INSERT INTO objects(id, name, description, parentid) VALUES (5, 'webapp', 'webapp component', 0);
+-- webapp.admin (access to webapp's admin services)
+INSERT INTO objects(id, name, description, parentid) VALUES (5, 'webapp', 'webapp namespace', 0);
 INSERT INTO objects(id, name, description, parentid) VALUES (6, 'admin', 'webapp.admin component', 5);
 
--- widget.admin
+-- widget.admin, webapp.widget.admin (access to admin widgets)
 INSERT INTO objects(id, name, description, parentid) VALUES (7, 'admin', 'widget.admin namespace', 2);
+INSERT INTO objects(id, name, description, parentid) VALUES (8, 'widget', 'webapp.widget namespace', 5);
+INSERT INTO objects(id, name, description, parentid) VALUES (9, 'admin', 'webapp.widget.admin namespace', 8);
 
 -- component.widget
-INSERT INTO objects(id, name, description, parentid) VALUES (8, 'widget', 'widget component', 1);
-INSERT INTO objects(id, name, description, parentid) VALUES (9, 'WidgetManager', 'widget manager service', 8);
-INSERT INTO objects(id, name, description, parentid) VALUES (10, 'AddProfile', '', 9);
-INSERT INTO objects(id, name, description, parentid) VALUES (11, 'DeleteProfile', '', 9);
-INSERT INTO objects(id, name, description, parentid) VALUES (12, 'SetProfile', '', 9);
-INSERT INTO objects(id, name, description, parentid) VALUES (13, 'GetBaseProfiles', '', 9);
+INSERT INTO objects(id, name, description, parentid) VALUES (10, 'widget', 'widget component', 1);
+INSERT INTO objects(id, name, description, parentid) VALUES (11, 'WidgetManager', 'widget manager service', 10);
+INSERT INTO objects(id, name, description, parentid) VALUES (12, 'AddProfile', '', 11);
+INSERT INTO objects(id, name, description, parentid) VALUES (13, 'DeleteProfile', '', 11);
+INSERT INTO objects(id, name, description, parentid) VALUES (14, 'SetProfile', '', 11);
+INSERT INTO objects(id, name, description, parentid) VALUES (15, 'GetBaseProfiles', '', 11);
 
 ---------------------------------------------
 -- acl
 
 -- access to root object - deny all, grant admins
-INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (0, NULL, 0);
 INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (0, 1, 1);
 
 -- access to components - grant all
@@ -209,19 +214,24 @@ INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (1, NULL, 1);
 -- access to widgets - grant all
 INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (2, NULL, 1);
 
+-- access to webapp - grant all
+INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (5, NULL, 1);
+
 -- access to admin components and widgets - deny all, grant admins
-INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (4, NULL, 0);
-INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (6, NULL, 0);
-INSERT INTO objects_to_users_acl(objectid, userid, permit) VALUES (7, NULL, 0);
-INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (4, 1, 1);
-INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (6, 1, 1);
-INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (7, 1, 1);
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (4, NULL, 0); -- staff.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (6, NULL, 0); -- webapp.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (7, NULL, 0); -- widget.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (9, NULL, 0); -- webapp.widget.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (4, 1, 1); -- staff.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (6, 1, 1); -- webapp.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (7, 1, 1); -- widget.admin
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (9, 1, 1); -- webapp.widget.admin
 
 -- deny guests to create(get base, delete, update) own profiles
-INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (10, 3, 1);
-INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (11, 3, 1);
 INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (12, 3, 1);
 INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (13, 3, 1);
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (14, 3, 1);
+INSERT INTO objects_to_groups_acl(objectid, groupid, permit) VALUES (15, 3, 1);
 
 
 ---------------------------------------------

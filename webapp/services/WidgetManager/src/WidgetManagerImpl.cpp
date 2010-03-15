@@ -36,6 +36,7 @@
 #include <staff/security/Sessions.h>
 #include <staff/security/Objects.h>
 #include <staff/security/UsersToGroups.h>
+#include <staff/security/Groups.h>
 #include <staff/security/Acl.h>
 #include "WidgetManagerContext.h"
 #include "WidgetManagerImpl.h"
@@ -473,7 +474,7 @@ namespace widget
         }
         else
         {
-          rise::LogWarning() << "Class \'" << sWidgetClassName << "\'is not listed in classdb. Ignoring.";
+          rise::LogWarning() << "Class \'" << sWidgetClassName << "\' is not listed in classdb. Ignoring.";
         }
       }
     } // for
@@ -715,7 +716,9 @@ namespace widget
   {
     if (m_nIsUserAdmin == -1)
     {
-      m_nIsUserAdmin = staff::security::CUsersToGroups::Inst().IsUserMemberOfGroup(GetUserId(), 0) ? 1 : 0;
+      staff::security::SGroup stGroup;
+      staff::security::CGroups::Inst().GetByName("admin", stGroup);
+      m_nIsUserAdmin = staff::security::CUsersToGroups::Inst().IsUserMemberOfGroup(GetUserId(), stGroup.nId) ? 1 : 0;
     }
     return m_nIsUserAdmin == 1;
   }
@@ -801,7 +804,7 @@ namespace widget
 
         const std::string& sWidgetName = itWidgetName->second;
 
-        if (rAcl.CalculateUserAccess(sWidgetName, m_nUserId))
+        if (rAcl.CalculateUserAccess(sWidgetClass, m_nUserId))
         {
           rise::LogDebug1() << "adding widget " << sWidgetClass << "(" << sWidgetName << ") to user " << m_nUserId;
           m_mWidgetClasses[sWidgetClass] = sWidgetName;
