@@ -271,9 +271,13 @@ void osInitializeCriticalSection(PCriticalSection pCriticalSection)
   pthread_mutexattr_t tAttr = {PTHREAD_MUTEX_RECURSIVE_NP};
 #else
   pthread_mutexattr_t tAttr;
+  pthread_mutexattr_init(&tAttr);
   pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 #endif
   pthread_mutex_init(pCriticalSection, &tAttr);
+#ifndef OS_MCBC
+  pthread_mutexattr_destroy(&tAttr);
+#endif
 #endif
 }
 
