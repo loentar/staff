@@ -1,5 +1,5 @@
 #summary Инструкция по установке дистрибутива staff в ОС MCBC 3.0-12
-#labels Phase-Deploy
+#labels Phase-Deploy,Deprecated
 
 = 1. Введение =
 
