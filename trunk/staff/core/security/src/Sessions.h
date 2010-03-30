@@ -72,6 +72,8 @@ namespace staff
 
       bool GetUserName(const std::string& sSessionId, std::string& sUserName);
 
+      bool GetIdByUserName(const std::string& sUserName, std::string& sSessionId);
+
       void CloseExpiredSessions();
 
     private:
