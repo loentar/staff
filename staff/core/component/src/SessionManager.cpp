@@ -71,7 +71,7 @@ namespace staff
         {
           if (itSession->second.nExpires <= nCurrentTime)
           { // close expired session
-            rise::LogDebug() << "Removing expired session: [" << itSession->first
+            rise::LogDebug1() << "Removing expired session: [" << itSession->first
                 << "]: " << itSession->second.nExpires << " <= " << nCurrentTime;
             CloseSession(itSession->first);
             m_mSessions.erase(itSession++); // safe remove
@@ -85,11 +85,18 @@ namespace staff
           ++itSession;
         }
 
+        if (nMinExpires == std::numeric_limits<int>::max())
+        { // last session was removed
+          rise::LogDebug2() << "last session was removed";
+          continue;
+        }
+
 #ifdef DEBUG
-        RISE_ASSERT(nCurrentTime > nMinExpires);
+        RISE_ASSERT(nCurrentTime <= nMinExpires);
 #endif
 
-        Sleep(1000 * (nCurrentTime - nMinExpires));
+        rise::LogDebug2() << "Sleep time: " << (nMinExpires - nCurrentTime);
+        Sleep(1000 * (nMinExpires - nCurrentTime));
       }
 
     }
@@ -135,8 +142,6 @@ namespace staff
 
   void CSessionManager::Start()
   {
-    rise::LogNotice() << "Start";
-//    RISE_ASSERTS(!m_pImpl->IsWorking(), "Already started");
     m_pImpl->Start();
   }
 
@@ -147,7 +152,23 @@ namespace staff
 
   void CSessionManager::Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId)
   {
+    std::string sOldSessionId;
+    bool bOldSessionExists = false;
+
+    if (bCloseExisting)
+    {
+      bOldSessionExists = staff::security::CSessions::Inst().GetIdByUserName(sUserName, sOldSessionId);
+    }
+
     staff::security::CSessions::Inst().Open(sUserName, sPassword, bCloseExisting, sSessionId);
+
+    if (bOldSessionExists)
+    {
+      rise::LogDebug2() << "Freeing old session: " << sOldSessionId;
+      CServiceInstanceManager::Inst().FreeSession(sOldSessionId);
+      m_pImpl->m_mSessions.erase(sOldSessionId);
+    }
+
     m_pImpl->OpenSession(sSessionId);
   }
 
