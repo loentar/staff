@@ -24,15 +24,10 @@
 
 #include <string>
 
-namespace rise { template<typename> class CMutablePtr; }
-
 namespace staff
 {
-  class CService;
+  class CServiceWrapper;
   class COperation;
-  class CRemoteService;
-
-  typedef rise::CMutablePtr<CRemoteService> PRemoteService;
 
   //!  Service dispatcher
   class CServiceDispatcher
@@ -40,11 +35,11 @@ namespace staff
   public:
     struct SEvents
     {
-      void (*pOnConnect)(const std::string& sService, const CService* pService);
+      void (*pOnConnect)(const std::string& sService, const CServiceWrapper* pService);
       void (*pOnDisconnect)(const std::string& sServiceName);
 
       SEvents();
-      SEvents(void (*pOnConnectInit)(const std::string&, const CService*), void (*pOnDisconnectInit)(const std::string&));
+      SEvents(void (*pOnConnectInit)(const std::string&, const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&));
       SEvents& operator=(const SEvents& rEvents);
     };
 
@@ -70,22 +65,13 @@ namespace staff
         */
     void InvokeSelf(COperation& rOperation);
 
-    //!         get remote service
-    /*! \param  sServiceName - service name
-        \param  sSessionId - session id
-        \param  rpService - service
-        */
-    void GetRemoteService( const std::string& sServiceName, const std::string& sSessionId, PRemoteService& rpService );
-
   private:
     CServiceDispatcher();
     ~CServiceDispatcher();
   
   private:
-    class CLocalServiceDispatcherImpl;
-    class CRemoteServiceDispatcherImpl;
-    CLocalServiceDispatcherImpl* m_pLocalImpl;
-    CRemoteServiceDispatcherImpl* m_pRemoteImpl;
+    class CServiceDispatcherImpl;
+    CServiceDispatcherImpl* m_pImpl;
     static CServiceDispatcher* m_pInst;
   };
 }

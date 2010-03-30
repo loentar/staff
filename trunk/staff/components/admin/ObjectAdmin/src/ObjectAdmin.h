@@ -24,6 +24,7 @@
 
 #include <list>
 #include <string>
+#include <staff/common/IService.h>
 
 namespace staff
 {
@@ -41,7 +42,7 @@ namespace staff
     typedef std::list<SObject> TObjectList; //!<  list of objects
 
     //!  object-admin service
-    class CObjectAdmin
+    class CObjectAdmin: public staff::IService
     {
     public:
       virtual ~CObjectAdmin() {}

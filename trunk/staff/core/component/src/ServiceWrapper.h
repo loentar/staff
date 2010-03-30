@@ -19,11 +19,10 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _SERVICE_H_
-#define _SERVICE_H_
+#ifndef _SERVICEWRAPPER_H_
+#define _SERVICEWRAPPER_H_
 
 #include <string>
-#include <rise/common/containertypes.h>
 #include "staffcomponentexport.h"
 
 namespace staff
@@ -31,13 +30,14 @@ namespace staff
   class CDataObject;
   class COperation;
   class CComponent;
+  class IService;
 
   //!  Service
-  class STAFF_COMPONENT_EXPORT CService
+  class STAFF_COMPONENT_EXPORT CServiceWrapper
   {
   public:
     //!        destructor
-    virtual ~CService();
+    virtual ~CServiceWrapper();
 
     //!         get service name
     /*! \return service name
@@ -48,17 +48,18 @@ namespace staff
     /*! \return service description
     */
     virtual const std::string& GetDescr() const = 0;
-    
+
     //!         get service operations
     /*! \return service operations
     */
     virtual CDataObject GetOperations() const = 0;
-    
+
     //!         invoke service operation
     /*! \param  rOperation - operation
-        \param  sID - service session id
+        \param  sSessionId - service session id
+        \param  sInstanceId - service instance id
         */
-    virtual void Invoke(COperation& rOperation, const std::string& sID) = 0;
+    virtual void Invoke(COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId) = 0;
 
     //!         get service's component
     /*! \return service's component
@@ -70,17 +71,17 @@ namespace staff
     */
     virtual CComponent* GetComponent() = 0;
 
-    //!         get pointer to service implementation(only for local services)
+    //!         get pointer to service implementation
     /*! \param  sID - service session id
         \return pointer to service implementation or NULL, if service non-local
         */
-    virtual void* GetImpl(const std::string& sID) = 0;
+    virtual IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId) = 0;
 
-    //!         get services ids
-    /*! \return service ids
-        */
-    virtual rise::CStringList GetServiceIds() const = 0;
+    //!         create new service impl
+    /*! \return resulting service impl
+      */
+    virtual IService* NewImpl() = 0;
   };
 }
 
-#endif // _SERVICE_H_
+#endif // _SERVICEWRAPPER_H_

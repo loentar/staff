@@ -1,3 +1,24 @@
+/*
+ *  Copyright 2010 Utkin Dmitry
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
+ */
+
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <rise/common/Log.h>
@@ -30,12 +51,12 @@ namespace staff
     }
 
 
-/*    void CSessions::GetById(int nId, SSession& rstSession)
+    void CSessions::GetById(int nId, SSession& rstSession)
     {
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, extraid, sessionid, userid, time FROM sessions "
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, sessionid, userid, expires FROM sessions "
                                        "WHERE id=?", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
@@ -48,11 +69,10 @@ namespace staff
         RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "Session by id is not found: " + std::string(sqlite3_errmsg(pDb)));
 
         rstSession.nId = sqlite3_column_int(pVm, 0);
-        rstSession.nExtraId = sqlite3_column_int(pVm, 1);
-        const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
+        const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
         rstSession.sSessionId = szSessionId != NULL ? szSessionId : "";
-        rstSession.nUserId = sqlite3_column_int(pVm, 3);
-        rstSession.nTime = sqlite3_column_int(pVm, 4);
+        rstSession.nUserId = sqlite3_column_int(pVm, 2);
+        rstSession.nExpires = sqlite3_column_int(pVm, 3);
       }
       catch(...)
       {
@@ -68,7 +88,7 @@ namespace staff
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, extraid, sessionid, userid, time FROM sessions "
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, sessionid, userid, expires FROM sessions "
                                        "WHERE sessionid=?", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
@@ -81,11 +101,10 @@ namespace staff
         RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "Session by id is not found: " + std::string(sqlite3_errmsg(pDb)));
 
         rstSession.nId = sqlite3_column_int(pVm, 0);
-        rstSession.nExtraId = sqlite3_column_int(pVm, 1);
-        const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
+        const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
         rstSession.sSessionId = szSessionId != NULL ? szSessionId : "";
-        rstSession.nUserId = sqlite3_column_int(pVm, 3);
-        rstSession.nTime = sqlite3_column_int(pVm, 4);
+        rstSession.nUserId = sqlite3_column_int(pVm, 2);
+        rstSession.nExpires = sqlite3_column_int(pVm, 3);
       }
       catch(...)
       {
@@ -94,33 +113,29 @@ namespace staff
       }
 
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-    }*/
+    }
 
-/*    void CSessions::GetList(TSessionsList& rlsSessions)
+    void CSessions::GetList(TSessionsList& rlsSessions)
     {
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, extraid, sessionid, userid, time FROM sessions", -1, &pVm, NULL);
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT id, sessionid, userid, expires FROM sessions", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         rlsSessions.clear();
 
-        nResult = sqlite3_bind_int(pVm, 1, m_nSessionExpiration);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
         // get data
         while (sqlite3_step(pVm) == SQLITE_ROW)
         {
           SSession stSession;
           stSession.nId = sqlite3_column_int(pVm, 0);
-          stSession.nExtraId = sqlite3_column_int(pVm, 1);
-          const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
+          const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
           stSession.sSessionId = szSessionId != NULL ? szSessionId : "";
-          stSession.nUserId = sqlite3_column_int(pVm, 3);
-          stSession.nTime = sqlite3_column_int(pVm, 4);
+          stSession.nUserId = sqlite3_column_int(pVm, 2);
+          stSession.nExpires = sqlite3_column_int(pVm, 3);
           rlsSessions.push_back(stSession);
         }
       }
@@ -131,7 +146,7 @@ namespace staff
       }
 
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-    }*/
+    }
 
     void CSessions::Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId)
     {
@@ -211,63 +226,6 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CSessions::OpenExtra(const std::string& sSessionId, int nExtraId, std::string& sExtraSessionId)
-    {
-      sqlite3* pDb = CDbConn::GetDb();
-      sqlite3_stmt* pVm = NULL;
-      int nUserId = -1;
-
-      RISE_ASSERTP(sSessionId.size() != 0);
-      RISE_ASSERTS(sSessionId != sNobodySessionId, "opening extra sessions for nobody is not allowed");
-
-      // open session
-      int nResult = sqlite3_prepare_v2(pDb, "INSERT INTO sessions_extra(extraid, parentid) "
-                                   "VALUES(?, (SELECT id FROM sessions WHERE sessionid=?))", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-      try
-      {
-        nResult = sqlite3_bind_int(pVm, 1, nExtraId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        nResult = sqlite3_bind_text(pVm, 2, sSessionId.c_str(), sSessionId.size(), SQLITE_STATIC);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        nResult = sqlite3_bind_int(pVm, 3, nUserId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to create session: " + std::string(sqlite3_errmsg(pDb)));
-      }
-      catch(...)
-      {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-        throw;
-      }
-
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-
-
-      // get inserted session id
-      nResult = sqlite3_prepare_v2(pDb, "SELECT sessionid FROM sessions WHERE id = last_insert_rowid()", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-      try
-      {
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "Failed to get last created session id: " + std::string(sqlite3_errmsg(pDb)));
-
-        const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 0));
-        RISE_ASSERTS(szSessionId != NULL, "session id == NULL: " + std::string(sqlite3_errmsg(pDb)));
-        sExtraSessionId = szSessionId;
-      }
-      catch(...)
-      {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-        throw;
-      }
-
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-    }
-
     void CSessions::Close(const std::string& sSessionId)
     {
       sqlite3* pDb = CDbConn::GetDb();
@@ -295,37 +253,6 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CSessions::CloseExtra(const std::string& sSessionId, int nExtraId)
-    {
-      sqlite3* pDb = CDbConn::GetDb();
-      sqlite3_stmt* pVm = NULL;
-
-      RISE_ASSERTS(sSessionId != sNobodySessionId, "closing nobody's session is not allowed");
-
-      int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM sessions_extra WHERE extraid = ? AND parentid = "
-                                              "(SELECT id FROM sessions WHERE sessionid=?)", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-      try
-      {
-        nResult = sqlite3_bind_int(pVm, 1, nExtraId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        nResult = sqlite3_bind_text(pVm, 2, sSessionId.c_str(), sSessionId.size(), SQLITE_STATIC);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to close extra session: " + std::string(sqlite3_errmsg(pDb)));
-      }
-      catch(...)
-      {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-        throw;
-      }
-
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
-    }
-
-
     bool CSessions::Validate(const std::string& sSessionId)
     {
       sqlite3* pDb = CDbConn::GetDb();
@@ -339,8 +266,7 @@ namespace staff
 //      }
 
       // validate session
-      int nResult = sqlite3_prepare_v2(pDb, "SELECT (expires > ?2) FROM sessions WHERE sessionid = ?1 OR id = "
-                                       "(SELECT parentid FROM sessions_extra WHERE sessionid=?1)", -1, &pVm, NULL);
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT (expires > ?2) FROM sessions WHERE sessionid = ?1", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
@@ -404,6 +330,38 @@ namespace staff
       return m_nSessionExpiration;
     }
 
+    int CSessions::GetExpiresById(int nId)
+    {
+      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3_stmt* pVm = NULL;
+
+      int nExpires = -1;
+
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT expires FROM sessions WHERE id=?", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      try
+      {
+        nResult = sqlite3_bind_int(pVm, 1, nId);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        // get data
+        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "Session by id is not found: " + std::string(sqlite3_errmsg(pDb)));
+
+        nExpires = sqlite3_column_int(pVm, 0);
+      }
+      catch(...)
+      {
+        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      return nExpires;
+    }
+
+
     bool CSessions::GetUserId(const std::string& sSessionId, int& nUserId)
     {
       sqlite3* pDb = CDbConn::GetDb();
@@ -414,16 +372,12 @@ namespace staff
 
       // get user id
       int nResult = sqlite3_prepare_v2(pDb,
-          "SELECT userid FROM sessions WHERE (sessionid = ?1 OR id = "
-            "(SELECT parentid FROM sessions_extra WHERE sessionid=?1)) AND expires > ?2", -1, &pVm, NULL);
+          "SELECT userid FROM sessions WHERE sessionid = ?1", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         nResult = sqlite3_bind_text(pVm, 1, sSessionId.c_str(), sSessionId.size(), SQLITE_STATIC);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        nResult = sqlite3_bind_int(pVm, 2, CTime::Get());
         RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         if ((sqlite3_step(pVm) == SQLITE_ROW) &&
@@ -453,16 +407,12 @@ namespace staff
 
       // get user id
       int nResult = sqlite3_prepare_v2(pDb,
-          "SELECT name FROM users WHERE id=(SELECT userid FROM sessions WHERE sessionid = ?1 OR id = "
-          "(SELECT parentid FROM sessions_extra WHERE sessionid=?1) AND expires > ?)", -1, &pVm, NULL);
+          "SELECT name FROM users WHERE id=(SELECT userid FROM sessions WHERE sessionid = ?1)", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         nResult = sqlite3_bind_text(pVm, 1, sSessionId.c_str(), sSessionId.size(), SQLITE_STATIC);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
-
-        nResult = sqlite3_bind_int(pVm, 2, CTime::Get());
         RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         if ((sqlite3_step(pVm) == SQLITE_ROW) &&
@@ -484,7 +434,7 @@ namespace staff
       return bResult;
     }
 
-    void CSessions::Cleanup()
+    void CSessions::CloseExpiredSessions()
     {
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;

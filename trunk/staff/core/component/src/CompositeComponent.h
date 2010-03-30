@@ -53,18 +53,18 @@ namespace staff
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    const CService* GetService(const std::string& sName) const;
+    const CServiceWrapper* GetService(const std::string& sName) const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    CService* GetService(const std::string& sName);
+    CServiceWrapper* GetService(const std::string& sName);
 
     //!         add service into component
     /*! \param  pService - service
         */
-    void AddService(CService* pService);
+    void AddService(CServiceWrapper* pService);
 
     //!         remove service from component
     /*! \param  sName - service name
@@ -74,7 +74,7 @@ namespace staff
     //!         get services map
     /*! \return services map
     */
-    const TServiceMap& GetServices() const;
+    const TServiceWrapperMap& GetServices() const;
 
     //!         get component properties
     /*! \return component properties
@@ -83,7 +83,7 @@ namespace staff
   
   private:
     std::string m_sName;        //!<  component name
-    TServiceMap m_mServices;      //!<  services map
+    TServiceWrapperMap m_mServices;      //!<  services map
     CDataObject m_doProperties;   //!<  component properties
   };
 }

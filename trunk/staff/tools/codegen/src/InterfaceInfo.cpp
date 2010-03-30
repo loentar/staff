@@ -623,12 +623,45 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   std::string sResultElement;
 
   rStream >> SkipWs;
-  ReadBefore(rStream, rClass.sName);
+//  ReadBefore(rStream, rClass.sName);
   rClass.sNamespace = g_sCurrentNamespace;
+/*  if(rStream.eof())
+  {
+    throw "unexpected EOF(after classname)";
+  }
+
+  ReadStr(rStream, sTmp);
   if(rStream.eof())
   {
     throw "unexpected EOF(after classname)";
   }
+
+  if (sTmp != ":")
+  {
+    throw "':' after classname expected ";
+  }
+
+  ReadStr(rStream, sTmp);
+  if(rStream.eof())
+  {
+    throw "unexpected EOF(after classname:";
+  }
+
+  if (sTmp != "public")
+  {
+    throw "public after classname: expected ";
+  }
+
+  ReadStr(rStream, sTmp);
+  if(rStream.eof())
+  {
+    throw "unexpected EOF(after classname: public)";
+  }
+
+  if (sTmp != "IService")
+  {
+    throw "class must inherited from IService";
+  }*/
 
   ReadStr(rStream, sTmp);
   if(rStream.eof())
@@ -1023,6 +1056,49 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   if (sTmp == "class")
   {
     SClass stClass;
+
+    SkipWs(rStream);
+
+    // checking for service class
+    ReadBefore(rStream, stClass.sName, " \t\n\r:{;");
+
+    SkipWs(rStream);
+    char chTmp = rStream.peek();
+
+    if (chTmp == ';')
+    {
+      rStream.ignore();
+      return; // class forward
+    }
+    if (chTmp == '{')
+    {
+      IgnoreFunction(rStream); // ignore non-service class
+      return;
+    }
+
+    if (chTmp == ':') // inheritance
+    {
+      rStream.ignore();
+    }
+
+    ReadStr(rStream, sTmp);
+    if (sTmp != "public")
+    { // not our class
+      ReadBefore(rStream, sTmp, "{;");
+      IgnoreFunction(rStream); // ignore non-service class
+      return;
+    }
+
+    ReadStr(rStream, sTmp);
+    if (sTmp != "IService" && sTmp != "staff::IService")
+    { // not our class
+      ReadBefore(rStream, sTmp, "{;");
+      IgnoreFunction(rStream); // ignore non-service class
+      return;
+    }
+
+    std::cout << "Using [" << stClass.sName << "] as service class\n";
+
     rStream >> stClass;
     stClass.sDescr = sServiceDescr;
     stClass.sServiceUri = sServiceUri;

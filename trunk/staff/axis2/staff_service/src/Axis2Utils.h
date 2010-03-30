@@ -26,11 +26,11 @@
 
 namespace staff
 {
-  class CService;
+  class CServiceWrapper;
 }
 
 bool Axis2UtilsCreateVirtualService(const std::string& sServiceName, 
-                                    const staff::CService* pService, 
+                                    const staff::CServiceWrapper* pService, 
                                     void* pSvcClass, 
                                     const struct axutil_env* pEnv, 
                                     struct axis2_conf* pConf);

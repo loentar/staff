@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Utkin Dmitry
+ *  Copyright 2010 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-/* 
+
+/*
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include "Service.h"
+#include "IService.h"
 
 namespace staff
 {
-  CService::~CService()
+  IService::IService()
   {
   }
+
+  IService::~IService()
+  {
+  }
+
+
+  const std::string& IService::GetServiceName() const
+  {
+    return m_sServiceName;
+  }
+
+  const std::string& IService::GetSessionId() const
+  {
+    return m_sSessionId;
+  }
+
+  const std::string& IService::GetInstanceId() const
+  {
+    return m_sInstanceId;
+  }
+
 }

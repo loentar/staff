@@ -22,7 +22,7 @@
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/MutablePtr.h>
-#include "Service.h"
+#include "ServiceWrapper.h"
 #include "CompositeComponent.h"
 
 namespace staff
@@ -43,17 +43,17 @@ namespace staff
   void CCompositeComponent::Compose( CComponent* pComponent )
   {
     RISE_ASSERTP(pComponent);
-  
+
     if (m_sName == "")
       m_sName = pComponent->GetName();
     else
       RISE_ASSERTP(m_sName == pComponent->GetName());
 
-    const TServiceMap& rmComponentServices = pComponent->GetServices();
-    for (TServiceMap::const_iterator itService = rmComponentServices.begin();
+    const TServiceWrapperMap& rmComponentServices = pComponent->GetServices();
+    for (TServiceWrapperMap::const_iterator itService = rmComponentServices.begin();
       itService != rmComponentServices.end(); ++itService)
     {
-      const std::pair<TServiceMap::iterator, bool>& tInsertResult = 
+      const std::pair<TServiceWrapperMap::iterator, bool>& tInsertResult = 
         m_mServices.insert(*itService);
 
       if (!tInsertResult.second)
@@ -62,23 +62,23 @@ namespace staff
     }
   }
 
-  const CService* CCompositeComponent::GetService( const std::string& sName ) const
+  const CServiceWrapper* CCompositeComponent::GetService( const std::string& sName ) const
   {
-    TServiceMap::const_iterator itService = m_mServices.find(sName);
+    TServiceWrapperMap::const_iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;
     return itService->second;
   }
 
-  CService* CCompositeComponent::GetService( const std::string& sName )
+  CServiceWrapper* CCompositeComponent::GetService( const std::string& sName )
   {
-    TServiceMap::iterator itService = m_mServices.find(sName);
+    TServiceWrapperMap::iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;
     return itService->second;
   }
 
-  const TServiceMap& CCompositeComponent::GetServices() const
+  const TServiceWrapperMap& CCompositeComponent::GetServices() const
   {
     return m_mServices;
   }
@@ -88,7 +88,7 @@ namespace staff
     return m_doProperties;
   }
 
-  void CCompositeComponent::AddService( CService* pService )
+  void CCompositeComponent::AddService( CServiceWrapper* pService )
   {
     if (pService == NULL)
       return;

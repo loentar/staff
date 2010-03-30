@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Utkin Dmitry
+ *  Copyright 2010 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,26 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-/* 
+
+/*
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _STAFFSERVICEEXPORT_H_
-#define _STAFFSERVICEEXPORT_H_
+#ifndef SERVICEWRAPPERFACTORY_H
+#define SERVICEWRAPPERFACTORY_H
 
-#if defined(WIN32) || defined (_WINDOWS)
-  #pragma warning(disable: 4786)
+#include <string>
+#include "Component.h"
 
-  #ifdef STAFF_SERVICE_DLL_EXPORTS
-    #define STAFF_SERVICE_EXPORT __declspec(dllexport)
-  #else
-    #define STAFF_SERVICE_EXPORT __declspec(dllimport)
-  #endif
+namespace staff
+{
+  class CServiceWrapperFactory
+  {
+  public:
+    static CServiceWrapperFactory& Inst();
+    static void FreeInst();
 
-#else
-  #define STAFF_SERVICE_EXPORT 
-#endif
+    void RegisterServiceWrapper(PServiceWrapper& rpServiceWrapper);
+    void UnregisterServiceWrapper(const std::string& sServiceName);
+    PServiceWrapper& GetServiceWrapper(const std::string& sServiceName);
 
-#endif // _STAFFSERVICEEXPORT_H_
+  private:
+    CServiceWrapperFactory();
+    ~CServiceWrapperFactory();
+
+  private:
+    static CServiceWrapperFactory* m_pInst;
+    TServiceWrapperMap m_mWrappers;
+  };
+}
+
+#endif // SERVICEWRAPPERFACTORY_H

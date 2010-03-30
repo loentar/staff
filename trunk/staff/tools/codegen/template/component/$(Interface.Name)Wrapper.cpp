@@ -7,53 +7,27 @@
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Value.h>
-#include "$(Interface.Name)Wrapper.h"
-#include "$(Interface.Name)Context.h"
+#include <staff/common/IService.h>
+#include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.Name)Impl.h"
+#include "$(Interface.Name)Wrapper.h"
 
 #cginclude <common/Serialization.cpp>
 
 #foreach $(Interface.Classes)
 
 $(Class.OpeningNs)
-class $(Class.Name)Wrapper::$(Class.Name)WrapperImpl
-{
-public:
-  typedef rise::CMutablePtr< $(Class.Name)Impl > P$(Class.ServiceName)Impl;
-  typedef std::map<std::string, P$(Class.ServiceName)Impl> TServiceMap;
-  TServiceMap m_mServices;
-  staff::CComponent* m_pComponent;
-  static std::string m_sName;
-  static std::string m_sDescr;
-};
 
-$(Class.Name)Wrapper::$(Class.Name)Wrapper(staff::CComponent* pComponent)
+$(Class.Name)Wrapper::$(Class.Name)Wrapper(staff::CComponent* pComponent):
+  m_pComponent(pComponent)
 {
-  m_pImpl = new $(Class.Name)WrapperImpl;
-  m_pImpl->m_pComponent = pComponent;
-}
-
-$(Class.Name)Wrapper::$(Class.Name)Wrapper()
-{
-  m_pImpl = new $(Class.Name)WrapperImpl;
-  m_pImpl->m_pComponent = NULL;
 }
 
 $(Class.Name)Wrapper::~$(Class.Name)Wrapper()
 {
-  if(m_pImpl != NULL)
-  {
-    delete m_pImpl;
-    m_pImpl = NULL;
-  }
 }
 
-$(Class.Name)Impl& $(Class.Name)Wrapper::ServiceImpl(const std::string& sID)
-{
-  return *$(Class.Name)Context::GetContext().GetServiceImpl(sID);
-}
-
-void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const std::string& sID )
+void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
 {
   const staff::CDataObject& rRequest = rOperation.Request();
   staff::CDataObject& rResult = rOperation.Result();
@@ -63,39 +37,38 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const std::str
   {
     rResult = GetServiceDescription();
   } else
+  if (sOperationName == "CreateInstance")
+  {
+    staff::CServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName,
+                                                                 rRequest.GetChildByLocalName("sInstanceId").GetText());
+  } else
+  if (sOperationName == "FreeInstance")
+  {
+    staff::CServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
+                                                               rRequest.GetChildByLocalName("sInstanceId").GetText());
+  } else
 #foreach $(Class.Members)
   if (sOperationName == "$(Member.Name)")
   {
     rOperation.SetResponseName("$(Member.Return.ResponseName)");
     rOperation.SetResultName("$(Member.Return.NodeName)");
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),struct)     // !!struct!! 
-    $(Param.DataType.Name) $(Param.Name);
-#else
-#ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
+#ifeq($(Param.DataType.Type),struct||typedef||template)
     $(Param.DataType.Name) $(Param.Name);
 #else
 \
-#ifeqend
 #ifeqend
 #end
 \
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),struct)     // !!struct!! 
-    rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
-#else
-#ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
+#ifeq($(Param.DataType.Type),struct||typedef||template)
     rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #else
 \
-#ifeqend
 #ifeqend
 #end
 \
-#ifeq($(Member.Return.Type),struct) // result value // !!struct!! 
-    $(Member.Return.Name) tResult = \
-#else
-#ifeq($(Member.Return.Type),typedef)    // !!typedef!!
+#ifeq($(Member.Return.Type),struct||typedef||template)
     $(Member.Return.Name) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
@@ -113,10 +86,9 @@ void $(Class.Name)Wrapper::Invoke( staff::COperation& rOperation, const std::str
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 #ifeqend // invoke an function
 \
-ServiceImpl(sID).$(Member.Name)(\
+GetServiceImpl(sSessionId, sInstanceId)->$(Member.Name)(\
 #foreach $(Member.Params)
 #ifeq($(Param.$Num),0) // param splitter
 \
@@ -132,10 +104,7 @@ rRequest["$(Param.Name)"]\
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
 *rRequest.GetChildByLocalName("$(Param.Name)").Begin()\
 #else
-#ifeq($(Param.DataType.Type),struct)     // !!struct!! 
-$(Param.Name)\
-#else
-#ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
+#ifeq($(Param.DataType.Type),struct||typedef||template)
 $(Param.Name)\
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
@@ -143,22 +112,17 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
-#end // end of funtion param list
+#end // end of function param list
 );
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
     rOperation.Result().AppendChild(tResultDO);
 #else
 \
 #ifeqend // end of function invokation
-#ifeq($(Member.Return.Type),struct) // result for structs and types // !!struct!! 
-    rResult << tResult;
-#else
-#ifeq($(Member.Return.Type),typedef)    // !!typedef!!
+#ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
     rResult << tResult;
 #else
 \
-#ifeqend
 #ifeqend
   } else
 #end
@@ -169,47 +133,37 @@ $(Param.Name)\
 
 const std::string& $(Class.Name)Wrapper::GetName() const
 {
-  if($(Class.Name)WrapperImpl::m_sName.size() == 0)
-  {
-    $(Class.Name)WrapperImpl::m_sName = "$(Class.ServiceName)";
-  }
-  
-  return $(Class.Name)WrapperImpl::m_sName;
+  return m_sName;
 }
 
 const std::string& $(Class.Name)Wrapper::GetDescr() const
 {
-  if($(Class.Name)WrapperImpl::m_sDescr.size() == 0)
-  {
-    $(Class.Name)WrapperImpl::m_sDescr = \
-#ifneq($(Class.Description),)
-"$(Class.Description)";
-#else
-"Staff service $(Class.ServiceName)";
-#ifeqend
-  }
-  
-  return $(Class.Name)WrapperImpl::m_sDescr;
+  return m_sDescr;
 }
 
 const staff::CComponent* $(Class.Name)Wrapper::GetComponent() const
 {
-  return m_pImpl->m_pComponent;
+  return m_pComponent;
 }
 
 staff::CComponent* $(Class.Name)Wrapper::GetComponent()
 {
-  return m_pImpl->m_pComponent;
+  return m_pComponent;
 }
 
-void* $(Class.Name)Wrapper::GetImpl(const std::string& sID)
+staff::IService* $(Class.Name)Wrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
 {
-  return $(Class.Name)Context::GetContext().GetServiceImpl(sID);
+  return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId).Get();
 }
 
-rise::CStringList $(Class.Name)Wrapper::GetServiceIds() const
+staff::IService* $(Class.Name)Wrapper::NewImpl()
 {
-  return $(Class.Name)Context::GetContext().GetServiceIds();
+  return new $(Class.Name)Impl;
+}
+
+$(Class.Name)Impl* $(Class.Name)Wrapper::GetServiceImpl(const std::string& sSessionId, const std::string& sInstanceId)
+{
+  return static_cast<$(Class.Name)Impl*>(GetImpl(sSessionId, sInstanceId));
 }
 
 staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
@@ -245,21 +199,25 @@ staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
 staff::CDataObject $(Class.Name)Wrapper::GetServiceDescription() const
 {
   staff::CDataObject tServiceDescription;
-  staff::CDataObject tOperations = GetOperations();
 
   tServiceDescription.Create("ServiceDescription");
   tServiceDescription.DeclareDefaultNamespace("http://tempui.org/staff/service-description");
-    
-  tServiceDescription.CreateChild("Name", GetName());
-  tServiceDescription.CreateChild("Description", GetDescr());
-  
-  tServiceDescription.AppendChild(tOperations);
+
+  tServiceDescription.CreateChild("Name", m_sName);
+  tServiceDescription.CreateChild("Description", m_sDescr);
+
+  tServiceDescription.AppendChild(GetOperations());
 
   return tServiceDescription;
 }
 
-std::string $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sName;
-std::string $(Class.Name)Wrapper::$(Class.Name)WrapperImpl::m_sDescr;
+const std::string $(Class.Name)Wrapper::m_sName = "$(Class.ServiceNsName)";
+const std::string $(Class.Name)Wrapper::m_sDescr = \
+#ifneq($(Class.Description),)
+"$(Class.Description)";
+#else
+"Staff service $(Class.ServiceName)";
+#ifeqend
 
 $(Class.EndingNs)
 #end

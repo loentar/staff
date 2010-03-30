@@ -23,6 +23,7 @@
 #define _ACCOUNTADMIN_H_
 
 #include <string>
+#include <staff/common/IService.h>
 
 namespace staff
 {
@@ -54,7 +55,7 @@ namespace staff
     typedef std::list<SGroup> TGroupList;
 
     //!  Account admin
-    class CAccountAdmin
+    class CAccountAdmin: public staff::IService
     {
     public:
       //!        destructor

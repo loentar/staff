@@ -28,21 +28,21 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     /*! \param  sService - service name
         \return pointer to work with service, NULL if no service found
         */
-    const staff::CService* GetService(const std::string& sService) const;
+    const staff::CServiceWrapper* GetService(const std::string& sService) const;
 
     //!         get service
     /*! \param  sService - service name
         \return pointer to work with service, NULL if no service found
         */
-    staff::CService* GetService(const std::string& sService);
+    staff::CServiceWrapper* GetService(const std::string& sService);
 
     //!         get services map
     /*! \return services map
     */
-    const staff::TServiceMap& GetServices() const;
+    const staff::TServiceWrapperMap& GetServices() const;
 
   private:
-    staff::TServiceMap m_mServices;
+    staff::TServiceWrapperMap m_mServices;
     static const std::string m_sName;
   };
 $(Project.Interfaces.Interface.Classes.Class.EndingNs)

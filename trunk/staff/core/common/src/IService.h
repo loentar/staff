@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Utkin Dmitry
+ *  Copyright 2010 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,35 +13,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-/* 
+
+/*
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <staff/security/Sessions.h>
-#include "ServiceWrapper.h"
+#ifndef ISERVICE_H
+#define ISERVICE_H
+
+#include <string>
+
+namespace rise
+{
+  template<typename Type> class CMutablePtr;
+}
 
 namespace staff
 {
-  CServiceWrapper::~CServiceWrapper()
+  class IService
   {
-  }
+  public:
+    IService();
+    virtual ~IService();
 
-  const std::string& CServiceWrapper::GetSessionId() const
-  {
-    return m_sSessionId;
-  }
+    const std::string& GetServiceName() const;
+    const std::string& GetSessionId() const;
+    const std::string& GetInstanceId() const;
 
-  void CServiceWrapper::SetSessionId( const std::string& sSessionId )
-  {
-    if(sSessionId == "")
-    {
-      m_sSessionId = staff::security::CSessions::sNobodySessionId;
-    }
-    else
-    {
-      m_sSessionId = sSessionId;
-    }
-  }
+  private:
+    std::string m_sServiceName;
+    std::string m_sSessionId;
+    std::string m_sInstanceId;
+
+    friend class CServiceInstanceManager; // service-side initializer
+    friend class CServiceFactory; // client-side initializer
+  };
+
+  typedef rise::CMutablePtr<IService> PIService;
 }
+
+#endif // ISERVICE_H

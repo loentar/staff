@@ -30,7 +30,7 @@
 
 namespace staff
 {
-  class CService;
+  class CServiceWrapper;
   class CComponent;
   
   //! Pointer to componsite component
@@ -75,18 +75,18 @@ namespace staff
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    const CService* GetService(const std::string& sName) const;
+    const CServiceWrapper* GetService(const std::string& sName) const;
 
     //!         get service by name
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    CService* GetService(const std::string& sName);
+    CServiceWrapper* GetService(const std::string& sName);
 
     //!         get services list
     /*! \return services list
         */
-    TServiceMap GetServices() const;
+    TServiceWrapperMap GetServices() const;
 
     //!         clear component list
     void Clear();

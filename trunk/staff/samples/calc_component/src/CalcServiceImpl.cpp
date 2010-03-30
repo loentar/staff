@@ -28,12 +28,11 @@
 #include <rise/xml/XMLNode.h>
 #include <staff/common/Config.h>
 #include <staff/component/SharedContext.h>
-#include <staff/component/Service.h>
+#include <staff/component/ServiceWrapper.h>
+#include <staff/component/ServiceInstanceManager.h>
 #include <staff/component/ComponentConfig.h>
 #include <staff/component/ComponentConfigManager.h>
-#include "ServiceLocator.h"
 #include "SubService.h"
-#include "CalcServiceContext.h"
 #include "CalcServiceImpl.h"
 
 namespace samples
@@ -56,15 +55,13 @@ namespace samples
 
     int CCalcServiceImpl::Sub(int nA, int nB) const
     {
-      const std::string& sID = CCalcServiceContext::GetContext().GetServiceID(this);
+      CSubService* pSubService = static_cast<CSubService*>(staff::CServiceInstanceManager::Inst().
+          GetServiceInstance(staff::IService::GetSessionId(), "samples.calc.SubService", staff::IService::GetInstanceId()).Get());
 
-      CSubService* pSubServiceImpl = 
-          reinterpret_cast<CSubService*>(staff::CServiceLocator::Inst().LocateService("samples.calc.SubService", sID));
-      
-      RISE_ASSERTES(pSubServiceImpl != NULL, rise::CLogicNoItemException, 
-          "Service [samples.calc.SubService] with id [" + sID + "] not found");
+      RISE_ASSERTES(pSubService != NULL, rise::CLogicNoItemException,
+          "Service [samples.calc.SubService] with session id [" + staff::IService::GetSessionId() + "] not found");
 
-      return pSubServiceImpl->Sub(nA, nB);
+      return pSubService->Sub(nA, nB);
     }
 
     void CCalcServiceImpl::SetMem(int nMem)
