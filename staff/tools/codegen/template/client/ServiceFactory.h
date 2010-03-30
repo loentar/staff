@@ -8,36 +8,48 @@
 #include <typeinfo>
 #include <string>
 
-//! service factory
-class CServiceFactory
+namespace staff
 {
-public:
-  //!         get instance of service factory
-  static CServiceFactory& Inst();
+  class IService;
 
-  //!         allocate new object for work with service
-  /*! example:
-      CCalculator* pCalculator = CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator")
-
-      \param  sServiceUri - service URI
-      \param  sSessionId - session identifier
-      \return pointer to object for work with service
-      */
-  template<typename TServiceClientBaseType>
-  TServiceClientBaseType* GetService( const std::string& sServiceUri = "",
-                                      const std::string& sSessionId = "" )
+  //! service factory
+  class CServiceFactory
   {
-    return reinterpret_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(), sServiceUri, sSessionId));
-  }
+  public:
+    //!         get instance of service factory
+    static CServiceFactory& Inst();
 
-private:
-  //! private constructor
-  CServiceFactory();
+    //!         free instance of service factory
+    static void FreeInst();
 
-  void* AllocateClient(const std::string& sClientType, const std::string& sServiceUri, const std::string& sSessionId);
+    //!         allocate new object for work with service
+    /*! examples:
+        rise::CSharedPtr<CCalculator> pCalculator = staff::CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator");
+        rise::CSharedPtr<CCalculator> pCalculator = staff::CServiceFactory::Inst().GetService<CCalculator>("", "", "mycalc");
 
-private:
-  static CServiceFactory* m_pInst;  //!< instance
-};
+        \param  sServiceUri - service URI
+        \param  sSessionId - session identifier
+        \return pointer to object for work with service
+        */
+    template<typename TServiceClientBaseType>
+    TServiceClientBaseType* GetService(const std::string& sServiceUri = "",
+                                       const std::string& sSessionId = "",
+                                       const std::string& sInstanceId = "")
+    {
+      return static_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(),
+                                                                      sServiceUri, sSessionId, sInstanceId));
+    }
+
+  private:
+    //! private constructor
+    CServiceFactory();
+
+    staff::IService* AllocateClient(const std::string& sClientType, const std::string& sServiceUri,
+                             const std::string& sSessionId, const std::string& sInstanceId);
+
+  private:
+    static CServiceFactory* m_pInst;  //!< instance
+  };
+}
 
 #endif // _SERVICEFACTORY_H_

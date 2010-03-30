@@ -6,28 +6,27 @@ TARGETNAME = lib$(TARGET).so
 DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR) -I$(STAFF_HOME)/include/
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR) -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffcomponent -lrise
-LDFLAGS += -laxis2_axiom -laxutil -laxis2_engine
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+CFLAGS += -c -Wno-deprecated -fexceptions -I$(AXIS2C_INCDIR)
+LFLAGS += -fexceptions -L$(AXIS2C_LIBDIR)
+LFLAGS += -laxis2_axiom -laxutil -laxis2_engine
+LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
 HEADERS := $(wildcard $(patsubst %,%*.h*,$(SRCDIR)))
-SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
-OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+SOURCES := $(wildcard $(patsubst %,%*.c,$(SRCDIR)))
+OBJECTS := $(patsubst %.c,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CC) $(LFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
-$(OBJDIR)%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+$(OBJDIR)%.o: %.c
+	$(CC) $(CFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETNAME)

@@ -58,6 +58,7 @@ install_headers: "$(INSTALLDIR)$(INCDIR)"
 
 install_db: "$(INSTALLDIR)db/"
 	cp -f db/staff.db $(INSTALLDIR)db/
+	chmod go+rw -R $(INSTALLDIR)db/
 
 # == clean ==========================================
 clean:

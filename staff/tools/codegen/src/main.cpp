@@ -158,6 +158,7 @@ int main(int nArgs, const char* szArgs[])
       {
         std::string sFileName = stProject.sInDir + "/" + *it;
         std::ifstream isFile;
+        int nServicesCount = 0;
         SInterface stInterface;
 
         isFile.open(sFileName.c_str());
@@ -179,7 +180,7 @@ int main(int nArgs, const char* szArgs[])
 
             isFile.close();
 
-            throw sEx + ": before line\n" + sbData.str() + "\n";
+            throw sEx + ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
           }
           catch (const char* szEx)
           {
@@ -190,14 +191,21 @@ int main(int nArgs, const char* szArgs[])
 
             isFile.close();
 
-            throw std::string(szEx) + ": before line\n" + sbData.str() + "\n";
+            throw std::string(szEx) + ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
           }
 
-          //std::cout << stInterface;
+          nServicesCount += stInterface.lsClass.size();
           stProject.lsInterfaces.push_back(stInterface);
         } else
         {
           throw std::string("can't open file: ") + *it + ": " + std::string(strerror(errno));
+        }
+
+        if (nServicesCount == 0)
+        {
+          throw std::string("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
+                            "Example:\n----\n  class Calc: public staff::IService\n"
+                            "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n");
         }
       }
     }

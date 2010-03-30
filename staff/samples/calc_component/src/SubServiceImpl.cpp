@@ -24,10 +24,7 @@
 
 #include <string>
 #include <rise/common/ExceptionTemplate.h>
-#include "Calculator.h"
 #include "SubServiceImpl.h"
-#include "SubServiceContext.h"
-#include "ServiceLocator.h"
 
 namespace samples
 {
@@ -40,15 +37,7 @@ namespace samples
 
     int CSubServiceImpl::Sub(int nA, int nB) const
     {
-      const std::string& sID = CSubServiceContext::GetContext().GetServiceID(this);
-
-      CCalculator* pCalculatorService = 
-        reinterpret_cast<CCalculator*>(staff::CServiceLocator::Inst().LocateService("samples.Calculator", sID));
-
-      RISE_ASSERTES(pCalculatorService != NULL, rise::CLogicNoItemException, 
-        "Service [samples.Calculator] with id [" + sID + "] not found");
-
-      return pCalculatorService->Sub(nA, nB);
+      return nA - nB;
     }
 
 

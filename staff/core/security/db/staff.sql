@@ -44,17 +44,6 @@ CREATE TABLE sessions
 );
 
 ---------------------------------------------
--- extra sessions
-
-CREATE TABLE sessions_extra
-(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  extraid INTEGER NOT NULL,
-  sessionid TEXT(32) NOT NULL DEFAULT (lower(hex(randomblob(16)))),
-  parentid INTEGER NOT NULL REFERENCES sessions(id) ON DELETE CASCADE
-);
-
----------------------------------------------
 -- users
 
 CREATE TABLE users
@@ -172,7 +161,7 @@ INSERT INTO users_to_groups(userid, groupid) VALUES (3, 3);
 ---------------------------------------------
 -- sessions
 
-INSERT INTO sessions(id, sessionid, userid, expires) VALUES (0, '00000000000000000000000000000000', 0, 214524836470);
+INSERT INTO sessions(id, sessionid, userid, expires) VALUES (0, '00000000000000000000000000000000', 0, 2147483647);
 
 ---------------------------------------------
 -- objects

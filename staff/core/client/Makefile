@@ -5,7 +5,7 @@ TARGETNAME = libstaff$(TARGET).so
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
+LDFLAGS += -lstaffcommon -lrise
 
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 

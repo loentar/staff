@@ -1,1 +1,0 @@
-psql -U postgres template1 < db/instdb.sql

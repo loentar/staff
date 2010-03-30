@@ -1,3 +1,24 @@
+/*
+ *  Copyright 2010 Utkin Dmitry
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
+ */
+
 #ifndef _SESSIONS_H_
 #define _SESSIONS_H_
 
@@ -11,7 +32,6 @@ namespace staff
     struct SSession
     {
       int nId;
-//      int nExtraId;
       std::string sSessionId;
       int nUserId;
       int nExpires; //!< unix datetime
@@ -29,22 +49,16 @@ namespace staff
 
       static void FreeInst();
 
-/*      void GetById(int nId, SSession& rstSession);
+      void GetById(int nId, SSession& rstSession);
 
-      void GetBySessionId(const std::string& sSessionId, SSession& rstSession);*/
+      void GetBySessionId(const std::string& sSessionId, SSession& rstSession);
 
-//      void GetList(TSessionsList& rlsSessions);
+      void GetList(TSessionsList& rlsSessions);
 
       void Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId);
 
-      void OpenExtra(const std::string& sSessionId, int nExtraId, std::string& sExtraSessionId);
-
       //! close session
       void Close(const std::string& sSessionId);
-
-  //    void Close(int nUserId);
-
-      void CloseExtra(const std::string& sSessionId, int nExtraId);
 
       bool Validate(const std::string& sSessionId);
 
@@ -52,11 +66,13 @@ namespace staff
 
       int GetExpiration() const;
 
+      int GetExpiresById(int nId);
+
       bool GetUserId(const std::string& sSessionId, int& nUserId);
 
       bool GetUserName(const std::string& sSessionId, std::string& sUserName);
 
-      void Cleanup();
+      void CloseExpiredSessions();
 
     private:
       CSessions();

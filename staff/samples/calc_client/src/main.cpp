@@ -41,13 +41,13 @@ int main(int nArgs, const char* paszArgs[])
     {
       // use anonymous account
       rise::CSharedPtr< ::samples::calc::CCalcService > pCalcService = 
-        CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >();
+        staff::CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >("", "", "mycalc");
 
       RISE_ASSERTES(pCalcService != NULL, rise::CLogicNoItemException, "Cannot get client for service calc.CalcService!");
 
       // Invoke Your service here:
       rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
-      /*
+      
 //      rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
 
       rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
@@ -59,7 +59,7 @@ int main(int nArgs, const char* paszArgs[])
       pCalcService->SetMem(nNewMem);
       rise::LogInfo() << pCalcService->GetMem();
       rise::LogInfo() << "Service mem: " << pCalcService->GetMem();
-      */
+      
     }
   }
   catch(const staff::CRemoteException& rEx)

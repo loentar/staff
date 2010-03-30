@@ -21,7 +21,7 @@
 
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
-#include "Service.h"
+#include "ServiceWrapper.h"
 #include "SharedContext.h"
 
 namespace staff
@@ -75,7 +75,7 @@ namespace staff
     return m_mComponents;
   }
 
-  const CService* CSharedContext::GetService( const std::string& sName ) const
+  const CServiceWrapper* CSharedContext::GetService( const std::string& sName ) const
   {
     std::string sComponentName;
     std::string sServiceName;
@@ -100,7 +100,7 @@ namespace staff
     return pComponent->GetService(sName);
   }
 
-  CService* CSharedContext::GetService( const std::string& sName )
+  CServiceWrapper* CSharedContext::GetService( const std::string& sName )
   {
     std::string sComponentName;
     std::string sServiceName;
@@ -125,18 +125,18 @@ namespace staff
     return pComponent->GetService(sName);
   }
 
-  TServiceMap CSharedContext::GetServices() const
+  TServiceWrapperMap CSharedContext::GetServices() const
   {
-    TServiceMap mServices;
+    TServiceWrapperMap mServices;
     for(TCompositeComponentMap::const_iterator itComponent = m_mComponents.begin();
           itComponent != m_mComponents.end(); ++itComponent)
     {
-      const TServiceMap& rmNewComponent = itComponent->second->GetServices();
-      for (TServiceMap::const_iterator itService = rmNewComponent.begin();
+      const TServiceWrapperMap& rmNewComponent = itComponent->second->GetServices();
+      for (TServiceWrapperMap::const_iterator itService = rmNewComponent.begin();
         itService != rmNewComponent.end(); ++itService)
       {
-        const std::pair<TServiceMap::iterator, bool>& tInsertResult = 
-          mServices.insert(TServiceMap::value_type(itService->first, itService->second));
+        const std::pair<TServiceWrapperMap::iterator, bool>& tInsertResult = 
+          mServices.insert(TServiceWrapperMap::value_type(itService->first, itService->second));
         if (!tInsertResult.second)
           rise::LogWarning() << "Duplicate service: \"" << itService->first 
           << "\": in component: \"" << itComponent->first << "\".";

@@ -3,45 +3,48 @@
 // DO NOT EDIT
 
 #include <memory>
-#include <staff/security/tools.h>
+#include <staff/common/IService.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Proxy.h"
 #end
 #include "ServiceFactory.h"
 
-void* CServiceFactory::AllocateClient(const std::string& sClientType, const std::string& sServiceUri, const std::string& sSessionId)
+namespace staff
 {
+  IService* CServiceFactory::AllocateClient(const std::string& sClientType,
+                                                   const std::string& sServiceUri,
+                                                   const std::string& sSessionId,
+                                                   const std::string& sInstanceId)
+  {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
-  if (sClientType == typeid($(Class.NsName)).name())
-  {
-    std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
-    pClientProxy->Init(sServiceUri.size() != 0 ? sServiceUri : \
-#ifeq($(Class.ServiceUri),)
-"http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
-#else
-"$(Class.ServiceUri)"\
-#ifeqend
-, sSessionId.size() == 0 ? STAFF_SECURITY_NOBODY_SESSION_ID : sSessionId );
-    return pClientProxy.release();
-  } else
+    if (sClientType == typeid($(Class.NsName)).name())
+    {
+      std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
+      pClientProxy->m_sServiceName = "$(Class.ServiceNsName)";
+      pClientProxy->m_sSessionId = sSessionId;
+      pClientProxy->m_sInstanceId = sInstanceId;
+      pClientProxy->Init(sServiceUri, sSessionId, sInstanceId);
+      return pClientProxy.release();
+    }
 #end
 #end
-  return NULL;
-}
-
-CServiceFactory& CServiceFactory::Inst()
-{
-  if (m_pInst == NULL)
-  {
-    m_pInst = new CServiceFactory;
+    return NULL;
   }
 
-  return *m_pInst;
-}
+  CServiceFactory& CServiceFactory::Inst()
+  {
+    if (m_pInst == NULL)
+    {
+      m_pInst = new CServiceFactory;
+    }
 
-CServiceFactory::CServiceFactory()
-{
-}
+    return *m_pInst;
+  }
 
-CServiceFactory* CServiceFactory::m_pInst = NULL;
+  CServiceFactory::CServiceFactory()
+  {
+  }
+
+  CServiceFactory* CServiceFactory::m_pInst = NULL;
+}

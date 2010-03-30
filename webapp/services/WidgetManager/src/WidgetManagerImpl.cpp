@@ -38,7 +38,6 @@
 #include <staff/security/UsersToGroups.h>
 #include <staff/security/Groups.h>
 #include <staff/security/Acl.h>
-#include "WidgetManagerContext.h"
 #include "WidgetManagerImpl.h"
 
 namespace widget
@@ -691,16 +690,6 @@ namespace widget
     m_lsActiveWidgetGroups = lsActiveWidgetGroups;
   }
 
-
-  const std::string& CWidgetManagerImpl::GetSessionId()
-  {
-    if(m_sSessionId.size() == 0)
-    {
-      m_sSessionId = CWidgetManagerContext::GetContext().GetServiceID(this);
-    }
-
-    return m_sSessionId;
-  }
 
   int CWidgetManagerImpl::GetUserId()
   {

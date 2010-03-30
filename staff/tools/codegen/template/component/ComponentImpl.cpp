@@ -5,6 +5,7 @@
 #include <rise/plugin/PluginExport.h>
 #include <rise/common/MutablePtr.h>
 #include <rise/common/containertypes.h>
+#include <staff/component/ServiceWrapperFactory.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Wrapper.h"
 #end
@@ -17,7 +18,11 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
   {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
-    m_mServices["$(Class.ServiceNsName)"] = new $(Class.NsName)Wrapper(this);
+    {
+      staff::PServiceWrapper tpServiceWrapper(new $(Class.NsName)Wrapper(this));
+      m_mServices["$(Class.ServiceNsName)"] = tpServiceWrapper;
+      staff::CServiceWrapperFactory::Inst().RegisterServiceWrapper(tpServiceWrapper);
+    }
 #end
 #end
   }
@@ -31,25 +36,27 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     return m_sName;
   }
 
-  const staff::CService* CComponentImpl::GetService( const std::string& sService ) const
+  const staff::CServiceWrapper* CComponentImpl::GetService( const std::string& sService ) const
   {
-    staff::TServiceMap::const_iterator itService = m_mServices.find(sService);
+    staff::TServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
       return NULL;
 
     return itService->second;
   }
 
-  staff::CService* CComponentImpl::GetService( const std::string& sService )
+  staff::CServiceWrapper* CComponentImpl::GetService( const std::string& sService )
   {
-    staff::TServiceMap::iterator itService = m_mServices.find(sService);
+    staff::TServiceWrapperMap::iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
+    {
       return NULL;
+    }
 
     return itService->second;
   }
 
-  const staff::TServiceMap& CComponentImpl::GetServices() const
+  const staff::TServiceWrapperMap& CComponentImpl::GetServices() const
   {
     return m_mServices;
   }

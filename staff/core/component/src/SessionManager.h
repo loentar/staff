@@ -35,7 +35,14 @@ namespace staff
     */
     static CSessionManager& Inst();
 
+    //!         free session manager instance
     static void FreeInst();
+
+    //!         start sessions watching
+    void Start();
+
+    //!         stop sessions watching
+    void Stop();
 
     //!         login and create session
     /*! this operation must be called from guest session
@@ -43,26 +50,22 @@ namespace staff
         */
     void Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId);
 
-    //!         open extra session
-    /*! \param  nExtraSessionId - extra session id
-        */
-    void OpenExtra(const std::string& sParentSessionId, int nExtraId, std::string& sSessionId);
-
     //!         close session
     /*! \param  sSessionId - session id
       */
     void Close(const std::string& sSessionId);
 
     //!         is session opened
-    /*! \param  sSessionId - (extra)session id
+    /*! \param  sSessionId - session id
+        */
+    bool IsOpened(const std::string& sSessionId);
+
+    //!         validate session (using db query)
+    /*! \param  sSessionId - session id
         */
     bool Validate(const std::string& sSessionId);
 
     void Keepalive(const std::string& sSessionId);
-
-    bool GetUserId(const std::string& sSessionId, int& nUserId);
-
-    bool GetUserName(const std::string& sSessionId, std::string& sUserName);
 
   private:
     CSessionManager();
@@ -71,7 +74,7 @@ namespace staff
   private:
     class CSessionManagerImpl;
     CSessionManagerImpl* m_pImpl;
-    static CSessionManagerImpl* m_pInst;
+    static CSessionManager* m_pInst;
   };
 }
 

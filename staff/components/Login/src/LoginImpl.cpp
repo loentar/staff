@@ -26,7 +26,7 @@
 #include <rise/common/exmacros.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <staff/security/Sessions.h>
-#include "LoginContext.h"
+#include <staff/component/SessionManager.h>
 #include "LoginImpl.h"
 
 namespace staff
@@ -45,43 +45,29 @@ namespace staff
   {
     std::string tResult;
 
-    RISE_ASSERTES(GetSessionID() == staff::security::CSessions::sNobodySessionId,
+    RISE_ASSERTES(IService::GetSessionId() == staff::security::CSessions::sNobodySessionId,
       rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
 
-    staff::security::CSessions::Inst().Open(sUserName, sPassword, bCloseExisting, tResult);
+    staff::CSessionManager::Inst().Open(sUserName, sPassword, bCloseExisting, tResult);
 
     return tResult;  // result
-  }
-
-  std::string CLoginImpl::OpenExtraSession(int nExtraSessionId)
-  {
-    std::string tResult;
-
-    staff::security::CSessions::Inst().OpenExtra(GetSessionID(), nExtraSessionId, tResult);
-
-    return tResult;  // result
-  }
-
-  void CLoginImpl::CloseExtraSession(int nExtraSessionId)
-  {
-    staff::security::CSessions::Inst().CloseExtra(GetSessionID(), nExtraSessionId);
   }
 
   void CLoginImpl::Logout()
   {
-    staff::security::CSessions::Inst().Close(GetSessionID());
+    staff::CSessionManager::Inst().Close(IService::GetSessionId());
   }
 
   void CLoginImpl::KeepAliveSession()
   {
-    staff::security::CSessions::Inst().Keepalive(GetSessionID());
+    staff::CSessionManager::Inst().Keepalive(IService::GetSessionId());
   }
 
   std::string CLoginImpl::GetUserName()
   {
     std::string tResult;
 
-    staff::security::CSessions::Inst().GetUserName(GetSessionID(), tResult);
+    staff::security::CSessions::Inst().GetUserName(IService::GetSessionId(), tResult);
 
     return tResult;  // result
   }
@@ -93,16 +79,7 @@ namespace staff
 
   bool CLoginImpl::ValidateSession()
   {
-    return staff::security::CSessions::Inst().Validate(GetSessionID());
-  }
-
-  const std::string& CLoginImpl::GetSessionID()
-  {
-    if(m_sSessionId.size() == 0)
-    {
-      m_sSessionId = CLoginContext::GetContext().GetServiceID(this);
-    }
-    return m_sSessionId;
+    return staff::security::CSessions::Inst().Validate(IService::GetSessionId());
   }
 
 }

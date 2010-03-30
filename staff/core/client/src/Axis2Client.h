@@ -41,10 +41,10 @@ namespace staff
 
     //!         client init
     /*! \param  sServiceUri - service URI
-        \param  sSessionId - sessionId
+        \param  sSessionId - session id
         */
     void Init(const std::string& sServiceUri, const std::string& sSessionId);
-    
+
     //!         deinit
     void Deinit();
 
@@ -53,22 +53,16 @@ namespace staff
         */
     void SetTargetNamespace(const std::string& sTargetNamespace);
 
-    //!         get service URI
-    /*! \return service URI
-        */
-    const std::string& GetServiceURI() const;
+    //!         set instance id
+    /*! \param  sInstanceId - instance id
+      */
+    void SetInstanceId(const std::string& sIntanceId);
 
     //!         invoke operation
     /*! \param  rOperation - operation
         */
-    void Invoke(COperation& rOperation);    
+    void Invoke(COperation& rOperation);
 
-    //!         check for init
-    /*! \return true if Init() was called
-        \sa Init
-        */
-    bool IsInit() const;
-    
   private:
     CAxis2Client(const CAxis2Client&);
     CAxis2Client& operator=(const CAxis2Client&);

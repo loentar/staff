@@ -22,12 +22,14 @@
 #ifndef _SUBSERVICE_H_
 #define _SUBSERVICE_H_
 
+#include <staff/common/IService.h>
+
 namespace samples
 {
   namespace calc
   {
     //!  sample service, implementing substract operation
-    class CSubService
+    class CSubService: public staff::IService
     {
     public:
       //!        destructor

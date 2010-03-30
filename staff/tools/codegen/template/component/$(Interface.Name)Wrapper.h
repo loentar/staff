@@ -6,19 +6,21 @@
 #define _$(Interface.Name)Wrapper_h_
 
 #include <string>
-#include <staff/component/Service.h>
+#include <staff/component/ServiceWrapper.h>
+
+namespace staff
+{
+  class CComponent;
+}
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
   class $(Class.Name)Impl;
 
   //! $(Class.ServiceName) service wrapper
-  class $(Class.Name)Wrapper: public staff::CService
+  class $(Class.Name)Wrapper: public staff::CServiceWrapper
   {
   public:
-    //!         default constructor
-    $(Class.Name)Wrapper();
-
     //!         initializing constructor
     /*! \param  pComponent - service's component
     */
@@ -30,13 +32,13 @@ $(Class.OpeningNs)
     //!         get service name
     /*! \return service name
     */
-    const std::string& GetName() const;
+    virtual const std::string& GetName() const;
 
     //!         get service description
     /*! \return service description
     */
-    const std::string& GetDescr() const;
-    
+    virtual const std::string& GetDescr() const;
+
     //!         get service operations
     /*! \return service operations DataObject
     */
@@ -46,44 +48,46 @@ $(Class.OpeningNs)
     /*! \return service description
     */
     virtual staff::CDataObject GetServiceDescription() const;
-    
+
     //!         invoke service operation
     /*! \param  rOperation - service operation
         \param  sID - service session id
         */
-    void Invoke(staff::COperation& rOperation, const std::string& sID);
+    virtual void Invoke(staff::COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
 
     //!         get service's component
     /*! \return service's component
     */
-    const staff::CComponent* GetComponent() const;
+    virtual const staff::CComponent* GetComponent() const;
 
     //!         get service's component
     /*! \return service's component
     */
-    staff::CComponent* GetComponent();
+    virtual staff::CComponent* GetComponent();
 
-    //!         get pointer to service implementation(only for local)
-    /*! \param  sID - service session id
+    //!         get pointer to service implementation
+    /*! \param  sSessionId - service session id
+        \param  sInstanceId - service instance id
         \return pointer to service implementation
         */
-    void* GetImpl(const std::string& sID);
+    virtual staff::IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
 
-    //!         get services ids
-    /*! \return service ids
-        */
-    virtual rise::CStringList GetServiceIds() const;
+    //!         create new service impl
+    /*! \return resulting service impl
+      */
+    virtual staff::IService* NewImpl();
 
   protected:
     //!         get service implementation
     /*! \param  sID - session id
         \return service implementation
     */
-    $(Class.Name)Impl& ServiceImpl(const std::string& sID);
-  
+    $(Class.Name)Impl* GetServiceImpl(const std::string& sSessionId, const std::string& sInstanceId);
+
   private:
-    class $(Class.Name)WrapperImpl;
-    $(Class.Name)WrapperImpl* m_pImpl;
+    staff::CComponent* m_pComponent;   //!< stored component
+    static const std::string m_sName;  //!< service name
+    static const std::string m_sDescr; //!< service description
   };
 $(Class.EndingNs)
 
