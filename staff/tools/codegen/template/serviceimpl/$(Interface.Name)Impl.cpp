@@ -15,10 +15,10 @@ $(Class.Name)Impl::~$(Class.Name)Impl()
 }
 
 #foreach $(Class.Members)
-$(Member.Return) $(Class.Name)Impl::$(Member.Name)($(Member.Params))$(Member.Const)
+$(Member.Return.UsedName) $(Class.Name)Impl::$(Member.Name)($(Member.Params))$(Member.Const)
 {
 #ifneq($(Member.Return),void)
-  $(Member.Return.Name) tResult;
+  $(Member.Return.UsedName) tResult;
   // TODO: place your code here
 
   return tResult;  // result
