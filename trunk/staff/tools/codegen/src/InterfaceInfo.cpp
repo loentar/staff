@@ -271,6 +271,7 @@ bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDat
 
 void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
 {
+  rDataType.sUsedName = sDataTypeName;
   std::string::size_type nPos = sDataTypeName.find_last_of("::");
   if (nPos != std::string::npos)
   {
@@ -284,7 +285,8 @@ void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
     rDataType.sNamespace = ""; //"::";
   }
 
-  if (sDataTypeName == "staff::CDataObject")
+  if (sDataTypeName == "staff::CDataObject" ||
+      (sDataTypeName == "CDataObject" && g_sCurrentNamespace.substr(0, 9) == "::staff::"))
   {
     rDataType.eType = SDataType::EDataObject;
   }
@@ -623,45 +625,7 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   std::string sResultElement;
 
   rStream >> SkipWs;
-//  ReadBefore(rStream, rClass.sName);
   rClass.sNamespace = g_sCurrentNamespace;
-/*  if(rStream.eof())
-  {
-    throw "unexpected EOF(after classname)";
-  }
-
-  ReadStr(rStream, sTmp);
-  if(rStream.eof())
-  {
-    throw "unexpected EOF(after classname)";
-  }
-
-  if (sTmp != ":")
-  {
-    throw "':' after classname expected ";
-  }
-
-  ReadStr(rStream, sTmp);
-  if(rStream.eof())
-  {
-    throw "unexpected EOF(after classname:";
-  }
-
-  if (sTmp != "public")
-  {
-    throw "public after classname: expected ";
-  }
-
-  ReadStr(rStream, sTmp);
-  if(rStream.eof())
-  {
-    throw "unexpected EOF(after classname: public)";
-  }
-
-  if (sTmp != "IService")
-  {
-    throw "class must inherited from IService";
-  }*/
 
   ReadStr(rStream, sTmp);
   if(rStream.eof())

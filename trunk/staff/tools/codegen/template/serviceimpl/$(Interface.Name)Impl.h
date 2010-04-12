@@ -9,13 +9,19 @@
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
+  //! implementation of \
+#ifeq($(Class.Description),)
+$(Class.Name)
+#else
+$(Class.Description)
+#ifeqend
   class $(Class.Name)Impl: public $(Class.Name)
   {
   public:
     $(Class.Name)Impl();
     virtual ~$(Class.Name)Impl();
 #foreach $(Class.Members)
-    virtual $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const);
+    virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const);
 #end
   };
 $(Class.EndingNs)

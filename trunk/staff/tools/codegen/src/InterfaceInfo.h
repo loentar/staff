@@ -44,6 +44,7 @@ struct SDataType
   bool                    bIsRef;      //!<  reference type
   EDataType               eType;       //!<  data type enum
   std::string             sNodeName;   //!<  SOAP node name
+  std::string             sUsedName;   //!<  name as used
   std::string             sName;       //!<  type name (int, string, etc.)
   std::string             sNamespace;  //!<  namespace
   std::list<SDataType>    lsParams;    //!<  template parameters
@@ -95,7 +96,7 @@ struct SStruct
   std::string         sParent;        //!<  parent struct(inherits)
   std::list<SParam>   lsMember;       //!<  struct fields
   bool                bForward;       //!<  is forward declaration
-  
+
   SStruct();
 };
 
