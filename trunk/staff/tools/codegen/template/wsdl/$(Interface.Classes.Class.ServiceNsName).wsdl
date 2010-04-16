@@ -13,9 +13,9 @@
 #var ServiceUri $(Interface.Classes.Class.ServiceUri)
 #else
 #ifneq($($serviceuri),)
-#var ServiceUri http://localhost:9090/axis2/services/$(Interface.Classes.Class.ServiceNsName)
-#else
 #var ServiceUri $($serviceuri)
+#else
+#var ServiceUri http://localhost:9090/axis2/services/$(Interface.Classes.Class.ServiceNsName)
 #ifeqend
 #ifeqend
 \
