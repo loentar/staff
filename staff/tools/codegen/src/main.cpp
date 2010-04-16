@@ -39,10 +39,12 @@ void Help()
     "-n              - Project name\n"
     "-i<inputdir>    - Interface headers dir\n"
     "-o<outputdir>   - Output dir\n"
-    "-c<changedir>   - set input and output dirs\n"
+    "-c<changedir>   - Set input and output dirs\n"
 //    "-v              - verbose\n"
     "-t<templatedir> - Generate Source With Template\n"
     "-u              - Update only(generate only missing files, update existing files if needed)\n"
+    "-e              - Don't error if Interface file is not contain service\n"
+    "-d              - Define environment variables: -dvar1=value1,var2=2,var3"
     "-x              - Save xml description\n\n";
 }
 
@@ -62,6 +64,8 @@ int main(int nArgs, const char* szArgs[])
   bool bGenXml = false;
   bool bUpdateOnly = false;
   bool bSourceIsWsdl = false;
+  bool bNoServiceError = true;
+  TStringMap mEnv;
   int nResult = 0;
 
 
@@ -122,6 +126,47 @@ int main(int nArgs, const char* szArgs[])
 
       case 'w':
         bSourceIsWsdl = true;
+        break;
+
+      case 'e':
+        bNoServiceError = false;
+        break;
+
+      case 'd':
+        {
+          std::string sVars = &szArgs[i][2];
+          std::string sVar;
+          std::string sName;
+          std::string sValue;
+
+          std::string::size_type nBegin = 0;
+          std::string::size_type nEnd = 0;
+          std::string::size_type nPos = 0;
+          while (nEnd != std::string::npos)
+          {
+            nEnd = sVars.find(',', nBegin);
+            sVar = sVars.substr(nBegin, nEnd - nBegin);
+
+            if (sVar.size() != 0)
+            {
+              nPos = sVar.find('=');
+              if (nPos == std::string::npos)
+              {
+                sName = sVar;
+                sValue = "true";
+              }
+              else
+              {
+                sName = sVar.substr(0, nPos);
+                sValue = sVar.substr(nPos + 1);
+              }
+
+              mEnv[sName] = sValue;
+            }
+
+            nBegin = nEnd + 1;
+          }
+        }
         break;
 
       default:
@@ -201,7 +246,7 @@ int main(int nArgs, const char* szArgs[])
           throw std::string("can't open file: ") + *it + ": " + std::string(strerror(errno));
         }
 
-        if (nServicesCount == 0)
+        if (nServicesCount == 0 && bNoServiceError)
         {
           throw std::string("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
                             "Example:\n----\n  class Calc: public staff::IService\n"
@@ -222,7 +267,7 @@ int main(int nArgs, const char* szArgs[])
     {
       std::cout << "template: " << sTemplate << std::endl;
       CCodeGen tGen;
-      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stProject.sOutDir, tDoc.GetRoot(), bUpdateOnly);
+      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stProject.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
 
   }
