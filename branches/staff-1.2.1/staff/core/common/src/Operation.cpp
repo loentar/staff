@@ -291,7 +291,8 @@ namespace staff
 
     if (m_tdoResponse.GetPrefix() == "" || m_tdoResponse.GetNamespaceUri() == "")
     {
-      CQName tqnResult(m_tdoResponse.GetLocalName(), m_tdoRequest.GetNamespaceUri(), m_tdoRequest.GetPrefix());
+      std::string sPrefix = m_tdoRequest.GetPrefix();
+      CQName tqnResult(m_tdoResponse.GetLocalName(), m_tdoRequest.GetNamespaceUri(), sPrefix.size() != 0 ? sPrefix : "ns");
       m_tdoResponse.SetQName(tqnResult);
     }
   }
