@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <limits>
+#include <limits.h>
 #include <map>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
@@ -63,7 +63,7 @@ namespace staff
 
         // get current time
         int nCurrentTime = staff::security::CTime::Get();
-        int nMinExpires = std::numeric_limits<int>::max();
+        int nMinExpires = INT_MAX;
 
         // find expired sessions and calculate next expired session time
         for (TSessionMap::iterator itSession = m_mSessions.begin();
@@ -85,7 +85,7 @@ namespace staff
           ++itSession;
         }
 
-        if (nMinExpires == std::numeric_limits<int>::max())
+        if (nMinExpires == INT_MAX)
         { // last session was removed
           rise::LogDebug2() << "last session was removed";
           continue;
