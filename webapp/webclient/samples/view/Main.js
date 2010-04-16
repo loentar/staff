@@ -181,10 +181,9 @@ webapp.sample.Application =
     var nSessionExpiration = parseInt(webapp.Webapp.GetLoginService().GetSessionExpiration());
     if (nSessionExpiration != 0)
     {
-      this.nSessionExpiration = nSessionExpiration * 1000 - 20000;
+      this.nSessionExpiration = nSessionExpiration * 1000 * 60 - 20000;
 
       setTimeout(this._KeepaliveSession.bindAsEventListener(this), this.nSessionExpiration);
-      this._KeepaliveSession();
     }
 
     // init menu

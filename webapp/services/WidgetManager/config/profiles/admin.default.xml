@@ -5,9 +5,4 @@
     <Name>Admin</Name>
     <Base>admin</Base>
   </Profile>
-  <Profile>
-    <Id>webapp_sample</Id>
-    <Name>Webapp Sample</Name>
-    <Base>webapp_sample</Base>
-  </Profile>
 </Profiles>

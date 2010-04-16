@@ -32,7 +32,7 @@ namespace staff
   {
   public:
     typedef rise::CMutablePtr<CComponentConfig> PComponentConfig;
-    typedef std::map<std::string, PComponentConfig> TComponentConfigMap;
+    typedef std::map<rise::CString, PComponentConfig> TComponentConfigMap;
     TComponentConfigMap m_mConfigs;
   };
 
@@ -60,7 +60,7 @@ namespace staff
     }
   }
 
-  CComponentConfig& CComponentConfigManager::GetComponentConfig( const std::string& sComponent, const std::string& sConfig /*= "config.xml"*/, bool bCreate /*= false*/ )
+  CComponentConfig& CComponentConfigManager::GetComponentConfig( const rise::CString& sComponent, const rise::CString& sConfig /*= "config.xml"*/, bool bCreate /*= false*/ )
   {
     CComponentConfigManagerImpl::PComponentConfig& rpComponentConfig = m_pImpl->m_mConfigs[sComponent];
 

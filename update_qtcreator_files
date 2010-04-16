@@ -1,14 +1,6 @@
 #!/bin/sh
 
-echo "copying..."
-cp -R . ../staff-tmplist
-cd  ../staff-tmplist
-echo "cleaning copy..."
+echo "cleaning project..."
 (make clean && make distclean) >/dev/null 2>&1
-echo "generating file list..."
-find rise staff webapp -type f -name '*.h' -o -name '*.hpp' -o -name '*.cpp' -o -name '*.c' -o -name '*.xml' -o -name '*.js' -o -name '*.htm' -o -name '*.html' -o -name '*.css' -o -name '*.png'  -o -name '*.png' -o -name '*.gif' -o -name '*.wsdl' | sort >staff.files
-echo "cleanup..."
-cp -f staff.files ../staff
-cd ..
-rm -Rf staff-tmplist
-echo "done."
+echo "updating file list..."
+find rise staff webapp -type f -name '*.h' -o -name '*.hpp' -o -name '*.cpp' -o -name '*.c' -o -name '*.xml' -o -name '*.js' -o -name '*.htm' -o -name '*.html' -o -name '*.css' -o -name '*.png'  -o -name '*.png' -o -name '*.gif' | sort >staff.files

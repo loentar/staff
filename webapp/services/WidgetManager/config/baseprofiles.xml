@@ -8,8 +8,10 @@
       <Widget>webapp.widget.Layout</Widget>
       <Widget>webapp.widget.admin.AccountAdmin</Widget>
       <Widget>webapp.widget.admin.ObjectAdmin</Widget>
+      <Widget>widget.admin.MapAdmin</Widget>
       <Widget>webapp.widget.admin.ProfileAdmin</Widget>
       <Widget>webapp.widget.admin.ActiveServices</Widget>
+      <Widget>widget.admin.ServerStatus</Widget>
     </Widgets>
   </Profile>
 

@@ -42,10 +42,9 @@
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObjectHelper.h>
-#include <staff/component/ServiceWrapper.h>
+#include <staff/component/Service.h>
 #include <staff/component/SharedContext.h>
-#include <staff/component/SessionManager.h>
-#include <staff/security/Sessions.h>
+#include <staff/security/Security.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 
@@ -173,7 +172,6 @@ rise::LogEntry();
     }
 
     const axis2_char_t* szSessionId = NULL;
-    const axis2_char_t* szInstanceId = NULL;
 
     {
       axis2_op_ctx_t* pOperationContext = axis2_msg_ctx_get_op_ctx(pAxis2MsgCtx, pEnv);
@@ -210,25 +208,10 @@ rise::LogEntry();
                   if (pSoapHeaderBlockElement != NULL)
                   {
                     szHeaderLocalName = axiom_element_get_localname(pSoapHeaderBlockElement, pEnv);
-                    if (szHeaderLocalName != NULL)
+                    if (szHeaderLocalName != NULL && axutil_strcmp(szHeaderLocalName, "SessionId") == 0)
                     {
-                      if (axutil_strcmp(szHeaderLocalName, "SessionId") == 0)
-                      {
-                        szSessionId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
-                        if (szInstanceId != NULL)
-                        {
-                          break;
-                        }
-                      }
-                      else
-                      if (axutil_strcmp(szHeaderLocalName, "InstanceId") == 0)
-                      {
-                        szInstanceId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
-                        if (szSessionId != NULL)
-                        {
-                          break;
-                        }
-                      }
+                      szSessionId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
+                      break;
                     }
                   }
                 }
@@ -254,49 +237,46 @@ rise::LogLabel();
 
     staff::COperation tOperation;
 
-    std::string sServiceName;
-    std::string sSessionId = (szSessionId == NULL || szSessionId[0] == '\0') ? staff::security::CSessions::sNobodySessionId : szSessionId;
-    std::string sInstanceId = (szInstanceId == NULL) ? "" : szInstanceId;
+    rise::CString sServiceName;
+    rise::CString sID = (szSessionId == NULL || szSessionId[0] == '\0') ? STAFF_SECURITY_GUEST_SESSION_ID : szSessionId;
 
     try
     {
       tOperation.Request().Attach(pAxiomNode);
       
-      std::string sUri = tOperation.Request().GetNamespaceUri();
+      rise::CString sUri = tOperation.Request().GetNamespaceUri();
 
-      std::string::size_type nPos = sUri.find_last_of('/');
-      sServiceName = (nPos == std::string::npos) ? sUri : sUri.substr(nPos + 1);
+      rise::TSize nPos = sUri.find_last_of('/');
+      if (nPos == rise::CString::npos)
+        nPos = 0;
+
+      rise::StrMid(sUri, sServiceName, nPos + 1);
 
       if (sServiceName == "StaffService")
       {
         staff::CServiceDispatcher::Inst().InvokeSelf(tOperation);
-      }
-      else
+      } else
       {
-        staff::CServiceWrapper* pServiceWrapper = staff::CSharedContext::Inst().GetService(sServiceName);
-        RISE_ASSERTS(pServiceWrapper != NULL, "Service not found!");
-        pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
+        staff::CService* pService = staff::CSharedContext::Inst().GetService(sServiceName);
+        RISE_ASSERTS(pService != NULL, "Service not found!");
+        pService->Invoke(tOperation, sID);
       }
     }
     catch(const staff::CRemoteException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.GetString());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.GetString());
     }
     catch(const rise::CException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.GetString());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.GetString());
     }
     catch(const std::exception& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.what());
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", rEx.what());
     }
     catch(...)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", "Unknown exception");
+      tOperation.SetFault("Failed to invoke service " + sServiceName + "(" + sID + ")", "Unknown exception");
     }
 
     if (tOperation.IsFault())
@@ -325,14 +305,14 @@ rise::LogLabel();
     return tOperation.GetResponse();
   }
 
-  static void OnConnect(const std::string& sServiceName, const staff::CServiceWrapper* pServiceWrapper)
+  static void OnConnect(const std::string& sServiceName, const staff::CService* pService)
   {
     void* pSvcClass = axis2_svc_get_impl_class(m_pAxis2Svc, m_pEnv);
 
-    Axis2UtilsCreateVirtualService(sServiceName, pServiceWrapper, pSvcClass, m_pEnv, m_pConf);
+    Axis2UtilsCreateVirtualService(sServiceName, pService, pSvcClass, m_pEnv, m_pConf);
   }
 
-  static void OnDisconnect(const std::string& sServiceName)
+  static void OnDisconnect(const rise::CString& sServiceName)
   {
     if (!m_bShuttingDown) // double free prevent
     {
@@ -364,15 +344,12 @@ rise::LogLabel();
 
   static void Init()
   {
-    m_pPrevSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
-    staff::CSessionManager::Inst().Start();
+    m_pSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
   }
 
   static void Deinit()
   {
-    staff::CSessionManager::Inst().Stop();
-    staff::CSessionManager::FreeInst();
-    signal(SIGSEGV, CAxis2Service::m_pPrevSigSegvHandler);
+    signal(SIGSEGV, CAxis2Service::m_pSigSegvHandler);
   }
 
 private:
@@ -383,7 +360,7 @@ private:
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
-  static sighandler_t m_pPrevSigSegvHandler;
+  static sighandler_t m_pSigSegvHandler;
 };
 
 
@@ -402,7 +379,7 @@ std::string CAxis2Service::m_sLastFaultReason;
 const axutil_env_t* CAxis2Service::m_pEnv = NULL; 
 axis2_conf* CAxis2Service::m_pConf = NULL;
 bool CAxis2Service::m_bShuttingDown = false;
-sighandler_t CAxis2Service::m_pPrevSigSegvHandler = NULL;
+sighandler_t CAxis2Service::m_pSigSegvHandler = NULL;
 
 /**
  * Following block distinguish the exposed part of the dll.

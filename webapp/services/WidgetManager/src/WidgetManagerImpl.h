@@ -75,6 +75,7 @@ namespace widget
 
   private:
     virtual void LoadProfileWidgetList(const std::string& sBaseProfile);
+    const std::string& GetSessionId();
     int GetUserId();
     bool IsUserAdmin();
 

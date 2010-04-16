@@ -5,7 +5,6 @@
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Value.h>
-#include <staff/common/IService.h>
 #include "$(Interface.Name)Proxy.h"
 
 #cginclude <common/Serialization.cpp>
@@ -19,50 +18,15 @@ $(Class.Name)Proxy::$(Class.Name)Proxy()
 {
 }
 
-$(Class.Name)Proxy::~$(Class.Name)Proxy()
+void $(Class.Name)Proxy::Init( const std::string& sServiceUri, const std::string& sSessionId )
 {
-  try
-  {
-    Deinit();
-  }
-  RISE_CATCH_ALL;
-}
-
-void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId)
-{
-  m_tClient.Init(sServiceUri.size() != 0 ? sServiceUri : \
-#ifeq($(Class.ServiceUri),)
-"http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
-#else
-"$(Class.ServiceUri)"\
-#ifeqend
-, sSessionId);
+  m_tClient.Init(sServiceUri, sSessionId);
 #ifneq($(Interface.TargetNamespace),)
   m_tClient.SetTargetNamespace("$(Interface.TargetNamespace)");
 #else
 \
 #ifeqend
-  if (staff::IService::GetInstanceId().size() != 0)
-  {
-    staff::COperation tOperation("CreateInstance");
-    tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
-    m_tClient.Invoke(tOperation);
-    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
-    m_tClient.SetInstanceId(sInstanceId);
-  }
 }
-
-void $(Class.Name)Proxy::Deinit()
-{
-  if (staff::IService::GetInstanceId().size() != 0)
-  {
-    staff::COperation tOperation("FreeInstance");
-    tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
-    m_tClient.Invoke(tOperation);
-    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
-  }
-}
-
 #foreach $(Class.Members)
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
@@ -83,10 +47,18 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
   tdoParam$(Param.Name).AppendChild($(Param.Name));
 #else
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct)     // !!struct!! 
+  tdoParam$(Param.Name) << $(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
+  tdoParam$(Param.Name) << $(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),template)    // !!template!!
   tdoParam$(Param.Name) << $(Param.Name);
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -109,12 +81,24 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
   return tOperation.Result();
 #else
-#ifeq($(Member.Return.Type),struct||typedef||template)
+#ifeq($(Member.Return.Type),struct)     // !!struct!! 
+  $(Member.Return.Name) stReturn;
+  tOperation.Result() >> stReturn;
+  return stReturn;
+#else
+#ifeq($(Member.Return.Type),typedef)    // !!typedef!!
   $(Member.Return.Name) tReturn;
   tOperation.Result() >> tReturn;
   return tReturn;
 #else
+#ifeq($(Member.Return.Type),template)    // !!template!!
+  $(Member.Return) tReturn;
+  tOperation.Result() >> tReturn;
+  return tReturn;
+#else
 #cgerror "Member.Return.Type = $(Member.Return.Type);"
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

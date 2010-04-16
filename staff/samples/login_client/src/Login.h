@@ -23,12 +23,12 @@
 #define _LOGIN_H_
 
 #include <string>
-#include <staff/common/IService.h>
 
 namespace staff
 {
+
   //!  Login service
-  class CLogin: public IService
+  class CLogin
   {
   public:
     //!        destructor
@@ -36,7 +36,6 @@ namespace staff
 
     //!         login user and create session
     /*! this operation must be called from guest session
-        alias for OpenSession(username, password, true)
         \param  sUserName - username
         \param  sPassword - password
         \return created session id
@@ -52,6 +51,11 @@ namespace staff
         */
     virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting) = 0;
 
+    //!         open extra session
+    /*! \param  nExtraSessionId - extra session number
+        */
+    virtual std::string OpenExtraSession(int nExtraSessionId) = 0;
+
     //!         logout and close session
     virtual void Logout() = 0;
 
@@ -62,7 +66,7 @@ namespace staff
     /*! \return true - session is valid
         */
     virtual bool ValidateSession() = 0;
-
+    
     //!         get current user name
     /*! \return current use name
         */
@@ -74,7 +78,7 @@ namespace staff
     virtual int GetSessionExpiration() const = 0;
 
   };
-
+  
 }
 
 #endif // _LOGIN_H_

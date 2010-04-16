@@ -23,7 +23,7 @@
 #define _COMPONENTCONFIG_H_
 
 #include "staffcomponentexport.h"
-#include <string>
+#include <rise/string/String.h>
 
 namespace rise
 {
@@ -46,12 +46,12 @@ namespace staff
     //!         get component name
     /*! \return component name
     */
-    const std::string& GetComponent() const;
+    const rise::CString& GetComponent() const;
 
     //!         get config file name
     /*! \return config file name
     */
-    const std::string& GetConfig() const;
+    const rise::CString& GetConfig() const;
 
     //!         reload config
     /*! \param  bCreate - create new config, if no config found
@@ -77,7 +77,7 @@ namespace staff
     CComponentConfig();
 
     //!         internal initialization
-    void Init(const std::string& sComponent, const std::string& sConfig, bool bCreate);
+    void Init(const rise::CString& sComponent, const rise::CString& sConfig, bool bCreate);
 
   private:
     CComponentConfig& operator=(const CComponentConfig&);

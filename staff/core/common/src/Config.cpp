@@ -22,6 +22,7 @@
 #include <rise/common/Log.h>
 #include <rise/common/Exception.h>
 #include <rise/common/exmacros.h>
+#include <rise/string/String.h>
 #include <rise/xml/XMLNode.h>
 #include <rise/xml/XMLDocument.h>
 #include "Runtime.h"
@@ -59,7 +60,7 @@ namespace staff
     }
   }
 
-  rise::xml::CXMLNode& CConfig::GetModuleConfig( const std::string& sModuleName )
+  rise::xml::CXMLNode& CConfig::GetModuleConfig( const rise::CString& sModuleName )
   {
     return m_pImpl->m_tConfig.GetRoot().Subnode(sModuleName);
   }

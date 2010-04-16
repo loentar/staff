@@ -37,12 +37,10 @@ CXMLNode& operator<<(CXMLNode& rStream, const std::list<TType>& rList)
   return rStream;
 }
 
-bool GetDataType(std::string& sOut, const SDataType& rDataType, bool bAsUsed = false)
+bool GetDataType(std::string& sOut, const SDataType& rDataType)
 {
-  sOut += (rDataType.bIsConst ? "const " : "") +
-    (bAsUsed ? 
-      rDataType.sUsedName :
-      (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName);
+  sOut += (rDataType.bIsConst ? "const " : "") + 
+    (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
 
   bool bIsTemplate = rDataType.lsParams.size() != 0;
   if (!bIsTemplate)
@@ -76,8 +74,6 @@ CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
   rNodeDataTypes["IsConst"] = rDataType.bIsConst;
   rNodeDataTypes.AddSubNode(" Is reference ", CXMLNode::ENTCOMMENT);
   rNodeDataTypes["IsRef"] = rDataType.bIsRef;
-  rNodeDataTypes.AddSubNode(" Type name as used ", CXMLNode::ENTCOMMENT);
-  rNodeDataTypes["UsedName"] = rDataType.sUsedName;
   rNodeDataTypes.AddSubNode(" Type name ", CXMLNode::ENTCOMMENT);
   rNodeDataTypes["Name"] = (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
   rNodeDataTypes.AddSubNode(" Node name ", CXMLNode::ENTCOMMENT);
@@ -106,6 +102,8 @@ CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
 
   rNodeDataTypes.AddSubNode(" Native name ", CXMLNode::ENTCOMMENT);
   rNodeDataTypes["NativeName"] = sNativeName;
+  
+  
 
   rNodeDataTypes.NodeContent() = "";
   GetDataType(rNodeDataTypes.NodeContent().AsString(), rDataType);
@@ -113,7 +111,7 @@ CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
   bool bIsTemplate = rDataType.lsParams.size() != 0;
   rNodeDataTypes.AddSubNode(" Template ", CXMLNode::ENTCOMMENT);
   rNodeDataTypes["IsTemplate"] = bIsTemplate;
-
+  
   rNodeDataTypes.AddSubNode(" Template params ", CXMLNode::ENTCOMMENT);
   CXMLNode& rNodeTemplateParams = rNodeDataTypes.AddSubNode("TemplateParams");
   int nNum = 1;
@@ -143,7 +141,7 @@ CXMLNode& operator<<(CXMLNode& rNodeParams, const SParam& rParam)
     if (rNodeParams.NodeContent() != "")
       rNodeParams.NodeContent().AsString() += ", ";
       
-    GetDataType(rNodeParams.NodeContent().AsString(), rParam.stDataType, true);
+    GetDataType(rNodeParams.NodeContent().AsString(), rParam.stDataType);
     rNodeParams.NodeContent().AsString() += " " + rParam.sName;
   }
 
@@ -155,6 +153,12 @@ CXMLNode& operator<<(CXMLNode& rNodeMembers, const SMember& rMember)
   rNodeMembers.AddSubNode(" Operation ", CXMLNode::ENTCOMMENT);
   CXMLNode& rNodeMember = rNodeMembers.AddSubNode("Member");
 
+  rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);
+  CXMLNode& rNodeReturn = rNodeMember.AddSubNode("Return");
+  rNodeReturn << rMember.stReturn.stDataType;
+  rNodeReturn.AddSubNode(" Response Name ", CXMLNode::ENTCOMMENT);
+  rNodeReturn["ResponseName"] = rMember.stReturn.sName;
+
   rNodeMember.AddSubNode(" Operation name ", CXMLNode::ENTCOMMENT);
   rNodeMember["Name"] = rMember.sName;
   rNodeMember.AddSubNode(" Operation description ", CXMLNode::ENTCOMMENT);
@@ -165,12 +169,6 @@ CXMLNode& operator<<(CXMLNode& rNodeMembers, const SMember& rMember)
   rNodeMember["IsConst"] = rMember.bIsConst;
   rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
   rNodeMember.AddSubNode("Params") << rMember.lsParamList;
-
-  rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);
-  CXMLNode& rNodeReturn = rNodeMember.AddSubNode("Return");
-  rNodeReturn << rMember.stReturn.stDataType;
-  rNodeReturn.AddSubNode(" Response Name ", CXMLNode::ENTCOMMENT);
-  rNodeReturn["ResponseName"] = rMember.stReturn.sName;
 
   return rNodeMembers;
 }

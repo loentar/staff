@@ -16,9 +16,7 @@ class $(Class.Name)Proxy: public $(Class.Name)
 {
 public:
   $(Class.Name)Proxy();
-  ~$(Class.Name)Proxy();
-  void Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId);
-  void Deinit();
+  void Init(const std::string& sServiceUri, const std::string& sSessionId);
 #foreach $(Class.Members)
   $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const);
 #end

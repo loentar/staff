@@ -23,7 +23,7 @@ int main(int nArgs, const char* paszArgs[])
 #foreach $(Interface.Classes)
     {
       rise::CSharedPtr< $(Class.NsName) > p$(Class.ServiceName) = 
-        ::staff::CServiceFactory::Inst().GetService< $(Class.NsName) >();
+        CServiceFactory::Inst().GetService< $(Class.NsName) >();
 
       RISE_ASSERTES(p$(Class.ServiceName) != NULL, rise::CLogicNoItemException, "Cannot get client for service $(Class.ServiceNsName)!");
 

@@ -25,9 +25,7 @@
 #include <rise/common/Log.h>
 #include <rise/common/exmacros.h>
 #include <staff/common/Exception.h>
-#include <staff/security/Users.h>
-#include <staff/security/Groups.h>
-#include <staff/security/UsersToGroups.h>
+#include <staff/security/Admin.h>
 #include "AccountAdminImpl.h"
 
 namespace staff
@@ -46,20 +44,22 @@ CAccountAdminImpl::~CAccountAdminImpl()
 ::staff::admin::TUserList CAccountAdminImpl::GetUsers()
 {
   ::staff::admin::TUserList tResult;
-  staff::security::TUsersList lsSecUsers;
+  TUser* pstUsers = NULL;
+  int nUserCount = 0;
 
-  staff::security::CUsers::Inst().GetList(lsSecUsers);
+  RISE_ASSERTES(StaffSecurityAdminGetUsers(&pstUsers, &nUserCount), staff::CRemoteException, "Failed to get user list");
 
-  for (staff::security::TUsersList::const_iterator itUser = lsSecUsers.begin();
-      itUser != lsSecUsers.end(); ++itUser)
+  for (int nIndex = 0; nIndex < nUserCount; ++nIndex)
   {
     ::staff::admin::SUser tUser;
-    tUser.nId = itUser->nId;
-    tUser.sName = itUser->sName;
-    tUser.sDescription = itUser->sDescription;
+    tUser.nId = pstUsers[nIndex].nId;
+    tUser.sName = pstUsers[nIndex].szName;
+    tUser.sDescription = pstUsers[nIndex].szDescription;
 
     tResult.push_back(tUser);
   }
+
+  StaffSecurityAdminFreeUsers(pstUsers);
 
   return tResult;  // result
 }
@@ -67,20 +67,22 @@ CAccountAdminImpl::~CAccountAdminImpl()
 ::staff::admin::TGroupList CAccountAdminImpl::GetGroups()
 {
   ::staff::admin::TGroupList tResult;
-  staff::security::TGroupsList lsSecGroups;
+  TGroup* pstGroups = NULL;
+  int nGroupCount = 0;
 
-  staff::security::CGroups::Inst().GetList(lsSecGroups);
+  RISE_ASSERTES(StaffSecurityAdminGetGroups(&pstGroups, &nGroupCount), staff::CRemoteException, "Failed to get Group list");
 
-  for (staff::security::TGroupsList::const_iterator itGroup = lsSecGroups.begin();
-      itGroup != lsSecGroups.end(); ++itGroup)
+  for (int nIndex = 0; nIndex < nGroupCount; ++nIndex)
   {
     ::staff::admin::SGroup tGroup;
-    tGroup.nId = itGroup->nId;
-    tGroup.sName = itGroup->sName;
-    tGroup.sDescription = itGroup->sDescription;
+    tGroup.nId = pstGroups[nIndex].nId;
+    tGroup.sName = pstGroups[nIndex].szName;
+    tGroup.sDescription = pstGroups[nIndex].szDescription;
 
     tResult.push_back(tGroup);
   }
+
+  StaffSecurityAdminFreeGroups(pstGroups);
 
   return tResult;  // result
 }
@@ -88,72 +90,114 @@ CAccountAdminImpl::~CAccountAdminImpl()
 ::staff::admin::TIdList CAccountAdminImpl::GetUserGroups(int nUserId)
 {
   ::staff::admin::TIdList tResult;
-//  staff::security::TIntList lsGroups;
-  staff::security::CUsersToGroups::Inst().GetUserGroups(nUserId, tResult);
+
+  int* pnGroups = NULL;
+  int nGroupCount = 0;
+
+  RISE_ASSERTES(StaffSecurityAdminGetUserGroups(nUserId, &pnGroups, &nGroupCount), staff::CRemoteException, "Failed to get Group list");
+
+  for (int nIndex = 0; nIndex < nGroupCount; ++nIndex)
+  {
+    tResult.push_back(pnGroups[nIndex]);
+  }
+
+  StaffSecurityAdminFreeGroupIds(pnGroups);
 
   return tResult;  // result
 }
 
 int CAccountAdminImpl::AddUser(const std::string& sUserName, const std::string& sDescription)
 {
-  int tResult = -1;
+  int tResult;
 
-  staff::security::CUsers::Inst().Add(sUserName, "", sDescription, tResult);
-
+  RISE_ASSERTES(StaffSecurityAdminAddUser(sUserName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Can\'t add user");
   return tResult;  // result
 }
 
 void CAccountAdminImpl::RemoveUser(int nUserId)
 {
-  staff::security::CUsers::Inst().Remove(nUserId);
+  RISE_ASSERTES(StaffSecurityAdminRemoveUser(nUserId), staff::CRemoteException, "Can\'t remove user");
 }
 
 void CAccountAdminImpl::SetUserPassword(int nUserId, const std::string& sPass)
 {
-  staff::security::CUsers::Inst().SetPassword(nUserId, sPass);
+  RISE_ASSERTES(StaffSecurityAdminSetUserPassword(nUserId, sPass.c_str()), staff::CRemoteException, "Can\'t set user password");
 }
 
 int CAccountAdminImpl::AddGroup(const std::string& sGroupName, const std::string& sDescription)
 {
-  int tResult = -1;
+  int tResult;
 
-  staff::security::CGroups::Inst().Add(sGroupName, sDescription, tResult);
-
+  RISE_ASSERTES(StaffSecurityAdminAddGroup(sGroupName.c_str(), sDescription.c_str(), &tResult), staff::CRemoteException, "Can\'t add group");
   return tResult;  // result
 }
 
 void CAccountAdminImpl::RemoveGroup(int nGroupId)
 {
-  staff::security::CGroups::Inst().Remove(nGroupId);
+  RISE_ASSERTES(StaffSecurityAdminRemoveGroup(nGroupId), staff::CRemoteException, "Can\'t remove group");
 }
 
 void CAccountAdminImpl::AddUserToGroup(int nUserId, int nGroupId)
 {
-  staff::security::CUsersToGroups::Inst().AddUserToGroup(nUserId, nGroupId);
+  RISE_ASSERTES(StaffSecurityAdminAddUserToGroup(nUserId, nGroupId), staff::CRemoteException, "Can\'t include user into group");
 }
 
 void CAccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
 {
-  for(::staff::admin::TIdList::const_iterator itGroupId = rlsGroupIds.begin();
-      itGroupId != rlsGroupIds.end(); ++itGroupId)
+  int* pnGroups = (int*)calloc(rlsGroupIds.size(), sizeof(int));
+  int* pnFailedGroups = NULL;
+
+  RISE_ASSERTP(pnGroups);
+  try
   {
-    staff::security::CUsersToGroups::Inst().AddUserToGroup(nUserId, *itGroupId);
+    int i = 0;
+    for(::staff::admin::TIdList::const_iterator itGroup = rlsGroupIds.begin(); itGroup != rlsGroupIds.end(); ++itGroup, ++i)
+    {
+      pnGroups[i] = *itGroup;
+    }
+    
+    RISE_ASSERTES(StaffSecurityAdminAddUserToGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Can\'t include user into groups");
   }
+  catch(...)
+  {
+    free(pnGroups);
+    throw;
+  }
+
+  free(pnGroups);
 }
 
 void CAccountAdminImpl::RemoveUserFromGroup(int nUserId, int nGroupId)
 {
-  staff::security::CUsersToGroups::Inst().RemoveUserFromGroup(nUserId, nGroupId);
+  RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroup(nUserId, nGroupId), staff::CRemoteException, "Can\'t exclude user from group");
 }
 
 void CAccountAdminImpl::RemoveUserFromGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
 {
-  for(::staff::admin::TIdList::const_iterator itGroupId = rlsGroupIds.begin();
-      itGroupId != rlsGroupIds.end(); ++itGroupId)
+  int* pnGroups = (int*)calloc(rlsGroupIds.size(), sizeof(int));
+  int* pnFailedGroups = NULL;
+
+  RISE_ASSERTP(pnGroups);
+  try
   {
-    staff::security::CUsersToGroups::Inst().RemoveUserFromGroup(nUserId, *itGroupId);
+    int i = 0;
+    for(::staff::admin::TIdList::const_iterator itGroup = rlsGroupIds.begin(); itGroup != rlsGroupIds.end(); ++itGroup, ++i)
+    {
+      pnGroups[i] = *itGroup;
+    }
+    
+    RISE_ASSERTES(StaffSecurityAdminRemoveUserFromGroups(nUserId, pnGroups, rlsGroupIds.size(), pnFailedGroups), staff::CRemoteException, "Can\'t exclude user from groups");
   }
+  catch(...)
+  {
+    free(pnGroups);
+    throw;
+  }
+
+  free(pnGroups);
 }
+
 
 }
 }
+

@@ -38,7 +38,7 @@
 #include <axis2_addr.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
-#include <staff/security/tools.h>
+#include <staff/security/Security.h>
 #include "Axis2Utils.h"
 
 #define dprintf printf("%s[%d]: staff_security: ", GetBaseFile(__FILE__), __LINE__); printf
@@ -59,25 +59,25 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
 
   if (axis2_msg_ctx_get_server_side(pMsgCtx, pEnv))
   {
-    axis2_char_t* szServiceOperationPath = NULL;
+    const axis2_char_t* szService = NULL;
+    const axis2_char_t* szOperation = NULL;
     const axis2_char_t* szSessionId = NULL;
-    int nAccess = 0;
+    TPermission stPermission;
+    int nUserId = -1;
 
-    AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath));
+    AXIS2_UTILS_CHECK(GetServiceNameAndOperation(pMsgCtx, pEnv, &szService, &szOperation));
 
     if(!GetSessionId(pMsgCtx, pEnv, &szSessionId) || szSessionId == NULL)
     {
       dprintf("Session ID is not set, identifying as guest\n");
 
-      szSessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
+      szSessionId = STAFF_SECURITY_GUEST_SESSION_ID;
     }
 
-    if(!staff_security_calculate_access_by_session_id(szServiceOperationPath, szSessionId, &nAccess))
+    if(!StaffSecurityGetUserIdBySessionId(szSessionId, &nUserId))
     {
-      dprintf("Access denied to user with unknown or expired session id [%s] while accessing to operation %s\n",
-        szSessionId, szServiceOperationPath);
-
-      AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
+      dprintf("Access denied to user with unknown or expired session id: %s: %s.%s\n", 
+        szSessionId, szService, szOperation);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied: sessionid unknown or expired");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
@@ -85,20 +85,33 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
       return AXIS2_FAILURE;
     }
 
-    if(!nAccess)
+    if(!StaffSecurityGetUserPermissionForServiceOperation(szService, szOperation, nUserId, &stPermission))
     {
-      dprintf("Access denied to user with session id [%s] while accessing to operation %s\n",
-              szSessionId, szServiceOperationPath);
+      dprintf("Can't get permission for service operation for user %d (sid: %s): %s.%s\n", 
+        nUserId, szSessionId, szService, szOperation);
 
-      AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
+      AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied: can't get permission for service operation");
+      AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
+      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
+      return AXIS2_FAILURE;
+    }
+    
+    dprintf("\033[4muser permissions to (%s:%s): %c%c%c\033[0m\n", 
+      szService, szOperation,
+      stPermission.bRead ? 'r' : '-',
+      stPermission.bWrite ? 'w' : '-',
+      stPermission.bExecute ? 'x' : '-');
+
+    if(!stPermission.bExecute)
+    {
+      dprintf("Access denied to user %d(sid %s): %s.%s\n", 
+        nUserId, szSessionId, szService, szOperation);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
       AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
       return AXIS2_FAILURE;
     }
-
-    AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
   }
 
   return AXIS2_SUCCESS;
@@ -109,12 +122,39 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_init( axis2_module_t* pModule,
                                                       axis2_conf_ctx_t* pConfCtx, 
                                                       axis2_module_desc_t* pModuleDesc)
 {
-  if (!staff_security_init())
+  const axis2_char_t* szHost = NULL;
+  const axis2_char_t* szPort = NULL;
+  const axis2_char_t* szDSN = NULL;
+  const axis2_char_t* szUser = NULL;
+  const axis2_char_t* szPassword = NULL;
+  const axis2_char_t* szTmp = NULL;
+  int nSessionExpiration = 0; // never expires
+  axis2_status_t nStatus = AXIS2_FAILURE;
+
+  szHost = GetParamValue("pgHost", pModuleDesc, pEnv);
+  AXIS2_UTILS_CHECK(szHost);
+
+  szPort = GetParamValue("pgPort", pModuleDesc, pEnv);
+  AXIS2_UTILS_CHECK(szPort);
+
+  szDSN = GetParamValue("pgDSN", pModuleDesc, pEnv);
+  AXIS2_UTILS_CHECK(szDSN);
+
+  szUser = GetParamValue("pgUser", pModuleDesc, pEnv);
+  AXIS2_UTILS_CHECK(szUser);
+
+  szPassword = GetParamValue("pgPassword", pModuleDesc, pEnv);
+  AXIS2_UTILS_CHECK(szPassword);
+
+  szTmp = GetParamValue("sessionExpiration", pModuleDesc, pEnv);
+  if (szTmp != NULL)
   {
-    fprintf(stderr, "Failed to initialize staff::security.\n");
-    exit(1);
+    nSessionExpiration = atoi(szTmp);
   }
-  return AXIS2_SUCCESS;
+
+  nStatus = StaffSecurityInit( szHost, szPort, szDSN, szUser, szPassword, nSessionExpiration );
+
+  return nStatus;
 }
 
 AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t *pEnv, 
@@ -136,7 +176,7 @@ AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env
 axis2_status_t AXIS2_CALL Axis2DispatcherModule_shutdown(axis2_module_t* pModule, 
                                                          const axutil_env_t* pEnv)
 {
-  staff_security_free();
+  StaffSecurityFree();
 
   if(pModule->handler_create_func_map)
   {

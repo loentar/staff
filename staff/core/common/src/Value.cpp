@@ -158,7 +158,7 @@ namespace staff
   CValue& CValue::operator=( float fValue )
   {
     m_bChanged = true;
-    m_eType = ET_FLOAT;
+    m_eType = ET_DOUBLE;
     m_ePrevType = m_eType;
     m_uValue.fValue = fValue;
     Flush();
@@ -391,7 +391,7 @@ namespace staff
   CValue::operator unsigned long long&()
   {
     m_bChanged = true;
-    SyncTo(ET_ULONGLONG);
+    SyncTo(ET_ULONG);
     return m_uValue.ullValue;
   }
 

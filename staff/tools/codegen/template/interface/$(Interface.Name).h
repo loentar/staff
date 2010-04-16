@@ -5,7 +5,6 @@
 #define _$(Interface.Name)_h_
 
 #include <staff/common/WsdlTypes.h>
-#include <staff/common/IService.h>
 
 // targetNamespace: $(Interface.TargetNamespace)
 #ifneq($(Interface.Structs.$Count),0)
@@ -43,7 +42,7 @@ $(Class.OpeningNs)
 \
 #ifeqend
 // uri: $(Class.ServiceUri)
-class $(Class.Name): public staff::IService
+class $(Class.Name)
 {
 public:
   virtual ~$(Class.Name)() {}

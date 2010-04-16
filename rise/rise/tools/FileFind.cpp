@@ -64,8 +64,8 @@ namespace rise
       {
         lstat(((sInDir + "/") + pstDirent->d_name).c_str(), &stStat);
         if( (fnmatch(sMask.c_str(), pstDirent->d_name, 0) == 0) &&
-              ( (((nAttrs & EFA_FILE) != 0) && ((stStat.st_mode & S_IFDIR ) == 0)) ||
-                ((((nAttrs & EFA_DIR)  != 0) && ((stStat.st_mode & S_IFDIR ) != 0)) && !IsDots(pstDirent->d_name)) ) )
+              ( ((nAttrs & EFA_FILE) != 0 && (stStat.st_mode & S_IFDIR ) == 0) ||
+                ((nAttrs & EFA_DIR)  != 0 && (stStat.st_mode & S_IFDIR ) != 0) && !IsDots(pstDirent->d_name) ) )
           rList.push_back(pstDirent->d_name);
       }
 

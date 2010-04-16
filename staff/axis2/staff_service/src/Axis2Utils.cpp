@@ -22,16 +22,15 @@
 #include <axutil_qname.h>
 #include <axis2_svc.h>
 #include <string>
-#include <rise/os/oscommon.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
-#include <staff/component/ServiceWrapper.h>
+#include <staff/component/Service.h>
 #include <staff/component/Component.h>
 
-bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staff::CServiceWrapper* pServiceWrapper, void* pSvcClass, const struct axutil_env* pEnv, struct axis2_conf* pConf )
+bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staff::CService* pService, void* pSvcClass, const struct axutil_env* pEnv, struct axis2_conf* pConf )
 {  
-  if(pServiceWrapper == NULL)
+  if(pService == NULL)
   {
     printf("pService is NULL\n");
     return false;
@@ -41,8 +40,8 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
 
   std::string sServiceUri = "http://staff.tempui.org:9090/axis2/services/";
   sServiceUri += sServiceName.c_str();
-  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pServiceWrapper->GetComponent()->GetName())
-      + RISE_PATH_SEPARATOR + pServiceWrapper->GetName() + ".wsdl";
+  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pService->GetComponent()->GetName()) 
+      + RISE_PATH_SEPARATOR + pService->GetName() + ".wsdl";
 
   axutil_qname_t* pQName = axutil_qname_create(pEnv, sServiceName.c_str(), sServiceUri.c_str(), NULL);
   if(pQName == NULL)
@@ -61,8 +60,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   axutil_qname_free(pQName, pEnv);
 
   // set "virtual" service flag
-  static char szParamName[] = "IsStaffVirtualService";
-  axutil_param_t* pParam = axutil_param_create(pEnv, static_cast<axis2_char_t*>(szParamName), new int(1));
+  axutil_param_t* pParam = axutil_param_create(pEnv, "IsStaffVirtualService", new bool(true));
   if(pParam == NULL)
   {
     axis2_svc_free(pAxis2Service, pEnv);
@@ -78,7 +76,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   }
 
   { // adding operations
-    const staff::CDataObject& rdoOperations = pServiceWrapper->GetOperations();
+    const staff::CDataObject& rdoOperations = pService->GetOperations();
     for (staff::CDataObject::ConstIterator it = rdoOperations.Begin(); it != rdoOperations.End(); ++it)
     {
       std::string sOpName = (*it)["Name"];
@@ -118,7 +116,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     return false;
   }
 
-  std::string sServiceDescr = pServiceWrapper->GetDescr();
+  std::string sServiceDescr = pService->GetDescr();
   FILE* pFile = fopen(sWsdlPath.c_str(), "rb");
   if (pFile)
   {

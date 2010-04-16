@@ -114,19 +114,6 @@ namespace rise
           return false;
         }
 
-#ifdef WIN32
-        if (nErr == WSAECONNABORTED)
-        {
-          // connection closed
-          if (pulReceived != NULL)
-          {
-            *pulReceived = 0;
-          }
-
-          LogDebug3() << "Connection closed.";
-          return true;
-        }
-#endif
         RISE_ASSERTES(nErr != EMSGSIZE, CFileReadException, "Can't read from socket: " + osGetLastSocketErrorStr());
       }
       else

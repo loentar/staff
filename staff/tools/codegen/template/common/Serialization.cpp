@@ -41,20 +41,28 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 \
 #ifeqend
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Type),struct||typedef||template)
   CDataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
+#ifeq($(Param.DataType.Type),struct)
+  tdoParam$(Param.Name) << rstStruct.$(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),typedef)
   tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
-  rdoParam.CreateChild("$(Param.Name)").AppendChild(const_cast<CDataObject&>(rstStruct.$(Param.Name)));
+  tdoParam$(Param.Name).AppendChild(const_cast<CDataObject&>(rstStruct.$(Param.Name)));
+#else
+#ifeq($(Param.DataType.Type),template)
+  tdoParam$(Param.Name) << rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),generic)
-  rdoParam.CreateChild("$(Param.Name)").SetValue(rstStruct.$(Param.Name));
+  tdoParam$(Param.Name).SetValue(rstStruct.$(Param.Name));
 #else
 #ifeq($(Param.DataType.Type),string)
-  rdoParam.CreateChild("$(Param.Name)").SetText(rstStruct.$(Param.Name));
+  tdoParam$(Param.Name).SetText(rstStruct.$(Param.Name));
 #else
 #cgerror unknown type of Param.Name: $(Struct.Name)::$(Param.DataType.Name)
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -78,7 +86,13 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 \
 #ifeqend
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct)
+  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),typedef)
+  rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),template)
   rdoParam("$(Param.Name)") >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),dataobject)
@@ -91,6 +105,8 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
   rstStruct.$(Param.Name) = const_cast<const CDataObject&>(rdoParam)["$(Param.Name)"].AsString();
 #else
 #cgerror unknown type of Param.Name: $(Param.Name)::$(Param.DataType.Name)
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -109,7 +125,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 {
-  for ($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
+  for($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
     CDataObject tdoItem = rdoParam.CreateChild("Item");
 #ifeq($(Typedef.DataType.Name),std::map)
@@ -140,10 +156,14 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
   rdoParam.AppendChild(rtType);
   return rdoParam;
 #else
-#ifeq($(Typedef.DataType.Type),typedef||template)    // !!typedef||template!!
+#ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
+  return rdoParam << rtType;
+#else
+#ifeq($(Typedef.DataType.Type),template)    // !!template!!
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -161,7 +181,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 #ifeq($(Typedef.DataType.IsTemplate),1)
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType)
 {
-  for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
+  for(CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
     $(Typedef.DataType.Name) tItem;
     *it >> tItem;
@@ -174,11 +194,12 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType)
 {
 #ifeq($(Typedef.DataType.IsTemplate),1)
+
 // container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),typedef)
   $(Typedef.DataType.Name) tItem;
 #ifeqend
-  for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
+  for(CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
 #ifneq($(Typedef.DataType.Type),typedef)
 #ifeq($(Typedef.DataType.Type),template)
@@ -189,8 +210,6 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
     $(Typedef.DataType.TemplateParams.TemplateParam1) tItem;
 #ifeqend
 #ifeqend
-#else
-\
 #ifeqend
 
 #ifeq($(Typedef.DataType.Type),generic)
@@ -262,10 +281,14 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
   rtType = *rdoParam.Begin();
   return rdoParam;
 #else
-#ifeq($(Typedef.DataType.Type),typedef||template)    // !!typedef||template!!
+#ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
+  return rdoParam << rtType;
+#else
+#ifeq($(Typedef.DataType.Type),template)    // !!template!!
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

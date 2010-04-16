@@ -23,21 +23,21 @@
 #define _SHAREDCONTEXT_H_
 
 #include "staffcomponentexport.h"
-#include <string>
+#include <rise/string/String.h>
 #include <rise/common/MutablePtr.h>
 #include <map>
 #include "CompositeComponent.h"
 
 namespace staff
 {
-  class CServiceWrapper;
+  class CService;
   class CComponent;
   
   //! Pointer to componsite component
   typedef rise::CMutablePtr<CCompositeComponent> PCompositeComponent;
 
   //! Composite components map
-  typedef std::map<std::string, PCompositeComponent> TCompositeComponentMap;
+  typedef std::map<rise::CString, PCompositeComponent> TCompositeComponentMap;
 
 
   //!  Shared context
@@ -58,13 +58,13 @@ namespace staff
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    const CCompositeComponent* GetComponent(const std::string& sName) const;
+    const CCompositeComponent* GetComponent(const rise::CString& sName) const;
     
     //!         get composite component by name
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    CCompositeComponent* GetComponent(const std::string& sName);
+    CCompositeComponent* GetComponent(const rise::CString& sName);
     
     //!         get available composite components map
     /*! \return available composite components map
@@ -75,18 +75,18 @@ namespace staff
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    const CServiceWrapper* GetService(const std::string& sName) const;
+    const CService* GetService(const rise::CString& sName) const;
 
     //!         get service by name
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    CServiceWrapper* GetService(const std::string& sName);
+    CService* GetService(const rise::CString& sName);
 
     //!         get services list
     /*! \return services list
         */
-    TServiceWrapperMap GetServices() const;
+    TServiceMap GetServices() const;
 
     //!         clear component list
     void Clear();

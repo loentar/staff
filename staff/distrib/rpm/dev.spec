@@ -4,9 +4,9 @@ Summary: staff
 Name: staff-dev
 Version: __version__
 Release: mcbc
-Copyright: 2010
+Copyright: 2009
 Group: Utilities/System
-Requires: staff rise-dev
+Requires: staff rise-dev postgresql-devel
 Provides: staff-dev
 
 %description

@@ -40,7 +40,7 @@ int main(int nArgs, const char* paszArgs[])
     std::string sSessionID;
     {
       rise::CSharedPtr<staff::CLogin> pLogin = 
-        staff::CServiceFactory::Inst().GetService<staff::CLogin>();
+        CServiceFactory::Inst().GetService<staff::CLogin>();
 
       RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
 
@@ -50,13 +50,13 @@ int main(int nArgs, const char* paszArgs[])
       std::cout << nEx << ": Success" << std::endl;
 
       std::cout << "User login ";
-      sSessionID = pLogin->Login("user", "user");
+      sSessionID = pLogin->Login("test", "test");
       std::cout << (sSessionID != "" ? ": Success" : ": Error") << std::endl;
     }
     
     {
       rise::CSharedPtr<staff::CLogin> pLogin = 
-        staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionID);
+        CServiceFactory::Inst().GetService<staff::CLogin>(sSessionID);
 
       RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
 

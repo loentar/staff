@@ -365,22 +365,22 @@ namespace rise
 
   COStream& LogResultSuccess(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkGreen << ColorBright << "Success" << ColorDefault;
+    return rLogStream << ": " << ColorInkGreen << ColorBright << "Success" << ColorDefault << std::endl;
   }
 
   COStream& LogResultDone(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkGreen << ColorBright << "Done" << ColorDefault;
+    return rLogStream << ": " << ColorInkGreen << ColorBright << "Done" << ColorDefault << std::endl;
   }
 
   COStream& LogResultWarning(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkBrown << ColorBright << "Warning" << ColorDefault;
+    return rLogStream << ": " << ColorInkBrown << ColorBright << "Warning" << ColorDefault << std::endl;
   }
 
   COStream& LogResultFailed(COStream& rLogStream)
   {
-    return rLogStream << ": " << ColorInkRed << ColorBright << "Failed" << ColorDefault;
+    return rLogStream << ": " << ColorInkRed << ColorBright << "Failed" << ColorDefault << std::endl;
   }
 
   CLogStream& LogEndLOff( CLogStream& rLogStream )

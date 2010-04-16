@@ -25,7 +25,6 @@
 #include <list>
 #include <map>
 #include <string>
-#include <staff/common/IService.h>
 #include <staff/common/DataObject.h>
 
 namespace widget
@@ -84,7 +83,7 @@ namespace widget
   typedef std::list<SProfile> TProfileList;
 
   //!  Widget Manager
-  class CWidgetManager: public staff::IService
+  class CWidgetManager
   {
   public:
     //!        destructor

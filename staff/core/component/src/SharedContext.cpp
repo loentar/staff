@@ -21,7 +21,7 @@
 
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
-#include "ServiceWrapper.h"
+#include "Service.h"
 #include "SharedContext.h"
 
 namespace staff
@@ -54,7 +54,7 @@ namespace staff
       itFind->second->Compose(pComponent);
   }
 
-  CCompositeComponent* CSharedContext::GetComponent( const std::string& sName )
+  CCompositeComponent* CSharedContext::GetComponent( const rise::CString& sName )
   {
     TCompositeComponentMap::iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -62,7 +62,7 @@ namespace staff
     return itFind->second;
   }
 
-  const CCompositeComponent* CSharedContext::GetComponent( const std::string& sName ) const
+  const CCompositeComponent* CSharedContext::GetComponent( const rise::CString& sName ) const
   {
     TCompositeComponentMap::const_iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -75,15 +75,15 @@ namespace staff
     return m_mComponents;
   }
 
-  const CServiceWrapper* CSharedContext::GetService( const std::string& sName ) const
+  const CService* CSharedContext::GetService( const rise::CString& sName ) const
   {
-    std::string sComponentName;
-    std::string sServiceName;
-    std::string::size_type nPos = sName.find_last_of('.');
-    if (nPos != std::string::npos)
+    rise::CString sComponentName;
+    rise::CString sServiceName;
+    rise::CString::size_type nPos = sName.find_last_of('.');
+    if (nPos != rise::CString::npos)
     {
       sComponentName.assign(sName, 0, nPos - 1);
-      sServiceName.assign(sName, nPos + 1, std::string::npos);
+      sServiceName.assign(sName, nPos + 1, rise::CString::npos);
     } else
       sServiceName = sName;
 
@@ -100,15 +100,15 @@ namespace staff
     return pComponent->GetService(sName);
   }
 
-  CServiceWrapper* CSharedContext::GetService( const std::string& sName )
+  CService* CSharedContext::GetService( const rise::CString& sName )
   {
-    std::string sComponentName;
-    std::string sServiceName;
-    std::string::size_type nPos = sName.find_last_of('.');
-    if (nPos != std::string::npos)
+    rise::CString sComponentName;
+    rise::CString sServiceName;
+    rise::CString::size_type nPos = sName.find_last_of('.');
+    if (nPos != rise::CString::npos)
     {
       sComponentName.assign(sName, 0, nPos);
-      sServiceName.assign(sName, nPos + 1, std::string::npos);
+      sServiceName.assign(sName, nPos + 1, rise::CString::npos);
     } else
       sServiceName = sName;
 
@@ -125,18 +125,18 @@ namespace staff
     return pComponent->GetService(sName);
   }
 
-  TServiceWrapperMap CSharedContext::GetServices() const
+  TServiceMap CSharedContext::GetServices() const
   {
-    TServiceWrapperMap mServices;
+    TServiceMap mServices;
     for(TCompositeComponentMap::const_iterator itComponent = m_mComponents.begin();
           itComponent != m_mComponents.end(); ++itComponent)
     {
-      const TServiceWrapperMap& rmNewComponent = itComponent->second->GetServices();
-      for (TServiceWrapperMap::const_iterator itService = rmNewComponent.begin();
+      const TServiceMap& rmNewComponent = itComponent->second->GetServices();
+      for (TServiceMap::const_iterator itService = rmNewComponent.begin();
         itService != rmNewComponent.end(); ++itService)
       {
-        const std::pair<TServiceWrapperMap::iterator, bool>& tInsertResult = 
-          mServices.insert(TServiceWrapperMap::value_type(itService->first, itService->second));
+        const std::pair<TServiceMap::iterator, bool>& tInsertResult = 
+          mServices.insert(TServiceMap::value_type(itService->first, itService->second));
         if (!tInsertResult.second)
           rise::LogWarning() << "Duplicate service: \"" << itService->first 
           << "\": in component: \"" << itComponent->first << "\".";

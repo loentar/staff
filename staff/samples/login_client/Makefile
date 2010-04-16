@@ -8,7 +8,7 @@ HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include 
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib 
-LDFLAGS += -lstaffcommon -lstaffclient -lrise
+LDFLAGS += -lstaffcommon -lstaffclient -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

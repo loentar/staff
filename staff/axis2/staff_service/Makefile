@@ -33,6 +33,7 @@ $(OBJDIR)%.o: %.cpp
 deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
 	cp -f config/services.xml $(DEPLOYLIBDIR)
+	cp -f config/staff.xml $(DEPLOYDIR)
 
 # == distrib =========================================
 distrib:;
@@ -41,6 +42,7 @@ distrib:;
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLLIBDIR)$(TARGETNAME)
 	cp -f config/services.xml $(INSTALLLIBDIR)
+	cp -f config/staff.xml $(INSTALLDIR)
 
 # == uninstall ======================================
 uninstall: check

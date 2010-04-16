@@ -23,7 +23,7 @@
 #define _COMPOSITECOMPONENT_H_
 
 #include "staffcomponentexport.h"
-#include <string>
+#include <rise/string/String.h>
 #include <staff/common/DataObject.h>
 #include "Component.h"
 
@@ -47,34 +47,34 @@ namespace staff
     //!         get component name
     /*! \return component name
     */
-    const std::string& GetName() const;
+    const rise::CString& GetName() const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    const CServiceWrapper* GetService(const std::string& sName) const;
+    const CService* GetService(const rise::CString& sName) const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    CServiceWrapper* GetService(const std::string& sName);
+    CService* GetService(const rise::CString& sName);
 
     //!         add service into component
     /*! \param  pService - service
         */
-    void AddService(CServiceWrapper* pService);
+    void AddService(CService* pService);
 
     //!         remove service from component
     /*! \param  sName - service name
         */
-    void RemoveService(const std::string& sName);
+    void RemoveService(const rise::CString& sName);
 
     //!         get services map
     /*! \return services map
     */
-    const TServiceWrapperMap& GetServices() const;
+    const TServiceMap& GetServices() const;
 
     //!         get component properties
     /*! \return component properties
@@ -82,8 +82,8 @@ namespace staff
     CDataObject& GetProperties();
   
   private:
-    std::string m_sName;        //!<  component name
-    TServiceWrapperMap m_mServices;      //!<  services map
+    rise::CString m_sName;        //!<  component name
+    TServiceMap m_mServices;      //!<  services map
     CDataObject m_doProperties;   //!<  component properties
   };
 }

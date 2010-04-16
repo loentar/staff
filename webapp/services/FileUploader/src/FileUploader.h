@@ -24,7 +24,6 @@
 
 #include <string>
 #include <list>
-#include <staff/common/IService.h>
 
 namespace webapp
 {
@@ -33,7 +32,7 @@ namespace webapp
     typedef std::list<std::string> TStringList; //!< string list
 
     //!  File Uploader
-    class CFileUploader: public staff::IService
+    class CFileUploader
     {
     public:
       //!        destructor

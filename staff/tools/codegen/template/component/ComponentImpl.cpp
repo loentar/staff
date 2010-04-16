@@ -4,8 +4,6 @@
 
 #include <rise/plugin/PluginExport.h>
 #include <rise/common/MutablePtr.h>
-#include <rise/common/containertypes.h>
-#include <staff/component/ServiceWrapperFactory.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Wrapper.h"
 #end
@@ -18,11 +16,7 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
   {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
-    {
-      staff::PServiceWrapper tpServiceWrapper(new $(Class.NsName)Wrapper(this));
-      m_mServices["$(Class.ServiceNsName)"] = tpServiceWrapper;
-      staff::CServiceWrapperFactory::Inst().RegisterServiceWrapper(tpServiceWrapper);
-    }
+    m_mServices["$(Class.ServiceNsName)"] = new $(Class.NsName)Wrapper(this);
 #end
 #end
   }
@@ -31,36 +25,34 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
   {
   }
 
-  const std::string& CComponentImpl::GetName() const
+  const rise::CString& CComponentImpl::GetName() const
   {
     return m_sName;
   }
 
-  const staff::CServiceWrapper* CComponentImpl::GetService( const std::string& sService ) const
+  const staff::CService* CComponentImpl::GetService( const rise::CString& sService ) const
   {
-    staff::TServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
+    staff::TServiceMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
       return NULL;
 
     return itService->second;
   }
 
-  staff::CServiceWrapper* CComponentImpl::GetService( const std::string& sService )
+  staff::CService* CComponentImpl::GetService( const rise::CString& sService )
   {
-    staff::TServiceWrapperMap::iterator itService = m_mServices.find(sService);
+    staff::TServiceMap::iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
-    {
       return NULL;
-    }
 
     return itService->second;
   }
 
-  const staff::TServiceWrapperMap& CComponentImpl::GetServices() const
+  const staff::TServiceMap& CComponentImpl::GetServices() const
   {
     return m_mServices;
   }
 
-  const std::string CComponentImpl::m_sName = "$(Project.Interfaces.Interface.Classes.Class.ComponentName)";
+  const rise::CString CComponentImpl::m_sName = "$(Project.Interfaces.Interface.Classes.Class.ComponentName)";
 
 $(Project.Interfaces.Interface.Classes.Class.EndingNs)

@@ -3,48 +3,44 @@
 // DO NOT EDIT
 
 #include <memory>
-#include <staff/common/IService.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Proxy.h"
 #end
 #include "ServiceFactory.h"
 
-namespace staff
+void* CServiceFactory::AllocateClient(const std::string& sClientType, const std::string& sServiceUri, const std::string& sSessionId)
 {
-  IService* CServiceFactory::AllocateClient(const std::string& sClientType,
-                                                   const std::string& sServiceUri,
-                                                   const std::string& sSessionId,
-                                                   const std::string& sInstanceId)
-  {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
-    if (sClientType == typeid($(Class.NsName)).name())
-    {
-      std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
-      pClientProxy->m_sServiceName = "$(Class.ServiceNsName)";
-      pClientProxy->m_sSessionId = sSessionId;
-      pClientProxy->m_sInstanceId = sInstanceId;
-      pClientProxy->Init(sServiceUri, sSessionId, sInstanceId);
-      return pClientProxy.release();
-    }
+  if (sClientType == typeid($(Class.NsName)).name())
+  {
+    std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
+    pClientProxy->Init(sServiceUri.size() != 0 ? sServiceUri : \
+#ifeq($(Class.ServiceUri),)
+"http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
+#else
+"$(Class.ServiceUri)"\
+#ifeqend
+, sSessionId);
+    return pClientProxy.release();
+  } else
 #end
 #end
-    return NULL;
-  }
-
-  CServiceFactory& CServiceFactory::Inst()
-  {
-    if (m_pInst == NULL)
-    {
-      m_pInst = new CServiceFactory;
-    }
-
-    return *m_pInst;
-  }
-
-  CServiceFactory::CServiceFactory()
-  {
-  }
-
-  CServiceFactory* CServiceFactory::m_pInst = NULL;
+  return NULL;
 }
+
+CServiceFactory& CServiceFactory::Inst()
+{
+  if (m_pInst == NULL)
+  {
+    m_pInst = new CServiceFactory;
+  }
+
+  return *m_pInst;
+}
+
+CServiceFactory::CServiceFactory()
+{
+}
+
+CServiceFactory* CServiceFactory::m_pInst = NULL;

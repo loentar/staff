@@ -22,15 +22,13 @@
 #ifndef _CalcService_H_
 #define _CalcService_H_
 
-#include <staff/common/IService.h>
-
 namespace samples
 {
   namespace calc
   {
     // description: sample component service CalcService
     // uri: http://localhost:9090/axis2/services/samples.calc.CalcService
-    class CCalcService: public staff::IService
+    class CCalcService
     {
     public:
       virtual ~CCalcService() {}
