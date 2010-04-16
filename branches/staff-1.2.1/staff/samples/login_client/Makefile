@@ -1,0 +1,60 @@
+include ../../Makefile.env
+
+TARGET = login_client
+TARGETNAME = $(TARGET)
+
+HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
+
+
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include 
+LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib 
+LDFLAGS += -lstaffcommon -lstaffclient -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
+
+VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
+
+CODEGENH := $(patsubst %.h,%Proxy.h,$(HEADERS)) $(SRCDIR)ServiceFactory.h
+CODEGENCPP := $(patsubst %.h,%Proxy.cpp,$(HEADERS)) $(SRCDIR)ServiceFactory.cpp
+CODEGEN := $(CODEGENH) $(CODEGENCPP)
+
+SOURCES = $(CODEGENCPP) $(filter-out %ServiceFactory.cpp %Proxy.cpp,$(wildcard $(SRCDIR)*.cpp))
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+.SECONDARY: $(CODEGEN)
+
+# == make ===========================================
+make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+
+# link
+$(OUTDIR)$(TARGETNAME): $(CODEGEN) $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile
+$(OBJDIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(CODEGEN): $(HEADERS)
+	[ "$@" -nt "$^" ] || (cd src && $(STAFF_CODEGEN) $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
+
+# == deploy  ========================================
+deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
+
+# == distrib =========================================
+distrib:;
+
+# == install ========================================
+install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
+
+# == uninstall ======================================
+uninstall: check
+	rm -f $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
+
+# == clean ==========================================
+clean:
+	rm -Rf $(OBJDIR) $(OUTDIR)
+	rm -f $(CODEGEN)
+
+# == mkdir ==========================================
+"%/":
+	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
