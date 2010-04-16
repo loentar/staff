@@ -70,6 +70,9 @@ AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env
 axis2_svc_t* AXIS2_CALL Axis2Dispatcher_find_svc(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv)
 {
   static const axis2_char_t* szServiceName = "StaffService";
+  axis2_conf_ctx_t* pContCtx = NULL;
+  axis2_conf_t* pConf = NULL;
+  axis2_svc_t* pService = NULL;
 
   AXIS2_ENV_CHECK(pEnv, NULL);
 
@@ -79,21 +82,21 @@ axis2_svc_t* AXIS2_CALL Axis2Dispatcher_find_svc(axis2_msg_ctx_t* pMsgCtx, const
     return NULL;
   }
 
-  axis2_conf_ctx_t* pContCtx = axis2_msg_ctx_get_conf_ctx(pMsgCtx, pEnv);
+  pContCtx = axis2_msg_ctx_get_conf_ctx(pMsgCtx, pEnv);
   if (!pContCtx)
   {
     AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "axis2_msg_ctx_get_conf_ctx");
     return NULL;
   }
 
-  axis2_conf_t* pConf = axis2_conf_ctx_get_conf(pContCtx, pEnv);
+  pConf = axis2_conf_ctx_get_conf(pContCtx, pEnv);
   if (!pConf)
   {
     AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "axis2_conf_ctx_get_conf");
     return NULL;
   }
 
-  axis2_svc_t* pService = axis2_conf_get_svc(pConf, pEnv, szServiceName);
+  pService = axis2_conf_get_svc(pConf, pEnv, szServiceName);
   if (!pService)
   {
     AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "Can't find service \"%s\"", szServiceName);
@@ -118,6 +121,9 @@ axis2_op_t* AXIS2_CALL Axis2Dispatcher_find_op(axis2_msg_ctx_t* pMsgCtx, const a
 axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, const axutil_env_t* pEnv,
                                                  struct axis2_msg_ctx* pMsgCtx)
 {
+  axis2_svc_t* pService = NULL;
+  axis2_op_t* pOperation = NULL;
+
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   if (!(axis2_msg_ctx_get_server_side(pMsgCtx, pEnv)))
@@ -127,9 +133,6 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
 
   axis2_msg_ctx_set_find_svc(pMsgCtx, pEnv, Axis2Dispatcher_find_svc);
   axis2_msg_ctx_set_find_op(pMsgCtx, pEnv, Axis2Dispatcher_find_op);
-
-  axis2_svc_t* pService = NULL;
-  axis2_op_t* pOperation = NULL;
 
   pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
 
