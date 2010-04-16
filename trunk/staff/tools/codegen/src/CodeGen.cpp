@@ -498,6 +498,11 @@ public:
     }
   }
 
+  void SetEnv(const TStringMap& rmEnv)
+  {
+    m_tVariables = rmEnv;
+  }
+
 private:
   std::list<std::string> m_tTemplateFileList;
   std::list<std::string> m_tConstFileList;
@@ -507,10 +512,11 @@ private:
 };
 
 
-void CCodeGen::Start( const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly )
+void CCodeGen::Start( const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv )
 {
   CTemplateParser tTemplateParser;
   
   tTemplateParser.Init(sTemplateDir);
+  tTemplateParser.SetEnv(rmEnv);
   tTemplateParser.Start(sOutDir, rRootNode, bUpdateOnly);
 }

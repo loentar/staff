@@ -19,8 +19,13 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _CLIENTGEN_H_
-#define _CLIENTGEN_H_
+#ifndef _CODEGEN_H_
+#define _CODEGEN_H_
+
+#include <string>
+#include <map>
+
+typedef std::map<std::string, std::string> TStringMap;
 
 struct SProject;
 
@@ -42,7 +47,7 @@ public:
       \param  rRootNode - root node, describing project
       \param  bUpdateOnly - true: update files if needed, false: always update files
       */
-  void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly);
+  void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv);
 };
 
-#endif // _CLIENTGEN_H_
+#endif // _CODEGEN_H_
