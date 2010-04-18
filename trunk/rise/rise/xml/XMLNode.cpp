@@ -532,6 +532,9 @@ namespace rise
               rXMLNodeNew.GetNsList().push_back(SXMLNamespace(StrMid(const_cast<const SXMLAttribute&>(stAttribute).sAttrName, 6), 
                         const_cast<const SXMLAttribute&>(stAttribute).sAttrValue));
             else
+            if (stAttribute.sAttrName == "xmlns")
+              rXMLNodeNew.GetNsList().push_back(SXMLNamespace("", stAttribute.sAttrValue));
+            else
               rXMLNodeNew.AddAttribute(const_cast<const SXMLAttribute&>(stAttribute));
 
           }  // while reading attrs
