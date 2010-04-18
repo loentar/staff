@@ -112,9 +112,10 @@ void GetType( const rise::xml::CXMLNode& rElement, const std::string& sAttrTypeN
   std::string sTypeName = (nPos != std::string::npos) ? sAttrTypeName.substr(nPos + 1) : sAttrTypeName;
 
   const rise::xml::SXMLNamespace* pElementNs = FindNamespace(rElement, sPrefix);
-  RISE_ASSERTP(pElementNs);
+  RISE_ASSERTS(pElementNs, "Namespace declaration is not found for prefix [" + sPrefix + "]");
 
-  bIsXmlType = pElementNs->sUri == "http://www.w3.org/2001/XMLSchema";
+  bIsXmlType = pElementNs->sUri == "http://www.w3.org/2001/XMLSchema" ||
+               pElementNs->sUri == "http://schemas.xmlsoap.org/wsdl/";
 
   if (bIsXmlType &&
      (sTypeName == "string" ||
@@ -533,6 +534,7 @@ public:
             stParam.sName = bIsResponse ? sElementName : rElem.sName;
             stParam.stDataType.sName = rElem.sType;
             stParam.stDataType.sNodeName = rElem.sName;
+            stParam.stDataType.sUsedName = rElem.sType;
 
             rParts.push_back(stParam);
           }
@@ -760,19 +762,21 @@ public:
     std::string::size_type nPosComponentBegin = rService.sServiceUri.find_last_of('/');
     if (nPosComponentBegin == std::string::npos)
     {
+      rService.sNamespace = "::";
       return;
     }
 
     std::string::size_type nPosComponentEnd = rService.sServiceUri.find_last_of('.');
     if (nPosComponentEnd == std::string::npos)
     {
+      rService.sNamespace = "::";
       return;
     }
     
     std::string sNamespace = rService.sServiceUri.substr(nPosComponentBegin + 1, nPosComponentEnd - nPosComponentBegin);
-    
+
     rise::StrReplace(sNamespace, ".", "::", true);
-    
+
     rService.sNamespace = sNamespace;
     
     for (std::list<STypedef>::iterator itTypedef = rInterface.lsTypedef.begin();
@@ -850,6 +854,7 @@ private:
       else
       {
         rDataType.sName = sDataType;
+        rDataType.sUsedName = sDataType;
         rise::LogWarning() << "Can't find element type declaration: " << sDataType;
       }
     }
@@ -878,7 +883,9 @@ private:
       if (rSimpleType.bIsXmlType)
       {
         rDataType.sName = rSimpleType.sBaseType;
+        rDataType.sUsedName = rSimpleType.sBaseType;
         stTypedef.stDataType.sName = rSimpleType.sBaseType;
+        stTypedef.stDataType.sUsedName = rSimpleType.sBaseType;
       }
       else
       {
@@ -947,6 +954,7 @@ private:
 
       rDataType.eType = SDataType::EStruct;
       rDataType.sName = stStruct.sName;
+      rDataType.sUsedName = stStruct.sName;
 
       m_pInterface->lsStruct.push_back(stStruct);
     }
@@ -958,9 +966,11 @@ private:
     {
       SDataType stTempl;
       stTempl.sName = rElement.sType;
+      stTempl.sUsedName = rElement.sType;
       stTempl.sNodeName = rElement.sName;
 
       rDataType.sName = "staff::Array";
+      rDataType.sUsedName = "staff::Array";
       rDataType.eType = SDataType::ETemplate;
       rDataType.lsParams.push_back(stTempl);
     }
@@ -968,6 +978,7 @@ private:
     {
       rDataType.sName = rElement.sType;
       rDataType.sNodeName = rElement.sName;
+      rDataType.sUsedName = rElement.sType;
     }
 
     if (!rElement.bIsXmlType)

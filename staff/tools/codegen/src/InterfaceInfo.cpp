@@ -537,6 +537,7 @@ std::istream& operator>>( std::istream& rStream, SParam& rParameter )
 {
   rStream >> rParameter.stDataType >> SkipWs;
   ReadBefore(rStream, rParameter.sName);
+  rParameter.stDataType.sNodeName = rParameter.sName;
   return rStream;
 }
 
@@ -1331,6 +1332,7 @@ SDataType& SDataType::operator=(const SDataType& stDataType)
   sName = stDataType.sName;
   sNodeName = stDataType.sNodeName;
   sNamespace = stDataType.sNamespace;
+  sUsedName = stDataType.sUsedName;
   lsParams = stDataType.lsParams;
 
   return *this;
