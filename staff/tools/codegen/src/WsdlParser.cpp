@@ -586,7 +586,6 @@ public:
       if (itAttrType != itNodePart->AttrEnd())
       {
         rMember.sNodeName = StripNamespace(itAttrType->sAttrValue.AsString());
-        std::cout << "nodename: " << rMember.sNodeName << std::endl;
       }
     }
   }
