@@ -668,6 +668,44 @@ public:
         return false;
       }
 
+      // filter soap transport
+      rise::xml::CXMLNode::TXMLNodeConstIterator itBindingTransport = rFindNode.FindSubnode("binding");
+      if (itBindingTransport == rFindNode.NodeEnd())
+      {
+        return false;
+      }
+
+      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrTransport = itBindingTransport->FindAttribute("transport");
+      if (itAttrTransport == itBindingTransport->AttrEnd())
+      {
+        return false;
+      }
+
+      if (itAttrTransport->sAttrValue != "http://schemas.xmlsoap.org/soap/http")
+      { // not a soap over http transport
+        return false;
+      }
+
+      // checking soap version, must be 1.1
+      const rise::xml::SXMLNamespace* pTransportNamespace = FindNamespace(*itBindingTransport, itBindingTransport->Namespace());
+      if (!pTransportNamespace)
+      {
+        std::string sName = "<noname>";
+        rise::xml::CXMLNode::TXMLAttrConstIterator itBindingName = rFindNode.FindAttribute("name");
+        if (itBindingName == rFindNode.AttrEnd())
+        {
+          sName = itBindingName->sAttrValue.AsString();
+        }
+
+        rise::LogWarning() << "can't find namespace declaration for binding with name: " << sName;
+        return false;
+      }
+
+      if (pTransportNamespace->sUri != "http://schemas.xmlsoap.org/wsdl/soap/")
+      { // not a soap 1.1
+        return false;
+      }
+
       return StripNamespace(itType->sAttrValue.AsString()) == m_sTypeName;
     }
 
@@ -759,21 +797,17 @@ public:
   void ApplyComponentNamespace(SInterface& rInterface)
   {
     SClass& rService = rInterface.lsClass.front();
-    std::string::size_type nPosComponentBegin = rService.sServiceUri.find_last_of('/');
-    if (nPosComponentBegin == std::string::npos)
+
+    std::string sServiceName;
+    std::string sNamespace;
+    std::string::size_type nPos = rService.sServiceUri.find_last_of('/');
+    if (nPos != std::string::npos)
     {
-      rService.sNamespace = "::";
-      return;
+      sServiceName = rService.sServiceUri.substr(nPos + 1);
     }
 
-    std::string::size_type nPosComponentEnd = rService.sServiceUri.find_last_of('.');
-    if (nPosComponentEnd == std::string::npos)
-    {
-      rService.sNamespace = "::";
-      return;
-    }
-    
-    std::string sNamespace = rService.sServiceUri.substr(nPosComponentBegin + 1, nPosComponentEnd - nPosComponentBegin);
+    nPos = sServiceName.find_last_of('.', nPos);
+    sNamespace = (nPos == std::string::npos) ? "." : sServiceName.substr(0, nPos) + ".";
 
     rise::StrReplace(sNamespace, ".", "::", true);
 
