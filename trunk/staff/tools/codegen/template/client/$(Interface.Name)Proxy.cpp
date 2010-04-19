@@ -67,9 +67,15 @@ void $(Class.Name)Proxy::Deinit()
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
-  staff::COperation tOperation("$(Member.Name)", "$(Member.Return.ResponseName)", "$(Member.Return.NodeName)");
-#ifneq($(Member.SoapAction),)
+  staff::COperation tOperation(\
+#ifneq($(Member.NodeName),)
+"$(Member.NodeName)"\
+#else
+"$(Member.Name)"\
+#ifeqend
+, "$(Member.Return.ResponseName)", "$(Member.Return.NodeName)");
 
+#ifneq($(Member.SoapAction),)
   tOperation.SetSoapAction("$(Member.SoapAction)");
 #ifeqend
 #foreach $(Member.Params)
