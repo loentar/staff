@@ -574,13 +574,20 @@ public:
   }
 
 
-  void ParseRequest(std::list<SParam>& rParams, const rise::xml::CXMLNode& rMessage, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
+  void ParseRequest(SMember& rMember, const rise::xml::CXMLNode& rMessage, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
   {
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodePart = rMessage.FindSubnode("part");
         itNodePart != rMessage.NodeEnd();
         itNodePart = rMessage.FindSubnode("part", ++itNodePart))
     {
-      ParsePart(rParams, *itNodePart, rDefs, rWsdlTypes, false);
+      ParsePart(rMember.lsParamList, *itNodePart, rDefs, rWsdlTypes, false);
+
+      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = itNodePart->FindAttribute("element");
+      if (itAttrType != itNodePart->AttrEnd())
+      {
+        rMember.sNodeName = StripNamespace(itAttrType->sAttrValue.AsString());
+        std::cout << "nodename: " << rMember.sNodeName << std::endl;
+      }
     }
   }
 
@@ -617,7 +624,7 @@ public:
       RISE_ASSERTES(itMessage != rDefs.NodeEnd(), rise::CLogicNoItemException, 
         "Can't find message definition(input) for: " + sRequestName);
 
-      ParseRequest(rMember.lsParamList, *itMessage, rDefs, rWsdlTypes);
+      ParseRequest(rMember, *itMessage, rDefs, rWsdlTypes);
     } // else notification message
 
     // response

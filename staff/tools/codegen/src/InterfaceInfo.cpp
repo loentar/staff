@@ -622,6 +622,7 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   std::string sTmp;
   std::string sSoapAction;
   std::string sDescr;
+  std::string sRequestElement;
   std::string sResponseElement;
   std::string sResultElement;
 
@@ -643,6 +644,7 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
   {
     sSoapAction.erase();
     sDescr.erase();
+    sRequestElement.erase();
     sResponseElement.erase();
     sResultElement.erase();
     
@@ -678,6 +680,12 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
             sDescr += '\n';
           }
           sDescr += sDescrTmp;
+        }
+        else
+        if (sTmp.substr(0, 15) == "requestElement:")
+        {
+          sRequestElement= sTmp.substr(15);
+          rise::StrTrimLeft(sRequestElement);
         }
         else
         if (sTmp.substr(0, 16) == "responseElement:")
@@ -745,6 +753,7 @@ std::istream& operator>>( std::istream& rStream, SClass& rClass )
         rStream >> stMember;
         stMember.sDescr = sDescr;
         stMember.sSoapAction = sSoapAction;
+        stMember.sNodeName = sRequestElement;
         stMember.stReturn.sName = sResponseElement;
         stMember.stReturn.stDataType.sNodeName = sResultElement;
         rClass.lsMember.push_back(stMember);

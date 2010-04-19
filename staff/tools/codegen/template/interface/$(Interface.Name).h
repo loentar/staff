@@ -21,9 +21,11 @@ struct $(Struct.Name);
 #foreach $(Interface.Typedefs)
 typedef $(Typedef.DataType) $(Typedef.Name);
 #end
+
 #else
 \
 #ifeqend
+#ifneq($(Interface.Typedefs.$Count),0)
 
 #foreach $(Interface.Structs)
 struct $(Struct.Name)$(Struct.ParentDecl)
@@ -32,8 +34,10 @@ struct $(Struct.Name)$(Struct.ParentDecl)
   $(Param.DataType) $(Param.Name);
 #end
 };
-
 #end
+#else
+\
+#ifeqend
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
 //!  service $(Class.ServiceNsName)
@@ -56,6 +60,11 @@ public:
 #ifeqend
 #ifneq($(Member.SoapAction),)
   // soapAction: $(Member.SoapAction)
+#else
+\
+#ifeqend
+#ifneq($(Member.NodeName),)
+  // requestElement: $(Member.NodeName)
 #else
 \
 #ifeqend

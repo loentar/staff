@@ -75,6 +75,7 @@ struct SMember
   bool               bIsConst;    //!<  operation is const
   std::string        sDescr;      //!<  operation description
   std::string        sSoapAction; //!<  soap action
+  std::string        sNodeName;   //!<  node name
   SMember();
 };
 
