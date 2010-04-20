@@ -391,6 +391,7 @@ pOnComplete, pOnError)
 #end
     if(typeof pOnComplete == 'function')
     { // make async call
+      var bDataObjectAsXml = this.bDataObjectAsXml;
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
@@ -401,14 +402,14 @@ pOnComplete, pOnError)
           pOnComplete(DeserializeTypedef_$(Member.Return.MangledName)(tOperation), tOperation);
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-    if (!this.bDataObjectAsXml)
-    {
-      pOnComplete(new staff.DataObject(tOperation.ResultElement().firstChild), tOperation);
-    }
-    else
-    {
-      pOnComplete(tOperation.ResultElement().firstChild, tOperation);
-    }
+          if (!bDataObjectAsXml)
+          {
+            pOnComplete(new staff.DataObject(tOperation.ResultElement().firstChild), tOperation);
+          }
+          else
+          {
+            pOnComplete(tOperation.ResultElement().firstChild, tOperation);
+          }
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
