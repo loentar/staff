@@ -970,6 +970,7 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
   std::string sServiceUri;
   std::string sServiceDescr;
   std::string sTmp;
+  bool bLoadAtStartup = false;
 
   rStream >> SkipWsOnly;
   while (ReadComment(rStream, sTmp))
@@ -1003,6 +1004,13 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
           sServiceDescr += '\n';
         }
         sServiceDescr += sDescrTmp;
+      }
+      else
+      if (sTmp.substr(0, 14) == "loadAtStartup:")
+      {
+        std::string sLoadAtStartup = sTmp.substr(15);
+        rise::StrTrim(sLoadAtStartup);
+        bLoadAtStartup = sLoadAtStartup == "true";
       }
       else
       if (sTmp.substr(0, 16) == "targetNamespace:")
@@ -1076,6 +1084,7 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     rStream >> stClass;
     stClass.sDescr = sServiceDescr;
     stClass.sServiceUri = sServiceUri;
+    stClass.bLoadAtStartup = bLoadAtStartup;
     rInterface.lsClass.push_back(stClass);
 
     rStream >> SkipWs >> chData;
@@ -1085,6 +1094,10 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
     }
 
     rStream >> SkipSingleLineComment;
+
+    sServiceUri.clear();
+    sServiceDescr.clear();
+    bLoadAtStartup = false;
   } else
   if (sTmp == "struct")
   {

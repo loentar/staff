@@ -30,15 +30,23 @@ namespace staff
 {
   namespace security
   {
+    //! database connection
     class CDbConn
     {
     public:
+      //! open db
       static void Open();
+
+      //! close db
       static void Close();
+
+      //! get db
+      /*! \return pointer to db object
+        */
       static sqlite3* GetDb();
 
     private:
-      static sqlite3* m_pDb;
+      static sqlite3* m_pDb; //!< pointer to db object
     };
   }
 }

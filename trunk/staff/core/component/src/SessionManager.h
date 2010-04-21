@@ -65,6 +65,9 @@ namespace staff
         */
     bool Validate(const std::string& sSessionId);
 
+    //!         keepalive session
+    /*! \param  sSessionId - session id
+        */
     void Keepalive(const std::string& sSessionId);
 
   private:

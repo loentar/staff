@@ -34,20 +34,60 @@ namespace staff
   class IService;
   class CServiceWrapper;
 
-  typedef rise::CMutablePtr<IService> PIService;
+  typedef rise::CMutablePtr<IService> PIService; //!< mutable pointer to service
 
+  //! service instance manager
   class CServiceInstanceManager
   {
   public:
+    //! get manager instance
+    /*! \return manager instance
+        */
     static CServiceInstanceManager& Inst();
+
+    //! free manager instance
     static void FreeInst();
 
+    //! create session
+    /*! \param sSessionId - session id
+      */
     void CreateSession(const std::string& sSessionId);
+
+    //! free session
+    /*! free session and all services in session
+        \param sSessionId - session id
+      */
     void FreeSession(const std::string& sSessionId);
 
+    //! get existing or create service instance
+    /*! \param sSessionId - session id
+        \param sServiceName - service name
+        \param sInstanceId - instance id
+        \return service instance
+        */
+    PIService& ServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId);
+
+    //! create (allocate) service instance
+    /*! \param sSessionId - session id
+        \param sServiceName - service name
+        \param sInstanceId - instance id
+        \return created service instance
+        */
     PIService& CreateServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId);
+
+    //! free (deallocate) service instance
+    /*! \param sSessionId - session id
+        \param sServiceName - service name
+        \param sInstanceId - instance id
+        */
     void FreeServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId);
 
+    //! get service instance
+    /*! \param sSessionId - session id
+        \param sServiceName - service name
+        \param sInstanceId - instance id
+        \return service instance
+        */
     PIService& GetServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId);
 
   protected:

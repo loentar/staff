@@ -86,6 +86,7 @@ struct SClass
   std::string         sNamespace;     //!<  namespace
   std::string         sDescr;         //!<  service description
   std::string         sServiceUri;    //!<  default service URI
+  bool                bLoadAtStartup; //!<  load service at startup
   std::list<SMember>  lsMember;       //!<  service operations
 };
 

@@ -56,7 +56,7 @@ namespace samples
     int CCalcServiceImpl::Sub(int nA, int nB) const
     {
       CSubService* pSubService = static_cast<CSubService*>(staff::CServiceInstanceManager::Inst().
-          GetServiceInstance(staff::IService::GetSessionId(), "samples.calc.SubService", staff::IService::GetInstanceId()).Get());
+          ServiceInstance(staff::IService::GetSessionId(), "samples.calc.SubService", staff::IService::GetInstanceId()).Get());
 
       RISE_ASSERTES(pSubService != NULL, rise::CLogicNoItemException,
           "Service [samples.calc.SubService] with session id [" + staff::IService::GetSessionId() + "] not found");
@@ -66,24 +66,23 @@ namespace samples
 
     void CCalcServiceImpl::SetMem(int nMem)
     {
-      GetConfig().Config().GetOrAddSubNode("Mem").NodeContent() = nMem;
-      GetConfig().SaveConfig();
+      m_pConfig->Config()["Mem"] = nMem;
     }
 
     int CCalcServiceImpl::GetMem() const
     {
-      return GetConfig().Config()["Mem"].AsInt();  // result
+      return m_pConfig->Config()["Mem"].AsInt();  // result
     }
 
-    staff::CComponentConfig& CCalcServiceImpl::GetConfig() const
+    void CCalcServiceImpl::OnCreate()
     {
-      if (m_pConfig == NULL)
-      {
-        m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
-      }
-
-      return *m_pConfig;
+      m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
+      RISE_ASSERTS(m_pConfig, "Can't get config");
     }
 
+    void CCalcServiceImpl::OnDestroy()
+    {
+      m_pConfig->SaveConfig();
+    }
   }
 }

@@ -29,32 +29,62 @@ namespace staff
 {
   namespace security
   {
+    //! group
     struct SGroup
     {
-      int nId;
-      std::string sName;
-      std::string sDescription;
+      int nId;                  //!< group id
+      std::string sName;        //!< group name
+      std::string sDescription; //!< group description
     };
 
-    typedef std::list<SGroup> TGroupsList;
+    typedef std::list<SGroup> TGroupsList; //!< list of groups
 
+    //! gropus
     class CGroups
     {
     public:
+      //! get groups instance
+      /*! \return groups instance
+        */
       static CGroups& Inst();
 
+      //! free groups instance
       static void FreeInst();
 
+      //! get group by id
+      /*! \param nId - group id
+          \param rstGroup - resulting group info
+          */
       void GetById(int nId, SGroup& rstGroup);
 
+      //! get group by name
+      /*! \param sGroupName
+          \param rstGroup - resulting group info
+          */
       void GetByName(const std::string& sGroupName, SGroup& rstGroup);
 
+      //! get groups list
+      /*! \param rlsGroups - resulting group list
+          */
       void GetList(TGroupsList& rlsGroups);
 
+
+      //! create new group
+      /*! \param sName - group name
+          \param sDescription - group description
+          \param nId - resulting group id
+          */
       void Add(const std::string& sName, const std::string& sDescription, int& nId);
 
+      //! remove group by id
+      /*! \param nId - group id to remove
+        */
       void Remove(int nId);
 
+      //! set group description
+      /*! \param nId - group id
+          \param sDescription - new group description
+        */
       void SetDescription(int nId, const std::string& sDescription);
 
     private:

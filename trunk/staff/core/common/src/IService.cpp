@@ -31,6 +31,13 @@ namespace staff
   {
   }
 
+  void IService::OnCreate()
+  {
+  }
+
+  void IService::OnDestroy()
+  {
+  }
 
   const std::string& IService::GetServiceName() const
   {

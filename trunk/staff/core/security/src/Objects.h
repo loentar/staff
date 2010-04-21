@@ -29,23 +29,34 @@ namespace staff
 {
   namespace security
   {
+    //! security object
     struct SObject
     {
-      int nId;
-      std::string sName;
-      std::string sDescription;
-      int nParentId;
+      int nId;                  //!< object id
+      std::string sName;        //!< object name
+      std::string sDescription; //!< object description
+      int nParentId;            //!< parent object id
     };
 
-    typedef std::list<SObject> TObjectList;
+    typedef std::list<SObject> TObjectList; //!< list of objects
 
+    //! security objects
     class CObjects
     {
     public:
+      //! get objects instance
+      /*! \return objects instance
+        */
       static CObjects& Inst();
 
+      //! free objects instance
       static void FreeInst();
 
+      //! get object by id
+      /*! \param  nId - object id
+          \param  rstObject - resulting object
+          \sa GetIdByPathName
+        */
       void GetById(int nId, SObject& rstObject);
 
       //! get object by path name
@@ -62,18 +73,49 @@ namespace staff
         */
       bool GetIdByPathName(const std::string& sName, int& nId);
 
+
+      //! create new object
+      /*! \param sName - object name
+          \param sDescription - object description
+          \param nParentId - parent object id
+          \param nId - id of created object
+          */
       void Add(const std::string& sName, const std::string& sDescription, int nParentId, int& nId);
 
+      //! remove object by id
+      /*! \param nId - object id
+        */
       void Remove(int nId);
 
+      //! set object description
+      /*! \param nId - object id
+          \param sDescription - new description
+          */
       void SetDescription(int nId, const std::string& sDescription);
 
+      //! get object's childs
+      /*! \param nId - object id
+          \param rlsChlids - list of object childrens
+          */
       void GetChilds(int nId, TObjectList& rlsChilds);
 
+      //! get object's child id
+      /*! \param nId - object id
+          \param sChildName - child's name
+          \param nChildId - resulting child id
+          */
       bool GetChildId(int nId, const std::string& sChildName, int& nChildId);
 
+      //! get parent object
+      /*! \param nId - object id
+          \param rstParent - parent object
+          */
       void GetParent(int nId, SObject& rstParent);
 
+      //! get parent object id
+      /*! \param nId - object id
+          \param nParent - parent object id
+          */
       void GetParentId(int nId, int& nParentId);
 
     private:

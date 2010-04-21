@@ -47,7 +47,9 @@ namespace samples
       virtual int GetMem() const;
 
     protected:
-      staff::CComponentConfig& GetConfig() const;
+      virtual void OnCreate();
+      virtual void OnDestroy();
+
     private:
       mutable staff::CComponentConfig* m_pConfig;
     };

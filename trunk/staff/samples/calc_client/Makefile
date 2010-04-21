@@ -18,7 +18,7 @@ CODEGEN := $(CODEGENH) $(CODEGENCPP)
 SOURCES = $(CODEGENCPP) $(filter-out %ServiceFactory.cpp %Proxy.cpp,$(wildcard $(SRCDIR)*.cpp))
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
-.SECONDARY: $(CODEGEN)
+.NOTPARALLEL: $(CODEGEN)
 
 # == make ===========================================
 make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
@@ -31,7 +31,10 @@ $(OUTDIR)$(TARGETNAME): $(OBJECTS)
 $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(CODEGEN): $(HEADERS)
+$(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
+	cd src && $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET)
+
+$(SRCDIR)ServiceFactory.h $(SRCDIR)ServiceFactory.cpp:: $(HEADERS)
 	cd src && $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET)
 
 # == deploy  ========================================
