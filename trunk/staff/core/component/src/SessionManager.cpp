@@ -36,6 +36,11 @@ namespace staff
   public:
     typedef std::map<std::string, staff::security::SSession> TSessionMap;
 
+    CSessionManagerImpl():
+      m_nSleepTime(1)
+    {
+    }
+
     virtual void Run(void*)
     {
       {
@@ -55,9 +60,11 @@ namespace staff
 
       while (!IsStopping())
       {
+        // ensure at least 1 sec between cleanup cycle
+        Sleep(1000);
+
         if (m_mSessions.size() <= 1)
         {
-          Sleep(1000);
           continue;
         }
 
@@ -70,10 +77,24 @@ namespace staff
               itSession != m_mSessions.end();)
         {
           if (itSession->second.nExpires <= nCurrentTime)
-          { // close expired session
-            rise::LogDebug1() << "Removing expired session: [" << itSession->first
-                << "]: " << itSession->second.nExpires << " <= " << nCurrentTime;
-            CloseSession(itSession->first);
+          {
+            if (itSession->second.nId == -1)
+            { // delayed session removal
+              rise::LogDebug1() << "Delayed session removal: [" << itSession->first << "]";
+              // session already closed in db
+            }
+            else
+            {
+              // close expired session
+              rise::LogDebug1() << "Removing expired session: [" << itSession->first
+                  << "]: " << itSession->second.nExpires << " <= " << nCurrentTime;
+
+              staff::security::CSessions::Inst().Close(itSession->first);
+            }
+
+            //! TODO: service activity check is needed
+            CServiceInstanceManager::Inst().FreeSession(itSession->first);
+
             m_mSessions.erase(itSession++); // safe remove
             continue;
           }
@@ -95,8 +116,12 @@ namespace staff
         RISE_ASSERT(nCurrentTime <= nMinExpires);
 #endif
 
-        rise::LogDebug2() << "Sleep time: " << (nMinExpires - nCurrentTime);
-        Sleep(1000 * (nMinExpires - nCurrentTime));
+        m_nSleepTime = nMinExpires - nCurrentTime;
+        rise::LogDebug2() << "Sleep time: " << m_nSleepTime;
+        while (--m_nSleepTime > 0)
+        { // for delayed session closing
+          Sleep(1000);
+        }
       }
 
     }
@@ -112,13 +137,8 @@ namespace staff
       m_mSessions[sSessionId] = stSession;
     }
 
-    void CloseSession(const std::string& sSessionId)
-    {
-      CServiceInstanceManager::Inst().FreeSession(sSessionId);
-      staff::security::CSessions::Inst().Close(sSessionId);
-    }
-
     TSessionMap m_mSessions;
+    int m_nSleepTime;
   };
 
   CSessionManager& CSessionManager::Inst()
@@ -189,8 +209,27 @@ namespace staff
 
   void CSessionManager::Close(const std::string& sSessionId)
   {
-    m_pImpl->CloseSession(sSessionId);
-    m_pImpl->m_mSessions.erase(sSessionId);
+    rise::LogDebug2() << "Closing session [" << sSessionId << "]";
+
+    staff::security::CSessions::Inst().Close(sSessionId);
+
+    // don't remove all service instances bound to this session
+    // only decrease expires time to next second,
+    // because this function may be called from service,
+    // what may cause self-destruction of service
+    CSessionManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    if (itSession == m_pImpl->m_mSessions.end())
+    {
+      rise::LogWarning() << "Attempt to close non-existing session";
+    }
+    else
+    {
+      // deletes session after 1 sec
+      itSession->second.nExpires = staff::security::CTime::Get() + 1;
+      // mark session as delayed for close
+      itSession->second.nId = -1;
+      m_pImpl->m_nSleepTime = 0;
+    }
   }
 
   bool CSessionManager::IsOpened(const std::string& sSessionId)

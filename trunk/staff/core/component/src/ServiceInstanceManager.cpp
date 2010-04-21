@@ -96,6 +96,25 @@ namespace staff
 
   void CServiceInstanceManager::FreeSession(const std::string& sSessionId)
   {
+    CServiceInstanceManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    RISE_ASSERTES(itSession != m_pImpl->m_mSessions.end(), rise::CLogicNoItemException, "Session does not exists: " + sSessionId);
+
+    // generate on destroy event for all services in session
+    for (CServiceInstanceManagerImpl::TServiceMap::iterator itService = itSession->second.begin();
+      itService != itSession->second.end(); ++itService)
+    {
+      for (CServiceInstanceManagerImpl::TInstanceMap::iterator itInstance = itService->second.begin();
+        itInstance != itService->second.end(); ++itInstance)
+      {
+        try
+        {
+          itInstance->second->OnDestroy();
+        }
+        RISE_CATCH_ALL_DESCR("Exception while destroying service instance... [" + itService->first + ":" +
+                             itInstance->first + "]: ignored");
+      }
+    }
+
     m_pImpl->m_mSessions.erase(sSessionId);
   }
 
