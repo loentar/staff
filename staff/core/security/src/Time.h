@@ -26,9 +26,13 @@ namespace staff
 {
   namespace security
   {
+    //! security time
     class CTime
     {
     public:
+      //! get current datetime
+      /*! \return current datetime in unix format
+        */
       static int Get();
     };
   }

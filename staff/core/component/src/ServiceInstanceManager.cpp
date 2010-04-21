@@ -21,6 +21,8 @@
 
 #include <map>
 #include <rise/common/MutablePtr.h>
+#include <rise/common/ExceptionTemplate.h>
+#include <rise/common/Log.h>
 #include <staff/common/IService.h>
 #include "ServiceWrapper.h"
 #include "ServiceWrapperFactory.h"
@@ -34,6 +36,22 @@ namespace staff
     typedef std::map<std::string, PIService> TInstanceMap;
     typedef std::map<std::string, TInstanceMap> TServiceMap;
     typedef std::map<std::string, TServiceMap> TSessionMap;
+
+    PIService& CreateServiceInstance(TServiceMap& rmServiceMap, const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
+    {
+      PIService tpService(CServiceWrapperFactory::Inst().GetServiceWrapper(sServiceName)->NewImpl());
+      tpService->m_sServiceName = sServiceName;
+      tpService->m_sSessionId = sSessionId;
+      tpService->m_sInstanceId = sInstanceId;
+
+      try
+      {
+        tpService->OnCreate();
+      }
+      RISE_CATCH_ALL_DESCR_ACTION("Exception while creating service instance... [" + sServiceName + ":" + sInstanceId + "]: service is not created", throw);
+
+      return (rmServiceMap[sServiceName][sInstanceId] = tpService);
+    }
 
     TSessionMap m_mSessions;
   };
@@ -81,22 +99,52 @@ namespace staff
     m_pImpl->m_mSessions.erase(sSessionId);
   }
 
+  PIService& CServiceInstanceManager::ServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
+  {
+    CServiceInstanceManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    RISE_ASSERTES(itSession != m_pImpl->m_mSessions.end(), rise::CLogicNoItemException, "Session does not exists: " + sSessionId);
+
+    CServiceInstanceManagerImpl::TServiceMap::iterator itService = itSession->second.find(sServiceName);
+    if (itService == itSession->second.end())
+    {
+      return m_pImpl->CreateServiceInstance(itSession->second, sSessionId, sServiceName, sInstanceId);
+    }
+
+    CServiceInstanceManagerImpl::TInstanceMap::iterator itInstance = itService->second.find(sInstanceId);
+    if (itInstance == itService->second.end())
+    {
+      return m_pImpl->CreateServiceInstance(itSession->second, sSessionId, sServiceName, sInstanceId);
+    }
+
+    return itInstance->second;
+  }
+
   PIService& CServiceInstanceManager::CreateServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
     CServiceInstanceManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     RISE_ASSERTES(itSession != m_pImpl->m_mSessions.end(), rise::CLogicNoItemException, "Session does not exists: " + sSessionId);
 
-    PIService tpService(CServiceWrapperFactory::Inst().GetServiceWrapper(sServiceName)->NewImpl());
-    tpService->m_sServiceName = sServiceName;
-    tpService->m_sSessionId = sSessionId;
-    tpService->m_sInstanceId = sInstanceId;
-
-    return (itSession->second[sServiceName][sInstanceId] = tpService);
+    return m_pImpl->CreateServiceInstance(itSession->second, sSessionId, sServiceName, sInstanceId);
   }
 
   void CServiceInstanceManager::FreeServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
-    m_pImpl->m_mSessions[sSessionId][sServiceName].erase(sInstanceId);
+    CServiceInstanceManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    RISE_ASSERTES(itSession != m_pImpl->m_mSessions.end(), rise::CLogicNoItemException, "Session does not exists: " + sSessionId);
+
+    CServiceInstanceManagerImpl::TServiceMap::iterator itService = itSession->second.find(sServiceName);
+    RISE_ASSERTES(itService != itSession->second.end(), rise::CLogicNoItemException, "Service does not exists: " + sInstanceId);
+
+    CServiceInstanceManagerImpl::TInstanceMap::iterator itInstance = itService->second.find(sInstanceId);
+    RISE_ASSERTES(itInstance != itService->second.end(), rise::CLogicNoItemException, "Instance does not exists: " + sInstanceId);
+
+    try
+    {
+      itInstance->second->OnDestroy();
+    }
+    RISE_CATCH_ALL_DESCR("Exception while destroying service instance... [" + sServiceName + ":" + sInstanceId + "]: ignored");
+
+    itService->second.erase(itInstance);
   }
 
   PIService& CServiceInstanceManager::GetServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)

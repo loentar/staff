@@ -30,6 +30,7 @@ namespace samples
   {
     // description: sample component service CalcService
     // uri: http://localhost:9090/axis2/services/samples.calc.CalcService
+    // loadAtStartup: true
     class CCalcService: public staff::IService
     {
     public:

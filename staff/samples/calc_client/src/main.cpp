@@ -39,7 +39,7 @@ int main(int nArgs, const char* paszArgs[])
   try
   {
     {
-      // use anonymous account
+      // use anonymous account and instance "mycalc"
       rise::CSharedPtr< ::samples::calc::CCalcService > pCalcService = 
         staff::CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >("", "", "mycalc");
 
@@ -47,8 +47,8 @@ int main(int nArgs, const char* paszArgs[])
 
       // Invoke Your service here:
       rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
-      
-//      rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
+
+      rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
 
       rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
 
@@ -59,7 +59,6 @@ int main(int nArgs, const char* paszArgs[])
       pCalcService->SetMem(nNewMem);
       rise::LogInfo() << pCalcService->GetMem();
       rise::LogInfo() << "Service mem: " << pCalcService->GetMem();
-      
     }
   }
   catch(const staff::CRemoteException& rEx)
@@ -67,9 +66,6 @@ int main(int nArgs, const char* paszArgs[])
     rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL
-
-//  rise::LogNotice() << "\n\n[Press Any Key...]";
-//  getchar();
 
   return 0;
 }

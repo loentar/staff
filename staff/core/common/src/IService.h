@@ -31,26 +31,48 @@ namespace rise
 
 namespace staff
 {
+  //! base service
   class IService
   {
   public:
+    //! constructor
     IService();
+
+    //! destructor
     virtual ~IService();
 
+    //! get service name
+    /*! \return service name
+      */
     const std::string& GetServiceName() const;
+
+    //! get session id
+    /*! \return session id
+      */
     const std::string& GetSessionId() const;
+
+    //! get instance id
+    /*! \return instance id
+      */
     const std::string& GetInstanceId() const;
 
+  protected:
+    //! this function called after service construction and initialization
+    virtual void OnCreate();
+
+    //! this function called before service destruction
+    virtual void OnDestroy();
+
   private:
-    std::string m_sServiceName;
-    std::string m_sSessionId;
-    std::string m_sInstanceId;
+    std::string m_sServiceName; //!< service name with component name
+    std::string m_sSessionId;   //!< session id
+    std::string m_sInstanceId;  //!< instance id
 
     friend class CServiceInstanceManager; // service-side initializer
     friend class CServiceFactory; // client-side initializer
   };
 
-  typedef rise::CMutablePtr<IService> PIService;
+  typedef rise::CMutablePtr<IService> PIService; //!< smart pointer to service
 }
 
 #endif // ISERVICE_H

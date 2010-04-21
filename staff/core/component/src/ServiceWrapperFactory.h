@@ -27,14 +27,31 @@
 
 namespace staff
 {
+  //! service wrapper factory
   class CServiceWrapperFactory
   {
   public:
+    //! get factory instance
+    /*! \return factory instance
+        */
     static CServiceWrapperFactory& Inst();
+
+    //! free factory instance
     static void FreeInst();
 
+    //! register service wrapper
+    /*! \param rpServiceWrapper - service wrapper to register
+      */
     void RegisterServiceWrapper(PServiceWrapper& rpServiceWrapper);
+
+    //! unregister service wrapper
+    /*! \param sServiceName - wrapper's service name
+      */
     void UnregisterServiceWrapper(const std::string& sServiceName);
+
+    //! get service wrapper
+    /*! \param sServiceName - wrapper's service name
+      */
     PServiceWrapper& GetServiceWrapper(const std::string& sServiceName);
 
   private:

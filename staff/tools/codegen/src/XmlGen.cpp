@@ -209,6 +209,8 @@ CXMLNode& operator<<(CXMLNode& rNodeClasses, const SClass& rClass)
     sServiceNamespace.size() == 0 ? sServiceNamespace : sServiceNamespace.substr(0, sServiceNamespace.size() - 1);
   rNodeClass.AddSubNode(" Service class namespace ", CXMLNode::ENTCOMMENT);
   rNodeClass["Namespace"] = rClass.sNamespace;
+  rNodeClass.AddSubNode(" Load service at startup ", CXMLNode::ENTCOMMENT);
+  rNodeClass["LoadAtStartup"] = rClass.bLoadAtStartup ? "true" : "false";
   rNodeClass.AddSubNode(" Service operations ", CXMLNode::ENTCOMMENT);
   rNodeClass.AddSubNode("Members") << rClass.lsMember;
 

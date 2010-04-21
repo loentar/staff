@@ -23,6 +23,7 @@
 #include <rise/common/exmacros.h>
 #include <rise/common/Log.h>
 #include "sqlite3.h"
+#include "tools.h"
 #include "Time.h"
 #include "DbConn.h"
 #include "Sessions.h"
@@ -519,7 +520,7 @@ namespace staff
     {
     }
 
-    const std::string CSessions::sNobodySessionId = "00000000000000000000000000000000";
+    const std::string CSessions::sNobodySessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
     CSessions* CSessions::m_pInst = NULL;
   }
 }

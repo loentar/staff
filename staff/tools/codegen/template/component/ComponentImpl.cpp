@@ -6,6 +6,8 @@
 #include <rise/common/MutablePtr.h>
 #include <rise/common/containertypes.h>
 #include <staff/component/ServiceWrapperFactory.h>
+#include <staff/component/ServiceInstanceManager.h>
+#include <staff/security/tools.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Wrapper.h"
 #end
@@ -22,6 +24,12 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
       staff::PServiceWrapper tpServiceWrapper(new $(Class.NsName)Wrapper(this));
       m_mServices["$(Class.ServiceNsName)"] = tpServiceWrapper;
       staff::CServiceWrapperFactory::Inst().RegisterServiceWrapper(tpServiceWrapper);
+#ifeq($(Class.LoadAtStartup),true)
+      // load service at startup
+      staff::CServiceInstanceManager::Inst().CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, "$(Class.ServiceNsName)", "");
+#else
+\
+#ifeqend
     }
 #end
 #end

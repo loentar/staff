@@ -29,29 +29,79 @@ namespace staff
 {
   namespace security
   {
+    //! user/group access to object
     enum EAccess
     {
-      EAccessDenied,
-      EAccessGranted,
-      EAccessInherited
+      EAccessDenied,   //!< access is denied
+      EAccessGranted,  //!< access is granted
+      EAccessInherited //!< access is inherited
     };
 
+    //! access control list
     class CAcl
     {
     public:
+      //! get acl instance
+      /*! \return acl instance
+        */
       static CAcl& Inst();
 
+      //! free acl instance
       static void FreeInst();
       
+      //! set access to object for all users
+      /*! \param nObjectId - object id
+          \param eAccess - access
+          */
       void SetUserAccess(int nObjectId, EAccess eAccess);
+
+      //! set access to object for specified user
+      /*! \param nObjectId - object id
+          \param nUserId - user id
+          \param eAccess - access
+          */
       void SetUserAccess(int nObjectId, int nUserId, EAccess eAccess);
+
+      //! get access to object for specified user
+      /*! \param nObjectId - object id
+          \param nUserId - user id
+          \param eAccess - result: access
+          */
       void GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess);
 
+
+      //! set access to object for all groups
+      /*! \param nObjectId - object id
+          \param eAccess - access
+          */
       void SetGroupAccess(int nObjectId, EAccess eAccess);
+
+      //! set access to object for specified group
+      /*! \param nObjectId - object id
+          \param nUserId - group id
+          \param eAccess - access
+          */
       void SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess);
+
+      //! get access to object for specified group
+      /*! \param nObjectId - object id
+          \param nUserId - group id
+          \param eAccess - result: access
+          */
       void GetGroupAccess(int nObjectId, int nGroupId, EAccess& reAccess);
 
+      //! calculate access to object for user
+      /*! \param nObjectId - object id
+          \param nUserId - group id
+          \return true - user have access, false - user does not have access
+          */
       bool CalculateUserAccess(int nObjectId, int nUserId);
+
+      //! calculate access to object for user by object name
+      /*! \param sObjectPath - full object name (sample: "components.samples.calc.CalsService.Add")
+          \param nUserId - group id
+          \return true - user have access, false - user does not have access
+          */
       bool CalculateUserAccess(const std::string& sObjectPath, int nUserId);
 
     private:

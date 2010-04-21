@@ -29,23 +29,49 @@ namespace staff
 {
   namespace security
   {
-    typedef std::list<int> TIntList;
+    typedef std::list<int> TIntList; //!< int list
 
+    //! users to groups relation
     class CUsersToGroups
     {
     public:
+      //! get users to groups instance
+      /*! \param users to groups instance
+        */
       static CUsersToGroups& Inst();
 
+      //! free users to groups instance
       static void FreeInst();
 
+      //! get user groups
+      /*! \param nUserId - user id
+          \param rlsGroups - resulting user groups
+          */
       void GetUserGroups(int nUserId, TIntList& rlsGroups);
 
+      //! get users in group
+      /*! \param nGroupId - group id
+          \param rlsUsers - resulting users
+          */
       void GetGroupUsers(int nGroupId, TIntList& rlsUsers);
 
+      //! add user to group
+      /*! \param nUserId - user id
+          \param nGroupId - group id
+          */
       void AddUserToGroup(int nUserId, int nGroupId);
 
+      //! remove user from group
+      /*! \param nUserId - user id
+          \param nGroupId - group id
+          */
       void RemoveUserFromGroup(int nUserId, int nGroupId);
 
+      //! get is user member of group or not
+      /*! \param nUserId - user id
+          \param nGroupId - group id
+          \return true if user is member of group
+          */
       bool IsUserMemberOfGroup(int nUserId, int nGroupId);
 
     private:
