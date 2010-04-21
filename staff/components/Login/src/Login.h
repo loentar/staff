@@ -34,12 +34,11 @@ namespace staff
     //!        destructor
     virtual ~CLogin() {}
 
-    //!         login user and create session
+    //!         login user and create session, get existing session if user alredy logged in
     /*! this operation must be called from guest session
-        alias for OpenSession(username, password, true)
         \param  sUserName - username
         \param  sPassword - password
-        \return created session id
+        \return created/existing session id
         */
     virtual std::string Login(const std::string& sUserName, const std::string& sPassword) = 0;
 

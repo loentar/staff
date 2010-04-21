@@ -38,7 +38,14 @@ namespace staff
 
   std::string CLoginImpl::Login(const std::string& sUserName, const std::string& sPassword)
   {
-    return OpenSession(sUserName, sPassword, true);
+    std::string tResult;
+
+    RISE_ASSERTES(IService::GetSessionId() == staff::security::CSessions::sNobodySessionId,
+      rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
+
+    staff::CSessionManager::Inst().Login(sUserName, sPassword, tResult);
+
+    return tResult;  // result
   }
 
   std::string CLoginImpl::OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting)

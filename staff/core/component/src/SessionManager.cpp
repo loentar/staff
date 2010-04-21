@@ -150,6 +150,21 @@ namespace staff
     m_pImpl->Stop();
   }
 
+  void CSessionManager::Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
+  {
+    std::string sOldSessionId;
+
+    if (staff::security::CSessions::Inst().GetSessionIdByUserNameAndPassword(sUserName, sPassword, sOldSessionId))
+    {
+      sSessionId = sOldSessionId;
+      return;
+    }
+
+    staff::security::CSessions::Inst().Open(sUserName, sPassword, false, sSessionId);
+
+    m_pImpl->OpenSession(sSessionId);
+  }
+
   void CSessionManager::Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId)
   {
     std::string sOldSessionId;
@@ -157,7 +172,7 @@ namespace staff
 
     if (bCloseExisting)
     {
-      bOldSessionExists = staff::security::CSessions::Inst().GetIdByUserName(sUserName, sOldSessionId);
+      bOldSessionExists = staff::security::CSessions::Inst().GetSessionIdByUserName(sUserName, sOldSessionId);
     }
 
     staff::security::CSessions::Inst().Open(sUserName, sPassword, bCloseExisting, sSessionId);

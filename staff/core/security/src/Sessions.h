@@ -129,7 +129,16 @@ namespace staff
           \param sSessionId - resulting session id
           \return true if function successed
           */
-      bool GetIdByUserName(const std::string& sUserName, std::string& sSessionId);
+      bool GetSessionIdByUserName(const std::string& sUserName, std::string& sSessionId);
+
+      //! get session id by user name and password
+      /*! \param sUserName - user name
+          \param sPassword - user password
+          \param sSessionId - resulting session id
+          \return true if function successed
+          */
+      bool GetSessionIdByUserNameAndPassword(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId);
+
 
       //! close expired sessions
       /*! cleanup

@@ -37,7 +37,7 @@ int main(int nArgs, const char* paszArgs[])
 {
   try
   {
-    std::string sSessionID;
+    std::string sSessionId;
     {
       rise::CSharedPtr<staff::CLogin> pLogin = 
         staff::CServiceFactory::Inst().GetService<staff::CLogin>();
@@ -50,13 +50,18 @@ int main(int nArgs, const char* paszArgs[])
       std::cout << nEx << ": Success" << std::endl;
 
       std::cout << "User login ";
-      sSessionID = pLogin->Login("user", "user");
-      std::cout << (sSessionID != "" ? ": Success" : ": Error") << std::endl;
+      sSessionId = pLogin->Login("user", "user");
+      std::cout << (sSessionId != "" ? ": Success" : ": Error") << std::endl;
+
+      // assert second session id = first id
+
+      std::string sSessionId2 = pLogin->Login("user", "user");
+      std::cout << (sSessionId == sSessionId2 ? ": Success" : ": Error") << std::endl;
     }
-    
+
     {
       rise::CSharedPtr<staff::CLogin> pLogin = 
-        staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionID);
+        staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionId);
 
       RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
 
@@ -67,7 +72,7 @@ int main(int nArgs, const char* paszArgs[])
       std::cout << "Getting user name ";
       std::string sUser = pLogin->GetUserName();
       std::cout << ": Success: sUser = " << sUser << std::endl;
-      
+
       std::cout << "Logout user ";
       pLogin->Logout();
       std::cout << ": Success" << std::endl;
@@ -84,8 +89,6 @@ int main(int nArgs, const char* paszArgs[])
       {
         std::cout << ": Success" << std::endl;
       }
-      
-      // pLogin->KeepAliveSessionID(sSessionID);
     }
   }
   catch(const staff::CRemoteException& rEx)
@@ -94,9 +97,6 @@ int main(int nArgs, const char* paszArgs[])
     rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL
-  
-  rise::LogNotice() << "\n\n[Press Any Key...]";
-  getchar();
 
   return 0;
 }
