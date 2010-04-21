@@ -44,9 +44,13 @@ namespace staff
     //!         stop sessions watching
     void Stop();
 
+    //!         login user and create session, get existing session if user alredy logged in
+    /*! \param  sSessionId - session id
+        */
+    void Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId);
+
     //!         login and create session
-    /*! this operation must be called from guest session
-        \param  sSessionId - session id
+    /*! \param  sSessionId - session id
         */
     void Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId);
 

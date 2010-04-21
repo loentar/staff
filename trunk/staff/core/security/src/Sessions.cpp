@@ -435,7 +435,7 @@ namespace staff
       return bResult;
     }
 
-    bool CSessions::GetIdByUserName(const std::string& sUserName, std::string& sSessionId)
+    bool CSessions::GetSessionIdByUserName(const std::string& sUserName, std::string& sSessionId)
     {
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
@@ -443,7 +443,7 @@ namespace staff
 
       RISE_ASSERTP(sUserName.size() != 0);
 
-      // get user id
+      // get session id
       int nResult = sqlite3_prepare_v2(pDb,
           "SELECT sessionid FROM sessions WHERE userid=(SELECT id FROM users WHERE name = ?1)", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
@@ -451,6 +451,46 @@ namespace staff
       try
       {
         nResult = sqlite3_bind_text(pVm, 1, sUserName.c_str(), sUserName.size(), SQLITE_STATIC);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        if ((sqlite3_step(pVm) == SQLITE_ROW) &&
+            (sqlite3_column_type(pVm, 0) != SQLITE_NULL))
+        {
+          const char* szSessionId = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 0));
+          RISE_ASSERTS(szSessionId != NULL, "Can't get session id");
+          sSessionId = szSessionId;
+          bResult = true;
+        }
+      }
+      catch(...)
+      {
+        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      return bResult;
+    }
+
+    bool CSessions::GetSessionIdByUserNameAndPassword(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
+    {
+      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3_stmt* pVm = NULL;
+      bool bResult = false;
+
+      RISE_ASSERTP(sUserName.size() != 0);
+
+      // get session id
+      int nResult = sqlite3_prepare_v2(pDb,
+          "SELECT sessionid FROM sessions WHERE userid=(SELECT id FROM users WHERE name = ?1 AND password = ?2)", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      try
+      {
+        nResult = sqlite3_bind_text(pVm, 1, sUserName.c_str(), sUserName.size(), SQLITE_STATIC);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        nResult = sqlite3_bind_text(pVm, 2, sPassword.c_str(), sPassword.size(), SQLITE_STATIC);
         RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         if ((sqlite3_step(pVm) == SQLITE_ROW) &&
