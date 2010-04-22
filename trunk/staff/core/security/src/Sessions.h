@@ -22,6 +22,7 @@
 #ifndef _SESSIONS_H_
 #define _SESSIONS_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -30,7 +31,7 @@ namespace staff
   namespace security
   {
     //! session
-    struct SSession
+    struct STAFF_SECURITY_EXPORT SSession
     {
       int nId;                //!< id
       std::string sSessionId; //!< session id
@@ -41,7 +42,7 @@ namespace staff
     typedef std::list<SSession> TSessionsList; //!< list of sessions
 
     //! sessions
-    class CSessions
+    class STAFF_SECURITY_EXPORT CSessions
     {
     public:
       static const std::string sNobodySessionId;  //!< default session id

@@ -22,6 +22,7 @@
 #ifndef _GROUPS_H_
 #define _GROUPS_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -30,7 +31,7 @@ namespace staff
   namespace security
   {
     //! group
-    struct SGroup
+    struct STAFF_SECURITY_EXPORT SGroup
     {
       int nId;                  //!< group id
       std::string sName;        //!< group name
@@ -40,7 +41,7 @@ namespace staff
     typedef std::list<SGroup> TGroupsList; //!< list of groups
 
     //! gropus
-    class CGroups
+    class STAFF_SECURITY_EXPORT CGroups
     {
     public:
       //! get groups instance

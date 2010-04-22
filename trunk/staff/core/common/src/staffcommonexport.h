@@ -25,7 +25,7 @@
 #if defined(WIN32) || defined (_WINDOWS)
   #pragma warning(disable: 4786)
 
-  #ifdef STAFF_DLL_EXPORTS
+  #ifdef STAFF_COMMON_DLL_EXPORTS
     #define STAFF_COMMON_EXPORT __declspec(dllexport)
   #else
     #define STAFF_COMMON_EXPORT __declspec(dllimport)

@@ -239,7 +239,7 @@ int main(int nArgs, const char* szArgs[])
             throw std::string(szEx) + ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
           }
 
-          nServicesCount += stInterface.lsClass.size();
+          nServicesCount += static_cast<int>(stInterface.lsClass.size());
           stProject.lsInterfaces.push_back(stInterface);
         } else
         {

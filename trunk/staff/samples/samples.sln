@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc_client", "calc_client\staff_test_client.vcproj", "{31DFC1BC-999D-474D-9F2F-415231BA2271}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_test_client", "calc_client\staff_test_client.vcproj", "{31DFC1BC-999D-474D-9F2F-415231BA2271}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc_component", "calc_component\staff_test_component.vcproj", "{C33A521D-4923-4F25-B423-6E921BB4851D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_test_component", "calc_component\calc_component.vcproj", "{C33A521D-4923-4F25-B423-6E921BB4851D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calculator_service", "calculator_service\staff_test_service.vcproj", "{71D8AB6A-86F8-4B0B-9EBA-20915AFCD7FE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login_client", "login_client\staff_test_login.vcproj", "{12E18618-4347-4996-8B2D-44BA412B8596}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_test_login", "login_client\staff_test_login.vcproj", "{12E18618-4347-4996-8B2D-44BA412B8596}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{C33A521D-4923-4F25-B423-6E921BB4851D}.Debug|Win32.Build.0 = Debug|Win32
 		{C33A521D-4923-4F25-B423-6E921BB4851D}.Release|Win32.ActiveCfg = Release|Win32
 		{C33A521D-4923-4F25-B423-6E921BB4851D}.Release|Win32.Build.0 = Release|Win32
-		{71D8AB6A-86F8-4B0B-9EBA-20915AFCD7FE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{71D8AB6A-86F8-4B0B-9EBA-20915AFCD7FE}.Debug|Win32.Build.0 = Debug|Win32
-		{71D8AB6A-86F8-4B0B-9EBA-20915AFCD7FE}.Release|Win32.ActiveCfg = Release|Win32
-		{71D8AB6A-86F8-4B0B-9EBA-20915AFCD7FE}.Release|Win32.Build.0 = Release|Win32
 		{12E18618-4347-4996-8B2D-44BA412B8596}.Debug|Win32.ActiveCfg = Debug|Win32
 		{12E18618-4347-4996-8B2D-44BA412B8596}.Debug|Win32.Build.0 = Debug|Win32
 		{12E18618-4347-4996-8B2D-44BA412B8596}.Release|Win32.ActiveCfg = Release|Win32

@@ -19,6 +19,10 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WIN32
+#pragma warning (disable : 4267)
+#endif
+
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <rise/common/Log.h>
@@ -173,7 +177,7 @@ namespace staff
         RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to create user: " + std::string(sqlite3_errmsg(pDb)));
 
         // get inserted user id
-        nId = sqlite3_last_insert_rowid(pDb);
+        nId = static_cast<int>(sqlite3_last_insert_rowid(pDb));
       }
       catch(...)
       {

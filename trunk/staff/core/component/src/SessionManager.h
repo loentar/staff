@@ -22,12 +22,13 @@
 #ifndef _SESSIONMANAGER_H_
 #define _SESSIONMANAGER_H_
 
+#include "staffcomponentexport.h"
 #include <string>
 
 namespace staff
 {
   //! session manager
-  class CSessionManager
+  class STAFF_COMPONENT_EXPORT CSessionManager
   {
   public:
     //!         get session manager instance

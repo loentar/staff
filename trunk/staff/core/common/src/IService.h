@@ -22,6 +22,7 @@
 #ifndef ISERVICE_H
 #define ISERVICE_H
 
+#include "staffcommonexport.h"
 #include <string>
 
 namespace rise
@@ -32,7 +33,7 @@ namespace rise
 namespace staff
 {
   //! base service
-  class IService
+  class STAFF_COMMON_EXPORT IService
   {
   public:
     //! constructor
@@ -56,20 +57,19 @@ namespace staff
       */
     const std::string& GetInstanceId() const;
 
-  protected:
     //! this function called after service construction and initialization
     virtual void OnCreate();
 
     //! this function called before service destruction
     virtual void OnDestroy();
 
+    //! internal function
+    void Init(const std::string& sServiceName, const std::string& sSessionId, std::string sInstanceId);
+
   private:
     std::string m_sServiceName; //!< service name with component name
     std::string m_sSessionId;   //!< session id
     std::string m_sInstanceId;  //!< instance id
-
-    friend class CServiceInstanceManager; // service-side initializer
-    friend class CServiceFactory; // client-side initializer
   };
 
   typedef rise::CMutablePtr<IService> PIService; //!< smart pointer to service

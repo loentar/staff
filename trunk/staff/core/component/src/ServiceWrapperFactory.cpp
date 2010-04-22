@@ -53,9 +53,9 @@ namespace staff
   {
   }
 
-  void CServiceWrapperFactory::RegisterServiceWrapper(PServiceWrapper& rpServiceWrapper)
+  void CServiceWrapperFactory::RegisterServiceWrapper(const std::string& sServiceName, PServiceWrapper& rpServiceWrapper)
   {
-    m_mWrappers[rpServiceWrapper->GetName()] = rpServiceWrapper;
+    m_mWrappers[sServiceName] = rpServiceWrapper;
   }
 
   void CServiceWrapperFactory::UnregisterServiceWrapper(const std::string& sServiceName)

@@ -21,9 +21,6 @@ namespace staff
     if (sClientType == typeid($(Class.NsName)).name())
     {
       std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
-      pClientProxy->m_sServiceName = "$(Class.ServiceNsName)";
-      pClientProxy->m_sSessionId = sSessionId;
-      pClientProxy->m_sInstanceId = sInstanceId;
       pClientProxy->Init(sServiceUri, sSessionId, sInstanceId);
       return pClientProxy.release();
     }

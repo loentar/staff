@@ -22,6 +22,7 @@
 #ifndef SERVICEINSTANCEMANAGER_H
 #define SERVICEINSTANCEMANAGER_H
 
+#include "staffcomponentexport.h"
 #include <string>
 
 namespace rise
@@ -37,7 +38,7 @@ namespace staff
   typedef rise::CMutablePtr<IService> PIService; //!< mutable pointer to service
 
   //! service instance manager
-  class CServiceInstanceManager
+  class STAFF_COMPONENT_EXPORT CServiceInstanceManager
   {
   public:
     //! get manager instance

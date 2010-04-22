@@ -1,4 +1,4 @@
-set projectname=calc
+set projectname=samples.calc
 
 set deploydir=%cd%\..\deploy\win_%PROCESSOR_ARCHITECTURE%
 set componentdir=%deploydir%\components\%projectname%

@@ -13,43 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-/*
+ 
+/* 
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _DBCONN_H_
-#define _DBCONN_H_
+#ifndef _STAFFSECURITYEXPORT_H_
+#define _STAFFSECURITYEXPORT_H_
 
-#include "staffsecurityexport.h"
-#include <string>
+#if defined(WIN32) || defined (_WINDOWS)
+  #pragma warning(disable: 4786)
 
-typedef struct sqlite3 sqlite3; //!< sqlite3 db handle
+  #ifdef STAFF_SECURITY_DLL_EXPORTS
+    #define STAFF_SECURITY_EXPORT __declspec(dllexport)
+  #else
+    #define STAFF_SECURITY_EXPORT __declspec(dllimport)
+  #endif
 
-namespace staff
-{
-  namespace security
-  {
-    //! database connection
-    class STAFF_SECURITY_EXPORT CDbConn
-    {
-    public:
-      //! open db
-      static void Open();
+  #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
 
-      //! close db
-      static void Close();
+#else
+  #define STAFF_SECURITY_EXPORT 
+  #define STAFF_DEPRECATED(Replacement)
+#endif
 
-      //! get db
-      /*! \return pointer to db object
-        */
-      static sqlite3* GetDb();
-
-    private:
-      static sqlite3* m_pDb; //!< pointer to db object
-    };
-  }
-}
-
-#endif // _DBCONN_H_
+#endif // _STAFFSECURITYEXPORT_H_

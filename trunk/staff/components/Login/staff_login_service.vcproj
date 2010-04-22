@@ -191,10 +191,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\LoginContext.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\LoginImpl.cpp"
 				>
 			</File>
@@ -214,10 +210,6 @@
 			</File>
 			<File
 				RelativePath=".\src\Login.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LoginContext.h"
 				>
 			</File>
 			<File

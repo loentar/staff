@@ -22,13 +22,14 @@
 #ifndef SERVICEWRAPPERFACTORY_H
 #define SERVICEWRAPPERFACTORY_H
 
+#include "staffcomponentexport.h"
 #include <string>
 #include "Component.h"
 
 namespace staff
 {
   //! service wrapper factory
-  class CServiceWrapperFactory
+  class STAFF_COMPONENT_EXPORT CServiceWrapperFactory
   {
   public:
     //! get factory instance
@@ -40,9 +41,10 @@ namespace staff
     static void FreeInst();
 
     //! register service wrapper
-    /*! \param rpServiceWrapper - service wrapper to register
+    /*! \param sServiceName - wrapper's service name
+        \param rpServiceWrapper - service wrapper to register
       */
-    void RegisterServiceWrapper(PServiceWrapper& rpServiceWrapper);
+    void RegisterServiceWrapper(const std::string& sServiceName, PServiceWrapper& rpServiceWrapper);
 
     //! unregister service wrapper
     /*! \param sServiceName - wrapper's service name

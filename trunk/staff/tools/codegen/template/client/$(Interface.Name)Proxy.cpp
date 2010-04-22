@@ -30,6 +30,7 @@ $(Class.Name)Proxy::~$(Class.Name)Proxy()
 
 void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId)
 {
+  staff::IService::Init("$(Class.ServiceNsName)", sSessionId, sInstanceId);
   m_tClient.Init(sServiceUri.size() != 0 ? sServiceUri : \
 #ifeq($(Class.ServiceUri),)
 "http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\

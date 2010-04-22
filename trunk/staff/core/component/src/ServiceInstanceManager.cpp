@@ -19,6 +19,10 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WIN32
+#pragma warning (disable: 4503) //  decorated name length exceeded, name was truncated
+#endif
+
 #include <map>
 #include <rise/common/MutablePtr.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -40,9 +44,8 @@ namespace staff
     PIService& CreateServiceInstance(TServiceMap& rmServiceMap, const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
     {
       PIService tpService(CServiceWrapperFactory::Inst().GetServiceWrapper(sServiceName)->NewImpl());
-      tpService->m_sServiceName = sServiceName;
-      tpService->m_sSessionId = sSessionId;
-      tpService->m_sInstanceId = sInstanceId;
+
+      tpService->Init(sServiceName, sSessionId, sInstanceId);
 
       try
       {

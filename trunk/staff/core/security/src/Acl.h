@@ -22,6 +22,7 @@
 #ifndef _ACL_H_
 #define _ACL_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -38,7 +39,7 @@ namespace staff
     };
 
     //! access control list
-    class CAcl
+    class STAFF_SECURITY_EXPORT CAcl
     {
     public:
       //! get acl instance

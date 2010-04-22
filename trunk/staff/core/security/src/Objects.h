@@ -22,6 +22,7 @@
 #ifndef _OBJECTS_H_
 #define _OBJECTS_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -30,7 +31,7 @@ namespace staff
   namespace security
   {
     //! security object
-    struct SObject
+    struct STAFF_SECURITY_EXPORT SObject
     {
       int nId;                  //!< object id
       std::string sName;        //!< object name
@@ -41,7 +42,7 @@ namespace staff
     typedef std::list<SObject> TObjectList; //!< list of objects
 
     //! security objects
-    class CObjects
+    class STAFF_SECURITY_EXPORT CObjects
     {
     public:
       //! get objects instance

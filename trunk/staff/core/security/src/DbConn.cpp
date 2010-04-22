@@ -19,10 +19,14 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include "sqlite3.h"
+#ifdef WIN32
+#pragma warning (disable : 4267)
+#endif
+
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <staff/common/Runtime.h>
+#include "sqlite3.h"
 #include "DbConn.h"
 
 namespace staff
