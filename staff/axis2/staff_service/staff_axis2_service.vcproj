@@ -43,7 +43,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\include\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -194,14 +194,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\RemoteService.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\RemoteServiceWrapper.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\ServiceDispatcher.cpp"
 				>
 			</File>
@@ -213,14 +205,6 @@
 			>
 			<File
 				RelativePath=".\src\Axis2Utils.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\RemoteService.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\RemoteServiceWrapper.h"
 				>
 			</File>
 			<File

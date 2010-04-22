@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_test_component"
+	Name="calc_component"
 	ProjectGUID="{C33A521D-4923-4F25-B423-6E921BB4851D}"
-	RootNamespace="staff_test_component"
+	RootNamespace="calc_component"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;D:\dem\devel\rise\;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				AdditionalIncludeDirectories="&quot;$(STAFF_HOME)/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,7 +69,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib staff_component.lib rise.lib ws2_32.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;D:\dem\devel\rise\vcProject\rise_dll_test\debug;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib\"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;$(STAFF_HOME)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -185,10 +185,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\CalcServiceContext.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\CalcServiceImpl.cpp"
 				>
 			</File>
@@ -197,19 +193,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CalculatorProxy.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\ComponentImpl.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ServiceLocator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\SubServiceContext.cpp"
 				>
 			</File>
 			<File
@@ -231,10 +215,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CalcServiceContext.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\CalcServiceImpl.h"
 				>
 			</File>
@@ -243,23 +223,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CalculatorProxy.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\ComponentImpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ServiceLocator.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\SubService.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\SubServiceContext.h"
 				>
 			</File>
 			<File

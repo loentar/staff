@@ -22,6 +22,7 @@
 #ifndef _USERSTOGROUPS_H_
 #define _USERSTOGROUPS_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -32,7 +33,7 @@ namespace staff
     typedef std::list<int> TIntList; //!< int list
 
     //! users to groups relation
-    class CUsersToGroups
+    class STAFF_SECURITY_EXPORT CUsersToGroups
     {
     public:
       //! get users to groups instance

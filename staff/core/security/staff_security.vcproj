@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_security"
+	Name="security"
 	ProjectGUID="{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
 	RootNamespace="staff_security"
 	Keyword="Win32Proj"
@@ -41,8 +41,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\Program Files\PostgreSQL\8.3\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;C:\ws\axis2c\include;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libpq.lib ws2_32.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				AdditionalDependencies="ws2_32.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;c:\Program Files\PostgreSQL\8.3\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib;../../depoly/win32/lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -185,7 +185,43 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Security.c"
+				RelativePath=".\src\Acl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DbConn.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Groups.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Objects.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Sessions.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\sqlite3.c"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Time.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Users.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\UsersToGroups.cpp"
 				>
 			</File>
 		</Filter>
@@ -195,11 +231,47 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\Admin.h"
+				RelativePath=".\src\Acl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Security.h"
+				RelativePath=".\src\DbConn.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Groups.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Objects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Sessions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\sqlite3.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\staffsecurityexport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Time.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Users.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\UsersToGroups.h"
 				>
 			</File>
 		</Filter>

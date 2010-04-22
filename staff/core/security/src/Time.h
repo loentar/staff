@@ -22,12 +22,14 @@
 #ifndef _STAFF_TIME_H_
 #define _STAFF_TIME_H_
 
+#include "staffsecurityexport.h"
+
 namespace staff
 {
   namespace security
   {
     //! security time
-    class CTime
+    class STAFF_SECURITY_EXPORT CTime
     {
     public:
       //! get current datetime

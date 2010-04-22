@@ -22,6 +22,7 @@
 #ifndef _USERS_H_
 #define _USERS_H_
 
+#include "staffsecurityexport.h"
 #include <string>
 #include <list>
 
@@ -30,7 +31,7 @@ namespace staff
   namespace security
   {
     //! user
-    struct SUser
+    struct STAFF_SECURITY_EXPORT SUser
     {
       int nId;                  //!< user id
       std::string sName;        //!< user name
@@ -40,7 +41,7 @@ namespace staff
     typedef std::list<SUser> TUsersList; //!< users list
 
     //! users
-    class CUsers
+    class STAFF_SECURITY_EXPORT CUsers
     {
     public:
       //! get users instance

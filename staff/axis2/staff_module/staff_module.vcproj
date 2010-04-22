@@ -185,15 +185,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Axis2Dispatcher.cpp"
+				RelativePath=".\src\Axis2Dispatcher.c"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Axis2DispatcherModule.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Axis2Utils.cpp"
+				RelativePath=".\src\Axis2DispatcherModule.c"
 				>
 			</File>
 		</Filter>
@@ -202,10 +198,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\src\Axis2Utils.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

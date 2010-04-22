@@ -19,6 +19,10 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WIN32
+#pragma warning (disable : 4267)
+#endif
+
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <rise/common/Log.h>

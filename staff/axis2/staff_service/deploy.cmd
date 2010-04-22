@@ -17,7 +17,5 @@ if exist Debug (
 
 
 xcopy /Y /S config\services.xml %libdir%
-xcopy /Y /S config\staff.xml %deploydir%
 
 xcopy /Y /S config\services.xml %AXIS2C_HOME%\services\staff\
-xcopy /Y /S config\staff.xml %STAFF_HOME%
