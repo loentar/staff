@@ -202,6 +202,20 @@ webapp.sample.Application =
     
     this.tDivMain = new webapp.ui.Div(document.body, { sId: "divMain" });
     addHandler(document.body, 'contextmenu', selectHandler);
+
+    var bFullScreen = false;
+    
+    function onResize()
+    {
+      var bCurrFullScreen = window.fullScreen; // cashing property
+      if (bCurrFullScreen != bFullScreen) // while window goes to fullscreen there is a multiple onresize events
+      {
+        bFullScreen = bCurrFullScreen;
+        this.tMenuBar.cfg.setProperty('visible', !bFullScreen);
+      }
+    }
+    
+    addHandler(window, 'resize', onResize.bindAsEventListener(this));
     
     webapp.Webapp.GetWidgetLoader().Init
     (
