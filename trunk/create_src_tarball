@@ -2,9 +2,10 @@
 
 DISTRIB=../staff_tmp$(printf %x $(date +%s))/
 REVISION=$(LANG=en svn info --non-interactive 2>&- | grep 'Revision: ' | cut -d' ' -f2)
-TARBALLNAME=../staff-r${REVISION}.tar.bz2
+VERSION=$(grep "VERSION=" staff/Makefile | sed 's/^.*=\(.*\)$/\1/')
+TARBALLNAME=../staff-${VERSION}-r${REVISION}.tar.bz2
 
-test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || echo -e "\033[1mWARNING: working copy was locally modified\033[0m"
+test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || /bin/echo -e "\033[1mWARNING: working copy was locally modified\033[0m"
 
 echo "creating tarball..."
 
@@ -15,6 +16,7 @@ cd ${DISTRIB}staff/
 
 find -type d -name .svn | xargs rm -Rf
 make clean >/dev/null && make distclean >/dev/null
+rm -f staff.creator.user create_src_tarball update_qtcreator_files
 cd ..
 
 tar c staff | bzip2 >${TARBALLNAME}
