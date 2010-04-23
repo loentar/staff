@@ -210,7 +210,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     if (this.tParentElem.parentNode.parentNode === document.body)
     {
       this.tLayout.set('width', YAHOO.util.Dom.getClientWidth());
-      this.tLayout.set('height', YAHOO.util.Dom.getClientHeight() - 26);
+      this.tLayout.set('height', YAHOO.util.Dom.getClientHeight() - (window.fullScreen ? 0 : 26));
     }
   },
   
