@@ -79,13 +79,14 @@ $(Class.OpeningNs)
 
   protected:
     //!         get service implementation
-    /*! \param  sID - session id
+    /*! \param  sSessionId - service session id
+        \param  sInstanceId - service instance id
         \return service implementation
     */
     $(Class.Name)Impl* GetServiceImpl(const std::string& sSessionId, const std::string& sInstanceId);
 
   private:
-    staff::CComponent* m_pComponent;   //!< stored component
+    staff::CComponent* m_pComponent;   //!< parent component
     static const std::string m_sName;  //!< service name
     static const std::string m_sDescr; //!< service description
   };

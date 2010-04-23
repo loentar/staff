@@ -66,7 +66,7 @@ namespace staff
       //! get access to object for specified user
       /*! \param nObjectId - object id
           \param nUserId - user id
-          \param eAccess - result: access
+          \param reAccess - result: access
           */
       void GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess);
 
@@ -79,15 +79,15 @@ namespace staff
 
       //! set access to object for specified group
       /*! \param nObjectId - object id
-          \param nUserId - group id
+          \param nGroupId - group id
           \param eAccess - access
           */
       void SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess);
 
       //! get access to object for specified group
       /*! \param nObjectId - object id
-          \param nUserId - group id
-          \param eAccess - result: access
+          \param nGroupId - group id
+          \param reAccess - result: access
           */
       void GetGroupAccess(int nObjectId, int nGroupId, EAccess& reAccess);
 

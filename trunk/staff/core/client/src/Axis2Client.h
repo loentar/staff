@@ -56,7 +56,7 @@ namespace staff
     //!         set instance id
     /*! \param  sInstanceId - instance id
       */
-    void SetInstanceId(const std::string& sIntanceId);
+    void SetInstanceId(const std::string& sInstanceId);
 
     //!         invoke operation
     /*! \param  rOperation - operation

@@ -160,12 +160,12 @@ namespace staff
     std::string ToString() const;
 
     //!         axiom qname cast operator
-    /*! \raturn axiom qname
+    /*! \return axiom qname
       */
     operator axutil_qname_t*() const;
 
     //!         axiom qname cast operator
-    /*! \raturn axiom qname
+    /*! \return axiom qname
       */
     operator axutil_qname_t*();
 

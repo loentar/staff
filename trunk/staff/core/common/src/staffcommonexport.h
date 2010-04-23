@@ -49,15 +49,23 @@
 Staff is Web Service Framework for C++/JavaScript based on Apache Axis2/C. 
 
 Together with the support of all functions of Apache Axis2/C, WSF Staff provides additional features: 
- - stateful web services and clients implementation in C++/JavaScript; 
- - service-component implementation; 
- - C++ (server, client-side) and JavaScript(client-side) SDK, including extensible code generator for for fast and easy development of SOA-applications; 
- - webapp toolkit. Webapp is a toolkit written on JavaScript/Ajax for creating web-applications. Webapp includes Javascript SDK based on YahooUI!, Prototype, WS.JS libraries and simple web-application example. Webapp is the easiest way to develop the application from scratch ( Screenshots: Ubuntu WinXP); 
- - security support (users, groups support, access to components, services, operations, widgets, and more); 
- - web service interface generation by WSDL file (See CreatingCppClientByWsdl); 
- - WSDL file generation by web service interface. 
+ - stateful web services and clients implementation in C++, client implementaion in JavaScript;
+ - service-component architecture implementation;
+ - security support (acls. users, groups support, access to components, services, operations, widgets, etc.);
+ - webapp toolkit;
+ - extensible code generator.
 
-Staff supports the deployment of services in the form of shared libraries, and in the form of executable files.
+Webapp is a toolkit written on JavaScript/Ajax for creating web-applications.
+Webapp includes Javascript SDK based on YahooUI!, Prototype, WS.JS libraries.
+Webapp is the easy way to develop the web application, based on SOA from scratch;
+
+Code generator include following common templates:
+  - web service interface generation by WSDL file. This interface is an abstract C++ class that can be used for creating web services and clients;
+  - WSDL generation by web service interface;
+  - BPEL support: codegen supports WSDL generation compatible with BPEL;
+  - web service stub generation;
+  - client skeleton generation;
+  - internal files generation (Proxies, Wrappers, etc).
 
 See also <a href="annotated.html">annotated class list</a>, implemented by library.
 */
