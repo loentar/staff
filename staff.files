@@ -184,6 +184,7 @@ staff/core/security/src/Sessions.cpp
 staff/core/security/src/Sessions.h
 staff/core/security/src/sqlite3.c
 staff/core/security/src/sqlite3.h
+staff/core/security/src/staffsecurityexport.h
 staff/core/security/src/Time.cpp
 staff/core/security/src/Time.h
 staff/core/security/src/tools.cpp
