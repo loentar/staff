@@ -72,7 +72,8 @@ namespace staff
     virtual CComponent* GetComponent() = 0;
 
     //!         get pointer to service implementation
-    /*! \param  sID - service session id
+    /*! \param  sSessionId - service session id
+        \param  sInstanceId - service instance id
         \return pointer to service implementation or NULL, if service non-local
         */
     virtual IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId) = 0;

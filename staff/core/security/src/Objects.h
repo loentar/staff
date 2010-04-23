@@ -96,7 +96,7 @@ namespace staff
 
       //! get object's childs
       /*! \param nId - object id
-          \param rlsChlids - list of object childrens
+          \param rlsChilds - result: list of object childrens
           */
       void GetChilds(int nId, TObjectList& rlsChilds);
 
@@ -115,7 +115,7 @@ namespace staff
 
       //! get parent object id
       /*! \param nId - object id
-          \param nParent - parent object id
+          \param nParentId - parent object id
           */
       void GetParentId(int nId, int& nParentId);
 

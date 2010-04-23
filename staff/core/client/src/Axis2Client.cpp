@@ -227,9 +227,9 @@ namespace staff
     m_pImpl->m_sTargetNamespace = sTargetNamespace;
   }
 
-  void CAxis2Client::SetInstanceId(const std::string& sIntanceId)
+  void CAxis2Client::SetInstanceId(const std::string& sInstanceId)
   {
-    m_pImpl->m_sInstanceId = sIntanceId;
+    m_pImpl->m_sInstanceId = sInstanceId;
   }
 
 }

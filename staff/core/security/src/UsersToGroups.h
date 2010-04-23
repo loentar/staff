@@ -37,7 +37,7 @@ namespace staff
     {
     public:
       //! get users to groups instance
-      /*! \param users to groups instance
+      /*! return users to groups instance
         */
       static CUsersToGroups& Inst();
 
