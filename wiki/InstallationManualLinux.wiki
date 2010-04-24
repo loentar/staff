@@ -14,21 +14,20 @@ export AXIS2C_HOME=/usr/local/axis2c
 export STAFF_HOME=/usr/local/staff
 }}}
 
-You can append there variables into ~/.bashrc file, and relogin.
+Append these lines into ~/.bashrc file, and then relogin.
 
 == 1. Compile and install dependencies ==
 
-You need axis2/c-1.5.0 to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
+You need Axis2/C version 1.5.0 or greater to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
 
 You can use following commands for downloading and installing axis2/c:
-_Package curl-dev(libcurl-gnutls-dev or libcurl-openssl-dev) is required._
 {{{
 mkdir ~/devel/axis2c
 cd ~/devel/axis2c
 wget http://www.sai.msu.su/apache/ws/axis2/c/1_5_0/axis2c-src-1.5.0.tar.gz
 tar zxvf axis2c-src-1.5.0.tar.gz
 cd axis2c-src-1.5.0
-./configure --enable-openssl=yes --enable-libcurl=yes --prefix=$AXIS2C_HOME --enable-libxml2
+./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-guththila=no
 make && sudo -E make install
 }}}
 
@@ -36,108 +35,59 @@ make && sudo -E make install
 == 2. Getting source code ==
 
 Please refer to http://code.google.com/p/staff/source/checkout to read guide for getting source code from svn repository.
-Or checkout the [http://code.google.com/p/staff/downloads/list Download] section.
+Or download the source code from [http://code.google.com/p/staff/downloads/list Download] section.
 
 
-== 3. Compiling source code ==
+== 3. Compiling Staff's source code ==
 
-=== 3.1 Compiling and installing rise ===
 _Package binutils-dev is required._
-Enter these commands to compile and install rise from checkout root (staff-read-only):
+Enter these commands to compile and install rise, Staff and Webapp.
 
 {{{
-make -C rise && sudo make -C rise install
-}}}
-
-=== 3.2 Compiling and installing staff ===
-
-Enter these commands to compile and install staff from working copy root (staff-read-only):
-
-{{{
-make -C staff && sudo -E make -C staff install
+make && sudo make install
 sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
+chmod 777 $(AXIS2C_HOME}/logs
 }}}
 
-Make sure that postgres is runnung and enter
-{{{
-sudo -u postgres make -C staff/core/security installdb
-}}}
+== 4. Starting ==
 
-== 4. Configuring ==
-
-=== 4.1 Configuring axis2 ===
-
-{{{
-sudo mcedit $AXIS2C_HOME/axis2.xml
-}}}
-
-after line:
-{{{
-<module ref="addressing"/>
-}}}
-
-add two lines:
-{{{
-<module ref="staff"/>
-<module ref="staff_security"/>
-}}}
-
-
-=== 4.2 Configuring staff db connection ===
-
-If You would like to change db settings:
-{{{
-sudo mcedit $AXIS2C_HOME/modules/staff_security/module.xml
-}}}
-
-edit following parameters:
-{{{
-<parameter name="pgHost" locked="false">localhost</parameter>
-<parameter name="pgPort" locked="false">5432</parameter>
-<parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
-<parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
-}}}
-
-where POSTGRES_USER is Your postgres database user(default: staffdbuser), and POSTGRES_PASSWORD is user's password(default: staffdbuserpassword).
-
-
-== 5. Starting ==
-
-=== 5.1 Starting in normal mode ===
+=== 4.1 Starting in normal mode ===
 
 {{{
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
 }}}
 
-=== 5.2 Starting in debug mode == 
+=== 4.2 Starting in debug mode == 
 {{{
 cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
 }}}
 
 
-== 6. Testing ==
+== 5. Testing ==
 
-=== 6.1 Basic test ===
+=== 5.1 Basic test ===
 
 Open Your favorite web-browser and enter:
 
 http://localhost:9090/axis2/services
 
-Services "StaffService" and "staff.Login" must running.
-
-Sample services "calc.CalcService", "calc.SubService" must running.
+Sample services "samples.calc.CalcService", "samples.calc.SubService" must running.
 
 
-=== 6.2 Service-Client interaction test ===
+=== 5.2 Service-Client interaction test ===
 
-Start service Calculator
+Open console and start calc client:
 {{{
-calculator_service
+${STAFF_HOME}/samples/bin/calc_client
 }}}
 
-From another console start client
+Screen output:
 {{{
-calc_client
+INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[53]: main: Saved service mem: 0
+INFO main.cpp[58]: main: Setting mem: 46
+INFO main.cpp[60]: main: 46
+INFO main.cpp[61]: main: Service mem: 46
 }}}
