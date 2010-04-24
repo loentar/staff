@@ -12,7 +12,7 @@ While compiling, starting axis2/c or any client/service application, these envir
 {{{
 AXIS2C_HOME=c:\ws\axis2c
 STAFF_HOME=c:\ws\staff
-PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib;<path to Postgresql>\bin;<path to Postgresql>\lib
+PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib
 }}}
 
 You can set these variables in system properties.
@@ -55,65 +55,13 @@ Copy directory contents staff\rise\deploy\win_x86 into directory c:\ws\staff\.
 
 === 3.2 Compiling and installing Staff ===
 
-If necessary, edit the postgres include paths:
-  - Staff\components\admin\AccountAdmin\staff.admin.AccountAdmin_service.vcproj;
-  - Staff\components\admin\ObjectAdmin\staff.admin.ObjectAdmin_service.vcproj;
-  - Staff\components\login_component\staff_login_service.vcproj;
-  - Staff\core\security\staff_security.vcproj.
-
 The compilation is available from the command line or from the IDE:
   - To compile from the command line, start rebuild.cmd from the directory staff.
   - To compile from the IDE Visual Studio 2005, start staff.sln directory staff. Compile the project solution (menu Build->Build Solution)
 
-Make sure that postgres is installed and running.
-Start psql and enter these commands for installing DB:
-{{{
-\cd <full path to directory with source code>/staff/staff/core/security/
-\i db/instdb.sql
-}}}
+== 4. Starting ==
 
-== 4. Configuring ==
-
-=== 4.1 Configuring axis2 ===
-
-To engage staff modules into Axis2/C edit file:
-{{{
-%AXIS2C_HOME%\axis2.xml
-}}}
-
-after line:
-{{{
-<module ref="addressing"/>
-}}}
-
-add:
-{{{
-<module ref="staff"/>
-<module ref="staff_security"/>
-}}}
-
-
-=== 4.2 Configuring staff db connection ===
-
-If You would like to change db settings edit file:
-{{{
-%AXIS2C_HOME%\modules\staff_security\module.xml
-}}}
-
-edit following parameters:
-{{{
-<parameter name="pgHost" locked="false">localhost</parameter>
-<parameter name="pgPort" locked="false">5432</parameter>
-<parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
-<parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
-}}}
-
-where POSTGRES_USER is Your postgres database user(default: staffdbuser), and POSTGRES_PASSWORD is user's password(default: staffdbuserpassword).
-
-
-== 5. Starting ==
-
-=== 5.1 Starting in normal mode ===
+=== 4.1 Starting in normal mode ===
 
 To start Axis2/C in normal mode:
 {{{
@@ -121,7 +69,7 @@ cd %AXIS2C_HOME%\bin
 axis2_http_server
 }}}
 
-=== 5.2 Starting in debug mode == 
+=== 4.2 Starting in debug mode == 
 
 To start Axis2/C in debug mode:
 {{{
@@ -132,27 +80,29 @@ axis2_http_server
 }}}
 
 
-== 6. Testing ==
+== 5. Testing ==
 
-=== 6.1 Basic test ===
+=== 5.1 Basic test ===
 
 Open Your favorite web-browser and enter:
 
 http://localhost:9090/axis2/services
 
-Services "StaffService" and "staff.Login" must running.
-
 Sample services "calc.CalcService", "calc.SubService" must running.
 
 
-=== 6.2 Service-Client interaction test ===
+=== 5.2 Service-Client interaction test ===
 
-Start service Calculator
+Open command prompt and start calc client:
 {{{
-calculator_service
+%STAFF_HOME%\samples\bin\calc_client
 }}}
 
-Open another console and start client
+Screen output:
 {{{
-calc_client
+INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[53]: main: Saved service mem: 0
+INFO main.cpp[58]: main: Setting mem: 46
+INFO main.cpp[60]: main: 46
+INFO main.cpp[61]: main: Service mem: 46
 }}}
