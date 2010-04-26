@@ -114,6 +114,11 @@ namespace staff
       Free();
       m_bOwner = false;
     }
+    else
+    {
+      m_pAxiomNode = NULL;
+      m_pAxiomElement = NULL;
+    }
   }
 
   bool CDataObject::IsOwner()
@@ -321,6 +326,7 @@ namespace staff
   {
     RISE_ASSERTES(axiom_node_detach(m_pAxiomNode, m_pEnv), CDomNoItemException, 
       "Error while node detaching");
+    m_bOwner = true;
     return *this;
   }
 

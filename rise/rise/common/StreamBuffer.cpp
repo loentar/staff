@@ -330,7 +330,7 @@ namespace rise
 
   void CStreamBuffer::Resize(const TSize ulSize)
   {
-    Reserve(m_ulBufferSize - m_ulSize + ulSize);
+    Reserve(m_ulROffset + ulSize);
     m_ulSize = ulSize;
     m_ulWOffset = m_ulSize + m_ulROffset;
   }

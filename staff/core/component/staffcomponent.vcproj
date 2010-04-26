@@ -122,7 +122,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;C:\ws\axis2c\include;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_COMPONENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -141,6 +141,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
+				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib;../../depoly/win32/lib"
 				GenerateDebugInformation="true"
