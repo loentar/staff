@@ -1095,8 +1095,8 @@ void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
 
     rStream >> SkipSingleLineComment;
 
-    sServiceUri.clear();
-    sServiceDescr.clear();
+    sServiceUri.erase();
+    sServiceDescr.erase();
     bLoadAtStartup = false;
   } else
   if (sTmp == "struct")

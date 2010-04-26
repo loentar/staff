@@ -4,8 +4,8 @@ TARGET = staff_security_test
 TARGETNAME = $(TARGET)
 
 # == 
-CFLAGS += -c -Wall -D_REENTRANT
-LFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise 
+CXXFLAGS += -c -Wall -D_REENTRANT
+LDFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise 
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -17,10 +17,10 @@ make: "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 $(OBJDIR)%.o: %.cpp
-	$(CXX) $(CFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 install:;
 uninstall:;

@@ -5,8 +5,10 @@ TARGET = security
 TARGETNAME = libstaff$(TARGET).so
 
 CFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
-LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
-LFLAGS += -lpthread -ldl -lstaffcommon -lrise
+CXXFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
+
+LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += -lpthread -ldl -lstaffcommon -lrise
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -21,14 +23,14 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
 $(OBJDIR)%.c.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJDIR)%.cpp.o: %.cpp
-	$(CXX) $(CFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers deploy_db
