@@ -108,6 +108,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

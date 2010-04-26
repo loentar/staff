@@ -199,7 +199,7 @@ namespace staff
     /*!         forced node tree freeing, even if owner flag is not set */
     void Free();
 
-    //!         detach current node from existing node tree
+    //!         detach current node from existing node tree and set owner to true
     /*! \return reference to current node
     */
     CDataObject& DetachNode();
