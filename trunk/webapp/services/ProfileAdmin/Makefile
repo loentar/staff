@@ -62,7 +62,7 @@ deploy: "$(DEPLOYDIR)usr/local/staff/components/$(COMPONENT)/" $(OUTDIR)$(TARGET
 distrib:;
 
 # == install ========================================
-install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(COMPONENT)/config/"
+install: check "$(INSTALLDIR)$(COMPONENT)/config/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(COMPONENT)/"
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMPONENT)/
 

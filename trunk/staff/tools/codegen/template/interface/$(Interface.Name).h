@@ -11,7 +11,11 @@
 #ifneq($(Interface.Structs.$Count),0)
 
 #foreach $(Interface.Structs)
+#ifneq($(Struct.Name),staff::DataObject)
 struct $(Struct.Name);
+#else
+\
+#ifeqend
 #end
 #else
 \
@@ -40,47 +44,46 @@ struct $(Struct.Name)$(Struct.ParentDecl)
 #ifeqend
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
-//!  service $(Class.ServiceNsName)
 #ifneq($(Class.Description),)
-/*! $(Class.Description) */
+  /*! $(Class.Description) */
 #else
-\
+  //!  service $(Class.ServiceNsName)
 #ifeqend
-// uri: $(Class.ServiceUri)
-class $(Class.Name): public staff::IService
-{
-public:
-  virtual ~$(Class.Name)() {}
+  // uri: $(Class.ServiceUri)
+  class $(Class.Name): public staff::IService
+  {
+  public:
+    virtual ~$(Class.Name)() {}
 #foreach $(Class.Members)
 
 #ifneq($(Member.Description),)
-  /*! $(Member.Description) */
+    /*! $(Member.Description) */
 #else
 \
 #ifeqend
 #ifneq($(Member.SoapAction),)
-  // soapAction: $(Member.SoapAction)
+    // soapAction: $(Member.SoapAction)
 #else
 \
 #ifeqend
 #ifneq($(Member.NodeName),)
-  // requestElement: $(Member.NodeName)
+    // requestElement: $(Member.NodeName)
 #else
 \
 #ifeqend
 #ifneq($(Member.Return.ResponseName),)
-  // responseElement: $(Member.Return.ResponseName)
+    // responseElement: $(Member.Return.ResponseName)
 #else
 \
 #ifeqend
 #ifneq($(Member.Return.NodeName),)
-  // resultElement: $(Member.Return.NodeName)
+    // resultElement: $(Member.Return.NodeName)
 #else
 \
 #ifeqend
-  virtual $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const) = 0;
+    virtual $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const) = 0;
 #end
-};
+  };
 
 $(Class.EndingNs)
 #end
