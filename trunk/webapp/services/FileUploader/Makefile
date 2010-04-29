@@ -63,7 +63,7 @@ deploy: "$(DEPLOYDIR)usr/local/staff/components/$(COMPONENT)/config/" $(OUTDIR)$
 distrib:;
 
 # == install ========================================
-install: check"$(INSTALLDIR)$(COMPONENT)/config/"
+install: check "$(INSTALLDIR)$(COMPONENT)/config/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(COMPONENT)/"
 	cp -f config/*.xml $(INSTALLDIR)$(COMPONENT)/config/
 	chmod 777 $(INSTALLDIR)$(COMPONENT)/config/
