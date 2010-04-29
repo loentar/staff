@@ -19,37 +19,22 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _WSDLPARSER_H_
-#define _WSDLPARSER_H_
+#ifndef _CPPPARSER_H_
+#define _CPPPARSER_H_
 
-#include <string>
+#include <staff/codegen/Interface.h>
+#include <staff/codegen/CodegenParser.h>
 
-struct SInterface;
-
-//!  WsdlParser
-class CWsdlParser
+namespace staff
 {
-public:
-  ~CWsdlParser();
+  class CCppParser: public ICodegenParser
+  {
+  public:
+    virtual const std::string& GetId();
+    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
+  private:
+    static const std::string m_sId;
+  };
+}
 
-  //!         get parser instance
-  /*! \return reference to wsdl parser instance
-  */
-  static CWsdlParser& Inst();
-
-  //!         parse wsdl file to interface description
-  /*! \param  sFileName - wsdl file name
-      \param  rInterface - resulting interface
-      */
-  void Parse(const std::string& sFileName, SInterface& rInterface);
-
-private:
-  CWsdlParser();
-
-private:
-  static CWsdlParser* m_pInst;
-  class CWsdlParserImpl;
-  CWsdlParserImpl* m_pImpl;
-};
-
-#endif // _WSDLPARSER_H_
+#endif // _CPPPARSER_H_

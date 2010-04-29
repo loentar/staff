@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
-TARGET = staff_codegen
-TARGETNAME = $(TARGET)
+TARGET = codegen
+TARGETNAME = staff_$(TARGET)
 
 HEADERS = $(shell find src *.h | grep -v Proxy | grep -v Factory)
 
@@ -26,17 +26,19 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)" $(OUTDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
 	cp -f --parents $$(find template -type f | grep -v '.svn') $(DEPLOYDIR)$(BINDIR)
+	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(DEPLOYDIR)$(INCDIR)
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
-install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)"
+install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
 	cp --parents $$(find template -type f | grep -v '.svn') $(INSTALLDIR)$(BINDIR)
+	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(INSTALLDIR)$(INCDIR)
 
 # == uninstall ======================================
 uninstall: check

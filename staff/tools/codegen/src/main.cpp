@@ -26,26 +26,29 @@
 #include <fstream>
 #include <list>
 #include <rise/common/Log.h>
+#include <rise/plugin/PluginManager.h>
+#include <rise/tools/FileFind.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
-#include "InterfaceInfo.h"
-#include "WsdlParser.h"
+#include "Interface.h"
+#include "CodegenParser.h"
 #include "CodeGen.h"
 #include "XmlGen.h"
 
 void Help()
 {
   std::cerr << "Code generator for Staff\n"
-    "-n              - Project name\n"
-    "-i<inputdir>    - Interface headers dir\n"
-    "-o<outputdir>   - Output dir\n"
-    "-c<changedir>   - Set input and output dirs\n"
-//    "-v              - verbose\n"
-    "-t<templatedir> - Generate Source With Template\n"
-    "-u              - Update only(generate only missing files, update existing files if needed)\n"
-    "-e              - Don't error if Interface file is not contain service\n"
-    "-d              - Define environment variables: -dvar1=value1,var2=2,var3"
-    "-x              - Save xml description\n\n";
+    "staff_codegen [-n<Project_Name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-t<template>][-u][-e][-p<plugin_name>][-x][Source_files]\n"
+    "  -n              - Project name\n"
+    "  -i<inputdir>    - Interface headers dir\n"
+    "  -o<outputdir>   - Output dir\n"
+    "  -c<changedir>   - Set input and output dirs\n"
+    "  -t<template>    - Generate source with template name\n"
+    "  -u              - Update only(generate only missing files, update existing files if needed)\n"
+    "  -e              - Don't error if Interface file is not contain service\n"
+    "  -d              - Define environment variables: -dvar1=value1,var2=2,var3\n"
+    "  -p<plugin_name> - Use plugin with given name(default: cpp). Example: -pwsdl\n"
+    "  -x              - Write xml description\n\n";
 }
 
 int main(int nArgs, const char* szArgs[])
@@ -58,16 +61,15 @@ int main(int nArgs, const char* szArgs[])
 
   const char* szStaffHome = getenv("STAFF_HOME");
 
-  SProject stProject;
-  rise::xml::CXMLDocument tDoc;
+  staff::SParseSettings stParseSettings;
+  staff::SProject stProject;
+
   std::string sTemplate;
+  std::string sPluginName = "cpp";
   bool bGenXml = false;
   bool bUpdateOnly = false;
-  bool bSourceIsWsdl = false;
-  bool bNoServiceError = true;
-  TStringMap mEnv;
+  staff::TStringMap mEnv;
   int nResult = 0;
-
 
   if(szStaffHome == NULL)
   {
@@ -76,10 +78,8 @@ int main(int nArgs, const char* szArgs[])
   }
 
   stProject.sName = "Project1";
-  stProject.sInDir = ".";
-  stProject.sOutDir = ".";
-
-  std::list<std::string> lsFiles;
+  stParseSettings.sInDir = ".";
+  stParseSettings.sOutDir = ".";
 
   for (int i = 1; i < nArgs; ++i)
   {
@@ -92,16 +92,16 @@ int main(int nArgs, const char* szArgs[])
         return 0;
 
       case 'i':
-        stProject.sInDir = &szArgs[i][2];
+        stParseSettings.sInDir = &szArgs[i][2];
         break;
 
       case 'o':
-        stProject.sOutDir = &szArgs[i][2];
+        stParseSettings.sOutDir = &szArgs[i][2];
         break;
 
       case 'c':
-        stProject.sInDir = &szArgs[i][2];
-        stProject.sOutDir = &szArgs[i][2];
+        stParseSettings.sInDir = &szArgs[i][2];
+        stParseSettings.sOutDir = &szArgs[i][2];
         break;
 
       case 't':
@@ -120,16 +120,13 @@ int main(int nArgs, const char* szArgs[])
         bUpdateOnly = true;
         break;
 
-//      case 'v':
-//        bVerbosity = true;
-//        break;
-
       case 'w':
-        bSourceIsWsdl = true;
+        std::cerr << "WARNING: \"-w\" is obsolete flag, please use \"-pwsdl\"" << std::endl;
+        sPluginName = "wsdl";
         break;
 
       case 'e':
-        bNoServiceError = false;
+        stParseSettings.bNoServiceError = false;
         break;
 
       case 'd':
@@ -169,116 +166,71 @@ int main(int nArgs, const char* szArgs[])
         }
         break;
 
+      case 'p':
+        sPluginName = &szArgs[i][2];
+        break;
+
       default:
-        std::cerr << "unrecognized option: " << szArgs[i];
+        std::cerr << "unrecognized option: " << szArgs[i] << std::endl << std::endl;
+        Help();
         return 1;
-      }
-    } else
-    {
-      if (szArgs[i][0] != '\0')
-        lsFiles.push_back(szArgs[i]);
-    }
-  }
-
-  try
-  {
-    if (bSourceIsWsdl)
-    {
-      for (std::list<std::string>::const_iterator itFileName = lsFiles.begin(); itFileName != lsFiles.end(); ++itFileName)
-      {
-        std::string sFileName = stProject.sInDir + "/" + *itFileName;
-        std::ifstream isFile;
-        SInterface stInterface;
-
-        std::cout << "Processing wsdl: " << *itFileName << std::endl;
-
-        CWsdlParser::Inst().Parse(*itFileName, stInterface);
-
-        stProject.lsInterfaces.push_back(stInterface);
       }
     }
     else
     {
-      for (std::list<std::string>::const_iterator it = lsFiles.begin(); it != lsFiles.end(); ++it)
+      if (szArgs[i][0] != '\0')
       {
-        std::string sFileName = stProject.sInDir + "/" + *it;
-        std::ifstream isFile;
-        int nServicesCount = 0;
-        SInterface stInterface;
-
-        isFile.open(sFileName.c_str());
-        if(isFile.good())
-        {
-          ResetLine();
-          stInterface.sFileName = *it;
-          try
-          {
-            isFile >> stInterface;
-            isFile.close();
-          }
-          catch (const std::string& sEx)
-          {
-            std::stringbuf sbData;
-            isFile.get(sbData, '\n');
-            isFile.ignore();
-            isFile.get(sbData, '\n');
-
-            isFile.close();
-
-            throw sEx + ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
-          }
-          catch (const char* szEx)
-          {
-            std::stringbuf sbData;
-            isFile.get(sbData, '\n');
-            isFile.ignore();
-            isFile.get(sbData, '\n');
-
-            isFile.close();
-
-            throw std::string(szEx) + ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
-          }
-
-          nServicesCount += static_cast<int>(stInterface.lsClass.size());
-          stProject.lsInterfaces.push_back(stInterface);
-        } else
-        {
-          throw std::string("can't open file: ") + *it + ": " + std::string(strerror(errno));
-        }
-
-        if (nServicesCount == 0 && bNoServiceError)
-        {
-          throw std::string("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
-                            "Example:\n----\n  class Calc: public staff::IService\n"
-                            "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n");
-        }
+        stParseSettings.lsFiles.push_back(szArgs[i]);
       }
     }
+  }
 
-    tDoc.GetRoot() << stProject;
 
-    if (bGenXml)
+  try
+  {
+    // loading plugin
+    std::string sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
+    rise::plugin::CPluginManager<staff::ICodegenParser> tPlugins;
+
+#ifdef __linux__
+    const std::string& sFileName = sPluginsDir + "libstaffcgparser-" + sPluginName + ".so";
+#endif
+#ifdef WIN32
+    const std::string& sFileName = sPluginsDir + "staffcgparser-" + sPluginName + ".dll";
+#endif
+
+    staff::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
+
+    if (!pCodegenParser)
     {
-      tDoc.GetDecl().m_sEncoding = "utf-8";
-      tDoc.SaveToFile(stProject.sOutDir + "/" + stProject.sName + ".xml");
+      CSP_THROW("Can't get plugin symbol " + sFileName, "", 0);
     }
+
+    // Source files parsing
+    pCodegenParser->Process(stParseSettings, stProject);
+
+    // Generation
+    rise::xml::CXMLDocument tDoc;
+    tDoc.GetRoot() << stProject;
 
     if (sTemplate != "")
     {
       std::cout << "template: " << sTemplate << std::endl;
-      CCodeGen tGen;
-      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stProject.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
+      staff::CCodeGen tGen;
+      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
 
+    if (bGenXml)
+    {
+      std::string sXmlFileName = stParseSettings.sOutDir + "/" + stProject.sName + ".xml";
+      std::cout << "Generating " << sXmlFileName << std::endl;
+      tDoc.GetDecl().m_sEncoding = "utf-8";
+      tDoc.SaveToFile(sXmlFileName);
+    }
   }
-  catch (const std::string& sError)
+  catch (const staff::CParseException& rException)
   {
-    rise::LogError() << sError << "\nLineNo: " << GetLine();
-    nResult = 1;
-  }
-  catch (const char* szError)
-  {
-    rise::LogError() << szError << "\nLineNo: " << GetLine();
+    rise::LogError() << rException;
     nResult = 1;
   }
   RISE_CATCH_ALL_DESCR_ACTION("", nResult = 1;)
