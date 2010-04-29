@@ -19,27 +19,29 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _XMLGEN_H_
-#define _XMLGEN_H_
+#ifndef _WSDLPARSER_H_
+#define _WSDLPARSER_H_
 
-namespace rise 
-{
-  namespace xml
-  {
-    class CXMLNode;
-  }
-}
+#include <staff/codegen/Interface.h>
+#include <staff/codegen/CodegenParser.h>
 
 namespace staff
 {
-  struct SProject;
+  //!  WsdlParser
+  class CWsdlParser: public ICodegenParser
+  {
+  public:
+    CWsdlParser();
+    ~CWsdlParser();
 
-  //!         process project struct into xml
-  /*! \param  rRootNode - resulting xml-project node
-      \param  rProject - project
-      \return resulting xml-project node
-      */
-  rise::xml::CXMLNode& operator<<(rise::xml::CXMLNode& rRootNode, const SProject& rProject);
+    virtual const std::string& GetId();
+    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
+
+  private:
+    static const std::string m_sId;
+    class CWsdlParserImpl;
+    CWsdlParserImpl* m_pImpl;
+  };
 }
 
-#endif // _XMLGEN_H_
+#endif // _WSDLPARSER_H_

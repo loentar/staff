@@ -38,7 +38,7 @@
         xmlns:tns="$($TargetNamespace)">
 
       <!-- Data Object -->
-      <complexType name="DataObject">
+      <complexType name="staff::DataObject">
         <sequence>
           <any/>
         </sequence>

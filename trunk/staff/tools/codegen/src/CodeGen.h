@@ -23,11 +23,7 @@
 #define _CODEGEN_H_
 
 #include <string>
-#include <map>
-
-typedef std::map<std::string, std::string> TStringMap;
-
-struct SProject;
+#include "Interface.h"
 
 namespace rise 
 {
@@ -37,17 +33,20 @@ namespace rise
   }
 }
 
-//!  Code generator
-class CCodeGen
+namespace staff
 {
-public:
-  //!         start code generation
-  /*! \param  sTemplateDir - path to templates
-      \param  sOutDir - output directory
-      \param  rRootNode - root node, describing project
-      \param  bUpdateOnly - true: update files if needed, false: always update files
-      */
-  void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv);
-};
+  //!  Code generator
+  class CCodeGen
+  {
+  public:
+    //!         start code generation
+    /*! \param  sTemplateDir - path to templates
+        \param  sOutDir - output directory
+        \param  rRootNode - root node, describing project
+        \param  bUpdateOnly - true: update files if needed, false: always update files
+        */
+    void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv);
+  };
+}
 
 #endif // _CODEGEN_H_

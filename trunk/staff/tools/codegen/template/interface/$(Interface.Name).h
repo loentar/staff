@@ -11,7 +11,7 @@
 #ifneq($(Interface.Structs.$Count),0)
 
 #foreach $(Interface.Structs)
-#ifneq($(Struct.Name),staff::DataObject)
+#ifneq($(Struct.NativeName),DataObject)
 struct $(Struct.Name);
 #else
 \
