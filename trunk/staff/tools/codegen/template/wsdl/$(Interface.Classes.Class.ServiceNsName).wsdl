@@ -37,13 +37,6 @@
         xmlns:staff="http://www.w3.org/2001/XMLSchema"
         xmlns:tns="$($TargetNamespace)">
 
-      <!-- Data Object -->
-      <complexType name="staff::DataObject">
-        <sequence>
-          <any/>
-        </sequence>
-      </complexType>
-
       <!-- service operations -->
 #foreach $(Interface.Classes.Class.Members)
       <element name="$(Member.Name)">
@@ -51,6 +44,15 @@
         <complexType>
           <sequence>
 #foreach $(Member.Params)
+#ifeq($(Param.DataType.Type),dataobject)
+            <element name="$(Param.Name)">
+              <complexType>
+                <sequence>
+                  <any/>
+                </sequence>
+              </complexType>
+            </element>
+#else
             <element name="$(Param.Name)" type="\
 #ifeq($(Param.DataType.Name),bool)
 staff:boolean\
@@ -64,16 +66,13 @@ staff:string\
 #ifeq($(Param.DataType.Type),struct||typedef)
 tns:$(Param.DataType.NativeName)\
 #else
-#ifeq($(Param.DataType.Type),dataobject)
-tns:DataObject\
-#else
 $(Param.DataType.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 "/>
+#ifeqend
 #end
           </sequence>
         </complexType>
@@ -93,6 +92,15 @@ $(Param.DataType.Name)\
       <element name="$($sResponse)">
         <complexType>
           <sequence>
+#ifeq($(Member.Return.Type),dataobject)
+            <element name="$($sResult)">
+              <complexType>
+                <sequence>
+                  <any/>
+                </sequence>
+              </complexType>
+            </element>
+#else
             <element name="$($sResult)" type="\
 #ifeq($(Member.Return.Name),bool)
 staff:boolean\
@@ -106,17 +114,14 @@ staff:string\
 #ifeq($(Member.Return.Type),struct||typedef)
 tns:$(Member.Return.NativeName)\
 #else
-#ifeq($(Member.Return.Type),dataobject)
-tns:DataObject\
-#else
 $(Member.Return.Name)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 "/>
+#ifeqend
           </sequence>
         </complexType>
       </element>
@@ -132,6 +137,15 @@ $(Member.Return.Name)\
         <complexType/>
       </element>
 #else
+#ifeq($(Member.Return.Type),dataobject)
+      <element name="$($sResult)">
+        <complexType>
+          <sequence>
+            <any/>
+          </sequence>
+        </complexType>
+      </element>
+#else
       <element name="$($sResult)" type="\
 #ifeq($(Member.Return.Name),bool)
 staff:boolean\
@@ -145,17 +159,14 @@ staff:string\
 #ifeq($(Member.Return.Type),struct||typedef)
 tns:$(Member.Return.NativeName)\
 #else
-#ifeq($(Member.Return.Type),dataobject)
-tns:DataObject\
-#else
 $(Member.Return.Name)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 "/>
+#ifeqend
 #ifeqend
 #ifeqend // #ifneq($($sResult),) // result element name is defined
 
@@ -181,6 +192,15 @@ $(Member.Return.Name)\
 #ifneq($(Struct.Members.$Count),0)
 $($sIndent)      <sequence>
 #foreach $(Struct.Members)
+#ifeq($(Param.DataType.Type),dataobject)
+$($sIndent)        <element name="$(Param.Name)">
+$($sIndent)          <complexType>
+$($sIndent)            <sequence>
+$($sIndent)              <any/>
+$($sIndent)            </sequence>
+$($sIndent)          </complexType>
+$($sIndent)        </element>
+#else
 $($sIndent)        <element name="$(Param.Name)" type="\
 #ifeq($(Param.DataType.Name),bool)
 staff:boolean\
@@ -194,14 +214,10 @@ staff:string\
 #ifeq($(Param.DataType.Type),struct||typedef)
 tns:$(Param.DataType.NativeName)\
 #else
-#ifeq($(Param.DataType.Type),dataobject)
-tns:DataObject\
-#else
 #ifeq($(Param.DataType.Type),template)
 staff:$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
 #else
 $(Param.DataType.Name)\
-#ifeqend
 #ifeqend
 #ifeqend
 \
@@ -209,6 +225,7 @@ $(Param.DataType.Name)\
 #ifeqend
 #ifeqend
 "/>
+#ifeqend
 #end // #foreach $(Struct.Members)
 $($sIndent)      </sequence>
 #else
@@ -237,6 +254,15 @@ $($sIndent)      </sequence>
     <complexType name="$(Typedef.NativeName)">
       <sequence>
 #ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)  # -- list ------------------
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+        <element minOccurs="0" maxOccurs="unbounded" name="Item">
+          <complexType>
+            <sequence>
+              <any/>
+            </sequence>
+          </complexType>
+        </element>
+#else
         <element minOccurs="0" maxOccurs="unbounded" name="Item" type="\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
 staff:boolean\
@@ -250,22 +276,28 @@ staff:string\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
 tns:$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-tns:DataObject\
-#else
 $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 " nillable="true" />
+#ifeqend
 #else
 #ifeq($(Typedef.DataType.Name),std::map||std::multimap) # -- map -------------------------
         <element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true">
           <complexType>
             <sequence>
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+              <element name="Key">
+                <complexType>
+                  <sequence>
+                    <any/>
+                  </sequence>
+                </complexType>
+              </element>
+#else
               <element name="Key" type="\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
 staff:boolean\
@@ -279,17 +311,23 @@ staff:string\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
 tns:$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-tns:DataObject\
-#else
 $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 " />
+#ifeqend
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
+              <element name="Value">
+                <complexType>
+                  <sequence>
+                    <any/>
+                  </sequence>
+                </complexType>
+              </element>
+#else
               <element name="Value" type="\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),bool)
 staff:boolean\
@@ -303,17 +341,14 @@ staff:string\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct||typedef)
 tns:$(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
 #else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
-tns:DataObject\
-#else
 $(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 " />
+#ifeqend
             </sequence>
           </complexType>
         </element>
@@ -325,6 +360,13 @@ $(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
     </complexType>
 #else
     <simpleType name="$(Typedef.NativeName)">
+#ifeq($(Typedef.DataType.Type),dataobject)
+      <complexType>
+        <sequence>
+          <any/>
+        </sequence>
+      </complexType>
+#else
       <restriction base="\
 #ifeq($(Typedef.DataType.Name),bool)
 staff:boolean\
@@ -338,17 +380,14 @@ staff:string\
 #ifeq($(Typedef.DataType.Type),struct||typedef)
 tns:$(Typedef.DataType.NativeName)\
 #else
-#ifeq($(Typedef.DataType.Type),dataobject)
-tns:DataObject\
-#else
 $(Typedef.DataType.Name)\
 #ifeqend
 \
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 "/>
+#ifeqend
     </simpleType>
 #ifeqend
 

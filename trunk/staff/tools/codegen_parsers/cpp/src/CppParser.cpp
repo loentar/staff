@@ -202,6 +202,45 @@ namespace staff
     return rStream;
   }
 
+  void ReadDescrComment(std::istream& rStream, std::string& sDescr)
+  {
+    char chData = '\0';
+    while (rStream.good() && !rStream.eof())
+    {
+      chData = rStream.peek();
+      if(chData != ' ' && chData != '\t')
+      {
+        break;
+      }
+      rStream.ignore();
+    }
+
+    if (rStream.good() && !rStream.eof())
+    {
+      if (rStream.peek() == '/') // comment
+      {
+        rStream.ignore();
+        if (rStream.peek() == '/') // single line comment
+        {
+          rStream.ignore();
+          if (rStream.peek() == '!')
+          {
+            rStream.ignore();
+            if (rStream.peek() == '<') // description
+            {
+              rStream.ignore();
+              ReadBefore(rStream, sDescr, "\n\r");
+            }
+          }
+          rStream.ignore(INT_MAX, '\n');
+        } else
+        {
+          rStream.unget();
+        }
+      }
+    }
+  }
+
   bool ReadComment(std::istream& rStream, std::string& sComment)
   {
     if (rStream.peek() != '/')
@@ -643,6 +682,7 @@ namespace staff
     std::string sTmp;
     std::string sSoapAction;
     std::string sDescr;
+    std::string sDetail;
     std::string sRequestElement;
     std::string sResponseElement;
     std::string sResultElement;
@@ -665,6 +705,7 @@ namespace staff
     {
       sSoapAction.erase();
       sDescr.erase();
+      sDetail.erase();
       sRequestElement.erase();
       sResponseElement.erase();
       sResultElement.erase();
@@ -687,9 +728,16 @@ namespace staff
             rise::StrTrimLeft(sDescrTmp);
             if (sDescr.size() != 0)
             {
-              sDescr += '\n';
+              if (sDetail.size() != 0)
+              {
+                sDetail += '\n';
+              }
+              sDetail += sDescrTmp;
             }
-            sDescr += sDescrTmp;
+            else
+            {
+              sDescr = sDescrTmp;
+            }
           }
           else
           if (sTmp.substr(0, 12) == "description:")
@@ -698,9 +746,16 @@ namespace staff
             rise::StrTrimLeft(sDescrTmp);
             if (sDescr.size() != 0)
             {
-              sDescr += '\n';
+              if (sDetail.size() != 0)
+              {
+                sDetail += '\n';
+              }
+              sDetail += sDescrTmp;
             }
-            sDescr += sDescrTmp;
+            else
+            {
+              sDescr = sDescrTmp;
+            }
           }
           else
           if (sTmp.substr(0, 15) == "requestElement:")
@@ -773,6 +828,7 @@ namespace staff
 
           rStream >> stMember;
           stMember.sDescr = sDescr;
+          stMember.sDetail = sDetail;
           stMember.sSoapAction = sSoapAction;
           stMember.sNodeName = sRequestElement;
           stMember.stReturn.sName = sResponseElement;
@@ -885,8 +941,11 @@ namespace staff
             CSP_THROW("Struct members must be non-const: " + rStruct.sName, Interface().sFileName, GetLine());
           if (stParamTmp.stDataType.bIsRef)
             CSP_THROW("Struct members must be non-ref: " + rStruct.sName, Interface().sFileName, GetLine());
+
+          ReadDescrComment(rStream, stParamTmp.sDescr);
+
           rStruct.lsMember.push_back(stParamTmp);
-          rStream >> SkipSingleLineComment;
+          //rStream >> SkipSingleLineComment;
         } else
         {
           bFunction = true;
@@ -989,7 +1048,8 @@ namespace staff
   {
     char chData = 0;
     std::string sServiceUri;
-    std::string sServiceDescr;
+    std::string sDescr;
+    std::string sDetail;
     std::string sTmp;
     bool bLoadAtStartup = false;
 
@@ -1009,22 +1069,36 @@ namespace staff
         {
           std::string sDescrTmp = sTmp.substr(1);
           rise::StrTrimLeft(sDescrTmp);
-          if (sServiceDescr.size() != 0)
+          if (sDescr.size() != 0)
           {
-            sServiceDescr += '\n';
+            if (sDetail.size() != 0)
+            {
+              sDetail += '\n';
+            }
+            sDetail += sDescrTmp;
           }
-          sServiceDescr += sDescrTmp;
+          else
+          {
+            sDescr = sDescrTmp;
+          }
         }
         else
         if (sTmp.substr(0, 12) == "description:")
         {
           std::string sDescrTmp = sTmp.substr(13);
           rise::StrTrimLeft(sDescrTmp);
-          if (sServiceDescr.size() != 0)
+          if (sDescr.size() != 0)
           {
-            sServiceDescr += '\n';
+            if (sDetail.size() != 0)
+            {
+              sDetail += '\n';
+            }
+            sDetail += sDescrTmp;
           }
-          sServiceDescr += sDescrTmp;
+          else
+          {
+            sDescr = sDescrTmp;
+          }
         }
         else
         if (sTmp.substr(0, 14) == "loadAtStartup:")
@@ -1103,7 +1177,8 @@ namespace staff
       std::cout << "Using [" << stClass.sName << "] as service class\n";
 
       rStream >> stClass;
-      stClass.sDescr = sServiceDescr;
+      stClass.sDescr = sDescr;
+      stClass.sDetail = sDetail;
       stClass.sServiceUri = sServiceUri;
       stClass.bLoadAtStartup = bLoadAtStartup;
       rInterface.lsClass.push_back(stClass);
@@ -1117,13 +1192,17 @@ namespace staff
       rStream >> SkipSingleLineComment;
 
       sServiceUri.erase();
-      sServiceDescr.erase();
+      sDescr.erase();
+      sDetail.erase();
       bLoadAtStartup = false;
     } else
     if (sTmp == "struct")
     {
       SStruct stStruct;
       rStream >> stStruct;
+
+      stStruct.sDescr = sDescr;
+      stStruct.sDetail = sDetail;
 
       // check for forward declaration
       std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
@@ -1160,13 +1239,15 @@ namespace staff
         CSP_THROW("missing ';' after struct definition", Interface().sFileName, GetLine());
       }
 
+      sDescr.erase();
+      sDetail.erase();
+
       rStream >> SkipSingleLineComment;
     } else
     if (sTmp == "typedef")
     {
       STypedef stTypedef;
       rStream >> stTypedef;
-      rInterface.lsTypedef.push_back(stTypedef);
 
       rStream >> SkipWs >> chData;
       if (chData != ';')
@@ -1174,7 +1255,14 @@ namespace staff
         CSP_THROW("missing ';' after typedef definition", Interface().sFileName, GetLine());
       }
 
-      rStream >> SkipSingleLineComment;
+      ReadDescrComment(rStream, stTypedef.sDescr);
+
+      rInterface.lsTypedef.push_back(stTypedef);
+
+      sDescr.erase();
+      sDetail.erase();
+
+//      rStream >> SkipSingleLineComment;
     } else
     if (sTmp == "namespace")
     {
