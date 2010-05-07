@@ -3,35 +3,35 @@ namespace staff
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // forward declarations
 #foreach $(Interface.Structs)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct);
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstStruct);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct);
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct);
 #end
 
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.IsTemplate),1)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType);
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
 #else
 \
 #ifeqend // #ifneq($(Typedef.DataType.Type),struct)
 #ifeqend // #ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
 #ifeq($(Typedef.DataType.IsTemplate),1)
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType);
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
 #else
 \
 #ifeqend
 #else                 // !!not_a_struct!!
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType);
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
 #ifeqend
 #end // foreach $(Interface.Typedefs)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
 #foreach $(Interface.Structs)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.Parent),)
   // serialize parent struct
@@ -54,7 +54,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 #ifeq($(Param.DataType.Type),string)
   rdoParam.CreateChild("$(Param.Name)").SetText(rstStruct.$(Param.Name));
 #else
-#cgerror unknown type of Param.Name: $(Struct.Name)::$(Param.DataType.Name)
+#cgerror unknown type of Param.Name: $(Struct.NsName)::$(Param.DataType.Name)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -68,7 +68,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.Name)& rstStruct)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct deserializators
 #foreach $(Interface.Structs)
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstStruct)
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.Parent),)
   // deserialize parent struct
@@ -105,11 +105,11 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.Name)& rstSt
 // typedef serializators
 #foreach $(Interface.Typedefs)
 
-// $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
+// $(Typedef.NsName)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
-  for ($(Typedef.Name)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
+  for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
     CDataObject tdoItem = rdoParam.CreateChild("Item");
 #ifeq($(Typedef.DataType.Name),std::map)
@@ -126,7 +126,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 }
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
+CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
   rdoParam.SetValue(rtType);
@@ -159,11 +159,11 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.Name)& rtType)
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
 #ifeq($(Typedef.DataType.IsTemplate),1)
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType)
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
   for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {
-    $(Typedef.DataType.Name) tItem;
+    $(Typedef.DataType.NsName) tItem;
     *it >> tItem;
     rtType.push_back(tItem);
   }
@@ -171,12 +171,12 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtTy
 }
 #ifeqend
 #else                 // !!not_a_struct!!
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.Name)& rtType)
+const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
 #ifeq($(Typedef.DataType.IsTemplate),1)
 // container :: $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.Type),typedef)
-  $(Typedef.DataType.Name) tItem;
+  $(Typedef.DataType.NsName) tItem;
 #ifeqend
   for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
   {

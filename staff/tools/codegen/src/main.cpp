@@ -233,6 +233,16 @@ int main(int nArgs, const char* szArgs[])
     rise::LogError() << rException;
     nResult = 1;
   }
+  catch (std::string sEx)
+  {
+    rise::LogError() << sEx;
+    nResult = 1;
+  }
+  catch (const char* szEx)
+  {
+    rise::LogError() << szEx;
+    nResult = 1;
+  }
   RISE_CATCH_ALL_DESCR_ACTION("", nResult = 1;)
 
   return nResult;

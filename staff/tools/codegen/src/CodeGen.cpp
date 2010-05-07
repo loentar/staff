@@ -389,10 +389,23 @@ namespace staff
         if (sLine.substr(0, 5) == "#var ")
         {
           std::string::size_type nPos = sLine.find_first_of(" \t", 5);
+          std::string sVariable;
+          std::string sValue;
+
           if (nPos == std::string::npos)
+          {
+            sVariable = sLine.substr(5);
+          }
+          else
+          {
+            sVariable = sLine.substr(5, nPos - 5);
+            sValue = sLine.substr(nPos + 1, sLine.size() - nPos - 2);
+          }
+
+          if (sVariable.size() == 0)
+          {
             throw "invalid var declaration: " + sLine;
-          std::string sVariable = sLine.substr(5, nPos - 5);
-          std::string sValue = sLine.substr(nPos + 1, sLine.size() - nPos - 2);
+          }
 
           ReplaceToValue(sValue, rNode);
           m_tVariables[sVariable] = sValue;

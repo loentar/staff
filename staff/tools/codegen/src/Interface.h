@@ -61,6 +61,7 @@ namespace staff
   {
     SDataType    stDataType;  //!<  param data type
     std::string  sName;       //!<  param name
+    std::string  sDescr;      //!<  param description
 
     SParam& operator=(const SParam& rParam)
     {
@@ -78,6 +79,7 @@ namespace staff
     std::list<SParam>  lsParamList; //!<  parameters
     bool               bIsConst;    //!<  operation is const
     std::string        sDescr;      //!<  operation description
+    std::string        sDetail;     //!<  detailed description
     std::string        sSoapAction; //!<  soap action
     std::string        sNodeName;   //!<  node name
 
@@ -93,6 +95,7 @@ namespace staff
     std::string         sName;          //!<  class name
     std::string         sNamespace;     //!<  namespace
     std::string         sDescr;         //!<  service description
+    std::string         sDetail;        //!<  detailed description
     std::string         sServiceUri;    //!<  default service URI
     bool                bLoadAtStartup; //!<  load service at startup
     std::list<SMember>  lsMember;       //!<  service operations
@@ -104,6 +107,8 @@ namespace staff
     std::string         sName;          //!<  struct name
     std::string         sNamespace;     //!<  namespace
     std::string         sParent;        //!<  parent struct(inherits)
+    std::string         sDescr;         //!<  struct description
+    std::string         sDetail;        //!<  detailed description
     std::list<SParam>   lsMember;       //!<  struct fields
     bool                bForward;       //!<  is forward declaration
 
@@ -118,6 +123,7 @@ namespace staff
   {
     std::string         sName;          //!<  typedef name
     std::string         sNamespace;     //!<  namespace
+    std::string         sDescr;         //!<  description
     SDataType           stDataType;     //!<  base data type
   };
 
