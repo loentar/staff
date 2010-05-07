@@ -177,15 +177,18 @@ $(Member.Return.Name)\
 #foreach $(Interface.Structs)
 
     <complexType name="$(Struct.NativeName)">
-#ifneq($(Struct.Parent),)
+#ifneq($(Struct.Description),)
+      <documentation>$(Struct.Description)</documentation>
+#ifeqend
+#ifneq($(Struct.Parent),)       // inherited
 #var sIndent   
       <complexContent mixed="false">
 #ifneq($(Struct.Members.$Count),0)
-        <extension base="staff:$(Struct.NativeName)">
+        <extension base="tns:$(Struct.NativeName)">
 #else
-        <extension base="staff:$(Struct.NativeName)"/>
+        <extension base="tns:$(Struct.NativeName)"/>
 #ifeqend
-#else
+#else                          // not inherited
 #var sIndent 
 \
 #ifeqend 
@@ -195,6 +198,9 @@ $($sIndent)      <sequence>
 #ifeq($(Param.DataType.Type),dataobject)
 $($sIndent)        <element name="$(Param.Name)">
 $($sIndent)          <complexType>
+#ifneq($(Param.Description),)
+$($sIndent)            <documentation>$(Param.Description)</documentation>
+#ifeqend
 $($sIndent)            <sequence>
 $($sIndent)              <any/>
 $($sIndent)            </sequence>
@@ -223,8 +229,14 @@ $(Param.DataType.Name)\
 \
 #ifeqend
 #ifeqend
-#ifeqend
+#ifeqend  // element
+#ifneq($(Param.Description),)
+">
+$($sIndent)          <documentation>$(Param.Description)</documentation>
+$($sIndent)        </element>
+#else
 "/>
+#ifeqend
 #ifeqend
 #end // #foreach $(Struct.Members)
 $($sIndent)      </sequence>
@@ -252,6 +264,9 @@ $($sIndent)      </sequence>
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.IsTemplate),1)
     <complexType name="$(Typedef.NativeName)">
+#ifneq($(Typedef.Description),)
+      <documentation>$(Typedef.Description)</documentation>
+#ifeqend
       <sequence>
 #ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)  # -- list ------------------
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
