@@ -41,23 +41,26 @@ namespace staff
     {
     }
 
-    virtual void Run(void*)
+    void Start()
     {
+      staff::security::CSessions& rSessions = staff::security::CSessions::Inst();
+      staff::security::TSessionsList lsSessions;
+
+      rSessions.CloseExpiredSessions();
+      rSessions.GetList(lsSessions);
+
+      for (staff::security::TSessionsList::const_iterator itSession = lsSessions.begin();
+            itSession != lsSessions.end(); ++itSession)
       {
-        staff::security::CSessions& rSessions = staff::security::CSessions::Inst();
-        staff::security::TSessionsList lsSessions;
-
-        rSessions.CloseExpiredSessions();
-        rSessions.GetList(lsSessions);
-
-        for (staff::security::TSessionsList::const_iterator itSession = lsSessions.begin();
-              itSession != lsSessions.end(); ++itSession)
-        {
-          m_mSessions[itSession->sSessionId] = *itSession;
-          CServiceInstanceManager::Inst().CreateSession(itSession->sSessionId);
-        }
+        m_mSessions[itSession->sSessionId] = *itSession;
+        CServiceInstanceManager::Inst().CreateSession(itSession->sSessionId);
       }
 
+      CThread::Start();
+    }
+
+    virtual void Run(void*)
+    {
       while (!IsStopping())
       {
         // ensure at least 1 sec between cleanup cycle
