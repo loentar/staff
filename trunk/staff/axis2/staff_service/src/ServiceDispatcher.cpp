@@ -94,6 +94,11 @@ rise::LogEntry();
             rise::LogWarning() << "Can't load component: " << (sComponentDir + *itComponent) << ": " << rEx.GetString();
             continue;
           }
+          catch(...)
+          {
+            rise::LogWarning() << "Can't load component: " << (sComponentDir + *itComponent) << ": unknown error";
+            continue;
+          }
         }
       }
 
