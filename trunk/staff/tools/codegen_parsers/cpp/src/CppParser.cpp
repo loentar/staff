@@ -230,6 +230,7 @@ namespace staff
             {
               rStream.ignore();
               ReadBefore(rStream, sDescr, "\n\r");
+              rise::StrTrim(sDescr);
             }
           }
           rStream.ignore(INT_MAX, '\n');
