@@ -1,25 +1,17 @@
 include ../../Makefile.env
 
-#builddir = .
-#top_srcdir = /usr/
-#top_builddir = /usr/
-#include $(top_srcdir)build/special.mk
-
-ifeq ($(OS),UBUNTU)
-APXS = apxs2
-else
-ifeq ($(OS),MCBC)
-APXS = /www/bin/apxs
-else
-APXS = $(shell which apxs || which apxs2)
-endif
-endif
-
 TARGET = fileuploader
 TARGETNAME = .libs/mod_$(TARGET).so
 
 # == make ===========================================
+ifneq ($(APXS),)
 make: $(TARGETNAME) deploy
+else
+make:
+	@/bin/echo -e "\033[33;1m===============================================================================\033[0m"
+	@/bin/echo -e "\033[33;1mWARNING: Can't find apache apxs. Apache2 module \"$(TARGET)\" will not build\033[0m"
+	@/bin/echo -e "\033[33;1m===============================================================================\033[0m"
+endif
 
 $(TARGETNAME):
 	$(APXS) -c mod_$(TARGET).c
@@ -39,6 +31,7 @@ deploy: $(TARGETNAME)
 # == distrib =========================================
 distrib:;
 
+ifneq ($(APXS),)
 install:
 ifeq ($(OS),UBUNTU)
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf /etc/apache2/mods-available/
@@ -56,6 +49,7 @@ else
 	cat conf/$(TARGET).load conf/$(TARGET).conf > $(APACHECONFDIR)/$(TARGET).conf
 	test ! -z "$(APACHEMODDIR)"
 	cp -f $(TARGETNAME) $(APACHEMODDIR)
+endif
 endif
 endif
 
