@@ -67,56 +67,9 @@ http://localhost:9090/axis2/services/
  - Для компиляции из коммандной строки запустите файл rebuild.cmd из каталога staff.
  - Для компиляции из IDE Visual Studio 2005 запустите файл staff.sln из каталога staff. Откомпилируйте проектное решение (меню Build -> Build Solution)
 
-Убедитесь что postgres установлен и запущен.
-Запустите psql к posgres и введите следующие команды для установки БД.
-{{{
-\cd <полный путь к каталогу с исходными текстами>/staff/staff/core/security/
-\i db/instdb.sql
-}}}
-Обратите внимание, в команде \cd разделители каталогов должны быть как в unix.
+== 4. Запуск ==
 
-== 4. Конфигурация ==
-
-=== 4.1 Конфигурация axis2 ===
-
-Для добавления модулей staff в Axis2/С необходимо отредактировать конфигурационный файл:
-{{{
-%AXIS2C_HOME%\axis2.xml
-}}}
-
-следом за строкой:
-{{{
-<module ref="addressing"/>
-}}}
-
-добавьте:
-{{{
-<module ref="staff"/>
-<module ref="staff_security"/>
-}}}
-
-
-=== 4.2 Конфигурация соединения с БД ===
-
-Если необходимо изменить настройки соединения с БД отредактируйте файл:
-{{{
-%AXIS2C_HOME%\modules\staff_security\module.xml
-}}}
-
-Для изменения доступны следующие параметры:
-{{{
-<parameter name="pgHost" locked="false">localhost</parameter>
-<parameter name="pgPort" locked="false">5432</parameter>
-<parameter name="pgUser" locked="false">POSTGRES_USER</parameter>
-<parameter name="pgPassword" locked="false">POSTGRES_PASSWORD</parameter>
-}}}
-
-Где POSTGRES_USER - Ваш пользователь БД(по умолчанию: staffdbuser), и POSTGRES_PASSWORD - пароль пользователя(по умолчанию: staffdbuserpassword).
-
-
-== 5. Запуск ==
-
-=== 5.1 Запуск в обычном режиме ===
+=== 4.1 Запуск в обычном режиме ===
 
 Чтобы запустить сервер приложений Axis2/С в обычном режиме, введите команды:
 {{{
@@ -124,7 +77,7 @@ cd %AXIS2C_HOME%\bin
 axis2_http_server
 }}}
 
-=== 5.2 Запуск в отладочном режиме == 
+=== 4.2 Запуск в отладочном режиме == 
 
 Чтобы запустить сервер приложений Axis2/С в отладочном режиме, введите команды:
 {{{
@@ -135,27 +88,31 @@ axis2_http_server
 }}}
 
 
-== 6. Тестирование ==
+== 5. Тестирование ==
 
-=== 6.1 Основной тест ===
+=== 5.1 Основной тест ===
 
 В Веб-браузере откройте ссылку:
 
 http://localhost:9090/axis2/services
 
-Сервисы "StaffService" и "staff.Login" должны быть в списке.
-
-Примеры сервисов "calc.CalcService", "calc.SubService" должны быть в списке.
+Примеры сервисов "samples.calc.CalcService", "samples.calc.SubService" должны быть в списке.
 
 
-=== 6.2 Тест клиент-сервисного взаимодействия ===
-
-Запустите сервис Calculator:
-{{{
-calculator_service
-}}}
+=== 5.2 Тест клиент-сервисного взаимодействия ===
 
 Из другой консоли запустите клиент calc:
 {{{
 calc_client
 }}}
+
+
+На экран должно быть выведено:
+{{{
+INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[53]: main: Saved service mem: 0
+INFO main.cpp[58]: main: Setting mem: 46
+INFO main.cpp[60]: main: 46
+INFO main.cpp[61]: main: Service mem: 46
+}}}
+
