@@ -4,9 +4,9 @@ COMPONENT = samples.calc
 TARGET = $(COMPONENT)
 TARGETNAME = lib$(TARGET).so
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/ -D_REENTRANT
+LDFLAGS += -lpthread -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))

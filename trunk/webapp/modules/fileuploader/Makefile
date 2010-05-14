@@ -31,8 +31,8 @@ deploy: $(TARGETNAME)
 # == distrib =========================================
 distrib:;
 
-ifneq ($(APXS),)
 install:
+ifneq ($(APXS),)
 ifeq ($(OS),UBUNTU)
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf /etc/apache2/mods-available/
 	ln -sf ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf

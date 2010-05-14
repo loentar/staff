@@ -34,7 +34,7 @@ namespace rise
   {
   public:
     //!        destructor
-    virtual ~CException() throw() {}
+    virtual ~CException() throw();
   
     //!        creating an exception
     /*! \param  sFile - source file name
