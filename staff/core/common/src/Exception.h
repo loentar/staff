@@ -49,6 +49,8 @@ namespace staff
   //! basic exception for DOM exceptions
   class CDomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
   {
+  public:
+    virtual ~CDomException() throw();
   };
 
 
@@ -67,6 +69,8 @@ namespace staff
   //! basic exception for remote exceptions
   class CRemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
   {
+  public:
+    virtual ~CRemoteExceptionBase() throw();
   };
 
 

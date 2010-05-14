@@ -137,6 +137,8 @@ namespace rise
   //!        base class for file exceptions
   class RISE_EXPORT CFileException: public CExceptionTemplate<EXCFILE>
   {
+  public:
+    virtual ~CFileException() throw();
   };
 
   //!        base template class for file exceptions
@@ -150,6 +152,8 @@ namespace rise
   //!        base class for logic exceptions
   class RISE_EXPORT CLogicException: public CExceptionTemplate<EXCLOGIC>
   {
+  public:
+    virtual ~CLogicException() throw();
   };
 
   //!        base template class for logic exceptions
@@ -163,6 +167,8 @@ namespace rise
   //!        base class for internal exceptions
   class RISE_EXPORT CInternalException: public CExceptionTemplate<EXCINTERNAL>
   {
+  public:
+    virtual ~CInternalException() throw();
   };
 
   //!        base template class for internal exceptions
