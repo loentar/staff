@@ -590,7 +590,10 @@ namespace staff
           stParam.sName = bIsResponse ? sElementName : itElement->second.sName;
           stParam.stDataType.sName = StripNamespace(itElement->second.sType);
           stParam.stDataType.sNamespace = GetNamespace(itElement->second.sType);
-          stParam.stDataType.sNodeName = itElement->second.sName;
+          if (!bIsResponse)
+          {  // set node name only for request, soap-result for wsdl is always empty
+            stParam.stDataType.sNodeName = itElement->second.sName;
+          }
 
           rParts.push_back(stParam);
         }

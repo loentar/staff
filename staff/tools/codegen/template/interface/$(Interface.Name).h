@@ -12,6 +12,7 @@
 #var sEndingNs
 \
 #ifneq($(Interface.TargetNamespace),)
+
 // targetNamespace: $(Interface.TargetNamespace)
 #else
 \
@@ -102,15 +103,12 @@ $($sNewOpeningNs)
   //!< $(Param.Description)
 #ifeqend
 #end
+  };
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
-#else
-\
 #ifeqend   // namespace changed
-  };
 #end
-
 #ifeqend
 #foreach $(Interface.Classes)
 \
@@ -154,17 +152,17 @@ $($sNewOpeningNs)
 #else
 \
 #ifeqend
-#ifneq($(Member.SoapAction),)
+#ifneq($(Member.SoapAction),||$(Class.ServiceName)#$(Member.Name))
     // soapAction: $(Member.SoapAction)
 #else
 \
 #ifeqend
-#ifneq($(Member.NodeName),)
+#ifneq($(Member.NodeName),||$(Member.Name))
     // requestElement: $(Member.NodeName)
 #else
 \
 #ifeqend
-#ifneq($(Member.Return.ResponseName),)
+#ifneq($(Member.Return.ResponseName),||$(Member.Name)Result)
     // responseElement: $(Member.Return.ResponseName)
 #else
 \
