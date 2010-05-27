@@ -77,9 +77,10 @@ $(OUTDIR)%.wsdl: $(SRCDIR)%.h
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $<
-	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
-	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type d | xargs chmod 777 
-	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type f | xargs chmod go+rw
+#don't copy config for rpm
+#	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+#	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type d | xargs chmod 777 
+#	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type f | xargs chmod go+rw
 
 # == distrib =========================================
 distrib:;

@@ -6,7 +6,7 @@ Version: __version__
 Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: rise postgresql-libs postgresql-server
+Requires: rise postgresql-libs
 Provides: staff
 
 %description
@@ -40,19 +40,19 @@ cat /etc/ld.so.conf.d/*.conf | xargs ldconfig
 echo "îÁÓÔÒÏÊËÁ óõâä"
 /etc/init.d/postgresql status >/dev/null || /etc/init.d/postgresql start
 sleep 1 ## database system is starting up
-patch -f /var/lib/pgsql/data/pg_hba.conf << POSTGRES_PATCH_END
---- pg_hba.conf	Wed Apr  8 09:43:12 2009
-+++ pg_hba.conf	Wed Apr  8 09:43:16 2009
-@@ -58,2 +58,3 @@ local   all         postgres            
- local   all         all                                             pam
--host    all         all         127.0.0.1         255.255.255.255   pam
-+#host    all         all         127.0.0.1         255.255.255.255   pam
-+host    all         all         127.0.0.1         255.255.255.255   md5
-POSTGRES_PATCH_END
+#patch -f /var/lib/pgsql/data/pg_hba.conf << POSTGRES_PATCH_END
+#--- pg_hba.conf	Wed Apr  8 09:43:12 2009
+#+++ pg_hba.conf	Wed Apr  8 09:43:16 2009
+#@@ -58,2 +58,3 @@ local   all         postgres            
+# local   all         all                                             pam
+#-host    all         all         127.0.0.1         255.255.255.255   pam
+#+#host    all         all         127.0.0.1         255.255.255.255   pam
+#+host    all         all         127.0.0.1         255.255.255.255   md5
+#POSTGRES_PATCH_END
 #"mktmp: Permission denied" while sudo -u postgres patch
-chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
+#chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
 
-/etc/init.d/postgresql reload
+#/etc/init.d/postgresql reload
 
 ####################################
 echo -n "õÓÔÁÎÏ×ËÁ âä ðé..."
@@ -61,16 +61,16 @@ cd /usr/local/staff/ && psql -q -U postgres template1 < db/instdb.sql >/dev/null
 %postun
 
 ####################################
-patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_UNPATCH_END
---- pg_hba.conf	Wed Apr  8 09:43:16 2009
-+++ pg_hba.conf	Wed Apr  8 09:43:12 2009
-@@ -58,3 +58,2 @@ local   all         postgres            
- local   all         all                                             pam
--#host    all         all         127.0.0.1         255.255.255.255   pam
--host    all         all         127.0.0.1         255.255.255.255   md5
-+host    all         all         127.0.0.1         255.255.255.255   pam
-POSTGRES_UNPATCH_END
+#patch /var/lib/pgsql/data/pg_hba.conf << POSTGRES_UNPATCH_END
+#--- pg_hba.conf	Wed Apr  8 09:43:16 2009
+#+++ pg_hba.conf	Wed Apr  8 09:43:12 2009
+#@@ -58,3 +58,2 @@ local   all         postgres            
+# local   all         all                                             pam
+#-#host    all         all         127.0.0.1         255.255.255.255   pam
+#-host    all         all         127.0.0.1         255.255.255.255   md5
+#+host    all         all         127.0.0.1         255.255.255.255   pam
+#POSTGRES_UNPATCH_END
 #"mktmp: Permission denied" while sudo -u postgres patch
-chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
+#chown postgres:postgres /var/lib/pgsql/data/pg_hba.conf
 
-/etc/init.d/postgresql reload
+#/etc/init.d/postgresql reload
