@@ -6,7 +6,7 @@ Version: __version__
 Release: mcbc
 Copyright: 2009
 Group: Utilities/System
-Requires: staff rise-dev postgresql-devel
+Requires: staff rise-dev postgresql-dev
 Provides: staff-dev
 
 %description
