@@ -5,6 +5,9 @@ set componentdir=%deploydir%\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%
 
+xcopy /Y /S src\*.wsdl %componentdir%\
+xcopy /Y /S src\*.wsdl %STAFF_HOME%\components\%projectname%\
+
 if exist Debug (
   xcopy /Y /S debug\*.dll %componentdir%\
   xcopy /Y /S debug\*.dll %STAFF_HOME%\components\%projectname%\
