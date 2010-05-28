@@ -31,7 +31,7 @@
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="cd src&#x0D;&#x0A;staff_codegen -tclient -u CalcService.h -x&#x0D;&#x0A;"
+				CommandLine="cd src&#x0D;&#x0A;staff_codegen -tclient -u CalcService.h&#x0D;&#x0A;"
 				ExecutionBucket="2"
 			/>
 			<Tool
@@ -75,6 +75,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib staff_common.lib staff_client.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;$(STAFF_HOME)/lib&quot;"
 				GenerateDebugInformation="true"
@@ -139,6 +140,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(STAFF_HOME)/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -157,7 +159,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib staff_common.lib staff_client.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;$(STAFF_HOME)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"

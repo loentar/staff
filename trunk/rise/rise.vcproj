@@ -197,6 +197,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\rise\common\Exception.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\rise\common\ExceptionTemplate.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\rise\common\Log.cpp"
 					>
 				</File>

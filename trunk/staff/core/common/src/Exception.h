@@ -24,6 +24,7 @@
 
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/excodes.h>
+#include "staffcommonexport.h"
 
 namespace staff
 {
@@ -47,7 +48,7 @@ namespace staff
   };
 
   //! basic exception for DOM exceptions
-  class CDomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
+  class STAFF_COMMON_EXPORT CDomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
   {
   public:
     virtual ~CDomException() throw();
@@ -67,7 +68,7 @@ namespace staff
 
 
   //! basic exception for remote exceptions
-  class CRemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
+  class STAFF_COMMON_EXPORT CRemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
   {
   public:
     virtual ~CRemoteExceptionBase() throw();

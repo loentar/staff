@@ -1,20 +1,19 @@
-set projectname=staff_test_client2
+set projectname=calc_client
 
 set deploydir=%cd%\..\deploy\win_%PROCESSOR_ARCHITECTURE%
-set incdir=%deploydir%\include\staff
-set libdir=%deploydir%\lib
-set bindir=%deploydir%\bin
-set thisincdir=%incdir%\%projectname%
+set exdir=%deploydir%\bin
+if not EXIST %exdir% mkdir %exdir%
 
-if not EXIST %incdir% mkdir %incdir%
-if not EXIST %libdir% mkdir %libdir%
-if not EXIST %bindir% mkdir %bindir%
 
+set exdir2=%STAFF_HOME%\samples\bin
+if not EXIST %exdir2% mkdir %exdir2%
 
 if exist Debug (
-  xcopy /Y /S debug\*.exe %bindir%
+  xcopy /Y /S debug\*.exe %exdir%
+  xcopy /Y /S debug\*.exe %exdir2%
 ) else (
   if exist Release (
-    xcopy /Y /S Release\*.exe %bindir%
+    xcopy /Y /S Release\*.exe %exdir%
+    xcopy /Y /S Release\*.exe %exdir2%
   )
 )
