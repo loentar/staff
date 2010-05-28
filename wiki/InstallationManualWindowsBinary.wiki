@@ -1,0 +1,48 @@
+#summary Installation manual for binary package for windows
+#labels Featured,Phase-Deploy
+
+== 1. Set environment variables ==
+While starting axis2/c or any client/service application, these environment variables, must be set:
+{{{
+AXIS2C_HOME=c:\ws\axis2c
+STAFF_HOME=c:\ws\staff
+PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib
+}}}
+
+You can set these variables in system properties.
+After setting these variables, You must relogin or reboot windows.
+
+== 2. Install ==
+Unpack archive file {{{ws-win32-bin-axis2c-<AXIS2/C_VERSION>-staff-<STAFF_VERSION>.7z}}} to c:\
+
+It must be following directories:
+{{{
+c:\ws\axis2c
+c:\ws\staff
+}}}
+
+== 3. Start Axis2/c ==
+Open command prompt and enter:
+{{{
+cd %AXIS2C_HOME%\bin
+axis2_http_server
+}}}
+
+Axis2/C must starts. 
+
+If You get error "Cannot execute file" or similar, possibly You need to install vs2005 vcredist_x86.exe package (only for winxp and prior).
+
+== 4. Services list ==
+Open web browser and enter this address:
+
+http://localhost:9090/axis2/services
+
+Services list must shown.
+
+== 5. Start sample "calc" ==
+Open command prompt and enter:
+{{{
+%STAFF_HOME%\samples\bin\calc_client
+}}}
+
+Service execution results must shown.
