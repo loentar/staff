@@ -35,6 +35,12 @@ namespace staff
   {
     void CDbConn::Open()
     {
+      ++m_nCounter;
+      if (m_nCounter > 1)
+      {
+        return;
+      }
+
       RISE_ASSERTES(m_pDb == NULL, rise::CLogicAlreadyExistsException, "Staff database is already opened");
       sqlite3_enable_shared_cache(1);
 
@@ -63,6 +69,12 @@ namespace staff
 
     void CDbConn::Close()
     {
+      if (m_nCounter > 1)
+      {
+        --m_nCounter;
+        return;
+      }
+
       RISE_ASSERTES(m_pDb != NULL, rise::CLogicNoItemException, "Staff database is not opened");
 
       // free all prepared ops
@@ -76,6 +88,8 @@ namespace staff
       int nResult = sqlite3_close(m_pDb);
       RISE_ASSERTES(nResult == SQLITE_OK, rise::CFileCloseException, "Failed to close staff database");
       m_pDb = NULL;
+
+      --m_nCounter;
     }
 
     sqlite3* CDbConn::GetDb()
@@ -84,5 +98,6 @@ namespace staff
     }
 
     sqlite3* CDbConn::m_pDb = NULL;
+    int CDbConn::m_nCounter = 0;
   }
 }
