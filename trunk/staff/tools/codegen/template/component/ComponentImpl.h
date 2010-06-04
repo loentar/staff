@@ -8,7 +8,7 @@
 #include <string>
 #include <staff/component/Component.h>
 
-$(Project.Interfaces.Interface.Classes.Class.OpeningNs)
+$(Project.OpeningNs)
   //!  Component implementation
   class CComponentImpl: public staff::CComponent
   {
@@ -45,6 +45,6 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     staff::TServiceWrapperMap m_mServices;
     static const std::string m_sName;
   };
-$(Project.Interfaces.Interface.Classes.Class.EndingNs)
+$(Project.EndingNs)
 
 #endif // _COMPONENTIMPL_H_

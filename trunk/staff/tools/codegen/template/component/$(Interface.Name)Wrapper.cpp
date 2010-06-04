@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 #include <map>
+#ifneq($(Interface.Classes.$Count),0)
 #include <rise/common/MutablePtr.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
@@ -10,10 +11,18 @@
 #include <staff/common/IService.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.Name)Impl.h"
+#else // types only interface
+#include <staff/common/DataObject.h>
+#include <staff/common/Value.h>
+#ifeqend // #ifneq($(Interface.Classes.$Count),0) 
+#foreach $(Interface.Includes)
+#include "$(Include.Name)Wrapper.h"
+#end
 #include "$(Interface.Name)Wrapper.h"
 
 #cginclude <common/Serialization.cpp>
 
+#ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)
 
 $(Class.OpeningNs)
@@ -221,3 +230,4 @@ const std::string $(Class.Name)Wrapper::m_sDescr = \
 
 $(Class.EndingNs)
 #end
+#ifeqend // #ifneq($(Interface.Classes.$Count),0) 

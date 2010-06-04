@@ -5,10 +5,15 @@
 #ifndef _$(Interface.Name)Proxy_h_
 #define _$(Interface.Name)Proxy_h_
 
+#ifneq($(Interface.Classes.$Count),0)
 #include <staff/client/Axis2Client.h>
+#else
+\
+#ifeqend
 #include <staff/common/WsdlTypes.h>
-#include "$(Interface.FileName)"
+#include "$(Interface.Name).h"
 
+#ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
 //! Proxy for component service $(Class.ServiceNsName)
@@ -28,4 +33,35 @@ private:
 
 $(Class.EndingNs)
 #end
+#else // included types
+namespace staff
+{
+  class CDataObject;
+#foreach $(Interface.Structs)
+  CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct);
+  const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct);
+#end
+#foreach $(Interface.Typedefs)
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
+  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
+#else // DataType.IsTemplate
+#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
+  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
+#else
+\
+#ifeqend // ifneq($(Typedef.DataType.Type),struct
+#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
+  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
+#else // DataType.IsTemplate
+#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
+  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
+#else
+\
+#ifeqend // ifneq($(Typedef.DataType.Type),struct
+#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
+#end // foreach $(Interface.Typedefs)
+}
+
+#ifeqend
 #endif

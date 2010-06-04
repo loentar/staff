@@ -162,20 +162,37 @@ namespace staff
 
       for (CXMLNode::TXMLNodeConstIterator itNode = rNodeInterfaces.NodeBegin();
                 itNode != rNodeInterfaces.NodeEnd(); ++itNode)
+      {
         if(itNode->NodeType() == CXMLNode::ENTGENERIC)
         {
           const CXMLNode& rNodeInterface = *itNode;
 
-          for (std::list<std::string>::const_iterator it = m_tTemplateFileList.begin(); it != m_tTemplateFileList.end(); ++it)
+          for (std::list<std::string>::const_iterator itTemplateFile = m_tTemplateFileList.begin();
+              itTemplateFile != m_tTemplateFileList.end(); ++itTemplateFile)
           {
-            std::string sFile = *it;
-            ReplaceToValue(sFile, rNodeInterface);
-            ProcessFile(m_sInDir + '/' + *it, sOutDir + '/' + sFile, rNodeInterface, bUpdateOnly, bNeedUpdate);
+            std::string sFile = *itTemplateFile;
+            try
+            {
+              ReplaceToValue(sFile, rNodeInterface);
+            }
+            catch(rise::CLogicNoItemException& )
+            {
+              rise::LogDebug() << "Skipping template file " << sFile;
+              continue;
+            }
+
+            ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+                        rNodeInterface, bUpdateOnly, bNeedUpdate);
           }
         }
+      }
 
-        for (std::list<std::string>::const_iterator it = m_tConstFileList.begin(); it != m_tConstFileList.end(); ++it)
-          ProcessFile(m_sInDir + '/' + *it, sOutDir + '/' + *it, rRootNode, bUpdateOnly, bNeedUpdate);
+      for (std::list<std::string>::const_iterator itTemplateFile = m_tConstFileList.begin();
+          itTemplateFile != m_tConstFileList.end(); ++itTemplateFile)
+      {
+        ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + *itTemplateFile,
+                    rRootNode, bUpdateOnly, bNeedUpdate);
+      }
     }
 
     void ProcessIfeq(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine, bool bNotEq = false)

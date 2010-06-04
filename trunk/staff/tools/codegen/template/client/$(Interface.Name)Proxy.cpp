@@ -2,14 +2,23 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
+#ifneq($(Interface.Classes.$Count),0)
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Value.h>
 #include <staff/common/IService.h>
+#else // types only interface
+#include <staff/common/DataObject.h>
+#include <staff/common/Value.h>
+#ifeqend // #ifneq($(Interface.Classes.$Count),0)
+#foreach $(Interface.Includes)
+#include "$(Include.Name)Proxy.h"
+#end
 #include "$(Interface.Name)Proxy.h"
 
 #cginclude <common/Serialization.cpp>
 
+#ifneq($(Interface.Classes.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // classes implementation
 
@@ -78,7 +87,10 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #ifneq($(Member.SoapAction),)
   tOperation.SetSoapAction("$(Member.SoapAction)");
+#else
+\
 #ifeqend
+#ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
   staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
@@ -100,6 +112,9 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #end
 
+#else
+\
+#ifeqend
   m_tClient.Invoke(tOperation);
   RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
 
@@ -130,3 +145,4 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #end
 $(Class.EndingNs)
 #end
+#ifeqend // #ifneq($(Interface.Classes.$Count),0) 

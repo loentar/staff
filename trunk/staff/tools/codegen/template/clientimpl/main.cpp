@@ -18,6 +18,7 @@
 int main(int nArgs, const char* paszArgs[])
 {
 #foreach $(Project.Interfaces)
+#ifneq($(Interface.Classes.$Count),0)
   try
   {
 #foreach $(Interface.Classes)
@@ -54,7 +55,10 @@ $(Param.Name)\
     rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL
-  
+
+#else
+\
+#ifeqend
 #end
   return 0;
 }

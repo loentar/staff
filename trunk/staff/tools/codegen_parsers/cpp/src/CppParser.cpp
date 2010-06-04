@@ -36,691 +36,990 @@ RISE_DECLARE_PLUGIN(staff::CCppParser);
 
 namespace staff
 {
-
-  std::string g_sCurrentNamespace = "::";
-
-  std::istream& operator>>(std::istream& rStream, SDataType& rDataType);
-  std::istream& operator>>(std::istream& rStream, SParam& rParameter);
-  std::istream& operator>>(std::istream& rStream, SMember& rMember);
-  std::istream& operator>>(std::istream& rStream, SClass& rClass);
-  std::istream& operator>>(std::istream& rStream, SStruct& rStruct);
-  std::istream& operator>>(std::istream& rStream, STypedef& rTypedef);
-  std::istream& operator>>(std::istream& rStream, SInterface& rInterface);
-
-  std::ostream& operator<<(std::ostream& rStream, const SDataType::EDataType eDataType);
-
-  int& GetLine();
-
-  SInterface& Interface(SInterface* pInterface = NULL)
+  class CCppHeaderParser
   {
-    static SInterface* pCurrentInterface = NULL;
-    if (pInterface != NULL)
+  public:
+    CCppHeaderParser():
+      m_sCurrentNamespace("::"), m_nLine(1), m_pProject(NULL)
     {
-      pCurrentInterface = pInterface;
-      GetLine() = 1;
     }
 
-    RISE_ASSERTS(pCurrentInterface != NULL, "(pCurrentInterface == NULL)");
-
-    return *pCurrentInterface;
-  }
-
-  template<typename TType>
-  std::ostream& operator<<(std::ostream& rStream, const std::list<TType>& rList)
-  {
-    for(typename std::list<TType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+/*    template<typename TType>
+    std::ostream& operator<<(std::ostream& m_tStream, const std::list<TType>& rList)
     {
-      rStream << *it;
-    }
-
-    return rStream;
-  }
-
-  std::istream& SkipWs(std::istream& rStream)
-  {
-    char chData = 0;
-    while (rStream.good() && !rStream.eof())
-    {
-      chData = rStream.peek();
-      if (chData == '\n')
+      for(typename std::list<TType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
       {
-        ++GetLine();
+        m_tStream << *it;
       }
 
-      if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
+      return m_tStream;
+    }*/
+
+    void SkipWs()
+    {
+      char chData = 0;
+      while (m_tFile.good() && !m_tFile.eof())
       {
-        if (chData == '/') // comment
+        chData = m_tFile.peek();
+        if (chData == '\n')
         {
-          rStream.ignore();
-          if (rStream.peek() == '/') // single line comment
+          ++m_nLine;
+        }
+
+        if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
+        {
+          if (chData == '/') // comment
           {
-            rStream.ignore(INT_MAX, '\n');
-            continue;
-          } else
-          if (rStream.peek() == '*') // multiline comment
-          {
-            while (rStream.good() && !rStream.eof())
+            m_tFile.ignore();
+            if (m_tFile.peek() == '/') // single line comment
             {
-              rStream.ignore(INT_MAX, '*');
-              rStream.get(chData);
-              if(chData == '/')
-                break;
+              m_tFile.ignore(INT_MAX, '\n');
+              continue;
+            } else
+            if (m_tFile.peek() == '*') // multiline comment
+            {
+              while (m_tFile.good() && !m_tFile.eof())
+              {
+                m_tFile.ignore(INT_MAX, '*');
+                m_tFile.get(chData);
+                if(chData == '/')
+                  break;
+              }
+            } else
+            {
+              m_tFile.unget();
+              break;
             }
           } else
-          {
-            rStream.unget();
             break;
-          }
-        } else
+        }
+        m_tFile.ignore();
+      }
+    }
+
+    void SkipWsOnly()
+    {
+      char chData = 0;
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        chData = m_tFile.peek();
+        if (chData == '\n')
+        {
+          ++m_nLine;
+        }
+
+        if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
+        {
           break;
-      }
-      rStream.ignore();
-    }
-
-    return rStream;
-  }
-
-  std::istream& SkipWsOnly(std::istream& rStream)
-  {
-    char chData = 0;
-    while (rStream.good() && !rStream.eof())
-    {
-      chData = rStream.peek();
-      if (chData == '\n')
-      {
-        ++GetLine();
-      }
-
-      if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
-      {
-        break;
-      }
-      rStream.ignore();
-    }
-
-    return rStream;
-  }
-
-  std::istream& SkipSingleLineComment(std::istream& rStream)
-  {
-    char chData = '\0';
-    while (rStream.good() && !rStream.eof())
-    {
-      chData = rStream.peek();
-      if(chData != ' ' && chData != '\t')
-      {
-        break;
-      }
-      rStream.ignore();
-    }
-
-    if (rStream.good() && !rStream.eof())
-    {
-      if (rStream.peek() == '/') // comment
-      {
-        rStream.ignore();
-        if (rStream.peek() == '/') // single line comment
-        {
-          rStream.ignore(INT_MAX, '\n');
-        } else
-        {
-          rStream.unget();
         }
+        m_tFile.ignore();
       }
     }
 
-    return rStream;
-  }
-
-  void ReadStr(std::istream& rStream, std::string& sString, bool bSkipWS = true)
-  {
-    if (bSkipWS)
-    {
-      rStream >> SkipWs;
-    }
-    rStream >> sString;
-  }
-
-  std::istream& ReadBefore(std::istream& rStream, std::string& sOut, const std::string& sDelim = " \r\n\t,();[]{}<>\\/*-+!@#$%^&*=")
-  {
-    char chData = 0;
-
-    sOut.erase();
-
-    while (rStream.good() && !rStream.eof())
-    {
-      chData = rStream.peek();
-      if(sDelim.find(chData) != std::string::npos)
-      {
-        break;
-      }
-
-      sOut += chData;
-      rStream.ignore();
-    }
-
-    return rStream;
-  }
-
-  void ReadDescrComment(std::istream& rStream, std::string& sDescr)
-  {
-    char chData = '\0';
-    while (rStream.good() && !rStream.eof())
-    {
-      chData = rStream.peek();
-      if(chData != ' ' && chData != '\t')
-      {
-        break;
-      }
-      rStream.ignore();
-    }
-
-    if (rStream.good() && !rStream.eof())
-    {
-      if (rStream.peek() == '/') // comment
-      {
-        rStream.ignore();
-        if (rStream.peek() == '/') // single line comment
-        {
-          rStream.ignore();
-          if (rStream.peek() == '!')
-          {
-            rStream.ignore();
-            if (rStream.peek() == '<') // description
-            {
-              rStream.ignore();
-              ReadBefore(rStream, sDescr, "\n\r");
-              rise::StrTrim(sDescr);
-            }
-          }
-          rStream.ignore(INT_MAX, '\n');
-        } else
-        {
-          rStream.unget();
-        }
-      }
-    }
-  }
-
-  bool ReadComment(std::istream& rStream, std::string& sComment)
-  {
-    if (rStream.peek() != '/')
-    {
-      return false;
-    }
-
-    sComment.erase();
-
-    rStream.ignore();
-    if (rStream.peek() == '/')
-    {
-      rStream.ignore();
-      ReadBefore(rStream, sComment, "\n\r");
-    }
-    else
-    if (rStream.peek() == '*')
+    void SkipSingleLineComment()
     {
       char chData = '\0';
-      std::string sTmp;
-
-      rStream.ignore();
-      while (rStream.good() && !rStream.eof())
+      while (m_tFile.good() && !m_tFile.eof())
       {
-        ReadBefore(rStream, sTmp, "*");
-
-        sComment += sTmp;
-        rStream.get(chData);
-        if(chData == '*')
+        chData = m_tFile.peek();
+        if(chData != ' ' && chData != '\t')
         {
-          if (rStream.peek() == '/')
+          break;
+        }
+        m_tFile.ignore();
+      }
+
+      if (m_tFile.good() && !m_tFile.eof())
+      {
+        if (m_tFile.peek() == '/') // comment
+        {
+          m_tFile.ignore();
+          if (m_tFile.peek() == '/') // single line comment
           {
-            rStream.ignore();
-            break;
+            m_tFile.ignore(INT_MAX, '\n');
+          } else
+          {
+            m_tFile.unget();
           }
-          sComment += chData;
         }
       }
     }
-    else
+
+    void ReadStr(std::string& sString, bool bSkipWS = true)
     {
-      rStream.unget();
+      if (bSkipWS)
+      {
+        SkipWs();
+      }
+      m_tFile >> sString;
     }
 
-    return sComment.size() != 0;
-  }
-
-  template<typename TStructType>
-  bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
-  {
-    for (typename std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+    void ReadBefore(std::string& sOut, const std::string& sDelim = " \r\n\t,();[]{}<>\\/*-+!@#$%^&*=")
     {
-      if (it->sName == rDataType.sName)
+      char chData = 0;
+
+      sOut.erase();
+
+      while (m_tFile.good() && !m_tFile.eof())
       {
-        // namespace match
-        if (it->sNamespace == rDataType.sNamespace)
+        chData = m_tFile.peek();
+        if(sDelim.find(chData) != std::string::npos)
         {
-          return true;
+          break;
         }
 
-        std::string::size_type nPos = g_sCurrentNamespace.find_last_of("::");
+        sOut += chData;
+        m_tFile.ignore();
+      }
+    }
 
-        while (nPos != std::string::npos)
+    void ReadDescrComment(std::string& sDescr)
+    {
+      char chData = '\0';
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        chData = m_tFile.peek();
+        if(chData != ' ' && chData != '\t')
         {
-          ++nPos;
-          if((g_sCurrentNamespace.substr(0, nPos) + rDataType.sNamespace) == it->sNamespace)
-          {
-            if (it->sNamespace != rDataType.sNamespace) // correct namespace
-            {
-              rDataType.sNamespace = it->sNamespace;
-            }
+          break;
+        }
+        m_tFile.ignore();
+      }
 
+      if (m_tFile.good() && !m_tFile.eof())
+      {
+        if (m_tFile.peek() == '/') // comment
+        {
+          m_tFile.ignore();
+          if (m_tFile.peek() == '/') // single line comment
+          {
+            m_tFile.ignore();
+            if (m_tFile.peek() == '!')
+            {
+              m_tFile.ignore();
+              if (m_tFile.peek() == '<') // description
+              {
+                m_tFile.ignore();
+                ReadBefore(sDescr, "\n\r");
+                rise::StrTrim(sDescr);
+              }
+            }
+            m_tFile.ignore(INT_MAX, '\n');
+          } else
+          {
+            m_tFile.unget();
+          }
+        }
+      }
+    }
+
+    bool ReadComment(std::string& sComment)
+    {
+      if (m_tFile.peek() != '/')
+      {
+        return false;
+      }
+
+      sComment.erase();
+
+      m_tFile.ignore();
+      if (m_tFile.peek() == '/')
+      {
+        m_tFile.ignore();
+        ReadBefore(sComment, "\n\r");
+      }
+      else
+      if (m_tFile.peek() == '*')
+      {
+        char chData = '\0';
+        std::string sTmp;
+
+        m_tFile.ignore();
+        while (m_tFile.good() && !m_tFile.eof())
+        {
+          ReadBefore(sTmp, "*");
+
+          sComment += sTmp;
+          m_tFile.get(chData);
+          if(chData == '*')
+          {
+            if (m_tFile.peek() == '/')
+            {
+              m_tFile.ignore();
+              break;
+            }
+            sComment += chData;
+          }
+        }
+      }
+      else
+      {
+        m_tFile.unget();
+      }
+
+      return sComment.size() != 0;
+    }
+
+    template<typename TStructType>
+    bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
+    {
+      for (typename std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+      {
+        if (it->sName == rDataType.sName)
+        {
+          // namespace match
+          if (it->sNamespace == rDataType.sNamespace)
+          {
             return true;
           }
 
-          if (nPos < 4)
+          std::string::size_type nPos = m_sCurrentNamespace.find_last_of("::");
+
+          while (nPos != std::string::npos)
           {
+            ++nPos;
+            if((m_sCurrentNamespace.substr(0, nPos) + rDataType.sNamespace) == it->sNamespace)
+            {
+              if (it->sNamespace != rDataType.sNamespace) // correct namespace
+              {
+                rDataType.sNamespace = it->sNamespace;
+              }
+
+              return true;
+            }
+
+            if (nPos < 4)
+            {
+              break;
+            }
+
+            nPos = m_sCurrentNamespace.find_last_of("::", nPos - 3);
+          }
+        }
+      }
+
+      return false;
+    }
+
+    void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
+    {
+      rDataType.sUsedName = sDataTypeName;
+      std::string::size_type nPos = sDataTypeName.find_last_of("::");
+      if (nPos != std::string::npos)
+      {
+        ++nPos;
+        rDataType.sName = sDataTypeName.substr(nPos);
+        rDataType.sNamespace = sDataTypeName.substr(0, nPos);
+      }
+      else
+      {
+        rDataType.sName = sDataTypeName;
+        rDataType.sNamespace = ""; //"::";
+      }
+
+      if (sDataTypeName == "staff::CDataObject" ||
+          (sDataTypeName == "CDataObject" && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
+      {
+        rDataType.eType = SDataType::EDataObject;
+      }
+      else
+      if (
+          sDataTypeName == "bool" ||
+          sDataTypeName == "char" ||
+          sDataTypeName == "int" ||
+          sDataTypeName == "short" ||
+          sDataTypeName == "long" ||
+          sDataTypeName == "float" ||
+          sDataTypeName == "double" ||
+          sDataTypeName == "void" ||
+
+          sDataTypeName == "rise::byte" ||
+          sDataTypeName == "rise::word" ||
+          sDataTypeName == "rise::ushort" ||
+          sDataTypeName == "rise::dword" ||
+          sDataTypeName == "rise::ulong" ||
+          sDataTypeName == "rise::uint" ||
+          sDataTypeName == "rise::TSize" ||
+
+          sDataTypeName == "staff::CValue" ||
+
+          // XML types
+          sDataTypeName == "staff::boolean" ||
+          sDataTypeName == "staff::float" ||
+          sDataTypeName == "staff::double" ||
+          sDataTypeName == "staff::decimal" ||
+
+          sDataTypeName == "staff::integer" ||
+          sDataTypeName == "staff::nonPositiveInteger" ||
+          sDataTypeName == "staff::negativeInteger" ||
+          sDataTypeName == "staff::long" ||
+          sDataTypeName == "staff::int" ||
+          sDataTypeName == "staff::short" ||
+          sDataTypeName == "staff::byte" ||
+          sDataTypeName == "staff::nonNegativeInteger" ||
+          sDataTypeName == "staff::unsignedLong" ||
+          sDataTypeName == "staff::unsignedInt" ||
+          sDataTypeName == "staff::unsignedShort" ||
+          sDataTypeName == "staff::unsignedByte" ||
+          sDataTypeName == "staff::positiveInteger"
+        )
+      {
+        rDataType.eType = SDataType::EGeneric;
+      }
+      else
+      if (
+        sDataTypeName == "std::string" ||
+        sDataTypeName == "std::wstring" ||
+
+        sDataTypeName == "rise::CString" ||
+        sDataTypeName == "rise::CStringA" ||
+        sDataTypeName == "rise::CStringW" ||
+
+        sDataTypeName == "staff::string" ||
+
+        sDataTypeName == "staff::duration" ||
+        sDataTypeName == "staff::dateTime" ||
+        sDataTypeName == "staff::time" ||
+        sDataTypeName == "staff::date" ||
+        sDataTypeName == "staff::gYearMonth" ||
+        sDataTypeName == "staff::gYear" ||
+        sDataTypeName == "staff::gMonthDay" ||
+        sDataTypeName == "staff::gDay" ||
+        sDataTypeName == "staff::gMonth" ||
+        sDataTypeName == "staff::hexBinary" ||
+        sDataTypeName == "staff::base64Binary" ||
+        sDataTypeName == "staff::anyURI" ||
+        sDataTypeName == "staff::QName" ||
+        sDataTypeName == "staff::NOTATION" ||
+        sDataTypeName == "staff::normalizedString" ||
+        sDataTypeName == "staff::token" ||
+        sDataTypeName == "staff::language" ||
+        sDataTypeName == "staff::IDREFS" ||
+        sDataTypeName == "staff::ENTITIES" ||
+        sDataTypeName == "staff::NMTOKEN" ||
+        sDataTypeName == "staff::NMTOKENS" ||
+        sDataTypeName == "staff::Name" ||
+        sDataTypeName == "staff::NCName" ||
+        sDataTypeName == "staff::ID" ||
+        sDataTypeName == "staff::IDREF" ||
+        sDataTypeName == "staff::ENTITY" ||
+        sDataTypeName == "staff::anySimpleType"
+      )
+      {
+        rDataType.eType = SDataType::EString;
+      }
+      else
+      if(ParseCompositeDataType(m_stInterface.lsStruct, rDataType))
+      {
+        rDataType.eType = SDataType::EStruct;
+      }
+      else
+      if(ParseCompositeDataType(m_stInterface.lsTypedef, rDataType))
+      {
+        rDataType.eType = SDataType::ETypedef;
+      }
+      else
+      {
+        rDataType.eType = SDataType::EUnknown;
+      }
+    }
+
+    void IgnoreFunction()
+    {
+      char chTmp = '\0';
+      int nRecursion = 0;
+
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        m_tFile >> chTmp;
+
+        if (chTmp == ';' && nRecursion == 0)
+        {
+          SkipSingleLineComment();
+          break;
+        }
+        else
+        if (chTmp == '}')
+        {
+          --nRecursion;
+          if (nRecursion < 0)
+          {
+            CSP_THROW("mismatch {}", m_stInterface.sFileName, m_nLine);
+          }
+
+          if (nRecursion == 0)
+          {
+            while (m_tFile.peek() == ';')
+            {
+              m_tFile.ignore();
+            }
+            break;
+          }
+        }
+        else
+        if (chTmp == '{')
+        {
+          ++nRecursion;
+        }
+      }
+    }
+
+
+    // datatype
+    void ParseDataType( SDataType& rDataType )
+    {
+      char chTmp = '\0';
+      std::string sTmp;
+
+      rDataType.bIsConst = false;
+      rDataType.bIsRef = false;
+      rDataType.eType = SDataType::EUnknown;
+
+      while (m_tFile.good())
+      {
+        SkipWs();
+        ReadBefore(sTmp);
+        if(m_tFile.eof())
+        {
+          CSP_THROW("unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
+        }
+
+        if (sTmp == "static")
+        {
+          rise::LogWarning() << "members must be non-static: Line:" << m_nLine;
+        }
+
+        chTmp = m_tFile.peek();
+        if (chTmp == '<')
+        {
+          m_tFile.ignore();
+          rDataType.sName = sTmp;
+          rDataType.sNamespace = "";
+          rDataType.eType = SDataType::ETemplate;
+          while(m_tFile.good())
+          {
+            SDataType stTemplParam;
+            ParseDataType(stTemplParam);
+            SkipWs();
+            chTmp = m_tFile.peek();
+            rDataType.lsParams.push_back(stTemplParam);
+            if (chTmp == '>')
+            {
+              m_tFile.ignore();
+
+              SkipWs();
+              chTmp = m_tFile.peek();
+              if(chTmp == '&')
+              {
+                rDataType.bIsRef = true;
+                m_tFile.ignore();
+              }
+
+              return;
+            } else
+            if (chTmp == ',')
+            {
+              m_tFile.ignore();
+            }
+            else
+            {
+              CSP_THROW(" \",\" or \">\" expected while parsing template ", m_stInterface.sFileName, m_nLine);
+            }
+          }
+          break;
+        } else
+        if(chTmp == '&')
+        {
+          rDataType.bIsRef = true;
+          m_tFile.ignore();
+        }
+        else
+        if (sTmp == "")
+        {
+          return;
+        }
+
+        if(sTmp == "const")
+        {
+          rDataType.bIsConst = true;
+        }
+        else // name of type
+        {
+          if (sTmp == "unsigned")
+          {
+            ReadStr(sTmp);
+            if(m_tFile.eof())
+              CSP_THROW("unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
+
+            ParseDataType(sTmp, rDataType);
+            rDataType.sName = "unsigned " + sTmp;
+          } else
+          {
+            ParseDataType(sTmp, rDataType);
+          }
+          break;
+        }
+      }
+
+      if (rDataType.bIsRef && !rDataType.bIsConst)
+      {
+        rise::LogWarning() << "Non-const reference to " << rDataType.sName << " at line " << m_nLine << " \n(return value cannot be passed over argument)";
+      }
+    }
+
+    // parameter
+    void ParseParam( SParam& rParameter )
+    {
+      ParseDataType(rParameter.stDataType);
+      SkipWs();
+      ReadBefore(rParameter.sName);
+      rParameter.stDataType.sNodeName = rParameter.sName;
+    }
+
+    // member
+    void ParseMember( SMember& rMember )
+    {
+      SParam stParam;
+      char chData;
+      std::string sTmp;
+      std::stringbuf tStreamBuff;
+
+      rMember.bIsConst = false;
+
+      ParseDataType(rMember.stReturn.stDataType);
+
+      if (rMember.stReturn.stDataType.bIsRef)
+        CSP_THROW("return value cannot be reference", m_stInterface.sFileName, m_nLine);
+
+      SkipWs();
+
+      m_tFile.get(tStreamBuff, '('); // parameters begin
+
+      rMember.sName = tStreamBuff.str();
+
+      SkipWs();
+      m_tFile >> chData;
+      if (chData != '(')
+        CSP_THROW("'(' expected after function name", m_stInterface.sFileName, m_nLine);
+
+      SkipWs(); // arguments?
+      chData = m_tFile.peek();
+      if (chData == ')')
+        m_tFile.ignore();
+      else
+        while (m_tFile.good())
+        {
+          if(m_tFile.eof())
+            CSP_THROW("unexpected EOF(after member name)", m_stInterface.sFileName, m_nLine);
+
+          ParseParam(stParam); // reading param
+
+          SkipWs();
+          m_tFile >> chData; // more arguments?
+          rMember.lsParamList.push_back(stParam);
+
+          if (chData == ')')
+          {
+            m_tFile.ignore();
             break;
           }
 
-          nPos = g_sCurrentNamespace.find_last_of("::", nPos - 3);
-        }
-      }
-    }
-
-    return false;
-  }
-
-  void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
-  {
-    rDataType.sUsedName = sDataTypeName;
-    std::string::size_type nPos = sDataTypeName.find_last_of("::");
-    if (nPos != std::string::npos)
-    {
-      ++nPos;
-      rDataType.sName = sDataTypeName.substr(nPos);
-      rDataType.sNamespace = sDataTypeName.substr(0, nPos);
-    }
-    else
-    {
-      rDataType.sName = sDataTypeName;
-      rDataType.sNamespace = ""; //"::";
-    }
-
-    if (sDataTypeName == "staff::CDataObject" ||
-        (sDataTypeName == "CDataObject" && g_sCurrentNamespace.substr(0, 9) == "::staff::"))
-    {
-      rDataType.eType = SDataType::EDataObject;
-    }
-    else
-    if (
-        sDataTypeName == "bool" ||
-        sDataTypeName == "char" ||
-        sDataTypeName == "int" ||
-        sDataTypeName == "short" ||
-        sDataTypeName == "long" ||
-        sDataTypeName == "float" ||
-        sDataTypeName == "double" ||
-        sDataTypeName == "void" ||
-
-        sDataTypeName == "rise::byte" ||
-        sDataTypeName == "rise::word" ||
-        sDataTypeName == "rise::ushort" ||
-        sDataTypeName == "rise::dword" ||
-        sDataTypeName == "rise::ulong" ||
-        sDataTypeName == "rise::uint" ||
-        sDataTypeName == "rise::TSize" ||
-
-        sDataTypeName == "staff::CValue" ||
-
-        // XML types
-        sDataTypeName == "staff::boolean" ||
-        sDataTypeName == "staff::float" ||
-        sDataTypeName == "staff::double" ||
-        sDataTypeName == "staff::decimal" ||
-
-        sDataTypeName == "staff::integer" ||
-        sDataTypeName == "staff::nonPositiveInteger" ||
-        sDataTypeName == "staff::negativeInteger" ||
-        sDataTypeName == "staff::long" ||
-        sDataTypeName == "staff::int" ||
-        sDataTypeName == "staff::short" ||
-        sDataTypeName == "staff::byte" ||
-        sDataTypeName == "staff::nonNegativeInteger" ||
-        sDataTypeName == "staff::unsignedLong" ||
-        sDataTypeName == "staff::unsignedInt" ||
-        sDataTypeName == "staff::unsignedShort" ||
-        sDataTypeName == "staff::unsignedByte" ||
-        sDataTypeName == "staff::positiveInteger"
-      )
-    {
-      rDataType.eType = SDataType::EGeneric;
-    }
-    else
-    if (
-      sDataTypeName == "std::string" ||
-      sDataTypeName == "std::wstring" ||
-
-      sDataTypeName == "rise::CString" ||
-      sDataTypeName == "rise::CStringA" ||
-      sDataTypeName == "rise::CStringW" ||
-
-      sDataTypeName == "staff::string" ||
-
-      sDataTypeName == "staff::duration" ||
-      sDataTypeName == "staff::dateTime" ||
-      sDataTypeName == "staff::time" ||
-      sDataTypeName == "staff::date" ||
-      sDataTypeName == "staff::gYearMonth" ||
-      sDataTypeName == "staff::gYear" ||
-      sDataTypeName == "staff::gMonthDay" ||
-      sDataTypeName == "staff::gDay" ||
-      sDataTypeName == "staff::gMonth" ||
-      sDataTypeName == "staff::hexBinary" ||
-      sDataTypeName == "staff::base64Binary" ||
-      sDataTypeName == "staff::anyURI" ||
-      sDataTypeName == "staff::QName" ||
-      sDataTypeName == "staff::NOTATION" ||
-      sDataTypeName == "staff::normalizedString" ||
-      sDataTypeName == "staff::token" ||
-      sDataTypeName == "staff::language" ||
-      sDataTypeName == "staff::IDREFS" ||
-      sDataTypeName == "staff::ENTITIES" ||
-      sDataTypeName == "staff::NMTOKEN" ||
-      sDataTypeName == "staff::NMTOKENS" ||
-      sDataTypeName == "staff::Name" ||
-      sDataTypeName == "staff::NCName" ||
-      sDataTypeName == "staff::ID" ||
-      sDataTypeName == "staff::IDREF" ||
-      sDataTypeName == "staff::ENTITY" ||
-      sDataTypeName == "staff::anySimpleType"
-    )
-    {
-      rDataType.eType = SDataType::EString;
-    }
-    else
-    if(ParseCompositeDataType(Interface().lsStruct, rDataType))
-    {
-      rDataType.eType = SDataType::EStruct;
-    }
-    else
-    if(ParseCompositeDataType(Interface().lsTypedef, rDataType))
-    {
-      rDataType.eType = SDataType::ETypedef;
-    }
-    else
-    {
-      rDataType.eType = SDataType::EUnknown;
-    }
-  }
-
-  void IgnoreFunction(std::istream& rStream)
-  {
-    char chTmp = '\0';
-    int nRecursion = 0;
-
-    while (rStream.good() && !rStream.eof())
-    {
-      rStream >> chTmp;
-
-      if (chTmp == ';' && nRecursion == 0)
-      {
-        rStream >> SkipSingleLineComment;
-        break;
-      }
-      else
-      if (chTmp == '}')
-      {
-        --nRecursion;
-        if (nRecursion < 0)
-        {
-          CSP_THROW("mismatch {}", Interface().sFileName, GetLine());
+          if (chData != ',')
+            CSP_THROW("error parsing param", m_stInterface.sFileName, m_nLine);
         }
 
-        if (nRecursion == 0)
+      SkipWs();
+      m_tFile >> chData;
+      if (chData == 'c')
+      {
+        ReadStr(sTmp, false);
+        if (sTmp == "onst") // const
+          rMember.bIsConst = true;
+
+        SkipWs();
+        m_tFile >> chData;
+      }
+      if (chData != '=')
+        CSP_THROW("members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+
+      SkipWs();
+      m_tFile >> chData;
+      if (chData != '0')
+        CSP_THROW("members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+
+      SkipWs();
+      m_tFile >> chData;
+      if (chData != ';')
+        CSP_THROW("';' expected", m_stInterface.sFileName, m_nLine);
+
+      SkipSingleLineComment();
+    }
+
+    // class
+    void ParseClass( SClass& rClass )
+    {
+      char chTmp = '\0';
+      std::string sTmp;
+      std::string sSoapAction;
+      std::string sDescr;
+      std::string sDetail;
+      std::string sRequestElement;
+      std::string sResponseElement;
+      std::string sResultElement;
+
+      SkipWs();
+      rClass.sNamespace = m_sCurrentNamespace;
+
+      ReadStr(sTmp);
+      if(m_tFile.eof())
+      {
+        CSP_THROW("unexpected EOF(after classname and '{')", m_stInterface.sFileName, m_nLine);
+      }
+
+      if (sTmp != "{")
+      {
+        CSP_THROW("'{' after classname expected ", m_stInterface.sFileName, m_nLine);
+      }
+
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        sSoapAction.erase();
+        sDescr.erase();
+        sDetail.erase();
+        sRequestElement.erase();
+        sResponseElement.erase();
+        sResultElement.erase();
+
+        SkipWsOnly();
+        while (ReadComment(sTmp))
         {
-          while (rStream.peek() == ';')
+          rise::StrTrim(sTmp);
+          if (sTmp.size() != 0)
           {
-            rStream.ignore();
-          }
-          break;
-        }
-      }
-      else
-      if (chTmp == '{')
-      {
-        ++nRecursion;
-      }
-    }
-  }
-
-
-  // datatype
-  std::istream& operator>>( std::istream& rStream, SDataType& rDataType )
-  {
-    char chTmp = '\0';
-    std::string sTmp;
-
-    rDataType.bIsConst = false;
-    rDataType.bIsRef = false;
-    rDataType.eType = SDataType::EUnknown;
-
-    while (rStream.good())
-    {
-      rStream >> SkipWs;
-      ReadBefore(rStream, sTmp);
-      if(rStream.eof())
-      {
-        CSP_THROW("unexpected EOF(after type parsing)", Interface().sFileName, GetLine());
-      }
-
-      if (sTmp == "static")
-      {
-        rise::LogWarning() << "members must be non-static: Line:" << GetLine();
-      }
-
-      chTmp = rStream.peek();
-      if (chTmp == '<')
-      {
-        rStream.ignore();
-        rDataType.sName = sTmp;
-        rDataType.sNamespace = "";
-        rDataType.eType = SDataType::ETemplate;
-        while(rStream.good())
-        {
-          SDataType stTemplParam;
-          rStream >> stTemplParam >> SkipWs;
-          chTmp = rStream.peek();
-          rDataType.lsParams.push_back(stTemplParam);
-          if (chTmp == '>')
-          {
-            rStream.ignore();
-
-            rStream >> SkipWs;
-            chTmp = rStream.peek();
-            if(chTmp == '&')
+            if (sTmp.substr(0, 11) == "soapAction:")
             {
-              rDataType.bIsRef = true;
-              rStream.ignore();
+              sSoapAction = sTmp.substr(12);
+              rise::StrTrimLeft(sSoapAction);
             }
-
-            return rStream;
-          } else
-          if (chTmp == ',')
-            rStream.ignore();
-          else
-            CSP_THROW(" \",\" or \">\" expected while parsing template ", Interface().sFileName, GetLine());
+            else
+            if (sTmp[0] == '!')
+            {
+              std::string sDescrTmp = sTmp.substr(1);
+              rise::StrTrimLeft(sDescrTmp);
+              if (sDescr.size() != 0)
+              {
+                if (sDetail.size() != 0)
+                {
+                  sDetail += '\n';
+                }
+                sDetail += sDescrTmp;
+              }
+              else
+              {
+                sDescr = sDescrTmp;
+              }
+            }
+            else
+            if (sTmp.substr(0, 12) == "description:")
+            {
+              std::string sDescrTmp = sTmp.substr(13);
+              rise::StrTrimLeft(sDescrTmp);
+              if (sDescr.size() != 0)
+              {
+                if (sDetail.size() != 0)
+                {
+                  sDetail += '\n';
+                }
+                sDetail += sDescrTmp;
+              }
+              else
+              {
+                sDescr = sDescrTmp;
+              }
+            }
+            else
+            if (sTmp.substr(0, 15) == "requestElement:")
+            {
+              sRequestElement= sTmp.substr(15);
+              rise::StrTrimLeft(sRequestElement);
+            }
+            else
+            if (sTmp.substr(0, 16) == "responseElement:")
+            {
+              sResponseElement = sTmp.substr(16);
+              rise::StrTrimLeft(sResponseElement);
+            }
+            else
+            if (sTmp.substr(0, 14) == "resultElement:")
+            {
+              sResultElement = sTmp.substr(14);
+              rise::StrTrimLeft(sResultElement);
+            }
+          }
+          SkipWsOnly();
         }
-        break;
-      } else
-      if(chTmp == '&')
-      {
-        rDataType.bIsRef = true;
-        rStream.ignore();
-      }
-      else
-      if (sTmp == "")
-      {
-        return rStream;
-      }
 
-      if(sTmp == "const")
-      {
-        rDataType.bIsConst = true;
-      }
-      else // name of type
-      {
-        if (sTmp == "unsigned")
+        chTmp = m_tFile.peek();
+        if (chTmp == '}')
         {
-          ReadStr(rStream, sTmp);
-          if(rStream.eof())
-            CSP_THROW("unexpected EOF(after type parsing)", Interface().sFileName, GetLine());
-
-          ParseDataType(sTmp, rDataType);
-          rDataType.sName = "unsigned " + sTmp;
-        } else
-        {
-          ParseDataType(sTmp, rDataType);
-        }
-        break;
-      }
-    }
-
-    if (rDataType.bIsRef && !rDataType.bIsConst)
-    {
-      rise::LogWarning() << "Non-const reference to " << rDataType.sName << " at line " << GetLine() << " \n(return value cannot be passed over argument)";
-    }
-
-    return rStream;
-  }
-
-  // parameter
-  std::istream& operator>>( std::istream& rStream, SParam& rParameter )
-  {
-    rStream >> rParameter.stDataType >> SkipWs;
-    ReadBefore(rStream, rParameter.sName);
-    rParameter.stDataType.sNodeName = rParameter.sName;
-    return rStream;
-  }
-
-  // member
-  std::istream& operator>>( std::istream& rStream, SMember& rMember )
-  {
-    SParam stParam;
-    char chData;
-    std::string sTmp;
-    std::stringbuf tStreamBuff;
-
-    rMember.bIsConst = false;
-
-    rStream >> rMember.stReturn.stDataType;
-
-    if (rMember.stReturn.stDataType.bIsRef)
-      CSP_THROW("return value cannot be reference", Interface().sFileName, GetLine());
-
-    rStream >> SkipWs;
-
-    rStream.get(tStreamBuff, '('); // parameters begin
-
-    rMember.sName = tStreamBuff.str();
-
-    rStream >> SkipWs >> chData;
-    if (chData != '(')
-      CSP_THROW("'(' expected after function name", Interface().sFileName, GetLine());
-
-    rStream >> SkipWs; // arguments?
-    chData = rStream.peek();
-    if (chData == ')')
-      rStream.ignore();
-    else
-      while (rStream.good())
-      {
-        if(rStream.eof())
-          CSP_THROW("unexpected EOF(after member name)", Interface().sFileName, GetLine());
-
-        rStream >> stParam; // reading param
-
-        rStream >> SkipWs >> chData; // more arguments?
-        rMember.lsParamList.push_back(stParam);
-
-        if (chData == ')')
-        {
-          rStream.ignore();
+          m_tFile.ignore();
           break;
         }
 
-        if (chData != ',')
-          CSP_THROW("error parsing param", Interface().sFileName, GetLine());
+        ReadStr(sTmp);
+
+        if (sTmp == "public:")
+        {
+        } else
+        if (sTmp == "private:" || sTmp == "protected:")
+        {
+          rise::LogWarning() << "all members of interface class must be only public!";
+        }
+        else
+        if (sTmp.substr(0, rClass.sName.size()) == rClass.sName)   // constructor-ignore it
+        {
+          IgnoreFunction();
+        }
+        else
+        if (sTmp.substr(0, rClass.sName.size() + 1) == "~" + rClass.sName)   // non virtual destructor
+        {
+          CSP_THROW("destructor must be virtual!", m_stInterface.sFileName, m_nLine);
+        }
+        else
+        if (sTmp == "enum")   // enum -ignore
+        {
+          IgnoreFunction();
+        }
+        else
+        if (sTmp == "virtual")
+        {
+          SkipWs();
+          if (m_tFile.peek() == '~')
+          {
+            m_tFile.ignore();
+            ReadBefore(sTmp);
+            if (sTmp == rClass.sName)   // destructor-ignore it
+              IgnoreFunction();
+            else
+              CSP_THROW("Non-valid destructor: ~" + sTmp + " but expected ~" + rClass.sName, m_stInterface.sFileName, m_nLine);
+          } else
+          {
+            SMember stMember;
+
+            ParseMember(stMember);
+            stMember.sDescr = sDescr;
+            stMember.sDetail = sDetail;
+            stMember.sSoapAction = sSoapAction;
+            stMember.sNodeName = sRequestElement;
+            stMember.stReturn.sName = sResponseElement;
+            stMember.stReturn.stDataType.sNodeName = sResultElement;
+            rClass.lsMember.push_back(stMember);
+          }
+        }
+        else
+          CSP_THROW("all members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+      }
+    }
+
+    void ParseStruct( SStruct& rStruct )
+    {
+      char chTmp = '\0';
+      std::string sTmp;
+      bool bFunction = false;
+
+      SkipWs();
+      ReadBefore(rStruct.sName, " \r\n\t:;{}");
+      rStruct.sNamespace = m_sCurrentNamespace;
+      if(m_tFile.eof())
+      {
+        CSP_THROW("unexpected EOF(after struct name): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
       }
 
-    rStream >> SkipWs >> chData;
-    if (chData == 'c')
-    {
-      ReadStr(rStream, sTmp, false);
-      if (sTmp == "onst") // const
-        rMember.bIsConst = true;
+      ReadStr(sTmp);
+      if(m_tFile.eof())
+      {
+        CSP_THROW("unexpected EOF(after structname): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+      }
 
-      rStream >> SkipWs >> chData;
+      if (sTmp == ";")
+      {
+        m_tFile.unget();
+        return;
+      }
+
+      if (sTmp == ":")
+      { // inheritance
+        ReadStr(sTmp);
+        if(m_tFile.eof())
+        {
+          CSP_THROW("unexpected EOF(after structname and inheritance sign): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+        }
+
+        if (sTmp != "public")
+        {
+          rise::LogWarning() << "non-public inheritance: " << rStruct.sName << " => " << sTmp;
+        }
+        else
+        {
+          ReadStr(sTmp);
+          if(m_tFile.eof())
+          {
+            CSP_THROW("unexpected EOF(while reading parent struct name): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+          }
+        }
+
+        rStruct.sParent = sTmp;
+        ReadStr(sTmp);
+      }
+
+      rStruct.bForward = false;
+
+      if (sTmp != "{")
+      {
+        CSP_THROW("'{' or ';' after structname expected: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+      }
+
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        SParam stParamTmp;
+
+        bFunction = false;
+        SkipWs();
+        chTmp = m_tFile.peek();
+        if (chTmp == '}')
+        {
+          m_tFile.ignore();
+          break;
+        }
+
+        ParseDataType(stParamTmp.stDataType);
+
+        if (stParamTmp.stDataType.sName == "enum")   // enum -ignore
+        {
+          IgnoreFunction();
+          continue;
+        }
+
+        if ((stParamTmp.stDataType.sName.find('(') != std::string::npos) ||
+            (stParamTmp.stDataType.sName == rStruct.sName) ||  // constructor
+            (stParamTmp.stDataType.sName == ("~" + rStruct.sName)) ||  // destructor
+            (stParamTmp.stDataType.sName == "operator"))
+        {
+          bFunction = true;
+        }
+
+        if (!bFunction)
+        {
+          SkipWs();
+          ReadBefore(stParamTmp.sName);
+          SkipWs();
+          m_tFile.get(chTmp);
+          if (chTmp == ';')
+          {
+            if (stParamTmp.stDataType.bIsConst)
+              CSP_THROW("Struct members must be non-const: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+            if (stParamTmp.stDataType.bIsRef)
+              CSP_THROW("Struct members must be non-ref: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+
+            ReadDescrComment(stParamTmp.sDescr);
+
+            rStruct.lsMember.push_back(stParamTmp);
+            //m_tStream >> SkipSingleLineComment;
+          } else
+          {
+            bFunction = true;
+          }
+        }
+
+        if (bFunction)
+        {
+          IgnoreFunction();
+        }
+      }
     }
-    if (chData != '=')
-      CSP_THROW("members must be pure virtual!", Interface().sFileName, GetLine());
 
-    rStream >> SkipWs >> chData;
-    if (chData != '0')
-      CSP_THROW("members must be pure virtual!", Interface().sFileName, GetLine());
-
-    rStream >> SkipWs >> chData;
-    if (chData != ';')
-      CSP_THROW("';' expected", Interface().sFileName, GetLine());
-
-    rStream >> SkipSingleLineComment;
-    return rStream;
-  }
-
-  // class
-  std::istream& operator>>( std::istream& rStream, SClass& rClass )
-  {
-    char chTmp = '\0';
-    std::string sTmp;
-    std::string sSoapAction;
-    std::string sDescr;
-    std::string sDetail;
-    std::string sRequestElement;
-    std::string sResponseElement;
-    std::string sResultElement;
-
-    rStream >> SkipWs;
-    rClass.sNamespace = g_sCurrentNamespace;
-
-    ReadStr(rStream, sTmp);
-    if(rStream.eof())
+    void ParseTypedef( STypedef& rTypedef )
     {
-      CSP_THROW("unexpected EOF(after classname and '{')", Interface().sFileName, GetLine());
+      ParseDataType(rTypedef.stDataType);
+      SkipWs();
+      ReadBefore(rTypedef.sName);
+      rTypedef.sNamespace = m_sCurrentNamespace;
     }
 
-    if (sTmp != "{")
+    void ParsePreprocessorBlock()
     {
-      CSP_THROW("'{' after classname expected ", Interface().sFileName, GetLine());
+      char chData = '\0';
+      std::string sTmp;
+      m_tFile.ignore();
+      ReadStr(sTmp, false);
+      if (sTmp == "include")
+      {
+        SkipWs();
+        chData = m_tFile.peek();
+        if (chData == '\"')
+        {
+          std::stringbuf sbTmp;
+          m_tFile.ignore();
+          m_tFile.get(sbTmp, chData);
+
+          CCppHeaderParser tCppHeaderParser;
+          const SInterface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
+
+          // use extern structs
+          for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStruct.begin();
+              itStruct != rInterface.lsStruct.end(); ++itStruct)
+          {
+            SStruct stStruct;
+            stStruct.sName = itStruct->sName;
+            stStruct.sNamespace = itStruct->sNamespace;
+            stStruct.sParent = itStruct->sParent;
+            stStruct.sDescr = itStruct->sDescr;
+            stStruct.sDetail = itStruct->sDetail;
+            stStruct.bExtern = true;
+            m_stInterface.lsStruct.push_back(stStruct);
+          }
+
+          // use extern typedefs
+          for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedef.begin();
+              itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
+          {
+            STypedef stTypedef = *itTypedef;
+            stTypedef.sName = itTypedef->sName;
+            stTypedef.sNamespace = itTypedef->sNamespace;
+            stTypedef.sDescr = itTypedef->sDescr;
+            stTypedef.bExtern = true;
+            m_stInterface.lsTypedef.push_back(stTypedef);
+          }
+
+          SInclude stInclude;
+          stInclude.sInterfaceName = rInterface.sName;
+          stInclude.sFileName = rInterface.sFileName;
+          m_stInterface.lsInclude.push_back(stInclude);
+        }
+      }
+
+      m_tFile.ignore(INT_MAX, '\n');
     }
 
-    while (rStream.good() && !rStream.eof())
+    void ParseHeaderBlock( SInterface& rInterface )
     {
-      sSoapAction.erase();
-      sDescr.erase();
-      sDetail.erase();
-      sRequestElement.erase();
-      sResponseElement.erase();
-      sResultElement.erase();
+      char chData = 0;
+      std::string sServiceUri;
+      std::string sDescr;
+      std::string sDetail;
+      std::string sTmp;
+      bool bLoadAtStartup = false;
 
-      rStream >> SkipWsOnly;
-      while (ReadComment(rStream, sTmp))
+      SkipWsOnly();
+      while (ReadComment(sTmp))
       {
         rise::StrTrim(sTmp);
         if (sTmp.size() != 0)
         {
-          if (sTmp.substr(0, 11) == "soapAction:")
+          if (sTmp.substr(0, 4) == "uri:")
           {
-            sSoapAction = sTmp.substr(12);
-            rise::StrTrimLeft(sSoapAction);
+            sServiceUri = sTmp.substr(5);
+            rise::StrTrimLeft(sServiceUri);
           }
           else
           if (sTmp[0] == '!')
@@ -759,626 +1058,324 @@ namespace staff
             }
           }
           else
-          if (sTmp.substr(0, 15) == "requestElement:")
+          if (sTmp.substr(0, 14) == "loadAtStartup:")
           {
-            sRequestElement= sTmp.substr(15);
-            rise::StrTrimLeft(sRequestElement);
+            std::string sLoadAtStartup = sTmp.substr(15);
+            rise::StrTrim(sLoadAtStartup);
+            bLoadAtStartup = sLoadAtStartup == "true";
           }
           else
-          if (sTmp.substr(0, 16) == "responseElement:")
+          if (sTmp.substr(0, 16) == "targetNamespace:")
           {
-            sResponseElement = sTmp.substr(16);
-            rise::StrTrimLeft(sResponseElement);
-          }
-          else
-          if (sTmp.substr(0, 14) == "resultElement:")
-          {
-            sResultElement = sTmp.substr(14);
-            rise::StrTrimLeft(sResultElement);
+            rInterface.sTargetNs = sTmp.substr(17);
+            rise::StrTrimLeft(rInterface.sTargetNs);
           }
         }
-        rStream >> SkipWsOnly;
+        SkipWsOnly();
       }
 
-      chTmp = rStream.peek();
-      if (chTmp == '}')
+      if (m_tFile.peek() == '#') // preprocessor
       {
-        rStream.ignore();
-        break;
+        ParsePreprocessorBlock();
+        return;
       }
 
-      ReadStr(rStream, sTmp);
+      ReadStr(sTmp);
 
-      if (sTmp == "public:")
+      if (sTmp.size() == 0)
       {
-      } else
-      if (sTmp == "private:" || sTmp == "protected:")
-      {
-        rise::LogWarning() << "all members of interface class must be only public!";
-      }
-      else
-      if (sTmp.substr(0, rClass.sName.size()) == rClass.sName)   // constructor-ignore it
-      {
-        IgnoreFunction(rStream);
-      }
-      else
-      if (sTmp.substr(0, rClass.sName.size() + 1) == "~" + rClass.sName)   // non virtual destructor
-      {
-        CSP_THROW("destructor must be virtual!", Interface().sFileName, GetLine());
-      }
-      else
-      if (sTmp == "enum")   // enum -ignore
-      {
-        IgnoreFunction(rStream);
-      }
-      else
-      if (sTmp == "virtual")
-      {
-        rStream >> SkipWs;
-        if (rStream.peek() == '~')
-        {
-          rStream.ignore();
-          ReadBefore(rStream, sTmp);
-          if (sTmp == rClass.sName)   // destructor-ignore it
-            IgnoreFunction(rStream);
-          else
-            CSP_THROW("Non-valid destructor: ~" + sTmp + " but expected ~" + rClass.sName, Interface().sFileName, GetLine());
-        } else
-        {
-          SMember stMember;
-
-          rStream >> stMember;
-          stMember.sDescr = sDescr;
-          stMember.sDetail = sDetail;
-          stMember.sSoapAction = sSoapAction;
-          stMember.sNodeName = sRequestElement;
-          stMember.stReturn.sName = sResponseElement;
-          stMember.stReturn.stDataType.sNodeName = sResultElement;
-          rClass.lsMember.push_back(stMember);
-        }
-      }
-      else
-        CSP_THROW("all members must be pure virtual!", Interface().sFileName, GetLine());
-    }
-    return rStream;
-  }
-
-  std::istream& operator>>( std::istream& rStream, SStruct& rStruct )
-  {
-    char chTmp = '\0';
-    std::string sTmp;
-    bool bFunction = false;
-
-    rStream >> SkipWs;
-    ReadBefore(rStream, rStruct.sName, " \r\n\t:;{}");
-    rStruct.sNamespace = g_sCurrentNamespace;
-    if(rStream.eof())
-    {
-      CSP_THROW("unexpected EOF(after struct name): " + rStruct.sName, Interface().sFileName, GetLine());
-    }
-
-    ReadStr(rStream, sTmp);
-    if(rStream.eof())
-    {
-      CSP_THROW("unexpected EOF(after structname): " + rStruct.sName, Interface().sFileName, GetLine());
-    }
-
-    if (sTmp == ";")
-    {
-      rStream.unget();
-      return rStream;
-    }
-
-    if (sTmp == ":")
-    { // inheritance
-      ReadStr(rStream, sTmp);
-      if(rStream.eof())
-      {
-        CSP_THROW("unexpected EOF(after structname and inheritance sign): " + rStruct.sName, Interface().sFileName, GetLine());
+        return; // eof
       }
 
-      if (sTmp != "public")
+      if (sTmp == "class")
       {
-        rise::LogWarning() << "non-public inheritance: " << rStruct.sName << " => " << sTmp;
-      }
-      else
-      {
-        ReadStr(rStream, sTmp);
-        if(rStream.eof())
-        {
-          CSP_THROW("unexpected EOF(while reading parent struct name): " + rStruct.sName, Interface().sFileName, GetLine());
-        }
-      }
+        SClass stClass;
 
-      rStruct.sParent = sTmp;
-      ReadStr(rStream, sTmp);
-    }
+        SkipWs();
 
-    rStruct.bForward = false;
+        // checking for service class
+        ReadBefore(stClass.sName, " \t\n\r:{;");
 
-    if (sTmp != "{")
-    {
-      CSP_THROW("'{' or ';' after structname expected: " + rStruct.sName, Interface().sFileName, GetLine());
-    }
+        SkipWs();
+        char chTmp = m_tFile.peek();
 
-    while (rStream.good() && !rStream.eof())
-    {
-      SParam stParamTmp;
-
-      bFunction = false;
-      rStream >> SkipWs;
-      chTmp = rStream.peek();
-      if (chTmp == '}')
-      {
-        rStream.ignore();
-        break;
-      }
-
-      rStream >> stParamTmp.stDataType;
-
-      if (stParamTmp.stDataType.sName == "enum")   // enum -ignore
-      {
-        IgnoreFunction(rStream);
-        continue;
-      }
-
-      if ((stParamTmp.stDataType.sName.find('(') != std::string::npos) ||
-          (stParamTmp.stDataType.sName == rStruct.sName) ||  // constructor
-          (stParamTmp.stDataType.sName == ("~" + rStruct.sName)) ||  // destructor
-          (stParamTmp.stDataType.sName == "operator"))
-      {
-        bFunction = true;
-      }
-
-      if (!bFunction)
-      {
-        rStream >> SkipWs;
-        ReadBefore(rStream, stParamTmp.sName);
-        rStream >> SkipWs;
-        rStream.get(chTmp);
         if (chTmp == ';')
         {
-          if (stParamTmp.stDataType.bIsConst)
-            CSP_THROW("Struct members must be non-const: " + rStruct.sName, Interface().sFileName, GetLine());
-          if (stParamTmp.stDataType.bIsRef)
-            CSP_THROW("Struct members must be non-ref: " + rStruct.sName, Interface().sFileName, GetLine());
-
-          ReadDescrComment(rStream, stParamTmp.sDescr);
-
-          rStruct.lsMember.push_back(stParamTmp);
-          //rStream >> SkipSingleLineComment;
-        } else
-        {
-          bFunction = true;
+          m_tFile.ignore();
+          return; // class forward
         }
-      }
-
-      if (bFunction)
-      {
-        IgnoreFunction(rStream);
-      }
-    }
-
-    return rStream;
-  }
-
-  std::istream& operator>>( std::istream& rStream, STypedef& rTypedef )
-  {
-    rStream >> rTypedef.stDataType;
-    rStream >> SkipWs;
-    ReadBefore(rStream, rTypedef.sName);
-    rTypedef.sNamespace = g_sCurrentNamespace;
-    return rStream;
-  }
-
-  void ParseBracketedBlock( std::istream& rStream, SInterface& rInterface );
-  void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface );
-
-  void ParsePreprocessorBlock( std::istream& rStream, SInterface& rInterface )
-  {
-    char chData = '\0';
-    std::string sTmp;
-    rStream.ignore();
-    ReadStr(rStream, sTmp, false);
-    if (sTmp == "include")
-    {
-      rStream >> SkipWs;
-      chData = rStream.peek();
-      if (chData == '\"')
-      {
-        std::stringbuf sbTmp;
-        rStream.ignore();
-        rStream.get(sbTmp, chData);
-
-        std::string::size_type nPos = rInterface.sFileName.find_last_of('/');
-        std::string sFileName;
-        std::ifstream isFile;
-
-        if (nPos != std::string::npos)
+        if (chTmp == '{')
         {
-          sFileName = rInterface.sFileName.substr(0, nPos);
+          IgnoreFunction(); // ignore non-service class
+          return;
         }
 
-        sFileName += sbTmp.str();
-
-        isFile.open(sFileName.c_str());
-        if(isFile.good())
+        if (chTmp == ':') // inheritance
         {
-          try
+          m_tFile.ignore();
+        }
+
+        ReadStr(sTmp);
+        if (sTmp != "public")
+        { // not our class
+          ReadBefore(sTmp, "{;");
+          IgnoreFunction(); // ignore non-service class
+          return;
+        }
+
+        ReadStr(sTmp);
+        if (sTmp != "IService" && sTmp != "staff::IService")
+        { // not our class
+          ReadBefore(sTmp, "{;");
+          IgnoreFunction(); // ignore non-service class
+          return;
+        }
+
+        std::cout << "Using [" << stClass.sName << "] as service class\n";
+
+        ParseClass(stClass);
+        stClass.sDescr = sDescr;
+        stClass.sDetail = sDetail;
+        stClass.sServiceUri = sServiceUri;
+        stClass.bLoadAtStartup = bLoadAtStartup;
+        rInterface.lsClass.push_back(stClass);
+
+        SkipWs();
+        m_tFile >> chData;
+        if (chData != ';')
+        {
+          CSP_THROW("missing ';' after class definition", m_stInterface.sFileName, m_nLine);
+        }
+
+        SkipSingleLineComment();
+
+        sServiceUri.erase();
+        sDescr.erase();
+        sDetail.erase();
+        bLoadAtStartup = false;
+      } else
+      if (sTmp == "struct")
+      {
+        SStruct stStruct;
+        ParseStruct(stStruct);
+
+        stStruct.sDescr = sDescr;
+        stStruct.sDetail = sDetail;
+
+        // check for forward declaration
+        std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
+        for (; itStruct != rInterface.lsStruct.end(); ++itStruct)
+        {
+          if (itStruct->sName == stStruct.sName)
           {
-            while (isFile.good() && !isFile.eof())
-            {
-              isFile >> SkipWs;
-              chData = isFile.peek();
+            break;
+          }
+        }
 
-              if (chData == '#') // preprocessor
-              {
-                isFile.ignore(INT_MAX, '\n');
-              } else // text
-              {
-                if (chData == '{')
-                {
-                  ParseBracketedBlock(isFile, rInterface);
-                }
-                else // text
-                {
-                  ParseHeaderBlock(isFile, rInterface);
-                }
-              }
+        if (itStruct == rInterface.lsStruct.end())
+        {
+          rInterface.lsStruct.push_back(stStruct);
+        }
+        else
+        {
+          if (!stStruct.bForward)
+          {
+            if (itStruct->bForward)
+            {
+              *itStruct = stStruct;
+            }
+            else
+            {
+              CSP_THROW("Duplicating struct " + stStruct.sName, m_stInterface.sFileName, m_nLine);
             }
           }
-          catch (...)
-          {
-            isFile.close();
-            throw;
-          }
-
-          isFile.close();
         }
-        else
+
+        SkipWs();
+        m_tFile >> chData;
+        if (chData != ';')
         {
-          rise::LogWarning() << "cannot include file \"" << sFileName << "\".";
+          CSP_THROW("missing ';' after struct definition", m_stInterface.sFileName, m_nLine);
         }
-      }
-    }
 
-    rStream.ignore(INT_MAX, '\n');
-  }
+        sDescr.erase();
+        sDetail.erase();
 
-  void ParseHeaderBlock( std::istream& rStream, SInterface& rInterface )
-  {
-    char chData = 0;
-    std::string sServiceUri;
-    std::string sDescr;
-    std::string sDetail;
-    std::string sTmp;
-    bool bLoadAtStartup = false;
-
-    rStream >> SkipWsOnly;
-    while (ReadComment(rStream, sTmp))
-    {
-      rise::StrTrim(sTmp);
-      if (sTmp.size() != 0)
+        SkipSingleLineComment();
+      } else
+      if (sTmp == "typedef")
       {
-        if (sTmp.substr(0, 4) == "uri:")
+        STypedef stTypedef;
+        ParseTypedef(stTypedef);
+
+        SkipWs();
+        m_tFile >> chData;
+        if (chData != ';')
         {
-          sServiceUri = sTmp.substr(5);
-          rise::StrTrimLeft(sServiceUri);
+          CSP_THROW("missing ';' after typedef definition", m_stInterface.sFileName, m_nLine);
         }
-        else
-        if (sTmp[0] == '!')
-        {
-          std::string sDescrTmp = sTmp.substr(1);
-          rise::StrTrimLeft(sDescrTmp);
-          if (sDescr.size() != 0)
-          {
-            if (sDetail.size() != 0)
-            {
-              sDetail += '\n';
-            }
-            sDetail += sDescrTmp;
-          }
-          else
-          {
-            sDescr = sDescrTmp;
-          }
-        }
-        else
-        if (sTmp.substr(0, 12) == "description:")
-        {
-          std::string sDescrTmp = sTmp.substr(13);
-          rise::StrTrimLeft(sDescrTmp);
-          if (sDescr.size() != 0)
-          {
-            if (sDetail.size() != 0)
-            {
-              sDetail += '\n';
-            }
-            sDetail += sDescrTmp;
-          }
-          else
-          {
-            sDescr = sDescrTmp;
-          }
-        }
-        else
-        if (sTmp.substr(0, 14) == "loadAtStartup:")
-        {
-          std::string sLoadAtStartup = sTmp.substr(15);
-          rise::StrTrim(sLoadAtStartup);
-          bLoadAtStartup = sLoadAtStartup == "true";
-        }
-        else
-        if (sTmp.substr(0, 16) == "targetNamespace:")
-        {
-          rInterface.sTargetNs = sTmp.substr(17);
-          rise::StrTrimLeft(rInterface.sTargetNs);
-        }
-      }
-      rStream >> SkipWsOnly;
-    }
 
-    if (rStream.peek() == '#') // preprocessor
-    {
-      ParsePreprocessorBlock(rStream, rInterface);
-      return;
-    }
+        ReadDescrComment(stTypedef.sDescr);
 
-    ReadStr(rStream, sTmp);
+        rInterface.lsTypedef.push_back(stTypedef);
 
-    if (sTmp.size() == 0)
-    {
-      return; // eof
-    }
+        sDescr.erase();
+        sDetail.erase();
 
-    if (sTmp == "class")
-    {
-      SClass stClass;
-
-      SkipWs(rStream);
-
-      // checking for service class
-      ReadBefore(rStream, stClass.sName, " \t\n\r:{;");
-
-      SkipWs(rStream);
-      char chTmp = rStream.peek();
-
-      if (chTmp == ';')
+  //      m_tStream >> SkipSingleLineComment;
+      } else
+      if (sTmp == "namespace")
       {
-        rStream.ignore();
-        return; // class forward
-      }
-      if (chTmp == '{')
+        std::string::size_type nNsSize = m_sCurrentNamespace.size();
+        std::string sNamespace;
+        m_tFile >> sNamespace;
+        m_sCurrentNamespace += sNamespace + "::";
+
+        ParseBracketedBlock(rInterface);
+
+        m_sCurrentNamespace.erase(nNsSize);
+
+      } else
+      if (sTmp == "enum")   // enum -ignore
       {
-        IgnoreFunction(rStream); // ignore non-service class
-        return;
+        IgnoreFunction();
+        SkipSingleLineComment();
       }
-
-      if (chTmp == ':') // inheritance
+      else
+      if (sTmp == ";")
       {
-        rStream.ignore();
+        SkipSingleLineComment();
       }
-
-      ReadStr(rStream, sTmp);
-      if (sTmp != "public")
-      { // not our class
-        ReadBefore(rStream, sTmp, "{;");
-        IgnoreFunction(rStream); // ignore non-service class
-        return;
-      }
-
-      ReadStr(rStream, sTmp);
-      if (sTmp != "IService" && sTmp != "staff::IService")
-      { // not our class
-        ReadBefore(rStream, sTmp, "{;");
-        IgnoreFunction(rStream); // ignore non-service class
-        return;
-      }
-
-      std::cout << "Using [" << stClass.sName << "] as service class\n";
-
-      rStream >> stClass;
-      stClass.sDescr = sDescr;
-      stClass.sDetail = sDetail;
-      stClass.sServiceUri = sServiceUri;
-      stClass.bLoadAtStartup = bLoadAtStartup;
-      rInterface.lsClass.push_back(stClass);
-
-      rStream >> SkipWs >> chData;
-      if (chData != ';')
+      else
+      if (chData == '#') // preprocessor
       {
-        CSP_THROW("missing ';' after class definition", Interface().sFileName, GetLine());
-      }
-
-      rStream >> SkipSingleLineComment;
-
-      sServiceUri.erase();
-      sDescr.erase();
-      sDetail.erase();
-      bLoadAtStartup = false;
-    } else
-    if (sTmp == "struct")
-    {
-      SStruct stStruct;
-      rStream >> stStruct;
-
-      stStruct.sDescr = sDescr;
-      stStruct.sDetail = sDetail;
-
-      // check for forward declaration
-      std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
-      for (; itStruct != rInterface.lsStruct.end(); ++itStruct)
-      {
-        if (itStruct->sName == stStruct.sName)
-        {
-          break;
-        }
-      }
-
-      if (itStruct == rInterface.lsStruct.end())
-      {
-        rInterface.lsStruct.push_back(stStruct);
+        ParsePreprocessorBlock();
       }
       else
       {
-        if (!stStruct.bForward)
+        CSP_THROW(("Unknown lexeme: \"" + sTmp + "\""), m_stInterface.sFileName, m_nLine);
+      }
+    }
+
+    void ParseBracketedBlock( SInterface& rInterface )
+    {
+      char chData = 0;
+
+      SkipWs();
+      m_tFile.get(chData);
+      if (chData != '{')
+      {
+        CSP_THROW("ParseBracketedBlock: \"{\" is not found!", m_stInterface.sFileName, m_nLine);
+      }
+
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        SkipWsOnly();
+        chData = m_tFile.peek();
+
+        if (chData == '#') // preprocessor
         {
-          if (itStruct->bForward)
+          ParsePreprocessorBlock();
+        } else // text
+        {
+          if (chData == '}')
           {
-            *itStruct = stStruct;
+            m_tFile.ignore();
+            return;
+          }
+          else
+          if (chData == '{')
+          {
+            ParseBracketedBlock(rInterface);
           }
           else
           {
-            CSP_THROW("Duplicating struct " + stStruct.sName, Interface().sFileName, GetLine());
+            ParseHeaderBlock(rInterface);
           }
         }
       }
 
-      rStream >> SkipWs >> chData;
-      if (chData != ';')
+      CSP_THROW("ParseBracketedBlock: EOF found!", m_stInterface.sFileName, m_nLine);
+    }
+
+    void ParseHeader( SInterface& rInterface )
+    {
+      char chData = 0;
+
+      while (m_tFile.good() && !m_tFile.eof())
       {
-        CSP_THROW("missing ';' after struct definition", Interface().sFileName, GetLine());
-      }
+        SkipWsOnly();
+        chData = m_tFile.peek();
 
-      sDescr.erase();
-      sDetail.erase();
-
-      rStream >> SkipSingleLineComment;
-    } else
-    if (sTmp == "typedef")
-    {
-      STypedef stTypedef;
-      rStream >> stTypedef;
-
-      rStream >> SkipWs >> chData;
-      if (chData != ';')
-      {
-        CSP_THROW("missing ';' after typedef definition", Interface().sFileName, GetLine());
-      }
-
-      ReadDescrComment(rStream, stTypedef.sDescr);
-
-      rInterface.lsTypedef.push_back(stTypedef);
-
-      sDescr.erase();
-      sDetail.erase();
-
-//      rStream >> SkipSingleLineComment;
-    } else
-    if (sTmp == "namespace")
-    {
-      std::string::size_type nNsSize = g_sCurrentNamespace.size();
-      std::string sNamespace;
-      rStream >> sNamespace;
-      g_sCurrentNamespace += sNamespace + "::";
-
-      ParseBracketedBlock(rStream, rInterface);
-
-      g_sCurrentNamespace.erase(nNsSize);
-
-    } else
-    if (sTmp == "enum")   // enum -ignore
-    {
-      IgnoreFunction(rStream);
-      rStream >> SkipSingleLineComment;
-    }
-    else
-    if (sTmp == ";")
-    {
-      rStream >> SkipSingleLineComment;
-    }
-    else
-    if (chData == '#') // preprocessor
-    {
-      ParsePreprocessorBlock(rStream, rInterface);
-    }
-    else
-    {
-      CSP_THROW(("Unknown lexeme: \"" + sTmp + "\""), Interface().sFileName, GetLine());
-    }
-  }
-
-  void ParseBracketedBlock( std::istream& rStream, SInterface& rInterface )
-  {
-    char chData = 0;
-
-    rStream >> SkipWs;
-    rStream.get(chData);
-    if (chData != '{')
-    {
-      CSP_THROW("ParseBracketedBlock: \"{\" is not found!", Interface().sFileName, GetLine());
-    }
-
-    while (rStream.good() && !rStream.eof())
-    {
-      rStream >> SkipWsOnly;
-      chData = rStream.peek();
-
-      if (chData == '#') // preprocessor
-      {
-        ParsePreprocessorBlock(rStream, rInterface);
-      } else // text
-      {
-        if (chData == '}')
-        {
-          rStream.ignore();
-          return;
-        }
-        else
         if (chData == '{')
         {
-          ParseBracketedBlock(rStream, rInterface);
+          ParseBracketedBlock(rInterface);
         }
-        else
+        else // text
         {
-          ParseHeaderBlock(rStream, rInterface);
+          ParseHeaderBlock(rInterface);
         }
       }
     }
 
-    CSP_THROW("ParseBracketedBlock: EOF found!", Interface().sFileName, GetLine());
-  }
-
-  void ParseHeader( std::istream& rStream, SInterface& rInterface )
-  {
-    char chData = 0;
-    std::string sTmp;
-
-    while (rStream.good() && !rStream.eof())
+    // Interface
+    const SInterface& Parse( const std::string& sInDir, const std::string& sFileName, SProject& rProject )
     {
-      rStream >> SkipWsOnly;
-      chData = rStream.peek();
+      m_pProject = &rProject;
+      m_sInDir = sInDir;
 
-      if (chData == '{')
+      for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+        itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        ParseBracketedBlock(rStream, rInterface);
+        if (itInterface->sFileName == sFileName)
+        {
+          return *itInterface;
+        }
       }
-      else // text
+
+      m_stInterface.sFileName = sFileName;
+
+      m_tFile.open((m_sInDir + sFileName).c_str());
+      if(m_tFile.good())
       {
-        ParseHeaderBlock(rStream, rInterface);
+        try
+        {
+          m_stInterface.sName = m_stInterface.sFileName.substr(m_stInterface.sFileName.size() - 2, 2) == ".h" ?
+              m_stInterface.sFileName.substr(0, m_stInterface.sFileName.size() - 2) :
+              m_stInterface.sFileName;
+
+          ParseHeader(m_stInterface);
+          rProject.lsInterfaces.push_back(m_stInterface);
+          m_tFile.close();
+        }
+        catch (CParseException& rParseException)
+        {
+          std::stringbuf sbData;
+          m_tFile.get(sbData, '\n');
+          m_tFile.ignore();
+          m_tFile.get(sbData, '\n');
+
+          rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
+
+          throw rParseException;
+        }
       }
+      else
+      {
+        CSP_THROW(std::string("can't open file: ") + sFileName + ": " + std::string(strerror(errno)), m_stInterface.sFileName, m_nLine);
+      }
+
+      return m_stInterface;
     }
-  }
 
-  // Interface
-  std::istream& operator>>( std::istream& rStream, SInterface& rInterface )
-  {
-    Interface(&rInterface);
+    std::string m_sInDir;
+    std::string m_sCurrentNamespace;
+    std::ifstream m_tFile;
+    int m_nLine;
+    SInterface m_stInterface;
+    SProject* m_pProject;
+  };
 
-    rInterface.sName = rInterface.sFileName.substr(rInterface.sFileName.size() - 2, 2) == ".h" ?
-        rInterface.sFileName.substr(0, rInterface.sFileName.size() - 2) :
-        rInterface.sFileName;
-
-    ParseHeader(rStream, rInterface);
-
-    return rStream;
-  }
-
-  int& GetLine()
-  {
-    static int nLine = 1;
-    return nLine;
-  }
 
   const std::string& CCppParser::GetId()
   {
@@ -1388,41 +1385,38 @@ namespace staff
   void CCppParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
     unsigned uServicesCount = 0;
-
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      std::string sFileName = rParseSettings.sInDir + "/" + *itFile;
-      std::ifstream isFile;
-      SInterface stInterface;
+      CCppHeaderParser tCppHeaderParser;
+      const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
+      uServicesCount += rInterface.lsClass.size();
+    }
 
-      isFile.open(sFileName.c_str());
-      if(isFile.good())
+    TStringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
+    if (itComponentNs != rParseSettings.mEnv.end())
+    {
+      rProject.sNamespace = itComponentNs->second;
+    }
+    else
+    { // autodetect: take first defined namespace
+      for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+        itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        stInterface.sFileName = *itFile;
-        try
+        for (std::list<SClass>::const_iterator itClass = itInterface->lsClass.begin();
+            itClass != itInterface->lsClass.end(); ++itClass)
         {
-          isFile >> stInterface;
-          isFile.close();
-        }
-        catch (CParseException& rParseException)
-        {
-          std::stringbuf sbData;
-          isFile.get(sbData, '\n');
-          isFile.ignore();
-          isFile.get(sbData, '\n');
-
-          rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
-
-          throw rParseException;
+          if (!itClass->sNamespace.empty())
+          {
+            rProject.sNamespace = itClass->sNamespace;
+            break;
+          }
         }
 
-        uServicesCount += stInterface.lsClass.size();
-        rProject.lsInterfaces.push_back(stInterface);
-      }
-      else
-      {
-        CSP_THROW(std::string("can't open file: ") + *itFile + ": " + std::string(strerror(errno)), Interface().sFileName, GetLine());
+        if (!rProject.sNamespace.empty())
+        {
+          break;
+        }
       }
     }
 
@@ -1431,7 +1425,7 @@ namespace staff
       CSP_THROW("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
                 "Example:\n----\n  class Calc: public staff::IService\n"
                 "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n",
-                Interface().sFileName, GetLine());
+                "", 0);
     }
   }
 

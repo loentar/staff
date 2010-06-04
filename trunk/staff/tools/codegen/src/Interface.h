@@ -111,9 +111,10 @@ namespace staff
     std::string         sDetail;        //!<  detailed description
     std::list<SParam>   lsMember;       //!<  struct fields
     bool                bForward;       //!<  is forward declaration
+    bool                bExtern;        //!<  extern declaration
 
     SStruct():
-      bForward(true)
+      bForward(true), bExtern(false)
     {
     }
   };
@@ -125,6 +126,19 @@ namespace staff
     std::string         sNamespace;     //!<  namespace
     std::string         sDescr;         //!<  description
     SDataType           stDataType;     //!<  base data type
+    bool                bExtern;        //!<  extern declaration
+
+    STypedef():
+      bExtern(false)
+    {
+    }
+  };
+
+  //! include info
+  struct SInclude
+  {
+    std::string sInterfaceName;  //!< interface name
+    std::string sFileName;       //!< file name
   };
 
   //! service interface
@@ -133,6 +147,7 @@ namespace staff
     std::string           sName;          //!<  interface name, based on input filename
     std::string           sFileName;      //!<  input filename
     std::string           sTargetNs;      //!<  target namespace
+    std::list<SInclude>   lsInclude;      //!<  included files
     std::list<STypedef>   lsTypedef;      //!<  typedef list
     std::list<SStruct>    lsStruct;       //!<  struct list
     std::list<SClass>     lsClass;        //!<  service classes list
@@ -142,6 +157,7 @@ namespace staff
   struct SProject
   {
     std::string            sName;         //!<  project name
+    std::string            sNamespace;    //!<  component namespace
     std::list<SInterface>  lsInterfaces;  //!<  interface list
   };
 }
