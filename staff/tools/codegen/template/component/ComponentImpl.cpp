@@ -13,9 +13,9 @@
 #end
 #include "ComponentImpl.h"
 
-RISE_DECLARE_PLUGIN($(Project.Interfaces.Interface.Classes.Class.Namespace)CComponentImpl)
+RISE_DECLARE_PLUGIN($(Project.Namespace)CComponentImpl)
 
-$(Project.Interfaces.Interface.Classes.Class.OpeningNs)
+$(Project.OpeningNs)
   CComponentImpl::CComponentImpl()
   {
 #foreach $(Project.Interfaces)
@@ -69,6 +69,6 @@ $(Project.Interfaces.Interface.Classes.Class.OpeningNs)
     return m_mServices;
   }
 
-  const std::string CComponentImpl::m_sName = "$(Project.Interfaces.Interface.Classes.Class.ComponentName)";
+  const std::string CComponentImpl::m_sName = "$(Project.ComponentName)";
 
-$(Project.Interfaces.Interface.Classes.Class.EndingNs)
+$(Project.EndingNs)

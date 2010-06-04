@@ -3,11 +3,14 @@ namespace staff
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // forward declarations
 #foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0) // do not serialize extern type
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct);
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct);
+#ifeqend
 #end
 
 #foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0) // do not serialize extern type
 #ifeq($(Typedef.DataType.IsTemplate),1)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
 #else // DataType.IsTemplate
@@ -26,11 +29,13 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
 #else                 // !!not_a_struct!!
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
 #ifeqend
+#ifeqend
 #end // foreach $(Interface.Typedefs)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
 #foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0) // do not serialize extern type
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.Parent),)
@@ -63,11 +68,13 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
   return rdoParam;
 }
 
+#ifeqend
 #end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct deserializators
 #foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0) // do not serialize extern type
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.Parent),)
@@ -99,11 +106,13 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
   return rdoParam;
 }
 
+#ifeqend
 #end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
 #foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0) // do not serialize extern type
 
 // $(Typedef.NsName)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
@@ -152,11 +161,13 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 #ifeqend
 
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeqend //ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end // foreach $(Interface.Typedefs)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef deserializators
 #foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0) // do not serialize extern type
 #ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
 #ifeq($(Typedef.DataType.IsTemplate),1)
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
@@ -274,5 +285,6 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
 }
 
 #ifeqend
+#ifeqend // ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end
 }

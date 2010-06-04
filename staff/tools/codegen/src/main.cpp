@@ -213,19 +213,19 @@ int main(int nArgs, const char* szArgs[])
     rise::xml::CXMLDocument tDoc;
     tDoc.GetRoot() << stProject;
 
-    if (sTemplate != "")
-    {
-      std::cout << "template: " << sTemplate << std::endl;
-      staff::CCodeGen tGen;
-      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
-    }
-
     if (bGenXml)
     {
       std::string sXmlFileName = stParseSettings.sOutDir + "/" + stProject.sName + ".xml";
       std::cout << "Generating " << sXmlFileName << std::endl;
       tDoc.GetDecl().m_sEncoding = "utf-8";
       tDoc.SaveToFile(sXmlFileName);
+    }
+
+    if (sTemplate != "")
+    {
+      std::cout << "template: " << sTemplate << std::endl;
+      staff::CCodeGen tGen;
+      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
   }
   catch (const staff::CParseException& rException)

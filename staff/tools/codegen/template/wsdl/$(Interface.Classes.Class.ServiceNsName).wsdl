@@ -175,10 +175,13 @@ $(Member.Return.Name)\
 
     <!-- structures -->
 #foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0) // do not serialize extern type
 
     <complexType name="$(Struct.NativeName)">
 #ifneq($(Struct.Description),)
       <documentation>$(Struct.Description)</documentation>
+#else
+\
 #ifeqend
 #ifneq($(Struct.Parent),)       // inherited
 #var sIndent   
@@ -200,6 +203,8 @@ $($sIndent)        <element name="$(Param.Name)">
 $($sIndent)          <complexType>
 #ifneq($(Param.Description),)
 $($sIndent)            <documentation>$(Param.Description)</documentation>
+#else
+\
 #ifeqend
 $($sIndent)            <sequence>
 $($sIndent)              <any/>
@@ -254,6 +259,9 @@ $($sIndent)      </sequence>
 \
 #ifeqend
     </complexType>
+#else
+\
+#ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type
 #end // #foreach $(Interface.Structs)
 #else
 \
@@ -262,10 +270,13 @@ $($sIndent)      </sequence>
 
     <!-- typedefs -->
 #foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0) // do not serialize extern type
 #ifeq($(Typedef.DataType.IsTemplate),1)
     <complexType name="$(Typedef.NativeName)">
 #ifneq($(Typedef.Description),)
       <documentation>$(Typedef.Description)</documentation>
+#else
+\
 #ifeqend
       <sequence>
 #ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)  # -- list ------------------
@@ -406,6 +417,7 @@ $(Typedef.DataType.Name)\
     </simpleType>
 #ifeqend
 
+#ifeqend // #ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end // #foreach $(Interface.Typedefs)
 #else
 \
