@@ -1,0 +1,125 @@
+#summary Example: creating a Calculator client for staff-2.0
+#labels Featured
+
+1. Client source directory structure: 
+{{{
+CalculatorClient/obj                       -- objects directory
+CalculatorClient/out                       -- compiled client
+CalculatorClient/src                       -- source directory
+CalculatorClient/src/Calculator.h          -- service interface
+CalculatorClient/src/main.cpp              -- client implementation
+CalculatorClient/src/CalculatorProxy.cpp   -- client proxy (header)
+CalculatorClient/src/CalculatorProxy.h     -- client proxy
+CalculatorClient/src/ServiceFactory.h      -- service factory (header)
+CalculatorClient/src/ServiceFactory.cpp    -- service factory
+CalculatorClient/Makefile                  -- Makefile
+
+}}}
+
+2. Create client source directories:
+{{{
+mkdir -p ~/devel/CalculatorClient/src
+}}}
+
+3. Create link or copy service interface file:
+{{{
+ln -s ../../CalculatorComponent/src/Calculator.h ~/devel/CalculatorClient/src
+}}}
+
+4. Generate client stub:
+{{{
+cd ~/devel/CalculatorClient/src
+staff_codegen -tclientimpl Calculator.h
+}}}
+
+5. Realize client:
+
+Open generated main.cpp and add next the comment "Invoke Your service here" lines as follows:
+{{{
+std::cout << "1 + 2 = " << pCalculator->Add(1, 2) << std::endl;
+std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
+}}}
+
+
+6. Generate client Proxy
+  _Proxy is a set of files, used to work with service_
+
+{{{
+    staff_codegen -tclient Calculator.h
+}}}
+
+These files will be generated:
+{{{
+CalculatorProxy.h
+CalculatorProxy.cpp
+ServiceFactory.h
+ServiceFactory.cpp
+}}}
+
+  _Please note, when You change the service interface, You must regenerate proxy._
+
+
+7. Compilation
+
+Put Makefile as ~/devel/!CalculatorClient/Makefile:
+
+{{{
+COMPONENT = samples
+TARGET = Calculator
+TARGETNAME = $(TARGET)
+
+PLATFORM ?= $(shell uname -m)
+SRCDIR = src/
+OBJDIR = obj/$(PLATFORM)/
+OUTDIR = out/$(PLATFORM)/
+
+CXXFLAGS += -Wno-deprecated -I$(STAFF_HOME)/include -fPIC
+LDFLAGS += -fPIC -L$(STAFF_HOME)/lib -lstaffclient
+
+SOURCES = $(wildcard $(SRCDIR)*.cpp)
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+# == make ===========================================
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+
+# link
+$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == install ========================================
+install: check "$(COMPONENT_HOME)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(COMPONENT_HOME)
+
+# == clean ==========================================
+clean:
+	rm -Rf $(OBJDIR) $(OUTDIR)
+
+# == mkdir ==========================================
+"%/":
+	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+
+# == check ==========================================
+check:
+ifeq ($(STAFF_HOME),)
+	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+endif
+
+}}}
+
+Compile client with command
+{{{
+cd ~/devel/CalculatorClient
+make
+}}}
+
+8. Start client
+{{{
+out/*/Calculator
+}}}
+
+You must see following results:
+||1 + 2 = 3<p/>1 - 2 = -1||
