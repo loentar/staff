@@ -193,3 +193,5 @@ Your new service must shown as:
 ||<h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul>||
 
 8. To learn how to create service's client please read ExampleCalculatorClient
+
+*[http://staff.googlecode.com/files/samples.CalculatorComponent.tar.bz2 Download]* source code of Calculator service.
