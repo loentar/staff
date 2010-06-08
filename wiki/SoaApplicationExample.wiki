@@ -1,5 +1,4 @@
 #summary Guide to the creation of SOA applications
-#labels Featured
 
 _NOTICE: translated from russian with translate.google.com_
 
