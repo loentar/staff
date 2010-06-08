@@ -1,7 +1,8 @@
-#summary Example: creating a Calculator client for staff-2.0
+#summary Example: creating a Calculator client for staff-2.0 under Linux
 #labels Featured
 
 1. Client source directory structure: 
+
 {{{
 CalculatorClient/obj                       -- objects directory
 CalculatorClient/out                       -- compiled client
@@ -124,4 +125,4 @@ out/*/Calculator
 You must see following results:
 ||1 + 2 = 3<p/>1 - 2 = -1||
 
-*[http://staff.googlecode.com/files/samples.CalculatorClient.tar.bz2 Download]* source code of Calculator client.
+*[http://staff.googlecode.com/files/samples.CalculatorClient.7z Download]* source code of Calculator client.

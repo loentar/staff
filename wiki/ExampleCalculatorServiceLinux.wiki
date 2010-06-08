@@ -1,4 +1,4 @@
-#summary Example: creating a Calculator Service for staff-2.0
+#summary Example: creating a Calculator Service for staff-2.0 under Linux
 #labels Featured
 
 1. Service source directory structure:
@@ -192,6 +192,6 @@ Your new service must shown as:
 
 ||<h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul>||
 
-8. To learn how to create service's client please read ExampleCalculatorClient
+8. To learn how to create service's client please read ExampleCalculatorClientLinux
 
-*[http://staff.googlecode.com/files/samples.CalculatorComponent.tar.bz2 Download]* source code of Calculator service.
+*[http://staff.googlecode.com/files/samples.CalculatorComponent.7z Download]* source code of Calculator service.
