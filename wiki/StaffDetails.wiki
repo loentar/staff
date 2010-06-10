@@ -1,0 +1,48 @@
+#summary Staff details
+#labels Phase-Design
+
+= Staff details =
+
+Staff is Web Service Framework for C++/!JavaScript based on Apache Axis2/C. 
+
+Together with the support of all functions of Apache Axis2/C, WSF Staff provides additional features: 
+  * stateful web services implementation in C++;
+  * client implementation in C++ and !JavaScript;
+  * service-component architecture implementation;
+  * RESTful web services support;
+  * security support;
+  * WSDL support;
+  * extensible code generator;
+  * webapp toolkit;
+
+
+
+=== Security ===
+Security model is based on ACL and rules access users and groups to following security object:
+  * components;
+  * services;
+  * services operations;
+  * webapp widgets;
+  * webapp profiles(pending);
+  * any other objects, that service can implement.
+Security DB is on the SQLite 3.
+<p/><p/>
+
+=== Webapp ===
+Webapp is a toolkit written on !JavaScript/Ajax for creating web-applications.
+Webapp includes Javascript SDK based on YahooUI!, Prototype, WS.JS libraries.
+Webapp is the easy way to develop the web application, based on SOA from scratch;
+
+
+
+=== Code generator (codegen) ===
+Code generator includes following common templates:
+  * web service interface generation by WSDL file;
+  * WSDL generation by web service interface;
+  * BPEL support: codegen supports WSDL generation compatible with BPEL;
+  * web service stub generation;
+  * client skeleton generation;
+  * internal files generation (Proxies, Wrappers, etc);
+
+  _Interface is an abstract C++ class that can be used for creating web services and clients;_
+New templates can be created without changing codegen's source code.
