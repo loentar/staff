@@ -23,6 +23,7 @@
 #include <axis2_svc.h>
 #include <string>
 #include <rise/os/oscommon.h>
+#include <rise/common/Log.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
@@ -33,7 +34,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
 {  
   if(pServiceWrapper == NULL)
   {
-    printf("pService is NULL\n");
+    rise::LogError() << "pService is NULL";
     return false;
   }
 
@@ -47,7 +48,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   axutil_qname_t* pQName = axutil_qname_create(pEnv, sServiceName.c_str(), sServiceUri.c_str(), NULL);
   if(pQName == NULL)
   {
-    printf("error pQName\n");
+    rise::LogError() << "pQName";
     return false;
   }
 
@@ -55,7 +56,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if(pAxis2Service == NULL)
   {
     axutil_qname_free(pQName, pEnv);
-    printf("error pAxis2Service\n");
+    rise::LogError() << "pAxis2Service";
     return false;
   }
   axutil_qname_free(pQName, pEnv);
@@ -66,28 +67,30 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if(pParam == NULL)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error pParam\n");
+    rise::LogError() << "pParam";
     return false;
   }
 
   if(axis2_svc_add_param(pAxis2Service, pEnv, pParam) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error pParam\n");
+    rise::LogError() << "pParam";
     return false;
   }
 
   { // adding operations
     const staff::CDataObject& rdoOperations = pServiceWrapper->GetOperations();
-    for (staff::CDataObject::ConstIterator it = rdoOperations.Begin(); it != rdoOperations.End(); ++it)
+    for (staff::CDataObject::ConstIterator itOperation = rdoOperations.Begin();
+        itOperation != rdoOperations.End(); ++itOperation)
     {
-      std::string sOpName = (*it)["Name"];
+      const staff::CDataObject& rOperation = *itOperation;
+      std::string sOpName = rOperation["Name"];
       struct axis2_op* pOperation = axis2_op_create(pEnv);
       pQName = axutil_qname_create(pEnv, sOpName.c_str(), NULL, NULL);
       if(pQName == NULL)
       {
         axis2_svc_free(pAxis2Service, pEnv);
-        printf("error pQName(op)\n");
+        rise::LogError() << "pQName(op)";
         return false;
       }
 
@@ -95,16 +98,67 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
       {
         axutil_qname_free(pQName, pEnv);
         axis2_svc_free(pAxis2Service, pEnv);
-        printf("error axis2_op_set_qname\n");
+        rise::LogError() << "axis2_op_set_qname";
         return false;
       }
 
       axutil_qname_free(pQName, pEnv);
 
+      // add REST params if exists
+      std::string sRestMethod;
+      std::string sRestLocation;
+
+      {
+        staff::CDataObject::ConstIterator itRestTmp = rOperation.FindChildByLocalName("RestMethod");
+        if (itRestTmp != rOperation.End())
+        {
+          sRestMethod = itRestTmp->GetText();
+        }
+
+        itRestTmp = rOperation.FindChildByLocalName("RestLocation");
+        if (itRestTmp != rOperation.End())
+        {
+          sRestLocation = itRestTmp->GetText();
+        }
+      }
+
+      if (!sRestLocation.empty() && !sRestMethod.empty())
+      {
+        if (axis2_op_set_rest_http_method(pOperation, pEnv, sRestMethod.c_str()) != AXIS2_SUCCESS)
+        {
+          rise::LogError() << "Failed to set \"RESTMethod\" to service ["
+              << sServiceName <<"] operation " << sOpName;
+        }
+        else
+        {
+          rise::LogDebug2() << "\"RESTMethod=" << sRestMethod << "\" param set to service ["
+              << sServiceName <<"] operation " << sOpName;
+        }
+
+        if (axis2_op_set_rest_http_location(pOperation, pEnv, sRestLocation.c_str()) != AXIS2_SUCCESS)
+        {
+          rise::LogError() << "Failed to set \"RESTLocation\" to service ["
+              << sServiceName <<"] operation " << sOpName;
+        }
+        else
+        {
+          rise::LogDebug2() << "\"RESTLocation=" << sRestLocation << "\" param set to service ["
+              << sServiceName <<"] operation " << sOpName;
+        }
+
+        if (axis2_svc_add_rest_mapping(pAxis2Service, pEnv, sRestMethod.c_str(), sRestLocation.c_str(),
+                                       pOperation) != AXIS2_SUCCESS)
+        {
+          rise::LogError() << "Failed to set REST mapping to service ["
+              << sServiceName <<"] operation " << sOpName;
+        }
+      }
+
+      // add service operation
       if(axis2_svc_add_op(pAxis2Service, pEnv, pOperation) != AXIS2_SUCCESS)
       {
         axis2_svc_free(pAxis2Service, pEnv);
-        printf("error axis2_svc_add_op\n");
+        rise::LogError() << "axis2_svc_add_op";
         return false;
       }
     }
@@ -114,7 +168,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if(axis2_svc_set_name(pAxis2Service, pEnv, sServiceName.c_str()) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_set_name\n");
+    rise::LogError() << "axis2_svc_set_name";
     return false;
   }
 
@@ -126,21 +180,21 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
     sServiceDescr += "&nbsp;<sup><a style='font-size: x-small' href='/axis2/services/" + sServiceName + "?wsdl'>[wsdl]</a></sup>";
     if(axis2_svc_set_svc_wsdl_path(pAxis2Service, pEnv, sWsdlPath.c_str()) != AXIS2_SUCCESS)
     {
-      printf("error axis2_svc_set_svc_wsdl_path\n");
+      rise::LogError() << "axis2_svc_set_svc_wsdl_path";
     }
   }
 
   if(axis2_svc_set_svc_desc(pAxis2Service, pEnv, sServiceDescr.c_str()) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_set_svc_desc\n");
+    rise::LogError() << "axis2_svc_set_svc_desc";
     return false;
   }
 
   if(axis2_svc_set_impl_class(pAxis2Service, pEnv, pSvcClass) != AXIS2_SUCCESS)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_set_impl_class\n");
+    rise::LogError() << "axis2_svc_set_impl_class";
     return false;
   }
 
@@ -149,7 +203,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if(pServiceGroup == NULL)
   {
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_grp_create_with_conf\n");
+    rise::LogError() << "axis2_svc_grp_create_with_conf";
     return false;
   }
 
@@ -157,7 +211,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   {
     axis2_svc_grp_free(pServiceGroup, pEnv);
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_grp_set_name\n");
+    rise::LogError() << "axis2_svc_grp_set_name";
     return false;
   }
 
@@ -165,7 +219,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   {
     axis2_svc_grp_free(pServiceGroup, pEnv);
     axis2_svc_free(pAxis2Service, pEnv);
-    printf("error axis2_svc_grp_add_svc\n");
+    rise::LogError() << "axis2_svc_grp_add_svc";
     return false;
   }
 
@@ -173,7 +227,7 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if(axis2_conf_add_svc_grp(pConf, pEnv, pServiceGroup) != AXIS2_SUCCESS)
   {
     axis2_svc_grp_free(pServiceGroup, pEnv);
-    printf("error axis2_conf_add_svc_grp\n");
+    rise::LogError() << "axis2_conf_add_svc_grp";
     return false;
   }
 
@@ -190,33 +244,33 @@ bool Axis2UtilsRemoveVirtualService(const std::string& sServiceName,
   axis2_svc_grp* pServiceGroup = axis2_conf_get_svc_grp(pConf, pEnv, sServiceGroupName.c_str());
   if(pServiceGroup == NULL)
   {
-    printf("error axis2_conf_get_svc_grp\n");
+    rise::LogError() << "axis2_conf_get_svc_grp";
     return false;
   }
 
   axis2_svc* pService = axis2_conf_get_svc(pConf, pEnv, sServiceName.c_str());
   if(pService == NULL)
   {
-    printf("error axis2_conf_get_svc\n");
+    rise::LogError() << "axis2_conf_get_svc";
     return false;
   }
 
   if(axis2_svc_set_impl_class(pService, pEnv, NULL) != AXIS2_SUCCESS)
   {
-    printf("error axis2_svc_set_impl_class\n");
+    rise::LogError() << "axis2_svc_set_impl_class";
     return false;
   }
 
   if(axis2_conf_remove_svc(pConf, pEnv, sServiceName.c_str()) != AXIS2_SUCCESS)
   {
-    printf("error axis2_conf_remove_svc\n");
+    rise::LogError() << "axis2_conf_remove_svc";
     return false;
   }
 
   axutil_hash_t *pAllServiceGroups = axis2_conf_get_all_svc_grps(pConf, pEnv);
   if(pAllServiceGroups == NULL)
   {
-    printf("error axis2_conf_get_all_svc_grps\n");
+    rise::LogError() << "axis2_conf_get_all_svc_grps";
     return false;
   }
 

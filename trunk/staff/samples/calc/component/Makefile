@@ -1,4 +1,4 @@
-include ../../Makefile.env
+include ../../../Makefile.env
 
 COMPONENT = samples.calc
 TARGET = $(COMPONENT)

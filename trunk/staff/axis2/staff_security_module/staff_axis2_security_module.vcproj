@@ -185,11 +185,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Axis2Dispatcher.c"
+				RelativePath=".\src\StaffSecurityModule.c"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Axis2Utils.c"
+				RelativePath=".\src\StaffSecurityUtils.c"
 				>
 			</File>
 		</Filter>
@@ -199,7 +199,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\Axis2Utils.h"
+				RelativePath=".\src\StaffSecurityUtils.h"
 				>
 			</File>
 		</Filter>

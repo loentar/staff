@@ -40,7 +40,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 {
 #ifneq($(Struct.Parent),)
   // serialize parent struct
-  rdoParam << static_cast<const $(Struct.Parent)&>(rstStruct);
+  rdoParam << static_cast< const $(Struct.ParentNs)& >(rstStruct);
 
 #else
 \
@@ -79,7 +79,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 {
 #ifneq($(Struct.Parent),)
   // deserialize parent struct
-  rdoParam >> static_cast<$(Struct.Parent)&>(rstStruct);
+  rdoParam >> static_cast< $(Struct.ParentNs)& >(rstStruct);
 
 #else
 \

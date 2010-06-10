@@ -4,7 +4,7 @@
 	Version="8,00"
 	Name="calc_client"
 	ProjectGUID="{31DFC1BC-999D-474D-9F2F-415231BA2271}"
-	RootNamespace="staff_test_client"
+	RootNamespace="calc_client"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

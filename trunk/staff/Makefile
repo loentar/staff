@@ -6,8 +6,13 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-
+ifeq "$(BUILD_SAMPLES)" "NO"
+# do not build samples
+MAKEFILES_DEP = $(shell find -type f -name Makefile.dep -a \! -path './samples/*' | sed 's/^.\///g')
+else
 MAKEFILES_DEP = $(shell find -type f -name Makefile.dep | sed 's/^.\///g')
+endif
+
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
 
@@ -27,6 +32,6 @@ include $(MAKEFILES_DEP)
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
-VERSION=2.0.0-tp2
+VERSION=2.0.0-tp3
 
 include ../Makefile.distrib

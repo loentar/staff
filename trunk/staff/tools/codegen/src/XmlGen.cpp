@@ -208,6 +208,10 @@ namespace staff
     rNodeMember["SoapAction"] = rMember.sSoapAction;
     rNodeMember.AddSubNode(" Soap request node name ", CXMLNode::ENTCOMMENT);
     rNodeMember["NodeName"] = rMember.sNodeName;
+    rNodeMember.AddSubNode(" REST Method", CXMLNode::ENTCOMMENT);
+    rNodeMember["RestMethod"] = rMember.sRestMethod;
+    rNodeMember.AddSubNode(" REST Location", CXMLNode::ENTCOMMENT);
+    rNodeMember["RestLocation"] = rMember.sRestLocation;
     rNodeMember.AddSubNode(" Function is non-mutable ", CXMLNode::ENTCOMMENT);
     rNodeMember["IsConst"] = rMember.bIsConst;
     rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
@@ -308,8 +312,9 @@ namespace staff
     rNodeStruct["MangledName"] = sMangledName + rStruct.sName;
 
     rNodeStruct.AddSubNode(" Parent struct(inherits) ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Parent"] = (rStruct.sParent.find("::") == std::string::npos) && rStruct.sParent.size() != 0 ?
-      (rStruct.sNamespace + rStruct.sParent) : rStruct.sParent;
+    rNodeStruct["Parent"] = rStruct.sParent;
+    rNodeStruct.AddSubNode(" Parent struct(inherits) with namespace ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["ParentNs"] = rStruct.sParentNs;
     rNodeStruct.AddSubNode(" Parent struct(inherits) declaration ", CXMLNode::ENTCOMMENT);
     rNodeStruct["ParentDecl"] = (rStruct.sParent.size() != 0) ? (": public " + rStruct.sParent) : "";
 

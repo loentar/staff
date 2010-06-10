@@ -74,14 +74,16 @@ namespace staff
   //!  service operation
   struct SMember
   {
-    SParam             stReturn;    //!<  return type
-    std::string        sName;       //!<  operation name
-    std::list<SParam>  lsParamList; //!<  parameters
-    bool               bIsConst;    //!<  operation is const
-    std::string        sDescr;      //!<  operation description
-    std::string        sDetail;     //!<  detailed description
-    std::string        sSoapAction; //!<  soap action
-    std::string        sNodeName;   //!<  node name
+    SParam             stReturn;       //!<  return type
+    std::string        sName;          //!<  operation name
+    std::list<SParam>  lsParamList;    //!<  parameters
+    bool               bIsConst;       //!<  operation is const
+    std::string        sDescr;         //!<  operation description
+    std::string        sDetail;        //!<  detailed description
+    std::string        sSoapAction;    //!<  soap action
+    std::string        sNodeName;      //!<  node name
+    std::string        sRestMethod;    //!<  REST method
+    std::string        sRestLocation;  //!<  REST location
 
     SMember():
       bIsConst(false)
@@ -107,6 +109,7 @@ namespace staff
     std::string         sName;          //!<  struct name
     std::string         sNamespace;     //!<  namespace
     std::string         sParent;        //!<  parent struct(inherits)
+    std::string         sParentNs;      //!<  parent struct(inherits) with namespace
     std::string         sDescr;         //!<  struct description
     std::string         sDetail;        //!<  detailed description
     std::list<SParam>   lsMember;       //!<  struct fields

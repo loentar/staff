@@ -1,4 +1,4 @@
-include ../../Makefile.env
+include ../../../Makefile.env
 
 TARGET = login_client
 TARGETNAME = $(TARGET)
@@ -44,7 +44,7 @@ distrib:;
 
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
 
 # == uninstall ======================================
 uninstall: check
