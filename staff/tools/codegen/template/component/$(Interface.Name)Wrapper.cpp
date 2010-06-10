@@ -184,6 +184,8 @@ staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
     staff::CDataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
     tOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
     tOp$(Member.Name).CreateChild("IsConst", $(Member.IsConst));
+    tOp$(Member.Name).CreateChild("RestMethod", "$(Member.RestMethod)");
+    tOp$(Member.Name).CreateChild("RestLocation", "$(Member.RestLocation)");
 
     staff::CDataObject tOpReturn$(Member.Name) = tOp$(Member.Name).CreateChild("Return");
     tOpReturn$(Member.Name).CreateChild("Type", "$(Member.Return.Name)");

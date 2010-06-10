@@ -44,17 +44,6 @@ namespace staff
     {
     }
 
-/*    template<typename TType>
-    std::ostream& operator<<(std::ostream& m_tStream, const std::list<TType>& rList)
-    {
-      for(typename std::list<TType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
-      {
-        m_tStream << *it;
-      }
-
-      return m_tStream;
-    }*/
-
     void SkipWs()
     {
       char chData = 0;
@@ -666,6 +655,8 @@ namespace staff
       std::string sRequestElement;
       std::string sResponseElement;
       std::string sResultElement;
+      std::string sRestMethod;
+      std::string sRestLocation;
 
       SkipWs();
       rClass.sNamespace = m_sCurrentNamespace;
@@ -689,6 +680,8 @@ namespace staff
         sRequestElement.erase();
         sResponseElement.erase();
         sResultElement.erase();
+        sRestMethod.erase();
+        sRestLocation.erase();
 
         SkipWsOnly();
         while (ReadComment(sTmp))
@@ -755,6 +748,18 @@ namespace staff
               sResultElement = sTmp.substr(14);
               rise::StrTrimLeft(sResultElement);
             }
+            else
+            if (sTmp.substr(0, 11) == "restMethod:")
+            {
+              sRestMethod = sTmp.substr(11);
+              rise::StrTrimLeft(sRestMethod);
+            }
+            else
+            if (sTmp.substr(0, 13) == "restLocation:")
+            {
+              sRestLocation = sTmp.substr(13);
+              rise::StrTrimLeft(sRestLocation);
+            }
           }
           SkipWsOnly();
         }
@@ -813,6 +818,8 @@ namespace staff
             stMember.sNodeName = sRequestElement;
             stMember.stReturn.sName = sResponseElement;
             stMember.stReturn.stDataType.sNodeName = sResultElement;
+            stMember.sRestMethod = sRestMethod;
+            stMember.sRestLocation = sRestLocation;
             rClass.lsMember.push_back(stMember);
           }
         }
@@ -1345,6 +1352,7 @@ namespace staff
               m_stInterface.sFileName;
 
           ParseHeader(m_stInterface);
+          CorrectStuctParentNs();
           rProject.lsInterfaces.push_back(m_stInterface);
           m_tFile.close();
         }
@@ -1366,6 +1374,49 @@ namespace staff
       }
 
       return m_stInterface;
+    }
+
+    void CorrectStuctParentNs()
+    {
+      // correct structs parent namespaces
+      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStruct.begin();
+          itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+      {
+        std::string& sNsParent = itStruct->sParent;
+        // skip structs with no parent and with namespace, declared from global scope
+        if (sNsParent.empty() || sNsParent.substr(0, 2) == "::")
+        {
+          continue;
+        }
+
+        const std::string& sNamespace = itStruct->sNamespace;
+        bool bFound = false;
+        // search in current interface, all extern structs is included
+        for (std::list<SStruct>::iterator itParentStruct = m_stInterface.lsStruct.begin();
+            itParentStruct != m_stInterface.lsStruct.end() && !bFound; ++itParentStruct)
+        {
+          std::string sParentStructNsName = itParentStruct->sNamespace + itParentStruct->sName;
+          std::string::size_type nPos = sNamespace.size();
+          do
+          {
+            std::string sStructNsName = sNamespace.substr(0, nPos) + itStruct->sParent;
+
+            if (sStructNsName == sParentStructNsName)
+            {
+              itStruct->sParentNs = sParentStructNsName;
+              bFound = true;
+              break;
+            }
+
+            nPos = sNamespace.substr(0, nPos - 2).find_last_of("::", nPos);
+            if (nPos != std::string::npos)
+            {
+              ++nPos;
+            }
+          }
+          while (nPos != std::string::npos);
+        }
+      }
     }
 
     std::string m_sInDir;
@@ -1423,7 +1474,7 @@ namespace staff
     if (uServicesCount == 0 && rParseSettings.bNoServiceError)
     {
       CSP_THROW("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
-                "Example:\n----\n  class Calc: public staff::IService\n"
+                "Example:\n----\n#include <staff/common/IService.h>\n\n  class Calc: public staff::IService\n"
                 "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n",
                 "", 0);
     }

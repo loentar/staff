@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Add customer</title>
+  </head>
+  <body>
+    <form action="http://localhost:9090/axis2/services/samples.rest.Customers/Add" method="GET">
+      <table border="1px black">
+        <tbody>
+          <tr>
+            <td>First name</td>
+            <td><input type="text" name="sFirstName" /></td>
+          </tr>
+          <tr>
+            <td>Last name</td>
+            <td><input type="text" name="sLastName" /></td>
+          </tr>
+          <tr>
+            <td>Year of birth</td>
+            <td><input type="text" name="nYear" /></td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <input type="submit" value="Add"/>
+    </form>
+    <br/>
+  </body>
+</html>
+

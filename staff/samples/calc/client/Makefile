@@ -1,4 +1,4 @@
-include ../../Makefile.env
+include ../../../Makefile.env
 
 TARGET = calc_client
 TARGETNAME = $(TARGET)

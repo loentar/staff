@@ -1,2 +1,0 @@
-
-tests/staff_test/staff_test.dep: core/common.dep core/client.dep core/component.dep tools/codegen.dep samples/calc_client.dep samples/calc_component.dep samples/calculator_service.dep

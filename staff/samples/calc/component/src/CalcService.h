@@ -34,27 +34,36 @@ namespace samples
     class CCalcService: public staff::IService
     {
     public:
+      //! destructor
       virtual ~CCalcService() {}
 
-      /*! add nA and nB.
-          example of using non-default result node
+      //! add nA and nB.
+      /*! example of using non-default result node
+          \param  nA - operand 1
+          \param  nB - operand 2
+          \return result nA + nB
       */
       // responseElement: AddResponse
       // resultElement: addResult
       virtual int Add(int nA, int nB) const = 0;
 
-      /*! substract nA and nB.
-          example of invoking another component service
+      //! substract nA and nB.
+      /*! example of invoking another component service
+          \param  nA - operand 1
+          \param  nB - operand 2
+          \return result nA - nB
       */
       virtual int Sub(int nA, int nB) const = 0;
 
-      /*! store integer value.
-          example of using service configuration
+      //! store integer value.
+      /*! example of using service configuration
+          \param  nMem - value to store
       */
       virtual void SetMem(int nMem) = 0;
 
-      /*! retrieve integer value.
-          example of using service configuration
+      //! retrieve integer value.
+      /*! example of using service configuration
+          \return stored value
       */
       virtual int GetMem() const = 0;
     };

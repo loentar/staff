@@ -30,9 +30,14 @@ int main(int nArgs, const char* paszArgs[])
 
       // Invoke Your service here:
 #foreach $(Class.Members)
+#ifneq($(Member.Return.NodeName),)
+#var VarName $(Member.Return.NodeName)
+#else
+#var VarName t$(Member.Name)Result
+#ifeqend
       // \
 #ifneq($(Member.Return.Name),void)
-$(Member.Return.Name) $(Member.Return.NodeName) = \
+$(Member.Return.Name) $($VarName) = \
 #else
 \
 #ifeqend

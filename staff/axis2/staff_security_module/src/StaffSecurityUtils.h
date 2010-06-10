@@ -19,8 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _AXIS2UTILS_H_
-#define _AXIS2UTILS_H_
+#ifndef _STAFF_SECURITY_UTILS_H_
+#define _STAFF_SECURITY_UTILS_H_
 
 #include <axis2_module_desc.h>
 #include <axis2_msg_ctx.h>
@@ -28,11 +28,18 @@
 #define AXIS2_UTILS_CHECK(expression) \
   if(!(expression)) { printf("error: %s[%d]: %s\n", GetBaseFile(__FILE__), __LINE__, #expression); return AXIS2_FAILURE; }
 
-axis2_status_t GetServiceOperationPath(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, axis2_char_t** psServiceOperationPath);
-axis2_status_t GetSessionId(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv, const axis2_char_t** pszSessionId);
-const axis2_char_t* GetParamValue(const axis2_char_t* szParam, axis2_module_desc_t* pModuleDesc, const axutil_env_t* pEnv);
+#ifdef _DEBUG
+#define dprintf printf("%s[%d]: staff_security: ", GetBaseFile(__FILE__), __LINE__); printf
+#else
+#define dprintf(...)
+#endif
+
+axis2_status_t GetServiceOperationPath(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                                       axis2_char_t** psServiceOperationPath, axis2_char_t** pszServiceName);
+axis2_status_t GetSessionAndInstanceId(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                                       const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId);
 const char* GetBaseFile(const char* szFilePath);
 
-#endif // _AXIS2UTILS_H_
+#endif // _STAFF_SECURITY_UTILS_H_
 
 

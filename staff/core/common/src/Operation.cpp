@@ -183,15 +183,15 @@ namespace staff
     const std::string& sCode = GetFaultCode();
     const std::string& sDetail = GetFaultDetail();
 
-    if (sReason != "")
+    if (!sReason.empty())
     {
       sResult += "Reason: " + sReason + "\n";
     }
-    if (sCode != "")
+    if (!sCode.empty())
     {
       sResult += "Code: " + sCode + "\n";
     }
-    if (sDetail != "")
+    if (!sDetail.empty())
     {
       sResult += "Detail: " + sDetail + "\n";
     }
@@ -201,7 +201,7 @@ namespace staff
 
   std::string COperation::GetFaultReason() const
   {
-    static const std::string sEmpty = "";
+    static const std::string sEmpty;
 
     CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Reason");
     if (itFind == m_tdoResponse.End())
@@ -226,7 +226,7 @@ namespace staff
 
   std::string COperation::GetFaultCode() const
   {
-    static const std::string sEmpty = "";
+    static const std::string sEmpty;
 
     CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Code");
     if (itFind == m_tdoResponse.End())
@@ -251,7 +251,7 @@ namespace staff
 
   std::string COperation::GetFaultDetail() const
   {
-    static const std::string sEmpty = "";
+    static const std::string sEmpty;
 
     CDataObject::ConstIterator itFind = m_tdoResponse.FindChildByLocalName("Detail");
     if (itFind == m_tdoResponse.End())
@@ -281,19 +281,21 @@ namespace staff
   {
 //    Result().NamespaceList() = Request().NamespaceList();
 
-    if (!IsFault())
+    if (m_tdoResponse.GetLocalName().empty())
     {
-      if(m_tdoResponse.GetLocalName() == "")
-      {
-        m_tdoResponse.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
-      }
+      m_tdoResponse.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
     }
 
-    if (m_tdoResponse.GetPrefix() == "" || m_tdoResponse.GetNamespaceUri() == "")
+    if (m_tdoResponse.GetPrefix().empty() || m_tdoResponse.GetNamespaceUri().empty())
     {
-      std::string sPrefix = m_tdoRequest.GetPrefix();
-      CQName tqnResult(m_tdoResponse.GetLocalName(), m_tdoRequest.GetNamespaceUri(), sPrefix.size() != 0 ? sPrefix : "ns");
-      m_tdoResponse.SetQName(tqnResult);
+      const std::string& sNamespaceUri = m_tdoRequest.GetNamespaceUri();
+      if (!sNamespaceUri.empty())
+      {
+        const std::string& sPrefix = m_tdoRequest.GetPrefix();
+        CQName tqnResult(m_tdoResponse.GetLocalName(), sNamespaceUri,
+                         sPrefix.empty() ? "ns" : sPrefix);
+        m_tdoResponse.SetQName(tqnResult);
+      }
     }
   }
 }

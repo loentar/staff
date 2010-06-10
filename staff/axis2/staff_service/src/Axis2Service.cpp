@@ -153,96 +153,56 @@ rise::LogEntry();
     axis2_msg_ctx_t* pAxis2MsgCtx)
   {
 rise::LogEntry();
+
     if (pAxiomNode == NULL)
     {
-      rise::LogError() << "Invalid parameters in Axis2 request OM\n";
+      rise::LogError() << "AxiOM node is NULL\n";
       return NULL;
     }
 
     if (axiom_node_get_node_type(pAxiomNode, pEnv) != AXIOM_ELEMENT)
     {
-      rise::LogError() << "!axiom_node_get_node_type\n";
+      rise::LogError() << "Can't get AxiOM node type";
       return NULL;
     }
 
     axiom_element_t* pAxiomElement = (axiom_element_t*)axiom_node_get_data_element(pAxiomNode, pEnv);
     if (pAxiomElement == NULL)
     {
-      rise::LogError() << "!axiom_node_get_data_element\n";
+      rise::LogError() << "Can't get AxiOM node element\n";
       return NULL;
     }
 
-    const axis2_char_t* szSessionId = NULL;
-    const axis2_char_t* szInstanceId = NULL;
+    const axis2_char_t* szServiceName = reinterpret_cast<const axis2_char_t*>
+        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "ServiceName"));
+    const axis2_char_t* szSessionId = reinterpret_cast<const axis2_char_t*>
+        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "SessionId"));
+    const axis2_char_t* szInstanceId = reinterpret_cast<const axis2_char_t*>
+        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "InstanceId"));
 
+    if (szServiceName == NULL)
     {
-      axis2_op_ctx_t* pOperationContext = axis2_msg_ctx_get_op_ctx(pAxis2MsgCtx, pEnv);
-      axis2_msg_ctx_t* pInMessageContext = axis2_op_ctx_get_msg_ctx(pOperationContext, pEnv, AXIS2_WSDL_MESSAGE_LABEL_IN);
-      axiom_soap_envelope_t* pSoapEnv = axis2_msg_ctx_get_soap_envelope(pInMessageContext, pEnv);
-      axiom_node_t* pHeaderBlockNode = NULL;  
-      axiom_soap_header_block_t* pSoapHeaderBlock = NULL;
-
-      axiom_soap_header* pSoapHeader = axiom_soap_envelope_get_header(pSoapEnv, pEnv);
-      if(pSoapHeader != NULL)
-      {
-        axiom_element_t* pSoapHeaderBlockElement = NULL;
-        axutil_hash_t* pHeaderHash = axiom_soap_header_get_all_header_blocks(pSoapHeader, pEnv);
-
-        if(pHeaderHash != NULL)
-        {
-          for (axutil_hash_index_t* pSoapHeadersHashIndex = axutil_hash_first(pHeaderHash, pEnv); 
-               pSoapHeadersHashIndex != NULL;
-               pSoapHeadersHashIndex = axutil_hash_next(pEnv, pSoapHeadersHashIndex))
-          {
-            void* pHeaderBlock = NULL;
-            axis2_char_t* szHeaderLocalName = NULL;
-
-            axutil_hash_this(pSoapHeadersHashIndex, NULL, NULL, &pHeaderBlock);
-            if (pHeaderBlock != NULL)
-            {
-              pSoapHeaderBlock = (axiom_soap_header_block_t *)pHeaderBlock;
-              if (pSoapHeaderBlock != NULL)
-              {
-                pHeaderBlockNode = axiom_soap_header_block_get_base_node(pSoapHeaderBlock, pEnv);
-                if (pHeaderBlockNode != NULL)
-                {
-                  pSoapHeaderBlockElement = (axiom_element_t*)axiom_node_get_data_element(pHeaderBlockNode, pEnv);
-                  if (pSoapHeaderBlockElement != NULL)
-                  {
-                    szHeaderLocalName = axiom_element_get_localname(pSoapHeaderBlockElement, pEnv);
-                    if (szHeaderLocalName != NULL)
-                    {
-                      if (axutil_strcmp(szHeaderLocalName, "SessionId") == 0)
-                      {
-                        szSessionId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
-                        if (szInstanceId != NULL)
-                        {
-                          break;
-                        }
-                      }
-                      else
-                      if (axutil_strcmp(szHeaderLocalName, "InstanceId") == 0)
-                      {
-                        szInstanceId = axiom_element_get_text(pSoapHeaderBlockElement, pEnv, pHeaderBlockNode);
-                        if (szSessionId != NULL)
-                        {
-                          break;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          } // for (axutil_hash_index_t* pSoapHeadersHashIndex =...
-        } // if(pHeaderHash != NULL)
-      } // if(pSoapHeader != NULL)
+      rise::LogError() << "Cannot process message: Service name is not set by security module.";
+      return NULL;
     }
 
+    if (szSessionId == NULL)
+    {
+      rise::LogError() << "Cannot process message: Session id is not set by security module.";
+      return NULL;
+    }
 
-rise::LogLabel();
+    if (szInstanceId == NULL)
+    {
+      rise::LogError() << "Cannot process message: Instance id is not set by security module.";
+      return NULL;
+    }
 
 #ifdef _DEBUG
+    rise::LogDebug1() << "Service name: [" << szServiceName << "]";
+    rise::LogDebug1() << "Session id: [" << szSessionId << "]";
+    rise::LogDebug1() << "Instance id: [" << szInstanceId << "]";
+
     {
       axiom_node_t* panBody = axiom_node_get_parent(pAxiomNode, pEnv);
       axiom_node_t* panEnv = axiom_node_get_parent(panBody, pEnv);
@@ -254,19 +214,14 @@ rise::LogLabel();
 
     staff::COperation tOperation;
 
-    std::string sServiceName;
-    std::string sSessionId = (szSessionId == NULL || szSessionId[0] == '\0') ? staff::security::CSessions::sNobodySessionId : szSessionId;
-    std::string sInstanceId = (szInstanceId == NULL) ? "" : szInstanceId;
+    std::string sServiceName = szServiceName;
+    std::string sSessionId = szSessionId;
+    std::string sInstanceId = szInstanceId;
 
     try
     {
       tOperation.Request().Attach(pAxiomNode);
       
-      std::string sUri = tOperation.Request().GetNamespaceUri();
-
-      std::string::size_type nPos = sUri.find_last_of('/');
-      sServiceName = (nPos == std::string::npos) ? sUri : sUri.substr(nPos + 1);
-
       if (sServiceName == "StaffService")
       {
         staff::CServiceDispatcher::Inst().InvokeSelf(tOperation);

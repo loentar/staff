@@ -39,9 +39,7 @@
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
 #include <staff/security/tools.h>
-#include "Axis2Utils.h"
-
-#define dprintf printf("%s[%d]: staff_security: ", GetBaseFile(__FILE__), __LINE__); printf
+#include "StaffSecurityUtils.h"
 
 struct axis2_handler
 {
@@ -51,21 +49,23 @@ struct axis2_handler
                                        struct axis2_msg_ctx* msg_ctx);
 };
 
-axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, 
+axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler, 
                                                  const axutil_env_t *pEnv, 
                                                  struct axis2_msg_ctx* pMsgCtx)
 {
-  AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);    
+  AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   if (axis2_msg_ctx_get_server_side(pMsgCtx, pEnv))
   {
     axis2_char_t* szServiceOperationPath = NULL;
     const axis2_char_t* szSessionId = NULL;
+    const axis2_char_t* szInstanceId = NULL;
+    axis2_char_t* szServiceName = NULL;
     int nAccess = 0;
 
-    AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath));
+    AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath, &szServiceName));
 
-    if(!GetSessionId(pMsgCtx, pEnv, &szSessionId) || szSessionId == NULL)
+    if(!GetSessionAndInstanceId(pMsgCtx, pEnv, &szSessionId, &szInstanceId) || szSessionId == NULL)
     {
       dprintf("Session ID is not set, identifying as guest\n");
 
@@ -78,6 +78,7 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
         szSessionId, szServiceOperationPath);
 
       AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
+      AXIS2_FREE(pEnv->allocator, szServiceName);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied: sessionid unknown or expired");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
@@ -91,6 +92,7 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
               szSessionId, szServiceOperationPath);
 
       AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
+      AXIS2_FREE(pEnv->allocator, szServiceName);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
@@ -99,12 +101,45 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler,
     }
 
     AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
+
+    { // remember service name, sessionid instanceid in message context
+      axutil_property_t* pProp = axutil_property_create(pEnv);
+      if (!pProp)
+      {
+        dprintf("WARNING: failed to create property to save service name");
+        AXIS2_FREE(pEnv->allocator, szServiceName);
+        return AXIS2_FAILURE;
+      }
+
+      axutil_property_set_value(pProp, pEnv, szServiceName);
+      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
+
+      pProp = axutil_property_create(pEnv);
+      if (!pProp)
+      {
+        dprintf("WARNING: failed to create property to save session id");
+        return AXIS2_FAILURE;
+      }
+
+      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szSessionId));
+      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "SessionId", pProp);
+
+      pProp = axutil_property_create(pEnv);
+      if (!pProp)
+      {
+        dprintf("WARNING: failed to create property to save instance id");
+        return AXIS2_FAILURE;
+      }
+
+      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szInstanceId ? szInstanceId : ""));
+      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "InstanceId", pProp);
+    }
   }
 
   return AXIS2_SUCCESS;
 }
 
-axis2_status_t AXIS2_CALL Axis2DispatcherModule_init( axis2_module_t* pModule, 
+axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule, 
                                                       const axutil_env_t* pEnv,
                                                       axis2_conf_ctx_t* pConfCtx, 
                                                       axis2_module_desc_t* pModuleDesc)
@@ -117,7 +152,7 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_init( axis2_module_t* pModule,
   return AXIS2_SUCCESS;
 }
 
-AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t *pEnv, 
+AXIS2_EXPORT axis2_handler_t* AXIS2_CALL StaffSecurity_create(const axutil_env_t *pEnv, 
                                                                 axutil_qname_t* pQName) 
 {
   axis2_handler_t* pHandler = NULL;
@@ -128,12 +163,12 @@ AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env
     return NULL;
   }
 
-  pHandler->invoke = Axis2Dispatcher_invoke;
+  pHandler->invoke = StaffSecurity_invoke;
 
   return pHandler;
 }
 
-axis2_status_t AXIS2_CALL Axis2DispatcherModule_shutdown(axis2_module_t* pModule, 
+axis2_status_t AXIS2_CALL StaffSecurityModule_shutdown(axis2_module_t* pModule, 
                                                          const axutil_env_t* pEnv)
 {
   staff_security_free();
@@ -153,26 +188,26 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_shutdown(axis2_module_t* pModule
   return AXIS2_SUCCESS; 
 }
 
-axis2_status_t AXIS2_CALL Axis2DispatcherModule_fill_handler_create_func_map(axis2_module_t* pModule, 
+axis2_status_t AXIS2_CALL StaffSecurityModule_fill_handler_create_func_map(axis2_module_t* pModule, 
                                                                              const axutil_env_t* pEnv)
 {
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   pModule->handler_create_func_map = axutil_hash_make(pEnv);
   axutil_hash_set(pModule->handler_create_func_map, "StaffSecurity", 
-    (axis2_ssize_t)AXIS2_HASH_KEY_STRING, Axis2Dispatcher_create);
+    (axis2_ssize_t)AXIS2_HASH_KEY_STRING, StaffSecurity_create);
 
   return AXIS2_SUCCESS;
 }
 
 static const axis2_module_ops_t staff_security_module_ops_var = 
 {
-  Axis2DispatcherModule_init,
-  Axis2DispatcherModule_shutdown,
-  Axis2DispatcherModule_fill_handler_create_func_map
+  StaffSecurityModule_init,
+  StaffSecurityModule_shutdown,
+  StaffSecurityModule_fill_handler_create_func_map
 };
 
-axis2_module_t* Axis2DispatcherModule_create(const axutil_env_t* pEnv)
+axis2_module_t* StaffSecurityModule_create(const axutil_env_t* pEnv)
 {
   axis2_module_t *module = (axis2_module_t*)AXIS2_MALLOC(pEnv->allocator, sizeof(axis2_module_t));
   module->ops = &staff_security_module_ops_var;
@@ -186,7 +221,7 @@ axis2_module_t* Axis2DispatcherModule_create(const axutil_env_t* pEnv)
 AXIS2_EXPORT int axis2_get_instance(axis2_module_t** ppInst,
                                     const axutil_env_t* pEnv)
 {
-  *ppInst = Axis2DispatcherModule_create(pEnv);
+  *ppInst = StaffSecurityModule_create(pEnv);
   AXIS2_UTILS_CHECK(*ppInst);
 
   return AXIS2_SUCCESS;
@@ -196,5 +231,5 @@ AXIS2_EXPORT int axis2_remove_instance(axis2_module_t* pInst, const axutil_env_t
 {
   AXIS2_UTILS_CHECK(pInst);
 
-  return Axis2DispatcherModule_shutdown(pInst, pEnv);
+  return StaffSecurityModule_shutdown(pInst, pEnv);
 }
