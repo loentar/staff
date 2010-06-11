@@ -1,0 +1,59 @@
+#summary Example: How to modify web service to support REST
+#labels Featured
+
+We're using Calculator service from ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux.
+
+== 1. Enabling REST support in service ==
+
+Enabling REST support for service is very easy.
+You just need to describe REST method and REST location by write special codegen metacomments:
+
+{{{
+// restMethod: <REST_METHOD>
+// restLocation: <REST_LOCATION>
+}}}
+
+Where `<REST_METHOD>` is one of GET, PUT, POST, DELETE and `<REST_LOCATION>` is the part of URL to access to service's operation.
+
+These comments should be added for each service operation, for which you want to include REST support.
+
+== 2. Modifying Calculator service ==
+
+Open !CalculatorComponent/src/Calculator.h and add these lines before Add operation
+{{{
+// restMethod: GET
+// restLocation: Add/a={nA},b={nB}
+}}}
+
+You should get:
+{{{
+...
+
+    //! Add operation
+    /*! \param nA - first argument
+        \param nB - second argument
+        \return nA + nB result
+    */
+    // restMethod: GET
+    // restLocation: Add/a={nA},b={nB}
+    virtual int Add(int nA, int nB) = 0;
+
+...
+}}}
+
+Regenerate service wrapper by entering codegen's command from !CalculatorComponent/src directory:
+{{{
+staff_codegen -tcomponent Calculator.h
+}}}
+
+Compile and install modified service.
+
+Restart Axis2/c.
+
+== 3. Test web service using web browser ==
+
+Open next URL to invoke our RESTful service samples.Calculator:
+
+http://localhost:9090/axis2/services/samples.Calculator/Add/a=1,b=2
+
+Service execution results must shown.
