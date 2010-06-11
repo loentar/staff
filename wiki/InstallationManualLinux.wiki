@@ -24,10 +24,10 @@ You can use following commands for downloading and installing axis2/c:
 {{{
 mkdir ~/devel/axis2c
 cd ~/devel/axis2c
-wget http://www.sai.msu.su/apache/ws/axis2/c/1_5_0/axis2c-src-1.5.0.tar.gz
-tar zxvf axis2c-src-1.5.0.tar.gz
-cd axis2c-src-1.5.0
-./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-guththila=no
+wget http://www.sai.msu.su/apache/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
+tar zxvf axis2c-src-1.6.0.tar.gz
+cd axis2c-src-1.6.0
+./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no--enable-guththila=no --enable-amqp=no
 make && sudo -E make install
 }}}
 
@@ -38,7 +38,7 @@ Please refer to http://code.google.com/p/staff/source/checkout to read guide for
 Or download the source code from [http://code.google.com/p/staff/downloads/list Download] section.
 
 
-== 3. Compiling Staff's source code ==
+== 3. Compiling source code ==
 
 _Package binutils-dev is required._
 Enter these commands to compile and install rise, Staff and Webapp.
@@ -53,12 +53,15 @@ chmod 777 $(AXIS2C_HOME}/logs
 
 === 4.1 Starting in normal mode ===
 
+To start axis2/c in normal mode, please enter:
 {{{
 cd $AXIS2C_HOME/bin
 ./axis2_http_server
 }}}
 
 === 4.2 Starting in debug mode == 
+
+To start axis2/c in debug mode, please enter:
 {{{
 cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server

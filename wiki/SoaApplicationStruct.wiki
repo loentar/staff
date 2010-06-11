@@ -1,18 +1,16 @@
-#summary Overview of SOA-an application for Staff
+#summary Overview of SOA-an application for Staff-2.0
 #labels Featured,Phase-Design
-
-_NOTICE: translated from russian with translate.google.com_ 
 
 == Overview == 
   This document contains information on the general structure of a model SOA-applications. 
 
 == Description == 
 
-  Chart component model for distributed applications based on Axis2/C Staff: 
+  This is a component diagram for distributed applications based on Staff: 
 
   [http://staff.googlecode.com/svn/wiki/img/component_diagram_en.png http://staff.googlecode.com/svn/wiki/img/component_diagram_en.png] 
 
-  Service of the application may be made either as a separate plug-service (in the figure - the "Service") or as a service, which is part of the component ("Component"), or service Axis2/C (not shown in the diagram). 
+  Service of the application may be made either as a service, which is part of the component ("Component"), or service Axis2/C (not shown in the diagram). 
 
   Client may be an application implemented in C++ using the client library Staff ("C++ Client") or an application implemented in JavaScript ("JavaScript Client") or any other application implementing the exchange to service part of the protocol through SOAP, in the format compatible with the Staff. 
 
@@ -28,26 +26,18 @@ _NOTICE: translated from russian with translate.google.com_
   Core is designed to dispatch requests and manage services. 
   Appointment of the components of the kernel: 
   * Axis2/C - Application Server, provides a transport level and the base dispatching SOAP-requests; 
-  * Staff security module: checks access rights of authorized clients to components and operations services.
-  * Staff module: the filtering of requests to Staff services; 
+  * Staff security module: checks access rights of authorized clients to components and operations services;
+  * Staff dispatcher module: the filtering of requests to Staff services; 
   * Staff service: performs the reception, the search service and redirect the request to that service; 
-  * Service dispatcher: implements a connection, storing information on services, management and search services. 
-
-
-  Service is a separate application, which in addition to the functional of the service may contain their own functionality. 
-  Service includes the following functional components: 
-  * Service dispatcher client - a component that provides SOAP-transport between the service and service dispatcher; 
-  * Service wrapper - a component that provides the conversion of SOAP-request to call the functions of the service and packaging result; 
-  * Service implementation contains a set of functions that defines the functionality of the service. The implementation of the service realized by developer. 
+  * Service dispatcher: implements a connection, storing information on services, management and search services;
+  * Session manager: manages the sessions, frees sessions and bound services instances when session is expired;
+  * Instance manager: manages the services instances;
+  * Services wrapper factory: stores wrappers to all registered services in system.
 
 
   Component contains the implementation of one or more services. 
   Component consists of: 
   * Implementation of the component - the module responsible for the management of services within the component; 
   * Service wrapper - a component that provides the conversion of SOAP-request to call the functions of the service and packaging result; 
-  * Context of the service - information about the session, the local information about the service; 
-  * Service implementation contains a set of functions that defines the functionality of the service. The implementation of the service realized by developer. 
+  * Service implementation contains a set of functions that defines the functionality of the service. The implementation of the service realized by developer.
 
-  Optional modules are designed to communicate with other components and services. Optional Component modules are as follows: 
-  * Service locator - a module designed to find and generate wrappers for server components and connected services; 
-  * Service wrapper - a module for connection with Service.

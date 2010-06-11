@@ -28,8 +28,20 @@ cd ~/devel/axis2c
 wget http://apache.rinet.ru/dist/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
 tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
-LIBXML2_LIBS="-lxml2" CFLAGS="-I/usr/include/libxml2 -DAXIS2_TRACE=1 " ./configure --prefix=/usr/local/axis2c --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
+./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
 make && sudo -E make install
+}}}
+
+*Внимание. Если Вы планируете передавать строки содержащие локальные символы,
+необходимо после распаковки axis2/c изменить кодировку по умолчанию:*
+В файле include/axis2_http_transport.h
+заменить строку
+{{{
+#define AXIS2_HTTP_DEFAULT_CONTENT_CHARSET "ISO-8859-1"
+}}}
+на строку
+{{{
+#define AXIS2_HTTP_DEFAULT_CONTENT_CHARSET "UTF-8"
 }}}
 
 
@@ -94,4 +106,3 @@ INFO main.cpp[58]: main: Setting mem: 46
 INFO main.cpp[60]: main: 46
 INFO main.cpp[61]: main: Service mem: 46
 }}}
-

@@ -20,7 +20,7 @@ After setting these variables, You must relogin or reboot windows.
 
 == 1. Compile and install dependencies ==
 
-You need axis2/c-1.5.0 to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
+You need axis2/c-1.5.0 or greater to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
 
 Unpack directory contents axis2c-bin-1.5.0-win32 into c:\ws\axis2c
 
@@ -33,8 +33,9 @@ It must be console window with text:
 {{{
 Started Simple Axis2 HTTP Server ...
 }}}
+If You encounter some errors, please refer to Axis2/C site or get ws-win32-bin*.7z from our download section.
 
-Make sure, that Axis2/C is working, refer to:
+Make sure, that Axis2/C is working, take a look at:
 http://localhost:9090/axis2/services/
 It must be Axis2/С service list.
 
@@ -84,7 +85,7 @@ axis2_http_server
 
 === 5.1 Basic test ===
 
-Open Your favorite web-browser and enter:
+Open the web-browser and enter:
 
 http://localhost:9090/axis2/services
 
