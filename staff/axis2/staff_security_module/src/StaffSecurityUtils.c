@@ -131,8 +131,8 @@ axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_e
   return AXIS2_SUCCESS;
 }
 
-axis2_status_t GetSessionAndInstanceId( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
-                                        const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId )
+void GetSessionAndInstanceId( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                              const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId )
 {
   axiom_soap_envelope_t* pSoapEnv = axis2_msg_ctx_get_soap_envelope(pMsgCtx, pEnv);
   axiom_node_t* pHeaderBlockNode = NULL;  
@@ -194,7 +194,6 @@ axis2_status_t GetSessionAndInstanceId( axis2_msg_ctx_t* pMsgCtx, const axutil_e
       } // for (axutil_hash_index_t* pSoapHeadersHashIndex =...
     } // if(pHeaderHash != NULL)
   } // if(pSoapHeader != NULL)
-  return AXIS2_FAILURE;
 }
 
 const char* GetBaseFile( const char* szFilePath )

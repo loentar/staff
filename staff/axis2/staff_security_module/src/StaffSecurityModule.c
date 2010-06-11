@@ -65,14 +65,15 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
     AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath, &szServiceName));
 
-    if(!GetSessionAndInstanceId(pMsgCtx, pEnv, &szSessionId, &szInstanceId) || szSessionId == NULL)
+    GetSessionAndInstanceId(pMsgCtx, pEnv, &szSessionId, &szInstanceId);
+    if (szSessionId == NULL)
     {
       dprintf("Session ID is not set, identifying as guest\n");
 
       szSessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
     }
 
-    if(!staff_security_calculate_access_by_session_id(szServiceOperationPath, szSessionId, &nAccess))
+    if (!staff_security_calculate_access_by_session_id(szServiceOperationPath, szSessionId, &nAccess))
     {
       dprintf("Access denied to user with unknown or expired session id [%s] while accessing to operation %s\n",
         szSessionId, szServiceOperationPath);

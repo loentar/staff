@@ -36,8 +36,8 @@
 
 axis2_status_t GetServiceOperationPath(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
                                        axis2_char_t** psServiceOperationPath, axis2_char_t** pszServiceName);
-axis2_status_t GetSessionAndInstanceId(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
-                                       const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId);
+void GetSessionAndInstanceId(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                             const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId);
 const char* GetBaseFile(const char* szFilePath);
 
 #endif // _STAFF_SECURITY_UTILS_H_
