@@ -1,0 +1,118 @@
+#summary Руководство по установке, конфигурации и тестированию под Windows
+#labels Featured,Phase-Deploy
+
+= Вступление =
+
+Это - небольшое руководство по компиляции и установке Staff под Windows.
+
+= Описание =
+
+== 0. Переменные окружения ==
+При компиляции, запуске Axis2/С, клиентского или сервисного приложения, должны быть установлены переменные окружения, указывающие на местоположение домашних каталогов Axis2/С и Staff:
+{{{
+AXIS2C_HOME=c:\ws\axis2c
+STAFF_HOME=c:\ws\staff
+PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib;<Путь к Postgresql>\bin;<Путь к Postgresql>\lib
+}}}
+
+Данные переменные окружения могут быть выставлены в свойствах системы.
+После установки переменных, необходимо выполнить повторный вход в систему либо перезагрузку Windows.
+
+== 1. Компиляция и установка зависимостей ==
+
+Необходимо сначала установить Axis2/С-1.5.0.
+Страница загрузки: http://ws.apache.org/axis2/c/download.cgi
+
+Распакуйте содержимое каталога axis2c-bin-1.5.0-win32 в каталог c:\ws\axis2c
+
+Убедитесь, что сервер приложений Axis2/С стартует корректно, для этого запустите
+{{{
+c:\ws\axis2c\bin\axis2_http_server.exe
+}}}
+
+Должно появиться консольное окно с сообщением
+{{{
+Started Simple Axis2 HTTP Server ...
+}}}
+Если при запуске возникают ошибки, необходимо установить зависимости согласно инструкции по установке Axis2/С.
+
+Убедитесь, что сервер приложений Axis2/С функционирует корректно, для этого откройте страницу
+http://localhost:9090/axis2/services/
+Должен отобразиться список сервисов Axis2/С.
+
+== 2. Получение исходного кода Staff ==
+
+Для получения информации о том, как получить исходный код из svn репозитория перейдите по ссылке http://code.google.com/p/staff/source/checkout.
+Либо загрузите и распакуйте архив исходного кода из секции [http://code.google.com/p/staff/downloads/list Download].
+
+
+== 3. Компиляция исходного кода ==
+
+=== 3.1 Компиляция и установка rise ===
+
+Компиляция возможна из коммандной строки либо из IDE:
+ - Для компиляции из коммандной строки запустите файл rebuild.cmd из каталога rise.
+ - Для компиляции из IDE Visual Studio 2005 запустите файл rise.sln из каталога rise, затем откомпилируйте библиотеку (меню Build -> Build Solution).
+Скопируйте содержимое каталога staff\rise\deploy\win_x86 в каталог c:\ws\staff\.
+
+=== 3.2 Компиляция и установка Staff ===
+
+При необходимости, отредактируйте пути включаемых файлов и пути библиотек к СУБД Postgres в свойствах проектов:
+ - staff\components\admin\AccountAdmin\staff.admin.AccountAdmin_service.vcproj;
+ - staff\components\admin\ObjectAdmin\staff.admin.ObjectAdmin_service.vcproj;
+ - staff\components\login_component\staff_login_service.vcproj;
+ - staff\core\security\staff_security.vcproj.
+
+Компиляция возможна из коммандной строки либо из IDE:
+ - Для компиляции из коммандной строки запустите файл rebuild.cmd из каталога staff.
+ - Для компиляции из IDE Visual Studio 2005 запустите файл staff.sln из каталога staff. Откомпилируйте проектное решение (меню Build -> Build Solution)
+
+== 4. Запуск ==
+
+=== 4.1 Запуск в обычном режиме ===
+
+Чтобы запустить сервер приложений Axis2/С в обычном режиме, введите команды:
+{{{
+cd %AXIS2C_HOME%\bin
+axis2_http_server
+}}}
+
+=== 4.2 Запуск в отладочном режиме == 
+
+Чтобы запустить сервер приложений Axis2/С в отладочном режиме, введите команды:
+{{{
+cd %AXIS2C_HOME%\bin
+set RISE_LOG_LEVEL=DEBUG3
+set RISE_EXCEPTION_STACKTRACING=1
+axis2_http_server
+}}}
+
+
+== 5. Тестирование ==
+
+=== 5.1 Основной тест ===
+
+В Веб-браузере откройте ссылку:
+
+http://localhost:9090/axis2/services
+
+Примеры сервисов "samples.calc.CalcService", "samples.calc.SubService" должны быть в списке.
+
+
+=== 5.2 Тест клиент-сервисного взаимодействия ===
+
+Из другой консоли запустите клиент calc:
+{{{
+calc_client
+}}}
+
+
+На экран должно быть выведено:
+{{{
+INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[53]: main: Saved service mem: 0
+INFO main.cpp[58]: main: Setting mem: 46
+INFO main.cpp[60]: main: 46
+INFO main.cpp[61]: main: Service mem: 46
+}}}
+

@@ -1,0 +1,97 @@
+#summary Руководство по установке, конфигурации и тестированию под Linux
+#labels Featured,Phase-Deploy
+
+= Вступление =
+
+Это руководство по компиляции и установке Staff на Linux-подобной ОС.
+
+= Описание =
+
+== 0. Переменные окружения ==
+При компиляции, запуске axis2/c, клиентского или сервисного приложения, должны быть установлены следующие переменные окружения:
+{{{
+export AXIS2C_HOME=/usr/local/axis2c
+export STAFF_HOME=/usr/local/staff
+}}}
+
+Вы можете добавить эти строки в конец файла ~/.bashrc после чего произвести повторный вход в систему.
+
+== 1. Компиляция и установка зависимостей ==
+
+Необходимо сначала установить axis2/c-1.5.0 (или выше). Домашняя страница axis2/c: http://ws.apache.org/axis2/c/
+
+Вы можете использовать следующий набор команд для загрузки и установки axis2/c:
+_Пакет curl-dev(libcurl-gnutls-dev или libcurl-openssl-dev) должен быть установлен._
+{{{
+mkdir ~/devel/axis2c
+cd ~/devel/axis2c
+wget http://apache.rinet.ru/dist/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
+tar zxvf axis2c-src-1.6.0.tar.gz
+cd axis2c-src-1.6.0
+LIBXML2_LIBS="-lxml2" CFLAGS="-I/usr/include/libxml2 -DAXIS2_TRACE=1 " ./configure --prefix=/usr/local/axis2c --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
+make && sudo -E make install
+}}}
+
+
+== 2. Получение исходного кода ==
+
+Пожалуйста перейдите по ссылке http://code.google.com/p/staff/source/checkout для получения информации о том, как получить исходный код из svn репозитория.
+Или загрузите архив исходных файлов из секции [http://code.google.com/p/staff/downloads/list Download].
+
+== 3. Компиляция исходного кода ==
+
+_Пакет binutils-dev должен быть установлен._
+Введите эти команды для компиляции и установки rise, Staff и Webapp из корня рабочей копии (staff-read-only):
+
+{{{
+make && sudo make install
+sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
+chmod 777 $(AXIS2C_HOME}/logs
+}}}
+
+== 4. Запуск ==
+
+=== 4.1 Запуск в обычном режиме ===
+
+Чтобы запустить сервер приложений axis2/c в обычном режиме, введите команды:
+{{{
+cd $AXIS2C_HOME/bin
+./axis2_http_server
+}}}
+
+=== 4.2 Запуск в отладочном режиме == 
+
+Чтобы запустить сервер приложений axis2/c в отладочном режиме, введите команды:
+{{{
+cd $AXIS2C_HOME/bin
+RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
+}}}
+
+
+== 5. Тестирование ==
+
+=== 5.1 Основной тест ===
+
+В Веб-браузере откройте ссылку:
+
+http://localhost:9090/axis2/services
+
+Примеры сервисов "samples.calc.CalcService", "samples.calc.SubService" должны быть в списке.
+
+
+=== 5.2 Тест клиент-сервисного взаимодействия ===
+
+Из другой консоли запустите клиент calc:
+{{{
+${STAFF_HOME}/samples/bin/calc_client
+}}}
+
+На экран должно быть выведено:
+{{{
+INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[53]: main: Saved service mem: 0
+INFO main.cpp[58]: main: Setting mem: 46
+INFO main.cpp[60]: main: 46
+INFO main.cpp[61]: main: Service mem: 46
+}}}
+

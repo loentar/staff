@@ -1,0 +1,426 @@
+#summary Руководство по созданию SOA приложения
+#labels Featured
+
+= Введение =
+
+ Документ описывает базовую последовательность шагов, которую необходимо выполнить для создания:
+  # Компонентного сервиса
+  # С++ клиента
+  # JavaScript клиента в виде виджета
+
+ В результате выполнения шагов будет получено простейшее SOA приложение.
+
+= Описание =
+
+== 0. Структура каталогов ==
+ Сначала создадим структуру каталогов для сервиса, и клиентов:
+
+{{{
+ # переменная нужна только для лучшего понимания структуры каталогов
+ export SOA_HOME=~/devel/ws/staff.example.HelloWorld
+
+ # создаем каталоги для: компонентного сервиса, С++ клиента, JavaScript клиента
+ # создаем каталоги для хранения исходных файлов
+ mkdir -p $SOA_HOME/component/src $SOA_HOME/client/src $SOA_HOME/jsclient/src
+}}}
+
+== 1. Создание компонентного сервиса ==
+
+=== 1.1. Создание интерфейса компонентного сервиса ===
+
+ Интерфейс компонентного сервиса - заголовочный файл, содержащий описание класса, который будет предоставлять набор функций сервиса.
+
+ Интерфейс также может содержать набор структур и определений типов, которые будут использоваться для взаимодействия с сервисом.
+
+ Откройте любой текстовый редактор и создайте файл с именем `HelloWorld.h` в каталоге $SOA_HOME/component/src:
+{{{
+  gedit $SOA_HOME/component/src/HelloWorld.h
+}}}
+
+ Вставьте готовый пример интерфейса:
+{{{
+#ifndef _WS_HELLOWORLD_H_ 
+#define _WS_HELLOWORLD_H_ 
+
+#include <string> 
+
+//! пространство имен определяет компонент сервиса
+namespace staff
+{
+  namespace example
+  {
+    //! абстрактный класс сервиса
+    /*! все функции должны быть чисто-виртуальными. 
+        Имя класса также может содержать префикс C или I */
+    class HelloWorld
+    {
+    public:
+      //! виртуальный деструктор
+      virtual ~HelloWorld() {}
+
+      //! пример операции сервиса
+      /*! \return "Hello, " + sName 
+      */
+      virtual std::string Hello(const std::string& sName) = 0;
+    };
+  }
+}
+
+#endif // #ifndef _WS_HELLOWORLD_H_
+}}}
+
+=== 1.2. Создание реализации сервиса ===
+ Реализация сервиса - набор файлов, реализующий класс функционала сервиса.
+
+ Для генерации шаблона реализации компонентного сервиса введите команду из каталога исходников сервиса:
+{{{
+  # переходим в каталог исходников компонентного сервиса
+  cd $SOA_HOME/component/src/
+  # генерируем шаблон реализации
+  staff_codegen -tserviceimpl HelloWorld.h
+}}}
+
+ В будует создано два файла, содержащие шаблон реализации сервиса: `HelloWorldImpl.cpp`  `HelloWorldImpl.h`
+
+ Откройте файл `HelloWorldImpl.cpp` в текстовом редакторе и замените реализацию функции(операцию сервиса) Hello:
+{{{
+std::string HelloWorldImpl::Hello(const std::string& sName)
+{
+  return "Hello, " + sName;
+}
+}}}
+
+ Реализация сервиса готова.
+  _*ВНИМАНИЕ: При изменении интерфейса сервиса необходимо самостоятельно внести изменения в реализацию. При повторной генерации шаблон перезатрет реализацию.*_
+
+
+=== 1.2. Генерация обертки компонентного сервиса ===
+ Обертка компонентного сервиса - набор файлов, реализующий внутренние функции компонентного сервиса, такие как:
+  * обеспечение передачи аргументов, возвращаемого значения и типов данных операций сервиса
+  * включение сервиса в компонент
+  * реализация контекста выполнения
+
+ Для генерации обертки компонентного сервиса введите команду:
+{{{
+  # переходим в каталог исходников компонентного сервиса
+  cd $SOA_HOME/component/src/
+  # генерируем обертку компонентного сервиса
+  staff_codegen -tcomponent HelloWorld.h
+}}}
+
+  _*ВНИМАНИЕ: При изменении интерфейса сервиса необходимо перегенерировать обертку.*_
+
+=== 1.4. Компиляция компонентного сервиса ===
+
+Для компиляции компонентного сервиса в каталоге $SOA_HOME/component/ создадим простой Makefile:
+{{{
+COMPONENT = staff.example
+TARGET = HelloWorld
+TARGETNAME = lib$(TARGET).so
+
+PLATFORM ?= $(shell uname -m)
+SRCDIR = src/
+OBJDIR = obj/$(PLATFORM)/
+OUTDIR = out/$(PLATFORM)/
+
+COMPONENT_HOME = $(STAFF_HOME)/components/$(COMPONENT)/
+
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include -fPIC
+LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread
+LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+
+SOURCES = $(wildcard $(SRCDIR)*.cpp)
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+# == make ===========================================
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+
+# link
+$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == install ========================================
+install: check "$(COMPONENT_HOME)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(COMPONENT_HOME)
+
+# == clean ==========================================
+clean:
+	rm -Rf $(OBJDIR) $(OUTDIR)
+
+# == mkdir ==========================================
+"%/":
+	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+
+# == check ==========================================
+check:
+ifeq ($(STAFF_HOME),)
+	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+endif
+}}}
+
+ Скомпилируем и установим компонентный сервис:
+{{{
+cd $SOA_HOME/component/
+make && sudo make install
+}}}
+
+=== 1.5. Тестирование ===
+ Компонентный сервис готов, теперь можно запустить диспетчер приложений Axis2/C и проверить правильность регистрации компонентного сервиса. Из другой консоли введите:
+{{{
+cd $AXIS2C_HOME/bin
+./axis2_http_server
+}}}
+
+ Запустите любой веб-браузер и введите следующий адрес:
+http://localhost:9090/axis2/services
+ Среди прочих сервисов должен быть отображен
+
+  ||<h3><u>staff.example.HelloWorld</u></h3><p>Staff service HelloWorld</p><i>Available Operations</i> <ul><li>Hello</li></ul>||
+
+== 2. Создание С++ клиента ==
+
+=== 2.1. Создание реализации клиента ===
+ Перейдите в каталог исходных файлов клиента и создайте символическую ссылку интерфейса сервиса:
+{{{
+  cd $SOA_HOME/client/src/
+  ln -s ../../component/src/HelloWorld.h HelloWorld.h
+}}}
+
+ Сгенерируйте шаблон реализации клиента:
+{{{
+  staff_codegen -tclientimpl HelloWorld.h
+}}}
+ В результате будет создан файл `main.cpp`, откройте его в текстовом редакторе и внесите следующие изменения:
+
+{{{
+      // Invoke Your service here:
+      const char* szUser = getenv("USER");
+      std::cout << pHelloWorld->Hello(szUser != NULL ? szUser : "user") << std::endl;
+}}}
+
+=== 2.2. Генерация прокси клиента ===
+ Прокси клиента - набор файлов, реализующий внутренние функции клиента, такие как:
+  * получение объекта для работы с сервисом
+  * обеспечение передачи аргументов, возвращаемого значения и типов данных операций сервиса
+
+ Для генерации прокси клиента введите команду:
+{{{
+  # переходим в каталог исходников клиента
+  cd $SOA_HOME/client/src/
+  # генерируем прокси
+  staff_codegen -tclient HelloWorld.h
+}}}
+
+  _*ВНИМАНИЕ: При изменении интерфейса сервиса необходимо перегенерировать прокси.*_
+
+=== 2.3. Компиляция клиента ===
+
+Для компиляции клиента в каталоге $SOA_HOME/client/ создадим простой Makefile:
+{{{
+COMPONENT = staff.example
+TARGET = HelloWorld
+TARGETNAME = $(TARGET)
+
+PLATFORM ?= $(shell uname -m)
+SRCDIR = src/
+OBJDIR = obj/$(PLATFORM)/
+OUTDIR = out/$(PLATFORM)/
+
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include -fPIC
+LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+LDFLAGS += -lstaffcommon -lstaffclient -lstaffcomponent -lrise
+
+SOURCES = $(wildcard $(SRCDIR)*.cpp)
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+# == make =========================================== 
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+
+# link 
+$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+        $(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile 
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+        $(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == install ======================================== 
+install: check "$(COMPONENT_HOME)"
+        cp -f $(OUTDIR)$(TARGETNAME) $(COMPONENT_HOME)
+
+# == clean ========================================== 
+clean:
+        rm -Rf $(OBJDIR) $(OUTDIR)
+
+# == mkdir ========================================== 
+"%/":
+        @[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+
+# == check ========================================== 
+check:
+ifeq ($(STAFF_HOME),)
+        @echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+endif
+}}}
+
+ Выполните компиляцию клиента:
+{{{
+  cd $SOA_HOME/client/
+  make
+}}}
+
+=== 2.4. Тестирование ===
+
+ Перед запуском клиента убедитесь что сервер приложений Axis2/C запущен и компонентный сервис зарегистрирован (п. 1.5).
+
+ Запустите клиент командой:
+{{{
+  cd $SOA_HOME/client/
+  out/$(uname -m)/HelloWorld
+}}}
+
+ На экран должно быть выведено сообщение
+ || Hello, user ||
+ где user - имя текущей учетной записи
+
+
+== 3. Создание JavaScript клиента ==
+
+=== 3.0. Настройка webapp ===
+
+ Apache2 должен быть установлен.
+ Необходимо знать каталог хранения html документов Apache2. Обычно он находится по одному из следующий адресов:
+{{{
+ /var/www
+ /www/htdocs
+}}}
+
+ Для удобства используем переменную окружения
+{{{
+  export WWWSAMPLE=/var/www/webapp-sample/
+  mkdir -p $WWWSAMPLE
+}}}
+
+ Скопируйте клиентскую часть и каталог примеров из svn:
+{{{
+  cd $WWWSAMPLE
+  svn export --force http://staff.googlecode.com/svn/trunk/webapp/webclient/samples .
+  svn export --force http://staff.googlecode.com/svn/trunk/webapp/webclient/webapp webapp
+}}}
+
+ Для функционирования приложения также необходим фреймворк YahooUI (http://developer.yahoo.com/yui/).
+ Распакуйте содержимое каталога `build` в `$WWWSAMPLE/yui`.
+
+ Протестируйте работоспособность базового веб приложения. Сервер приложений Axis2/C и Веб-сервер Apache2 должны быть запущены. Откройте страницу в браузере(Firefox)
+http://localhost/webapp-sample/main.htm?profile=webapp_sample
+ приложение должно загружаться и должны быть доступны функции по добавлению виджетов.
+
+=== 3.1. Создание виджета сервиса ===
+
+Виджет - набор HTML/YUI компонентов, предназначенный для взаимодействия пользователя с сервисом. Физически виджет представлен в виде js-файла.
+
+Создайте простой виджет, содержащий метку, поле ввода и кнопку для вызова сервиса.
+Создайте файл:
+{{{
+  cd $SOA_HOME/jsclient/src/
+  mkdir -p widget
+  gedit widget/HelloWorld.js
+}}}
+
+Вставьте код виджета:
+{{{
+// namespace for this widget
+namespace('widget');
+
+// including HelloWorld client
+Include('clients/HelloWorld');
+
+///////////////////////////////////////////////////////////////
+// HelloWorld widget
+
+widget.HelloWorld = Class.create();
+widget.HelloWorld.prototype.extend(webapp.widget.Widget.prototype).extend
+({
+  // create controls
+  Create: function(tParent)
+  {
+    // markup table
+    var tTableMarkup = new webapp.ui.Table(tParent);
+
+    // label
+    var tLabel = new webapp.ui.Label(tTableMarkup.AddRowCell(), { sCaption: _('Your name') + ':' });
+
+    // editor for name
+    var tEditName = new webapp.ui.Edit(tTableMarkup.AddRowCell());
+    tEditName.SetValue(_('user'));
+    tLabel.SetBuddy(tEditName);
+    this.tEditName = tEditName;
+
+    // button for invoking service
+    var tButton = new webapp.ui.Button(tTableMarkup.AddRowCell(), { sCaption: _('Hello') });
+    tButton.On('click', this._OnHelloClicked.bind(this));
+
+    return tTableMarkup;
+  },
+  
+  // onclick handler
+  _OnHelloClicked: function()
+  {
+    var sName = this.tEditName.GetText();
+    // invoking service
+    var sResult = this.GetHelloWorldService().Hello(sName);
+
+    alert(sResult);
+  },
+
+  // get service
+  GetHelloWorldService: function()
+  {
+    if (!this.tHelloWorldService)
+    {
+      this.tHelloWorldService = new staff.example.HelloWorld();
+    }
+
+    return this.tHelloWorldService;
+  }
+});
+}}}
+
+=== 3.2. Создание прокси ===
+{{{
+  cd $SOA_HOME/jsclient/src/
+  mkdir -p clients
+  staff_codegen -tjsclient -i../../component/src/ -oclients HelloWorld.h
+}}}
+
+=== 3.4. Установка ===
+ Скопируйте виджет и обертку клиента:
+{{{
+  cp -Rf $SOA_HOME/jsclient/src/* $WWWSAMPLE
+}}}
+
+ Теперь необходимо внести запись в менеджер виджетов.
+ Откройте в текстовом редакторе файл настроек виджетов
+{{{
+  gksudo gedit /usr/local/staff/components/widget/db/widgetdb_classes.webapp_sample.xml
+}}}
+ и добавьте следующие строки перед тегом `</Classes>` аналогично уже имеющимся:
+{{{
+    <Class>
+      <Name>widget.HelloWorld</Name>
+      <Descr>Hello World</Descr>
+    </Class>
+}}}
+
+=== 3.5. Тестирование ===
+ Откройте(или перезагрузите) страницу в браузере(Firefox)
+http://localhost/webapp-sample/main.htm?profile=webapp_sample
+
+ В меню "Виджеты" Веб-приложения выберите пункт "Добавить". В открывшемся диалоге выберите "Hello World", нажмите кнопку "OK". Далее выберите любую позицию и нажмите "ОК".
+ Будет загружен виджет.
+ При нажатии на кнопку "Hello" будет вызвана операция сервиса, результат выполнения которой будет выведен в диалоге.

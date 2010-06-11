@@ -1,0 +1,119 @@
+#summary Создание СОА клиентов на основе WSDL описания.
+#labels Featured,Phase-Implementation
+
+= Введение =
+
+ Документ описывает базовую последовательность шагов, которую необходимо выполнить для создания С++ клиента, используя WSDL.
+
+ В качестве примера используется Веб-сервис !StockQuote http://www.webservicex.net/WCF/ServiceDetails.aspx?SID=19
+
+ В результате выполнения шагов будет получен C++ клиент для работы с сервисом !StockQuote.
+
+
+= Описание =
+
+== 0. Структура каталогов ==
+ Сначала создадим структуру каталогов для клиента:
+
+{{{
+ # переменная нужна только для лучшего понимания структуры каталогов
+ export WSCLIENTDIR=~/devel/ws/clients/stockquote
+ # создаем каталог клиента и каталог для хранения исходного кода
+ mkdir -p ${WSCLIENTDIR}/src
+}}}
+
+== 1. Реализация клиента ==
+ Клиент должен производить запрос курса акций и выводить результат на экран:
+
+{{{
+ # переходим в каталог исходных файлов клиента
+ cd ${WSCLIENTDIR}/src
+ # получаем WSDL для веб-сервиса StockQuote
+ wget http://www.webservicex.net/stockquote.asmx?WSDL -O StockQuote.wsdl
+ # генерируем шаблон реализации клиента
+ ${STAFF_HOME}/bin/staff_codegen -w -tclientimpl StockQuote.wsdl
+}}}
+
+ Далее, в шаблоне клиента необходимо реализовать код для вызова сервиса. Откройте файл main.cpp в текстовом редакторе:
+
+{{{
+ gedit main.cpp
+}}}
+
+и добавьте код вызова сервиса и вывода результатов после комментария "Invoke Your service here", указав в параметре вместо COMPANY_NAME имя компании, например IBM.
+
+{{{
+ staff::string GetQuoteResult = pStockQuote->GetQuote("COMPANY_NAME");
+ std::cout << "Result:" << std::endl << GetQuoteResult << std::endl;
+}}}
+
+== 2. Генерация интерфейса и упаковщика ==
+ Для генерации интерфейса и упаковщика сервиса введите команду
+
+{{{
+  staff_codegen -w -tinterface StockQuote.wsdl
+  staff_codegen -tclient StockQuote.h
+}}}
+
+
+== 3. Компиляция и запуск ==
+ Создайте Makefile для компиляции клиента.
+
+{{{
+  cd ${WSCLIENTDIR}
+  gedit Makefile
+}}}
+
+ Вставьте код Makefile:
+{{{
+TARGET = StockQuoteClient
+TARGETNAME = $(TARGET)
+
+PLATFORM ?= $(shell uname -m)
+SRCDIR = src/
+OBJDIR = obj/$(PLATFORM)/
+OUTDIR = out/$(PLATFORM)/
+
+CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include -fPIC
+LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+LDFLAGS += -lstaffcommon -lstaffclient -lrise
+
+SOURCES = $(wildcard $(SRCDIR)*.cpp)
+OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+# == make =========================================== 
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+
+# link
+$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+
+# compile 
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == clean ========================================== 
+clean:
+	rm -Rf $(OBJDIR) $(OUTDIR)
+
+# == mkdir ========================================== 
+"%/":
+	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+
+# == check ========================================== 
+check:
+ifeq ($(STAFF_HOME),)
+	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
+endif
+}}}
+
+Скомпилируйте клиент командой 
+{{{
+ make
+}}}
+
+Запустите скомпилированный клиент:
+{{{
+ out/$(uname -m)/StockQuoteClient
+}}}
+
