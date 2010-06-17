@@ -28,7 +28,8 @@ namespace staff
         rise::CSharedPtr<CCalculator> pCalculator = staff::CServiceFactory::Inst().GetService<CCalculator>("", "", "mycalc");
 
         \param  sServiceUri - service URI
-        \param  sSessionId - session identifier
+        \param  sSessionId - session id
+        \param  sInstanceId - instance id
         \return pointer to object for work with service
         */
     template<typename TServiceClientBaseType>
@@ -40,12 +41,41 @@ namespace staff
                                                                       sServiceUri, sSessionId, sInstanceId));
     }
 
+    //!         allocate new object for work with service
+    /*! \param  sHost - service host
+        \param  nPort - service port
+        \param  sProtocol - protocol
+        \param  sServiceName - service name
+        \param  sSessionId - session id
+        \param  sInstanceId - instance id
+        \return pointer to object for work with service
+        */
+    template<typename TServiceClientBaseType>
+    TServiceClientBaseType* GetServiceByHost(const std::string& sHost = "localhost",
+                                             int nPort = 9090,
+                                             const std::string& sProtocol = "http",
+                                             const std::string& sServiceName = "",
+                                             const std::string& sSessionId = "",
+                                             const std::string& sInstanceId = "")
+    {
+      return static_cast<TServiceClientBaseType*>(AllocateClientByHost(typeid(TServiceClientBaseType).name(),
+                                                                      sHost, nPort, sProtocol, sServiceName, sSessionId, sInstanceId));
+    }
+
   private:
     //! private constructor
     CServiceFactory();
 
     staff::IService* AllocateClient(const std::string& sClientType, const std::string& sServiceUri,
                              const std::string& sSessionId, const std::string& sInstanceId);
+
+    staff::IService* AllocateClientByHost(const std::string& sClientType,
+                                          const std::string& sHost,
+                                          int nPort,
+                                          const std::string& sProtocol,
+                                          const std::string& sServiceName,
+                                          const std::string& sSessionId,
+                                          const std::string& sInstanceId);
 
   private:
     static CServiceFactory* m_pInst;  //!< instance
