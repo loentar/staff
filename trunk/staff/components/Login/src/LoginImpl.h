@@ -38,6 +38,7 @@ namespace staff
     virtual void Logout();
     virtual void KeepAliveSession();
     virtual std::string GetUserName();
+    virtual int GetUserId();
     virtual int GetSessionExpiration() const;
     virtual bool ValidateSession();
   };

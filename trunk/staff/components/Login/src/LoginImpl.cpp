@@ -79,6 +79,15 @@ namespace staff
     return tResult;  // result
   }
 
+  int CLoginImpl::GetUserId()
+  {
+    int tResult;
+
+    staff::security::CSessions::Inst().GetUserId(IService::GetSessionId(), tResult);
+
+    return tResult;  // result
+  }
+
   int CLoginImpl::GetSessionExpiration() const
   {
     return staff::security::CSessions::Inst().GetExpiration();

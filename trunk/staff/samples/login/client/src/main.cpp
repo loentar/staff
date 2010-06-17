@@ -56,7 +56,7 @@ int main(int nArgs, const char* paszArgs[])
       // assert second session id = first id
 
       std::string sSessionId2 = pLogin->Login("user", "user");
-      std::cout << (sSessionId == sSessionId2 ? ": Success" : ": Error") << std::endl;
+      std::cout << "Second login = same sessid" << (sSessionId == sSessionId2 ? ": Success" : ": Error") << std::endl;
     }
 
     {
@@ -72,6 +72,10 @@ int main(int nArgs, const char* paszArgs[])
       std::cout << "Getting user name ";
       std::string sUser = pLogin->GetUserName();
       std::cout << ": Success: sUser = " << sUser << std::endl;
+
+      std::cout << "Getting user id ";
+      int nUserId = pLogin->GetUserId();
+      std::cout << ": Success: nUserId = " << nUserId << std::endl;
 
       std::cout << "Logout user ";
       pLogin->Logout();
