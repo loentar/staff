@@ -89,6 +89,7 @@ ${STAFF_HOME}/samples/bin/calc_client
 Screen output:
 {{{
 INFO main.cpp[49]: main: 1 + 2 = 3
+INFO main.cpp[51]: main: 3 - 1 = 2
 INFO main.cpp[53]: main: Saved service mem: 0
 INFO main.cpp[58]: main: Setting mem: 46
 INFO main.cpp[60]: main: 46
