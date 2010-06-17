@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 #include <memory>
+#include <rise/string/String.h>
 #include <staff/common/IService.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.Name)Proxy.h"
@@ -22,6 +23,28 @@ namespace staff
     {
       std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
       pClientProxy->Init(sServiceUri, sSessionId, sInstanceId);
+      return pClientProxy.release();
+    }
+#end
+#end
+    return NULL;
+  }
+
+  IService* CServiceFactory::AllocateClientByHost(const std::string& sClientType,
+                                          const std::string& sHost,
+                                          int nPort,
+                                          const std::string& sProtocol,
+                                          const std::string& sServiceName,
+                                          const std::string& sSessionId,
+                                          const std::string& sInstanceId)
+  {
+    const std::string& sUrl = sProtocol + "://" + sHost + ":" + rise::ToStr(nPort) + "/axis2/services/";
+#foreach $(Project.Interfaces)
+#foreach $(Interface.Classes)
+    if (sClientType == typeid($(Class.NsName)).name())
+    {
+      std::auto_ptr< $(Class.NsName)Proxy > pClientProxy(new $(Class.NsName)Proxy);
+      pClientProxy->Init(sUrl + (sServiceName.empty() ? "$(Class.ServiceNsName)" : sServiceName), sSessionId, sInstanceId);
       return pClientProxy.release();
     }
 #end
