@@ -1,39 +1,32 @@
 #summary Example: creating a Calculator client for staff-2.0 under Linux
 #labels Featured
 
-1. Client source directory structure: 
+<h1>Table of Contents</h1>
+<wiki:toc max_depth="2" />
 
-{{{
-CalculatorClient/obj                       -- objects directory
-CalculatorClient/out                       -- compiled client
-CalculatorClient/src                       -- source directory
-CalculatorClient/src/Calculator.h          -- service interface
-CalculatorClient/src/main.cpp              -- client implementation
-CalculatorClient/src/CalculatorProxy.cpp   -- client proxy (header)
-CalculatorClient/src/CalculatorProxy.h     -- client proxy
-CalculatorClient/src/ServiceFactory.h      -- service factory (header)
-CalculatorClient/src/ServiceFactory.cpp    -- service factory
-CalculatorClient/Makefile                  -- Makefile
+== 1. Creating source directories ==
 
-}}}
-
-2. Create client source directories:
+Create client source directories:
 {{{
 mkdir -p ~/devel/CalculatorClient/src
 }}}
 
-3. Create link or copy service interface file:
+== 2. Use service interface ==
+
+Create link or copy service interface file:
 {{{
 ln -s ../../CalculatorComponent/src/Calculator.h ~/devel/CalculatorClient/src
 }}}
 
-4. Generate client stub:
+== 3. Generating client stub ==
+
+Generate client stub:
 {{{
 cd ~/devel/CalculatorClient/src
 staff_codegen -tclientimpl Calculator.h
 }}}
 
-5. Realize client:
+== 4. Implementing Calculator client ==
 
 Open generated main.cpp and add next the comment "Invoke Your service here" lines as follows:
 {{{
@@ -41,8 +34,7 @@ std::cout << "1 + 2 = " << pCalculator->Add(1, 2) << std::endl;
 std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
 }}}
 
-
-6. Generate client Proxy
+== 5. Generating client Proxy ==
   _Proxy is a set of files, used to work with service_
 
 {{{
@@ -59,8 +51,7 @@ ServiceFactory.cpp
 
   _Please note, when You change the service interface, You must regenerate proxy._
 
-
-7. Compilation
+== 6. Compilation ==
 
 Put Makefile as ~/devel/!CalculatorClient/Makefile:
 
@@ -117,12 +108,32 @@ cd ~/devel/CalculatorClient
 make
 }}}
 
-8. Start client
+== 7. Start client ==
 {{{
 out/*/Calculator
 }}}
 
 You must see following results:
 ||1 + 2 = 3<p/>1 - 2 = -1||
+
+
+== 8. Client source directory structure ==
+
+Here is a described source directory tree of the Calculator client.
+{{{
+CalculatorClient/obj                       -- objects directory
+CalculatorClient/out                       -- compiled client
+CalculatorClient/src                       -- source directory
+CalculatorClient/src/Calculator.h          -- service interface
+CalculatorClient/src/main.cpp              -- client implementation
+CalculatorClient/src/CalculatorProxy.cpp   -- client proxy (header)
+CalculatorClient/src/CalculatorProxy.h     -- client proxy
+CalculatorClient/src/ServiceFactory.h      -- service factory (header)
+CalculatorClient/src/ServiceFactory.cpp    -- service factory
+CalculatorClient/Makefile                  -- Makefile
+
+}}}
+
+== 9. Download source code ==
 
 *[http://staff.googlecode.com/files/samples.CalculatorClient.7z Download]* source code of Calculator client.

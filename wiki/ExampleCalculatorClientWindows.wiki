@@ -1,35 +1,29 @@
 #summary Example: creating a Calculator client for staff-2.0 under Windows using Visual Studio 2005
 #labels Featured
 
-1. Client source directory structure:
+<h1>Table of Contents</h1>
+<wiki:toc max_depth="2" />
 
-{{{
-CalculatorClient\Release                   -- compiled client
-CalculatorClient\src                       -- source directory
-CalculatorClient\src\Calculator.h          -- service interface
-CalculatorClient\src\main.cpp              -- client implementation
-CalculatorClient\src\CalculatorProxy.cpp   -- client proxy (header)
-CalculatorClient\src\CalculatorProxy.h     -- client proxy
-CalculatorClient\src\ServiceFactory.h      -- service factory (header)
-CalculatorClient\src\ServiceFactory.cpp    -- service factory
-CalculatorClient\CalculatorClient.vcproj   -- visual studio project file
-}}}
+== 1. Creating solution ==
+Start Visual Studio 2005 and create new solution, named !CalculatorClient.
 
-2. Start Visual Studio 2005 and create new solution, named CalculatorClient.
-While creating use template Win32=>Win32 Console Application, Click "OK".
-Click "Next".
+While creating use template Win32=>Win32 Console Application, Click "OK". Click "Next".
+
 In "Application Settings" dialog select "Console Application" and "Empty project", Click "Finish".
+
 Solution is created.
 
-3. Create directory CalculatorClient\src and copy service interface file into this directory.
+== 2. Use service interface ==
 
-4. Generate client stub:
-To generate client stub start command prompt from CalculatorClient\src directory and enter:
+Create directory !CalculatorClient\src and copy service interface file into this directory.
+
+== 3. Generating client stub ==
+To generate client stub start command prompt from !CalculatorClient\src directory and enter:
 {{{
 staff_codegen -tclientimpl Calculator.h
 }}}
 
-5. Realize client:
+== 4. Implementing Calculator client ==
 
 Open generated main.cpp and add next the comment "Invoke Your service here" lines as follows:
 {{{
@@ -38,10 +32,10 @@ std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
 }}}
 
 
-6. Generate client Proxy
+== 5. Generating client Proxy ==
   _Proxy is a set of files, used to work with service_
 
-To generate client proxy start command prompt from CalculatorClient\src directory and enter:
+To generate client proxy start command prompt from !CalculatorClient\src directory and enter:
 {{{
     staff_codegen -tclient Calculator.h
 }}}
@@ -57,13 +51,14 @@ ServiceFactory.cpp
   _Please note, when You change the service interface, You must regenerate proxy._
 
 Add all files into Solution:
-Right click to CalculatorComponent project, select "Add" => "Existing Item...".
-In opened dialog go inside "src" directory and add select all files.
+
+Right click to !CalculatorClient project, select "Add" => "Existing Item...".
+In opened dialog go inside "src" directory and select all files.
 Click "Add".
 
-7. Compilation
+== 6. Compilation ==
 
-Go to Project Settings: Right click to "CalculatorComponent" project and select "Properties".
+Go to Project Settings: Right click to "!CalculatorClient" project and select "Properties".
 Click to Configuration Drop down box and select "All configurations"
 In the "Configuration properties" tree select "C/C++" item and enter these "Additional Include Directories":
 {{{
@@ -86,19 +81,36 @@ $(STAFF_HOME)\lib
 Click "OK".
 
 Set active solution configuration to release:
-Click "Build" => "Configuration manager".
-Click "Active solution configuration" dropdown box and select "Release".
-Click "Close".
+
+Click "Build" => "Configuration manager". Click "Active solution configuration" dropdown box and select "Release". Click "Close".
+
 Compile the solution: "Build" => "Build Solution".
 
 
-8. Start client
-To start client open command prompt from CalculatorClient\Release directory and enter:
+== 7. Start client ==
+
+To start client open command prompt from !CalculatorClient\Release directory and enter:
 {{{
 CalculatorClient
 }}}
 
 You must see following results:
 ||1 + 2 = 3<p/>1 - 2 = -1||
+
+== 9. Client source directory structure ==
+
+{{{
+CalculatorClient\Release                   -- compiled client
+CalculatorClient\src                       -- source directory
+CalculatorClient\src\Calculator.h          -- service interface
+CalculatorClient\src\main.cpp              -- client implementation
+CalculatorClient\src\CalculatorProxy.cpp   -- client proxy (header)
+CalculatorClient\src\CalculatorProxy.h     -- client proxy
+CalculatorClient\src\ServiceFactory.h      -- service factory (header)
+CalculatorClient\src\ServiceFactory.cpp    -- service factory
+CalculatorClient\CalculatorClient.vcproj   -- visual studio project file
+}}}
+
+== 10. Download source code ==
 
 *[http://staff.googlecode.com/files/samples.CalculatorClient.7z Download]* source code of Calculator client.
