@@ -50,15 +50,17 @@ Or checkout the [http://code.google.com/p/staff/downloads/list Download] section
 === 3.1 Compiling and installing rise ===
 
 The compilation is available from the command line or from the IDE:
-  * To compile from the command line, start rebuild.cmd from the directory rise.
+  * To compile from the command line, start rebuild.cmd from the directory rise (only with VS2005).
   * To compile from the IDE Visual Studio 2005, start rise.sln from the directory rise, then build the library (menu Build->Build Solution).
+_Note: If You using VS2008 or greater, after opening this solution "Visual Studio Conversion Wizard" will be appear. Process solution upgrade to continue._
 Copy directory contents staff\rise\deploy\win_x86 into directory c:\ws\staff\.
 
 === 3.2 Compiling and installing Staff ===
 
 The compilation is available from the command line or from the IDE:
-  * To compile from the command line, start rebuild.cmd from the directory staff.
-  * To compile from the IDE Visual Studio 2005, start staff.sln directory staff. Compile the project solution (menu Build->Build Solution)
+  * To compile from the command line, start rebuild.cmd from the directory staff (only with VS2005).
+  * To compile from the IDE Visual Studio, start staff.sln directory staff. Compile the project solution (menu Build->Build Solution)
+_Note: If You using VS2008 or greater, after opening this solution "Visual Studio Conversion Wizard" will be appear. Process solution upgrade to continue._
 
 == 4. Starting ==
 
