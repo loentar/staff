@@ -1,4 +1,5 @@
 #summary Guide to the creation of SOA applications for staff-1.2
+#labels Deprecated
 
 _NOTICE: translated from russian with translate.google.com_
 
