@@ -168,7 +168,7 @@ endif
   Compile and install the component service:
 {{{
 cd $SOA_HOME/component/
-make && sudo make install
+make && sudo -E make install
 }}}
 
 === 1.5. Testing ===

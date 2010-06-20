@@ -44,7 +44,7 @@ _Package binutils-dev is required._
 Enter these commands to compile and install rise, Staff and Webapp.
 
 {{{
-make && sudo make install
+make && sudo -E make install
 sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
 chmod 777 $(AXIS2C_HOME}/logs
 }}}

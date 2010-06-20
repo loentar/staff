@@ -165,7 +165,7 @@ endif
  Скомпилируем и установим компонентный сервис:
 {{{
 cd $SOA_HOME/component/
-make && sudo make install
+make && sudo -E make install
 }}}
 
 === 1.5. Тестирование ===

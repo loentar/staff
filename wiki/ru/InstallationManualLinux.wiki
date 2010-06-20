@@ -56,7 +56,7 @@ _Пакет binutils-dev должен быть установлен._
 Введите эти команды для компиляции и установки rise, Staff и Webapp из корня рабочей копии (staff-read-only):
 
 {{{
-make && sudo make install
+make && sudo -E make install
 sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
 chmod 777 $(AXIS2C_HOME}/logs
 }}}

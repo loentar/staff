@@ -166,7 +166,7 @@ make
 
 Install component service Calculator:
 {{{
-sudo make install
+make && sudo -E make install
 }}}
 
 == 7. Starting ==
