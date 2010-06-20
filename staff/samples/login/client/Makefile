@@ -43,7 +43,7 @@ deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
 distrib:;
 
 # == install ========================================
-install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)"
+install: check "$(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
 
 # == uninstall ======================================
