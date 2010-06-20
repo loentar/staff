@@ -57,8 +57,9 @@ _Пакет binutils-dev должен быть установлен._
 
 {{{
 make && sudo -E make install
-sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
-chmod 777 $(AXIS2C_HOME}/logs
+echo -e "$STAFF_HOME/lib\n$AXIS2C_HOME/lib" | sudo tee /etc/ld.so.conf.d/staff.conf
+sudo ldconfig
+chmod 777 $AXIS2C_HOME/logs
 }}}
 
 == 4. Запуск ==
