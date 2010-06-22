@@ -106,10 +106,6 @@ namespace staff
 
   CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
   {
-    std::string sMangledName = (rDataType.sNamespace.substr(0, 2) == "::") ?
-      rDataType.sNamespace.substr(2) : rDataType.sNamespace;
-    rise::StrReplace(sMangledName, "::", "_", true);
-
     rNodeDataTypes.AddSubNode(" Is const ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["IsConst"] = rDataType.bIsConst;
     rNodeDataTypes.AddSubNode(" Is reference ", CXMLNode::ENTCOMMENT);
@@ -117,13 +113,15 @@ namespace staff
     rNodeDataTypes.AddSubNode(" Type name as used ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["UsedName"] = (rDataType.sUsedName.size() != 0 ? rDataType.sUsedName : rDataType.sName);
     rNodeDataTypes.AddSubNode(" Type name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["Name"] = (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
+    rNodeDataTypes["Name"] = rDataType.sName;
+    rNodeDataTypes.AddSubNode(" Type ns name ", CXMLNode::ENTCOMMENT);
+    rNodeDataTypes["NsName"] = (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
+    rNodeDataTypes.AddSubNode(" Type namespace ", CXMLNode::ENTCOMMENT);
+    rNodeDataTypes["Namespace"] = rDataType.sNamespace;
     rNodeDataTypes.AddSubNode(" Node name ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["NodeName"] = rDataType.sNodeName;
     rNodeDataTypes.AddSubNode(" Type ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Type"] = rDataType.eType;
-    rNodeDataTypes.AddSubNode(" Typename with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["MangledName"] = sMangledName + rDataType.sName;
 
     std::string sNativeName;
     if (rDataType.eType == SDataType::ETypedef)
@@ -228,13 +226,16 @@ namespace staff
 
   void WriteCppNamespace(CXMLNode& rNode, const std::string& sNamespace)
   {
+    std::string sRealNamespace =
+      (sNamespace.substr(0, 2) == "::") ? sNamespace.substr(2) : sNamespace;
+
     std::string sOpeningNs;
     std::string sEndingNs;
     std::string::size_type nPos = 0;
     std::string::size_type nPrevPos = 0;
-    while((nPos = sNamespace.find("::", nPos)) != std::string::npos)
+    while((nPos = sRealNamespace.find("::", nPos)) != std::string::npos)
     {
-      sOpeningNs += "namespace " + sNamespace.substr(nPrevPos, nPos - nPrevPos) + "\n{\n";
+      sOpeningNs += "namespace " + sRealNamespace.substr(nPrevPos, nPos - nPrevPos) + "\n{\n";
       sEndingNs += "}\n";
       nPos += 2;
       nPrevPos = nPos;
@@ -249,24 +250,20 @@ namespace staff
   CXMLNode& operator<<(CXMLNode& rNodeClasses, const SClass& rClass)
   {
     CXMLNode& rNodeClass = rNodeClasses.AddSubNode("Class");
-    std::string sNamespace =
-      (rClass.sNamespace.substr(0, 2) == "::") ? rClass.sNamespace.substr(2) : rClass.sNamespace;
     std::string sServiceName =
       (((rClass.sName[0] == 'C' || rClass.sName[0] == 'I') && (toupper(rClass.sName[1]) == rClass.sName[1]))
           ? rClass.sName.substr(1) : rClass.sName);
 
-    std::string sServiceNamespace = sNamespace;
+    std::string sServiceNamespace = (rClass.sNamespace.substr(0, 2) == "::") ?
+                                    rClass.sNamespace.substr(2) : rClass.sNamespace;
     rise::StrReplace(sServiceNamespace, "::", ".", true);
+
     std::string sServiceNsName = sServiceNamespace + sServiceName;
 
     rNodeClass.AddSubNode(" Service class name ", CXMLNode::ENTCOMMENT);
     rNodeClass["Name"] = rClass.sName;
-    rNodeClass.AddSubNode(" Service description ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Description"] = rClass.sDescr;
-    rNodeClass.AddSubNode(" Service detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Detail"] = rClass.sDetail;
-    rNodeClass.AddSubNode(" Service URI ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ServiceUri"] = rClass.sServiceUri;
+    rNodeClass.AddSubNode(" Service class namespace ", CXMLNode::ENTCOMMENT);
+    rNodeClass["Namespace"] = rClass.sNamespace;
     rNodeClass.AddSubNode(" Service class name with namespace ", CXMLNode::ENTCOMMENT);
     rNodeClass["NsName"] = rClass.sNamespace + rClass.sName;
     rNodeClass.AddSubNode(" Service name ", CXMLNode::ENTCOMMENT);
@@ -275,17 +272,18 @@ namespace staff
     rNodeClass["ServiceNsName"] = sServiceNsName;
     rNodeClass.AddSubNode(" Service namespace ", CXMLNode::ENTCOMMENT);
     rNodeClass["ServiceNamespace"] = sServiceNamespace;
-    rNodeClass.AddSubNode(" Component name ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ComponentName"] =
-      sServiceNamespace.size() == 0 ? sServiceNamespace : sServiceNamespace.substr(0, sServiceNamespace.size() - 1);
-    rNodeClass.AddSubNode(" Service class namespace ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Namespace"] = rClass.sNamespace;
+    rNodeClass.AddSubNode(" Service description ", CXMLNode::ENTCOMMENT);
+    rNodeClass["Description"] = rClass.sDescr;
+    rNodeClass.AddSubNode(" Service detailed description ", CXMLNode::ENTCOMMENT);
+    rNodeClass["Detail"] = rClass.sDetail;
+    rNodeClass.AddSubNode(" Service URI ", CXMLNode::ENTCOMMENT);
+    rNodeClass["ServiceUri"] = rClass.sServiceUri;
     rNodeClass.AddSubNode(" Load service at startup ", CXMLNode::ENTCOMMENT);
     rNodeClass["LoadAtStartup"] = rClass.bLoadAtStartup ? "true" : "false";
     rNodeClass.AddSubNode(" Service operations ", CXMLNode::ENTCOMMENT);
     rNodeClass.AddSubNode("Members") << rClass.lsMember;
 
-    WriteCppNamespace(rNodeClass, sNamespace);
+    WriteCppNamespace(rNodeClass, rClass.sNamespace);
 
     return rNodeClasses;
   }
@@ -299,41 +297,42 @@ namespace staff
 
     CXMLNode& rNodeStruct = rNodeStructs.AddSubNode("Struct");
 
-    std::string sNamespace =
-      (rStruct.sNamespace.substr(0, 2) == "::") ? rStruct.sNamespace.substr(2) : rStruct.sNamespace;
-    std::string sMangledName = (rStruct.sNamespace.substr(0, 2) == "::") ?
-      rStruct.sNamespace.substr(2) : rStruct.sNamespace;
-    rise::StrReplace(sMangledName, "::", "_", true);
-
-    rNodeStruct.AddSubNode(" Native struct name ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["NativeName"] = ((rStruct.sName[0] == 'S') &&
-      (toupper(rStruct.sName[1]) == rStruct.sName[1]) ? rStruct.sName.substr(1) : rStruct.sName);
-    rNodeStruct.AddSubNode(" Struct name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["MangledName"] = sMangledName + rStruct.sName;
-
-    rNodeStruct.AddSubNode(" Parent struct(inherits) ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Parent"] = rStruct.sParent;
-    rNodeStruct.AddSubNode(" Parent struct(inherits) with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentNs"] = rStruct.sParentNs;
-    rNodeStruct.AddSubNode(" Parent struct(inherits) declaration ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentDecl"] = (rStruct.sParent.size() != 0) ? (": public " + rStruct.sParent) : "";
-
     rNodeStruct.AddSubNode(" Struct name ", CXMLNode::ENTCOMMENT);
     rNodeStruct["Name"] = rStruct.sName;
     rNodeStruct.AddSubNode(" Struct name with namespace", CXMLNode::ENTCOMMENT);
     rNodeStruct["NsName"] = rStruct.sNamespace + rStruct.sName;
+    rNodeStruct.AddSubNode(" Struct namespace", CXMLNode::ENTCOMMENT);
+    rNodeStruct["Namespace"] = rStruct.sNamespace;
+    rNodeStruct.AddSubNode(" Native struct name ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["NativeName"] = ((rStruct.sName[0] == 'S') &&
+      (toupper(rStruct.sName[1]) == rStruct.sName[1]) ? rStruct.sName.substr(1) : rStruct.sName);
+
+
+    // parent
+    std::string::size_type nPos = rStruct.sParentName.find_last_of("::");
+    const std::string sParentName = nPos != std::string::npos ?
+                                    rStruct.sParentName.substr(nPos + 1) : rStruct.sParentName;
+    rNodeStruct.AddSubNode(" Parent struct name ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["ParentName"] = sParentName;
+    rNodeStruct.AddSubNode(" Parent struct name as used by declaration ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["ParentUsedName"] = rStruct.sParentName;
+    rNodeStruct.AddSubNode(" Parent struct actual namespace ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["ParentNamespace"] = rStruct.sParentNamespace;
+    rNodeStruct.AddSubNode(" Parent struct with actual namespace ", CXMLNode::ENTCOMMENT);
+    rNodeStruct["ParentNsName"] = rStruct.sParentNamespace + sParentName;
+
     rNodeStruct.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
     rNodeStruct["Description"] = rStruct.sDescr;
     rNodeStruct.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
     rNodeStruct["Detail"] = rStruct.sDetail;
 
-    rNodeStruct.AddSubNode(" Defined in other interface ", CXMLNode::ENTCOMMENT);
+    rNodeStruct.AddSubNode(" Is defined in other interface ", CXMLNode::ENTCOMMENT);
     rNodeStruct["Extern"] = rStruct.bExtern;
 
     rNodeStruct.AddSubNode(" Struct fields ", CXMLNode::ENTCOMMENT);
     rNodeStruct.AddSubNode("Members") << rStruct.lsMember;
 
-    WriteCppNamespace(rNodeStruct, sNamespace);
+    WriteCppNamespace(rNodeStruct, rStruct.sNamespace);
 
     return rNodeStructs;
   }
@@ -341,16 +340,13 @@ namespace staff
   CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const STypedef& rTypedef)
   {
     CXMLNode& rNodeTypedef = rNodeTypedefs.AddSubNode("Typedef");
-    std::string sNamespace =
-      (rTypedef.sNamespace.substr(0, 2) == "::") ? rTypedef.sNamespace.substr(2) : rTypedef.sNamespace;
-    std::string sMangledName = (rTypedef.sNamespace.substr(0, 2) == "::") ?
-      rTypedef.sNamespace.substr(2) : rTypedef.sNamespace;
-    rise::StrReplace(sMangledName, "::", "_", true);
 
     rNodeTypedef.AddSubNode(" Typedef name ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Name"] = rTypedef.sName;
     rNodeTypedef.AddSubNode(" Typedef name with namespace ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["NsName"] = rTypedef.sNamespace + rTypedef.sName;
+    rNodeTypedef.AddSubNode(" Typedef namespace ", CXMLNode::ENTCOMMENT);
+    rNodeTypedef["Namespace"] = rTypedef.sNamespace;
     rNodeTypedef.AddSubNode(" Typedef native name ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["NativeName"] = ((rTypedef.sName[0] == 'T') &&
          (toupper(rTypedef.sName[1]) == rTypedef.sName[1]) ? rTypedef.sName.substr(1) : rTypedef.sName);
@@ -358,15 +354,13 @@ namespace staff
     rNodeTypedef.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Description"] = rTypedef.sDescr;
 
-    rNodeTypedef.AddSubNode(" Typedef name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["MangledName"] = sMangledName + rTypedef.sName;
     rNodeTypedef.AddSubNode(" Source datatype ", CXMLNode::ENTCOMMENT);
     rNodeTypedef.AddSubNode("DataType") << rTypedef.stDataType;
 
     rNodeTypedef.AddSubNode(" Defined in other interface ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Extern"] = rTypedef.bExtern;
 
-    WriteCppNamespace(rNodeTypedef, sNamespace);
+    WriteCppNamespace(rNodeTypedef, rTypedef.sNamespace);
 
     return rNodeTypedefs;
   }
@@ -375,8 +369,27 @@ namespace staff
   {
     CXMLNode& rNodeInterface = rNodeInterfaces.AddSubNode("Interface");
 
-    rNodeInterface.AddSubNode(" Intarface name ", CXMLNode::ENTCOMMENT);
+    std::string sNsName = rInterface.sNamespace.substr(0, 2) == "::" ?
+                          rInterface.sNamespace.substr(2) : rInterface.sNamespace;
+    rise::StrReplace(sNsName, "::", ".", true);
+
+    rNodeInterface.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
     rNodeInterface["Name"] = rInterface.sName;
+
+    rNodeInterface.AddSubNode(" Interface ns name ", CXMLNode::ENTCOMMENT);
+    rNodeInterface["NsName"] = sNsName + rInterface.sName;
+
+    rNodeInterface.AddSubNode(" Interface namespace ", CXMLNode::ENTCOMMENT);
+    rNodeInterface["Namespace"] = sNsName.substr(0, sNsName.size() - 1);
+
+    if (rInterface.lsClass.empty())
+    {
+      rNodeInterface.AddSubNode(" Interface include name ", CXMLNode::ENTCOMMENT);
+      rNodeInterface["IncludeName"] = rInterface.sName;
+
+      rNodeInterface.AddSubNode(" Interface include ns name ", CXMLNode::ENTCOMMENT);
+      rNodeInterface["IncludeNsName"] = sNsName + rInterface.sName;
+    }
 
     rNodeInterface.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
     rNodeInterface["TargetNamespace"] = rInterface.sTargetNs;
@@ -399,11 +412,19 @@ namespace staff
     for (std::list<SInclude>::const_iterator itInclude = rInterface.lsInclude.begin();
         itInclude != rInterface.lsInclude.end(); ++itInclude)
     {
+      std::string sNamespace = itInclude->sNamespace.substr(0, 2) == "::" ?
+                            itInclude->sNamespace.substr(2) : itInclude->sNamespace;
+      rise::StrReplace(sNamespace, "::", ".", true);
+
       CXMLNode& rNodeInclude = rNodeIncludes.AddSubNode("Include");
       rNodeInclude.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
       rNodeInclude["Name"] = itInclude->sInterfaceName;
+      rNodeInclude.AddSubNode(" Interface ns name ", CXMLNode::ENTCOMMENT);
+      rNodeInclude["NsName"] = sNamespace + itInclude->sInterfaceName;
       rNodeInclude.AddSubNode(" File name ", CXMLNode::ENTCOMMENT);
       rNodeInclude["FileName"] = itInclude->sFileName;
+      rNodeInclude.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
+      rNodeInclude["TargetNamespace"] = itInclude->sTargetNs;
     }
 
     return rNodeInterfaces;

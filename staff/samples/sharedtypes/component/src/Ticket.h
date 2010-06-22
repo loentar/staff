@@ -15,8 +15,7 @@ namespace ticket
     std::string sOwner;        //!< ticket owner
   };
 
-  //! tickets list
-  typedef std::list<Ticket> TicketsList;
+  typedef std::list<Ticket> TicketsList; //!< tickets list
 }
 }
 

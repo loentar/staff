@@ -1,0 +1,213 @@
+#ifneq($(Interface.Structs.$Count),0)
+
+      <!-- structures -->
+#foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0) // do not serialize extern type
+
+      <complexType name="$(Struct.NativeName)">
+#ifneq($(Struct.Description),)
+        <annotation><documentation>$(Struct.Description)</documentation></annotation>
+#else
+\
+#ifeqend
+#ifneq($(Struct.ParentName),)       // inherited
+#var sIndent     
+        <complexContent mixed="false">
+          <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
+#ifneq($(Struct.Members.$Count),0)
+>
+#else
+/>
+#ifeqend
+#else                          // not inherited
+#var sIndent 
+\
+#ifeqend
+#ifneq($(Struct.Members.$Count),0)
+$($sIndent)        <sequence>
+#foreach $(Struct.Members)
+#ifeq($(Param.DataType.Type),dataobject)
+$($sIndent)          <element name="$(Param.Name)">
+$($sIndent)            <complexType>
+#ifneq($(Param.Description),)
+$($sIndent)              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#else
+\
+#ifeqend
+$($sIndent)              <sequence>
+$($sIndent)                <any/>
+$($sIndent)              </sequence>
+$($sIndent)            </complexType>
+$($sIndent)          </element>
+#else
+$($sIndent)          <element name="$(Param.Name)" type="\
+#ifeq($(Param.DataType.Name),bool)
+boolean\
+#else
+#ifeq($(Param.DataType.Type),struct||typedef)
+tns_$(Param.DataType.Namespace.!mangle.!trim/_/):$(Param.DataType.NativeName)\
+#else
+#ifeq($(Param.DataType.Type),template)
+#ifneq($(Param.DataType.TemplateParams.TemplateParam1.Namespace),)
+tns_$(Param.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):\
+#else
+\
+#ifeqend
+$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
+#else
+$(Param.DataType.Name)\
+#ifeqend
+#ifeqend
+#ifeqend
+#ifneq($(Param.Description),)
+">
+$($sIndent)            <annotation><documentation>$(Param.Description)</documentation></annotation>
+$($sIndent)          </element>
+#else
+"/>
+#ifeqend
+#ifeqend
+#end // #foreach $(Struct.Members)
+$($sIndent)        </sequence>
+#else
+\
+#ifeqend // $(Struct.Members.$Count),0
+#ifneq($(Struct.ParentName),)
+#ifneq($(Struct.Members.$Count),0)
+          </extension>
+#else
+\
+#ifeqend
+        </complexContent>
+#else
+\
+#ifeqend
+      </complexType>
+#else
+\
+#ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type
+#end // #foreach $(Interface.Structs)
+#else
+\
+#ifeqend // #ifneq($(Interface.Structs.$Count),0)
+#ifneq($(Interface.Typedefs.$Count),0)
+
+      <!-- typedefs -->
+#foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeq($(Typedef.DataType.IsTemplate),1)
+      <complexType name="$(Typedef.NativeName)">
+#ifneq($(Typedef.Description),)
+        <annotation><documentation>$(Typedef.Description)</documentation></annotation>
+#else
+\
+#ifeqend
+        <sequence>
+#ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)  // -- list ------------------
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+          <element minOccurs="0" maxOccurs="unbounded" name="Item">
+            <complexType>
+              <sequence>
+                <any/>
+              </sequence>
+            </complexType>
+          </element>
+#else
+          <element minOccurs="0" maxOccurs="unbounded" name="Item" type="\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
+boolean\
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+tns_$(Typedef.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
+#else
+$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
+#ifeqend
+#ifeqend
+" nillable="true" />
+#ifeqend
+#else // bool
+#ifeq($(Typedef.DataType.Name),std::map||std::multimap) # -- map -------------------------
+          <element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true">
+            <complexType>
+              <sequence>
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+                <element name="Key">
+                  <complexType>
+                    <sequence>
+                      <any/>
+                    </sequence>
+                  </complexType>
+                </element>
+#else
+                <element name="Key" type="\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
+boolean\
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+tns_$(Typedef.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
+#else
+$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
+#ifeqend
+#ifeqend
+" />
+#ifeqend
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
+                <element name="Value">
+                  <complexType>
+                    <sequence>
+                      <any/>
+                    </sequence>
+                  </complexType>
+                </element>
+#else
+                <element name="Value" type="\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),bool)
+boolean\
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct||typedef)
+tns_$(Typedef.DataType.TemplateParams.TemplateParam2.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
+#else
+$(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
+#ifeqend
+#ifeqend
+" />
+#ifeqend
+              </sequence>
+            </complexType>
+          </element>
+#else
+#cgerror "Cannot generate type $(Typedef.DataType.Name)"
+#ifeqend
+#ifeqend
+        </sequence>
+      </complexType>
+#else
+      <simpleType name="$(Typedef.NativeName)">
+#ifeq($(Typedef.DataType.Type),dataobject)
+        <complexType>
+          <sequence>
+            <any/>
+          </sequence>
+        </complexType>
+#else
+        <restriction base="\
+#ifeq($(Typedef.DataType.Name),bool)
+boolean\
+#else
+#ifeq($(Typedef.DataType.Type),struct||typedef)
+tns_$(Typedef.DataType.Namespace.!mangle.!trim/_/):$(Typedef.DataType.NativeName)\
+#else
+$(Typedef.DataType.Name)\
+#ifeqend
+#ifeqend
+"/>
+#ifeqend
+      </simpleType>
+#ifeqend
+
+#ifeqend // #ifeq($(Typedef.Extern),0) // do not serialize extern type
+#end // #foreach $(Interface.Typedefs)
+#else
+\
+#ifeqend // #ifneq($(Interface.Typedefs.$Count),0)
+

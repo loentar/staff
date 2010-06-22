@@ -875,7 +875,7 @@ namespace staff
           }
         }
 
-        rStruct.sParent = sTmp;
+        rStruct.sParentName = sTmp;
         ReadStr(sTmp);
       }
 
@@ -979,7 +979,7 @@ namespace staff
             SStruct stStruct;
             stStruct.sName = itStruct->sName;
             stStruct.sNamespace = itStruct->sNamespace;
-            stStruct.sParent = itStruct->sParent;
+            stStruct.sParentName = itStruct->sParentName;
             stStruct.sDescr = itStruct->sDescr;
             stStruct.sDetail = itStruct->sDetail;
             stStruct.bExtern = true;
@@ -1000,7 +1000,9 @@ namespace staff
 
           SInclude stInclude;
           stInclude.sInterfaceName = rInterface.sName;
+          stInclude.sNamespace = rInterface.sNamespace;
           stInclude.sFileName = rInterface.sFileName;
+          stInclude.sTargetNs = rInterface.sTargetNs;
           m_stInterface.lsInclude.push_back(stInclude);
         }
       }
@@ -1138,7 +1140,7 @@ namespace staff
           return;
         }
 
-        std::cout << "Using [" << stClass.sName << "] as service class\n";
+        rise::LogDebug() << "Using [" << stClass.sName << "] as service class";
 
         ParseClass(stClass);
         stClass.sDescr = sDescr;
@@ -1353,6 +1355,47 @@ namespace staff
 
           ParseHeader(m_stInterface);
           CorrectStuctParentNs();
+
+          // detect interface main namespace
+          if (m_stInterface.sNamespace.empty())
+          {
+            for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClass.begin();
+                itClass != m_stInterface.lsClass.end(); ++itClass)
+            {
+              if (!itClass->sNamespace.empty())
+              {
+                m_stInterface.sNamespace = itClass->sNamespace;
+                break;
+              }
+            }
+          }
+
+          if (m_stInterface.sNamespace.empty())
+          {
+            for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
+                itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+            {
+              if (!itStruct->sNamespace.empty())
+              {
+                m_stInterface.sNamespace = itStruct->sNamespace;
+                break;
+              }
+            }
+          }
+
+          if (m_stInterface.sNamespace.empty())
+          {
+            for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
+                itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
+            {
+              if (!itTypedef->sNamespace.empty())
+              {
+                m_stInterface.sNamespace = itTypedef->sNamespace;
+                break;
+              }
+            }
+          }
+
           rProject.lsInterfaces.push_back(m_stInterface);
           m_tFile.close();
         }
@@ -1382,7 +1425,7 @@ namespace staff
       for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStruct.begin();
           itStruct != m_stInterface.lsStruct.end(); ++itStruct)
       {
-        std::string& sNsParent = itStruct->sParent;
+        std::string& sNsParent = itStruct->sParentName;
         // skip structs with no parent and with namespace, declared from global scope
         if (sNsParent.empty() || sNsParent.substr(0, 2) == "::")
         {
@@ -1399,11 +1442,11 @@ namespace staff
           std::string::size_type nPos = sNamespace.size();
           do
           {
-            std::string sStructNsName = sNamespace.substr(0, nPos) + itStruct->sParent;
+            std::string sStructNsName = sNamespace.substr(0, nPos) + itStruct->sParentName;
 
             if (sStructNsName == sParentStructNsName)
             {
-              itStruct->sParentNs = sParentStructNsName;
+              itStruct->sParentNamespace = itParentStruct->sNamespace;
               bFound = true;
               break;
             }

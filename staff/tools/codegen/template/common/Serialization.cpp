@@ -38,9 +38,9 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
 #ifeq($(Struct.Extern),0) // do not serialize extern type
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 {
-#ifneq($(Struct.Parent),)
+#ifneq($(Struct.ParentName),)
   // serialize parent struct
-  rdoParam << static_cast< const $(Struct.ParentNs)& >(rstStruct);
+  rdoParam << static_cast< const $(Struct.ParentNsName)& >(rstStruct);
 
 #else
 \
@@ -77,9 +77,9 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #ifeq($(Struct.Extern),0) // do not serialize extern type
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct)
 {
-#ifneq($(Struct.Parent),)
+#ifneq($(Struct.ParentName),)
   // deserialize parent struct
-  rdoParam >> static_cast< $(Struct.ParentNs)& >(rstStruct);
+  rdoParam >> static_cast< $(Struct.ParentNsName)& >(rstStruct);
 
 #else
 \

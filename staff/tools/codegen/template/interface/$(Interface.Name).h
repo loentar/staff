@@ -7,6 +7,9 @@
 #include <staff/common/WsdlTypes.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/IService.h>
+#foreach $(Interface.Includes)
+#include "$(Include.Name).h"
+#end
 \
 #var sOpeningNs
 #var sEndingNs
@@ -20,8 +23,7 @@
 \
 #ifneq($(Interface.Structs.$Count),0)   //   structs forwarding
 #foreach $(Interface.Structs)
-\
-#ifneq($(Struct.NativeName),DataObject)
+#ifeq($(Struct.Extern),0)
 \
 #var sNewOpeningNs $(Struct.OpeningNs)
 #var sNewEndningNs $(Struct.EndingNs)
@@ -42,7 +44,7 @@ $($sNewOpeningNs)\
 \
 #else
 \
-#ifeqend   // !dataobject
+#ifeqend   // extern
 #end       // foreach Interface.Structs
 
 #ifeqend   // Interface.Structs.Count = 0
@@ -50,6 +52,7 @@ $($sNewOpeningNs)\
 \
 #ifneq($(Interface.Typedefs.$Count),0)   //  typedefs declaration
 #foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0)
 #var sNewOpeningNs $(Typedef.OpeningNs)
 #var sNewEndningNs $(Typedef.EndingNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
@@ -69,6 +72,9 @@ $($sNewOpeningNs)
 #else
 \
 #ifeqend   // namespace changed
+#else
+\
+#ifeqend   // extern
 #end        // foreach Interface.Typedefs
 
 #ifeqend
@@ -76,6 +82,7 @@ $($sNewOpeningNs)
 #ifneq($(Interface.Structs.$Count),0)
 \
 #foreach $(Interface.Structs)              // structs declaration
+#ifeq($(Struct.Extern),0)
 \
 #var sNewOpeningNs $(Struct.OpeningNs)
 #var sNewEndningNs $(Struct.EndingNs)
@@ -95,7 +102,10 @@ $($sNewOpeningNs)
 #else
 \
 #ifeqend
-  struct $(Struct.Name)$(Struct.ParentDecl)
+  struct $(Struct.Name)\
+#ifneq($(Struct.ParentName),)
+: public $(Struct.ParentUsedName)
+#ifeqend
   {
 #foreach $(Struct.Members)
     $(Param.DataType) $(Param.Name);\
@@ -108,6 +118,7 @@ $($sNewOpeningNs)
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
 #ifeqend   // namespace changed
+#ifeqend   // extern
 #end
 #ifeqend
 #foreach $(Interface.Classes)
@@ -186,3 +197,4 @@ $($sNewOpeningNs)
 #end
 $($sEndingNs)
 #endif // _$(Interface.Name)_h_
+

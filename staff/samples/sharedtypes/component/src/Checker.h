@@ -12,7 +12,7 @@ namespace sharedtypes
   //! ticket with used flag
   struct IssuedTicket: public ticket::Ticket
   {
-    bool bUsed;  //!< used
+    bool bUsed;  //!< is ticket was used
   };
 
   typedef std::list<IssuedTicket> IssuedTicketList; //!< issued ticket list

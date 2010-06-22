@@ -244,6 +244,7 @@ staff/tools/codegen/template/client/$(Interface.Name)Proxy.h
 staff/tools/codegen/template/client/ServiceFactory.cpp
 staff/tools/codegen/template/client/ServiceFactory.h
 staff/tools/codegen/template/common/Serialization.cpp
+staff/tools/codegen/template/common/WsdlTypes.xsd
 staff/tools/codegen/template/component/ComponentImpl.cpp
 staff/tools/codegen/template/component/ComponentImpl.h
 staff/tools/codegen/template/component/$(Interface.Name)Wrapper.cpp
@@ -253,6 +254,7 @@ staff/tools/codegen/template/jsclient/$(Interface.Name).js
 staff/tools/codegen/template/serviceimpl/$(Interface.Name)Impl.cpp
 staff/tools/codegen/template/serviceimpl/$(Interface.Name)Impl.h
 staff/tools/codegen/template/wsdl/$(Interface.Classes.Class.ServiceNsName).wsdl
+staff/tools/codegen/template/wsdl/$(Interface.IncludeNsName).xsd
 webapp/modules/axis2services/mod_axis2services.c
 webapp/modules/fileuploader/mod_fileuploader.c
 webapp/services/FileUploader/config/FileUploader.xml

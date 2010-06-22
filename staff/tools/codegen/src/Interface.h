@@ -106,15 +106,15 @@ namespace staff
   //! struct
   struct SStruct
   {
-    std::string         sName;          //!<  struct name
-    std::string         sNamespace;     //!<  namespace
-    std::string         sParent;        //!<  parent struct(inherits)
-    std::string         sParentNs;      //!<  parent struct(inherits) with namespace
-    std::string         sDescr;         //!<  struct description
-    std::string         sDetail;        //!<  detailed description
-    std::list<SParam>   lsMember;       //!<  struct fields
-    bool                bForward;       //!<  is forward declaration
-    bool                bExtern;        //!<  extern declaration
+    std::string         sName;            //!<  struct name
+    std::string         sNamespace;       //!<  namespace
+    std::string         sParentName;      //!<  parent struct name (with namespace as used)
+    std::string         sParentNamespace; //!<  parent struct namespace (actual)
+    std::string         sDescr;           //!<  struct description
+    std::string         sDetail;          //!<  detailed description
+    std::list<SParam>   lsMember;         //!<  struct fields
+    bool                bForward;         //!<  is forward declaration
+    bool                bExtern;          //!<  extern declaration
 
     SStruct():
       bForward(true), bExtern(false)
@@ -140,14 +140,17 @@ namespace staff
   //! include info
   struct SInclude
   {
-    std::string sInterfaceName;  //!< interface name
-    std::string sFileName;       //!< file name
+    std::string sInterfaceName;      //!<  interface name
+    std::string sNamespace;          //!<  interface namespace
+    std::string sFileName;           //!<  file name
+    std::string sTargetNs;           //!<  target namespace
   };
 
   //! service interface
   struct SInterface
   {
     std::string           sName;          //!<  interface name, based on input filename
+    std::string           sNamespace;     //!<  interface main namespace
     std::string           sFileName;      //!<  input filename
     std::string           sTargetNs;      //!<  target namespace
     std::list<SInclude>   lsInclude;      //!<  included files
