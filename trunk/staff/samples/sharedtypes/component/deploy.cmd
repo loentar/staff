@@ -1,4 +1,4 @@
-set projectname=login
+set projectname=samples.sharedtypes
 
 set target=%1%
 if "%target%" == "" (
@@ -7,11 +7,10 @@ if "%target%" == "" (
   exit 1
 )
 
-set deploydir=%cd%\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
+set deploydir=%cd%\..\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
 set componentdir=%deploydir%\staff\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%
 
-xcopy /Y /S src\*.wsdl %componentdir%\
-xcopy /Y /S %target%\*.dll %componentdir%\
-
+xcopy /Y /S src\*.wsdl %componentdir%
+xcopy /Y /S %target%\*.dll %componentdir%

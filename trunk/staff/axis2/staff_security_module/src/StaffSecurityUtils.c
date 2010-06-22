@@ -113,7 +113,7 @@ axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_e
     szServiceNameEnd = strchr(szServiceName, '/');
     if (szServiceNameEnd)
     {
-      unsigned uSize = szServiceNameEnd - szServiceName;
+      unsigned uSize = (unsigned)(szServiceNameEnd - szServiceName);
       szServiceNameParam = AXIS2_MALLOC(pEnv->allocator, uSize + 1);
       AXIS2_UTILS_CHECK(szServiceNameParam);
       strncpy(szServiceNameParam, szServiceName, uSize);

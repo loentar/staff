@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,7 +65,7 @@
 				AdditionalDependencies="rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -93,7 +93,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -142,7 +142,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>

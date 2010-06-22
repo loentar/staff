@@ -1,6 +1,13 @@
 @echo off
 setlocal
 
+set target=%1%
+if "%target%" == "" (
+  echo.
+  echo Error: Target is not set.
+  exit 1
+)
+
 echo deploying rise...
 
 set platform=win_%PROCESSOR_ARCHITECTURE%
@@ -23,15 +30,8 @@ endlocal
 cd ..
 
 if not exist %deploylibdir% mkdir %deploylibdir%
-if exist Debug (
-  copy /y Debug\rise.dll %deploylibdir% >NUL
-  copy /y Debug\rise.lib %deploylibdir% >NUL
-) else (
-  if exist Release (
-    copy /y Release\rise.dll %deploylibdir% >NUL
-    copy /y Release\rise.lib %deploylibdir% >NUL
-  )
-)
+copy /y %target%\rise.dll %deploylibdir% >NUL
+copy /y %target%\rise.lib %deploylibdir% >NUL
 
 echo done.
 

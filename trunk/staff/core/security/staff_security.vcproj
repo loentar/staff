@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;C:\ws\axis2c\include;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,7 +65,7 @@
 				AdditionalDependencies="ws2_32.lib rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib&quot;;../../depoly/win32/lib"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -93,7 +93,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/include;C:\ws\axis2c\include;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -143,7 +143,7 @@
 				AdditionalDependencies="ws2_32.lib rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../../rise/deploy/win_$(PROCESSOR_ARCHITECTURE)/lib&quot;;../../depoly/win32/lib"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -173,7 +173,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
