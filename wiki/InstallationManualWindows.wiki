@@ -45,22 +45,39 @@ Please refer to http://code.google.com/p/staff/source/checkout to read guide for
 Or checkout the [http://code.google.com/p/staff/downloads/list Download] section.
 
 
-== 3. Compiling source code ==
+== 3. Compiling and installing ==
 
-=== 3.1 Compiling and installing rise ===
+The compilation is available from the command line and from the IDE.
 
-The compilation is available from the command line or from the IDE:
-  * To compile from the command line, start rebuild.cmd from the directory rise (only with VS2005).
-  * To compile from the IDE Visual Studio 2005, start rise.sln from the directory rise, then build the library (menu Build->Build Solution).
+== 3.1 Compiling and installing from command line ==
+
+_Note: If You using VS2008 or greater, solution upgrading must made automaticaly._
+
+Open command prompt from staff directory and start:
+{{{
+  build <TARGET>
+}}}
+
+where `<TARGET>` is version to build: Debug or Release (case sensive).
+
+When build successes, start:
+{{{
+  install
+}}}
+
+=== 3.2 Compiling from Visual Studio ===
+
 _Note: If You using VS2008 or greater, after opening this solution "Visual Studio Conversion Wizard" will be appear. Process solution upgrade to continue._
-Copy directory contents staff\rise\deploy\win_x86 into directory c:\ws\staff\.
 
-=== 3.2 Compiling and installing Staff ===
+To compile from the IDE Visual Studio:
 
-The compilation is available from the command line or from the IDE:
-  * To compile from the command line, start rebuild.cmd from the directory staff (only with VS2005).
-  * To compile from the IDE Visual Studio, start staff.sln directory staff. Compile the project solution (menu Build->Build Solution)
-_Note: If You using VS2008 or greater, after opening this solution "Visual Studio Conversion Wizard" will be appear. Process solution upgrade to continue._
+Open rise.sln from the directory rise, then build the solution (menu Build->Build Solution).
+Open staff.sln from the directory staff, then build the solution (menu Build->Build Solution).
+
+To install open command prompt from staff directory and start:
+{{{
+  install
+}}}
 
 == 4. Starting ==
 
