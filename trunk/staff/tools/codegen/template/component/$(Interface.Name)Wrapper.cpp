@@ -63,7 +63,7 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
     rOperation.SetResultName("$(Member.Return.NodeName)");
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
-    $(Param.DataType.Name) $(Param.Name);
+    $(Param.DataType.NsName) $(Param.Name);
 #else
 \
 #ifeqend
@@ -78,7 +78,7 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
 #end
 \
 #ifeq($(Member.Return.Type),struct||typedef||template)
-    $(Member.Return.Name) tResult = \
+    $(Member.Return.NsName) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
@@ -180,7 +180,7 @@ staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
   staff::CDataObject tOperations("Operations");
 
 #foreach $(Class.Members)
-  {// Operation: $(Member.Return.Name) $(Member.Name)($(Member.Params))$(Member.Const)
+  {// Operation: $(Member.Return.NsName) $(Member.Name)($(Member.Params))$(Member.Const)
     staff::CDataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
     tOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
     tOp$(Member.Name).CreateChild("IsConst", $(Member.IsConst));

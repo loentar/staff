@@ -40,7 +40,7 @@ $(Class.Name)Proxy::~$(Class.Name)Proxy()
 void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId)
 {
   staff::IService::Init("$(Class.ServiceNsName)", sSessionId, sInstanceId);
-  m_tClient.Init(sServiceUri.size() != 0 ? sServiceUri : \
+  m_tClient.Init(!sServiceUri.empty() ? sServiceUri : \
 #ifeq($(Class.ServiceUri),)
 "http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
 #else
@@ -52,7 +52,7 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 #else
 \
 #ifeqend
-  if (staff::IService::GetInstanceId().size() != 0)
+  if (!staff::IService::GetInstanceId().empty())
   {
     staff::COperation tOperation("CreateInstance");
     tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
@@ -64,7 +64,7 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 
 void $(Class.Name)Proxy::Deinit()
 {
-  if (staff::IService::GetInstanceId().size() != 0)
+  if (!staff::IService::GetInstanceId().empty())
   {
     staff::COperation tOperation("FreeInstance");
     tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
@@ -132,7 +132,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   return tOperation.Result();
 #else
 #ifeq($(Member.Return.Type),struct||typedef||template)
-  $(Member.Return.Name) tReturn;
+  $(Member.Return.NsName) tReturn;
   tOperation.Result() >> tReturn;
   return tReturn;
 #else
@@ -145,4 +145,5 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #end
 $(Class.EndingNs)
 #end
-#ifeqend // #ifneq($(Interface.Classes.$Count),0) 
+#ifeqend // #ifneq($(Interface.Classes.$Count),0)
+

@@ -39,8 +39,6 @@ namespace staff
 
   private:
     static const std::string m_sId;
-    class CWsdlParserImpl;
-    CWsdlParserImpl* m_pImpl;
   };
 }
 

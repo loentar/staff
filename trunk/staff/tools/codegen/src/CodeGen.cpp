@@ -53,29 +53,46 @@ namespace staff
       std::string::size_type nPos = sVariableName.find('.');
       std::string sVariable;
 
-      if(nPos != std::string::npos)
+      if (nPos != std::string::npos)
       {
         std::string sClass = sVariableName.substr(0, nPos);
         sVariable = sVariableName.substr(nPos + 1);
 
         while (pNode != NULL && pNode->NodeName() != sClass)
+        {
           pNode = pNode->GetParent();
+        }
 
         RISE_ASSERTS(pNode != NULL, "Can't find node which match current class: \"" + sClass + "\", context: " + rNode.NodeName() + ", Variable: " + sVariableName);
         RISE_ASSERTS(pNode->NodeName() == sClass, "node name does not match current class: \"" + pNode->NodeName() + "\" <=> \"" + sClass + "\", current context: " + rNode.NodeName());
 
         while ((nPos = sVariable.find('.')) != std::string::npos)
         {
-          std::string sSubClass = sVariable.substr(0, nPos);
-          pNode = &pNode->Subnode(sSubClass);
+          const std::string& sSubClass = sVariable.substr(0, nPos);
+          if (sSubClass[0] == '!' || sSubClass[0] == '$')
+          {
+            break;
+          }
+          try
+          {
+            pNode = &pNode->Subnode(sSubClass);
+          }
+          catch(...)
+          {
+            rise::LogDebug() << "While parsing variable: [" << sVariableName << "]";
+            throw;
+          }
+
           sVariable.erase(0, nPos + 1);
         }
       } else
+      {
         sVariable = sVariableName;
+      }
 
       if (sVariable == "$Num")
       {
-        static CXMLNode tNodeCount;
+        static CXMLNode tNodeNum;
         const CXMLNode* pNodeParent = pNode->GetParent();
         RISE_ASSERTS(pNodeParent != NULL, "can't get number for node: " + pNode->NodeName());
 
@@ -83,17 +100,21 @@ namespace staff
 
         for (CXMLNode::TXMLNodeConstIterator itNode = pNodeParent->NodeBegin();
                   itNode != pNodeParent->NodeEnd(); ++itNode)
-          if(itNode->NodeType() == CXMLNode::ENTGENERIC)
+        {
+          if (itNode->NodeType() == CXMLNode::ENTGENERIC)
           {
-            if(&*itNode == pNode)
+            if (&*itNode == pNode)
+            {
               break;
+            }
             ++nNum;
           }
+        }
 
-        tNodeCount.NodeContent() = nNum;
-        return tNodeCount;
+        tNodeNum.NodeContent() = nNum;
+        return tNodeNum;
       }
-
+      else
       if (sVariable == "$Count")
       {
         static CXMLNode tSubNodeCount;
@@ -102,7 +123,7 @@ namespace staff
         for (CXMLNode::TXMLNodeConstIterator itNode = pNode->NodeBegin();
           itNode != pNode->NodeEnd(); ++itNode)
         {
-          if(itNode->NodeType() == CXMLNode::ENTGENERIC)
+          if (itNode->NodeType() == CXMLNode::ENTGENERIC)
           {
             ++nNum;
           }
@@ -111,9 +132,164 @@ namespace staff
         tSubNodeCount.NodeContent() = nNum;
         return tSubNodeCount;
       }
+      else
+      if (sVariable[0] == '!')
+      { // exec function
+        sVariable.erase(0, 1);
+        pNode = &ExecuteFunction(sVariable, *pNode);
+        while (!sVariable.empty()) // .!trimleft/:/.!dot
+        {
+          if (sVariable.substr(0, 2) != ".!")
+          {
+            throw std::string("Junk [") + sVariable +  "] in variable: [" + sVariableName
+                + "] at pos " + rise::ToStr(sVariableName.size() - sVariable.size());
+          }
+          sVariable.erase(0, 2);
+          pNode = &ExecuteFunction(sVariable, *pNode);
+        }
+        return *pNode;
+      }
 
       return pNode->Subnode(sVariable);
     }
+
+    const CXMLNode& ExecuteFunction(std::string& sFunction, const CXMLNode& rNode) const
+    {
+      static rise::xml::CXMLNode tResult("Result");
+      std::string& sResult = tResult.NodeContent().AsString();
+      tResult.Clear();
+
+      if (sFunction.substr(0, 9) == "mangledot")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrReplace(sResult, ".", "_", true);
+        sFunction.erase(0, 9);
+      }
+      else
+      if (sFunction.substr(0, 6) == "mangle")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrReplace(sResult, "::", "_", true);
+        sFunction.erase(0, 6);
+      }
+      else
+      if (sFunction.substr(0, 3) == "dot")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrReplace(sResult, "::", ".", true);
+        sFunction.erase(0, 3);
+      }
+      else
+      if (sFunction.substr(0, 8) == "replace/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 9);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(9, nPosWhat - 9);
+          std::string sWith;
+          std::string::size_type nPosWith = sFunction.find('/', nPosWhat);
+          if (nPosWith != std::string::npos)
+          {
+            sWith = sFunction.substr(nPosWhat + 1, nPosWith - nPosWhat);
+          }
+          else
+          {
+            throw std::string("Can't get replace with");
+          }
+          rise::StrReplace(sResult, sWhat, sWith, true);
+          sFunction.erase(0, nPosWith);
+        }
+        else
+        {
+          throw std::string("Can't get what to replace");
+        }
+      }
+      else
+      if (sFunction.substr(0, 5) == "trim/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 5);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(5, nPosWhat - 5);
+          rise::StrTrim(sResult, sWhat.c_str());
+          sFunction.erase(0, nPosWhat + 1);
+        }
+        else
+        {
+          throw std::string("Can't get trim with");
+        }
+      }
+      else
+      if (sFunction.substr(0, 9) == "trimleft/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 9);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(9, nPosWhat - 9);
+          rise::StrTrimLeft(sResult, sWhat.c_str());
+          sFunction.erase(0, nPosWhat + 1);
+        }
+        else
+        {
+          throw std::string("Can't get trimleft with");
+        }
+      }
+      else
+      if (sFunction.substr(0, 10) == "trimright/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 10);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(10, nPosWhat - 10);
+          rise::StrTrimRight(sResult, sWhat.c_str());
+          sFunction.erase(0, nPosWhat + 1);
+        }
+        else
+        {
+          throw std::string("Can't get trimright with");
+        }
+      }
+      else
+      if (sFunction.substr(0, 4) == "trim")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrTrim(sResult);
+        sFunction.erase(0, 4);
+      }
+      else
+      if (sFunction.substr(0, 8) == "trimleft")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrTrimLeft(sResult);
+        sFunction.erase(0, 8);
+      }
+      else
+      if (sFunction.substr(0, 9) == "trimright")
+      {
+        sResult = rNode.NodeContent().AsString();
+        rise::StrTrimRight(sResult);
+        sFunction.erase(0, 9);
+      }
+      else
+      {
+        throw std::string("function " + sFunction + " is undefined");
+      }
+
+      return tResult;
+    }
+
 
     const std::string& GetValue(const std::string& sVariableName, const CXMLNode& rNode) const
     {
@@ -132,9 +308,13 @@ namespace staff
         const std::string& sName = sString.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
         std::string sValue;
         if (sName[0] == '$')
+        {
           sValue = m_tVariables[sName.substr(1)];
+        }
         else
+        {
           sValue = GetValue(sName, rNode);
+        }
         sString.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
         nPosEnd = nPosStart + sValue.size();
       }
@@ -146,7 +326,7 @@ namespace staff
       rise::CFileFind::Find(sInDir, tFileList, "*.*", rise::CFileFind::EFA_FILE);
       for (std::list<std::string>::const_iterator it = tFileList.begin(); it != tFileList.end(); ++it)
       {
-        if(it->find('$') != std::string::npos)
+        if (it->find('$') != std::string::npos)
           m_tTemplateFileList.push_back(*it);
         else
           m_tConstFileList.push_back(*it);
@@ -163,7 +343,7 @@ namespace staff
       for (CXMLNode::TXMLNodeConstIterator itNode = rNodeInterfaces.NodeBegin();
                 itNode != rNodeInterfaces.NodeEnd(); ++itNode)
       {
-        if(itNode->NodeType() == CXMLNode::ENTGENERIC)
+        if (itNode->NodeType() == CXMLNode::ENTGENERIC)
         {
           const CXMLNode& rNodeInterface = *itNode;
 
@@ -171,18 +351,24 @@ namespace staff
               itTemplateFile != m_tTemplateFileList.end(); ++itTemplateFile)
           {
             std::string sFile = *itTemplateFile;
+            bool bProcessFile = false;
             try
             {
               ReplaceToValue(sFile, rNodeInterface);
+              bProcessFile = true;
             }
             catch(rise::CLogicNoItemException& )
             {
-              rise::LogDebug() << "Skipping template file " << sFile;
+              rise::LogDebug1() << "Skipping template file " << sFile
+                  << " for interface " << rNodeInterface["NsName"].AsString();
               continue;
             }
 
-            ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
-                        rNodeInterface, bUpdateOnly, bNeedUpdate);
+            if (bProcessFile)
+            {
+              ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+                          rNodeInterface, bUpdateOnly, bNeedUpdate);
+            }
           }
         }
       }
@@ -235,7 +421,7 @@ namespace staff
             nPosEndRight = sRight.find("||", nPosStartRight);
             const std::string& sRightCmp = sRight.substr(nPosStartRight, nPosEndRight - nPosStartRight);
 
-            if(sLeftCmp == sRightCmp)
+            if (sLeftCmp == sRightCmp)
             {
               bEq = true;
               break;
@@ -346,7 +532,7 @@ namespace staff
 
       for (CXMLNode::TXMLNodeConstIterator itNode = rSubNode.NodeBegin();
         itNode != rSubNode.NodeEnd(); ++itNode)
-        if(itNode->NodeType() == CXMLNode::ENTGENERIC)
+        if (itNode->NodeType() == CXMLNode::ENTGENERIC)
         {
           std::istringstream ssStream(sLines);
           Process(ssStream, fsOut, *itNode);
@@ -412,11 +598,13 @@ namespace staff
           if (nPos == std::string::npos)
           {
             sVariable = sLine.substr(5);
+            rise::StrTrimRight(sVariable);
           }
           else
           {
             sVariable = sLine.substr(5, nPos - 5);
             sValue = sLine.substr(nPos + 1, sLine.size() - nPos - 2);
+            ReplaceToValue(sValue, rNode);
           }
 
           if (sVariable.size() == 0)
@@ -424,7 +612,6 @@ namespace staff
             throw "invalid var declaration: " + sLine;
           }
 
-          ReplaceToValue(sValue, rNode);
           m_tVariables[sVariable] = sValue;
         }
         else

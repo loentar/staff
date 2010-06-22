@@ -223,7 +223,7 @@ int main(int nArgs, const char* szArgs[])
 
     if (sTemplate != "")
     {
-      std::cout << "template: " << sTemplate << std::endl;
+      rise::LogDebug() << "template: " << sTemplate;
       staff::CCodeGen tGen;
       tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
