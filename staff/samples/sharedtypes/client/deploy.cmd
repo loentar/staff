@@ -1,4 +1,4 @@
-set projectname=calc_client
+set projectname=sharedtypes_client
 
 set target=%1%
 if "%target%" == "" (

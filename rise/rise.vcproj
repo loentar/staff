@@ -63,6 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib imagehlp.lib"
 				LinkIncremental="2"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames="MSVCP80.lib;MSVCR80.lib;MSVCP80D.lib;MSVCR80D.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -91,7 +92,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -140,6 +141,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib imagehlp.lib"
 				LinkIncremental="1"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames="MSVCP80.lib;MSVCR80.lib;MSVCP80D.lib;MSVCR80D.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -170,6 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd $(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>

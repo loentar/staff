@@ -1,21 +1,17 @@
-set projectname=AccountAdmin
+set projectname=staff.admin
+
+set target=%1%
+if "%target%" == "" (
+  echo.
+  echo Error: Target is not set.
+  exit 1
+)
+
 
 set deploydir=%cd%\..\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
-set componentdir=%deploydir%\components\%projectname%
+set componentdir=%deploydir%\staff\components\%projectname%
 
 if not EXIST %componentdir% mkdir %componentdir%
 
 xcopy /Y /S src\*.wsdl %componentdir%\
-xcopy /Y /S src\*.wsdl %STAFF_HOME%\components\%projectname%\
-
-if exist Debug (
-  xcopy /Y /S debug\*.dll %componentdir%\
-  xcopy /Y /S debug\*.dll %STAFF_HOME%\components\%projectname%\
-) else (
-  if exist Release (
-    xcopy /Y /S Release\*.dll %componentdir%\
-    xcopy /Y /S Release\*.dll %STAFF_HOME%\components\%projectname%\
-  )
-)
-
-
+xcopy /Y /S %target%\*.dll %componentdir%\
