@@ -11,11 +11,11 @@ LDFLAGS += -lstaffcommon -lstaffclient -lrise
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
-CODEGENH := $(patsubst %.h,%Proxy.h,$(HEADERS)) $(SRCDIR)ServiceFactory.h
-CODEGENCPP := $(patsubst %.h,%Proxy.cpp,$(HEADERS)) $(SRCDIR)ServiceFactory.cpp
+CODEGENH := $(patsubst %.h,%Proxy.h,$(HEADERS))
+CODEGENCPP := $(patsubst %.h,%Proxy.cpp,$(HEADERS))
 CODEGEN := $(CODEGENH) $(CODEGENCPP)
 
-SOURCES = $(CODEGENCPP) $(filter-out %ServiceFactory.cpp %Proxy.cpp,$(wildcard $(SRCDIR)*.cpp))
+SOURCES = $(CODEGENCPP) $(filter-out %Proxy.cpp,$(wildcard $(SRCDIR)*.cpp))
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 .NOTPARALLEL: $(CODEGEN)
@@ -32,9 +32,6 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
-	cd src && $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET)
-
-$(SRCDIR)ServiceFactory.h $(SRCDIR)ServiceFactory.cpp:: $(HEADERS)
 	cd src && $(STAFF_CODEGEN) -u $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET)
 
 # == deploy  ========================================

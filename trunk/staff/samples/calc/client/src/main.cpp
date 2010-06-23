@@ -31,7 +31,7 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/console.h>
 #include <staff/common/Exception.h>
-#include "ServiceFactory.h"
+#include <staff/client/ServiceFactory.h>
 #include "CalcService.h"
 
 int main(int nArgs, const char* paszArgs[])
