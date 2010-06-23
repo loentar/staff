@@ -23,7 +23,7 @@
 #define _STAFFCOMMONEXPORT_H_
 
 #if defined(WIN32) || defined (_WINDOWS)
-  #pragma warning(disable: 4786)
+  #pragma warning(disable: 4786 4251)
 
   #ifdef STAFF_COMMON_DLL_EXPORTS
     #define STAFF_COMMON_EXPORT __declspec(dllexport)
