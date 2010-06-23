@@ -585,6 +585,7 @@ namespace staff
       m_tFile.get(tStreamBuff, '('); // parameters begin
 
       rMember.sName = tStreamBuff.str();
+      rise::StrTrim(rMember.sName);
 
       SkipWs();
       m_tFile >> chData;
