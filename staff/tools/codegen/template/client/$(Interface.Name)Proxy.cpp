@@ -3,10 +3,13 @@
 // DO NOT EDIT
 
 #ifneq($(Interface.Classes.$Count),0)
+#include <memory>
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Value.h>
-#include <staff/common/IService.h>
+#include <staff/client/ServiceFactory.h>
+#include <staff/client/IProxyAllocator.h>
+#include <rise/common/MutablePtr.h>
 #else // types only interface
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
@@ -24,6 +27,47 @@
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)
+
+// proxy allocator
+class $(Class.Name)ProxyAllocator: public staff::IProxyAllocator
+{
+public:
+  $(Class.Name)ProxyAllocator()
+  {
+    try
+    {
+      staff::CServiceFactory::Inst().RegisterProxyAllocator(typeid($(Class.Name)).name(), *this);
+    }
+    catch(...)
+    {
+      rise::LogError() << "Failed to register proxy allocator $(Class.Name)";
+    }
+  }
+
+  virtual staff::IService* AllocateProxy(const std::string& sServiceUri,
+                                         const std::string& sSessionId,
+                                         const std::string& sInstanceId)
+  {
+    std::auto_ptr<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
+    tpProxy->Init(sServiceUri, sSessionId, sInstanceId);
+    return tpProxy.release();
+  }
+
+  virtual staff::IService* AllocateProxy(const std::string& sBaseUri,
+                                         const std::string& sServiceName,
+                                         const std::string& sSessionId,
+                                         const std::string& sInstanceId)
+  {
+    std::auto_ptr<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
+    tpProxy->Init(sBaseUri + (sServiceName.empty() ? "$(Class.ServiceNsName)" : sServiceName),
+                  sSessionId, sInstanceId);
+    return tpProxy.release();
+  }
+};
+
+$(Class.Name)ProxyAllocator t$(Class.Name)ProxyAllocatorInitializer;
+
+// service proxy
 $(Class.Name)Proxy::$(Class.Name)Proxy()
 {
 }

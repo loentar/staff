@@ -132,6 +132,10 @@ staff/components/Login/src/LoginImpl.cpp
 staff/components/Login/src/LoginImpl.h
 staff/core/client/src/Axis2Client.cpp
 staff/core/client/src/Axis2Client.h
+staff/core/client/src/IProxyAllocator.cpp
+staff/core/client/src/IProxyAllocator.h
+staff/core/client/src/ServiceFactory.cpp
+staff/core/client/src/ServiceFactory.h
 staff/core/client/src/staffclientexport.h
 staff/core/common/src/Attribute.cpp
 staff/core/common/src/Attribute.h
@@ -241,8 +245,6 @@ staff/tools/codegen/src/XmlGen.h
 staff/tools/codegen/template/clientimpl/main.cpp
 staff/tools/codegen/template/client/$(Interface.Name)Proxy.cpp
 staff/tools/codegen/template/client/$(Interface.Name)Proxy.h
-staff/tools/codegen/template/client/ServiceFactory.cpp
-staff/tools/codegen/template/client/ServiceFactory.h
 staff/tools/codegen/template/common/Serialization.cpp
 staff/tools/codegen/template/common/WsdlTypes.xsd
 staff/tools/codegen/template/component/ComponentImpl.cpp
