@@ -136,6 +136,5 @@ goto errexit
 
 :errexit
 pause
-exit 1
 :exit
 endlocal

@@ -64,7 +64,7 @@ int staff_security_calculate_access_by_session_id(const char* szObjectPath, cons
       {
         *pnAccess = 1;
       }
-      rise::LogInfo() << "calculate access to [" << szObjectPath << "] = " << *pnAccess;
+      rise::LogDebug() << "calculate access to [" << szObjectPath << "] = " << *pnAccess;
       nResult = 1;
     }
     else

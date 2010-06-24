@@ -45,5 +45,4 @@ echo installation succesful
 goto exit
 :errexit
 pause
-exit 1
 :exit

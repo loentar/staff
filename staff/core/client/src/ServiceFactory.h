@@ -22,6 +22,7 @@
 #ifndef _SERVICEFACTORY_H_
 #define _SERVICEFACTORY_H_
 
+#include "staffclientexport.h"
 #include <typeinfo>
 #include <string>
 
@@ -31,7 +32,7 @@ namespace staff
   class IProxyAllocator;
 
   //! service factory
-  class CServiceFactory
+  class STAFF_CLIENT_EXPORT CServiceFactory
   {
   public:
     //!         get instance of service factory
