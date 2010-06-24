@@ -8,21 +8,21 @@
 
 Create client source directories:
 {{{
-mkdir -p ~/devel/CalculatorClient/src
+mkdir -p ~/devel/samples/Calculator/client/src
 }}}
 
 == 2. Use service interface ==
 
 Create link or copy service interface file:
 {{{
-ln -s ../../CalculatorComponent/src/Calculator.h ~/devel/CalculatorClient/src
+ln -s ../../component/src/Calculator.h ~/devel/samples/Calculator/client/src
 }}}
 
 == 3. Generating client stub ==
 
 Generate client stub:
 {{{
-cd ~/devel/CalculatorClient/src
+cd ~/devel/samples/Calculator/client/src
 staff_codegen -tclientimpl Calculator.h
 }}}
 
@@ -38,22 +38,20 @@ std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
   _Proxy is a set of files, used to work with service_
 
 {{{
-    staff_codegen -tclient Calculator.h
+staff_codegen -tclient Calculator.h
 }}}
 
 These files will be generated:
 {{{
 CalculatorProxy.h
 CalculatorProxy.cpp
-ServiceFactory.h
-ServiceFactory.cpp
 }}}
 
   _Please note, when You change the service interface, You must regenerate proxy._
 
 == 6. Compilation ==
 
-Put Makefile as ~/devel/!CalculatorClient/Makefile:
+Put Makefile as ~/devel/samples/Calculator/client/Makefile:
 
 {{{
 COMPONENT = samples
@@ -104,7 +102,7 @@ endif
 
 Compile client with command
 {{{
-cd ~/devel/CalculatorClient
+cd ~/devel/samples/Calculator/client
 make
 }}}
 
@@ -121,17 +119,14 @@ You must see following results:
 
 Here is a described source directory tree of the Calculator client.
 {{{
-CalculatorClient/obj                       -- objects directory
-CalculatorClient/out                       -- compiled client
-CalculatorClient/src                       -- source directory
-CalculatorClient/src/Calculator.h          -- service interface
-CalculatorClient/src/main.cpp              -- client implementation
-CalculatorClient/src/CalculatorProxy.cpp   -- client proxy (header)
-CalculatorClient/src/CalculatorProxy.h     -- client proxy
-CalculatorClient/src/ServiceFactory.h      -- service factory (header)
-CalculatorClient/src/ServiceFactory.cpp    -- service factory
-CalculatorClient/Makefile                  -- Makefile
-
+Calculator/client/obj                       -- objects directory
+Calculator/client/out                       -- compiled client
+Calculator/client/src                       -- source directory
+Calculator/client/src/Calculator.h          -- service interface
+Calculator/client/src/main.cpp              -- client implementation
+Calculator/client/src/CalculatorProxy.cpp   -- client proxy (header)
+Calculator/client/src/CalculatorProxy.h     -- client proxy
+Calculator/client/Makefile                  -- Makefile
 }}}
 
 == 9. Download source code ==

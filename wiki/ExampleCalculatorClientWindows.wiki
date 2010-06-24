@@ -5,20 +5,27 @@
 <wiki:toc max_depth="2" />
 
 == 1. Creating solution ==
-Start Visual Studio 2005 and create new solution, named !CalculatorClient.
+Start Visual Studio and create new solution, named "client".
 
-While creating use template Win32=>Win32 Console Application, Click "OK". Click "Next".
+Ensure, that Location field ends with "\Calculator".
+
+While creating use template Win32=>Win32 Console Application, Click "OK". 
+Click "Next".
 
 In "Application Settings" dialog select "Console Application" and "Empty project", Click "Finish".
 
 Solution is created.
 
+Now click on "component" project and rename it to "calculator_client". 
+
+This manipulations is needed to create given directory structure.
+
 == 2. Use service interface ==
 
-Create directory !CalculatorClient\src and copy service interface file into this directory.
+Create directory !Calculator\client\src and copy service interface file into this directory.
 
 == 3. Generating client stub ==
-To generate client stub start command prompt from !CalculatorClient\src directory and enter:
+To generate client stub start command prompt from !Calculator\client\src directory and enter:
 {{{
 staff_codegen -tclientimpl Calculator.h
 }}}
@@ -35,30 +42,28 @@ std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
 == 5. Generating client Proxy ==
   _Proxy is a set of files, used to work with service_
 
-To generate client proxy start command prompt from !CalculatorClient\src directory and enter:
+To generate client proxy start command prompt from !Calculator\client\src directory and enter:
 {{{
-    staff_codegen -tclient Calculator.h
+staff_codegen -tclient Calculator.h
 }}}
 
 These files will be generated:
 {{{
 CalculatorProxy.h
 CalculatorProxy.cpp
-ServiceFactory.h
-ServiceFactory.cpp
 }}}
 
   _Please note, when You change the service interface, You must regenerate proxy._
 
 Add all files into Solution:
 
-Right click to !CalculatorClient project, select "Add" => "Existing Item...".
+Right click to "calculator_client" project, select "Add" => "Existing Item...".
 In opened dialog go inside "src" directory and select all files.
 Click "Add".
 
 == 6. Compilation ==
 
-Go to Project Settings: Right click to "!CalculatorClient" project and select "Properties".
+Go to Project Settings: Right click to "calculator_client" project and select "Properties".
 Click to Configuration Drop down box and select "All configurations"
 In the "Configuration properties" tree select "C/C++" item and enter these "Additional Include Directories":
 {{{
@@ -89,9 +94,9 @@ Compile the solution: "Build" => "Build Solution".
 
 == 7. Start client ==
 
-To start client open command prompt from !CalculatorClient\Release directory and enter:
+To start client open command prompt from !Calculator\client\Release directory and enter:
 {{{
-CalculatorClient
+calculator_client
 }}}
 
 You must see following results:
@@ -100,15 +105,14 @@ You must see following results:
 == 9. Client source directory structure ==
 
 {{{
-CalculatorClient\Release                   -- compiled client
-CalculatorClient\src                       -- source directory
-CalculatorClient\src\Calculator.h          -- service interface
-CalculatorClient\src\main.cpp              -- client implementation
-CalculatorClient\src\CalculatorProxy.cpp   -- client proxy (header)
-CalculatorClient\src\CalculatorProxy.h     -- client proxy
-CalculatorClient\src\ServiceFactory.h      -- service factory (header)
-CalculatorClient\src\ServiceFactory.cpp    -- service factory
-CalculatorClient\CalculatorClient.vcproj   -- visual studio project file
+Calculator\client\Release                   -- compiled client
+Calculator\client\src                       -- source directory
+Calculator\client\src\Calculator.h          -- service interface
+Calculator\client\src\main.cpp              -- client implementation
+Calculator\client\src\CalculatorProxy.cpp   -- client proxy (header)
+Calculator\client\src\CalculatorProxy.h     -- client proxy
+Calculator\client\Calculator\client.sln     -- visual studio solution file
+Calculator\client\Calculator\client.vcproj  -- visual studio project file
 }}}
 
 == 10. Download source code ==
