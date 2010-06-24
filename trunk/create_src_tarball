@@ -25,7 +25,7 @@ then
   rm -Rf ${DISTRIB}
   echo "created ${TARBALLNAME}.tar.bz2"
 else
-  7z a -r ${TARBALLNAME} staff >&-
+  7z a -r ${TARBALLNAME}.7z staff >&-
   rm -Rf ${DISTRIB}
   echo "created ${TARBALLNAME}.7z"
 fi
