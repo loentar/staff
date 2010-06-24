@@ -44,6 +44,7 @@
 #endif
 
 #ifdef RISE_TEST
+#include <string>
 //!        rise root namespace
 namespace rise
 {
