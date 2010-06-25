@@ -290,7 +290,7 @@ class Calculator: public staff::IService
 {
 public:
   // restMethod: GET
-  // restLocation: add?a={a},b={b}
+  // restLocation: add?a={a}&b={b}
   virtual int Add(int a, int b) = 0;
 };
 }}}
@@ -301,7 +301,7 @@ public:
 
 You may execute RESTul service from web browser. Just enter link containing service name and params:
 
-http://localhost:9090/axis2/services/Calculator?a=1,b=2
+http://localhost:9090/axis2/services/Calculator?a=1&b=2
 
 Browser output:
 ||3||
