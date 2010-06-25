@@ -4,13 +4,13 @@ Summary: webapp
 Name: webapp-components
 Version: __version__
 Release: mcbc
-Copyright: 2009
+License: Apache License 2.0
 Group: Utilities/System
 Requires: staff rise
 Provides: webapp-components
 
 %description
-Сервисные компоненты webapp
+Webapp components
 
 %files
 %defattr(-,root,root)

@@ -4,13 +4,12 @@ Summary: webapp
 Name: webapp-httpd
 Version: __version__
 Release: mcbc
-Copyright: 2009
+License: Apache License 2.0
 Group: Utilities/System
-Requires: sgod
 Provides: webapp-httpd
 
 %description
-Прокси-модуль для вызова сервисов axis2c/staff через Apache2
+webapp modules
 
 %files
 %defattr(-,root,root)
