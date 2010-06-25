@@ -4,21 +4,19 @@ Summary: staff
 Name: staff
 Version: __version__
 Release: mcbc
-Copyright: 2010
+License: Apache License 2.0
 Group: Utilities/System
-Requires: rise
+Requires: rise axis2c
 Provides: staff
 
 %description
-staff
+Web service framework staff-__version__ based on Axis2/C.
 
 %files
 %defattr(-,root,root)
-/etc/profile.d/axis2c.sh
 /etc/profile.d/staff.sh
-/etc/ld.so.conf.d/axis2c.conf
 /etc/ld.so.conf.d/staff.conf
-/usr/local/staff/lib/
+/usr/local/staff/lib/*.so
 /usr/local/staff/components/
 /usr/local/staff/db/
 /usr/local/staff/samples/
@@ -30,5 +28,9 @@ staff
 
 %post
 cat /etc/ld.so.conf.d/*.conf | xargs ldconfig
+/etc/init.d/axis2c status >/dev/null && /etc/init.d/axis2c restart || true
 
 %postun
+cat /etc/ld.so.conf.d/*.conf | xargs ldconfig
+/etc/init.d/axis2c status >/dev/null && /etc/init.d/axis2c restart || true
+rm -Rf /usr/local/staff

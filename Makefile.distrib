@@ -19,6 +19,7 @@ endif
 
 DISTRIBDIR = $(TOPDIR)/../distrib/
 DISTRIBDIRQ := $(shell echo $(DISTRIBDIR) | sed 's/\//\\\//g')
+MANGLEDVERSION := $(shell echo $(VERSION) | sed 's/-/_/g')
 
 
 # == distrib  ========================================
@@ -26,7 +27,7 @@ distrib: "$(DISTRIBDIR)" $(patsubst $(DISTRIBSCRIPTSDIR)%,%,$(wildcard $(DISTRIB
 
 %.spec: "$(DISTRIBDIR)RPMS/$(PLATFORM)/"
 	@/bin/echo -e "\n\n\033[1mbuilding $(PROJECT)-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm\033[0m\n"
-	sed "s/__version__/$(VERSION)/g" $(DISTRIBSCRIPTSDIR)$@ | sed "s/__topdir__/$(DISTRIBDIRQ)/g" >$(DISTRIBDIR)/buildrpm_$@
+	sed "s/__version__/$(MANGLEDVERSION)/g" $(DISTRIBSCRIPTSDIR)$@ | sed "s/__topdir__/$(DISTRIBDIRQ)/g" >$(DISTRIBDIR)/buildrpm_$@
 	rpmbuild --quiet -bb $(DISTRIBDIR)/buildrpm_$@ --buildroot $(TOPDIR)/deploy/$(PLATFORM)/ --target $(PLATFORM)
 	rm -f $(DISTRIBDIR)/buildrpm_$@
 

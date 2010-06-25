@@ -4,24 +4,24 @@ Summary: rise
 Name: rise
 Version: __version__
 Release: mcbc
-Copyright: 2009
+License: Apache License 2.0
 Group: Utilities/System
 #Requires: 
 Provides: rise
 
 %description
-Многоплатформенная библиотека классов rise
+Multiplatform utils library.
 
 %files
 %defattr(-,root,root)
-/usr/lib/*
+/usr/lib/librise*
 
 #%pre
 
 #%preun
 
 %post
-test -L /usr/lib/libbfd.so || ln -s /usr/lib/libbfd-2.14.90.0.6.so /usr/lib/libbfd.so
+test -L /usr/lib/libbfd.so || ln -s $(ls /usr/lib/libbfd-*.so | head -1) /usr/lib/libbfd.so
 #ldconfig
 
 #%postun

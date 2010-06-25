@@ -4,22 +4,22 @@ Summary: rise
 Name: rise-dev
 Version: __version__
 Release: mcbc
-Copyright: 2009
+License: Apache License 2.0
 Group: Utilities/System
 Requires: rise
 Provides: rise-dev
 
 %description
-Средства разработки под многоплатформенную библиотеку классов rise
+Multiplatform utils library headers.
 
 %files
 %defattr(-,root,root)
-/usr/include/*
+/usr/include/rise*
 
-%pre
+#%pre
 
-%preun
+#%preun
 
-%post
+#%post
 
-%postun
+#%postun
