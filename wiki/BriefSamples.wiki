@@ -301,10 +301,10 @@ public:
 
 You may execute RESTul service from web browser. Just enter link containing service name and params:
 
-http://localhost:9090/axis2/services/Calculator?a=1&b=2
+http://localhost:9090/axis2/services/Calculator/add?a=1&b=2
 
 Browser output:
-||3||
+||`<`addResult`>`3`<`/addResult`>`||
 
 <br/>
 
