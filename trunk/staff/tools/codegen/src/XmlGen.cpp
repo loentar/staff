@@ -161,7 +161,7 @@ namespace staff
 
     if (rDataType.eType == SDataType::EUnknown)
     {
-      rise::LogError() << "Unknown datatype: " << (rDataType.sNamespace + rDataType.sName);
+      rise::LogWarning() << "Unknown datatype: " << (rDataType.sNamespace + rDataType.sName);
     }
 
     return rNodeDataTypes;

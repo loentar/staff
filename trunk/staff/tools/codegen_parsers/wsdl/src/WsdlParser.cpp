@@ -172,7 +172,6 @@ namespace staff
             return;
           }
         }
-        RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace prefix: " + rise::ToStr(rNode));
       }
     }
 
@@ -202,25 +201,21 @@ namespace staff
 
     std::string sResult;
 
-    std::string::size_type nPosBegin = sNamespace.find_last_of('/');
+    std::string::size_type nPosBegin = sNamespace.find("/axis2/services/");
     if (nPosBegin == std::string::npos)
     {
-      nPosBegin = 0;
+      return "";
     }
-    else
-    {
-      ++nPosBegin;
-    }
+
+    nPosBegin += 16;
 
     std::string::size_type nPosEnd = sNamespace.find_last_of('.');
     if (nPosEnd == std::string::npos)
     {
-      sResult = sNamespace.substr(nPosBegin);
+      return "";
     }
-    else
-    {
-      sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
-    }
+
+    sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
 
     rise::StrReplace(sResult, ".", "::", true);
     return "::" + sResult + "::";
@@ -441,6 +436,10 @@ namespace staff
         {
           SElement stElement;
           stElement.Parse(*itChild);
+          if (stElement.stType.sName == "anyType")
+          {
+            stElement.stType.sName = "DataObject";
+          }
           lsElements.push_back(stElement);
         }
         else
@@ -868,55 +867,6 @@ namespace staff
         }
       }
     }
-
-/*    bool FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace)
-    {
-      if (rDataType.sName == "string")
-      {
-        rDataType.sName = "string";
-        rDataType.eType = SDataType::EString;
-        rDataType.sNamespace = "std::";
-        rDataType.sUsedName = "std::string";
-
-        return true;
-      }
-
-      if (rDataType.sName == "DataObject")
-      {
-        rDataType.sName = "CDataObject";
-        rDataType.eType = SDataType::EDataObject;
-        rDataType.sNamespace = "staff::";
-        rDataType.sUsedName = "staff::CDataObject";
-
-        return true;
-      }
-
-      for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedef.begin();
-          itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
-      {
-        const STypedef& rTypedef = *itTypedef;
-        if (rTypedef.sName == rDataType.sName)
-        {
-          rDataType.eType = SDataType::ETypedef;
-          rDataType.sNamespace = sNamespace;
-          return true;
-        }
-      }
-
-      for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStruct.begin();
-          itStruct != rInterface.lsStruct.end(); ++itStruct)
-      {
-        const SStruct& rStruct = *itStruct;
-        if (rStruct.sName == rDataType.sName)
-        {
-          rDataType.eType = SDataType::EStruct;
-          rDataType.sNamespace = sNamespace;
-          return true;
-        }
-      }
-
-      return false;
-    }*/
 
     static bool SortStructByParent(const SStruct& rStruct1, const SStruct& rStruct2)
     {
