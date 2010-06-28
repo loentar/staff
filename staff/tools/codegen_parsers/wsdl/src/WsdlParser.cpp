@@ -718,7 +718,7 @@ namespace staff
       }
       else
       { // one way message
-        rMember.stReturn.sName = "void";
+        rMember.stReturn.stDataType.sName = "void";
       }
 
       ReadDescr(rOperation, rMember.sDescr);
