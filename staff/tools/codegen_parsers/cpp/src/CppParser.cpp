@@ -63,24 +63,41 @@ namespace staff
             if (m_tFile.peek() == '/') // single line comment
             {
               m_tFile.ignore(INT_MAX, '\n');
+              ++m_nLine;
               continue;
-            } else
+            }
+            else
             if (m_tFile.peek() == '*') // multiline comment
             {
+              m_tFile.ignore();
               while (m_tFile.good() && !m_tFile.eof())
               {
-                m_tFile.ignore(INT_MAX, '*');
                 m_tFile.get(chData);
-                if(chData == '/')
-                  break;
+                if (chData == '*')
+                {
+                  m_tFile.get(chData);
+                  if (chData == '/')
+                  {
+                    break;
+                  }
+                }
+
+                if (chData == '\n')
+                {
+                  ++m_nLine;
+                }
               }
-            } else
+            }
+            else
             {
               m_tFile.unget();
               break;
             }
-          } else
+          }
+          else
+          {
             break;
+          }
         }
         m_tFile.ignore();
       }
@@ -126,6 +143,7 @@ namespace staff
           if (m_tFile.peek() == '/') // single line comment
           {
             m_tFile.ignore(INT_MAX, '\n');
+            ++m_nLine;
           } else
           {
             m_tFile.unget();
@@ -152,9 +170,14 @@ namespace staff
       while (m_tFile.good() && !m_tFile.eof())
       {
         chData = m_tFile.peek();
-        if(sDelim.find(chData) != std::string::npos)
+        if (sDelim.find(chData) != std::string::npos)
         {
           break;
+        }
+
+        if (chData == '\n')
+        {
+          ++m_nLine;
         }
 
         sOut += chData;
@@ -194,6 +217,7 @@ namespace staff
               }
             }
             m_tFile.ignore(INT_MAX, '\n');
+            ++m_nLine;
           } else
           {
             m_tFile.unget();
@@ -230,7 +254,7 @@ namespace staff
 
           sComment += sTmp;
           m_tFile.get(chData);
-          if(chData == '*')
+          if (chData == '*')
           {
             if (m_tFile.peek() == '/')
             {
@@ -239,6 +263,11 @@ namespace staff
             }
             sComment += chData;
           }
+
+          if (chData == '\n')
+          {
+            ++m_nLine;
+          }
         }
       }
       else
@@ -246,7 +275,7 @@ namespace staff
         m_tFile.unget();
       }
 
-      return sComment.size() != 0;
+      return !sComment.empty();
     }
 
     template<typename TStructType>
@@ -420,6 +449,7 @@ namespace staff
 
       while (m_tFile.good() && !m_tFile.eof())
       {
+        SkipWs();
         m_tFile >> chTmp;
 
         if (chTmp == ';' && nRecursion == 0)
@@ -549,11 +579,6 @@ namespace staff
           break;
         }
       }
-
-      if (rDataType.bIsRef && !rDataType.bIsConst)
-      {
-        rise::LogWarning() << "Non-const reference to " << rDataType.sName << " at line " << m_nLine << " \n(return value cannot be passed over argument)";
-      }
     }
 
     // parameter
@@ -603,6 +628,13 @@ namespace staff
             CSP_THROW("unexpected EOF(after member name)", m_stInterface.sFileName, m_nLine);
 
           ParseParam(stParam); // reading param
+          if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst)
+          {
+            rise::LogWarning() << "Non-const reference to " << stParam.stDataType.sName
+                << " in member: " << rMember.sName
+                << " in " << m_stInterface.sFileName << ":" << m_nLine
+                << " \n(return value cannot be passed over argument)";
+          }
 
           SkipWs();
           m_tFile >> chData; // more arguments?
@@ -1009,6 +1041,7 @@ namespace staff
       }
 
       m_tFile.ignore(INT_MAX, '\n');
+      ++m_nLine;
     }
 
     void ParseHeaderBlock( SInterface& rInterface )
