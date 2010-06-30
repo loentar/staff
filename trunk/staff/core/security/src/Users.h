@@ -88,6 +88,12 @@ namespace staff
         */
       void SetPassword(int nId, const std::string& sPassword);
 
+      //! get user password
+      /*! \param nId - user id
+          \param sPassword - resulting user password
+        */
+      void GetPassword(int nId, std::string& sPassword);
+
       //! set user description
       /*! \param nId - user id
           \param sDescription - user description
