@@ -241,6 +241,35 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
+    void CUsers::GetPassword(int nId, std::string& sPassword)
+    {
+      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3_stmt* pVm = NULL;
+
+      // get user password
+      int nResult = sqlite3_prepare_v2(pDb, "SELECT password from users WHERE id=?", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      try
+      {
+        nResult = sqlite3_bind_int(pVm, 1, nId);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "Failed to get user password: " + std::string(sqlite3_errmsg(pDb)));
+
+        const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 0));
+        RISE_ASSERTS(szTmp, "Failed to get user password");
+        sPassword = szTmp;
+      }
+      catch(...)
+      {
+        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+    }
+
     void CUsers::SetDescription(int nId, const std::string& sDescription)
     {
       sqlite3* pDb = CDbConn::GetDb();
