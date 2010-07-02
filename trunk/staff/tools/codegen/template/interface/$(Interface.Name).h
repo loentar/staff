@@ -17,8 +17,6 @@
 #ifneq($(Interface.TargetNamespace),)
 
 // targetNamespace: $(Interface.TargetNamespace)
-#else
-\
 #ifeqend // tns
 \
 #ifneq($(Interface.Structs.$Count),0)   //   structs forwarding
@@ -30,19 +28,13 @@
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 $($sEndingNs)
 $($sNewOpeningNs)\
-#else
-\
 #ifeqend   // namespace changed
 \
   struct $(Struct.Name);
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
-#else
-\
 #ifeqend  // namespace changed
-\
-#else
 \
 #ifeqend   // extern
 #end       // foreach Interface.Structs
@@ -58,8 +50,6 @@ $($sNewOpeningNs)\
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 $($sEndingNs)
 $($sNewOpeningNs)
-#else
-\
 #ifeqend   // namespace changed
 \
   typedef $(Typedef.DataType.UsedTypedef) $(Typedef.Name);\
@@ -69,11 +59,7 @@ $($sNewOpeningNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
-#else
-\
 #ifeqend   // namespace changed
-#else
-\
 #ifeqend   // extern
 #end        // foreach Interface.Typedefs
 
@@ -89,18 +75,12 @@ $($sNewOpeningNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 $($sEndingNs)
 $($sNewOpeningNs)
-#else
-\
 #ifeqend   // namespace changed
 #ifneq($(Struct.Description),)
   //! $(Struct.Description)
-#else
-\
 #ifeqend
 #ifneq($(Struct.Detail),)
   /*! $(Struct.Detail) */
-#else
-\
 #ifeqend
   struct $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
@@ -128,8 +108,6 @@ $($sNewOpeningNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 $($sEndingNs)
 $($sNewOpeningNs)
-#else
-\
 #ifeqend   // namespace changed
 #ifneq($(Class.Description),)
   //! $(Class.Description)
@@ -138,13 +116,9 @@ $($sNewOpeningNs)
 #ifeqend
 #ifneq($(Class.Detail),)
   /*! $(Class.Detail) */
-#else
-\
 #ifeqend
 #ifneq($(Class.ServiceUri),)
   // uri: $(Class.ServiceUri)
-#else
-\
 #ifeqend
   class $(Class.Name): public staff::IService
   {
@@ -155,33 +129,21 @@ $($sNewOpeningNs)
 
 #ifneq($(Member.Description),)
     //! $(Member.Description)
-#else
-\
 #ifeqend
 #ifneq($(Member.Detail),)
     /*! $(Member.Detail) */
-#else
-\
 #ifeqend
 #ifneq($(Member.SoapAction),||$(Class.ServiceName)#$(Member.Name))
     // soapAction: $(Member.SoapAction)
-#else
-\
 #ifeqend
 #ifneq($(Member.NodeName),||$(Member.Name))
     // requestElement: $(Member.NodeName)
-#else
-\
 #ifeqend
 #ifneq($(Member.Return.ResponseName),||$(Member.Name)Result)
     // responseElement: $(Member.Return.ResponseName)
-#else
-\
 #ifeqend
 #ifneq($(Member.Return.NodeName),)
     // resultElement: $(Member.Return.NodeName)
-#else
-\
 #ifeqend
     virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const) = 0;
 #end
@@ -190,8 +152,6 @@ $($sNewOpeningNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
-#else
-\
 #ifeqend   // namespace changed
 
 #end

@@ -7,8 +7,6 @@
 
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/client/Axis2Client.h>
-#else
-\
 #ifeqend
 #include <staff/common/WsdlTypes.h>
 #include "$(Interface.Name).h"
@@ -21,7 +19,7 @@ class $(Class.Name)Proxy: public $(Class.Name)
 {
 public:
   $(Class.Name)Proxy();
-  ~$(Class.Name)Proxy();
+  virtual ~$(Class.Name)Proxy();
   void Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId);
   void Deinit();
 #foreach $(Class.Members)
@@ -47,8 +45,6 @@ namespace staff
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
   CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
@@ -56,8 +52,6 @@ namespace staff
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
   const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #end // foreach $(Interface.Typedefs)
@@ -65,3 +59,4 @@ namespace staff
 
 #ifeqend
 #endif
+

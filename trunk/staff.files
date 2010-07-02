@@ -130,8 +130,11 @@ staff/components/admin/ObjectAdmin/src/ObjectAdminImpl.h
 staff/components/Login/src/Login.h
 staff/components/Login/src/LoginImpl.cpp
 staff/components/Login/src/LoginImpl.h
+staff/core/client/src/Axis2Callback.cpp
+staff/core/client/src/Axis2Callback.h
 staff/core/client/src/Axis2Client.cpp
 staff/core/client/src/Axis2Client.h
+staff/core/client/src/ICallback.h
 staff/core/client/src/IProxyAllocator.cpp
 staff/core/client/src/IProxyAllocator.h
 staff/core/client/src/ServiceFactory.cpp
@@ -208,6 +211,15 @@ staff/samples/calc/component/src/CalcServiceImpl.h
 staff/samples/calc/component/src/SubService.h
 staff/samples/calc/component/src/SubServiceImpl.cpp
 staff/samples/calc/component/src/SubServiceImpl.h
+staff/samples/echo/client_blocking_non_blocking/src/Echo.h
+staff/samples/echo/client_blocking_non_blocking/src/main.cpp
+staff/samples/echo/client_blocking/src/Echo.h
+staff/samples/echo/client_blocking/src/main.cpp
+staff/samples/echo/client_non_blocking/src/Echo.h
+staff/samples/echo/client_non_blocking/src/main.cpp
+staff/samples/echo/component/src/Echo.h
+staff/samples/echo/component/src/EchoImpl.cpp
+staff/samples/echo/component/src/EchoImpl.h
 staff/samples/login/client/src/Login.h
 staff/samples/login/client/src/main.cpp
 staff/samples/rest/component/src/Customers.h

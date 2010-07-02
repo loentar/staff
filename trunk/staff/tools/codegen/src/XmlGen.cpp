@@ -77,10 +77,19 @@ namespace staff
 
   bool GetDataType(std::string& sOut, const SDataType& rDataType, bool bAsUsed = false)
   {
-    sOut += (rDataType.bIsConst ? "const " : "") +
-      (bAsUsed ?
-        (rDataType.sUsedName.size() != 0 ? rDataType.sUsedName : rDataType.sName) :
-        (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName);
+    if (rDataType.bIsConst)
+    {
+      sOut += "const ";
+    }
+
+    if (bAsUsed && !rDataType.sUsedName.empty())
+    {
+      sOut += rDataType.sUsedName;
+    }
+    else
+    {
+      sOut += (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
+    }
 
     bool bIsTemplate = rDataType.lsParams.size() != 0;
     if (!bIsTemplate)
@@ -213,6 +222,9 @@ namespace staff
     rNodeMember.AddSubNode(" Function is non-mutable ", CXMLNode::ENTCOMMENT);
     rNodeMember["IsConst"] = rMember.bIsConst;
     rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
+    rNodeMember.AddSubNode(" Function is asynchronous ", CXMLNode::ENTCOMMENT);
+    rNodeMember["IsAsynch"] = rMember.bIsAsynch;
+
     rNodeMember.AddSubNode("Params") << rMember.lsParamList;
 
     rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);

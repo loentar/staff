@@ -9,6 +9,7 @@
 #include <staff/common/Value.h>
 #include <staff/client/ServiceFactory.h>
 #include <staff/client/IProxyAllocator.h>
+#include <staff/client/ICallback.h>
 #include <rise/common/MutablePtr.h>
 #else // types only interface
 #include <staff/common/DataObject.h>
@@ -67,6 +68,71 @@ public:
 
 $(Class.Name)ProxyAllocator t$(Class.Name)ProxyAllocatorInitializer;
 
+// asynch proxies
+
+#foreach $(Class.Members)
+#ifneq($(Member.Params.$Count),0)
+#foreach $(Member.Params)
+#ifeq($(Param.DataType.Name),ICallback)
+// asynch proxy for $(Class.Name)::$(Member.Name)
+class $(Class.Name)$(Member.Name)AsynchCallProxy: public staff::ICallback<const staff::CDataObject&>
+{
+public:
+  $(Class.Name)$(Member.Name)AsynchCallProxy($(Param.DataType) rCallback):
+    m_rCallback(rCallback)
+  {
+  }
+
+  virtual void OnComplete(const staff::CDataObject& rdoResponse)
+  {
+#var sResultName rdoResponse
+#ifneq($(Member.Return.NodeName),)
+#var sResultName rdoResponse.GetChildByLocalName("$(Member.Return.NodeName)")
+#ifeqend
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)    // generic
+#ifneq($(Param.DataType.TemplateParams.TemplateParam1.NsName),void)      // non void
+    m_rCallback.OnComplete($($sResultName).GetValue());
+#else
+    m_rCallback.OnComplete();
+#ifeqend
+#else
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)    // string
+    m_rCallback.OnComplete($($sResultName).GetText());
+#else
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject) // dataobject
+    m_rCallback.OnComplete($($sResultName));
+#else
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||template)
+    $(Param.DataType.TemplateParams.TemplateParam1.NsName) tReturn;
+    $($sResultName) >> tReturn;
+    m_rCallback.OnComplete(tReturn);
+#else
+#cgerror "Callback result type = $(Param.DataType.TemplateParams.TemplateParam1.Type);"
+#ifeqend // struct||typedef||template
+#ifeqend // dataobject
+#ifeqend // string
+#ifeqend // generic
+  }
+
+  virtual void OnFault(const staff::CDataObject& rFault)
+  {
+    m_rCallback.OnFault(rFault);
+  }
+
+  virtual void Set(axis2_callback_t* pCallback, axutil_env_t* pEnv)
+  {
+    m_rCallback.Set(pCallback, pEnv);
+  }
+
+private:
+  $(Param.DataType) m_rCallback;
+};
+
+#ifeqend // icallback
+#end // member.params
+#ifeqend // member.params
+#end  // class.members
+
 // service proxy
 $(Class.Name)Proxy::$(Class.Name)Proxy()
 {
@@ -93,8 +159,6 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 , sSessionId);
 #ifneq($(Interface.TargetNamespace),)
   m_tClient.SetTargetNamespace("$(Interface.TargetNamespace)");
-#else
-\
 #ifeqend
   if (!staff::IService::GetInstanceId().empty())
   {
@@ -121,6 +185,7 @@ void $(Class.Name)Proxy::Deinit()
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
+#var tCallbackParamName
   staff::COperation tOperation(\
 #ifneq($(Member.NodeName),)
 "$(Member.NodeName)"\
@@ -131,11 +196,10 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #ifneq($(Member.SoapAction),)
   tOperation.SetSoapAction("$(Member.SoapAction)");
-#else
-\
 #ifeqend
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
+#ifneq($(Param.DataType.Name),ICallback)
   staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
   tdoParam$(Param.Name).SetValue($(Param.Name));
@@ -154,19 +218,23 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeqend
 #ifeqend
+#else // ICallback
+#ifneq($($tCallbackParamName),)
+#cgerror Duplicate callback definition in "$(Class.Name)::$(Member.Name)"
+#ifeqend
+#var tCallbackParamName $(Param.Name)
+#ifeqend
 #end
 
-#else
-\
 #ifeqend
+#ifeq($($tCallbackParamName),)
+  // synchronous call
   m_tClient.Invoke(tOperation);
   RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
 
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!void!!
   return const_cast<const staff::COperation&>(tOperation).ResultValue();
-#else
-\
 #ifeqend
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
@@ -184,6 +252,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
+#else // is asynch
+  // asynchronous call
+  staff::PICallback tCallback(new $(Class.Name)$(Member.Name)AsynchCallProxy($($tCallbackParamName)));
+  m_tClient.Invoke(tOperation, tCallback);
 #ifeqend
 }
 #end

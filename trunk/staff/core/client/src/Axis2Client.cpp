@@ -22,7 +22,9 @@
 #include <axiom.h>
 #include <axis2_client.h>
 #include <axis2_defines.h>
+#include <axis2_callback.h>
 #include <axutil_env.h>
+#include <axutil_string.h>
 #include <axiom_soap_const.h>
 #include <string>
 #include <rise/common/console.h>
@@ -33,6 +35,7 @@
 #include <staff/common/Namespace.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObject.h>
+#include "ICallback.h"
 #include "Axis2Client.h"
 
 #ifdef WIN32
@@ -41,7 +44,6 @@
 
 namespace staff
 {
-
   class CAxis2Client::CAxis2ClientImpl
   {
   public:
@@ -94,6 +96,251 @@ namespace staff
       m_bInit = true;
     }
 
+    void Invoke(COperation& rOperation, PICallback* ptpCallback = NULL)
+    {
+      if (!m_bInit)
+      {
+        Init();
+      }
+
+      CDataObject& rdoRequest = rOperation.Request();
+      rdoRequest.SetOwner(false);
+
+      const std::string& sTargetNamespace = m_sTargetNamespace.size() != 0 ?
+                                            m_sTargetNamespace : m_sServiceUri;
+
+      rdoRequest.DeclareDefaultNamespace(sTargetNamespace);
+
+      rise::LogDebug1() << "targetNamespace: " << sTargetNamespace;
+
+      // adding session id header
+      if (m_sSessionId.size() != 0)
+      {
+        axiom_node_t* pNodeSessionId = NULL;
+        axiom_element_t* pElemSessionId = NULL;
+        axiom_namespace_t* pHeaderNs = NULL;
+
+        pHeaderNs = axiom_namespace_create(m_pAxutilEnv, "http://tempui.org/staff/sessionid", "sid");
+        pElemSessionId = axiom_element_create(m_pAxutilEnv, NULL, "SessionId", pHeaderNs, &pNodeSessionId);
+        axiom_element_set_text(pElemSessionId, m_pAxutilEnv, m_sSessionId.c_str(), pNodeSessionId);
+        axis2_svc_client_add_header(m_pAxis2ServiceClient, m_pAxutilEnv, pNodeSessionId);
+      }
+
+      // adding instance id header
+      if (m_sInstanceId.size() != 0)
+      {
+        axiom_node_t* pNodeInstanceId = NULL;
+        axiom_element_t* pElemInstanceId = NULL;
+        axiom_namespace_t* pHeaderNs = NULL;
+
+        pHeaderNs = axiom_namespace_create(m_pAxutilEnv, "http://tempui.org/staff/instanceid", "iid");
+        pElemInstanceId = axiom_element_create(m_pAxutilEnv, NULL, "InstanceId", pHeaderNs, &pNodeInstanceId);
+        axiom_element_set_text(pElemInstanceId, m_pAxutilEnv, m_sInstanceId.c_str(), pNodeInstanceId);
+        axis2_svc_client_add_header(m_pAxis2ServiceClient, m_pAxutilEnv, pNodeInstanceId);
+      }
+
+      // setting SOAP Action
+      {
+        axutil_string_t* psSoapAction = axutil_string_create(m_pAxutilEnv, rOperation.GetSoapAction().c_str());
+        axis2_options_set_soap_action(m_pAxis2Options, m_pAxutilEnv, psSoapAction);
+        axutil_string_free(psSoapAction, m_pAxutilEnv);
+        rise::LogDebug1() << "SoapAction: \"" << rOperation.GetSoapAction() << "\"";
+      }
+
+  #if defined _DEBUG || defined DEBUG
+      rise::LogDebug2() << "Sending Request: \n" << rise::ColorInkBlue << rdoRequest.ToString() << rise::ColorDefault;
+  #endif
+
+      if (!ptpCallback)
+      {
+        // synchronous call
+        // Send request
+        axiom_node_t* pAxiomResponseNode = axis2_svc_client_send_receive(m_pAxis2ServiceClient,
+                                                                         m_pAxutilEnv, rdoRequest);
+
+        if (pAxiomResponseNode == NULL)
+        {
+          rise::COStringStream ssMessage;
+          ssMessage << "Axis2 client_send_receive failed, error #" << m_pAxutilEnv->error->error_number <<
+              ": " << AXIS2_ERROR_GET_MESSAGE(m_pAxutilEnv->error);
+          RISE_THROWS(rise::CFileIOException, ssMessage.str());
+        }
+
+        rOperation.SetResponse(BuildResponse(pAxiomResponseNode, m_pAxutilEnv));
+      }
+      else
+      {
+        // asynchronous call
+        axis2_callback_t* pAxis2Callback = axis2_callback_create(m_pAxutilEnv);
+        RISE_ASSERTS(pAxis2Callback, "Cannot create callback");
+
+        // store Axis2/C callback
+        (*ptpCallback)->Set(pAxis2Callback, m_pAxutilEnv);
+
+        axis2_callback_set_on_complete(pAxis2Callback, CAxis2ClientImpl::CallbackOnComplete);
+        axis2_callback_set_on_error(pAxis2Callback, CAxis2ClientImpl::CallbackOnFault);
+        // send_recv is non thrown, so we can release callback pointer here
+        axis2_callback_set_data(pAxis2Callback, ptpCallback->release());
+
+        axis2_svc_client_send_receive_non_blocking(m_pAxis2ServiceClient, m_pAxutilEnv,
+                                                   rdoRequest, pAxis2Callback);
+      }
+    }
+
+    static axis2_status_t AXIS2_CALL CallbackOnComplete(axis2_callback_t* pCallback, const axutil_env_t* pEnv)
+    {
+      if (!pCallback)
+      {
+        rise::LogError() << "pCallback is NULL";
+        return AXIS2_FAILURE;
+      }
+
+      PICallback tpCallback(reinterpret_cast<ICallback<const CDataObject&>*>(axis2_callback_get_data(pCallback)));
+      axis2_callback_set_data(pCallback, NULL);  // avoid axis2/c to destroy C++ data
+
+      if (!tpCallback.get())
+      {
+        rise::LogError() << "pointer to ICallback is NULL";
+        return AXIS2_FAILURE;
+      }
+
+      axiom_soap_envelope_t* pSoapEnvelope = axis2_callback_get_envelope(pCallback, pEnv);
+      if (!pSoapEnvelope)
+      {
+        CreateFault(*tpCallback, "client", "Failed to get soap envelope while parsing response");
+        return AXIS2_FAILURE;
+      }
+
+      axiom_soap_body_t* pSoapBody = axiom_soap_envelope_get_body(pSoapEnvelope, pEnv);
+      if (!pSoapBody)
+      {
+        CreateFault(*tpCallback, "client", "Failed to get soap body while parsing response");
+        return AXIS2_FAILURE;
+      }
+
+      axiom_node_t* pAxiomBaseNode = axiom_soap_body_get_base_node(pSoapBody, pEnv);
+      if (!pAxiomBaseNode)
+      {
+        CreateFault(*tpCallback, "client", "Failed to get base node while parsing response");
+        return AXIS2_FAILURE;
+      }
+
+      axiom_node_t* pAxiomResponseNode = axiom_node_get_first_element(pAxiomBaseNode, pEnv);
+      if (!pAxiomResponseNode)
+      {
+        CreateFault(*tpCallback, "client", "Failed to get response node while parsing response");
+        return AXIS2_FAILURE;
+      }
+
+      axiom_element_t* pAxiomResponseElement =
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pAxiomResponseNode, pEnv));
+      if (!pAxiomResponseElement)
+      {
+        CreateFault(*tpCallback, "client", "Failed to get data element while parsing response");
+        return AXIS2_FAILURE;
+      }
+
+      // is soap Fault?
+      if (axutil_strcmp(axiom_element_get_localname(pAxiomResponseElement, pEnv), "Fault") == 0)
+      {
+        axiom_namespace_t* pNamespace =
+            axiom_element_get_namespace(pAxiomResponseElement, pEnv, pAxiomResponseNode);
+        if (pNamespace)
+        {
+          const axis2_char_t* szNamespaceUri = axiom_namespace_get_uri(pNamespace, pEnv);
+
+          if(axutil_strcmp(szNamespaceUri, "http://schemas.xmlsoap.org/soap/envelope/") == 0)
+          {
+            try
+            {
+              tpCallback->OnFault(BuildResponse(pAxiomResponseNode, pEnv));
+            }
+            RISE_CATCH_ALL_DESCR("Error while processing fault response");
+
+            return AXIS2_SUCCESS;
+          }
+        }
+      }
+
+      try
+      {
+        tpCallback->OnComplete(BuildResponse(pAxiomResponseNode, pEnv));
+      }
+      RISE_CATCH_ALL_DESCR("Error while processing response");
+
+      return AXIS2_SUCCESS;
+    }
+
+    static axis2_status_t AXIS2_CALL CallbackOnFault(axis2_callback_t* pCallback, const axutil_env_t* pEnv,
+                                                     int nFaultCode)
+    {
+      if (!pCallback)
+      {
+        rise::LogError() << "pCallback is NULL";
+        return AXIS2_FAILURE;
+      }
+
+      PICallback tpCallback(reinterpret_cast<ICallback<const CDataObject&>*>(axis2_callback_get_data(pCallback)));
+      axis2_callback_set_data(pCallback, NULL);  // avoid axis2/c to destroy C++ data
+
+      if (!tpCallback.get())
+      {
+        rise::LogError() << "pointer to ICallback is NULL";
+        return AXIS2_FAILURE;
+      }
+
+      axiom_node_t* pAxiomResponseNode = NULL;
+      {
+        axiom_soap_envelope_t* pSoapEnvelope = axis2_callback_get_envelope(pCallback, pEnv);
+        if (pSoapEnvelope)
+        {
+          pAxiomResponseNode = axiom_soap_envelope_get_base_node(pSoapEnvelope, pEnv);
+        }
+      }
+
+      try
+      {
+        if (!pAxiomResponseNode)
+        {
+          CreateFault(*tpCallback, AXIS2_ERROR_GET_MESSAGE(pEnv->error), rise::ToStr(nFaultCode));
+        }
+        else
+        {
+          tpCallback->OnFault(BuildResponse(pAxiomResponseNode, pEnv));
+        }
+      }
+      RISE_CATCH_ALL_DESCR("Error while processing response")
+
+      return AXIS2_SUCCESS;
+    }
+
+    static void CreateFault(ICallback<const CDataObject&>& rCallback, const std::string& sFaultCode, const std::string& sFaultError)
+    {
+      // generate fault using Operation
+      COperation tFault;
+      tFault.SetFault(sFaultCode, sFaultError);
+      rCallback.OnFault(tFault.GetResponse());
+    }
+
+    static axiom_node_t* BuildResponse(axiom_node_t* pAxiomResponseNode, const axutil_env_t* pEnv)
+    {
+      // Set return value - now need to detach the node from the Axiom pDocument for clean-up
+      axiom_document_t* pDocument = axiom_node_get_document(pAxiomResponseNode, pEnv);
+      if (pDocument)
+      {
+        axiom_document_build_all(pDocument, pEnv);
+      }
+
+      axiom_node_detach(pAxiomResponseNode, pEnv);
+
+#if defined _DEBUG || defined DEBUG
+      rise::LogDebug2() << "Received Response: \n" << rise::ColorInkBlue
+          << CDataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
+#endif
+      return pAxiomResponseNode;
+    }
+
+
   public:
     std::string           m_sServiceUri;
     std::string           m_sTargetNamespace;
@@ -141,85 +388,12 @@ namespace staff
 
   void CAxis2Client::Invoke(COperation& rOperation)
   {
-    if (!m_pImpl->m_bInit)
-    {
-      m_pImpl->Init();
-    }
+    m_pImpl->Invoke(rOperation);
+  }
 
-    CDataObject& rdoRequest = rOperation.Request();
-    rdoRequest.SetOwner(false);
-
-    const std::string& sTargetNamespace = m_pImpl->m_sTargetNamespace.size() != 0 ? m_pImpl->m_sTargetNamespace : m_pImpl->m_sServiceUri;
-
-    rdoRequest.DeclareDefaultNamespace(sTargetNamespace);
-
-    rise::LogDebug1() << "targetNamespace: " << sTargetNamespace;
-
-    // adding session id header
-    if (m_pImpl->m_sSessionId.size() != 0)
-    {
-      axiom_node_t* pNodeSessionId = NULL;
-      axiom_element_t* pElemSessionId = NULL;
-      axiom_namespace_t* pHeaderNs = NULL;
-
-      pHeaderNs = axiom_namespace_create(m_pImpl->m_pAxutilEnv, "http://tempui.org/staff/sessionid", "sid");
-      pElemSessionId = axiom_element_create(m_pImpl->m_pAxutilEnv, NULL, "SessionId", pHeaderNs, &pNodeSessionId);
-      axiom_element_set_text(pElemSessionId, m_pImpl->m_pAxutilEnv, m_pImpl->m_sSessionId.c_str(), pNodeSessionId);
-      axis2_svc_client_add_header(m_pImpl->m_pAxis2ServiceClient, m_pImpl->m_pAxutilEnv, pNodeSessionId);
-    }
-
-    // adding instance id header
-    if (m_pImpl->m_sInstanceId.size() != 0)
-    {
-      axiom_node_t* pNodeInstanceId = NULL;
-      axiom_element_t* pElemInstanceId = NULL;
-      axiom_namespace_t* pHeaderNs = NULL;
-
-      pHeaderNs = axiom_namespace_create(m_pImpl->m_pAxutilEnv, "http://tempui.org/staff/instanceid", "iid");
-      pElemInstanceId = axiom_element_create(m_pImpl->m_pAxutilEnv, NULL, "InstanceId", pHeaderNs, &pNodeInstanceId);
-      axiom_element_set_text(pElemInstanceId, m_pImpl->m_pAxutilEnv, m_pImpl->m_sInstanceId.c_str(), pNodeInstanceId);
-      axis2_svc_client_add_header(m_pImpl->m_pAxis2ServiceClient, m_pImpl->m_pAxutilEnv, pNodeInstanceId);
-    }
-
-    // setting SOAP Action
-    {
-      axutil_string_t* psSoapAction = axutil_string_create(m_pImpl->m_pAxutilEnv, rOperation.GetSoapAction().c_str());
-      axis2_options_set_soap_action(m_pImpl->m_pAxis2Options, m_pImpl->m_pAxutilEnv, psSoapAction);
-      axutil_string_free(psSoapAction, m_pImpl->m_pAxutilEnv);
-      rise::LogDebug1() << "SoapAction: \"" << rOperation.GetSoapAction() << "\"";
-    }
-
-#if defined _DEBUG || defined DEBUG
-    rise::LogDebug2() << "Sending Request: \n" << rise::ColorInkBlue << rdoRequest.ToString() << rise::ColorDefault;
-#endif
-
-    // Send request
-    axiom_node_t* pAxiomResponseNode = axis2_svc_client_send_receive(m_pImpl->m_pAxis2ServiceClient,
-                                                                     m_pImpl->m_pAxutilEnv, rdoRequest);
-
-    if (pAxiomResponseNode == NULL)
-    {
-      rise::COStringStream ssMessage;
-      ssMessage << "Axis2 client_send_receive failed, error #" << m_pImpl->m_pAxutilEnv->error->error_number <<
-          ": " << AXIS2_ERROR_GET_MESSAGE(m_pImpl->m_pAxutilEnv->error);
-      RISE_THROWS(rise::CFileIOException, ssMessage.str());
-    }
-
-    // Set return value - now need to detach the node from the Axiom pDocument for clean-up
-    axiom_document_t* pDocument = axiom_node_get_document(pAxiomResponseNode, m_pImpl->m_pAxutilEnv);
-    if (pDocument != NULL)
-    {
-      axiom_document_build_all(pDocument, m_pImpl->m_pAxutilEnv);
-    }
-
-    axiom_node_detach(pAxiomResponseNode, m_pImpl->m_pAxutilEnv);
-
-    CDataObject tdoResponse(pAxiomResponseNode);
-    rOperation.SetResponse(tdoResponse);
-
-#if defined _DEBUG || defined DEBUG
-    rise::LogDebug2() << "Received Response: \n" << rise::ColorInkBlue << tdoResponse.ToString() << rise::ColorDefault;
-#endif
+  void CAxis2Client::Invoke(COperation& rOperation, PICallback& rpCallback)
+  {
+    m_pImpl->Invoke(rOperation, &rpCallback);
   }
 
   void CAxis2Client::SetTargetNamespace(const std::string& sTargetNamespace)

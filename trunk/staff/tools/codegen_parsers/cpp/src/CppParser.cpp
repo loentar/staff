@@ -493,6 +493,10 @@ namespace staff
       rDataType.bIsConst = false;
       rDataType.bIsRef = false;
       rDataType.eType = SDataType::EUnknown;
+      rDataType.sUsedName.erase();
+      rDataType.lsParams.clear();
+      rDataType.sNodeName.clear();
+      rDataType.sNamespace.clear();
 
       while (m_tFile.good())
       {
@@ -512,9 +516,23 @@ namespace staff
         if (chTmp == '<')
         {
           m_tFile.ignore();
-          rDataType.sName = sTmp;
-          rDataType.sNamespace = "";
+
+          std::string::size_type nPos = sTmp.find_last_of("::");
+          if (nPos != std::string::npos)
+          {
+            ++nPos;
+            rDataType.sName = sTmp.substr(nPos);
+            rDataType.sNamespace = sTmp.substr(0, nPos);
+          }
+          else
+          {
+            rDataType.sName = sTmp;
+            rDataType.sNamespace.clear();
+          }
+
           rDataType.eType = SDataType::ETemplate;
+          rDataType.sUsedName = sTmp;
+
           while(m_tFile.good())
           {
             SDataType stTemplParam;
@@ -535,7 +553,8 @@ namespace staff
               }
 
               return;
-            } else
+            }
+            else
             if (chTmp == ',')
             {
               m_tFile.ignore();
@@ -546,7 +565,8 @@ namespace staff
             }
           }
           break;
-        } else
+        }
+        else
         if(chTmp == '&')
         {
           rDataType.bIsRef = true;
@@ -584,6 +604,7 @@ namespace staff
     // parameter
     void ParseParam( SParam& rParameter )
     {
+      rParameter.sDescr.clear();
       ParseDataType(rParameter.stDataType);
       SkipWs();
       ReadBefore(rParameter.sName);
@@ -599,6 +620,7 @@ namespace staff
       std::stringbuf tStreamBuff;
 
       rMember.bIsConst = false;
+      rMember.bIsAsynch = false;
 
       ParseDataType(rMember.stReturn.stDataType);
 
@@ -628,6 +650,30 @@ namespace staff
             CSP_THROW("unexpected EOF(after member name)", m_stInterface.sFileName, m_nLine);
 
           ParseParam(stParam); // reading param
+          if (stParam.stDataType.sName == "ICallback")
+          {
+            if (!stParam.stDataType.bIsRef)
+            {
+              rise::LogWarning() << "Callback must defined as reference: \n"
+                  << "staff::ICallback<ReturnType>& rCallback\n"
+                  << " in member: " << rMember.sName
+                  << " in " << m_stInterface.sFileName << ":" << m_nLine;
+            }
+
+            if (stParam.stDataType.lsParams.empty())
+            {
+              CSP_THROW("Callback must define asynchronous return type: "
+                        "staff::ICallback<ReturnType>& rCallback", m_stInterface.sFileName, m_nLine);
+            }
+
+            if (rMember.stReturn.stDataType.sName != "void")
+            {
+              CSP_THROW("Asynchronous operation must have void return type", m_stInterface.sFileName, m_nLine);
+            }
+
+            rMember.bIsAsynch = true;
+          }
+          else
           if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst)
           {
             rise::LogWarning() << "Non-const reference to " << stParam.stDataType.sName

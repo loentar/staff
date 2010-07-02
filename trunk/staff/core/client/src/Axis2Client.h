@@ -24,10 +24,14 @@
 
 #include "staffclientexport.h"
 #include <string>
+#include <memory>
 
 namespace staff
 {
   class COperation;
+  class CDataObject;
+  template <typename> class ICallback; //!< client callback
+  typedef std::auto_ptr< ICallback<const CDataObject&> > PICallback;
 
   //!  Axis2Client
   class STAFF_CLIENT_EXPORT CAxis2Client
@@ -58,10 +62,16 @@ namespace staff
       */
     void SetInstanceId(const std::string& sInstanceId);
 
-    //!         invoke operation
+    //!         invoke blocking operation
     /*! \param  rOperation - operation
         */
     void Invoke(COperation& rOperation);
+
+    //!         invoke non blocking operation
+    /*! \param  rOperation - operation
+        \param  rpCallback - callback
+        */
+    void Invoke(COperation& rOperation, PICallback& rpCallback);
 
   private:
     CAxis2Client(const CAxis2Client&);
