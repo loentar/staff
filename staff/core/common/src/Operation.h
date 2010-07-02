@@ -26,6 +26,9 @@
 #include <string>
 #include "DataObject.h"
 
+// AXIS2/C typedefs
+typedef struct axiom_node axiom_node_t;
+
 namespace staff
 {
   class CValue;
@@ -91,15 +94,25 @@ namespace staff
         */
     void AddParameter(CDataObject& rDataObject);
 
-    //!         get request DataObject
+    //!         create/get request DataObject
     /*! \return request DataObject
     */
     const CDataObject& Request() const;
 
-    //!         get request DataObject
+    //!         create/get request DataObject
     /*! \return request DataObject(mutable)
     */
     CDataObject& Request();
+
+    //!         set request DataObject
+    /*! \param  request DataObject
+    */
+    void SetRequest(CDataObject& rdoRequest);
+
+    //!         set request DataObject
+    /*! \param  request
+    */
+    void SetRequest(axiom_node_t* pRequest);
 
     //!         get result DataObject
     /*! \return result DataObject
@@ -114,12 +127,12 @@ namespace staff
     //!         prepare Operation for sending result
     void PrepareResult();
 
-    //!         get response DataObject
+    //!         create/get response DataObject
     /*! \return response DataObject
         */
     CDataObject& GetResponse();
 
-    //!         get response DataObject
+    //!         create/get response DataObject
     /*! \return response DataObject
         */
     const CDataObject& GetResponse() const;
@@ -128,6 +141,11 @@ namespace staff
     /*! \param  rdoResponse - response DataObject
         */
     void SetResponse(staff::CDataObject& rdoResponse);
+
+    //!         set response DataObject
+    /*! \param  pResponse - response
+        */
+    void SetResponse(axiom_node_t* pResponse);
 
     //!         get/set result value
     /*! \return value
@@ -157,12 +175,12 @@ namespace staff
     //!         get fault description
     /*! \return fault description or empty string
         */
-    std::string GetFaultString() const;
+    std::string GetFaultDescr() const;
 
-    //!         get fault reason
-    /*! \return fault reason or empty string
+    //!         get fault string
+    /*! \return fault string or empty string
     */
-    std::string GetFaultReason() const;
+    std::string GetFaultString() const;
 
     //!         get fault code
     /*! \return fault code or empty string
@@ -184,7 +202,7 @@ namespace staff
         \param  sFaultDetail - fault detail
         \param  sFaultCode - fault code
         */
-    void SetFault(const std::string& sReason, const std::string& sFaultDetail = "", const std::string& sFaultCode = "");
+    void SetFault(const std::string& sFaultCode, const std::string& sFaultString, const std::string& sDetail = "");
 
     //!         reset fault
     void ResetFault();
@@ -195,11 +213,13 @@ namespace staff
     void SetUserFault(CDataObject& rDataObjectFault);
 
   private:
-    CDataObject m_tdoRequest;        //!<  request DataObject
-    CDataObject m_tdoResponse;       //!<  response DataObject
-    mutable CDataObject m_tdoResult; //!<  result DataObject
-    std::string m_sResultName;       //!<  result name
-    std::string m_sSoapAction;       //!<  SOAP action
+    mutable CDataObject m_tdoRequest;  //!<  request DataObject
+    mutable CDataObject m_tdoResponse; //!<  response DataObject
+    mutable CDataObject m_tdoResult;   //!<  result DataObject
+    std::string m_sRequestName;        //!<  request name
+    std::string m_sResponseName;       //!<  response name
+    std::string m_sResultName;         //!<  result name
+    std::string m_sSoapAction;         //!<  SOAP action
   };
 }
 

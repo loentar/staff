@@ -21,6 +21,7 @@ ifneq ($(MAKECMDGOALS),distclean)
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 else
 $(MAKECMDGOALS):
+	$(MAKE) clean
 	find -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rfv
 endif
 

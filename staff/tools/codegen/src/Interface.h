@@ -84,9 +84,10 @@ namespace staff
     std::string        sNodeName;      //!<  node name
     std::string        sRestMethod;    //!<  REST method
     std::string        sRestLocation;  //!<  REST location
+    bool               bIsAsynch;      //!<  operation is asynchronous
 
     SMember():
-      bIsConst(false)
+      bIsConst(false), bIsAsynch(false)
     {
     }
   };

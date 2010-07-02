@@ -64,34 +64,28 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
     $(Param.DataType.NsName) $(Param.Name);
-#else
-\
 #ifeqend
 #end
 \
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
     rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
-#else
-\
 #ifeqend
 #end
-\
+    \
 #ifeq($(Member.Return.Type),struct||typedef||template)
-    $(Member.Return.NsName) tResult = \
+$(Member.Return.NsName) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
-    rOperation.ResultValue() = \
-#else                                   // !!void!!
-    \
+rOperation.ResultValue() = \
 #ifeqend
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
-    rOperation.ResultValue() = \
+rOperation.ResultValue() = \
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-    staff::CDataObject tResultDO = \
+staff::CDataObject tResultDO = \
 #ifeqend
 #ifeqend
 #ifeqend
@@ -99,9 +93,7 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
 \
 GetServiceImpl(sSessionId, sInstanceId)->$(Member.Name)(\
 #foreach $(Member.Params)
-#ifeq($(Param.$Num),0) // param splitter
-\
-#else
+#ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
@@ -125,13 +117,9 @@ $(Param.Name)\
 );
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
     rOperation.Result().AppendChild(tResultDO);
-#else
-\
 #ifeqend // end of function invokation
 #ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
     rResult << tResult;
-#else
-\
 #ifeqend
   } else
 #end
@@ -232,4 +220,5 @@ const std::string $(Class.Name)Wrapper::m_sDescr = \
 
 $(Class.EndingNs)
 #end
-#ifeqend // #ifneq($(Interface.Classes.$Count),0) 
+#ifeqend // #ifneq($(Interface.Classes.$Count),0)
+

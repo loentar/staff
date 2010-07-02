@@ -103,7 +103,7 @@ $($sIndent)        </sequence>
 \
 #ifeqend
         <sequence>
-#ifeq($(Typedef.DataType.Name),staff::Array||std::list||std::vector)  // -- list ------------------
+#ifeq($(Typedef.DataType.NsName),staff::Array||std::list||std::vector)  // -- list ------------------
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
           <element minOccurs="0" maxOccurs="unbounded" name="Item">
             <complexType>
@@ -126,7 +126,7 @@ $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 " nillable="true" />
 #ifeqend
 #else // bool
-#ifeq($(Typedef.DataType.Name),std::map||std::multimap) # -- map -------------------------
+#ifeq($(Typedef.DataType.NsName),std::map||std::multimap) # -- map -------------------------
           <element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true">
             <complexType>
               <sequence>
@@ -176,7 +176,7 @@ $(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
             </complexType>
           </element>
 #else
-#cgerror "Cannot generate type $(Typedef.DataType.Name)"
+#cgerror "Cannot generate type $(Typedef.DataType.Name): [$(Typedef.NsName) $(Typedef.DataType);]"
 #ifeqend
 #ifeqend
         </sequence>

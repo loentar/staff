@@ -476,7 +476,7 @@ namespace staff
           sLines += sLine;
       }
 
-      RISE_ASSERTS(nRecursion == 0, "Unexpected EOF");
+      RISE_ASSERTS(nRecursion == 0, "Unexpected EOF while parsing: \n---------\n" + sLines + "\n------------\n");
 
       {
         std::istringstream ssStream(sLines);
@@ -507,7 +507,11 @@ namespace staff
         } else
         {
           fsIn.get(sbData, '\n');
-          sLine = sbData.str() + "\n";
+          sLine = sbData.str();
+          if (fsIn.peek() == '\n')
+          {
+            sLine += "\n";
+          }
           sbData.str("");
         }
         fsIn.ignore();
@@ -526,7 +530,7 @@ namespace staff
           sLines += sLine;
       }
 
-      RISE_ASSERTS(nRecursion == 0, "Unexpected EOF");
+      RISE_ASSERTS(nRecursion == 0, "Unexpected EOF while parsing: \n---------\n" + sLines + "\n------------\n");
 
       const CXMLNode& rSubNode = GetNode(sForEachExpr, rNode);
 
@@ -582,7 +586,12 @@ namespace staff
           if (sLine.size() > 0 && *sLine.rbegin() == '\\')
             sLine.erase(sLine.size() - 1);
           else
-            sLine += "\n";
+          {
+            if (fsIn.peek() == '\n')
+            {
+              sLine += "\n";
+            }
+          }
           sbData.str("");
         }
         fsIn.ignore();

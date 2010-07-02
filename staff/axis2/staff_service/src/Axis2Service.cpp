@@ -220,7 +220,7 @@ rise::LogEntry();
 
     try
     {
-      tOperation.Request().Attach(pAxiomNode);
+      tOperation.SetRequest(pAxiomNode);
       
       if (sServiceName == "StaffService")
       {
@@ -235,31 +235,30 @@ rise::LogEntry();
     }
     catch(const staff::CRemoteException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.GetString());
+      tOperation.SetFault("server", rEx.GetString(), "Failed to invoke service " + sServiceName
+                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
     }
     catch(const rise::CException& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.GetString());
+      tOperation.SetFault("server", rEx.GetString(), "Failed to invoke service " + sServiceName
+                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
     }
     catch(const std::exception& rEx)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", rEx.what());
+      tOperation.SetFault("server", rEx.what(), "Failed to invoke service " + sServiceName
+                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
     }
     catch(...)
     {
-      tOperation.SetFault("Failed to invoke service " + sServiceName + "." + tOperation.GetName()
-                          + "#" + sInstanceId + "(" + sSessionId + ")", "Unknown exception");
+      tOperation.SetFault("server", "Unknown exception", "Failed to invoke service " + sServiceName
+                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
     }
 
     if (tOperation.IsFault())
     {
       m_sLastFaultDetail = tOperation.GetFaultDetail();
-      m_sLastFaultReason = tOperation.GetFaultReason();
-      rise::LogWarning() << "Fault: \n" << tOperation.GetFaultString() << "\n";
-      AXIS2_ERROR_SET_MESSAGE(pEnv->error, const_cast<axis2_char_t*>(m_sLastFaultReason.c_str()));
+      rise::LogWarning() << "Fault: \n" << tOperation.GetFaultDescr() << "\n";
+      AXIS2_ERROR_SET_MESSAGE(pEnv->error, static_cast<axis2_char_t*>(axutil_strdup(pEnv, tOperation.GetFaultString().c_str())));
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, static_cast<axutil_error_codes_t>(AXUTIL_ERROR_MAX + 1));
       AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
       return NULL;
@@ -334,7 +333,6 @@ private:
   static axis2_svc_skeleton_ops_t m_stAxis2SkelOps;
   static axis2_svc_t* m_pAxis2Svc;
   static std::string m_sLastFaultDetail;
-  static std::string m_sLastFaultReason;
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
@@ -353,7 +351,6 @@ axis2_svc_skeleton_ops_t CAxis2Service::m_stAxis2SkelOps =
 
 axis2_svc_t* CAxis2Service::m_pAxis2Svc = NULL;
 std::string CAxis2Service::m_sLastFaultDetail;
-std::string CAxis2Service::m_sLastFaultReason;
 const axutil_env_t* CAxis2Service::m_pEnv = NULL; 
 axis2_conf* CAxis2Service::m_pConf = NULL;
 bool CAxis2Service::m_bShuttingDown = false;

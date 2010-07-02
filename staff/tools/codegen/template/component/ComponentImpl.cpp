@@ -27,8 +27,6 @@ $(Project.OpeningNs)
 #ifeq($(Class.LoadAtStartup),true)
       // load service at startup
       staff::CServiceInstanceManager::Inst().CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, "$(Class.ServiceNsName)", "");
-#else
-\
 #ifeqend
     }
 #end
@@ -72,3 +70,4 @@ $(Project.OpeningNs)
   const std::string CComponentImpl::m_sName = "$(Project.ComponentName)";
 
 $(Project.EndingNs)
+

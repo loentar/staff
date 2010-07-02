@@ -110,8 +110,6 @@ namespace staff
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
   CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
@@ -119,8 +117,6 @@ namespace staff
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
   const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend // ifneq($(Typedef.DataType.Type),struct
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #end // foreach $(Interface.Typedefs)
@@ -128,3 +124,4 @@ namespace staff
 #ifeqend
 
 #endif // _$(Interface.Name)Wrapper_h_
+

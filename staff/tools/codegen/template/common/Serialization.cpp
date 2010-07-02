@@ -16,15 +16,11 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend // #ifneq($(Typedef.DataType.Type),struct)
 #ifeqend // #ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
 #ifeq($(Typedef.DataType.IsTemplate),1)
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else
-\
 #ifeqend
 #else                 // !!not_a_struct!!
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
@@ -42,8 +38,6 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
   // serialize parent struct
   rdoParam << static_cast< const $(Struct.ParentNsName)& >(rstStruct);
 
-#else
-\
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
@@ -81,8 +75,6 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
   // deserialize parent struct
   rdoParam >> static_cast< $(Struct.ParentNsName)& >(rstStruct);
 
-#else
-\
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
@@ -121,7 +113,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
     CDataObject tdoItem = rdoParam.CreateChild("Item");
-#ifeq($(Typedef.DataType.Name),std::map)
+#ifeq($(Typedef.DataType.NsName),std::map)
     CDataObject tdoKey = tdoItem.CreateChild("Key");
     CDataObject tdoValue = tdoItem.CreateChild("Value");
     tdoKey << it->first;
@@ -193,15 +185,13 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
   {
 #ifneq($(Typedef.DataType.Type),typedef)
 #ifeq($(Typedef.DataType.Type),template)
-#ifeq($(Typedef.DataType.Name),std::map)
+#ifeq($(Typedef.DataType.NsName),std::map)
     $(Typedef.DataType.TemplateParams.TemplateParam1) tKey;
     $(Typedef.DataType.TemplateParams.TemplateParam2) tValue;
 #else
     $(Typedef.DataType.TemplateParams.TemplateParam1) tItem;
 #ifeqend
 #ifeqend
-#else
-\
 #ifeqend
 
 #ifeq($(Typedef.DataType.Type),generic)
@@ -218,7 +208,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
     rtType.push_back(tItem);
 #else
 #ifeq($(Typedef.DataType.Type),template)
-#ifeq($(Typedef.DataType.Name),std::map)
+#ifeq($(Typedef.DataType.NsName),std::map)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
     tKey = (*it)["Key"].AsString();
 #else

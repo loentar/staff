@@ -25,7 +25,6 @@ namespace staff
                                             const std::string& sSessionId,
                                             const std::string& sInstanceId)
   {
-    rise::LogDebug() << "trying to get ProxyAllocator: [" << sClientType << "]";
     CServiceFactoryImpl::TProxyAllocatorMap::const_iterator itProxyAllocator =
         m_pImpl->m_mProxyAllocators.find(sClientType);
     if (itProxyAllocator == m_pImpl->m_mProxyAllocators.end())
@@ -44,7 +43,6 @@ namespace staff
                                           const std::string& sSessionId,
                                           const std::string& sInstanceId)
   {
-    rise::LogDebug() << "trying to get ProxyAllocator: [" << sClientType << "]";
     CServiceFactoryImpl::TProxyAllocatorMap::const_iterator itProxyAllocator =
         m_pImpl->m_mProxyAllocators.find(sClientType);
     if (itProxyAllocator == m_pImpl->m_mProxyAllocators.end())
@@ -70,7 +68,6 @@ namespace staff
   void CServiceFactory::RegisterProxyAllocator(const std::string& sProxyTypeId, IProxyAllocator& rProxyAllocator)
   {
     m_pImpl->m_mProxyAllocators[sProxyTypeId] = &rProxyAllocator;
-    rise::LogDebug() << "Registered ProxyAllocator: [" << sProxyTypeId << "]";
   }
 
   CServiceFactory::CServiceFactory()
