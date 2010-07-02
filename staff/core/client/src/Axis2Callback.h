@@ -30,6 +30,7 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
+  //! Axis2/C callback
   class STAFF_CLIENT_EXPORT CAxis2Callback
   {
   public:

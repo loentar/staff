@@ -105,12 +105,12 @@ namespace staff
     CDataObject& Request();
 
     //!         set request DataObject
-    /*! \param  request DataObject
+    /*! \param  rdoRequest - request DataObject
     */
     void SetRequest(CDataObject& rdoRequest);
 
     //!         set request DataObject
-    /*! \param  request
+    /*! \param  pRequest - request
     */
     void SetRequest(axiom_node_t* pRequest);
 
@@ -198,9 +198,9 @@ namespace staff
     const CDataObject GetFault() const;
 
     //!         set fault
-    /*! \param  sReason - fault reason
-        \param  sFaultDetail - fault detail
-        \param  sFaultCode - fault code
+    /*! \param  sFaultCode - fault code
+        \param  sFaultString - fault string
+        \param  sDetail - fault detail
         */
     void SetFault(const std::string& sFaultCode, const std::string& sFaultString, const std::string& sDetail = "");
 
