@@ -23,12 +23,14 @@
 #ifndef _AXIS2CALLBACK_H_
 #define _AXIS2CALLBACK_H_
 
+#include "staffclientexport.h"
+
 typedef struct axis2_callback axis2_callback_t;
 typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
-  class CAxis2Callback
+  class STAFF_CLIENT_EXPORT CAxis2Callback
   {
   public:
     //! constructor
