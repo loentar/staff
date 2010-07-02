@@ -1,0 +1,64 @@
+#summary Example: How to modify C++ client to call services in non blocking mode
+
+We're using Calculator service from ExampleCalculatorClientWindows or ExampleCalculatorClientLinux .
+
+== 1. Enabling non blocking call ==
+
+To set client operation as non blocking please edit client's interface file `Calculator.h`.
+
+Add line into class Calculator as follows:
+{{{
+virtual void Add(int nA, int nB, staff::ICallback<int>& rCallback) = 0;
+}}}
+
+This operation must be void, return value type is in template parameter of ICallback.
+
+== 2. Rewrite client implementation ==
+
+You should implement callback for nonblocking operation.
+
+Easy way is regenerate client implementation by entering codegen's command from Calculator/client/src directory:
+{{{
+staff_codegen -tclientimpl Calculator.h
+}}}
+
+Now edit `main.cpp` to implement client.
+
+Uncomment next lines in !CalculatorAddCallback class function !OnComplete:
+{{{
+rise::LogInfo() << "Add(asynch) result: " << tResult;
+}}}
+
+Uncomment next lines in function main:
+{{{
+CalculatorAddCallback tCalculatorAddCallback;
+pCalculator->Add(nA, nB, tCalculatorAddCallback);
+
+while (!tCalculatorAddCallback.IsCompleted())
+{
+  rise::threading::CThread::Sleep(1000);
+}
+}}}
+
+Edit call to service. Fill the arguments:
+{{{
+pCalculator->Add(1, 2, tCalculatorAddCallback);
+}}}
+
+
+== 3. Regenerate proxy ==
+
+Regenerate client proxy by entering codegen's command from !Calculator/client/src directory:
+{{{
+staff_codegen -tclient Calculator.h
+}}}
+
+Compile client.
+
+== 4. Test non blocking client ==
+
+Start modified client.
+Screen output is:
+{{{
+INFO main.cpp[22]: OnComplete: Add(asynch) result: 3
+}}}
