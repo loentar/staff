@@ -35,7 +35,9 @@ class CalculatorImpl: public Calculator
 public:
   int Add(int a, int b);
 };
+}}}
 
+{{{
 // CalculatorImpl.cpp
 #include "CalculatorImpl.h"
 
@@ -64,6 +66,67 @@ int main(int, const char**)
 
   // output
   std::cout << "1 + 2 = " << result << std::endl;
+
+  return 0;
+}
+}}}
+
+== Sample of non blocking Calculator client ==
+
+{{{
+// Calculator.h
+#include <staff/common/IService.h>
+
+class Calculator: public staff::IService
+{
+public:
+  virtual void Add(int a, int b, staff::ICallback<int>& rCallback) = 0;
+};
+}}}
+
+{{{
+// calc_client_non_blocking.cpp
+#include <memory>
+#include <rise/common/Log.h>
+#include <rise/threading/Thread.h>
+#include <staff/common/DataObject.h>
+#include <staff/client/ICallback.h>
+#include <staff/common/Exception.h>
+#include <staff/client/ServiceFactory.h>
+#include "Calculator.h"
+
+// callback for Calculator::Add
+class CalculatorAddCallback: public staff::ICallback< int >
+{
+public:
+  virtual void OnComplete(int tResult)
+  {
+    // process result here
+    rise::LogInfo() << "Add(asynch) result: " << tResult;
+  }
+
+  void OnFault(const staff::CDataObject& rFault)
+  {
+    // process error here
+    rise::LogError() << rFault.ToString();
+  }
+};
+
+int main(int, const char**)
+{
+  std::auto_ptr< ::samples::Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService< ::samples::Calculator >());
+
+  RISE_ASSERTES(pCalculator.get(), rise::CLogicNoItemException, "Cannot get client for service samples.Calculator!");
+
+  // Invoking the service
+
+  CalculatorAddCallback tCalculatorAddCallback;
+  pCalculator->Add(1, 2, tCalculatorAddCallback);
+
+  while (!tCalculatorAddCallback.IsCompleted())
+  {
+    rise::threading::CThread::Sleep(1000);
+  }
 
   return 0;
 }
