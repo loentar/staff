@@ -85,12 +85,16 @@ $($sNewOpeningNs)
   struct $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
 : public $(Struct.ParentUsedName)
+#else
+
 #ifeqend
   {
 #foreach $(Struct.Members)
     $(Param.DataType) $(Param.Name);\
 #ifneq($(Param.Description),)
   //!< $(Param.Description)
+#else
+
 #ifeqend
 #end
   };
@@ -102,7 +106,7 @@ $($sNewOpeningNs)
 #end
 #ifeqend
 #foreach $(Interface.Classes)
-\
+
 #var sNewOpeningNs $(Class.OpeningNs)
 #var sNewEndningNs $(Class.EndingNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
