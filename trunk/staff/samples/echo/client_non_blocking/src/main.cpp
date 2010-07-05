@@ -43,7 +43,7 @@ int main(int nArgs, const char* paszArgs[])
 
      EchoEchoStringCallback tEchoEchoStringCallback;
      pEcho->EchoString("test", tEchoEchoStringCallback);
-     
+
      bool b = tEchoEchoStringCallback.IsCompleted();
      rise::LogInfo() << b;
 

@@ -45,7 +45,7 @@ int main(int nArgs, const char* paszArgs[])
     EchoEchoStringCallback tEchoEchoStringCallback;
     pEcho1->EchoString("test1", tEchoEchoStringCallback);
 
-    // using second client to call service while first client precessing request
+    // using second client to call service while first client processing request
     std::string tEchoStringResult = pEcho2->EchoString("test2");
     rise::LogInfo() << "EchoString result: " << tEchoStringResult;
 
