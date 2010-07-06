@@ -1150,7 +1150,7 @@ namespace staff
       bool bIsXmlType = stQName.sNamespace == "http://www.w3.org/2001/XMLSchema" ||
                         stQName.sNamespace == "http://schemas.xmlsoap.org/wsdl/";
 
-      rDataType.sNamespace.clear();
+      rDataType.sNamespace.erase();
       if (bIsXmlType)
       {
         if (stQName.sName == "string")
