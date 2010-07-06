@@ -495,8 +495,8 @@ namespace staff
       rDataType.eType = SDataType::EUnknown;
       rDataType.sUsedName.erase();
       rDataType.lsParams.clear();
-      rDataType.sNodeName.clear();
-      rDataType.sNamespace.clear();
+      rDataType.sNodeName.erase();
+      rDataType.sNamespace.erase();
 
       while (m_tFile.good())
       {
@@ -527,7 +527,7 @@ namespace staff
           else
           {
             rDataType.sName = sTmp;
-            rDataType.sNamespace.clear();
+            rDataType.sNamespace.erase();
           }
 
           rDataType.eType = SDataType::ETemplate;
@@ -604,7 +604,7 @@ namespace staff
     // parameter
     void ParseParam( SParam& rParameter )
     {
-      rParameter.sDescr.clear();
+      rParameter.sDescr.erase();
       ParseDataType(rParameter.stDataType);
       SkipWs();
       ReadBefore(rParameter.sName);
