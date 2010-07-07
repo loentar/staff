@@ -1,5 +1,5 @@
 #summary Installation, configuration and test guide for windows
-#labels Featured,Phase-Deploy
+#labels Phase-Deploy
 
 = Introduction =
 

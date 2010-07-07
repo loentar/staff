@@ -1,0 +1,11 @@
+#summary Installation, configuration and test guide
+#labels Phase-Deploy,Featured
+
+Руководства под установке под Windows:
+  * [InstallationManualWindowsBinary Staff installation manual for Windows from binary package];
+  * [InstallationManualWindows Staff Installation manual for Windows from sources];
+
+Руководства под установке под Linux:
+  * [InstallationManualLinux Staff Installation manual for Linux from sources];
+  * [InstallationManualWebappLinux Webapp Installation manual for Linux].
+

@@ -1,4 +1,4 @@
-#summary Example: creating a Calculator Service for staff-2.0 under Windows using Visual Studio 2005
+#summary Example: creating a Calculator Service under Windows using Visual Studio 2005
 
 <h1>Table of Contents</h1>
 <wiki:toc max_depth="2" />

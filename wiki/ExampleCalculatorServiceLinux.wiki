@@ -1,5 +1,4 @@
-#summary Example: creating a Calculator Service for staff-2.0 under Linux
-#labels Featured
+#summary Example: creating a Calculator Service under Linux
 
 <h1>Table of Contents</h1>
 <wiki:toc max_depth="2" />

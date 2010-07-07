@@ -1,5 +1,5 @@
 #summary Installation manual for binary package for windows
-#labels Featured,Phase-Deploy
+#labels Phase-Deploy
 
 == 1. Set environment variables ==
 While starting axis2/c or any client/service application, these environment variables, must be set:

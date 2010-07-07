@@ -1,5 +1,4 @@
 #summary Creating SOA clients from WSDL.
-#labels Featured,Phase-Implementation
 
 _NOTICE: translated from russian with translate.google.com_
 

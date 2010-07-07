@@ -1,5 +1,5 @@
 #summary Руководство по установке, конфигурации и тестированию под Linux
-#labels Featured,Phase-Deploy
+#labels Phase-Deploy
 
 = Вступление =
 

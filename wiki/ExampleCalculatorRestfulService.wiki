@@ -1,5 +1,4 @@
 #summary Example: How to modify web service to support REST
-#labels Featured
 
 We're using Calculator service from ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux.
 

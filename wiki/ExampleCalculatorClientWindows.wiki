@@ -1,5 +1,4 @@
-#summary Example: creating a Calculator client for staff-2.0 under Windows using Visual Studio 2005
-#labels Featured
+#summary Example: creating a Calculator client under Windows using Visual Studio 2005
 
 <h1>Table of Contents</h1>
 <wiki:toc max_depth="2" />

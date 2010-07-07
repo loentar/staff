@@ -1,0 +1,45 @@
+#summary How to install webapp under Linux.
+
+== 1. Install Apache2 ==
+
+_Notice: If you install Apache2 after staff, you need to recompile and reinstall staff to enable Apache2-specific modules. Restart Apache2 after reinstalling staff._
+
+You must know the directory where Apache2 stores html documents. Usually it is one of the following addresses: 
+{{{
+/var/www
+/www/htdocs
+}}}
+
+For the convenience use the environment variable
+{{{
+export WWWSAMPLE=/var/www/webapp-sample/
+mkdir -p $WWWSAMPLE
+}}}
+
+Copy the webapp and examples from svn:
+{{{
+cd $WWWSAMPLE
+svn export --force http://staff.googlecode.com/svn/trunk/webapp/webclient/samples .
+svn export --force http://staff.googlecode.com/svn/trunk/webapp/webclient/webapp webapp
+}}}
+
+== 2. Install Yahoo UI ==
+
+Download YahooUI 2.x (Full developer kit) from http://developer.yahoo.com/yui/2/
+
+Unzip the contents of the directory `build` to `$WWWSAMPLE/yui`.
+
+== 3. Testing ==
+
+Test the basic web application. 
+
+Application Server Axis2/C and Apache2 web server must be running. Open the page in the browser (Firefox):
+
+http://localhost/webapp-sample/main.htm?profile=webapp_sample
+
+Web application sample must load.
+
+Click menu item "Widgets" => "Add", select "Sample widget: Button" and click "OK", select "center", click "OK".
+
+Sample widget "Button" must appear.
+
