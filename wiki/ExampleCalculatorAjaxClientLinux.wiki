@@ -113,7 +113,7 @@ Edit widgets list in the text editor:
 sudo gedit /usr/local/staff/components/widget/db/widgets.xml
 }}}
 
-and add the following lines before the tag `</Classes>` similar to the existing: 
+and add the following lines before the tag `</Widgets>` similar to the existing: 
 {{{
   <Widget>
     <Class>widget.Calculator</Class>
