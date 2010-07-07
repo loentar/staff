@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 \
-#ifneq("$(Interface.Namespace.!trim/:/)","")
+#ifneq($(Interface.Namespace.!trim/:/),)
 namespace('$(Interface.Namespace.!trim/:/.!dot)');
 #else
 \
@@ -57,16 +57,16 @@ function DeserializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, tNode)
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  tResult.$(Param.Name) = DeserializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode("$(Param.Name)", tNode));
+  tResult.$(Param.Name) = DeserializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  tResult.$(Param.Name) = DeserializeTypedef_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode("$(Param.Name)", tNode));
+  tResult.$(Param.Name) = DeserializeTypedef_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   tResult.$(Param.Name) = new staff.DataObject();
-  tResult.$(Param.Name).FromElement(tOperation.SubNode("$(Param.Name)", tNode));
+  tResult.$(Param.Name).FromElement(tOperation.SubNode('$(Param.Name)', tNode));
 #else
-  tResult.$(Param.Name) = tOperation.SubNodeText("$(Param.Name)", tNode);
+  tResult.$(Param.Name) = tOperation.SubNodeText('$(Param.Name)', tNode);
 #ifeqend
 #ifeqend
 #ifeqend
@@ -221,7 +221,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.Type),generic||string)
     if(tNode.firstChild == null) // $(Typedef.DataType.Type)
     {
-      aResult[j] = "";
+      aResult[j] = '';
     } else
     {
       aResult[j] = tResult.childNodes[i].firstChild.nodeValue;
@@ -239,12 +239,12 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
     aResult[j++] = tResult.childNodes[i]; // dataobject 2
 #else
 #ifeq($(Typedef.DataType.Type),template)  // !!      TEMPLATE        !!
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 #ifeq($(Typedef.DataType.NsName),std::map)
 //template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName), $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)>
-      var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
-      var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
+      var pKeyElem = tOperation.SubNode('Key', tResult.childNodes[i]);
+      var pValueElem = tOperation.SubNode('Value', tResult.childNodes[i]);
 
       var tKey =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
@@ -256,7 +256,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
  pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -270,7 +270,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
  pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
- pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
+ pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -284,7 +284,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
  DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #ifeqend
 #ifeqend
 #ifeqend // #ifeq($(Typedef.DataType.NsName),std::map)
@@ -306,7 +306,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
     tNode = tOperation.ResultElement();
   }
 #ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
-  return tNode.firstChild != null ? tNode.firstChild.nodeValue : "";
+  return tNode.firstChild != null ? tNode.firstChild.nodeValue : '';
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!!
   return tNode;
@@ -338,30 +338,31 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 $(Class.ServiceNsName) = Class.create();
 $(Class.ServiceNsName).prototype =
 {
-  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
+  initialize: function(sServiceUri, sSessionId, sInstanceId, sTargetNamespace)
   {
     if (!sServiceUri)
     {
       sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/$(Class.ServiceNsName)';
     }
 
-#ifneq($(Interface.TargetNamespace),)
     if (!sTargetNamespace)
     {
-      sTargetNamespace = "$(Interface.TargetNamespace)";
-    }
-
+      sTargetNamespace = \
+#ifneq($(Interface.TargetNamespace),||http://tempui.org/$(Class.ServiceNsName))
+'$(Interface.TargetNamespace)';
 #else
-\
+sServiceUri;
 #ifeqend
-    if (!sTargetNamespace)
-    {
-      sTargetNamespace = sServiceUri;
     }
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.tClient && this.tClient.destroy();
   },
 
   SetDataObjectAsXml: function(bDataObjectAsXml)
@@ -382,8 +383,16 @@ $(Param.Name), \
 #end
 pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('$(Member.Name)', this.sTargetNamespace, '$(Member.Return.ResponseName)', '$(Member.Return.NodeName)');
-    tOperation.SetSoapAction("$(Member.SoapAction)");
+    var tOperation = new staff.Operation('$(Member.Name)', this.sTargetNamespace, '\
+#ifneq($(Member.Return.ResponseName),$(Member.Name)Result)
+$(Member.Return.ResponseName)\
+#ifeqend
+', '$(Member.Return.NodeName)');
+    tOperation.SetSoapAction('\
+#ifneq($(Member.SoapAction),$(Class.ServiceName)#$(Member.Name))
+$(Member.SoapAction)\
+#ifeqend
+');
 
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct) // !!struct!!

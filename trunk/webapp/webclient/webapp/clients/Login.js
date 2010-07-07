@@ -9,7 +9,7 @@ namespace('staff');
 staff.Login = Class.create();
 staff.Login.prototype =
 {
-  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
+  initialize: function(sServiceUri, sSessionId, sInstanceId, sTargetNamespace)
   {
     if (!sServiceUri)
     {
@@ -23,7 +23,12 @@ staff.Login.prototype =
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.tClient && this.tClient.destroy();
   },
 
   SetDataObjectAsXml: function(bDataObjectAsXml)
@@ -39,7 +44,7 @@ staff.Login.prototype =
   Login: function(sUserName, sPassword, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Login', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sPassword', sPassword);
@@ -63,7 +68,7 @@ staff.Login.prototype =
   OpenSession: function(sUserName, sPassword, bCloseExisting, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('OpenSession', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sPassword', sPassword);
@@ -88,7 +93,7 @@ staff.Login.prototype =
   Logout: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Logout', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -109,7 +114,7 @@ staff.Login.prototype =
   KeepAliveSession: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('KeepAliveSession', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -130,7 +135,7 @@ staff.Login.prototype =
   ValidateSession: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('ValidateSession', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -153,7 +158,7 @@ staff.Login.prototype =
   GetUserName: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetUserName', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -175,7 +180,7 @@ staff.Login.prototype =
   GetUserId: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetUserId', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -198,7 +203,7 @@ staff.Login.prototype =
   GetSessionExpiration: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetSessionExpiration', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call

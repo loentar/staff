@@ -192,35 +192,6 @@ namespace staff
     RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
   }
 
-  std::string TnsToCppNs(const std::string& sNamespace)
-  {
-    if (sNamespace == "http://www.w3.org/2001/XMLSchema")
-    {
-      return "";
-    }
-
-    std::string sResult;
-
-    std::string::size_type nPosBegin = sNamespace.find("/axis2/services/");
-    if (nPosBegin == std::string::npos)
-    {
-      return "";
-    }
-
-    nPosBegin += 16;
-
-    std::string::size_type nPosEnd = sNamespace.find_last_of('.');
-    if (nPosEnd == std::string::npos)
-    {
-      return "";
-    }
-
-    sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
-
-    rise::StrReplace(sResult, ".", "::", true);
-    return "::" + sResult + "::";
-  }
-
   std::string StripPrefix(const std::string& sSymbol)
   {
     std::string::size_type nPos = sSymbol.find_last_of(':');
@@ -1257,6 +1228,49 @@ namespace staff
       const std::string& sName = (nPos != std::string::npos) ? sPrefixName.substr(nPos + 1) : sPrefixName;
 
       GetCppType(SQName(sName, sPrefix, sNamespace), rDataType);
+    }
+
+    std::string TnsToCppNs(const std::string& sNamespace)
+    {
+      if (sNamespace == "http://www.w3.org/2001/XMLSchema")
+      {
+        return "";
+      }
+
+      std::string sResult;
+
+      // skip protocol
+      std::string::size_type nPosBegin = sNamespace.find("://");
+      if (nPosBegin == std::string::npos)
+      {
+        return "";
+      }
+
+      nPosBegin += 3;
+      // skip address
+      nPosBegin = sNamespace.find("/", nPosBegin);
+      if (nPosBegin == std::string::npos)
+      {
+        return "";
+      }
+
+      nPosBegin = sNamespace.find_last_of("/", sNamespace.size() - nPosBegin + 1);
+      if (nPosBegin == std::string::npos)
+      {
+        return "";
+      }
+      ++nPosBegin;
+
+      std::string::size_type nPosEnd = sNamespace.find_last_of('.');
+      if (nPosEnd == std::string::npos)
+      {
+        return "";
+      }
+
+      sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
+
+      rise::StrReplace(sResult, ".", "::", true);
+      return "::" + sResult + "::";
     }
 
     // optimize param as const ref

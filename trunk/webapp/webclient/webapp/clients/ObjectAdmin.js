@@ -19,10 +19,10 @@ function SerializeStruct_staff_admin_SObject(tOperation, rstStruct, tNode)
 function DeserializeStruct_staff_admin_SObject(tOperation, tNode)
 {
   var tResult = {};
-  tResult.nId = tOperation.SubNodeText("nId", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.sDescription = tOperation.SubNodeText("sDescription", tNode);
-  tResult.nParentId = tOperation.SubNodeText("nParentId", tNode);
+  tResult.nId = tOperation.SubNodeText('nId', tNode);
+  tResult.sName = tOperation.SubNodeText('sName', tNode);
+  tResult.sDescription = tOperation.SubNodeText('sDescription', tNode);
+  tResult.nParentId = tOperation.SubNodeText('nParentId', tNode);
   return tResult;
 }
 
@@ -56,7 +56,7 @@ function DeserializeTypedef_staff_admin_TObjectList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<::staff::admin::SObject>
     aResult[j++] = DeserializeStruct_staff_admin_SObject(tOperation, tResult.childNodes[i]); // *** struct ::staff::admin::SObject
@@ -75,7 +75,7 @@ function DeserializeTypedef_staff_admin_TObjectList(tOperation, tNode)
 staff.admin.ObjectAdmin = Class.create();
 staff.admin.ObjectAdmin.prototype =
 {
-  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
+  initialize: function(sServiceUri, sSessionId, sInstanceId, sTargetNamespace)
   {
     if (!sServiceUri)
     {
@@ -89,7 +89,12 @@ staff.admin.ObjectAdmin.prototype =
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.tClient && this.tClient.destroy();
   },
 
   SetDataObjectAsXml: function(bDataObjectAsXml)
@@ -105,7 +110,7 @@ staff.admin.ObjectAdmin.prototype =
   GetById: function(nId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetById', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nId', nId);
     if(typeof pOnComplete == 'function')
@@ -129,7 +134,7 @@ staff.admin.ObjectAdmin.prototype =
   GetByPathName: function(sPathName, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetByPathName', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sPathName', sPathName);
     if(typeof pOnComplete == 'function')
@@ -153,7 +158,7 @@ staff.admin.ObjectAdmin.prototype =
   GetChilds: function(nId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetChilds', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nId', nId);
     if(typeof pOnComplete == 'function')
@@ -177,7 +182,7 @@ staff.admin.ObjectAdmin.prototype =
   Add: function(rstObject, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Add', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     SerializeStruct_staff_admin_SObject(tOperation, rstObject, tOperation.AddParameter('rstObject'));
     if(typeof pOnComplete == 'function')
@@ -201,7 +206,7 @@ staff.admin.ObjectAdmin.prototype =
   Remove: function(nObjectId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Remove', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nObjectId', nObjectId);
     if(typeof pOnComplete == 'function')
@@ -223,7 +228,7 @@ staff.admin.ObjectAdmin.prototype =
   SetDescription: function(nObjectId, sDescription, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('SetDescription', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nObjectId', nObjectId);
     tOperation.AddParameter('sDescription', sDescription);

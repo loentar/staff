@@ -34,10 +34,37 @@ staff.GlobalErrorHandler =
 staff.Client = Class.create();
 staff.Client.prototype = 
 {
-  initialize: function(sServiceUri, sSessionId)
+  initialize: function(sServiceUri, sSessionId, sInstanceId)
   {
     this.sServiceUri = sServiceUri;
     this.sSessionId = sSessionId;
+    this.CreateInstance(sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.FreeInstance(this.sInstanceId);
+  },
+
+  CreateInstance: function(sInstanceId)
+  {
+    if (sInstanceId)
+    {
+      var tOperation = new staff.Operation('CreateInstance', this.sServiceUri, '', '');
+      tOperation.AddParameter('sInstanceId', sInstanceId);
+      this.InvokeOperation(tOperation);
+      this.sInstanceId = sInstanceId;
+    }
+  },
+
+  FreeInstance: function(sInstanceId)
+  {
+    if (sInstanceId)
+    {
+      var tOperation = new staff.Operation('FreeInstance', this.sServiceUri, '', '');
+      tOperation.AddParameter('sInstanceId', sInstanceId);
+      this.InvokeOperation(tOperation);
+    }
   },
   
   SetSessionId: function(sSessionId)
@@ -60,6 +87,16 @@ staff.Client.prototype =
     return this.sServiceUri;
   },
   
+  SetInstanceId: function(sInstanceId)
+  {
+    this.sInstanceId = sInstanceId;
+  },
+
+  GetInstanceId: function(sInstanceId)
+  {
+    return this.sInstanceId;
+  },
+
   IsInit: function()
   {
     return !!this.sServiceUri;
@@ -70,19 +107,29 @@ staff.Client.prototype =
     var tEnvelope = tOperation.RequestEnvelope();
     var tHeader = tEnvelope.get_header();
 
-    if(tHeader == null)
+    if (tHeader == null)
     {
       tHeader = tEnvelope.create_header();
     }
       
     var tSidElm = tOperation.SubNode("SessionId", tHeader.element);
-    if(tSidElm == null)
+    if (tSidElm == null)
     {
       tSidElm = tHeader.create_child(new WS.QName("SessionId", "http://tempui.org/staff/sessionid", "sid"));
       tSidElm.set_value(this.sSessionId);
     }
-    
-    var tRequestOptions = 
+
+    if (this.sInstanceId)
+    {
+      var tIidElm = tOperation.SubNode("InstanceId", tHeader.element);
+      if (tIidElm == null)
+      {
+        tIidElm = tHeader.create_child(new WS.QName("InstanceId", "http://tempui.org/staff/instanceid", "iid"));
+        tIidElm.set_value(this.sInstanceId);
+      }
+    }
+
+    var tRequestOptions =
     {
       method:         'post',
       asynchronous:   false,

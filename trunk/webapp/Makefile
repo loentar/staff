@@ -16,14 +16,25 @@ MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 #
 # ==  GOALS  ==============================================================
 
+ifeq ($(MAKECMDGOALS),regenclients)
+include Makefile.env
+$(MAKECMDGOALS):
+	$(STAFF_CODEGEN) -tjsclient -owebclient/webapp/clients\
+ ../staff/components/Login/src/Login.h\
+ ../staff/components/admin/AccountAdmin/src/AccountAdmin.h\
+ ../staff/components/admin/ObjectAdmin/src/ObjectAdmin.h\
+ services/FileUploader/src/FileUploader.h\
+ services/ProfileAdmin/src/ProfileAdmin.h\
+ services/WidgetManager/src/WidgetManager.h
+else
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
+endif
 
 # must be declared under main goal
 include $(MAKEFILES_DEP)
 
 %.dep:
 	@/bin/echo -e "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
-#	@echo "\n\n$(patsubst %.dep,%,$@) => $(patsubst %.dep,%,$^)"
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=webapp
