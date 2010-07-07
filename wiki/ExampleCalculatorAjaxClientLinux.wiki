@@ -140,7 +140,9 @@ http://localhost/webapp-sample/main.htm?profile=webapp_sample
 
 Click "Widgets" => "Add". In the dialog that opens, select "Calculator", then click "OK". Then select any position and click "OK." 
 
-Calculator widget must load. 
+Calculator widget must load.
+
+[http://staff.googlecode.com/svn/wiki/img/widget-calculator.png http://staff.googlecode.com/svn/wiki/img/widget-calculator.png]
 
 To invoke the service input some numbers and click "Calculate" button.
 

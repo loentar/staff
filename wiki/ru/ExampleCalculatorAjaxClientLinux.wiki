@@ -144,5 +144,7 @@ http://localhost/webapp-sample/main.htm?profile=webapp_sample
 
 Виджет Calculator должен загрузиться.
 
+[http://staff.googlecode.com/svn/wiki/img/widget-calculator.png http://staff.googlecode.com/svn/wiki/img/widget-calculator.png]
+
 Для вызова сервиса введите числа в поля ввода и нажмите кнопку "Calculate".
 
