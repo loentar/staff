@@ -366,6 +366,13 @@ namespace staff
 
             if (bProcessFile)
             {
+              // erase input path
+              std::string::size_type nPos = sFile.find_last_of('/');
+              if (nPos != std::string::npos)
+              {
+                sFile.erase(0, nPos + 1);
+              }
+
               ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
                           rNodeInterface, bUpdateOnly, bNeedUpdate);
             }
@@ -376,7 +383,16 @@ namespace staff
       for (std::list<std::string>::const_iterator itTemplateFile = m_tConstFileList.begin();
           itTemplateFile != m_tConstFileList.end(); ++itTemplateFile)
       {
-        ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + *itTemplateFile,
+        std::string sFile = *itTemplateFile;
+
+        // erase input path
+        std::string::size_type nPos = sFile.find_last_of('/');
+        if (nPos != std::string::npos)
+        {
+          sFile.erase(0, nPos + 1);
+        }
+
+        ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
                     rRootNode, bUpdateOnly, bNeedUpdate);
       }
     }

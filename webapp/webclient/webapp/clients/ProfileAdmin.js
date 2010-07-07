@@ -25,18 +25,18 @@ function SerializeStruct_webapp_admin_SProfile(tOperation, rstStruct, tNode)
 function DeserializeStruct_webapp_admin_SWidget(tOperation, tNode)
 {
   var tResult = {};
-  tResult.sClass = tOperation.SubNodeText("sClass", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
+  tResult.sClass = tOperation.SubNodeText('sClass', tNode);
+  tResult.sName = tOperation.SubNodeText('sName', tNode);
   return tResult;
 }
 
 function DeserializeStruct_webapp_admin_SProfile(tOperation, tNode)
 {
   var tResult = {};
-  tResult.sId = tOperation.SubNodeText("sId", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.bIsAdmin = tOperation.SubNodeText("bIsAdmin", tNode);
-  tResult.lsWidgets = DeserializeTypedef_webapp_admin_TStringList(tOperation, tOperation.SubNode("lsWidgets", tNode));
+  tResult.sId = tOperation.SubNodeText('sId', tNode);
+  tResult.sName = tOperation.SubNodeText('sName', tNode);
+  tResult.bIsAdmin = tOperation.SubNodeText('bIsAdmin', tNode);
+  tResult.lsWidgets = DeserializeTypedef_webapp_admin_TStringList(tOperation, tOperation.SubNode('lsWidgets', tNode));
   return tResult;
 }
 
@@ -92,10 +92,10 @@ function DeserializeTypedef_webapp_admin_TStringList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<std::string>
-    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic std::string
+    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ''; // *** generic std::string
     }
   }
 
@@ -113,7 +113,7 @@ function DeserializeTypedef_webapp_admin_TWidgetList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<::webapp::admin::SWidget>
     aResult[j++] = DeserializeStruct_webapp_admin_SWidget(tOperation, tResult.childNodes[i]); // *** struct ::webapp::admin::SWidget
@@ -134,7 +134,7 @@ function DeserializeTypedef_webapp_admin_TProfileList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<::webapp::admin::SProfile>
     aResult[j++] = DeserializeStruct_webapp_admin_SProfile(tOperation, tResult.childNodes[i]); // *** struct ::webapp::admin::SProfile
@@ -153,7 +153,7 @@ function DeserializeTypedef_webapp_admin_TProfileList(tOperation, tNode)
 webapp.admin.ProfileAdmin = Class.create();
 webapp.admin.ProfileAdmin.prototype =
 {
-  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
+  initialize: function(sServiceUri, sSessionId, sInstanceId, sTargetNamespace)
   {
     if (!sServiceUri)
     {
@@ -167,7 +167,12 @@ webapp.admin.ProfileAdmin.prototype =
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.tClient && this.tClient.destroy();
   },
 
   SetDataObjectAsXml: function(bDataObjectAsXml)
@@ -183,7 +188,7 @@ webapp.admin.ProfileAdmin.prototype =
   GetProfiles: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetProfiles', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -206,7 +211,7 @@ webapp.admin.ProfileAdmin.prototype =
   GetWidgets: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetWidgets', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -229,7 +234,7 @@ webapp.admin.ProfileAdmin.prototype =
   RemoveProfile: function(sId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveProfile', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sId', sId);
     if(typeof pOnComplete == 'function')
@@ -251,7 +256,7 @@ webapp.admin.ProfileAdmin.prototype =
   SetProfile: function(rProfile, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('SetProfile', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     SerializeStruct_webapp_admin_SProfile(tOperation, rProfile, tOperation.AddParameter('rProfile'));
     if(typeof pOnComplete == 'function')

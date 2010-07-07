@@ -25,18 +25,18 @@ function SerializeStruct_staff_admin_SGroup(tOperation, rstStruct, tNode)
 function DeserializeStruct_staff_admin_SUser(tOperation, tNode)
 {
   var tResult = {};
-  tResult.nId = tOperation.SubNodeText("nId", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.sDescription = tOperation.SubNodeText("sDescription", tNode);
+  tResult.nId = tOperation.SubNodeText('nId', tNode);
+  tResult.sName = tOperation.SubNodeText('sName', tNode);
+  tResult.sDescription = tOperation.SubNodeText('sDescription', tNode);
   return tResult;
 }
 
 function DeserializeStruct_staff_admin_SGroup(tOperation, tNode)
 {
   var tResult = {};
-  tResult.nId = tOperation.SubNodeText("nId", tNode);
-  tResult.sName = tOperation.SubNodeText("sName", tNode);
-  tResult.sDescription = tOperation.SubNodeText("sDescription", tNode);
+  tResult.nId = tOperation.SubNodeText('nId', tNode);
+  tResult.sName = tOperation.SubNodeText('sName', tNode);
+  tResult.sDescription = tOperation.SubNodeText('sDescription', tNode);
   return tResult;
 }
 
@@ -92,10 +92,10 @@ function DeserializeTypedef_staff_admin_TIdList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<int>
-    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic int
+    aResult[j++] = tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ''; // *** generic int
     }
   }
 
@@ -113,7 +113,7 @@ function DeserializeTypedef_staff_admin_TUserList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<::staff::admin::SUser>
     aResult[j++] = DeserializeStruct_staff_admin_SUser(tOperation, tResult.childNodes[i]); // *** struct ::staff::admin::SUser
@@ -134,7 +134,7 @@ function DeserializeTypedef_staff_admin_TGroupList(tOperation, tNode)
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-    if( tResult.childNodes[i].nodeName == "Item")
+    if( tResult.childNodes[i].nodeName == 'Item')
     {
 //template std::list<::staff::admin::SGroup>
     aResult[j++] = DeserializeStruct_staff_admin_SGroup(tOperation, tResult.childNodes[i]); // *** struct ::staff::admin::SGroup
@@ -153,7 +153,7 @@ function DeserializeTypedef_staff_admin_TGroupList(tOperation, tNode)
 staff.admin.AccountAdmin = Class.create();
 staff.admin.AccountAdmin.prototype =
 {
-  initialize: function(sServiceUri, sSessionId, sTargetNamespace)
+  initialize: function(sServiceUri, sSessionId, sInstanceId, sTargetNamespace)
   {
     if (!sServiceUri)
     {
@@ -167,7 +167,12 @@ staff.admin.AccountAdmin.prototype =
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
+    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+  },
+
+  destroy: function()
+  {
+    this.tClient && this.tClient.destroy();
   },
 
   SetDataObjectAsXml: function(bDataObjectAsXml)
@@ -183,7 +188,7 @@ staff.admin.AccountAdmin.prototype =
   GetUsers: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetUsers', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -206,7 +211,7 @@ staff.admin.AccountAdmin.prototype =
   GetGroups: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetGroups', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -229,7 +234,7 @@ staff.admin.AccountAdmin.prototype =
   GetUserGroups: function(nUserId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetUserGroups', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     if(typeof pOnComplete == 'function')
@@ -253,7 +258,7 @@ staff.admin.AccountAdmin.prototype =
   AddUser: function(sUserName, sDescription, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('AddUser', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sDescription', sDescription);
@@ -278,7 +283,7 @@ staff.admin.AccountAdmin.prototype =
   RemoveUser: function(nUserId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveUser', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     if(typeof pOnComplete == 'function')
@@ -300,7 +305,7 @@ staff.admin.AccountAdmin.prototype =
   SetUserPassword: function(nUserId, sPass, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('SetUserPassword', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('sPass', sPass);
@@ -323,7 +328,7 @@ staff.admin.AccountAdmin.prototype =
   AddGroup: function(sGroupName, sDescription, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('AddGroup', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('sGroupName', sGroupName);
     tOperation.AddParameter('sDescription', sDescription);
@@ -348,7 +353,7 @@ staff.admin.AccountAdmin.prototype =
   RemoveGroup: function(nGroupId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveGroup', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nGroupId', nGroupId);
     if(typeof pOnComplete == 'function')
@@ -370,7 +375,7 @@ staff.admin.AccountAdmin.prototype =
   AddUserToGroup: function(nUserId, nGroupId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('AddUserToGroup', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('nGroupId', nGroupId);
@@ -393,7 +398,7 @@ staff.admin.AccountAdmin.prototype =
   AddUserToGroups: function(nUserId, rlsGroupIds, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('AddUserToGroups', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     SerializeTypedef_staff_admin_TIdList(tOperation, rlsGroupIds, tOperation.AddParameter('rlsGroupIds'));
@@ -416,7 +421,7 @@ staff.admin.AccountAdmin.prototype =
   RemoveUserFromGroup: function(nUserId, nGroupId, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveUserFromGroup', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     tOperation.AddParameter('nGroupId', nGroupId);
@@ -439,7 +444,7 @@ staff.admin.AccountAdmin.prototype =
   RemoveUserFromGroups: function(nUserId, rlsGroupIds, pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('RemoveUserFromGroups', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
+    tOperation.SetSoapAction('');
 
     tOperation.AddParameter('nUserId', nUserId);
     SerializeTypedef_staff_admin_TIdList(tOperation, rlsGroupIds, tOperation.AddParameter('rlsGroupIds'));

@@ -14,7 +14,7 @@
 #var sOpeningNs
 #var sEndingNs
 \
-#ifneq($(Interface.TargetNamespace),)
+#ifneq($(Interface.TargetNamespace),||http://tempui.org/$(Class.ServiceNsName))
 
 // targetNamespace: $(Interface.TargetNamespace)
 #ifeqend // tns
