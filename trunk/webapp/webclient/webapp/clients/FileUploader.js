@@ -4,7 +4,6 @@
 namespace('webapp.admin');
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
 
@@ -49,7 +48,7 @@ function DeserializeTypedef_webapp_admin_TStringList(tOperation, tNode)
 // class: webapp.admin.FileUploader
 
 webapp.admin.FileUploader = Class.create();
-webapp.admin.FileUploader.prototype = 
+webapp.admin.FileUploader.prototype =
 {
   initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
@@ -57,22 +56,22 @@ webapp.admin.FileUploader.prototype =
     {
       sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/webapp.admin.FileUploader';
     }
-    
+
     if (!sTargetNamespace)
     {
       sTargetNamespace = sServiceUri;
     }
-    
+
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
-  
+
   SetDataObjectAsXml: function(bDataObjectAsXml)
   {
     this.bDataObjectAsXml = bDataObjectAsXml;
   },
-  
+
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -82,7 +81,7 @@ webapp.admin.FileUploader.prototype =
   {
     var tOperation = new staff.Operation('Move', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sFileName', sFileName);
     tOperation.AddParameter('sPathTo', sPathTo);
     if(typeof pOnComplete == 'function')
@@ -105,7 +104,7 @@ webapp.admin.FileUploader.prototype =
   {
     var tOperation = new staff.Operation('Unpack', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sFileName', sFileName);
     tOperation.AddParameter('sPathTo', sPathTo);
     if(typeof pOnComplete == 'function')
@@ -128,7 +127,7 @@ webapp.admin.FileUploader.prototype =
   {
     var tOperation = new staff.Operation('GetUnpackingStatus', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -151,7 +150,7 @@ webapp.admin.FileUploader.prototype =
   {
     var tOperation = new staff.Operation('GetUnpackedFiles', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sMask', sMask);
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -175,7 +174,7 @@ webapp.admin.FileUploader.prototype =
   {
     var tOperation = new staff.Operation('Delete', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sFileName', sFileName);
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -193,4 +192,5 @@ webapp.admin.FileUploader.prototype =
     }
   }
 }
+
 

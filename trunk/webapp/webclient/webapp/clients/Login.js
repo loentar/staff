@@ -3,13 +3,11 @@
 // DO NOT EDIT
 namespace('staff');
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////
 // class: staff.Login
 
 staff.Login = Class.create();
-staff.Login.prototype = 
+staff.Login.prototype =
 {
   initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
@@ -17,22 +15,22 @@ staff.Login.prototype =
     {
       sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/staff.Login';
     }
-    
+
     if (!sTargetNamespace)
     {
       sTargetNamespace = sServiceUri;
     }
-    
+
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
-  
+
   SetDataObjectAsXml: function(bDataObjectAsXml)
   {
     this.bDataObjectAsXml = bDataObjectAsXml;
   },
-  
+
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -42,7 +40,7 @@ staff.Login.prototype =
   {
     var tOperation = new staff.Operation('Login', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sPassword', sPassword);
     if(typeof pOnComplete == 'function')
@@ -66,7 +64,7 @@ staff.Login.prototype =
   {
     var tOperation = new staff.Operation('OpenSession', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sUserName', sUserName);
     tOperation.AddParameter('sPassword', sPassword);
     tOperation.AddParameter('bCloseExisting', bCloseExisting);
@@ -87,56 +85,11 @@ staff.Login.prototype =
     }
   },
 
-  OpenExtraSession: function(nExtraSessionId, pOnComplete, pOnError)
-  {
-    var tOperation = new staff.Operation('OpenExtraSession', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
-    
-    tOperation.AddParameter('nExtraSessionId', nExtraSessionId);
-    if(typeof pOnComplete == 'function')
-    { // make async call
-      this.tClient.InvokeOperation(tOperation,
-        function(tOperation)
-        {
-          pOnComplete(tOperation.ResultValue(), tOperation);
-        },
-        pOnError
-      );
-    }
-    else
-    {
-      this.tClient.InvokeOperation(tOperation);
-      return tOperation.ResultValue();
-    }
-  },
-
-  CloseExtraSession: function(nExtraSessionId, pOnComplete, pOnError)
-  {
-    var tOperation = new staff.Operation('CloseExtraSession', this.sTargetNamespace, '', '');
-    tOperation.SetSoapAction("");
-    
-    tOperation.AddParameter('nExtraSessionId', nExtraSessionId);
-    if(typeof pOnComplete == 'function')
-    { // make async call
-      this.tClient.InvokeOperation(tOperation,
-        function(tOperation)
-        {
-          pOnComplete(tOperation);
-        },
-        pOnError
-      );
-    }
-    else
-    {
-      this.tClient.InvokeOperation(tOperation);
-    }
-  },
-
   Logout: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('Logout', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -157,7 +110,7 @@ staff.Login.prototype =
   {
     var tOperation = new staff.Operation('KeepAliveSession', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -178,7 +131,7 @@ staff.Login.prototype =
   {
     var tOperation = new staff.Operation('ValidateSession', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -201,7 +154,7 @@ staff.Login.prototype =
   {
     var tOperation = new staff.Operation('GetUserName', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -219,11 +172,34 @@ staff.Login.prototype =
     }
   },
 
+  GetUserId: function(pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetUserId', this.sTargetNamespace, '', '');
+    tOperation.SetSoapAction("");
+
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(tOperation.ResultValue(), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return tOperation.ResultValue();
+    }
+  },
+
   GetSessionExpiration: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetSessionExpiration', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -242,4 +218,5 @@ staff.Login.prototype =
     }
   }
 }
+
 

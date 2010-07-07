@@ -25,7 +25,6 @@ function SerializeStruct_webapp_admin_SProfile(tOperation, rstStruct, tNode)
 function DeserializeStruct_webapp_admin_SWidget(tOperation, tNode)
 {
   var tResult = {};
-
   tResult.sClass = tOperation.SubNodeText("sClass", tNode);
   tResult.sName = tOperation.SubNodeText("sName", tNode);
   return tResult;
@@ -34,7 +33,6 @@ function DeserializeStruct_webapp_admin_SWidget(tOperation, tNode)
 function DeserializeStruct_webapp_admin_SProfile(tOperation, tNode)
 {
   var tResult = {};
-
   tResult.sId = tOperation.SubNodeText("sId", tNode);
   tResult.sName = tOperation.SubNodeText("sName", tNode);
   tResult.bIsAdmin = tOperation.SubNodeText("bIsAdmin", tNode);
@@ -153,7 +151,7 @@ function DeserializeTypedef_webapp_admin_TProfileList(tOperation, tNode)
 // class: webapp.admin.ProfileAdmin
 
 webapp.admin.ProfileAdmin = Class.create();
-webapp.admin.ProfileAdmin.prototype = 
+webapp.admin.ProfileAdmin.prototype =
 {
   initialize: function(sServiceUri, sSessionId, sTargetNamespace)
   {
@@ -161,22 +159,22 @@ webapp.admin.ProfileAdmin.prototype =
     {
       sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/webapp.admin.ProfileAdmin';
     }
-    
+
     if (!sTargetNamespace)
     {
       sTargetNamespace = sServiceUri;
     }
-    
+
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
     this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || "");
   },
-  
+
   SetDataObjectAsXml: function(bDataObjectAsXml)
   {
     this.bDataObjectAsXml = bDataObjectAsXml;
   },
-  
+
   SetID: function(sSessionId)
   {
     this.tClient.SetSessionId(sSessionId);
@@ -186,7 +184,7 @@ webapp.admin.ProfileAdmin.prototype =
   {
     var tOperation = new staff.Operation('GetProfiles', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -209,7 +207,7 @@ webapp.admin.ProfileAdmin.prototype =
   {
     var tOperation = new staff.Operation('GetWidgets', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
@@ -232,7 +230,7 @@ webapp.admin.ProfileAdmin.prototype =
   {
     var tOperation = new staff.Operation('RemoveProfile', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     tOperation.AddParameter('sId', sId);
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -254,7 +252,7 @@ webapp.admin.ProfileAdmin.prototype =
   {
     var tOperation = new staff.Operation('SetProfile', this.sTargetNamespace, '', '');
     tOperation.SetSoapAction("");
-    
+
     SerializeStruct_webapp_admin_SProfile(tOperation, rProfile, tOperation.AddParameter('rProfile'));
     if(typeof pOnComplete == 'function')
     { // make async call
@@ -272,4 +270,5 @@ webapp.admin.ProfileAdmin.prototype =
     }
   }
 }
+
 

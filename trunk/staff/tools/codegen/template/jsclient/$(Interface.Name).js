@@ -86,11 +86,11 @@ function DeserializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, tNode)
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0)
 
-// $(Typedef.Name)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
+// $(Typedef.NsName)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.NsName)
 #ifeq($(Typedef.DataType.IsTemplate),1)
 function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode)
 {
-#ifeq($(Typedef.DataType.Name),std::map) // ---- map -------------------------- key
+#ifeq($(Typedef.DataType.NsName),std::map) // ---- map -------------------------- key
   for(var tKey in rtType)
   {
     var tValue = rtType[tKey];
@@ -209,7 +209,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
   var tItem = null;
 
   var tResult = tNode == null ? tOperation.ResultElement() : tNode;
-#ifeq($(Typedef.DataType.Name),std::map)
+#ifeq($(Typedef.DataType.NsName),std::map)
   var aResult = {};
 #else
   var aResult = new Array();
@@ -228,11 +228,11 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
     }
 #else
 #ifeq($(Typedef.DataType.Type),struct)
-// *** struct1 $(Typedef.DataType.Name)
+// *** struct1 $(Typedef.DataType.NsName)
     aResult[j++] = DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]);
 #else
 #ifeq($(Typedef.DataType.Type),typedef)
-// *** td1 $(Typedef.DataType.Name)
+// *** td1 $(Typedef.DataType.NsName)
     aResult[j++] = DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]);
 #else
 #ifeq($(Typedef.DataType.Type),dataobject)
@@ -241,53 +241,53 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.Type),template)  // !!      TEMPLATE        !!
     if( tResult.childNodes[i].nodeName == "Item")
     {
-#ifeq($(Typedef.DataType.Name),std::map)
-//template $(Typedef.DataType.Name)<$(Typedef.DataType.TemplateParams.TemplateParam1.Name), $(Typedef.DataType.TemplateParams.TemplateParam2.Name)>
+#ifeq($(Typedef.DataType.NsName),std::map)
+//template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName), $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)>
       var pKeyElem = tOperation.SubNode("Key", tResult.childNodes[i]);
       var pValueElem = tOperation.SubNode("Value", tResult.childNodes[i]);
 
       var tKey =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
- pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #ifeqend
 #ifeqend
 #ifeqend
       var tValue =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
- pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
- pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.Name)
+ pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #ifeqend
 #ifeqend
 #ifeqend
       aResult[tKey] = tValue;
 #else
-//template $(Typedef.DataType.Name)<$(Typedef.DataType.TemplateParams.TemplateParam1.Name)>
+//template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName)>
     aResult[j++] =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.Name)
+ tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ""; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #ifeqend
 #ifeqend
-#ifeqend // #ifeq($(Typedef.DataType.Name),std::map)
+#ifeqend // #ifeq($(Typedef.DataType.NsName),std::map)
     }
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
@@ -300,7 +300,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 
   return aResult;
 #else // #ifeq($\(Typedef.DataType.IsTemplate),1) --------------------------------------------------------
-// not a container :: $(Typedef.DataType.Name)
+// not a container :: $(Typedef.DataType.NsName)
   if(tNode == null)
   {
     tNode = tOperation.ResultElement();
@@ -413,7 +413,9 @@ pOnComplete, pOnError)
 #end
     if(typeof pOnComplete == 'function')
     { // make async call
+#ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
       var bDataObjectAsXml = this.bDataObjectAsXml;
+#ifeqend
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
