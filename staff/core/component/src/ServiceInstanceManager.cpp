@@ -178,12 +178,17 @@ namespace staff
     if (itService == itSession->second.end())
     {
       // lazy creation of default instance
-      RISE_ASSERTES(!sInstanceId.size(), rise::CLogicNoItemException, "Service does not exists: " + sServiceName);
+      RISE_ASSERTES(sInstanceId.empty(), rise::CLogicNoItemException, "Service does not exists: " + sServiceName);
       return CreateServiceInstance(sSessionId, sServiceName, sInstanceId);
     }
 
     CServiceInstanceManagerImpl::TInstanceMap::iterator itInstance = itService->second.find(sInstanceId);
-    RISE_ASSERTES(itInstance != itService->second.end(), rise::CLogicNoItemException, "Instance does not exists: " + sInstanceId);
+    if (itInstance == itService->second.end())
+    {
+      // lazy creation of default instance if non default is already created
+      RISE_ASSERTES(sInstanceId.empty(), rise::CLogicNoItemException, "Instance does not exists: " + sInstanceId);
+      return CreateServiceInstance(sSessionId, sServiceName, sInstanceId);
+    }
 
     return itInstance->second;
   }
