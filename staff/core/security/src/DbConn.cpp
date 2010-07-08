@@ -60,7 +60,7 @@ namespace staff
       }
       catch(...)
       {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+        sqlite3_finalize(pVm);
         throw;
       }
 
