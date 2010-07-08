@@ -79,7 +79,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -102,7 +102,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -135,7 +135,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -161,7 +161,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -205,7 +205,7 @@ namespace staff
       }
       catch(...)
       {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+        sqlite3_finalize(pVm);
         throw;
       }
 
@@ -236,7 +236,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -259,7 +259,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -292,7 +292,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -318,7 +318,7 @@ namespace staff
         }
         catch(...)
         {
-          RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+          sqlite3_finalize(pVm);
           throw;
         }
       }
@@ -359,7 +359,7 @@ namespace staff
       }
       catch(...)
       {
-        RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+        sqlite3_finalize(pVm);
         throw;
       }
 
