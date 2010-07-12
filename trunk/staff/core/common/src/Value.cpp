@@ -26,102 +26,102 @@
 namespace staff
 {
   CValue::CValue():
-    m_eType(ET_NOTINIT), m_ePrevType(ET_NOTINIT), m_pDataObject(NULL)
+    m_eType(ET_NOTINIT), m_ePrevType(ET_NOTINIT), m_bChanged(false), m_pDataObject(NULL)
   {
   }
 
   CValue::CValue(const std::string& sValue):
-   m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(sValue);
   }
 
   CValue::CValue(const char* szValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(szValue);
   }
 
   CValue::CValue(float fValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(fValue);
   }
 
   CValue::CValue(double dValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(dValue);
   }
 
   CValue::CValue(byte btValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(btValue);
   }
 
   CValue::CValue(int nValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(nValue);
   }
 
   CValue::CValue(short shValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(shValue);
   }
 
   CValue::CValue(long lValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(lValue);
   }
 
   CValue::CValue(long long llValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(llValue);
   }
 
   CValue::CValue(unsignedByte btValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(btValue);
   }
 
   CValue::CValue(unsigned int unValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(unValue);
   }
 
   CValue::CValue(unsigned short ushValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(ushValue);
   }
 
   CValue::CValue(unsigned long ulValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(ulValue);
   }
 
   CValue::CValue(unsigned long long ullValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(ullValue);
   }
 
   CValue::CValue(bool bValue):
-    m_pDataObject(NULL)
+    m_bChanged(false), m_pDataObject(NULL)
   {
     operator=(bValue);
   }
 
   CValue::CValue( CDataObject* pDataObject ):
-    m_pDataObject(pDataObject)
+    m_bChanged(false), m_pDataObject(pDataObject)
   {
     if(m_pDataObject)
     {

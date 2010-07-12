@@ -42,9 +42,9 @@ namespace staff
       {
         for (TAxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
         {
-          if (itEnv->second != NULL)
+          if (itEnv->second.pEnv != NULL)
           {
-            axutil_env_free(itEnv->second);
+            axutil_env_free(itEnv->second.pEnv);
           }
         }
         m_mEnv.clear();
@@ -52,7 +52,20 @@ namespace staff
     }
     
   public:
-    typedef std::map<std::string, axutil_env_t*> TAxutilEnvMap;
+    struct SAxutilEnvCounted
+    {
+      int nCounter;
+      axutil_env_t* pEnv;
+
+      SAxutilEnvCounted():
+        nCounter(1), pEnv(NULL)
+      {
+      }
+    };
+
+    typedef std::map<std::string, SAxutilEnvCounted> TAxutilEnvMap;
+
+  public:
     TAxutilEnvMap m_mEnv;
   };
 
@@ -86,12 +99,14 @@ namespace staff
     CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv == m_pImpl->m_mEnv.end())
     {
+      rise::LogWarning() << "Creating new env: " << sEnvComponent;
       axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), AXIS2_LOG_LEVEL_TRACE);
-      m_pImpl->m_mEnv[sEnvComponent] = pEnv;
+      m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
       return pEnv;
     }
 
-    return itEnv->second;
+    ++itEnv->second.nCounter;
+    return itEnv->second.pEnv;
   }
 
   void CRuntime::FreeAxis2Env(const std::string& sEnvComponent /*= "staff"*/)
@@ -99,9 +114,13 @@ namespace staff
     CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv != m_pImpl->m_mEnv.end())
     {
-      axutil_env_free(itEnv->second);
-      itEnv->second = NULL;
-      m_pImpl->m_mEnv.erase(itEnv);
+      --itEnv->second.nCounter;
+      if (itEnv->second.nCounter == 0)
+      {
+        rise::LogWarning() << "Freeing env: " << sEnvComponent;
+        axutil_env_free(itEnv->second.pEnv);
+        m_pImpl->m_mEnv.erase(itEnv);
+      }
     }
   }
 

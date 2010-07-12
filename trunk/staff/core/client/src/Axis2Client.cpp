@@ -106,15 +106,15 @@ namespace staff
       CDataObject& rdoRequest = rOperation.Request();
       rdoRequest.SetOwner(false);
 
-      const std::string& sTargetNamespace = m_sTargetNamespace.size() != 0 ?
-                                            m_sTargetNamespace : m_sServiceUri;
+      const std::string& sTargetNamespace = m_sTargetNamespace.empty() ?
+                                            m_sServiceUri : m_sTargetNamespace;
 
       rdoRequest.DeclareDefaultNamespace(sTargetNamespace);
 
       rise::LogDebug1() << "targetNamespace: " << sTargetNamespace;
 
       // adding session id header
-      if (m_sSessionId.size() != 0)
+      if (!m_sSessionId.empty())
       {
         axiom_node_t* pNodeSessionId = NULL;
         axiom_element_t* pElemSessionId = NULL;
@@ -127,7 +127,7 @@ namespace staff
       }
 
       // adding instance id header
-      if (m_sInstanceId.size() != 0)
+      if (!m_sInstanceId.empty())
       {
         axiom_node_t* pNodeInstanceId = NULL;
         axiom_element_t* pElemInstanceId = NULL;
