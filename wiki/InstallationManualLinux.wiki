@@ -27,7 +27,7 @@ cd ~/devel/axis2c
 wget http://www.sai.msu.su/apache/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
 tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
-./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no--enable-guththila=no --enable-amqp=no
+./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
 make && sudo -E make install
 }}}
 
