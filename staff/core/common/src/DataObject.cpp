@@ -243,21 +243,27 @@ namespace staff
     RISE_ASSERT(m_pAxiomNode);
     RISE_ASSERT(m_pAxiomElement);
 
-    axiom_namespace_t* pOldNamespace = axiom_element_get_namespace(m_pAxiomElement, m_pEnv, 
-      m_pAxiomNode);
-    axiom_namespace_t* pNewNamespace = NULL;
-    const char* szPrefix = NULL;
-
-    if (pOldNamespace != NULL)
+    axiom_namespace_t* pNamespace = axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    if (!pNamespace)
     {
-      szPrefix = axiom_namespace_get_prefix(pOldNamespace, m_pEnv);
+      pNamespace = axiom_namespace_create(m_pEnv, sUri.c_str(), "");
+      RISE_ASSERTES(pNamespace, CDomInternalException, "Can't create axiom namespace");
+      axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNamespace, m_pAxiomNode);
     }
+    else
+    {
+      axutil_string_t* pStrUri = axutil_string_create(m_pEnv, sUri.c_str());
+      RISE_ASSERTES(pStrUri, CDomInternalException, "Can't create axuil_string");
 
-    pNewNamespace = axiom_namespace_create(m_pEnv, sUri.c_str(), szPrefix != NULL ? "" : szPrefix );
+      axis2_status_t nResult = axiom_namespace_set_uri_str(pNamespace, m_pEnv, pStrUri);
+      if (nResult != AXIS2_SUCCESS)
+      {
+        axutil_string_free(pStrUri, m_pEnv);
+        RISE_THROWS(CDomInternalException, "Failed to axiom_namespace_set_uri_str");
+      }
 
-    RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Can\'t create namespace");
-
-    axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
+      axutil_string_free(pStrUri, m_pEnv);
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -266,37 +272,80 @@ namespace staff
   void CDataObject::Create()
   {
     Detach();
+
     axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    Attach(pAxiomNode, true);
+    RISE_ASSERTS(pAxiomNode, "Failed to create axiom node");
+
+    axiom_element_t* pAxiomElement =
+      axiom_element_create(m_pEnv, NULL, "", NULL, &pAxiomNode);
+    if (!pAxiomElement)
+    {
+      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      RISE_THROWS(CDomInternalException, "Failed to create axiom element");
+    }
+
+    m_pAxiomElement = pAxiomElement;
+    m_pAxiomNode = pAxiomNode;
+    m_bOwner = true;
   }
 
   void CDataObject::Create( const std::string& sLocalName )
   {
     Detach();
+
     axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    RISE_ASSERT(pAxiomNode != NULL);
+    RISE_ASSERTS(pAxiomNode, "Failed to create axiom node");
 
-    axiom_element_create(m_pEnv, NULL, sLocalName.c_str(), NULL, &pAxiomNode);
+    axiom_element_t* pAxiomElement =
+      axiom_element_create(m_pEnv, NULL, sLocalName.c_str(), NULL, &pAxiomNode);
+    if (!pAxiomElement)
+    {
+      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      RISE_THROWS(CDomInternalException, "Failed to create axiom element");
+    }
 
-    Attach(pAxiomNode, true);
-    SetLocalName(sLocalName);
+    m_pAxiomElement = pAxiomElement;
+    m_pAxiomNode = pAxiomNode;
+    m_bOwner = true;
   }
 
   void CDataObject::Create( const CQName& rQName )
   {
     Detach();
 
-    axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    RISE_ASSERT(pAxiomNode != NULL);
-
-    axiom_namespace_t* pNamespace = axiom_namespace_create(m_pEnv, 
+    axiom_namespace_t* pAxiomNamespace = axiom_namespace_create(m_pEnv,
       rQName.GetNamespaceUri().c_str(), rQName.GetPrefix().c_str());
-    RISE_ASSERT(pNamespace != NULL);
 
-    axiom_element_create(m_pEnv, NULL, rQName.GetLocalPart().c_str(), pNamespace, &pAxiomNode);
+    RISE_ASSERTS(pAxiomNamespace, "Failed to create namespace");
 
-    Attach(pAxiomNode, true);
-    SetQName(rQName);
+    axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
+    if (!pAxiomNode)
+    {
+      axiom_namespace_free(pAxiomNamespace, m_pEnv);
+      RISE_THROWS(CDomInternalException, "Failed to create axiom node");
+    }
+
+    axiom_element_t* pAxiomElement =
+        axiom_element_create(m_pEnv, NULL, rQName.GetLocalPart().c_str(), pAxiomNamespace, &pAxiomNode);
+    if (!pAxiomElement)
+    {
+      axiom_namespace_free(pAxiomNamespace, m_pEnv);
+      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      RISE_THROWS(CDomInternalException, "Failed to create axiom element");
+    }
+
+    axis2_status_t nResult =
+        axiom_element_set_namespace(pAxiomElement, m_pEnv, pAxiomNamespace, pAxiomNode);
+    if (nResult != AXIS2_SUCCESS)
+    {
+      axiom_namespace_free(pAxiomNamespace, m_pEnv);
+      axiom_node_free_tree(pAxiomNode, m_pEnv); // element will be deleted too
+      RISE_THROWS(CDomInternalException, "Failed to set axiom namespace");
+    }
+
+    m_pAxiomElement = pAxiomElement;
+    m_pAxiomNode = pAxiomNode;
+    m_bOwner = true;
   }
 
   void CDataObject::Create( const std::string& sLocalName, const std::string& sText )
