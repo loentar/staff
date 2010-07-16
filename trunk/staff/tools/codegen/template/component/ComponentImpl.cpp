@@ -24,7 +24,7 @@ $(Project.OpeningNs)
       staff::PServiceWrapper tpServiceWrapper(new $(Class.NsName)Wrapper(this));
       m_mServices["$(Class.ServiceNsName)"] = tpServiceWrapper;
       staff::CServiceWrapperFactory::Inst().RegisterServiceWrapper("$(Class.ServiceNsName)", tpServiceWrapper);
-#ifeq($(Class.LoadAtStartup),true)
+#ifeq($(Class.Options.*loadAtStartup),true)
       // load service at startup
       staff::CServiceInstanceManager::Inst().CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, "$(Class.ServiceNsName)", "");
 #ifeqend

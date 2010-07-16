@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
-#include <rise/threading/SharedPtr.h>
+#include <memory>
 #include <rise/string/String.h>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -38,32 +38,25 @@ int main(int nArgs, const char* paszArgs[])
 {
   try
   {
-    {
-      // use anonymous account and instance "mycalc"
-      rise::CSharedPtr< ::samples::calc::CCalcService > pCalcService = 
-        staff::CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >("", "", "mycalc");
+    // use anonymous account and instance "mycalc"
+    std::auto_ptr< ::samples::calc::CCalcService > pCalcService(staff::CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >("", "", "mycalc"));
 
-      RISE_ASSERTES(pCalcService != NULL, rise::CLogicNoItemException, "Cannot get client for service calc.CalcService!");
+    RISE_ASSERTS(pCalcService.get(), "Cannot get client for service calc.CalcService!");
 
-      // Invoke Your service here:
-      rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
+    // Invoke Your service here:
+    rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
 
-      rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
+    rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
 
-      rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
+    rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
 
-      srand(static_cast<unsigned int>(time(NULL)));
-      int nNewMem = rand() % 100;
+    srand(static_cast<unsigned int>(time(NULL)));
+    int nNewMem = rand() % 100;
 
-      rise::LogInfo() << "Setting mem: " << nNewMem;
-      pCalcService->SetMem(nNewMem);
-      rise::LogInfo() << pCalcService->GetMem();
-      rise::LogInfo() << "Service mem: " << pCalcService->GetMem();
-    }
-  }
-  catch(const staff::CRemoteException& rEx)
-  {
-    rise::LogError() << rEx.GetDescr();
+    rise::LogInfo() << "Setting mem: " << nNewMem;
+    pCalcService->SetMem(nNewMem);
+    rise::LogInfo() << pCalcService->GetMem();
+    rise::LogInfo() << "Service mem: " << pCalcService->GetMem();
   }
   RISE_CATCH_ALL
 

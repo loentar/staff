@@ -211,19 +211,21 @@ namespace staff
     rNodeMember["Description"] = rMember.sDescr;
     rNodeMember.AddSubNode(" Operation detailed description ", CXMLNode::ENTCOMMENT);
     rNodeMember["Detail"] = rMember.sDetail;
-    rNodeMember.AddSubNode(" Soap action ", CXMLNode::ENTCOMMENT);
-    rNodeMember["SoapAction"] = rMember.sSoapAction;
-    rNodeMember.AddSubNode(" Soap request node name ", CXMLNode::ENTCOMMENT);
-    rNodeMember["NodeName"] = rMember.sNodeName;
-    rNodeMember.AddSubNode(" REST Method", CXMLNode::ENTCOMMENT);
-    rNodeMember["RestMethod"] = rMember.sRestMethod;
-    rNodeMember.AddSubNode(" REST Location", CXMLNode::ENTCOMMENT);
-    rNodeMember["RestLocation"] = rMember.sRestLocation;
+
     rNodeMember.AddSubNode(" Function is non-mutable ", CXMLNode::ENTCOMMENT);
     rNodeMember["IsConst"] = rMember.bIsConst;
     rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
     rNodeMember.AddSubNode(" Function is asynchronous ", CXMLNode::ENTCOMMENT);
     rNodeMember["IsAsynch"] = rMember.bIsAsynch;
+
+    rNodeMembers.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeMember.AddSubNode("Options");
+
+    for (TStringMap::const_iterator itOption = rMember.mOptions.begin();
+        itOption != rMember.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
 
     rNodeMember.AddSubNode("Params") << rMember.lsParamList;
 
@@ -289,9 +291,25 @@ namespace staff
     rNodeClass.AddSubNode(" Service detailed description ", CXMLNode::ENTCOMMENT);
     rNodeClass["Detail"] = rClass.sDetail;
     rNodeClass.AddSubNode(" Service URI ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ServiceUri"] = rClass.sServiceUri;
-    rNodeClass.AddSubNode(" Load service at startup ", CXMLNode::ENTCOMMENT);
-    rNodeClass["LoadAtStartup"] = rClass.bLoadAtStartup ? "true" : "false";
+
+    rNodeClass.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeClass.AddSubNode("Options");
+
+    for (TStringMap::const_iterator itOption = rClass.mOptions.begin();
+        itOption != rClass.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
+
+    rNodeClass.AddSubNode(" Axis2/c modules to engage ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeModules = rNodeClass.AddSubNode("Modules");
+
+    for (TStringList::const_iterator itModule = rClass.lsModules.begin();
+        itModule != rClass.lsModules.end(); ++itModule)
+    {
+      rNodeModules["Module"] = *itModule;
+    }
+
     rNodeClass.AddSubNode(" Service operations ", CXMLNode::ENTCOMMENT);
     rNodeClass.AddSubNode("Members") << rClass.lsMember;
 

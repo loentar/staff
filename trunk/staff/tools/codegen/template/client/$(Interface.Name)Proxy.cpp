@@ -4,13 +4,14 @@
 
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
+#include <rise/common/MutablePtr.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Value.h>
 #include <staff/client/ServiceFactory.h>
 #include <staff/client/IProxyAllocator.h>
 #include <staff/client/ICallback.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/client/Options.h>
 #else // types only interface
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
@@ -151,22 +152,37 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 {
   staff::IService::Init("$(Class.ServiceNsName)", sSessionId, sInstanceId);
   m_tClient.Init(!sServiceUri.empty() ? sServiceUri : \
-#ifeq($(Class.ServiceUri),)
+#ifeq($(Class.Options.*serviceUri),)
 "http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
 #else
-"$(Class.ServiceUri)"\
+"$(Class.Options.*serviceUri)"\
 #ifeqend
-, sSessionId);
-#ifneq($(Interface.TargetNamespace),)
-  m_tClient.SetTargetNamespace("$(Interface.TargetNamespace)");
+);
+#foreach $(Class.Modules)
+  m_tClient.EngageModule("$(Module)");
+#end
+  staff::COptions& rOptions = m_tClient.GetOptions();
+#ifneq($(Class.Options.*targetNamespace),)
+  rOptions.SetDefaultNamespace("$(Class.Options.*targetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
 #ifeqend
-  if (!staff::IService::GetInstanceId().empty())
+#ifneq($(Class.Options.*soapVersion),)
+  rOptions.SetSoapVersion(staff::COptions::Soap$(Class.Options.*soapVersion.!replace/.//));
+#ifeqend
+#ifneq($(Class.Options.*soapVersionUri),)
+  rOptions.SetSoapVersionUri("$(Interface.Options.*soapVersionUri)");
+#ifeqend
+
+  if (!sInstanceId.empty())
   {
     staff::COperation tOperation("CreateInstance");
-    tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
-    m_tClient.Invoke(tOperation);
-    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
-    m_tClient.SetInstanceId(sInstanceId);
+    tOperation.Request().CreateChild("sInstanceId").SetText(sInstanceId);
+    tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
+    if (m_tClient.GetLastResponseHasFault())
+    {
+      RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
+      RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+    }
+    rOptions.SetInstanceId(sInstanceId);
   }
 }
 
@@ -176,27 +192,98 @@ void $(Class.Name)Proxy::Deinit()
   {
     staff::COperation tOperation("FreeInstance");
     tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
-    m_tClient.Invoke(tOperation);
-    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
+    tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
+    if (m_tClient.GetLastResponseHasFault())
+    {
+      RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
+      RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+    }
   }
+}
+
+staff::CServiceClient* $(Class.Name)Proxy::GetClient()
+{
+  return &m_tClient;
 }
 
 #foreach $(Class.Members)
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
+#var PutOptions 0
+#foreach $(Member.Options) // check supported options to avoid cpp warning
+#ifeq($($ThisNodeName),soapAction||restEnable||restMethod||wsaAction||wsaTo||wsaFrom||wsaFaultTo||wsaUseSeparateListener||timeout)
+#var PutOptions 1
+#ifeqend
+#end
+#ifneq($($PutOptions),0)
+  staff::COptions& rOptions = m_tClient.GetOptions();
+#ifeqend
+#ifneq($(Member.Options.*soapAction),)
+  rOptions.SetSoapAction("$(Member.Options.*soapAction)");
+#ifeqend
+#ifneq($(Member.Options.*restEnable),)
+  rOptions.EnableRest($(Member.Options.*restEnable));
+#ifeqend
+#ifneq($(Member.Options.*restMethod),)
+  rOptions.SetHttpMethod("$(Member.Options.*restMethod)");
+#ifeqend
+#ifneq($(Member.Options.*wsaAction),)
+  rOptions.SetAction("$(Member.Options.*wsaAction)");
+#ifeqend
+#ifneq($(Member.Options.*wsaTo),)
+  rOptions.SetToAddress("$(Member.Options.*wsaTo)");
+#ifeqend
+#ifneq($(Member.Options.*wsaReplyTo),)
+  rOptions.SetReplyToAddress("$(Member.Options.*wsaReplyTo)");
+#ifeqend
+#ifneq($(Member.Options.*wsaFrom),)
+  rOptions.SetFromAddress("$(Member.Options.*wsaFrom)");
+#ifeqend
+#ifneq($(Member.Options.*wsaFaultTo),)
+  rOptions.SetFaultToAddress("$(Member.Options.*wsaFaultTo)");
+#ifeqend
+#ifneq($(Member.Options.*wsaUseSeparateListener),)
+  rOptions.UseSeparateListener($(Member.Options.*wsaUseSeparateListener));
+#ifeqend
+#ifneq($(Member.Options.*timeout),)
+  rOptions.SetTimeout("$(Member.Options.*timeout)");
+#ifeqend
+#ifeq($(Member.Options.*mep),||in-out)
+#var SendMethod Invoke
+#else
+#ifeq($(Member.Options.*mep),robust out-only)
+#var SendMethod SendRobust
+#ifneq($(Member.Return.Name),void)
+#cgerror Error: MEP is set to $(Member.Options.*mep) but return value is not void! In $(Class.Name)::$(Member.Name).
+#ifeqend
+#ifneq($(Member.IsAsynch),0)
+#cgerror Error: MEP is set to $(Member.Options.*mep) but operation is non blocking! Non-blocking operations must be in-out. In $(Class.Name)::$(Member.Name).
+#ifeqend
+#else
+#ifeq($(Member.Options.*mep),in-only)
+#var SendMethod Send
+#ifneq($(Member.Return.Name),void)
+#cgerror Error: MEP is set to $(Member.Options.*mep) but return value is not void! In $(Class.Name)::$(Member.Name).
+#ifeqend
+#ifneq($(Member.IsAsynch),0)
+#cgerror Error: MEP is set to $(Member.Options.*mep) but operation is non blocking! Non-blocking operations must be in-out. In $(Class.Name)::$(Member.Name).
+#ifeqend
+#else
+#cgerror unsupported MEP: "$(Member.Options.*mep)". Supported MEP are: in-out, robust out-only, in-only
+#ifeqend
+#ifeqend
+#ifeqend
+
 #var tCallbackParamName
   staff::COperation tOperation(\
-#ifneq($(Member.NodeName),)
-"$(Member.NodeName)"\
+#ifneq($(Member.Options.*requestElement),)
+"$(Member.Options.*requestElement)"\
 #else
 "$(Member.Name)"\
 #ifeqend
-, "$(Member.Return.ResponseName)", "$(Member.Return.NodeName)");
+, "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
 
-#ifneq($(Member.SoapAction),)
-  tOperation.SetSoapAction("$(Member.SoapAction)");
-#ifeqend
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
 #ifneq($(Param.DataType.Name),ICallback)
@@ -229,21 +316,33 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeq($($tCallbackParamName),)
   // synchronous call
-  m_tClient.Invoke(tOperation);
-  RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString());
-
+#ifeq($(Member.Return.Name),void)      // !!void!!
+  m_tClient.$($SendMethod)(tOperation.Request());
+#else
+  tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
+  if (m_tClient.GetLastResponseHasFault())
+  {
+    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
+    RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+  }
+#ifeqend
+\
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!void!!
+
   return const_cast<const staff::COperation&>(tOperation).ResultValue();
 #ifeqend
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
+
   return const_cast<const staff::COperation&>(tOperation).ResultValue();
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
+
   return tOperation.Result();
 #else
 #ifeq($(Member.Return.Type),struct||typedef||template)
+
   $(Member.Return.NsName) tReturn;
   tOperation.Result() >> tReturn;
   return tReturn;
@@ -256,7 +355,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else // is asynch
   // asynchronous call
   staff::PICallback tCallback(new $(Class.Name)$(Member.Name)AsynchCallProxy($($tCallbackParamName)));
-  m_tClient.Invoke(tOperation, tCallback);
+  m_tClient.Invoke(tOperation.Request(), tCallback);
 #ifeqend
 }
 #end

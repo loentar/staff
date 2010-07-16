@@ -1,5 +1,3 @@
-set projectname=client_blocking_non_blocking
-
 set target=%1%
 if "%target%" == "" (
   echo.

@@ -32,6 +32,6 @@ include $(MAKEFILES_DEP)
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
-VERSION=2.0.0-tp3
+VERSION=2.0.0-tp4
 
 include ../Makefile.distrib

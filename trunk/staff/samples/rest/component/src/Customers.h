@@ -55,16 +55,16 @@ namespace samples
           \return added customer id
         */
       // really there must be PUT
-      // restMethod: GET
-      // restLocation: Add?sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
+      // *restMethod: GET
+      // *restLocation: Add?sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
       virtual int Add(const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
       //! delete customer
       /*! \param nId - customer id to delete
         */
       // really there must be DELETE
-      // restMethod: GET
-      // restLocation: Delete?nId={nId}
+      // *restMethod: GET
+      // *restLocation: Delete?nId={nId}
       virtual void Delete(int nId) = 0;
 
       //! update customer
@@ -74,24 +74,24 @@ namespace samples
           \param nYear - year of birth
         */
       // really there must be POST
-      // restMethod: GET
-      // restLocation: Update?nId={nId}&sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
+      // *restMethod: GET
+      // *restLocation: Update?nId={nId}&sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
       virtual void Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
       //! get all customers
       /*! \return all customers
         */
-      // responseElement: Customers
-      // restMethod: GET
-      // restLocation: List
+      // *responseElement: Customers
+      // *restMethod: GET
+      // *restLocation: List
       virtual CustomersList List() = 0;
 
       //! get customer with given id
       /*! \return customer with given id
         */
-      // responseElement: Customer
-      // restMethod: GET
-      // restLocation: Get?nId={nId}
+      // *responseElement: Customer
+      // *restMethod: GET
+      // *restLocation: Get?nId={nId}
       virtual Customer Get(int nId) = 0;
 
     };

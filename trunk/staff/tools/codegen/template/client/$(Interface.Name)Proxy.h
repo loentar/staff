@@ -6,7 +6,7 @@
 #define _$(Interface.Name)Proxy_h_
 
 #ifneq($(Interface.Classes.$Count),0)
-#include <staff/client/Axis2Client.h>
+#include <staff/client/ServiceClient.h>
 #ifeqend
 #include <staff/common/WsdlTypes.h>
 #include "$(Interface.Name).h"
@@ -22,11 +22,12 @@ public:
   virtual ~$(Class.Name)Proxy();
   void Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId);
   void Deinit();
+  virtual staff::CServiceClient* GetClient();
 #foreach $(Class.Members)
   $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const);
 #end
 private:
-  mutable staff::CAxis2Client m_tClient;
+  mutable staff::CServiceClient m_tClient;
 };
 
 $(Class.EndingNs)

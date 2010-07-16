@@ -19,24 +19,28 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifndef _ECHO_H_
+#define _ECHO_H_
+
 #include <string>
 #include <staff/common/IService.h>
 
-namespace samples
-{
-  //! echo service sample
+  //! echo service
+  // *serviceUri: http://localhost:9090/axis2/services/echo
+  // *targetNamespace: http://ws.apache.org/axis2/services/echo
+  // *targetNamespacePrefix: ns1
   class Echo: public staff::IService
   {
   public:
-    //! destructor
-    virtual ~Echo() {}
-
     //! echo string
-    /*! \param sEcho - input string
-        \param rCallback - callback
-        \return resulting string: "*" + sEcho + "*"
+    /*! \param text - input string
+        \return resulting string
         */
+    // *requestElement: echoString
+    // *responseElement: echoString
+    // *resultElement: text
     virtual void EchoString(const std::string& sEcho, staff::ICallback< const std::string& >& rCallback) = 0;
   };
-}
+
+#endif // _ECHO_H_
 

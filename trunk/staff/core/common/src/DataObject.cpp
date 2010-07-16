@@ -136,6 +136,11 @@ namespace staff
     return m_pAxiomNode;
   }
 
+  CDataObject::operator axiom_element_t*()
+  {
+    return m_pAxiomElement;
+  }
+
   bool CDataObject::IsInit() const
   {
     return (m_pAxiomNode != NULL && m_pAxiomElement != NULL);

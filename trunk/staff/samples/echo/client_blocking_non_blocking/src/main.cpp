@@ -35,18 +35,18 @@ int main(int nArgs, const char* paszArgs[])
 {
   try
   {
-    std::auto_ptr< ::samples::Echo > pEcho1(::staff::CServiceFactory::Inst().GetService< ::samples::Echo >());
-    std::auto_ptr< ::samples::Echo > pEcho2(::staff::CServiceFactory::Inst().GetService< ::samples::Echo >());
+    std::auto_ptr< Echo > pEcho1(::staff::CServiceFactory::Inst().GetService< Echo >());
+    std::auto_ptr< Echo > pEcho2(::staff::CServiceFactory::Inst().GetService< Echo >());
 
-    RISE_ASSERTES(pEcho1.get(), rise::CLogicNoItemException, "Cannot get client for service samples.Echo!");
-    RISE_ASSERTES(pEcho2.get(), rise::CLogicNoItemException, "Cannot get client for service samples.Echo!");
+    RISE_ASSERTS(pEcho1.get(), "Cannot get client for service echo!");
+    RISE_ASSERTS(pEcho2.get(), "Cannot get client for service echo!");
 
     // Invoke Your service here:
     EchoEchoStringCallback tEchoEchoStringCallback;
-    pEcho1->EchoString("test1", tEchoEchoStringCallback);
+    pEcho1->EchoString("Hello World! (asynch)", tEchoEchoStringCallback);
 
     // using second client to call service while first client processing request
-    std::string tEchoStringResult = pEcho2->EchoString("test2");
+    std::string tEchoStringResult = pEcho2->EchoString("Hello World! (synch)");
     rise::LogInfo() << "EchoString result: " << tEchoStringResult;
 
     // Wait for asynch call is completed
@@ -55,10 +55,6 @@ int main(int nArgs, const char* paszArgs[])
       rise::threading::CThread::Sleep(1000);
     }
 
-  }
-  catch(const staff::CRemoteException& rEx)
-  {
-    rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL
 

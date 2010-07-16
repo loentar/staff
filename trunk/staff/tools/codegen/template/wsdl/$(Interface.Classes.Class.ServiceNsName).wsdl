@@ -8,8 +8,8 @@
 #var TargetNamespace http://tempui.org/$(Interface.Classes.Class.ServiceNsName)
 #ifeqend
 \
-#ifneq($(Interface.Classes.Class.ServiceUri),)
-#var ServiceUri $(Interface.Classes.Class.ServiceUri)
+#ifneq($(Interface.Classes.Class.Options.*serviceUri),)
+#var ServiceUri $(Interface.Classes.Class.Options.*serviceUri)
 #else
 #ifneq($($serviceuri),)
 #var ServiceUri $($serviceuri)
@@ -239,8 +239,8 @@ $(Member.Return.Name)\
 #foreach $(Class.Members)
     <wsdl:operation name="$(Member.Name)">
       <soap:operation soapAction="\
-#ifneq($(Member.SoapAction),)
-$(Member.SoapAction)\
+#ifneq($(Member.Options.*soapAction),)
+$(Member.Options.*soapAction)\
 #else
 $(Interface.Classes.Class.ServiceName)#$(Member.Name)\
 #ifeqend

@@ -172,10 +172,34 @@ namespace staff
             return;
           }
         }
+        // prefix is not found, empty assumed
+        return;
       }
     }
 
-    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
+    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
+                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
+  }
+
+
+  void GetNsPrefix(const rise::xml::CXMLNode& rNode, const std::string& sNamespaceUri, std::string& sPrefix)
+  {
+    for (const rise::xml::CXMLNode* pNode = &rNode; pNode != NULL; pNode = pNode->GetParent())
+    {
+      const rise::xml::CXMLNode::TXMLNsList& rNsList = pNode->GetNsList();
+      for (rise::xml::CXMLNode::TXMLNsList::const_iterator itNs = rNsList.begin();
+        itNs != rNsList.end(); ++itNs)
+      {
+        if (itNs->sUri == sNamespaceUri)
+        {
+          sPrefix = itNs->sNs;
+          return;
+        }
+      }
+    }
+
+    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
+                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
   }
 
   const std::string& GetTns(const rise::xml::CXMLNode& rNode)
@@ -631,7 +655,7 @@ namespace staff
         rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = itNodePart->FindAttribute("element");
         if (itAttrType != itNodePart->AttrEnd())
         {
-          rMember.sNodeName = StripPrefix(itAttrType->sAttrValue.AsString());
+          rMember.mOptions["requestElement"] = StripPrefix(itAttrType->sAttrValue.AsString());
         }
       }
     }
@@ -799,7 +823,7 @@ namespace staff
         rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAddress = itNodePort->FindSubnode("address");
         if (itNodeAddress != itNodePort->NodeEnd())
         {
-          rClass.sServiceUri = itNodeAddress->Attribute("location").AsString();
+          rClass.mOptions["serviceUri"] = itNodeAddress->Attribute("location").AsString();
         }
       }
 
@@ -814,7 +838,7 @@ namespace staff
         {
           SMember tOperationMember;
           ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
-          ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, tOperationMember.sSoapAction);
+          ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, tOperationMember.mOptions["soapAction"]);
           rClass.lsMember.push_back(tOperationMember);
         }
       }
@@ -850,32 +874,31 @@ namespace staff
       RISE_ASSERTES(bSchema || rRootNode.NodeName() == "definitions", rise::CLogicFormatException,
         "Invalid wsdl/xsd root node name: [" + rRootNode.NodeName() + "]");
 
-      SWsdlTypes stWsdlTypes;
       if (!bSchema)
       {
-        stWsdlTypes.Parse(rRootNode, rProject, m_stInterface);
+        m_stWsdlTypes.Parse(rRootNode, rProject, m_stInterface);
       }
       else
       {
-        stWsdlTypes.ParseSchema(rRootNode);
+        m_stWsdlTypes.ParseSchema(rRootNode);
       }
 
-      for (TComplexTypeMap::const_iterator itComplex = stWsdlTypes.mComplexTypes.begin();
-            itComplex != stWsdlTypes.mComplexTypes.end(); ++itComplex)
+      for (TComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
+            itComplex != m_stWsdlTypes.mComplexTypes.end(); ++itComplex)
       {
-        ComplexTypeToData(itComplex->second, stWsdlTypes);
+        ComplexTypeToData(itComplex->second, m_stWsdlTypes);
       }
 
-      for (TSimpleTypeMap::const_iterator itSimple = stWsdlTypes.mSimpleTypes.begin();
-        itSimple != stWsdlTypes.mSimpleTypes.end(); ++itSimple)
+      for (TSimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
+        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
       {
-        SimpleTypeToData(itSimple->second, stWsdlTypes);
+        SimpleTypeToData(itSimple->second, m_stWsdlTypes);
       }
 
-      for (TElementMap::const_iterator itElement = stWsdlTypes.mElements.begin();
-        itElement != stWsdlTypes.mElements.end(); ++itElement)
+      for (TElementMap::const_iterator itElement = m_stWsdlTypes.mElements.begin();
+        itElement != m_stWsdlTypes.mElements.end(); ++itElement)
       {
-        WriteInlineTypes(itElement->second, stWsdlTypes);
+        WriteInlineTypes(itElement->second, m_stWsdlTypes);
       }
 
       m_stInterface.lsStruct.sort(SortStructByParent);
@@ -884,7 +907,8 @@ namespace staff
       {
         SClass tServiceClass;
 
-        ParseService(tServiceClass, rRootNode, stWsdlTypes);
+        ParseService(tServiceClass, rRootNode, m_stWsdlTypes);
+        tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
         m_stInterface.lsClass.push_back(tServiceClass);
       }
     }
@@ -939,6 +963,11 @@ namespace staff
       }
 
       return m_stInterface;
+    }
+
+    const SWsdlTypes& GetWsdlTypes()
+    {
+      return m_stWsdlTypes;
     }
 
   private:
@@ -1143,6 +1172,26 @@ namespace staff
           rDataType.sName = "bool";
         }
         else
+        if (stQName.sName == "integer")
+        {
+          rDataType.sName = "int";
+        }
+        else
+        if (stQName.sName == "unsignedLong")
+        {
+          rDataType.sName = "unsigned long";
+        }
+        else
+        if (stQName.sName == "unsignedInt")
+        {
+          rDataType.sName = "unsigned int";
+        }
+        else
+        if (stQName.sName == "unsignedShort")
+        {
+          rDataType.sName = "unsigned short";
+        }
+        else
         if (stQName.sName == "decimal" ||
           stQName.sName == "duration" ||
           stQName.sName == "dateTime" ||
@@ -1170,14 +1219,10 @@ namespace staff
           stQName.sName == "ID" ||
           stQName.sName == "IDREF" ||
           stQName.sName == "ENTITY" ||
-          stQName.sName == "integer" ||
           stQName.sName == "nonPositiveInteger" ||
           stQName.sName == "negativeInteger" ||
           stQName.sName == "nonNegativeInteger" ||
           stQName.sName == "byte" ||
-          stQName.sName == "unsignedLong" ||
-          stQName.sName == "unsignedInt" ||
-          stQName.sName == "unsignedShort" ||
           stQName.sName == "unsignedByte" ||
           stQName.sName == "positiveInteger" ||
           stQName.sName == "anySimpleType")
@@ -1254,22 +1299,21 @@ namespace staff
         return "";
       }
 
-      nPosBegin = sNamespace.find_last_of("/", sNamespace.size() - nPosBegin + 1);
-      if (nPosBegin == std::string::npos)
+      std::string::size_type nPosNewBegin = sNamespace.find_last_of("/");
+      if (nPosNewBegin == std::string::npos || nPosNewBegin < nPosBegin)
       {
         return "";
       }
-      ++nPosBegin;
+      nPosBegin = nPosNewBegin + 1;
 
       std::string::size_type nPosEnd = sNamespace.find_last_of('.');
-      if (nPosEnd == std::string::npos)
+      if (nPosEnd == std::string::npos || nPosEnd < nPosBegin)
       {
         return "";
       }
 
       sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
 
-      rise::StrReplace(sResult, ".", "::", true);
       return "::" + sResult + "::";
     }
 
@@ -1306,11 +1350,20 @@ namespace staff
 
   private:
     SInterface m_stInterface;
+    SWsdlTypes m_stWsdlTypes;
   };
 
   void SWsdlTypes::Parse(rise::xml::CXMLNode& rNodeWsdl, SProject& rProject, SInterface& rInterface)
   {
     // import all before parsing schema
+    // import xsd in definitions
+    for(rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNodeWsdl.FindSubnode("import");
+      itNodeChild != rNodeWsdl.NodeEnd(); itNodeChild = rNodeWsdl.FindSubnode("import", ++itNodeChild))
+    {
+      Import(*itNodeChild, rProject, rInterface);
+    }
+
+    // import xsd in types
     for(rise::xml::CXMLNode::TXMLNodeIterator itTypes = rNodeWsdl.FindSubnode("types");
         itTypes != rNodeWsdl.NodeEnd(); itTypes = rNodeWsdl.FindSubnode("types", ++itTypes))
     {
@@ -1368,14 +1421,79 @@ namespace staff
     }
   }
 
+  void ReplacePrefix(SElement& rElement, const std::string& sNamespace, const std::string& sPrefix);
+
+  void ReplacePrefix(SComplexType& rComplexType, const std::string& sNamespace, const std::string& sPrefix)
+  {
+    if (rComplexType.sNamespace == sNamespace)
+    {
+      rComplexType.sPrefix = sPrefix;
+    }
+
+    for (std::list<SElement>::iterator itElement = rComplexType.lsElements.begin();
+        itElement != rComplexType.lsElements.end(); ++itElement)
+    {
+      ReplacePrefix(*itElement, sNamespace, sPrefix);
+    }
+  }
+
+  void ReplacePrefix(SElement& rElement, const std::string& sNamespace, const std::string& sPrefix)
+  {
+    if (rElement.sNamespace == sNamespace)
+    {
+      rElement.sPrefix = sPrefix;
+    }
+
+    for (std::list<SSimpleType>::iterator itSimpleType = rElement.lsSimpleTypes.begin();
+        itSimpleType != rElement.lsSimpleTypes.end(); ++itSimpleType)
+    {
+      if (itSimpleType->sNamespace == sNamespace)
+      {
+        itSimpleType->sPrefix = sPrefix;
+      }
+    }
+
+    for (std::list<SComplexType>::iterator itComplexType = rElement.lsComplexTypes.begin();
+        itComplexType != rElement.lsComplexTypes.end(); ++itComplexType)
+    {
+      ReplacePrefix(*itComplexType, sNamespace, sPrefix);
+    }
+
+  }
+
   void SWsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, SProject& rProject, SInterface& rInterface)
   {
-    const std::string& sShemaLocation = rNodeImport.Attribute("schemaLocation");
+    const std::string& sImportNs = rNodeImport.Attribute("namespace");
+    std::string sShemaLocation;
+    rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = rNodeImport.FindAttribute("location");
+    if (itLocation != rNodeImport.AttrEnd())
+    {
+      sShemaLocation = itLocation->sAttrValue.AsString();
+    }
+    else
+    {
+      itLocation = rNodeImport.FindAttribute("schemaLocation");
+      RISE_ASSERTS(itLocation != rNodeImport.AttrEnd(), "Can't import: Can't get shema location");
+      sShemaLocation = itLocation->sAttrValue.AsString();
+    }
+
+    std::string sImportNsPrefix;
+    GetNsPrefix(rNodeImport, sImportNs, sImportNsPrefix);
 
     rise::LogDebug2() << "Importing: " << sShemaLocation;
 
     CWsdlParserImpl tWsdlParser;
     SInterface& rNewInterface = tWsdlParser.ParseFile(sShemaLocation, rProject);
+
+    // import operations
+    const SWsdlTypes& rImportedWsdlTypes = tWsdlParser.GetWsdlTypes();
+    for (TElementMap::const_iterator itElement = rImportedWsdlTypes.mElements.begin();
+        itElement != rImportedWsdlTypes.mElements.end(); ++itElement)
+    {
+      SElement& rElement = mElements[sImportNsPrefix + ":" + itElement->second.sName];
+      rElement = itElement->second;
+      ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
+    }
 
     // use extern structs
     for (std::list<SStruct>::const_iterator itStruct = rNewInterface.lsStruct.begin();

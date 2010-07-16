@@ -19,23 +19,32 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifndef _ECHO_H_
+#define _ECHO_H_
+
 #include <string>
 #include <staff/common/IService.h>
 
-namespace samples
-{
-  //! echo service sample
+  //! echo service
+  // uri: http://localhost:9090/axis2/services/echo
+  // targetNamespace: http://ws.apache.org/axis2/c/samples/echoString
   class Echo: public staff::IService
   {
   public:
-    //! destructor
-    virtual ~Echo() {}
-
     //! synchronous call
-    virtual std::string EchoString(const std::string& sEcho) = 0;
+    // wsaAction: http://ws.apache.org/axis2/c/samples/echoString
+    // requestElement: echoString
+    // responseElement: echoString
+    // resultElement: text
+    virtual std::string EchoString(const std::string& text) = 0;
 
     //! asynchronous call
+    // wsaAction: http://ws.apache.org/axis2/c/samples/echoString
+    // requestElement: echoString
+    // responseElement: echoString
+    // resultElement: text
     virtual void EchoString(const std::string& sEcho, staff::ICallback< const std::string& >& rCallback) = 0;
   };
-}
+
+#endif // _ECHO_H_
 
