@@ -119,6 +119,11 @@ namespace staff
     */
     operator axiom_node_t*();
 
+    //!         type cast operator to AxiOM element
+    /*! \return AxiOM element
+    */
+    operator axiom_element_t*();
+
     //!         tests if the DataObject is initialized or not
     /*! \return true if the DataObject is initialized
     */

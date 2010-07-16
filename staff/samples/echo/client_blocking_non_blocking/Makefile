@@ -1,6 +1,6 @@
 include ../../../Makefile.env
 
-TARGET = echo_client_blicking_non_blocking
+TARGET = echo_client_blocking_non_blocking
 TARGETNAME = $(TARGET)
 
 HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))

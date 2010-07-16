@@ -1,2 +1,0 @@
-
-samples/echo/component.dep: core/common.dep core/component.dep tools/codegen.dep tools/codegen_parsers/cpp.dep

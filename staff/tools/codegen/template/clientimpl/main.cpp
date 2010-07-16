@@ -72,7 +72,7 @@ int main(int nArgs, const char* paszArgs[])
 #foreach $(Interface.Classes)
     std::auto_ptr< $(Class.NsName) > p$(Class.ServiceName)(::staff::CServiceFactory::Inst().GetService< $(Class.NsName) >());
 
-    RISE_ASSERTES(p$(Class.ServiceName).get(), rise::CLogicNoItemException, "Cannot get client for service $(Class.ServiceNsName)!");
+    RISE_ASSERTS(p$(Class.ServiceName).get(), "Cannot get client for service $(Class.ServiceNsName)!");
 
     // Invoke Your service here:
 #foreach $(Class.Members)
@@ -129,10 +129,6 @@ $(Param.Name)\
 #end // Interface.Classes
 #ifeqend // (Interface.Classes.Count),0
 #end // Project.Interfaces
-  }
-  catch(const staff::CRemoteException& rEx)
-  {
-    rise::LogError() << rEx.GetDescr();
   }
   RISE_CATCH_ALL
 

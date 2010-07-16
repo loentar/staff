@@ -49,6 +49,7 @@ namespace staff
   public:
     const CXMLNode& GetNode(const std::string& sVariableName, const CXMLNode& rNode) const
     {
+      static CXMLNode tEmptyNode;
       const CXMLNode* pNode = &rNode;
       std::string::size_type nPos = sVariableName.find('.');
       std::string sVariable;
@@ -75,7 +76,22 @@ namespace staff
           }
           try
           {
-            pNode = &pNode->Subnode(sSubClass);
+            if (sSubClass[0] == '*')
+            {
+              CXMLNode::TXMLNodeConstIterator itNode = pNode->FindSubnode(sSubClass.substr(1));
+              if (itNode != pNode->NodeEnd())
+              {
+                pNode = &*itNode;
+              }
+              else
+              {
+                pNode = &tEmptyNode;
+              }
+            }
+            else
+            {
+              pNode = &pNode->Subnode(sSubClass);
+            }
           }
           catch(...)
           {
@@ -87,7 +103,9 @@ namespace staff
         }
       } else
       {
-        sVariable = sVariableName;
+        RISE_ASSERTS(pNode->NodeName() == sVariableName, "node name does not match current class: \""
+                     + pNode->NodeName() + "\" <=> \"" + sVariableName + "\"");
+        return rNode;
       }
 
       if (sVariable == "$Num")
@@ -149,6 +167,19 @@ namespace staff
         }
         return *pNode;
       }
+      else
+      if (sVariable[0] == '*') // optional node
+      {
+        CXMLNode::TXMLNodeConstIterator itNode = pNode->FindSubnode(sVariable.substr(1));
+        if (itNode != pNode->NodeEnd())
+        {
+          return *itNode;
+        }
+        else
+        {
+          return tEmptyNode;
+        }
+      }
 
       return pNode->Subnode(sVariable);
     }
@@ -182,30 +213,27 @@ namespace staff
       else
       if (sFunction.substr(0, 8) == "replace/")
       {
-        std::string::size_type nPosWhat = sFunction.find('/', 9);
+        std::string::size_type nPosWhatEnd = sFunction.find('/', 8);
 
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(9, nPosWhat - 9);
-          std::string sWith;
-          std::string::size_type nPosWith = sFunction.find('/', nPosWhat);
-          if (nPosWith != std::string::npos)
-          {
-            sWith = sFunction.substr(nPosWhat + 1, nPosWith - nPosWhat);
-          }
-          else
-          {
-            throw std::string("Can't get replace with");
-          }
-          rise::StrReplace(sResult, sWhat, sWith, true);
-          sFunction.erase(0, nPosWith);
-        }
-        else
+        if (nPosWhatEnd == std::string::npos)
         {
           throw std::string("Can't get what to replace");
         }
+
+        const std::string& sWhat = sFunction.substr(8, nPosWhatEnd - 8);
+
+        std::string::size_type nPosWith = sFunction.find('/', nPosWhatEnd + 1);
+        if (nPosWith == std::string::npos)
+        {
+          throw std::string("Can't get replace with");
+        }
+
+        const std::string& sWith = sFunction.substr(nPosWhatEnd + 1, nPosWith - nPosWhatEnd - 1);
+
+        rise::StrReplace(sResult, sWhat, sWith, true);
+        sFunction.erase(0, nPosWith + 1);
       }
       else
       if (sFunction.substr(0, 5) == "trim/")
@@ -309,7 +337,19 @@ namespace staff
         std::string sValue;
         if (sName[0] == '$')
         {
-          sValue = m_tVariables[sName.substr(1)];
+          if (sName == "$ThisNodeName")
+          {
+            sValue = rNode.NodeName();
+          }
+          else
+          if (sName == "$ThisNodeValue")
+          {
+            sValue = rNode.NodeContent().AsString();
+          }
+          else
+          {
+            sValue = m_tVariables[sName.substr(1)];
+          }
         }
         else
         {

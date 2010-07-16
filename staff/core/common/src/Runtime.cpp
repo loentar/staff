@@ -99,7 +99,6 @@ namespace staff
     CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv == m_pImpl->m_mEnv.end())
     {
-      rise::LogWarning() << "Creating new env: " << sEnvComponent;
       axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), AXIS2_LOG_LEVEL_TRACE);
       m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
       return pEnv;
@@ -117,7 +116,6 @@ namespace staff
       --itEnv->second.nCounter;
       if (itEnv->second.nCounter == 0)
       {
-        rise::LogWarning() << "Freeing env: " << sEnvComponent;
         axutil_env_free(itEnv->second.pEnv);
         m_pImpl->m_mEnv.erase(itEnv);
       }

@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <rise/threading/SharedPtr.h>
+#include <memory>
 #include <rise/string/String.h>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -39,10 +39,9 @@ int main(int nArgs, const char* paszArgs[])
   {
     std::string sSessionId;
     {
-      rise::CSharedPtr<staff::CLogin> pLogin = 
-        staff::CServiceFactory::Inst().GetService<staff::CLogin>();
+      std::auto_ptr<staff::CLogin> pLogin(staff::CServiceFactory::Inst().GetService<staff::CLogin>());
 
-      RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
+      RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
 
       // Invoke login service
       std::cout << "Session expiration = ";
@@ -60,10 +59,9 @@ int main(int nArgs, const char* paszArgs[])
     }
 
     {
-      rise::CSharedPtr<staff::CLogin> pLogin = 
-        staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionId);
+      std::auto_ptr<staff::CLogin> pLogin(staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionId));
 
-      RISE_ASSERTES(pLogin != NULL, rise::CLogicNoItemException, "Cannot get client for service Login!");
+      RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
 
       std::cout << "Validating session ";
       bool bSessionValid = pLogin->ValidateSession();

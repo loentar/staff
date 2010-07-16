@@ -43,8 +43,8 @@ namespace staff
 
     //!         allocate new object for work with service
     /*! examples:
-        rise::CSharedPtr<CCalculator> pCalculator = staff::CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator");
-        rise::CSharedPtr<CCalculator> pCalculator = staff::CServiceFactory::Inst().GetService<CCalculator>("", "", "mycalc");
+        std::auto_ptr<CCalculator> pCalculator(staff::CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator"));
+        std::auto_ptr<CCalculator> pCalculator(staff::CServiceFactory::Inst().GetService<CCalculator>("", "", "mycalc"));
 
         \param  sServiceUri - service URI
         \param  sSessionId - session id

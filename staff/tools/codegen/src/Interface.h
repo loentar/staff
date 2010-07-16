@@ -80,11 +80,8 @@ namespace staff
     bool               bIsConst;       //!<  operation is const
     std::string        sDescr;         //!<  operation description
     std::string        sDetail;        //!<  detailed description
-    std::string        sSoapAction;    //!<  soap action
-    std::string        sNodeName;      //!<  node name
-    std::string        sRestMethod;    //!<  REST method
-    std::string        sRestLocation;  //!<  REST location
-    bool               bIsAsynch;      //!<  operation is asynchronous
+    bool               bIsAsynch;      //!<  operation is asynchronous(client)
+    TStringMap         mOptions;       //!<  member metacomments options
 
     SMember():
       bIsConst(false), bIsAsynch(false)
@@ -99,8 +96,8 @@ namespace staff
     std::string         sNamespace;     //!<  namespace
     std::string         sDescr;         //!<  service description
     std::string         sDetail;        //!<  detailed description
-    std::string         sServiceUri;    //!<  default service URI
-    bool                bLoadAtStartup; //!<  load service at startup
+    TStringMap          mOptions;       //!<  class metacomments options
+    TStringList         lsModules;      //!<  axis2/c modules list to engage
     std::list<SMember>  lsMember;       //!<  service operations
   };
 

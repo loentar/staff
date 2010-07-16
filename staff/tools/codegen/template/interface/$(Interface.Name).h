@@ -14,12 +14,13 @@
 #var sOpeningNs
 #var sEndingNs
 \
-#ifneq($(Interface.TargetNamespace),||http://tempui.org/$(Class.ServiceNsName))
+#ifneq($(Interface.TargetNamespace),||http://tempui.org/$(Interface.Classes.*Class.*ServiceNsName))
 
-// targetNamespace: $(Interface.TargetNamespace)
+// *targetNamespace: $(Interface.TargetNamespace)
 #ifeqend // tns
 \
 #ifneq($(Interface.Structs.$Count),0)   //   structs forwarding
+
 #foreach $(Interface.Structs)
 #ifeq($(Struct.Extern),0)
 \
@@ -98,6 +99,7 @@ $($sNewOpeningNs)
 #ifeqend
 #end
   };
+
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
@@ -121,9 +123,9 @@ $($sNewOpeningNs)
 #ifneq($(Class.Detail),)
   /*! $(Class.Detail) */
 #ifeqend
-#ifneq($(Class.ServiceUri),)
-  // uri: $(Class.ServiceUri)
-#ifeqend
+#foreach $(Class.Options)
+  // *$($ThisNodeName): $($ThisNodeValue)
+#end
   class $(Class.Name): public staff::IService
   {
   public:
@@ -137,18 +139,9 @@ $($sNewOpeningNs)
 #ifneq($(Member.Detail),)
     /*! $(Member.Detail) */
 #ifeqend
-#ifneq($(Member.SoapAction),||$(Class.ServiceName)#$(Member.Name))
-    // soapAction: $(Member.SoapAction)
-#ifeqend
-#ifneq($(Member.NodeName),||$(Member.Name))
-    // requestElement: $(Member.NodeName)
-#ifeqend
-#ifneq($(Member.Return.ResponseName),||$(Member.Name)Result)
-    // responseElement: $(Member.Return.ResponseName)
-#ifeqend
-#ifneq($(Member.Return.NodeName),)
-    // resultElement: $(Member.Return.NodeName)
-#ifeqend
+#foreach $(Member.Options)
+    // *$($ThisNodeName): $($ThisNodeValue)
+#end
     virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const) = 0;
 #end
   };

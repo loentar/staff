@@ -728,14 +728,6 @@ namespace staff
     {
       char chTmp = '\0';
       std::string sTmp;
-      std::string sSoapAction;
-      std::string sDescr;
-      std::string sDetail;
-      std::string sRequestElement;
-      std::string sResponseElement;
-      std::string sResultElement;
-      std::string sRestMethod;
-      std::string sRestLocation;
 
       SkipWs();
       rClass.sNamespace = m_sCurrentNamespace;
@@ -751,93 +743,45 @@ namespace staff
         CSP_THROW("'{' after classname expected ", m_stInterface.sFileName, m_nLine);
       }
 
+      // parsing members
       while (m_tFile.good() && !m_tFile.eof())
       {
-        sSoapAction.erase();
-        sDescr.erase();
-        sDetail.erase();
-        sRequestElement.erase();
-        sResponseElement.erase();
-        sResultElement.erase();
-        sRestMethod.erase();
-        sRestLocation.erase();
-
+        SMember stMember;
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
           rise::StrTrim(sTmp);
           if (sTmp.size() != 0)
           {
-            if (sTmp.substr(0, 11) == "soapAction:")
+            if (sTmp[0] == '*') // codegen metacomment
             {
-              sSoapAction = sTmp.substr(12);
-              rise::StrTrimLeft(sSoapAction);
+              std::string::size_type nPos = sTmp.find(':', 1);
+              if (nPos != std::string::npos)
+              {  // add an option
+                std::string sName = sTmp.substr(1, nPos - 1);
+                std::string sValue = sTmp.substr(nPos + 1);
+                rise::StrTrim(sName);
+                rise::StrTrim(sValue);
+                stMember.mOptions[sName] = sValue;
+              }
             }
             else
             if (sTmp[0] == '!')
             {
               std::string sDescrTmp = sTmp.substr(1);
-              rise::StrTrimLeft(sDescrTmp);
-              if (sDescr.size() != 0)
+              rise::StrTrim(sDescrTmp);
+              if (stMember.sDescr.size() != 0)
               {
-                if (sDetail.size() != 0)
+                if (stMember.sDetail.size() != 0)
                 {
-                  sDetail += '\n';
+                  stMember.sDetail += '\n';
                 }
-                sDetail += sDescrTmp;
+                stMember.sDetail += sDescrTmp;
               }
               else
               {
-                sDescr = sDescrTmp;
+                stMember.sDescr = sDescrTmp;
               }
-            }
-            else
-            if (sTmp.substr(0, 12) == "description:")
-            {
-              std::string sDescrTmp = sTmp.substr(13);
-              rise::StrTrimLeft(sDescrTmp);
-              if (sDescr.size() != 0)
-              {
-                if (sDetail.size() != 0)
-                {
-                  sDetail += '\n';
-                }
-                sDetail += sDescrTmp;
-              }
-              else
-              {
-                sDescr = sDescrTmp;
-              }
-            }
-            else
-            if (sTmp.substr(0, 15) == "requestElement:")
-            {
-              sRequestElement= sTmp.substr(15);
-              rise::StrTrimLeft(sRequestElement);
-            }
-            else
-            if (sTmp.substr(0, 16) == "responseElement:")
-            {
-              sResponseElement = sTmp.substr(16);
-              rise::StrTrimLeft(sResponseElement);
-            }
-            else
-            if (sTmp.substr(0, 14) == "resultElement:")
-            {
-              sResultElement = sTmp.substr(14);
-              rise::StrTrimLeft(sResultElement);
-            }
-            else
-            if (sTmp.substr(0, 11) == "restMethod:")
-            {
-              sRestMethod = sTmp.substr(11);
-              rise::StrTrimLeft(sRestMethod);
-            }
-            else
-            if (sTmp.substr(0, 13) == "restLocation:")
-            {
-              sRestLocation = sTmp.substr(13);
-              rise::StrTrimLeft(sRestLocation);
             }
           }
           SkipWsOnly();
@@ -888,22 +832,14 @@ namespace staff
               CSP_THROW("Non-valid destructor: ~" + sTmp + " but expected ~" + rClass.sName, m_stInterface.sFileName, m_nLine);
           } else
           {
-            SMember stMember;
-
             ParseMember(stMember);
-            stMember.sDescr = sDescr;
-            stMember.sDetail = sDetail;
-            stMember.sSoapAction = sSoapAction;
-            stMember.sNodeName = sRequestElement;
-            stMember.stReturn.sName = sResponseElement;
-            stMember.stReturn.stDataType.sNodeName = sResultElement;
-            stMember.sRestMethod = sRestMethod;
-            stMember.sRestLocation = sRestLocation;
             rClass.lsMember.push_back(stMember);
           }
         }
         else
+        {
           CSP_THROW("all members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+        }
       }
     }
 
@@ -1093,11 +1029,11 @@ namespace staff
     void ParseHeaderBlock( SInterface& rInterface )
     {
       char chData = 0;
-      std::string sServiceUri;
       std::string sDescr;
       std::string sDetail;
       std::string sTmp;
-      bool bLoadAtStartup = false;
+      TStringMap mOptions;
+      TStringList lsModules;
 
       SkipWsOnly();
       while (ReadComment(sTmp))
@@ -1105,10 +1041,28 @@ namespace staff
         rise::StrTrim(sTmp);
         if (sTmp.size() != 0)
         {
-          if (sTmp.substr(0, 4) == "uri:")
+          if (sTmp[0] == '*') // codegen metacomment
           {
-            sServiceUri = sTmp.substr(5);
-            rise::StrTrimLeft(sServiceUri);
+            std::string::size_type nPos = sTmp.find(':', 1);
+            if (nPos != std::string::npos)
+            {  // add an option
+              std::string sName = sTmp.substr(1, nPos - 1);
+              std::string sValue = sTmp.substr(nPos + 1);
+              rise::StrTrim(sName);
+              rise::StrTrim(sValue);
+              if (sName == "engageModule")
+              {
+                lsModules.push_back(sValue);
+              }
+              else
+              {
+                if (sName == "targetNamespace")
+                {
+                  rInterface.sTargetNs = sValue;
+                }
+                mOptions[sName] = sValue;
+              }
+            }
           }
           else
           if (sTmp[0] == '!')
@@ -1127,37 +1081,6 @@ namespace staff
             {
               sDescr = sDescrTmp;
             }
-          }
-          else
-          if (sTmp.substr(0, 12) == "description:")
-          {
-            std::string sDescrTmp = sTmp.substr(13);
-            rise::StrTrimLeft(sDescrTmp);
-            if (sDescr.size() != 0)
-            {
-              if (sDetail.size() != 0)
-              {
-                sDetail += '\n';
-              }
-              sDetail += sDescrTmp;
-            }
-            else
-            {
-              sDescr = sDescrTmp;
-            }
-          }
-          else
-          if (sTmp.substr(0, 14) == "loadAtStartup:")
-          {
-            std::string sLoadAtStartup = sTmp.substr(15);
-            rise::StrTrim(sLoadAtStartup);
-            bLoadAtStartup = sLoadAtStartup == "true";
-          }
-          else
-          if (sTmp.substr(0, 16) == "targetNamespace:")
-          {
-            rInterface.sTargetNs = sTmp.substr(17);
-            rise::StrTrimLeft(rInterface.sTargetNs);
           }
         }
         SkipWsOnly();
@@ -1225,8 +1148,8 @@ namespace staff
         ParseClass(stClass);
         stClass.sDescr = sDescr;
         stClass.sDetail = sDetail;
-        stClass.sServiceUri = sServiceUri;
-        stClass.bLoadAtStartup = bLoadAtStartup;
+        stClass.lsModules = lsModules;
+        stClass.mOptions = mOptions;
         rInterface.lsClass.push_back(stClass);
 
         SkipWs();
@@ -1237,11 +1160,10 @@ namespace staff
         }
 
         SkipSingleLineComment();
-
-        sServiceUri.erase();
+        lsModules.clear();
+        mOptions.clear();
         sDescr.erase();
         sDetail.erase();
-        bLoadAtStartup = false;
       } else
       if (sTmp == "struct")
       {

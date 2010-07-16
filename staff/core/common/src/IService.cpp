@@ -39,6 +39,11 @@ namespace staff
   {
   }
 
+  CServiceClient* IService::GetClient()
+  {
+    return NULL;
+  }
+
   const std::string& IService::GetServiceName() const
   {
     return m_sServiceName;

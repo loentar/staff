@@ -32,6 +32,8 @@ namespace rise
 
 namespace staff
 {
+  class CServiceClient;
+
   //! base service
   class STAFF_COMMON_EXPORT IService
   {
@@ -58,10 +60,18 @@ namespace staff
     const std::string& GetInstanceId() const;
 
     //! this function called after service construction and initialization
+    /*! server side function */
     virtual void OnCreate();
 
     //! this function called before service destruction
+    /*! server side function */
     virtual void OnDestroy();
+
+    //! get client
+    /*! client side function, in server side always returns NULL
+        \return pointer to service client
+      */
+    virtual CServiceClient* GetClient();
 
     //! internal function
     void Init(const std::string& sServiceName, const std::string& sSessionId, std::string sInstanceId);
