@@ -113,8 +113,9 @@ namespace staff
 
     //! invoke service asynchronously with dynamicaly allocated callback
     /*! MEP: In-Out
+        callback will be freed after calling
         \param  rdoPayload - request to service
-        \param  rCallback - result callback
+        \param  rpCallback - result callback
         */
     void Invoke(CDataObject& rdoPayload, PICallback& rpCallback);
 
