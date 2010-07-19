@@ -30,6 +30,10 @@ tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
 ./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
 make && sudo -E make install
+# установка примеров
+cd samples
+CFLAGS=-I$AXIS2C_HOME/include/axis2-1.6.0 LDFLAGS=-L$AXIS2C_HOME/lib ./configure --prefix=$AXIS2C_HOME
+make && sudo -E make install
 }}}
 
 *Внимание. Если Вы планируете передавать строки содержащие локальные символы,
