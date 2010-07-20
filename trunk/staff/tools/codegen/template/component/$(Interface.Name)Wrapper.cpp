@@ -39,12 +39,11 @@ $(Class.Name)Wrapper::~$(Class.Name)Wrapper()
 void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
 {
   const staff::CDataObject& rRequest = rOperation.Request();
-  staff::CDataObject& rResult = rOperation.Result();
   const std::string& sOperationName = rOperation.GetName();
 
   if (sOperationName == "GetServiceDescription")
   {
-    rResult = GetServiceDescription();
+    rOperation.SetResponse(GetServiceDescription());
   } else
   if (sOperationName == "CreateInstance")
   {
@@ -60,11 +59,15 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
   if (sOperationName == "$(Member.Name)")
   {
 #ifneq($(Member.Options.*responseElement),)
-    rOperation.SetResponseName("$(Member.Return.ResponseName)");
-#else
     rOperation.SetResponseName("$(Member.Options.*responseElement)");
+#else
+#ifneq($(Member.Return.ResponseName),)
+    rOperation.SetResponseName("$(Member.Return.ResponseName)");
 #ifeqend
+#ifeqend
+#ifneq($(Member.Options.*resultElement),)
     rOperation.SetResultName("$(Member.Options.*resultElement)");
+#ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
     $(Param.DataType.NsName) $(Param.Name);
@@ -123,7 +126,8 @@ $(Param.Name)\
     rOperation.Result().AppendChild(tResultDO);
 #ifeqend // end of function invokation
 #ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
-    rResult << tResult;
+    staff::CDataObject& rdoResult = rOperation.Result();
+    rdoResult << tResult;
 #ifeqend
   } else
 #end

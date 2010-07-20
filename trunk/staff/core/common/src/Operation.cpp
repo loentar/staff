@@ -47,6 +47,10 @@ namespace staff
   void COperation::SetResponseName( const std::string& sResponseName )
   {
     m_sResponseName = sResponseName;
+    if (m_tdoResponse.IsInit())
+    {
+      m_tdoResponse.SetLocalName(sResponseName);
+    }
   }
 
   const std::string COperation::GetResponseName() const
@@ -57,6 +61,10 @@ namespace staff
   void COperation::SetResultName( const std::string& sResultName )
   {
     m_sResultName = sResultName;
+    if (m_tdoResult.IsInit() && m_tdoResult != m_tdoRequest)
+    {
+      m_tdoResult.SetLocalName(sResultName);
+    }
   }
 
   const std::string& COperation::GetResultName() const
