@@ -23,6 +23,7 @@
 #ifndef _SERVICECLIENT_H_
 #define _SERVICECLIENT_H_
 
+#include "staffclientexport.h"
 #include <string>
 #include <memory>
 
@@ -39,7 +40,7 @@ namespace staff
   typedef std::auto_ptr< ICallback<const CDataObject&> > PICallback;
 
   //! service client
-  class CServiceClient
+  class STAFF_CLIENT_EXPORT CServiceClient
   {
   public:
     //! constructor

@@ -23,6 +23,7 @@
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
 
+#include "staffclientexport.h"
 #include <string>
 
 typedef struct axutil_env axutil_env_t;
@@ -30,7 +31,7 @@ typedef struct axis2_options axis2_options_t;
 
 namespace staff
 {
-  class COptions
+  class STAFF_CLIENT_EXPORT COptions
   {
   public:
     //! soap version

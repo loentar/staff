@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="echo_custom_client_non_blocking"
-	ProjectGUID=""
+	ProjectGUID="{8A1C6556-5368-4FC1-A4D6-B54E7F28C7DB}"
 	RootNamespace="echo_custom_client_non_blocking"
 	Keyword="Win32Proj"
 	>
@@ -31,7 +31,7 @@
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine=""
 				ExecutionBucket="2"
 			/>
 			<Tool
@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
@@ -125,7 +125,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -206,10 +206,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\EchoProxy.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
@@ -219,14 +215,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\src\Echo.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\EchoProxy.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>
