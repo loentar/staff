@@ -156,12 +156,20 @@ namespace staff
 
   void GetTns(const rise::xml::CXMLNode& rNode, std::string& sNamespaceUri, std::string& sPrefix)
   {
+    sNamespaceUri.erase();
+    sPrefix.erase();
+
     for (const rise::xml::CXMLNode* pNode = &rNode; pNode != NULL; pNode = pNode->GetParent())
     {
       rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = pNode->FindAttribute("targetNamespace");
       if (itAttr != pNode->AttrEnd())
       {
-        sNamespaceUri = itAttr->sAttrValue.AsString();
+        if (sNamespaceUri.empty()) // take only current targetNamespace
+        {
+          sNamespaceUri = itAttr->sAttrValue.AsString();
+        }
+
+        // find prefix everywhere in parent nodes
         const rise::xml::CXMLNode::TXMLNsList& rNsList = pNode->GetNsList();
         for (rise::xml::CXMLNode::TXMLNsList::const_iterator itNs = rNsList.begin();
           itNs != rNsList.end(); ++itNs)
@@ -172,13 +180,10 @@ namespace staff
             return;
           }
         }
-        // prefix is not found, empty assumed
-        return;
       }
     }
 
-    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
-                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
+    RISE_ASSERTS(!sNamespaceUri.empty(), "Can't find target namespace for node: " + rise::ToStr(rNode));
   }
 
 
