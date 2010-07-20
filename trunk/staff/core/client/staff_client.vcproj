@@ -191,11 +191,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Axis2Client.cpp"
+				RelativePath=".\src\IProxyAllocator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IProxyAllocator.cpp"
+				RelativePath=".\src\Options.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\ServiceClient.cpp"
 				>
 			</File>
 			<File
@@ -213,15 +217,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Axis2Client.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\ICallback.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\IProxyAllocator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Options.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\ServiceClient.h"
 				>
 			</File>
 			<File

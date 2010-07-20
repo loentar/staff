@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="echo_client_rest"
-	ProjectGUID="{8DA0ABEF-DFE2-427A-8027-973391D11D09}"
+	ProjectGUID="{AE6DDADB-A500-402A-BAF3-70F9C4B1233D}"
 	RootNamespace="echo_client_rest"
 	Keyword="Win32Proj"
 	>
@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
