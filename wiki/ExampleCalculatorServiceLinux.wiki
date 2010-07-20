@@ -121,20 +121,38 @@ COMPONENT_HOME = $(STAFF_HOME)/components/$(COMPONENT)/
 CXXFLAGS = -I$(STAFF_HOME)/include -fPIC
 LDFLAGS = -fPIC -L$(STAFF_HOME)/lib -lstaffcomponent -shared -Wl,-soname,$(TARGETNAME)
 
-SOURCES = $(wildcard $(SRCDIR)*.cpp)
+COMPONENT_SERVICES_HEADERS := $(SRCDIR)Calculator.h
+
+CODEGEN := $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp \
+    $(patsubst %.h,%Wrapper.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Wrapper.cpp,$(COMPONENT_SERVICES_HEADERS))
+
+CODEGEN_SOURCES := $(filter %.cpp,$(CODEGEN))
+
+SOURCES = $(filter-out $(CODEGEN_SOURCES) ,$(wildcard $(SRCDIR)*.cpp)) $(CODEGEN_SOURCES)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+.NOTPARALLEL: $(CODEGEN_SOURCES)
 
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
+$(OUTDIR)$(TARGETNAME): codegen $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
-	staff_codegen -twsdl $(SRCDIR)Calculator.h -o$(OUTDIR)
+	staff_codegen -twsdl $(SRCDIR)Calculator.h -o$(OUTDIR) # creating wsdl
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# == codegen ===========================================
+codegen: $(CODEGEN)
+
+$(SRCDIR)%Wrapper.h $(SRCDIR)%Wrapper.cpp:: $(SRCDIR)%.h
+	staff_codegen -csrc -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
+
+$(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp:: $(COMPONENT_SERVICES_HEADERS)
+	staff_codegen -csrc -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
 
 # == install ========================================
 install: check "$(COMPONENT_HOME)"
@@ -144,6 +162,7 @@ install: check "$(COMPONENT_HOME)"
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
+	rm -f $(CODEGEN)
 
 # == mkdir ==========================================
 "%/":

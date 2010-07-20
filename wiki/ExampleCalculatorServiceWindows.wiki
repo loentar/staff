@@ -129,9 +129,10 @@ Add these files into Solution:
 Right click to !samples.Calculator project, select "Add" => "Existing Item...".
 In opened dialog go inside "src" directory and add select !CalculatorWrapper.h !CalculatorWrapper.cpp !ComponentImpl.h !ComponentImpl.cpp.
 
-Click "Add".
+Click "Add".staff_codegen -tcomponent -csrc -u Calculator.h
+staff_codegen -twsdl -isrc -o$(ConfigurationName) -u Calculator.h
 
- _Please note that, when You change the service interface, You must regenerate wrapper._
+_Notice: Don't include this files in the source code archive/CVS. This files must generated automaticaly while project build started._
 
 == 6. Compilation ==
 
@@ -159,32 +160,31 @@ $(STAFF_HOME)\lib
 }}}
 Click "OK".
 
+In the "Build Events" subtree click "Pre-Build Event" and fill in the "Command Line" field as follows:
+{{{
+staff_codegen -tcomponent -csrc -u Calculator.h
+staff_codegen -twsdl -isrc -o$(ConfigurationName) -u Calculator.h
+}}}
+
 Set active solution configuration to release:
 
 Click "Build" => "Configuration manager". Click "Active solution configuration" dropdown box and select "Release". Click "Close".
 
 Compile the solution: "Build" => "Build Solution".
 
-== 7. Generating wsdl file ==
-
-To generate wsdl start command prompt from !Calculator\component\src directory and enter:
-{{{
-staff_codegen -twsdl Calculator.h
-}}}
-
-== 8. Installation ==
+== 7. Installation ==
 Open text editor and create file install.cmd in !Calculator\component directory.
 Copy and paste this code:
 {{{
 set installdir=%STAFF_HOME%\components\samples
 if not exist %installdir% mkdir %installdir%
 xcopy /Y /S Release\*.dll %installdir%
-xcopy /Y /S src\*.wsdl %installdir%
+xcopy /Y /S Release\*.wsdl %installdir%
 }}}
 
 Start install.cmd file to install component.
 
-== 9. Starting ==
+== 8. Starting ==
 Start command prompt from c:\ws\axis2c\bin directory and enter:
 {{{
 axis2_http_server
@@ -196,7 +196,7 @@ Your new service must shown as:
 
 ||<h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul>||
 
-== 10. Service's source directory structure ==
+== 9. Service's source directory structure ==
 
 Here is a described source directory tree of the Calculator service component.
 {{{
@@ -213,10 +213,10 @@ Calculator\component\component.vcproj           -- visual studio project file
 Calculator\component\component.sln              -- visual studio solution file
 }}}
 
-== 11. Create Calculator client ==
+== 10. Create Calculator client ==
 
 To learn how to create service's client please read ExampleCalculatorClientWindows
 
-== 12. Download source code ==
+== 11. Download source code ==
 
 *[http://staff.googlecode.com/files/samples.CalculatorComponent.7z Download]* source code of the Calculator service.

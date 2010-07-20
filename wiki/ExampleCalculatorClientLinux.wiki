@@ -53,8 +53,7 @@ CalculatorProxy.cpp
 Put Makefile as ~/devel/samples/Calculator/client/Makefile:
 
 {{{
-COMPONENT = samples
-TARGET = Calculator
+TARGET = calculator_client
 TARGETNAME = $(TARGET)
 
 PLATFORM ?= $(shell uname -m)
@@ -65,11 +64,17 @@ OUTDIR = out/$(PLATFORM)/
 CXXFLAGS += -Wno-deprecated -I$(STAFF_HOME)/include -fPIC
 LDFLAGS += -fPIC -L$(STAFF_HOME)/lib -lstaffclient
 
-SOURCES = $(wildcard $(SRCDIR)*.cpp)
+COMPONENT_SERVICES_HEADERS := $(SRCDIR)Calculator.h
+CODEGEN := $(patsubst %.h,%Proxy.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Proxy.cpp,$(COMPONENT_SERVICES_HEADERS))
+CODEGEN_SOURCES := $(filter %.cpp,$(CODEGEN))
+
+SOURCES = $(filter-out $(CODEGEN_SOURCES) ,$(wildcard $(SRCDIR)*.cpp)) $(CODEGEN_SOURCES)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
+.NOTPARALLEL: $(CODEGEN_SOURCES)
+
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
@@ -79,13 +84,17 @@ $(OUTDIR)$(TARGETNAME): $(OBJECTS)
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
+	staff_codegen -tclient -csrc -u $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
+
 # == install ========================================
-install: check "$(COMPONENT_HOME)"
-	cp -f $(OUTDIR)$(TARGETNAME) $(COMPONENT_HOME)
+install: check "$(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
 
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
+	rm -f $(CODEGEN)
 
 # == mkdir ==========================================
 "%/":
@@ -107,7 +116,7 @@ make
 
 == 7. Start client ==
 {{{
-out/*/Calculator
+out/*/calculator_client
 }}}
 
 You must see following results:
@@ -131,3 +140,4 @@ Calculator/client/Makefile                  -- Makefile
 == 9. Download source code ==
 
 *[http://staff.googlecode.com/files/samples.CalculatorClient.7z Download]* source code of Calculator client.
+

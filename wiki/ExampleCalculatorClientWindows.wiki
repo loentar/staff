@@ -39,6 +39,7 @@ std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
 
 
 == 5. Generating client Proxy ==
+
   _Proxy is a set of files, used to work with service_
 
 To generate client proxy start command prompt from !Calculator\client\src directory and enter:
@@ -52,13 +53,13 @@ CalculatorProxy.h
 CalculatorProxy.cpp
 }}}
 
-  _Please note, when You change the service interface, You must regenerate proxy._
-
 Add all files into Solution:
 
 Right click to "calculator_client" project, select "Add" => "Existing Item...".
 In opened dialog go inside "src" directory and select all files.
 Click "Add".
+
+_Notice: Don't include this files in the source code archive/CVS. This files must generated automaticaly while project build started._
 
 == 6. Compilation ==
 
@@ -83,6 +84,11 @@ Fill in the "Additional Library Directories" field as follows:
 $(STAFF_HOME)\lib
 }}}
 Click "OK".
+
+In the "Build Events" subtree click "Pre-Build Event" and fill in the "Command Line" field as follows:
+{{{
+staff_codegen -tclient -csrc -u Calculator.h
+}}}
 
 Set active solution configuration to release:
 
