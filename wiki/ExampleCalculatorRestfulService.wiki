@@ -4,7 +4,7 @@ We're using Calculator service from ExampleCalculatorServiceWindows or ExampleCa
 
 == 1. Enabling REST support in service ==
 
-To enable REST support for service you just need to write two special codegen metacomments:
+To enable REST support for any service you just need to write two special codegen metacomments:
 
 {{{
 // *restMethod: <REST_METHOD>
@@ -20,7 +20,7 @@ These comments should be added for each service operation, for which you want to
 Open Calculator/component/src/Calculator.h and add these lines before Add operation
 {{{
 // *restMethod: GET
-// *restLocation: Add/a={nA},b={nB}
+// *restLocation: Add
 }}}
 
 You should get:
@@ -51,11 +51,10 @@ http://localhost:9090/axis2/services/samples.Calculator/Add?nA=1&nB=2
 
 Service execution results must shown.
 
-== 4. Creating RESTful C++ client ==
+== 4. Modify C++ client to enable REST ==
 
-To learn how to create service's client please read ExampleCalculatorRestfulClient
+To learn how to modify Calculator client to enable REST, please read ExampleCalculatorRestfulClient
 
 == 5. Download source code ==
 
 [http://staff.googlecode.com/files/samples.RESTfulCalculatorComponent.7z Download] source code of the RESTful Calculator service.
-
