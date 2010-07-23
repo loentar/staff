@@ -1,0 +1,44 @@
+#summary Example: How to modify Calculator client to enable REST
+
+Use Calculator client from ExampleCalculatorClientWindows or ExampleCalculatorClientLinux.
+
+Also, service must be modified to enable REST: ExampleCalculatorRestfulService.
+
+== 1. Enabling REST support in client ==
+To enable REST support for client you just need to write two special codegen metacomments:
+
+{{{
+// *restEnable: <REST_ENABLE>
+// *restMethod: <REST_METHOD>
+// *wsaTo: <REST_SERVICE_LOCATION>
+}}}
+
+Where:
+  * `<REST_ENABLE>` is a flag to enable or disable using of REST to call given operation;
+  * `<REST_METHOD>` is one of GET, PUT, POST, DELETE as declared in the service;
+  * `<REST_SERVICE_LOCATION>` is URL to access service operation.
+
+== 2. Modifying Calculator client ==
+Open Calculator/client/src/Calculator.h and add these lines before Add operation
+{{{
+// *restEnable: true
+// *restMethod: GET
+// *wsaTo: http://localhost:9090/axis2/services/samples.Calculator/Add
+}}}
+
+Clean and compile client.
+
+== 3. Starting client ==
+
+Start client in [ExampleCalculatorClientWindows#7._Start_client Windows] or [ExampleCalculatorClientLinux#7._Start_client Linux]. You should get similar results.
+
+== 4. Dynamic modifying REST client options ==
+
+To learn how to modify REST client options dynamically, please look to:
+
+http://code.google.com/p/staff/source/browse/#svn/trunk/staff/samples/echo/client_rest/src
+
+== 5. Download source code ==
+
+[http://staff.googlecode.com/files/samples.RESTfulCalculatorClient.7z Download] source code of the RESTful Calculator service.
+
