@@ -213,6 +213,8 @@ staff/samples/calc/component/src/CalcServiceImpl.h
 staff/samples/calc/component/src/SubService.h
 staff/samples/calc/component/src/SubServiceImpl.cpp
 staff/samples/calc/component/src/SubServiceImpl.h
+staff/samples/calc/j2meclient/CalcClient/src/CalcClient.java
+staff/samples/calc/j2meclient/CalcClient/src/samples/calc/CalcService.java
 staff/samples/echo/client_blocking_addr/src/Echo.h
 staff/samples/echo/client_blocking_addr/src/main.cpp
 staff/samples/echo/client_blocking_dual/src/Echo.h
@@ -221,7 +223,6 @@ staff/samples/echo/client_blocking_non_blocking/src/Echo.h
 staff/samples/echo/client_blocking_non_blocking/src/main.cpp
 staff/samples/echo/client_blocking_soap11/src/Echo.h
 staff/samples/echo/client_blocking_soap11/src/main.cpp
-staff/samples/echo/client_blocking_soap11/src/Project1.xml
 staff/samples/echo/client_blocking/src/Echo.h
 staff/samples/echo/client_blocking/src/main.cpp
 staff/samples/echo/client_non_blocking_dual/src/Echo.h
@@ -283,6 +284,10 @@ staff/tools/codegen/template/component/ComponentImpl.h
 staff/tools/codegen/template/component/$(Interface.Name)Wrapper.cpp
 staff/tools/codegen/template/component/$(Interface.Name)Wrapper.h
 staff/tools/codegen/template/interface/$(Interface.Name).h
+staff/tools/codegen/template/j2meclient/codegen.config
+staff/tools/codegen/template/j2meclient/Service.java
+staff/tools/codegen/template/j2meclient/Struct.java
+staff/tools/codegen/template/j2meclient/Typedef.java
 staff/tools/codegen/template/jsclient/$(Interface.Name).js
 staff/tools/codegen/template/serviceimpl/$(Interface.Name)Impl.cpp
 staff/tools/codegen/template/serviceimpl/$(Interface.Name)Impl.h

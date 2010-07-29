@@ -3,9 +3,8 @@
 // DO NOT EDIT
 \
 #ifneq($(Interface.Namespace.!trim/:/),)
+
 namespace('$(Interface.Namespace.!trim/:/.!dot)');
-#else
-\
 #ifeqend
 
 #ifneq($(Interface.Structs.$Count),0)
@@ -19,8 +18,6 @@ function SerializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, rstStruct
   // serialize parent struct
   SerializeStruct_$(Struct.ParentNsName.!trim/:/.!mangle)(tOperation, rstStruct, tNode);
 
-#else
-\
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
@@ -490,8 +487,6 @@ $(Member.SoapAction)\
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
 
       return tOperation.ResultValue();
-#else                                   // !!void!!
-\
 #ifeqend
 #else // end generic
 #ifeq($(Member.Return.Type),string)    // !!string!!

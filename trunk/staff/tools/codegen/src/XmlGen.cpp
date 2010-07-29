@@ -290,7 +290,6 @@ namespace staff
     rNodeClass["Description"] = rClass.sDescr;
     rNodeClass.AddSubNode(" Service detailed description ", CXMLNode::ENTCOMMENT);
     rNodeClass["Detail"] = rClass.sDetail;
-    rNodeClass.AddSubNode(" Service URI ", CXMLNode::ENTCOMMENT);
 
     rNodeClass.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeClass.AddSubNode("Options");

@@ -217,20 +217,54 @@ namespace staff
 
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhatEnd == std::string::npos)
+        // what replace
+        // slash masking
+        for (;;)
         {
-          throw std::string("Can't get what to replace");
+          if (nPosWhatEnd == std::string::npos)
+          {
+            throw std::string("Can't get what to replace");
+          }
+          if (sFunction[nPosWhatEnd - 1] != '\\')
+          {
+            break;
+          }
+          nPosWhatEnd = sFunction.find('/', nPosWhatEnd + 1);
         }
 
-        const std::string& sWhat = sFunction.substr(8, nPosWhatEnd - 8);
+        std::string sWhat = sFunction.substr(8, nPosWhatEnd - 8);
+        rise::StrReplace(sWhat, "\\/", "/", true); // demasking
+        rise::StrReplace(sWhat, "\\n", "\n", true);
+        rise::StrReplace(sWhat, "\\r", "\r", true);
+        rise::StrReplace(sWhat, "\\t", "\t", true);
+        rise::StrReplace(sWhat, "\\\\", "\\", true);
 
+        ReplaceToValue(sWhat, rNode);
+
+        // replace with
         std::string::size_type nPosWith = sFunction.find('/', nPosWhatEnd + 1);
-        if (nPosWith == std::string::npos)
+        // slash masking
+        for (;;)
         {
-          throw std::string("Can't get replace with");
+          if (nPosWith == std::string::npos)
+          {
+            throw std::string("Can't get replace with");
+          }
+          if (sFunction[nPosWith - 1] != '\\')
+          {
+            break;
+          }
+          nPosWith = sFunction.find('/', nPosWith + 1);
         }
 
-        const std::string& sWith = sFunction.substr(nPosWhatEnd + 1, nPosWith - nPosWhatEnd - 1);
+        std::string sWith = sFunction.substr(nPosWhatEnd + 1, nPosWith - nPosWhatEnd - 1);
+        rise::StrReplace(sWith, "\\/", "/", true); // demasking
+        rise::StrReplace(sWith, "\\n", "\n", true);
+        rise::StrReplace(sWith, "\\r", "\r", true);
+        rise::StrReplace(sWith, "\\t", "\t", true);
+        rise::StrReplace(sWith, "\\\\", "\\", true);
+
+        ReplaceToValue(sWith, rNode);
 
         rise::StrReplace(sResult, sWhat, sWith, true);
         sFunction.erase(0, nPosWith + 1);
@@ -324,6 +358,43 @@ namespace staff
       return GetNode(sVariableName, rNode).NodeContent().AsString();
     }
 
+    std::string::size_type ReplaceToValueFindBracketMatch(std::string& sString,
+                                                          std::string::size_type nPosStart,
+                                                          const CXMLNode& rNode) const
+    {
+      int nRecursion = 1;
+      std::string::size_type nPosEnd = nPosStart;
+      while ((nPosEnd = sString.find_first_of("()", nPosEnd)) != std::string::npos)
+      {
+        if (sString[nPosEnd] == ')')
+        {
+          --nRecursion;
+          if (nRecursion == 0)
+          {
+            break;
+          }
+        }
+        else
+        { // == '('
+          // check for inline $()
+          if (sString[nPosEnd - 1] == '$')
+          {
+            std::string::size_type nInlineEnd = ReplaceToValueFindBracketMatch(sString, nPosEnd + 1, rNode);
+            RISE_ASSERTS(nInlineEnd != std::string::npos, "end of inline variable name expected: [" + sString + "]");
+            std::string sInline = sString.substr(nPosEnd - 1, nInlineEnd - nPosEnd + 2);
+            ReplaceToValue(sInline, rNode);
+            sString.replace(nPosEnd - 1, nInlineEnd - nPosEnd + 2, sInline);
+          }
+          else
+          {
+            ++nRecursion;
+          }
+        }
+        ++nPosEnd;
+      }
+      return nPosEnd;
+    }
+
     void ReplaceToValue(std::string& sString, const CXMLNode& rNode) const
     {
       std::string::size_type nPosStart = 0;
@@ -331,8 +402,9 @@ namespace staff
 
       while((nPosStart = sString.find("$(", nPosEnd)) != std::string::npos)
       {
-        nPosEnd = sString.find(')', nPosStart);
-        RISE_ASSERTS(nPosEnd != std::string::npos, "end of variable name expected");
+        nPosEnd = ReplaceToValueFindBracketMatch(sString, nPosStart + 2, rNode);
+
+        RISE_ASSERTS(nPosEnd != std::string::npos, "end of variable name expected: [" + sString + "]");
         const std::string& sName = sString.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
         std::string sValue;
         if (sName[0] == '$')
@@ -348,7 +420,20 @@ namespace staff
           }
           else
           {
-            sValue = m_tVariables[sName.substr(1)];
+            std::string::size_type nPos = sName.find('.');
+            if (nPos != std::string::npos)
+            {
+              const std::string& sVarName = sName.substr(1, nPos - 1);
+              sValue = m_tVariables[sVarName];
+              // process functions and other
+              rise::xml::CXMLNode tVarNode(sVarName);
+              tVarNode.NodeContent() = sValue;
+              sValue = GetNode(sName.substr(1), tVarNode).NodeContent().AsString();
+            }
+            else
+            {
+              sValue = m_tVariables[sName.substr(1)];
+            }
           }
         }
         else
@@ -363,13 +448,19 @@ namespace staff
     void Init(const std::string& sInDir)
     {
       std::list<std::string> tFileList;
-      rise::CFileFind::Find(sInDir, tFileList, "*.*", rise::CFileFind::EFA_FILE);
-      for (std::list<std::string>::const_iterator it = tFileList.begin(); it != tFileList.end(); ++it)
+
+      rise::CFileFind::Find(sInDir, tFileList, "codegen.config", rise::CFileFind::EFA_FILE);
+      m_bHasConfig = tFileList.size() != 0;
+      if (!m_bHasConfig)
       {
-        if (it->find('$') != std::string::npos)
-          m_tTemplateFileList.push_back(*it);
-        else
-          m_tConstFileList.push_back(*it);
+        rise::CFileFind::Find(sInDir, tFileList, "*.*", rise::CFileFind::EFA_FILE);
+        for (std::list<std::string>::const_iterator it = tFileList.begin(); it != tFileList.end(); ++it)
+        {
+          if (it->find('$') != std::string::npos)
+            m_tTemplateFileList.push_back(*it);
+          else
+            m_tConstFileList.push_back(*it);
+        }
       }
 
       m_sInDir = sInDir;
@@ -378,63 +469,84 @@ namespace staff
     void Start(const std::string& sOutDir, const CXMLNode& rRootNode, bool bUpdateOnly)
     {
       bool bNeedUpdate = false;
-      const CXMLNode& rNodeInterfaces = rRootNode.Subnode("Interfaces");
 
-      for (CXMLNode::TXMLNodeConstIterator itNode = rNodeInterfaces.NodeBegin();
-                itNode != rNodeInterfaces.NodeEnd(); ++itNode)
+      if (m_bHasConfig)
       {
-        if (itNode->NodeType() == CXMLNode::ENTGENERIC)
+        const std::string& sIn = m_sInDir + "/codegen.config";
+        std::ostringstream fsOut;
+        std::ifstream fsIn;
+
+        fsIn.open(sIn.c_str());
+        if (!fsIn.good())
         {
-          const CXMLNode& rNodeInterface = *itNode;
+          throw std::string("can't open input file: " + sIn);
+        }
 
-          for (std::list<std::string>::const_iterator itTemplateFile = m_tTemplateFileList.begin();
-              itTemplateFile != m_tTemplateFileList.end(); ++itTemplateFile)
+        m_nLine = 0;
+        Process(fsIn, fsOut, rRootNode);
+
+        fsIn.close();
+      }
+      else
+      {
+        const CXMLNode& rNodeInterfaces = rRootNode.Subnode("Interfaces");
+
+        for (CXMLNode::TXMLNodeConstIterator itNode = rNodeInterfaces.NodeBegin();
+                  itNode != rNodeInterfaces.NodeEnd(); ++itNode)
+        {
+          if (itNode->NodeType() == CXMLNode::ENTGENERIC)
           {
-            std::string sFile = *itTemplateFile;
-            bool bProcessFile = false;
-            try
-            {
-              ReplaceToValue(sFile, rNodeInterface);
-              bProcessFile = true;
-            }
-            catch(rise::CLogicNoItemException& )
-            {
-              rise::LogDebug1() << "Skipping template file " << sFile
-                  << " for interface " << rNodeInterface["NsName"].AsString();
-              continue;
-            }
+            const CXMLNode& rNodeInterface = *itNode;
 
-            if (bProcessFile)
+            for (std::list<std::string>::const_iterator itTemplateFile = m_tTemplateFileList.begin();
+                itTemplateFile != m_tTemplateFileList.end(); ++itTemplateFile)
             {
-              // erase input path
-              std::string::size_type nPos = sFile.find_last_of('/');
-              if (nPos != std::string::npos)
+              std::string sFile = *itTemplateFile;
+              bool bProcessFile = false;
+              try
               {
-                sFile.erase(0, nPos + 1);
+                ReplaceToValue(sFile, rNodeInterface);
+                bProcessFile = true;
+              }
+              catch(rise::CLogicNoItemException& )
+              {
+                rise::LogDebug1() << "Skipping template file " << sFile
+                    << " for interface " << rNodeInterface["NsName"].AsString();
+                continue;
               }
 
-              ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
-                          rNodeInterface, bUpdateOnly, bNeedUpdate);
+              if (bProcessFile)
+              {
+                // erase input path
+                std::string::size_type nPos = sFile.find_last_of('/');
+                if (nPos != std::string::npos)
+                {
+                  sFile.erase(0, nPos + 1);
+                }
+
+                ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+                            rNodeInterface, bUpdateOnly, bNeedUpdate);
+              }
             }
           }
-        }
-      }
+        } // for interface
 
-      for (std::list<std::string>::const_iterator itTemplateFile = m_tConstFileList.begin();
-          itTemplateFile != m_tConstFileList.end(); ++itTemplateFile)
-      {
-        std::string sFile = *itTemplateFile;
-
-        // erase input path
-        std::string::size_type nPos = sFile.find_last_of('/');
-        if (nPos != std::string::npos)
+        for (std::list<std::string>::const_iterator itTemplateFile = m_tConstFileList.begin();
+            itTemplateFile != m_tConstFileList.end(); ++itTemplateFile)
         {
-          sFile.erase(0, nPos + 1);
-        }
+          std::string sFile = *itTemplateFile;
 
-        ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
-                    rRootNode, bUpdateOnly, bNeedUpdate);
-      }
+          // erase input path
+          std::string::size_type nPos = sFile.find_last_of('/');
+          if (nPos != std::string::npos)
+          {
+            sFile.erase(0, nPos + 1);
+          }
+
+          ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+                      rRootNode, bUpdateOnly, bNeedUpdate);
+        }
+      } // has config
     }
 
     void ProcessIfeq(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine, bool bNotEq = false)
@@ -452,9 +564,9 @@ namespace staff
         std::string::size_type nPosStart = sLine.find(",", 6);
         std::string::size_type nPosEnd = 0;
 
-        RISE_ASSERTS(nPosStart != std::string::npos, "#ifeq expression is invalid!");
+        RISE_ASSERTS(nPosStart != std::string::npos, "#ifeq expression is invalid!: \n----\n" + sLine + "\n----\n");
         nPosEnd = sLine.find(')', nPosStart);
-        RISE_ASSERTS(nPosEnd != std::string::npos, "#ifeq expression is invalid!");
+        RISE_ASSERTS(nPosEnd != std::string::npos, "#ifeq expression is invalid!: \n----\n" + sLine + "\n----\n");
 
         std::string sLeft = sLine.substr(nOffsetPos, nPosStart - nOffsetPos);
         std::string sRight = sLine.substr(nPosStart + 1, nPosEnd - nPosStart - 1);
@@ -527,9 +639,12 @@ namespace staff
           if (bCurrentBlock == bEq && nRecursion > 1)
             sLines += sLine;
           --nRecursion;
-        } else
+        }
+        else
         if (bCurrentBlock == bEq)
+        {
           sLines += sLine;
+        }
       }
 
       RISE_ASSERTS(nRecursion == 0, "Unexpected EOF while parsing: \n---------\n" + sLines + "\n------------\n");
@@ -592,11 +707,13 @@ namespace staff
 
       for (CXMLNode::TXMLNodeConstIterator itNode = rSubNode.NodeBegin();
         itNode != rSubNode.NodeEnd(); ++itNode)
+      {
         if (itNode->NodeType() == CXMLNode::ENTGENERIC)
         {
           std::istringstream ssStream(sLines);
           Process(ssStream, fsOut, *itNode);
         }
+      }
     }
 
     void ProcessInclude(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine)
@@ -615,7 +732,9 @@ namespace staff
       fsIncFile.open(sIncludeFileName.c_str());
 
       if (!fsIncFile.good())
+      {
         throw std::string("can't include file: " + sIncludeFileName);
+      }
 
       while (!fsIncFile.eof() && fsIncFile.good())
       {
@@ -635,7 +754,8 @@ namespace staff
         if (fsIn.peek() == '\n')
         {
           sLine = "\n";
-        } else
+        }
+        else
         {
           fsIn.get(sbData, '\n');
           sLine = sbData.str();
@@ -650,9 +770,9 @@ namespace staff
           }
           sbData.str("");
         }
+
         fsIn.ignore();
         fsIn.peek(); // for EOF
-
 
         if (sLine.substr(0, 5) == "#var ")
         {
@@ -693,11 +813,68 @@ namespace staff
         if (sLine.substr(0, 9) == "#foreach ")
         {
           ProcessForEach(fsIn, fsOut, rNode, sLine);
-        } else
+        }
+        else
+        if (sLine.substr(0, 10) == "#fileopen ")
+        {
+          std::string sFileName = sLine.substr(10);
+          ReplaceToValue(sFileName, rNode);
+          rise::StrTrim(sFileName);
+
+          if (sFileName.empty())
+          {
+            throw std::string("#fileopen: Filename is empty");
+          }
+
+          std::ofstream ofsFile(sFileName.c_str());
+          if (!ofsFile.good())
+          {
+            throw std::string("can't open output file: " + sFileName);
+          }
+          std::cout << "Generating " << sFileName << std::endl;
+          Process(fsIn, ofsFile, rNode);
+          ofsFile.close();
+        }
+        else
+        if (sLine.substr(0, 10) == "#fileclose")
+        {
+          return;
+        }
+        else
+        if (sLine.substr(0, 7) == "#mkdir ")
+        {
+          std::string sDirName = sLine.substr(7);
+          ReplaceToValue(sDirName, rNode);
+          rise::StrTrim(sDirName);
+
+          for (std::string::size_type nPos = 0; nPos != std::string::npos;)
+          {
+            nPos = sDirName.find('/', nPos + 1);
+            const std::string& sCurrDir = sDirName.substr(0, nPos);
+
+#ifndef WIN32
+            if (mkdir(sCurrDir.c_str(), 0755) == -1)
+            {
+              if (errno != EEXIST)
+              {
+                throw std::string("Failed to create dir: " + sCurrDir + strerror(errno));
+              }
+            }
+#else
+            int nRes = _mkdir(sCurrDir.c_str())
+            if (nRes != 0 && nRes != EEXIST)
+            {
+              throw std::string("Failed to create dir: " + sCurrDir + strerror(errno));
+            }
+#endif
+          }
+        }
+        else
         if (sLine.substr(0, 11) == "#cginclude ")
         {
           ProcessInclude(fsIn, fsOut, rNode, sLine);
-        } else
+        }
+        else
         if (sLine.substr(0, 11) == "#cgwarning ")
         {
           ReplaceToValue(sLine, rNode);
@@ -793,6 +970,7 @@ namespace staff
     mutable std::map<std::string, std::string> m_tVariables;
     std::string m_sInDir;
     int m_nLine;
+    bool m_bHasConfig;
   };
 
 
