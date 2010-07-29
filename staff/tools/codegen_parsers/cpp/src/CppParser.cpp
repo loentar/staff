@@ -154,6 +154,7 @@ namespace staff
 
     void ReadStr(std::string& sString, bool bSkipWS = true)
     {
+      sString.erase();
       if (bSkipWS)
       {
         SkipWs();
