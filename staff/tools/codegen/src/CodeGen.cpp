@@ -470,6 +470,8 @@ namespace staff
     {
       bool bNeedUpdate = false;
 
+      m_sOutDir = sOutDir;
+
       if (m_bHasConfig)
       {
         const std::string& sIn = m_sInDir + "/codegen.config";
@@ -826,6 +828,11 @@ namespace staff
             throw std::string("#fileopen: Filename is empty");
           }
 
+          if (!m_sOutDir.empty())
+          {
+            sFileName = m_sOutDir + '/' + sFileName;
+          }
+
           std::ofstream ofsFile(sFileName.c_str());
           if (!ofsFile.good())
           {
@@ -846,6 +853,11 @@ namespace staff
           std::string sDirName = sLine.substr(7);
           ReplaceToValue(sDirName, rNode);
           rise::StrTrim(sDirName);
+
+          if (!m_sOutDir.empty())
+          {
+            sDirName = m_sOutDir + '/' + sDirName;
+          }
 
           for (std::string::size_type nPos = 0; nPos != std::string::npos;)
           {
@@ -969,6 +981,7 @@ namespace staff
     std::list<std::string> m_tConstFileList;
     mutable std::map<std::string, std::string> m_tVariables;
     std::string m_sInDir;
+    std::string m_sOutDir;
     int m_nLine;
     bool m_bHasConfig;
   };
