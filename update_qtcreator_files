@@ -6,7 +6,7 @@ cd  ../staff-tmplist
 echo "cleaning copy..."
 make distclean >/dev/null 2>&1
 echo "generating file list..."
-find . -type f -name '*.h' -o -name '*.hpp' -o -name '*.cpp' -o -name '*.c' -o -name '*.xml' -o -name '*.js' -o -name '*.htm' -o -name '*.html' -o -name '*.css' -o -name '*.png'  -o -name '*.png' -o -name '*.gif' -o -name '*.wsdl' -o -name '*.xsd' | grep -vE '(deploy|out|obj)' | sed 's/^\.\///gm' | sort >staff.files
+find . -type f -name '*.h' -o -name '*.hpp' -o -name '*.cpp' -o -name '*.c' -o -name '*.xml' -o -name '*.js' -o -name '*.htm' -o -name '*.html' -o -name '*.css' -o -name '*.png'  -o -name '*.png' -o -name '*.gif' -o -name '*.wsdl' -o -name '*.xsd' -o -name '*.java' -o -name 'codegen.config' | grep -vE '(deploy|out|obj|Project1.xml)' | sed 's/^\.\///gm' | sort >staff.files
 echo "cleanup..."
 cp -f staff.files ../staff
 cd ..

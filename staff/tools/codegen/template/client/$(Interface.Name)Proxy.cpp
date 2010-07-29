@@ -320,12 +320,12 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   m_tClient.$($SendMethod)(tOperation.Request());
 #else
   tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
+#ifeqend
   if (m_tClient.GetLastResponseHasFault())
   {
     RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
     RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
   }
-#ifeqend
 \
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!void!!
