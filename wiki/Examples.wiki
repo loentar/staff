@@ -7,6 +7,7 @@ Windows examples:
   * [ExampleCalculatorNonBlocking How to modify C++ client to call services in non blocking mode]
   * [ExampleCalculatorRestfulService How to modify web service to support REST]
   * [ExampleCreatingCppClientFromWsdl How to create C++ client from WSDL]
+  * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME Wireless Toolkit]
 
 Linux examples:
   * [ExampleCalculatorServiceLinux Creating a Calculator service]
@@ -15,4 +16,4 @@ Linux examples:
   * [ExampleCalculatorNonBlocking How to modify C++ client to call services in non blocking mode]
   * [ExampleCalculatorRestfulService How to modify web service to support REST]
   * [ExampleCreatingCppClientFromWsdl How to create C++ client from WSDL]
-
+  * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME Wireless Toolkit]
