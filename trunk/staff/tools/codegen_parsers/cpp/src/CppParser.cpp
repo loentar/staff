@@ -1086,9 +1086,15 @@ namespace staff
         SkipWsOnly();
       }
 
-      if (m_tFile.peek() == '#') // preprocessor
+      chData = m_tFile.peek();
+      if (chData == '#') // preprocessor
       {
         ParsePreprocessorBlock();
+        return;
+      }
+      else
+      if (chData == '}') // end of namespace
+      {
         return;
       }
 
