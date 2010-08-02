@@ -385,11 +385,10 @@ pOnComplete, pOnError)
 $(Member.Return.ResponseName)\
 #ifeqend
 ', '$(Member.Return.NodeName)');
-    tOperation.SetSoapAction('\
-#ifneq($(Member.SoapAction),$(Class.ServiceName)#$(Member.Name))
-$(Member.SoapAction)\
+
+#ifneq($(Member.Options.*soapAction),||$(Class.ServiceName)#$(Member.Name))
+    tOperation.SetSoapAction('$(Member.Options.*soapAction)');
 #ifeqend
-');
 
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct) // !!struct!!
