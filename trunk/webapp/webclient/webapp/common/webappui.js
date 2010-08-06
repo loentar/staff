@@ -784,7 +784,7 @@ webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
 
     if (tOpt.bChecked != null)
     {
-      this.SetChecked(bChecked);
+      this.SetChecked(tOpt.bChecked);
     }
     
     return tDiv;

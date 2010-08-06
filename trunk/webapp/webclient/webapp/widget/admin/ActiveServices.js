@@ -34,12 +34,12 @@ webapp.widget.admin.ActiveServices.prototype.extend(webapp.widget.Widget.prototy
     tParentElem.appendChild(this.tFrame);
 
     var tFrameDoc = (this.tFrame.contentWindow || this.tFrame.window).document;
-    tFrameDoc.location = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services';
+    tFrameDoc.location = webapp.Env.protocol + webapp.Session.sHost + (webapp.Session.sPort ? (':' + webapp.Session.sPort) : '') + '/axis2/services';
     this.tFrame.className = "iframeHidden";
     this.tFrame.frameBorder = 'none';
     this.tFrame.visibility = 'hidden';
     addHandler(this.tFrame, 'load', this._OnFrameLoaded.bindAsEventListener(this));
-    
+
     this.tContentDiv = new webapp.ui.Div(tParentElem, { sClass: "divActiveServices" });
 
     this.tTable = new webapp.ui.Table(this.tContentDiv, { sClass: "tableActiveServices" });
@@ -60,12 +60,12 @@ webapp.widget.admin.ActiveServices.prototype.extend(webapp.widget.Widget.prototy
       }.bind(this)
     );
   },
-  
+
   _OnFrameLoaded: function(tEvent)
   {
     var tFrameDoc = (this.tFrame.contentWindow || this.tFrame.window).document;
     var tFontElem = tFrameDoc.getElementsByTagName('font')[0];
-    
+
     if(!tFontElem || !tFontElem.firstChild)
     { // sometimes firefox fully reinterprets document
       if (this.nRetry == 'undefined')
@@ -83,7 +83,7 @@ webapp.widget.admin.ActiveServices.prototype.extend(webapp.widget.Widget.prototy
 
     var tServiceRow;
     var tCellDescr;
-    
+
     for (var itServiceElem = tFontElem.firstChild; itServiceElem; itServiceElem = itServiceElem.nextSibling)
     {
       if (itServiceElem.nodeType == 1)
@@ -127,5 +127,5 @@ webapp.widget.admin.ActiveServices.prototype.extend(webapp.widget.Widget.prototy
       }
     }
   }
-  
+
 });

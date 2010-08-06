@@ -19,8 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-var Session = {};
-
-Session.sID = webapp.Env.Get('sessid', '');
-Session.sHost = webapp.Env.Get('host', document.location.hostname);
-Session.sPort = webapp.Env.Get('port', document.location.port);
+webapp.Session =
+{
+  sId: webapp.Env.Get('sessid', ''),
+  sHost: webapp.Env.Get('host', document.location.hostname),
+  sPort: webapp.Env.Get('port', document.location.port)
+};
