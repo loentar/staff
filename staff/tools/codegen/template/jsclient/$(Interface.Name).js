@@ -7,6 +7,7 @@
 namespace('$(Interface.Namespace.!trim/:/.!dot)');
 #ifeqend
 
+(function(){
 #ifneq($(Interface.Structs.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
@@ -63,7 +64,28 @@ function DeserializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, tNode)
   tResult.$(Param.Name) = new staff.DataObject();
   tResult.$(Param.Name).FromElement(tOperation.SubNode('$(Param.Name)', tNode));
 #else
+#ifeq($(Param.DataType.Type),string)
   tResult.$(Param.Name) = tOperation.SubNodeText('$(Param.Name)', tNode);
+#else
+#ifeq($(Param.DataType.Type),generic)
+#ifeq($(Param.DataType.Name),byte||int||long||short||unsigned)
+  tResult.$(Param.Name) = parseInt(tOperation.SubNodeText('$(Param.Name)', tNode));
+#else
+#ifeq($(Param.DataType.Name),float||double)
+  tResult.$(Param.Name) = parseFloat(tOperation.SubNodeText('$(Param.Name)', tNode));
+#else
+#ifeq($(Param.DataType.Name),bool)
+  tResult.$(Param.Name) = tOperation.SubNodeText('$(Param.Name)', tNode).toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Param.DataType.Name), parsing as string
+  tResult.$(Param.Name) = tOperation.SubNodeText('$(Param.Name)', tNode);
+#ifeqend
+#ifeqend
+#ifeqend
+#else
+#cgerror unsupported type: $(Param.DataType.Type)
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -146,16 +168,16 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
     SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)    // !!generic,string!!
-  tOperation.AddParameter('Item', rtType[i], tNode);
+    tOperation.AddParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject) // !!dataobject!!
-  tOperation.AddDataObjectParameter('Item', rtType[i], tNode);
+    tOperation.AddDataObjectParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
-  SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode))
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),template)    // !!template!!
-  SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode))
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -164,7 +186,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
 #ifeqend
 #ifeqend
   }
-#ifeqend
+#ifeqend // map || list
   return tNode;
 }
 #else // DataType.IsTemplate
@@ -209,21 +231,32 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.NsName),std::map)
   var aResult = {};
 #else
-  var aResult = new Array();
+  var aResult = [];
   var j = 0;
 #ifeqend
 
   for (var i = 0; i < tResult.childNodes.length; i++)
   {
-#ifeq($(Typedef.DataType.Type),generic||string)
-    if(tNode.firstChild == null) // $(Typedef.DataType.Type)
-    {
-      aResult[j] = '';
-    } else
-    {
-      aResult[j] = tResult.childNodes[i].firstChild.nodeValue;
-    }
+#ifeq($(Typedef.DataType.Type),string)
+    aResult[j] = tNode.firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : '';
+#else // string
+#ifeq($(Typedef.DataType.Type),generic)
+    aResult[j] =\
+#ifeq($(Typedef.DataType.Name),byte||int||long||short||unsigned)
+parseInt(tResult.childNodes[i].firstChild.nodeValue);
 #else
+#ifeq($(Typedef.DataType.Name),float||double)
+parseFloat(tResult.childNodes[i].firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.Name),bool)
+tResult.childNodes[i].firstChild.nodeValue.toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Param.DataType.Name), parsing as string
+tResult.childNodes[i].firstChild.nodeValue;
+#ifeqend
+#ifeqend
+#ifeqend
+#else // generic
 #ifeq($(Typedef.DataType.Type),struct)
 // *** struct1 $(Typedef.DataType.NsName)
     aResult[j++] = DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]);
@@ -236,7 +269,7 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
     aResult[j++] = tResult.childNodes[i]; // dataobject 2
 #else
 #ifeq($(Typedef.DataType.Type),template)  // !!      TEMPLATE        !!
-    if( tResult.childNodes[i].nodeName == 'Item')
+    if (tResult.childNodes[i].nodeName == 'Item')
     {
 #ifeq($(Typedef.DataType.NsName),std::map)
 //template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName), $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)>
@@ -253,11 +286,32 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
  pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
+ pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : '';
+#else // string
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),byte||int||long||short||unsigned)
+ parseInt(pKeyElem.firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),float||double)
+ parseFloat(pKeyElem.firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
+ pKeyElem.firstChild.nodeValue.toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Typedef.DataType.TemplateParams.TemplateParam1.Name), parsing as string
+ pKeyElem.firstChild != null ? pKeyElem.firstChild.nodeValue : '';
 #ifeqend
 #ifeqend
 #ifeqend
-      var tValue =\
+#else // generic
+#cgerror unsupported type: $(Typedef.DataType.TemplateParams.TemplateParam1.Type)
+#ifeqend // generic
+#ifeqend // string
+#ifeqend // dataobject
+#ifeqend // typedef
+#ifeqend // struct
+      aResult[tKey] =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)
  DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
@@ -267,27 +321,69 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
  pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
- pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
-#ifeqend
-#ifeqend
-#ifeqend
-      aResult[tKey] = tValue;
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)
+ pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : '';
+#else // string
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),byte||int||long||short||unsigned)
+ parseInt(pValueElem.firstChild.nodeValue);
 #else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),float||double)
+ parseFloat(pValueElem.firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),bool)
+ pValueElem.firstChild.nodeValue.toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Typedef.DataType.TemplateParams.TemplateParam2.Name), parsing as string
+ pValueElem.firstChild != null ? pValueElem.firstChild.nodeValue : '';
+#ifeqend
+#ifeqend
+#ifeqend
+#else
+#cgerror unsupported type: $(Typedef.DataType.TemplateParams.TemplateParam2.Type)
+#ifeqend // generic
+#ifeqend // string
+#ifeqend // dataobject
+#ifeqend // typedef
+#ifeqend // struct
+#else                              //   list
 //template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName)>
-    aResult[j++] =\
+      aResult[j++] =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
  DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
  DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
- tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : ''; // *** generic $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
+ tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : '';
+#else // string
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),byte||int||long||short||unsigned)
+ parseInt(tResult.childNodes[i].firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),float||double)
+ parseFloat(tResult.childNodes[i].firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
+ tResult.childNodes[i].firstChild.nodeValue.toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Typedef.DataType.TemplateParams.TemplateParam1.Name), parsing as string
+ tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : '';
 #ifeqend
 #ifeqend
+#ifeqend
+#else // generic
+#cgerror unsupported type: $(Typedef.DataType.TemplateParams.TemplateParam2.Type)
+#ifeqend // generic
+#ifeqend // string
+#ifeqend // typedef
+#ifeqend // struct
 #ifeqend // #ifeq($(Typedef.DataType.NsName),std::map)
     }
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -298,13 +394,29 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
   return aResult;
 #else // #ifeq($\(Typedef.DataType.IsTemplate),1) --------------------------------------------------------
 // not a container :: $(Typedef.DataType.NsName)
-  if(tNode == null)
+  if (tNode == null)
   {
     tNode = tOperation.ResultElement();
   }
-#ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
+#ifeq($(Typedef.DataType.Type),string)    // !!string!!
   return tNode.firstChild != null ? tNode.firstChild.nodeValue : '';
+#else // string
+#ifeq($(Typedef.DataType.Type),generic)
+#ifeq($(Typedef.DataType.Name),byte||int||long||short||unsigned)
+  return parseInt(tNode.firstChild.nodeValue);
 #else
+#ifeq($(Typedef.DataType.Name),float||double)
+  return parseFloat(tNode.firstChild.nodeValue);
+#else
+#ifeq($(Typedef.DataType.Name),bool)
+  return tNode.firstChild.nodeValue.toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Param.DataType.Name), parsing as string
+  return tNode.firstChild != null ? tNode.firstChild.nodeValue : '';
+#ifeqend
+#ifeqend
+#ifeqend
+#else // generic
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!!
   return tNode;
 #else
@@ -314,12 +426,13 @@ function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode
 #ifeq($(Typedef.DataType.Type),struct)    // !!typedef!!
   return DeserializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, tNode);
 #else
-#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#cgerror unsupported type: $(Typedef.DataType.Type)
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
+#ifeqend // generic
+#ifeqend // string
 }
 
 #ifeqend // ifeq not extern
@@ -339,7 +452,7 @@ $(Class.ServiceNsName).prototype =
   {
     if (!sServiceUri)
     {
-      sServiceUri = webapp.Env.protocol + Session.sHost + (Session.sPort ? (':' + Session.sPort) : '') + '/axis2/services/$(Class.ServiceNsName)';
+      sServiceUri = webapp.Env.protocol + webapp.Session.sHost + (webapp.Session.sPort ? (':' + webapp.Session.sPort) : '') + '/axis2/services/$(Class.ServiceNsName)';
     }
 
     if (!sTargetNamespace)
@@ -354,7 +467,7 @@ sServiceUri;
 
     this.sTargetNamespace = sTargetNamespace || sServiceUri;
 
-    this.tClient = new staff.Client(sServiceUri, sSessionId || Session.sID || '', sInstanceId);
+    this.tClient = new staff.Client(sServiceUri, sSessionId || webapp.Session.sId || '', sInstanceId);
   },
 
   destroy: function()
@@ -388,8 +501,8 @@ $(Member.Return.ResponseName)\
 
 #ifneq($(Member.Options.*soapAction),||$(Class.ServiceName)#$(Member.Name))
     tOperation.SetSoapAction('$(Member.Options.*soapAction)');
-#ifeqend
 
+#ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct) // !!struct!!
     SerializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
@@ -442,7 +555,22 @@ $(Member.Return.ResponseName)\
 #else
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
-          pOnComplete(tOperation.ResultValue(), tOperation);
+          pOnComplete(\
+#ifeq($(Member.Return.Name),byte||int||long||short||unsigned)
+parseInt(tOperation.ResultValue())\
+#else
+#ifeq($(Member.Return.Name),float||double)
+parseFloat(tOperation.ResultValue())\
+#else
+#ifeq($(Member.Return.Name),bool)
+tOperation.ResultValue().toLowerCase() in {"1":1, "true":1}\
+#else
+#cgwarning unsupported generic: $(Param.DataType.Name), parsing as string
+tOperation.ResultValue()\
+#ifeqend
+#ifeqend
+#ifeqend
+, tOperation);
 #else                                   // !!void!!
           pOnComplete(tOperation);
 #ifeqend
@@ -485,8 +613,22 @@ $(Member.Return.ResponseName)\
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
 
-      return tOperation.ResultValue();
+      return \
+#ifeq($(Member.Return.Name),byte||int||long||short||unsigned)
+parseInt(tOperation.ResultValue());
+#else
+#ifeq($(Member.Return.Name),float||double)
+parseFloat(tOperation.ResultValue());
+#else
+#ifeq($(Member.Return.Name),bool)
+tOperation.ResultValue().toLowerCase() in {"1":1, "true":1};
+#else
+#cgwarning unsupported generic: $(Param.DataType.Name), parsing as string
+tOperation.ResultValue();
 #ifeqend
+#ifeqend
+#ifeqend
+#ifeqend // not void
 #else // end generic
 #ifeq($(Member.Return.Type),string)    // !!string!!
       return tOperation.ResultValue();
@@ -503,5 +645,6 @@ $(Member.Return.ResponseName)\
 
 }
 
-#end
+#end // Interface.Classes
 
+})();

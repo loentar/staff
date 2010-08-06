@@ -19,7 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-if(typeof webapp == 'undefined')
+(function(){
+
+if (typeof webapp == 'undefined')
 {
   webapp = {};
 }
@@ -53,7 +55,7 @@ var _atIncludedCss = {};
     \param  fnCheckAvail - функция для проверки доступности либо массив строк, содержащий имена символов в файле
     \return null
     */
-function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
+Include = function( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
 {
   if(sBaseName instanceof Array)
   {
@@ -245,7 +247,7 @@ function Include( sBaseName, sBasePath, fnComplete, fnCheckAvail, fnError )
   }
 }
 
-function IncludeClass( asFullNames, sBasePath, fnComplete )
+IncludeClass = function( asFullNames, sBasePath, fnComplete )
 {
   var asBaseNames = new Array();
 
@@ -289,7 +291,7 @@ function IncludeClass( asFullNames, sBasePath, fnComplete )
 /*  \param  sBaseName - базовое имя файла без расширения либо массив имен файлов без расширения. пример: "Button" или [ "Button", "Edit" ]
     \param  sBasePath - базовый путь к скрипту. пример "css/"
     */
-function IncludeCss( sBaseName, sBasePath )
+IncludeCss = function( sBaseName, sBasePath )
 {
   if(sBaseName instanceof Array)
   {
@@ -330,7 +332,7 @@ function IncludeCss( sBaseName, sBasePath )
   }
 }
 
-function addHandler(tElement, sEvent, fHandler)
+addHandler = function(tElement, sEvent, fHandler)
 {
   if(tElement.addEventListener)
   {
@@ -349,7 +351,7 @@ function addHandler(tElement, sEvent, fHandler)
   }
 }
 
-function removeHandler(tElement, sEvent, fHandler)
+removeHandler = function(tElement, sEvent, fHandler)
 {
   if(tElement.removeEventListener)
   {
@@ -372,7 +374,7 @@ function removeHandler(tElement, sEvent, fHandler)
   }
 }
 
-function fireEvent(tElement, sEvent)
+fireEvent = function(tElement, sEvent)
 {
   if (document.createEventObject)
   {
@@ -389,7 +391,7 @@ function fireEvent(tElement, sEvent)
   }
 }
 
-function namespace(sNamespace)
+namespace = function(sNamespace)
 {
   var aNamespace = sNamespace.split('.');
   var sCurrentNamespace = '';
@@ -455,3 +457,5 @@ Object.prototype.clone = function(tCloneTo)
     return tClone;
   }
 }
+
+})()
