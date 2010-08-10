@@ -27,7 +27,10 @@ cd ~/devel/axis2c
 wget http://www.sai.msu.su/apache/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
 tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
+# for using guththila (more thread safe and faster than libxml, but UTF-8 is not fully implemented)
 ./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
+# for using libxml (supports UTF-8, but you can get race condition errors while working with xml, look issue 69 )
+#./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
 make && sudo -E make install
 # install axis2/c samples
 cd samples

@@ -28,7 +28,10 @@ cd ~/devel/axis2c
 wget http://apache.rinet.ru/dist/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
 tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
-./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
+# для использования guththila (более потокобезопасный, быстрый чем libxml, но поддержка UTF-8 реализована не полностью)
+#./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
+# для использования libxml (поддерживает UTF-8, но могут возникать ошибки типа race condition при обработке xml, см. issue 69 )
+./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
 make && sudo -E make install
 # установка примеров
 cd samples
@@ -37,7 +40,7 @@ make && sudo -E make install
 }}}
 
 *Внимание. Если Вы планируете передавать строки содержащие локальные символы,
-необходимо после распаковки axis2/c изменить кодировку по умолчанию:*
+необходимо 1) использовать libxml (guththila имеет проблемы с utf-8), 2) после распаковки axis2/c изменить кодировку по умолчанию:*
 В файле include/axis2_http_transport.h
 заменить строку
 {{{
