@@ -35,6 +35,16 @@ public class $(Class.ServiceName)
     Init(sServiceUri, null, null, null);
   }
 
+  public $(Class.ServiceName)(String sAddress, int nPort)
+  {
+    Init("http://" + sAddress + ":" + nPort + "/axis2/services/$(Class.ServiceNsName)", null, null, null);
+  }
+
+  public $(Class.ServiceName)(String sAddress, int nPort, String sSessionId, String sInstanceId)
+  {
+    Init("http://" + sAddress + ":" + nPort + "/axis2/services/$(Class.ServiceNsName)", sSessionId, sInstanceId, null);
+  }
+
   public $(Class.ServiceName)()
   {
     Init(null, null, null, null);
@@ -42,12 +52,12 @@ public class $(Class.ServiceName)
 
   protected void Init(String sServiceUri, String sSessionId, String sInstanceId, String sTargetNamespace)
   {
-    if (sServiceUri == null || sServiceUri == "")
+    if (sServiceUri == null || sServiceUri.equals(""))
     {
       sServiceUri = "http://localhost:9090/axis2/services/$(Class.ServiceNsName)";
     }
 
-    if (sTargetNamespace == null || sTargetNamespace == "")
+    if (sTargetNamespace == null || sTargetNamespace.equals(""))
     {
       sTargetNamespace =\
 #ifneq($(Interface.TargetNamespace),)
@@ -83,6 +93,40 @@ public class $(Class.ServiceName)
   public String GetInstanceId()
   {
     return m_sInstanceId;
+  }
+
+  private void SetSoapHeader(SoapEnvelope tEnvelope)
+  {
+    Element tInstanceIdElem = null;
+    Element tSessionIdElem = null;
+    int nHeadersCount = 0;
+
+    if (m_sInstanceId != null && !m_sInstanceId.equals(""))
+    {
+      tInstanceIdElem = new Node().createElement(
+          "http://tempui.org/staff/instanceid", "InstanceId");
+      tInstanceIdElem.addChild(Node.TEXT, m_sInstanceId);
+      ++nHeadersCount;
+    }
+
+    if (m_sSessionId != null && !m_sSessionId.equals(""))
+    {
+      tSessionIdElem = new Node().createElement(
+          "http://tempui.org/staff/sessionid", "SessionId");
+      tSessionIdElem.addChild(Node.TEXT, m_sSessionId);
+      ++nHeadersCount;
+    }
+
+    if (nHeadersCount == 1)
+    {
+      Element tElem = tInstanceIdElem != null ? tInstanceIdElem : tSessionIdElem;
+      tEnvelope.headerOut = new Element[] { tElem };
+    }
+    else
+    if (nHeadersCount == 2)
+    {
+      tEnvelope.headerOut = new Element[] { tInstanceIdElem, tSessionIdElem };
+    }
   }
 
 #foreach $(Class.Members)
@@ -147,6 +191,9 @@ $(Class.Options.*soapVersion.!replace/.//)\
 10\
 #ifeqend
 );
+
+    // set soap header
+    SetSoapHeader(tEnvelope);
 
     // build request
     Element tRequestElement = new Node().createElement(m_sTargetNamespace, \

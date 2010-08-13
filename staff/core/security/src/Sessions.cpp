@@ -304,6 +304,12 @@ namespace staff
       sqlite3* pDb = CDbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
+      if (sSessionId == sNobodySessionId)
+      {
+        // ignore request to keepalive nobody's session
+        return;
+      }
+
       // TODO: optimize
       RISE_ASSERTS(Validate(sSessionId), "Session expired");
 
