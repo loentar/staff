@@ -91,7 +91,7 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
     $(Param.Name) = Double.parseDouble(tElement.getElement("", "$(Param.Name)").getText(0));
 #else
 #ifeq($(Param.DataType.Name),bool)
-    $(Param.Name) = tElement.getElement("", "$(Param.Name)").getText(0) == "1" || tElement.getElement("", "$(Param.Name)").getText(0).toLowerCase() == "true";
+    $(Param.Name) = tElement.getElement("", "$(Param.Name)").getText(0).equalsIgnoreCase("true") || tElement.getElement("", "$(Param.Name)").getText(0).equals("1");
 #else
 #cgerror generic return type "$(Param.DataType.Name)" is not supported
 #ifeqend // bool
