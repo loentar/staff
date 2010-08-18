@@ -236,7 +236,7 @@ new Float(Float.parseFloat(tItemElement.getText(0)))\
 new Double(Double.parseDouble(tItemElement.getText(0)))\
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
-new Boolean(tElement.getText(0) == "1" || tElement.getText(0).toLowerCase() == "true")\
+new Boolean(tElement.getText(0).equalsIgnoreCase("true") || tElement.getText(0).equals("1"))\
 #else
 #cgerror generic return type "$(Typedef.DataType.TemplateParams.TemplateParam1.Name)" is not supported
 #ifeqend // bool

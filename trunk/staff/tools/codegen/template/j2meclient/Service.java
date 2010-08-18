@@ -298,7 +298,7 @@ null\
 
     // parse response
     Node tResultNode = (Node)tEnvelope.bodyIn;
-    if (tResultNode.getElement(0).getName() == "Fault")
+    if (tResultNode.getElement(0).getName().equals("Fault"))
     {
       throw new RuntimeException("Soap Fault received: " + tResultNode.toString());
     }
@@ -342,7 +342,7 @@ new Float(Float.parseFloat(tItemElement.getText(0)))\
 new Double(Double.parseDouble(tItemElement.getText(0)))\
 #else
 #ifeq($(Member.Return.TemplateParams.TemplateParam1.Name),bool)
-new Boolean(tElement.getText(0) == "1" || tElement.getText(0).toLowerCase() == "true")\
+new Boolean(tElement.getText(0).equalsIgnoreCase("true") || tElement.getText(0).equals("1"))\
 #else
 #cgerror generic return type "$(Member.Return.TemplateParams.TemplateParam1.Name)" is not supported
 #ifeqend // bool
@@ -392,7 +392,7 @@ new $(Member.Return.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Dese
     return Double.parseDouble(tResultElement.getText(0));
 #else
 #ifeq($(Member.Return.Name),bool)
-    return tResultElement.getText(0) == "1" || tResultElement.getText(0).toLowerCase() == "true";
+    return tResultElement.getText(0).equalsIgnoreCase("true") || tResultElement.getText(0).equals("1");
 #else
 #cgerror generic return type "$(Member.Return.Name)" is not supported
 #ifeqend // bool
