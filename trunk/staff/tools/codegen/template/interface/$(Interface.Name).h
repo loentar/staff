@@ -55,8 +55,9 @@ $($sNewOpeningNs)
 \
   typedef $(Typedef.DataType.UsedTypedef) $(Typedef.Name);\
 #ifneq($(Typedef.Description),)
-  //!< $(Typedef.Description)
+  //!< $(Typedef.Description)\
 #ifeqend
+
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
 #var sOpeningNs $($sNewOpeningNs)
 #var sEndingNs $($sNewEndningNs)
