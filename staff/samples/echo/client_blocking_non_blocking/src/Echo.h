@@ -26,23 +26,25 @@
 #include <staff/common/IService.h>
 
   //! echo service
-  // uri: http://localhost:9090/axis2/services/echo
-  // targetNamespace: http://ws.apache.org/axis2/c/samples/echoString
+  // *serviceUri: http://localhost:9090/axis2/services/echo
+  // *targetNamespace: http://ws.apache.org/axis2/services/echo
+  // *targetNamespacePrefix: ns1
   class Echo: public staff::IService
   {
   public:
-    //! synchronous call
-    // wsaAction: http://ws.apache.org/axis2/c/samples/echoString
-    // requestElement: echoString
-    // responseElement: echoString
-    // resultElement: text
+    //! echo string synchronous call
+    /*! \param text - input string
+        \return resulting string
+        */
+    // *requestElement: echoString
+    // *responseElement: echoString
+    // *resultElement: text
     virtual std::string EchoString(const std::string& text) = 0;
 
-    //! asynchronous call
-    // wsaAction: http://ws.apache.org/axis2/c/samples/echoString
-    // requestElement: echoString
-    // responseElement: echoString
-    // resultElement: text
+    //! echo string asynchronous call
+    // *requestElement: echoString
+    // *responseElement: echoString
+    // *resultElement: text
     virtual void EchoString(const std::string& sEcho, staff::ICallback< const std::string& >& rCallback) = 0;
   };
 
