@@ -98,6 +98,45 @@ namespace staff
     //! remove all added SOAP headers
     void RemoveAllHeaders();
 
+    //! sets the proxy with authentication support
+    /*! \param sProxyHost - proxy server host
+        \param sProxyPort - proxy server port
+        \param sUserName - user name
+        \param sPassword - password
+        */
+    void SetProxyWithAuth(const std::string& sProxyHost, const std::string& sProxyPort,
+                          const std::string& sUserName, const std::string& sPassword);
+
+
+    //! Tests Proxy Authentication is required or not
+    /*! sends robust authentication test message
+        */
+    void TestAuthRequired();
+
+    //! Gets the boolean value indicating whether Proxy Authentication is required.
+    /*! \return true, if proxy auth is required
+        to invoke auth test call TestAuthRequired before this function
+        \sa TestAuthRequired
+        \sa COptions::SetTestProxyAuth
+        */
+    bool GetProxyAuthRequired();
+
+    //! Gets the boolean value indicating whether Http Authentication is required.
+    /*! \return true, if http auth is required
+        to invoke auth test call TestAuthRequired before this function
+        \sa TestAuthRequired
+        \sa COptions::SetTestHttpAuth
+        */
+    bool GetHttpAuthRequired();
+
+    //! Gets the authentication type required
+    /*! \return authentication type
+        to invoke auth test call TestAuthRequired before this function
+        \sa TestAuthRequired
+      */
+    std::string GetAuthType();
+
+
     //! invoke service synchronously
     /*! MEP: In-Out
         \param  rdoPayload - request to service

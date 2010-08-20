@@ -131,6 +131,34 @@ namespace staff
     bool IsUsingSeparateListener();
 
 
+    //! set HTTP authentication information
+    /*! \param sUserName - http username
+        \param sPassword - http password
+        \param sAuthType - http authentication type
+        */
+    void SetHttpAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                         const std::string& sAuthType);
+
+    //! set the bool value indicating whether to test whether HTTP Authentication is required or not
+    /*! \param bAuth - true - enable test
+      */
+    void SetTestHttpAuth(bool bAuth);
+
+
+    //! set proxy authentication information
+    /*! \param sUserName - proxy username
+        \param sPassword - proxy password
+        \param sAuthType - proxy authentication type
+        */
+    void SetProxyAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                          const std::string& sAuthType);
+
+    //! set the bool value indicating whether to test whether proxy Authentication is required or not
+    /*! \param bAuth - true - enable test
+      */
+    void SetTestProxyAuth(bool bAuth);
+
+
     //! set timeout
     /*! \param lTimeout - timeout in milli seconds
       */

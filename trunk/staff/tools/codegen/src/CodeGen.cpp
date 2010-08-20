@@ -21,6 +21,8 @@
 
 #ifdef WIN32
 #include <io.h>
+#include <direct.h>
+#include <errno.h>
 #else
 #include <sys/types.h>
 #include <fnmatch.h>
@@ -873,7 +875,7 @@ namespace staff
               }
             }
 #else
-            int nRes = _mkdir(sCurrDir.c_str())
+            int nRes = _mkdir(sCurrDir.c_str());
             if (nRes != 0 && nRes != EEXIST)
             {
               throw std::string("Failed to create dir: " + sCurrDir + strerror(errno));
