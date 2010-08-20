@@ -185,6 +185,42 @@ namespace staff
   }
 
 
+  void COptions::SetHttpAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                                const std::string& sAuthType)
+  {
+    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+
+    axis2_status_t nResult = axis2_options_set_http_auth_info(m_pOptions, m_pEnv,
+                               sUserName.c_str(), sPassword.c_str(), sAuthType.c_str());
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup http auth info");
+  }
+
+  void COptions::SetTestHttpAuth(bool bAuth)
+  {
+    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+
+    axis2_options_set_test_http_auth(m_pOptions, m_pEnv, bAuth ? AXIS2_TRUE : AXIS2_FALSE);
+  }
+
+
+  void COptions::SetProxyAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                                const std::string& sAuthType)
+  {
+    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+
+    axis2_status_t nResult = axis2_options_set_proxy_auth_info(m_pOptions, m_pEnv,
+                               sUserName.c_str(), sPassword.c_str(), sAuthType.c_str());
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup proxy auth info");
+  }
+
+  void COptions::SetTestProxyAuth(bool bAuth)
+  {
+    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+
+    axis2_options_set_test_proxy_auth(m_pOptions, m_pEnv, bAuth ? AXIS2_TRUE : AXIS2_FALSE);
+  }
+
+
   void COptions::SetTimeout(long lTimeout)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");

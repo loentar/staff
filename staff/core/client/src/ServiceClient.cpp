@@ -345,6 +345,48 @@ namespace staff
     axis2_svc_client_remove_all_headers(m_pSvcClient, m_pEnv);
   }
 
+  void CServiceClient::SetProxyWithAuth(const std::string& sProxyHost, const std::string& sProxyPort,
+                                        const std::string& sUserName, const std::string& sPassword)
+  {
+    RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
+
+    axis2_svc_client_set_proxy_with_auth(m_pSvcClient, m_pEnv,
+                                         const_cast<axis2_char_t*>(sProxyHost.c_str()),
+                                         const_cast<axis2_char_t*>(sProxyPort.c_str()),
+                                         const_cast<axis2_char_t*>(sUserName.c_str()),
+                                         const_cast<axis2_char_t*>(sPassword.c_str()));
+  }
+
+  void CServiceClient::TestAuthRequired()
+  {
+    RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
+
+    axis2_svc_client_send_robust(m_pSvcClient, m_pEnv, NULL);
+  }
+
+  bool CServiceClient::GetProxyAuthRequired()
+  {
+    RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
+
+    return axis2_svc_client_get_proxy_auth_required(m_pSvcClient, m_pEnv) == AXIS2_TRUE;
+  }
+
+  bool CServiceClient::GetHttpAuthRequired()
+  {
+    RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
+
+    return axis2_svc_client_get_http_auth_required(m_pSvcClient, m_pEnv) == AXIS2_TRUE;
+  }
+
+  std::string CServiceClient::GetAuthType()
+  {
+    RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
+
+    axis2_char_t* szResult = axis2_svc_client_get_auth_type(m_pSvcClient, m_pEnv);
+    RISE_ASSERTS(szResult, "Auth type is NULL");
+    return szResult;
+  }
+
 
   CDataObject CServiceClient::Invoke(CDataObject& rdoPayload)
   {

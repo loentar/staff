@@ -217,6 +217,8 @@ staff/samples/calc/j2meclient/CalcClient/src/CalcClient.java
 staff/samples/calc/j2meclient/CalcClient/src/samples/calc/CalcService.java
 staff/samples/echo/client_blocking_addr/src/Echo.h
 staff/samples/echo/client_blocking_addr/src/main.cpp
+staff/samples/echo/client_blocking_auth/src/Echo.h
+staff/samples/echo/client_blocking_auth/src/main.cpp
 staff/samples/echo/client_blocking_dual/src/Echo.h
 staff/samples/echo/client_blocking_dual/src/main.cpp
 staff/samples/echo/client_blocking_non_blocking/src/Echo.h
@@ -234,6 +236,7 @@ staff/samples/echo/client_rest/src/main.cpp
 staff/samples/echo/client_rest_static/src/Echo.h
 staff/samples/echo/client_rest_static/src/main.cpp
 staff/samples/echo/custom_client_blocking_addr/src/main.cpp
+staff/samples/echo/custom_client_blocking_auth/src/main.cpp
 staff/samples/echo/custom_client_blocking_dual/src/main.cpp
 staff/samples/echo/custom_client_blocking_soap11/src/main.cpp
 staff/samples/echo/custom_client_blocking/src/main.cpp
