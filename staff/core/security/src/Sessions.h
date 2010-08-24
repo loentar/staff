@@ -125,6 +125,13 @@ namespace staff
           */
       bool GetUserName(const std::string& sSessionId, std::string& sUserName);
 
+      //! get user description by session id
+      /*! \param sSessionId - session id
+          \param sUserDescription - resulting user description
+          \return true if function successed
+          */
+      bool GetUserDescription(const std::string& sSessionId, std::string& sUserDescription);
+
       //! get session id by user name
       /*! \param sUserName - user name
           \param sSessionId - resulting session id

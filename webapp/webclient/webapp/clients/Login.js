@@ -152,6 +152,28 @@ staff.Login.prototype =
     }
   },
 
+  GetUserId: function(pOnComplete, pOnError)
+  {
+    var tOperation = new staff.Operation('GetUserId', this.sTargetNamespace, '', '');
+
+    if(typeof pOnComplete == 'function')
+    { // make async call
+      this.tClient.InvokeOperation(tOperation,
+        function(tOperation)
+        {
+          pOnComplete(parseInt(tOperation.ResultValue()), tOperation);
+        },
+        pOnError
+      );
+    }
+    else
+    {
+      this.tClient.InvokeOperation(tOperation);
+
+      return parseInt(tOperation.ResultValue());
+    }
+  },
+
   GetUserName: function(pOnComplete, pOnError)
   {
     var tOperation = new staff.Operation('GetUserName', this.sTargetNamespace, '', '');
@@ -173,16 +195,16 @@ staff.Login.prototype =
     }
   },
 
-  GetUserId: function(pOnComplete, pOnError)
+  GetUserDescription: function(pOnComplete, pOnError)
   {
-    var tOperation = new staff.Operation('GetUserId', this.sTargetNamespace, '', '');
+    var tOperation = new staff.Operation('GetUserDescription', this.sTargetNamespace, '', '');
 
     if(typeof pOnComplete == 'function')
     { // make async call
       this.tClient.InvokeOperation(tOperation,
         function(tOperation)
         {
-          pOnComplete(parseInt(tOperation.ResultValue()), tOperation);
+          pOnComplete(tOperation.ResultValue(), tOperation);
         },
         pOnError
       );
@@ -190,8 +212,7 @@ staff.Login.prototype =
     else
     {
       this.tClient.InvokeOperation(tOperation);
-
-      return parseInt(tOperation.ResultValue());
+      return tOperation.ResultValue();
     }
   },
 
