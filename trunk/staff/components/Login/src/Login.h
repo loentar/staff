@@ -62,15 +62,20 @@ namespace staff
         */
     virtual bool ValidateSession() = 0;
 
+    //!         get current user id
+    /*! \return current user id
+        */
+    virtual int GetUserId() = 0;
+
     //!         get current user name
     /*! \return current user name
         */
     virtual std::string GetUserName() = 0;
 
-    //!         get current user id
-    /*! \return current user id
+    //!         get current user description
+    /*! \return current user description
         */
-    virtual int GetUserId() = 0;
+    virtual std::string GetUserDescription() = 0;
 
     //!         get session expiration time
     /*! \return session expiration time in minutes

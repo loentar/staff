@@ -447,6 +447,44 @@ namespace staff
       return bResult;
     }
 
+    bool CSessions::GetUserDescription(const std::string& sSessionId, std::string& sUserDescription)
+    {
+      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3_stmt* pVm = NULL;
+      bool bResult = false;
+
+      RISE_ASSERTP(sSessionId.size() != 0);
+
+      // get user id
+      int nResult = sqlite3_prepare_v2(pDb,
+          "SELECT description FROM users WHERE id=(SELECT userid FROM sessions WHERE sessionid = ?1)", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      try
+      {
+        nResult = sqlite3_bind_text(pVm, 1, sSessionId.c_str(), sSessionId.size(), SQLITE_STATIC);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        if ((sqlite3_step(pVm) == SQLITE_ROW) &&
+            (sqlite3_column_type(pVm, 0) != SQLITE_NULL))
+        {
+          const char* szUserDescription = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 0));
+          RISE_ASSERTS(szUserDescription != NULL, "Can't get user description");
+          sUserDescription = szUserDescription;
+          bResult = true;
+        }
+      }
+      catch(...)
+      {
+        sqlite3_finalize(pVm);
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      return bResult;
+    }
+
+
     bool CSessions::GetSessionIdByUserName(const std::string& sUserName, std::string& sSessionId)
     {
       sqlite3* pDb = CDbConn::GetDb();

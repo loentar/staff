@@ -70,6 +70,15 @@ namespace staff
     staff::CSessionManager::Inst().Keepalive(IService::GetSessionId());
   }
 
+  int CLoginImpl::GetUserId()
+  {
+    int tResult;
+
+    staff::security::CSessions::Inst().GetUserId(IService::GetSessionId(), tResult);
+
+    return tResult;  // result
+  }
+
   std::string CLoginImpl::GetUserName()
   {
     std::string tResult;
@@ -79,11 +88,11 @@ namespace staff
     return tResult;  // result
   }
 
-  int CLoginImpl::GetUserId()
+  std::string CLoginImpl::GetUserDescription()
   {
-    int tResult;
+    std::string tResult;
 
-    staff::security::CSessions::Inst().GetUserId(IService::GetSessionId(), tResult);
+    staff::security::CSessions::Inst().GetUserDescription(IService::GetSessionId(), tResult);
 
     return tResult;  // result
   }
