@@ -236,7 +236,7 @@ new Float(Float.parseFloat(tItemElement.getText(0)))\
 new Double(Double.parseDouble(tItemElement.getText(0)))\
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
-new Boolean(tElement.getText(0).equalsIgnoreCase("true") || tElement.getText(0).equals("1"))\
+new Boolean(tItemElement.getText(0).equalsIgnoreCase("true") || tItemElement.getText(0).equals("1"))\
 #else
 #cgerror generic return type "$(Typedef.DataType.TemplateParams.TemplateParam1.Name)" is not supported
 #ifeqend // bool
@@ -248,10 +248,10 @@ new Boolean(tElement.getText(0).equalsIgnoreCase("true") || tElement.getText(0).
 #ifeqend // byte
 #else   // generic
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
-tElement.getText(0)\
+tItemElement.getText(0)\
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-tElement\
+tItemElement\
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
 new $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Deserialize(tItemElement)\
@@ -303,7 +303,7 @@ new $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().D
     m_tData = tElement;
 #else
 #ifeq($(Typedef.DataType.Type),struct||typedef)
-    m_tData = new $(Typedef.DataType.UsedName.!trim/:/.!dot)().Deserialize(tElement);
+    m_tData = ($(Typedef.DataType.UsedName.!trim/:/.!dot))new $(Typedef.DataType.UsedName.!trim/:/.!dot)().Deserialize(tElement);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
 #ifeqend
