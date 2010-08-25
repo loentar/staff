@@ -22,7 +22,11 @@ import $($type);
 import org.kxml2.kdom.*;
 
 /* struct */
-public class $(Struct.Name)
+public class $(Struct.Name)\
+#ifneq($(Struct.ParentName),)
+ extends $(Struct.ParentName)\
+#ifeqend
+
 {
 #foreach $(Struct.Members)
   public \
@@ -44,6 +48,10 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
 
   Node Serialize(Element tElement)
   {
+#ifneq($(Struct.ParentName),)
+    super.Serialize(tElement);
+
+#ifeqend
 #foreach $(Struct.Members)
     Element tParam$(Param.Name) = tElement.createElement("", "$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)
@@ -68,8 +76,12 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
     return tElement;
   }
 
-  $(Struct.Name) Deserialize(Element tElement)
+  Object Deserialize(Element tElement)
   {
+#ifneq($(Struct.ParentName),)
+    super.Deserialize(tElement);
+
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),generic)
 #ifeq($(Param.DataType.Name),byte)
@@ -109,7 +121,8 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
     $(Param.Name) = tElement.getElement("", "$(Param.Name)");
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-    $(Param.Name) = new $(Param.DataType.UsedName.!trim/:/.!dot)().Deserialize(tElement.getElement("", "$(Param.Name)"));
+    $(Param.Name) = new $(Param.DataType.UsedName.!trim/:/.!dot)();
+    $(Param.Name).Deserialize(tElement.getElement("", "$(Param.Name)"));
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
 #ifeqend

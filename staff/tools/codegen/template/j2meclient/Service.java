@@ -413,7 +413,7 @@ new $(Member.Return.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Dese
 #else
 #ifeq($(Member.Return.Type),struct||typedef)
 
-    return new $(Member.Return.UsedName.!trim/:/.!dot)().Deserialize(tResultElement);
+    return ($(Member.Return.UsedName.!trim/:/.!dot))new $(Member.Return.UsedName.!trim/:/.!dot)().Deserialize(tResultElement);
 #else
 #cgerror "Member.Return.Type = $(Member.Return.Type);"
 #ifeqend
