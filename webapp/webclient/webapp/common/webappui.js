@@ -384,6 +384,56 @@ webapp.ui.Edit.prototype.extend(webapp.ui.Generic.prototype).extend
 });
 
 //////////////////////////////////////////////////////////////////////////
+// TextArea
+webapp.ui.TextArea = Class.create();
+webapp.ui.TextArea.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'TextArea',
+
+  Create: function(tParent, tOpt)
+  {
+    var tInput = document.createElement('textarea');
+
+    if (tOpt.sText)
+    {
+      tInput.innerHTML = tOpt.sText;
+    }
+
+    if (tOpt.nRows)
+    {
+      tInput.rows = tOpt.nRows;
+    }
+
+    if (tOpt.nCols)
+    {
+      tInput.cols = tOpt.nCols;
+    }
+
+    return tInput;
+  },
+
+  GetText: function()
+  {
+    return this.Element().value;
+  },
+
+  SetText: function(sText)
+  {
+    return this.Element().value = sText;
+  },
+
+  GetValue: function()
+  {
+    return this.GetText();
+  },
+
+  SetValue: function(tValue)
+  {
+    this.SetText(tValue);
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
 // Button
 webapp.ui.Button = Class.create();
 webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
