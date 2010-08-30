@@ -528,7 +528,7 @@ namespace staff
                   sFile.erase(0, nPos + 1);
                 }
 
-                ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+                ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/', sFile,
                             rNodeInterface, bUpdateOnly, bNeedUpdate);
               }
             }
@@ -547,7 +547,7 @@ namespace staff
             sFile.erase(0, nPos + 1);
           }
 
-          ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/' + sFile,
+          ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/', sFile,
                       rRootNode, bUpdateOnly, bNeedUpdate);
         }
       } // has config
@@ -909,8 +909,10 @@ namespace staff
       }
     }
 
-    void ProcessFile(const std::string& sIn, const std::string& sOut, const CXMLNode& rNodeInterface, bool bUpdateOnly, bool& bNeedUpdate)
+    void ProcessFile(const std::string& sIn, const std::string& sOutDir, const std::string& sOutFile,
+                     const CXMLNode& rNodeInterface, bool bUpdateOnly, bool& bNeedUpdate)
     {
+      const std::string& sOut = sOutDir + sOutFile;
       if (bUpdateOnly)
       {
         bool bIsStaticTemplate = rNodeInterface.NodeName() == "Project";
@@ -934,8 +936,8 @@ namespace staff
           {
             struct stat stInterface;
 
-            stat(rNodeInterface["FileName"].AsString().c_str(), &stInterface);
-            if (stOut.st_mtime > stInterface.st_mtime)
+            nResOut = stat((sOutDir + rNodeInterface["FileName"].AsString()).c_str(), &stInterface);
+            if (nResOut == 0 && stOut.st_mtime > stInterface.st_mtime)
             {
               std::cout << "Skipping " << sOut << std::endl;
               return;

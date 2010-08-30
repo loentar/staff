@@ -469,7 +469,7 @@ namespace staff
 
           if (nRecursion == 0)
           {
-            while (m_tFile.peek() == ';')
+            while (!m_tFile.eof() && m_tFile.peek() == ';')
             {
               m_tFile.ignore();
             }
@@ -1328,6 +1328,11 @@ namespace staff
         if (chData == '{')
         {
           ParseBracketedBlock(rInterface);
+        }
+        else
+        if (chData == '}')
+        {
+          CSP_THROW("unexpected '}' found", m_stInterface.sFileName, m_nLine);
         }
         else // text
         {
