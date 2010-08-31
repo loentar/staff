@@ -16,7 +16,8 @@ PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/li
 }}}
 
 You can set these variables in system properties.
-After setting these variables, You must relogin or reboot windows.
+After setting these variables, You must re-login or reboot windows.
+
 
 == 1. Compile and install dependencies ==
 
@@ -33,11 +34,12 @@ It must be console window with text:
 {{{
 Started Simple Axis2 HTTP Server ...
 }}}
-If You encounter some errors, please refer to Axis2/C site or get ws-win32-bin*.7z from our download section.
+If You encounter some errors, please refer to Axis2/C site or get `ws-win32-bin*.7z` from our download section.
 
 Make sure, that Axis2/C is working, take a look at:
 http://localhost:9090/axis2/services/
 It must be Axis2/С service list.
+
 
 == 2. Getting source code ==
 
@@ -47,18 +49,18 @@ Or checkout the [http://code.google.com/p/staff/downloads/list Download] section
 
 == 3. Compiling and installing ==
 
-The compilation is available from the command line and from the IDE.
+The compilation is available from the command line and from the IDE. You must choose variant do you like, 3.1 or 3.2.
 
 == 3.1 Compiling and installing from command line ==
 
-_Note: If You using VS2008 or greater, solution upgrading must made automaticaly._
+_Note: If You using VS2008 or greater, solution upgrading must made automatically._
 
 Open command prompt from staff directory and start:
 {{{
   build <TARGET>
 }}}
 
-where `<TARGET>` is version to build: Debug or Release (case sensive).
+where `<TARGET>` is version to build: Debug or Release (case sensitive).
 
 When build successes, start:
 {{{
