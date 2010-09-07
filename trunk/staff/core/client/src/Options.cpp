@@ -279,7 +279,7 @@ namespace staff
       break;
 
     default:
-      nAxiomSoapVersion = static_cast<soap_version>(nSoapVersion);
+      nAxiomSoapVersion = static_cast<soap_version>(static_cast<int>(nSoapVersion));
     }
 
     axis2_options_set_soap_version(m_pOptions, m_pEnv, nAxiomSoapVersion);
