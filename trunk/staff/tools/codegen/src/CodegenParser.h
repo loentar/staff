@@ -75,8 +75,11 @@ namespace staff
     return rParseException.operator<<(rStream);
   }
 
-#define CSP_THROW(CSP_MESSAGE, CSP_, CSP_LINE)\
-  throw ::staff::CParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_, CSP_LINE)
+#define CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)\
+  throw ::staff::CParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_FILE, CSP_LINE)
+
+#define CSP_ASSERT(CSP_EXPRESSION, CSP_MESSAGE, CSP_FILE, CSP_LINE)\
+  if (!(CSP_EXPRESSION)) CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)
 
 }
 

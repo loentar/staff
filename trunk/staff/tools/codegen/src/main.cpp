@@ -206,6 +206,8 @@ int main(int nArgs, const char* szArgs[])
       CSP_THROW("Can't get plugin symbol " + sFileName, "", 0);
     }
 
+    stParseSettings.mEnv = mEnv;
+
     // Source files parsing
     pCodegenParser->Process(stParseSettings, stProject);
 
