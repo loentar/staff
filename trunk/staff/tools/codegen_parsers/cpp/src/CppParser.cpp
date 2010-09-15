@@ -320,7 +320,7 @@ namespace staff
       return false;
     }
 
-    void ParseDataType(const std::string& sDataTypeName, SDataType& rDataType)
+    void GetDataType(const std::string& sDataTypeName, SDataType& rDataType)
     {
       rDataType.sUsedName = sDataTypeName;
       std::string::size_type nPos = sDataTypeName.find_last_of("::");
@@ -439,7 +439,87 @@ namespace staff
       }
       else
       {
-        rDataType.eType = SDataType::EUnknown;
+        // long type names detection. example: unsigned long int
+        bool bGeneric = true;
+        {
+          bool bIsLong = false;
+          bool bIsShort = false;
+          bool bIsSigned = false;
+          bool bIsUnsigned = false;
+          bool bIsChar = false;
+          bool bIsInt = false;
+          bool bIsFloat = false;
+
+          for (std::string::size_type nBegin = 0, nEnd = 0;
+               nEnd != std::string::npos; nBegin = nEnd + 1)
+          {
+            nEnd = sDataTypeName.find_first_of(" \t\n\r", nBegin);
+            std::string sType = sDataTypeName.substr(nBegin, nEnd - nBegin);
+            rise::StrTrim(sType);
+
+            if (sType == "long")
+            {
+              CSP_ASSERT(!bIsShort, "short and long type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsChar, "char and long type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsFloat, "float and long type", m_stInterface.sFileName, m_nLine);
+              bIsLong = true;
+            }
+            else
+            if (sType == "short")
+            {
+              CSP_ASSERT(!bIsLong, "long and short type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsChar, "char and short type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsFloat, "float and short type", m_stInterface.sFileName, m_nLine);
+              bIsShort = true;
+            }
+            else
+            if (sType == "signed")
+            {
+              CSP_ASSERT(!bIsUnsigned, "signed and unsigned type", m_stInterface.sFileName, m_nLine);
+              bIsSigned = true;
+            }
+            else
+            if (sType == "unsigned")
+            {
+              CSP_ASSERT(!bIsSigned, "signed and unsigned type", m_stInterface.sFileName, m_nLine);
+              bIsUnsigned = true;
+            }
+            else
+            if (sType == "char")
+            {
+              CSP_ASSERT(!bIsShort, "short and char type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsLong, "long and char type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsFloat, "char and float type", m_stInterface.sFileName, m_nLine);
+              bIsChar = true;
+            }
+            else
+            if (sType == "double" || sType == "float")
+            {
+              CSP_ASSERT(!bIsShort, "short and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsLong, "long and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsSigned, "signed and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsUnsigned, "unsigned and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsLong, "long and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsChar, "char and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsInt, "int and float type", m_stInterface.sFileName, m_nLine);
+              bIsFloat = true;
+            }
+            else
+            if (sType == "int")
+            {
+              CSP_ASSERT(!bIsChar, "char and int type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(!bIsFloat, "float and int type", m_stInterface.sFileName, m_nLine);
+              bIsInt = true;
+            }
+            else
+            {
+              bGeneric = false;
+            }
+          }
+
+          rDataType.sName = sDataTypeName;
+        }
+        rDataType.eType = bGeneric ? SDataType::EGeneric : SDataType::EUnknown;
       }
     }
 
@@ -462,10 +542,7 @@ namespace staff
         if (chTmp == '}')
         {
           --nRecursion;
-          if (nRecursion < 0)
-          {
-            CSP_THROW("mismatch {}", m_stInterface.sFileName, m_nLine);
-          }
+          CSP_ASSERT(nRecursion >= 0, "mismatch {}", m_stInterface.sFileName, m_nLine);
 
           if (nRecursion == 0)
           {
@@ -484,12 +561,71 @@ namespace staff
       }
     }
 
+    std::string::size_type ParseTemplate(const std::string& sTemplate, SDataType& rDataType)
+    {
+      std::string::size_type nResult = 0;
+      std::string sToken;
+      for (std::string::size_type nBegin = 0, nEnd = 0;
+           nEnd != std::string::npos; nBegin = nEnd + 1)
+      {
+        nEnd = sTemplate.find_first_of(",<>", nBegin);
+        if (nEnd == std::string::npos)
+        {
+          sToken = sTemplate.substr(nBegin);
+        }
+        else
+        {
+          if (sTemplate[nEnd] == '<')
+          {
+            int nRecurse = 1;
+
+            ++nEnd;
+            for (; nRecurse > 0; ++nEnd)
+            {
+              nEnd = sTemplate.find_first_of("<>", nEnd);
+              CSP_ASSERT(nEnd != std::string::npos,
+                         " error while parsing template params: \"<" + sTemplate + ">\" unmatched open/close",
+                         m_stInterface.sFileName, m_nLine);
+
+              if (sTemplate[nEnd] == '<')
+              {
+                ++nRecurse;
+              }
+              else
+              if (sTemplate[nEnd] == '>')
+              {
+                --nRecurse;
+              }
+
+            }
+          }
+
+          sToken = sTemplate.substr(nBegin, nEnd - nBegin);
+        }
+
+        rise::StrTrim(sToken);
+        if (!sToken.empty())
+        {
+          SDataType stTemplParam;
+          ParseDataType(sToken, stTemplParam);
+          rDataType.lsParams.push_back(stTemplParam);
+        }
+
+        if (sTemplate[nEnd] == '>')
+        {
+          nResult = nEnd;
+          break;
+        }
+      }
+      return nResult;
+    }
 
     // datatype
-    void ParseDataType( SDataType& rDataType )
+    void ParseDataType( const std::string& sDataType, SDataType& rDataType )
     {
-      char chTmp = '\0';
       std::string sTmp;
+
+      bool bIsRef = false;
 
       rDataType.bIsConst = false;
       rDataType.bIsRef = false;
@@ -499,106 +635,102 @@ namespace staff
       rDataType.sNodeName.erase();
       rDataType.sNamespace.erase();
 
-      while (m_tFile.good())
+      std::string sTypeName;
+
+      std::string::size_type nSize = sDataType.size();
+
+      for (std::string::size_type nBegin = 0, nEnd = 0;
+           nEnd != std::string::npos && nEnd < nSize; nBegin = nEnd + 1)
       {
-        SkipWs();
-        ReadBefore(sTmp);
-        if(m_tFile.eof())
+        nEnd = sDataType.find_first_of(" \n\r\t&<*", nBegin);
+        if (nEnd != std::string::npos)
         {
-          CSP_THROW("unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
+          sTmp = sDataType.substr(nBegin, nEnd  - nBegin);
         }
+        else
+        {
+          sTmp = sDataType.substr(nBegin);
+        }
+
+//        CSP_ASSERT(!sTmp.empty(), "unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
+
+        rise::StrTrim(sTmp);
 
         if (sTmp == "static")
         {
-          rise::LogWarning() << "members must be non-static: Line:" << m_nLine;
+          rise::LogWarning() << "members must be non-static. Line:" << m_nLine;
+          CSP_ASSERT(sTypeName.empty(), "static after typename", m_stInterface.sFileName, m_nLine);
         }
 
-        chTmp = m_tFile.peek();
-        if (chTmp == '<')
+        if (nEnd != std::string::npos)
         {
-          m_tFile.ignore();
-
-          std::string::size_type nPos = sTmp.find_last_of("::");
-          if (nPos != std::string::npos)
+          char chTmp = sDataType[nEnd];
+          if (chTmp == '<')
           {
-            ++nPos;
-            rDataType.sName = sTmp.substr(nPos);
-            rDataType.sNamespace = sTmp.substr(0, nPos);
+            std::string::size_type nPos = sTmp.find_last_of("::");
+            if (nPos != std::string::npos)
+            {
+              ++nPos;
+              rDataType.sName = sTmp.substr(nPos);
+              rDataType.sNamespace = sTmp.substr(0, nPos);
+            }
+            else
+            {
+              rDataType.sName = sTmp;
+              rDataType.sNamespace.erase();
+            }
+
+            rDataType.eType = SDataType::ETemplate;
+            rDataType.sUsedName = sTmp;
+
+            ++nEnd;
+
+  //          std::string::size_type nPos = sDataType.find_last_of('>');
+  //          CSP_ASSERT(nPos != std::string::npos, "Can't find end of template declaration: [" + sDataType + "]",
+  //                     m_stInterface.sFileName, m_nLine);
+             std::string::size_type nTemplateSize = ParseTemplate(sDataType.substr(nEnd), rDataType);
+             nEnd += nTemplateSize;
+             continue;
           }
           else
+          if(chTmp == '&')
           {
-            rDataType.sName = sTmp;
-            rDataType.sNamespace.erase();
+            CSP_ASSERT(sTypeName.empty(), "reference before typename: [" + sDataType + "]",
+                       m_stInterface.sFileName, m_nLine);
+            bIsRef = true;
           }
-
-          rDataType.eType = SDataType::ETemplate;
-          rDataType.sUsedName = sTmp;
-
-          while(m_tFile.good())
+          else
+          if(chTmp == '*')
           {
-            SDataType stTemplParam;
-            ParseDataType(stTemplParam);
-            SkipWs();
-            chTmp = m_tFile.peek();
-            rDataType.lsParams.push_back(stTemplParam);
-            if (chTmp == '>')
-            {
-              m_tFile.ignore();
-
-              SkipWs();
-              chTmp = m_tFile.peek();
-              if(chTmp == '&')
-              {
-                rDataType.bIsRef = true;
-                m_tFile.ignore();
-              }
-
-              return;
-            }
-            else
-            if (chTmp == ',')
-            {
-              m_tFile.ignore();
-            }
-            else
-            {
-              CSP_THROW(" \",\" or \">\" expected while parsing template ", m_stInterface.sFileName, m_nLine);
-            }
+            CSP_THROW("pointers is not supported. in: [" + sDataType + "]", m_stInterface.sFileName, m_nLine);
           }
-          break;
-        }
-        else
-        if(chTmp == '&')
-        {
-          rDataType.bIsRef = true;
-          m_tFile.ignore();
-        }
-        else
-        if (sTmp == "")
-        {
-          return;
         }
 
         if(sTmp == "const")
         {
+          CSP_ASSERT(sTypeName.empty(), "const after type declaration: ["
+                     + sDataType + "]", m_stInterface.sFileName, m_nLine);
           rDataType.bIsConst = true;
         }
-        else // name of type
-        {
-          if (sTmp == "unsigned")
+        else
+        if (!sTmp.empty())
+        { // name of type
+          CSP_ASSERT(!rDataType.bIsRef, "type after reference: [" + sDataType + "]",
+                     m_stInterface.sFileName, m_nLine);
+          if (!sTypeName.empty())
           {
-            ReadStr(sTmp);
-            if(m_tFile.eof())
-              CSP_THROW("unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
-
-            ParseDataType(sTmp, rDataType);
-            rDataType.sName = "unsigned " + sTmp;
-          } else
-          {
-            ParseDataType(sTmp, rDataType);
+            sTypeName += ' ';
           }
-          break;
+
+          sTypeName += sTmp;
         }
+
+        rDataType.bIsRef = bIsRef;
+      }
+
+      if (rDataType.eType == SDataType::EUnknown)
+      {
+        GetDataType(sTypeName, rDataType);
       }
     }
 
@@ -606,9 +738,20 @@ namespace staff
     void ParseParam( SParam& rParameter )
     {
       rParameter.sDescr.erase();
-      ParseDataType(rParameter.stDataType);
-      SkipWs();
-      ReadBefore(rParameter.sName);
+
+      // read param type and name
+      std::string sParamAndType;
+      ReadBefore(sParamAndType, ",)");
+      rise::StrTrim(sParamAndType);
+      std::string::size_type nPos = sParamAndType.find_last_of(" \n\r\t");
+      CSP_ASSERT(nPos != std::string::npos, "Can't get param name: [" + sParamAndType + "]", m_stInterface.sFileName, m_nLine);
+      std::string sDataType = sParamAndType.substr(0, nPos);
+      rise::StrTrim(sDataType);
+
+      ParseDataType(sDataType, rParameter.stDataType);
+      rParameter.sName = sParamAndType.substr(nPos + 1);
+      // rise::StrTrim(rParameter.sName); // already between spaces
+
       rParameter.stDataType.sNodeName = rParameter.sName;
     }
 
@@ -618,27 +761,31 @@ namespace staff
       SParam stParam;
       char chData;
       std::string sTmp;
-      std::stringbuf tStreamBuff;
 
       rMember.bIsConst = false;
       rMember.bIsAsynch = false;
 
-      ParseDataType(rMember.stReturn.stDataType);
-
-      if (rMember.stReturn.stDataType.bIsRef)
-        CSP_THROW("return value cannot be reference", m_stInterface.sFileName, m_nLine);
-
       SkipWs();
 
-      m_tFile.get(tStreamBuff, '('); // parameters begin
+      // read return type and operation name
+      std::string sOperationAndType;
+      ReadBefore(sOperationAndType, "(");
+      std::string::size_type nPos = sOperationAndType.find_last_of(" \n\r\t");
+      CSP_ASSERT(nPos != std::string::npos, "Can't get operation name: [" + sOperationAndType + "]",
+                 m_stInterface.sFileName, m_nLine);
+      std::string sDataType = sOperationAndType.substr(0, nPos);
+      rise::StrTrim(sDataType);
 
-      rMember.sName = tStreamBuff.str();
-      rise::StrTrim(rMember.sName);
+      ParseDataType(sDataType, rMember.stReturn.stDataType);
+
+      CSP_ASSERT(!rMember.stReturn.stDataType.bIsRef, "return value cannot be reference",
+                 m_stInterface.sFileName, m_nLine);
+
+      rMember.sName = sOperationAndType.substr(nPos + 1);
 
       SkipWs();
       m_tFile >> chData;
-      if (chData != '(')
-        CSP_THROW("'(' expected after function name", m_stInterface.sFileName, m_nLine);
+      CSP_ASSERT(chData == '(', "'(' expected after function name", m_stInterface.sFileName, m_nLine);
 
       SkipWs(); // arguments?
       chData = m_tFile.peek();
@@ -647,8 +794,7 @@ namespace staff
       else
         while (m_tFile.good())
         {
-          if(m_tFile.eof())
-            CSP_THROW("unexpected EOF(after member name)", m_stInterface.sFileName, m_nLine);
+          CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after member name)", m_stInterface.sFileName, m_nLine);
 
           ParseParam(stParam); // reading param
           if (stParam.stDataType.sName == "ICallback")
@@ -661,16 +807,11 @@ namespace staff
                   << " in " << m_stInterface.sFileName << ":" << m_nLine;
             }
 
-            if (stParam.stDataType.lsParams.empty())
-            {
-              CSP_THROW("Callback must define asynchronous return type: "
+            CSP_ASSERT(!stParam.stDataType.lsParams.empty(), "Callback must define asynchronous return type: "
                         "staff::ICallback<ReturnType>& rCallback", m_stInterface.sFileName, m_nLine);
-            }
 
-            if (rMember.stReturn.stDataType.sName != "void")
-            {
-              CSP_THROW("Asynchronous operation must have void return type", m_stInterface.sFileName, m_nLine);
-            }
+            CSP_ASSERT(rMember.stReturn.stDataType.sName == "void",
+                       "Asynchronous operation must have void return type", m_stInterface.sFileName, m_nLine);
 
             rMember.bIsAsynch = true;
           }
@@ -693,8 +834,7 @@ namespace staff
             break;
           }
 
-          if (chData != ',')
-            CSP_THROW("error parsing param", m_stInterface.sFileName, m_nLine);
+          CSP_ASSERT(chData == ',', "error parsing param", m_stInterface.sFileName, m_nLine);
         }
 
       SkipWs();
@@ -708,18 +848,15 @@ namespace staff
         SkipWs();
         m_tFile >> chData;
       }
-      if (chData != '=')
-        CSP_THROW("members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+      CSP_ASSERT(chData == '=', "members must be pure virtual!", m_stInterface.sFileName, m_nLine);
 
       SkipWs();
       m_tFile >> chData;
-      if (chData != '0')
-        CSP_THROW("members must be pure virtual!", m_stInterface.sFileName, m_nLine);
+      CSP_ASSERT(chData == '0', "members must be pure virtual!", m_stInterface.sFileName, m_nLine);
 
       SkipWs();
       m_tFile >> chData;
-      if (chData != ';')
-        CSP_THROW("';' expected", m_stInterface.sFileName, m_nLine);
+      CSP_ASSERT(chData == ';', "';' expected", m_stInterface.sFileName, m_nLine);
 
       SkipSingleLineComment();
     }
@@ -734,15 +871,8 @@ namespace staff
       rClass.sNamespace = m_sCurrentNamespace;
 
       ReadStr(sTmp);
-      if(m_tFile.eof())
-      {
-        CSP_THROW("unexpected EOF(after classname and '{')", m_stInterface.sFileName, m_nLine);
-      }
-
-      if (sTmp != "{")
-      {
-        CSP_THROW("'{' after classname expected ", m_stInterface.sFileName, m_nLine);
-      }
+      CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after classname and '{')", m_stInterface.sFileName, m_nLine);
+      CSP_ASSERT(sTmp == "{", "'{' after classname expected ", m_stInterface.sFileName, m_nLine);
 
       // parsing members
       while (m_tFile.good() && !m_tFile.eof())
@@ -830,7 +960,8 @@ namespace staff
             if (sTmp == rClass.sName)   // destructor-ignore it
               IgnoreFunction();
             else
-              CSP_THROW("Non-valid destructor: ~" + sTmp + " but expected ~" + rClass.sName, m_stInterface.sFileName, m_nLine);
+              CSP_THROW("Non-valid destructor: ~" + sTmp + " but expected ~" + rClass.sName,
+                        m_stInterface.sFileName, m_nLine);
           } else
           {
             ParseMember(stMember);
@@ -853,16 +984,12 @@ namespace staff
       SkipWs();
       ReadBefore(rStruct.sName, " \r\n\t:;{}");
       rStruct.sNamespace = m_sCurrentNamespace;
-      if(m_tFile.eof())
-      {
-        CSP_THROW("unexpected EOF(after struct name): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-      }
+      CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after struct name): " + rStruct.sName,
+                 m_stInterface.sFileName, m_nLine);
 
       ReadStr(sTmp);
-      if(m_tFile.eof())
-      {
-        CSP_THROW("unexpected EOF(after structname): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-      }
+      CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after structname): " + rStruct.sName,
+                 m_stInterface.sFileName, m_nLine);
 
       if (sTmp == ";")
       {
@@ -873,10 +1000,8 @@ namespace staff
       if (sTmp == ":")
       { // inheritance
         ReadStr(sTmp);
-        if(m_tFile.eof())
-        {
-          CSP_THROW("unexpected EOF(after structname and inheritance sign): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-        }
+        CSP_ASSERT(! m_tFile.eof(), "unexpected EOF(after structname and inheritance sign): " + rStruct.sName,
+                   m_stInterface.sFileName, m_nLine);
 
         if (sTmp != "public")
         {
@@ -885,10 +1010,8 @@ namespace staff
         else
         {
           ReadStr(sTmp);
-          if(m_tFile.eof())
-          {
-            CSP_THROW("unexpected EOF(while reading parent struct name): " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-          }
+          CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(while reading parent struct name): " + rStruct.sName,
+                     m_stInterface.sFileName, m_nLine);
         }
 
         rStruct.sParentName = sTmp;
@@ -897,10 +1020,8 @@ namespace staff
 
       rStruct.bForward = false;
 
-      if (sTmp != "{")
-      {
-        CSP_THROW("'{' or ';' after structname expected: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-      }
+      CSP_ASSERT(sTmp == "{", "'{' or ';' after structname expected: " + rStruct.sName,
+                 m_stInterface.sFileName, m_nLine);
 
       while (m_tFile.good() && !m_tFile.eof())
       {
@@ -908,41 +1029,60 @@ namespace staff
 
         bFunction = false;
         SkipWs();
-        chTmp = m_tFile.peek();
-        if (chTmp == '}')
-        {
-          m_tFile.ignore();
-          break;
-        }
 
-        ParseDataType(stParamTmp.stDataType);
+        std::string sToken;
+        ReadBefore(sToken);
+        rise::StrTrim(sToken);
 
-        if (stParamTmp.stDataType.sName == "enum")   // enum -ignore
+        if (sToken == "enum")   // enum in struct -ignore
         {
           IgnoreFunction();
           continue;
         }
 
-        if ((stParamTmp.stDataType.sName.find('(') != std::string::npos) ||
-            (stParamTmp.stDataType.sName == rStruct.sName) ||  // constructor
-            (stParamTmp.stDataType.sName == ("~" + rStruct.sName)) ||  // destructor
-            (stParamTmp.stDataType.sName == "operator"))
+        ReadBefore(sTmp, ";}(");
+        rise::StrTrim(sTmp);
+
+        chTmp = m_tFile.peek();
+        if (chTmp == '}')
+        {
+          CSP_ASSERT(sTmp.empty(), "\";\" expected while parsing field. in struct: " + rStruct.sName,
+                     m_stInterface.sFileName, m_nLine);
+          m_tFile.ignore();
+          break;
+        }
+
+        sTmp = sToken + ' ' + sTmp;
+        rise::StrTrim(sTmp);
+
+        if ((chTmp == '(') || // function
+            (sToken == rStruct.sName) ||  // constructor
+            (sToken == ("~" + rStruct.sName)))  // destructor
         {
           bFunction = true;
         }
 
         if (!bFunction)
         {
-          SkipWs();
-          ReadBefore(stParamTmp.sName);
+          std::string::size_type nNameBegin = sTmp.find_last_of(" \n\r\t");
+          CSP_ASSERT(nNameBegin != std::string::npos, "Can't detect field name. in struct: "
+                     + rStruct.sName + " [" + sTmp + "]", m_stInterface.sFileName, m_nLine);
+
+          stParamTmp.sName = sTmp.substr(nNameBegin + 1);
+
+          sTmp.erase(nNameBegin);
+          rise::StrTrim(sTmp);
+
+          ParseDataType(sTmp, stParamTmp.stDataType);
+
           SkipWs();
           m_tFile.get(chTmp);
           if (chTmp == ';')
           {
-            if (stParamTmp.stDataType.bIsConst)
-              CSP_THROW("Struct members must be non-const: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
-            if (stParamTmp.stDataType.bIsRef)
-              CSP_THROW("Struct members must be non-ref: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
+            CSP_ASSERT(!stParamTmp.stDataType.bIsConst, "Struct members must be non-const: " +
+                       rStruct.sName, m_stInterface.sFileName, m_nLine);
+            CSP_ASSERT(!stParamTmp.stDataType.bIsRef, "Struct members must be non-ref: " +
+                       rStruct.sName, m_stInterface.sFileName, m_nLine);
 
             ReadDescrComment(stParamTmp.sDescr);
 
@@ -963,9 +1103,20 @@ namespace staff
 
     void ParseTypedef( STypedef& rTypedef )
     {
-      ParseDataType(rTypedef.stDataType);
-      SkipWs();
-      ReadBefore(rTypedef.sName);
+      std::string sTmp;
+      ReadBefore(sTmp, ";");
+      rise::StrTrim(sTmp);
+
+      std::string::size_type nNameBegin = sTmp.find_last_of(" \n\r\t");
+      CSP_ASSERT(nNameBegin != std::string::npos, "Can't detect typedef name: [" + sTmp + "]",
+                 m_stInterface.sFileName, m_nLine);
+
+      rTypedef.sName = sTmp.substr(nNameBegin + 1);
+
+      sTmp.erase(nNameBegin);
+      rise::StrTrim(sTmp);
+
+      ParseDataType(sTmp, rTypedef.stDataType);
       rTypedef.sNamespace = m_sCurrentNamespace;
     }
 
@@ -1161,10 +1312,7 @@ namespace staff
 
         SkipWs();
         m_tFile >> chData;
-        if (chData != ';')
-        {
-          CSP_THROW("missing ';' after class definition", m_stInterface.sFileName, m_nLine);
-        }
+        CSP_ASSERT(chData == ';', "missing ';' after class definition", m_stInterface.sFileName, m_nLine);
 
         SkipSingleLineComment();
         lsModules.clear();
@@ -1211,10 +1359,7 @@ namespace staff
 
         SkipWs();
         m_tFile >> chData;
-        if (chData != ';')
-        {
-          CSP_THROW("missing ';' after struct definition", m_stInterface.sFileName, m_nLine);
-        }
+        CSP_ASSERT(chData == ';', "missing ';' after struct definition", m_stInterface.sFileName, m_nLine);
 
         sDescr.erase();
         sDetail.erase();
@@ -1228,10 +1373,7 @@ namespace staff
 
         SkipWs();
         m_tFile >> chData;
-        if (chData != ';')
-        {
-          CSP_THROW("missing ';' after typedef definition", m_stInterface.sFileName, m_nLine);
-        }
+        CSP_ASSERT(chData == ';', "missing ';' after typedef definition", m_stInterface.sFileName, m_nLine);
 
         ReadDescrComment(stTypedef.sDescr);
 
@@ -1281,10 +1423,7 @@ namespace staff
 
       SkipWs();
       m_tFile.get(chData);
-      if (chData != '{')
-      {
-        CSP_THROW("ParseBracketedBlock: \"{\" is not found!", m_stInterface.sFileName, m_nLine);
-      }
+      CSP_ASSERT(chData == '{', "ParseBracketedBlock: \"{\" is not found!", m_stInterface.sFileName, m_nLine);
 
       while (m_tFile.good() && !m_tFile.eof())
       {
@@ -1359,75 +1498,70 @@ namespace staff
       m_stInterface.sFileName = sFileName;
 
       m_tFile.open((m_sInDir + sFileName).c_str());
-      if(m_tFile.good())
+      CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFileName + ": "
+                 + std::string(strerror(errno)), m_stInterface.sFileName, m_nLine);
+      try
       {
-        try
+        m_stInterface.sName = m_stInterface.sFileName.substr(m_stInterface.sFileName.size() - 2, 2) == ".h" ?
+            m_stInterface.sFileName.substr(0, m_stInterface.sFileName.size() - 2) :
+            m_stInterface.sFileName;
+
+        ParseHeader(m_stInterface);
+        CorrectStuctParentNs();
+
+        // detect interface main namespace
+        if (m_stInterface.sNamespace.empty())
         {
-          m_stInterface.sName = m_stInterface.sFileName.substr(m_stInterface.sFileName.size() - 2, 2) == ".h" ?
-              m_stInterface.sFileName.substr(0, m_stInterface.sFileName.size() - 2) :
-              m_stInterface.sFileName;
-
-          ParseHeader(m_stInterface);
-          CorrectStuctParentNs();
-
-          // detect interface main namespace
-          if (m_stInterface.sNamespace.empty())
+          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClass.begin();
+              itClass != m_stInterface.lsClass.end(); ++itClass)
           {
-            for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClass.begin();
-                itClass != m_stInterface.lsClass.end(); ++itClass)
+            if (!itClass->sNamespace.empty())
             {
-              if (!itClass->sNamespace.empty())
-              {
-                m_stInterface.sNamespace = itClass->sNamespace;
-                break;
-              }
+              m_stInterface.sNamespace = itClass->sNamespace;
+              break;
             }
           }
-
-          if (m_stInterface.sNamespace.empty())
-          {
-            for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
-                itStruct != m_stInterface.lsStruct.end(); ++itStruct)
-            {
-              if (!itStruct->sNamespace.empty())
-              {
-                m_stInterface.sNamespace = itStruct->sNamespace;
-                break;
-              }
-            }
-          }
-
-          if (m_stInterface.sNamespace.empty())
-          {
-            for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
-                itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
-            {
-              if (!itTypedef->sNamespace.empty())
-              {
-                m_stInterface.sNamespace = itTypedef->sNamespace;
-                break;
-              }
-            }
-          }
-
-          rProject.lsInterfaces.push_back(m_stInterface);
-          m_tFile.close();
         }
-        catch (CParseException& rParseException)
+
+        if (m_stInterface.sNamespace.empty())
         {
-          std::stringbuf sbData;
-          m_tFile.get(sbData, '\n');
-          m_tFile.ignore();
-          m_tFile.get(sbData, '\n');
-
-          rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
-
-          throw rParseException;
+          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
+              itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+          {
+            if (!itStruct->sNamespace.empty())
+            {
+              m_stInterface.sNamespace = itStruct->sNamespace;
+              break;
+            }
+          }
         }
+
+        if (m_stInterface.sNamespace.empty())
+        {
+          for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
+              itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
+          {
+            if (!itTypedef->sNamespace.empty())
+            {
+              m_stInterface.sNamespace = itTypedef->sNamespace;
+              break;
+            }
+          }
+        }
+
+        rProject.lsInterfaces.push_back(m_stInterface);
+        m_tFile.close();
       }
-      else
+      catch (CParseException& rParseException)
       {
-        CSP_THROW(std::string("can't open file: ") + sFileName + ": " + std::string(strerror(errno)), m_stInterface.sFileName, m_nLine);
+        std::stringbuf sbData;
+        m_tFile.get(sbData, '\n');
+        m_tFile.ignore();
+        m_tFile.get(sbData, '\n');
+
+        rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
+
+        throw rParseException;
       }
 
       return m_stInterface;
@@ -1528,13 +1662,11 @@ namespace staff
       }
     }
 
-    if (uServicesCount == 0 && rParseSettings.bNoServiceError)
-    {
-      CSP_THROW("No staff service interfaces found. Staff services must inherited from staff::IService.\n"
+    CSP_ASSERT(!(uServicesCount == 0 && rParseSettings.bNoServiceError),
+               "No staff service interfaces found. Staff services must inherited from staff::IService.\n"
                 "Example:\n----\n#include <staff/common/IService.h>\n\n  class Calc: public staff::IService\n"
                 "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n",
                 "", 0);
-    }
   }
 
   const std::string CCppParser::m_sId = "cpp";
