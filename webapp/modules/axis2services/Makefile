@@ -38,7 +38,7 @@ ifeq ($(OS),UBUNTU)
 	ln -sf ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 else
-ifeq ($(OS),MCBC)
+ifeq ($(APXS),/www/bin/apxs)
 	mkdir -p /www/conf/mods-enabled/
 	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > /www/conf/mods-enabled/$(TARGET).conf
 	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
