@@ -316,11 +316,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeq($($tCallbackParamName),)
   // synchronous call
-#ifeq($(Member.Return.Name),void)      // !!void!!
-  m_tClient.$($SendMethod)(tOperation.Request());
-#else
   tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
-#ifeqend
   if (m_tClient.GetLastResponseHasFault())
   {
     RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault

@@ -130,10 +130,10 @@ $($sNewOpeningNs)
   class $(Class.Name): public staff::IService
   {
   public:
-    //! destructor
-    virtual ~$(Class.Name)() {}
 #foreach $(Class.Members)
+#ifneq($(Member.$Num),0)
 
+#ifeqend
 #ifneq($(Member.Description),)
     //! $(Member.Description)
 #ifeqend

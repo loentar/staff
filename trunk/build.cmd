@@ -33,7 +33,7 @@ if not "%VS80COMNTOOLS%" == "" (
 
 if not "%VS90COMNTOOLS%" == "" (
   set VSVERSION=2008
-  set VSVARS="%VS80COMNTOOLS%\vcvarsall.bat"
+  set VSVARS="%VS90COMNTOOLS%\vcvarsall.bat"
   goto vsdetected
 )
 
