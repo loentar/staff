@@ -1350,6 +1350,12 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // support operators
 
+  CDataObject& CDataObject::operator=(axiom_node_t* pAxiomNode)
+  {
+    Attach(pAxiomNode);
+    return *this;
+  }
+
   CDataObject& CDataObject::operator=( const CDataObject& rDataObject )
   {
     m_bOwner = rDataObject.m_bOwner;

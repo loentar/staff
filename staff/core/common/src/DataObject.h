@@ -581,6 +581,13 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // support operators
 
+    //!         initializing operator
+    /*! ownership flag sets to false
+        \param  pAxiomNode - axiom node
+        \return current DataObject
+        */
+    CDataObject& operator=(axiom_node_t* pAxiomNode);
+
     //!         transfer ownership operator
     /*! for tree copying use Clone
         \param  rDataObject - source DataObject
