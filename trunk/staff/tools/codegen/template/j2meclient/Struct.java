@@ -46,7 +46,7 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
  $(Param.Name);
 #end
 
-  Node Serialize(Element tElement)
+  public Node Serialize(Element tElement)
   {
 #ifneq($(Struct.ParentName),)
     super.Serialize(tElement);
@@ -76,7 +76,7 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
     return tElement;
   }
 
-  Object Deserialize(Element tElement)
+  public Object Deserialize(Element tElement)
   {
 #ifneq($(Struct.ParentName),)
     super.Deserialize(tElement);
