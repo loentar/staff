@@ -382,7 +382,11 @@ namespace rise
     nReadSize = (pBufferEnd - GetData()) / sizeof(TCharA);
 
     tData.assign(reinterpret_cast<TCharA*>(GetData()), nReadSize);
-    Ignore((nReadSize + 1) * sizeof(TCharA));
+    Ignore(nReadSize * sizeof(TCharA));
+    if (GetSize() >= sizeof(TCharA) && *reinterpret_cast<TCharA*>(GetData()) == '\0')
+    {
+      Ignore(sizeof(TCharA));
+    }
     return *this;
   }
 
@@ -399,7 +403,11 @@ namespace rise
     nReadSize = (pBufferEnd - GetData()) / sizeof(TCharW);
 
     tData.assign(reinterpret_cast<TCharW*>(GetData()), nReadSize);
-    Ignore((nReadSize + 1) * sizeof(TCharW));
+    Ignore(nReadSize * sizeof(TCharW));
+    if (GetSize() >= sizeof(TCharW) && *reinterpret_cast<TCharW*>(GetData()) == L'\0')
+    {
+      Ignore(sizeof(TCharW));
+    }
     return *this;
   }
 
