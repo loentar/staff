@@ -7,7 +7,9 @@
 namespace('$(Interface.Namespace.!trim/:/.!dot)');
 #ifeqend
 
+#ifeq($(Interface.*IncludeNsName),) // temporary fix begin
 (function(){
+#ifeqend // temporary fix end
 #ifneq($(Interface.Structs.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators
@@ -190,7 +192,6 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
   return tNode;
 }
 #else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)
 function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode)
 {
 #ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
@@ -202,6 +203,9 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
 #ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
   return SerializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
 #else
+#ifeq($(Typedef.DataType.Type),struct)    // !!struct!!
+  return SerializeStruct_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
+#else
 #ifeq($(Typedef.DataType.Type),template)    // !!template!!
   return SerializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
 #else
@@ -210,8 +214,8 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
 }
-#ifeqend // #ifneq($(Typedef.DataType.Type),struct)
 
 #ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeqend // ifeq not extern
@@ -647,4 +651,6 @@ tOperation.ResultValue();
 
 #end // Interface.Classes
 
+#ifeq($(Interface.*IncludeNsName),) // temporary fix begin
 })();
+#ifeqend // temporary fix end
