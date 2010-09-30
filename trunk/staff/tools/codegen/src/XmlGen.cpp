@@ -187,6 +187,8 @@ namespace staff
       rNodeParam["Name"] = rParam.sName;
       rNodeParam.AddSubNode(" Parameter description ", CXMLNode::ENTCOMMENT);
       rNodeParam["Description"] = rParam.sDescr;
+      rNodeParam.AddSubNode(" Detailed parameter description ", CXMLNode::ENTCOMMENT);
+      rNodeParam["Detail"] = rParam.sDetail;
       rNodeParam.AddSubNode(" Parameter type ", CXMLNode::ENTCOMMENT);
       rNodeParam.AddSubNode("DataType") << rParam.stDataType;
 
@@ -382,6 +384,8 @@ namespace staff
 
     rNodeTypedef.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Description"] = rTypedef.sDescr;
+    rNodeTypedef.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
+    rNodeTypedef["Detail"] = rTypedef.sDetail;
 
     rNodeTypedef.AddSubNode(" Source datatype ", CXMLNode::ENTCOMMENT);
     rNodeTypedef.AddSubNode("DataType") << rTypedef.stDataType;
