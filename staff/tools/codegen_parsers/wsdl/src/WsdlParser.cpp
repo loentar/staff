@@ -20,6 +20,7 @@
  */
 
 #include <set>
+#include <locale>
 #include <rise/common/Log.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
@@ -49,6 +50,7 @@ namespace staff
     std::string sPrefix;
     std::string sNamespace;
     std::string sDescr;
+    std::string sDetail;
 
     SQName()
     {
@@ -56,6 +58,12 @@ namespace staff
 
     SQName(const std::string& sNameIn, const std::string& sPrefixIn, const std::string& sNamespaceIn):
       sName(sNameIn), sPrefix(sPrefixIn), sNamespace(sNamespaceIn)
+    {
+    }
+
+    SQName(const std::string& sNameIn, const std::string& sPrefixIn, const std::string& sNamespaceIn,
+           const std::string& sDescrIn):
+      sName(sNameIn), sPrefix(sPrefixIn), sNamespace(sNamespaceIn), sDescr(sDescrIn)
     {
     }
 
@@ -75,7 +83,9 @@ namespace staff
   {
     SQName stType;
     bool bIsArray;
+    bool bIsExtern;
 
+    std::list<SQName> lsAttrs;
     std::list<SSimpleType> lsSimpleTypes;
     std::list<SComplexType> lsComplexTypes;
 
@@ -86,21 +96,16 @@ namespace staff
 
   private:
     bool GetType(const rise::xml::CXMLNode& rElement, std::string& sCppTypeName);
-
-  private:
-    static int m_nUnnamedElementId;
   };
 
   //////////////////////////////////////////////////////////////////////////
   struct SSimpleType: public SQName
   {
-    std::string sBaseType;
+    bool bIsExtern;
+    SQName stBaseType;
 
     SSimpleType();
     SSimpleType& Parse(const rise::xml::CXMLNode& rNodeSimpleType);
-
-  private:
-    static int m_nUnnamedSimpleTypeId;
   };
 
   //////////////////////////////////////////////////////////////////////////
@@ -109,7 +114,11 @@ namespace staff
     std::string sElementName;
     std::list<SElement> lsElements;
     std::string sParentName;
-    std::string sParentTns;
+    std::string sParentNs;
+    bool bIsChoice;
+    bool bIsExtern;
+    bool bIsMessagePart;
+    bool bIsSimpleContent;
 
     SComplexType();
 
@@ -118,8 +127,7 @@ namespace staff
   private:
     void ParseSequence(const rise::xml::CXMLNode& rNodeSequence);
 
-    void ParseComplexContent(const rise::xml::CXMLNode& rNodeComplexContent);
-    static int m_nUnnamedComplexTypeId;
+    void ParseComplexContent(const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple);
   };
 
   //////////////////////////////////////////////////////////////////////////
@@ -244,7 +252,34 @@ namespace staff
     return "";
   }
 
-  void ReadDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr)
+  void NormalizeString(std::string& sString)
+  {
+    std::string::size_type nPosBegin = 0;
+    std::string::size_type nPosEnd = 0;
+    while ((nPosBegin = sString.find_first_of(" \t", nPosEnd)) != std::string::npos)
+    {
+      if (sString[nPosBegin] == '\t')
+      {
+        sString[nPosBegin] = ' ';
+      }
+
+      ++nPosBegin;
+      nPosEnd = sString.find_first_not_of(" \t", nPosBegin);
+      if (nPosEnd == std::string::npos)
+      {
+        break;
+      }
+
+      if (nPosEnd != nPosBegin)
+      {
+        sString.erase(nPosBegin, nPosEnd - nPosBegin);
+      }
+
+      nPosEnd = nPosBegin;
+    }
+  }
+
+  void ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itDoc = rNode.FindSubnode("documentation");
     if (itDoc == rNode.NodeEnd())
@@ -258,14 +293,36 @@ namespace staff
 
     if (itDoc != rNode.NodeEnd())
     {
-      sDescr = itDoc->NodeContent().AsString();
+      const std::string& sDoc = itDoc->NodeContent().AsString();
+      sDescr = sDoc;
+#ifdef __linux__
+      rise::StrReplace(sDescr, "\r", "", true);
+#endif
+
+      std::string::size_type nPos = 0;
+      while ((nPos = sDescr.find(".", nPos)) != std::string::npos)
+      {
+        if (nPos < sDescr.size() &&
+            std::string(" \t\n").find(sDescr[nPos + 1]) != std::string::npos)
+        {
+          sDetail = sDescr.substr(nPos + 1);
+          sDescr.erase(nPos + 1);
+          rise::StrTrimLeft(sDetail);
+          rise::StrTrimLeft(sDescr);
+          break;
+        }
+        ++nPos;
+      }
+
+      rise::StrReplace(sDescr, "\n", " ", true);
+      NormalizeString(sDescr);
     }
   }
 
 
   //////////////////////////////////////////////////////////////////////////
   SElement::SElement():
-    bIsArray(false)
+    bIsArray(false), bIsExtern(false)
   {
 
   }
@@ -279,14 +336,35 @@ namespace staff
 
   SElement& SElement::Parse( const rise::xml::CXMLNode& rNodeElement )
   {
+    lsAttrs.clear();
+    for (rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeElement.AttrBegin();
+        itAttr != rNodeElement.AttrEnd(); ++itAttr)
+    {
+      const rise::xml::SXMLAttribute& rAttr = *itAttr;
+      std::string sPrefix;
+      std::string sName;
+      std::string::size_type nPos = rAttr.sAttrName.find_last_of(':');
+
+      if (nPos != std::string::npos)
+      {
+        sPrefix = rAttr.sAttrName.substr(0, nPos - 1);
+        sName = rAttr.sAttrName.substr(nPos + 1);
+      }
+      else
+      {
+        sName = rAttr.sAttrName;
+      }
+      lsAttrs.push_back(SQName(sName, sPrefix, "", rAttr.sAttrValue.AsString()));
+    }
+
+
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeElement.FindAttribute("name");
 
-    sName = (itAttr != rNodeElement.AttrEnd()) ? itAttr->sAttrValue.AsString() :
-      ("UnnamedElement" + rise::ToStr(++m_nUnnamedElementId));
+    sName = (itAttr != rNodeElement.AttrEnd()) ? itAttr->sAttrValue.AsString() : "";
 
     GetTns(rNodeElement, sNamespace, sPrefix);
 
-    ReadDescr(rNodeElement, sDescr);
+    ReadDoc(rNodeElement, sDescr, sDetail);
 
     itAttr = rNodeElement.FindAttribute("maxOccurs");
     bIsArray = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
@@ -336,21 +414,21 @@ namespace staff
     return *this;
   }
 
-
-  int SElement::m_nUnnamedElementId = 0;
-
-
   //////////////////////////////////////////////////////////////////////////
+  SSimpleType::SSimpleType():
+    bIsExtern(false)
+  {
+  }
+
   SSimpleType& SSimpleType::Parse(const rise::xml::CXMLNode& rNodeSimpleType)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeSimpleType.FindAttribute("name");
 
-    sName = (itAttr != rNodeSimpleType.AttrEnd()) ? itAttr->sAttrValue.AsString() :
-      ("UnnamedSimpleType" + rise::ToStr(++m_nUnnamedSimpleTypeId));
+    sName = (itAttr != rNodeSimpleType.AttrEnd()) ? itAttr->sAttrValue.AsString() : "";
 
     GetTns(rNodeSimpleType, sNamespace, sPrefix);
 
-    ReadDescr(rNodeSimpleType, sDescr);
+    ReadDoc(rNodeSimpleType, sDescr, sDetail);
 
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeSimpleType.NodeBegin();
       itChild != rNodeSimpleType.NodeEnd(); ++itChild)
@@ -360,7 +438,10 @@ namespace staff
         const std::string& sNodeName = itChild->NodeName();
         if (sNodeName == "restriction")
         {
-          sBaseType = itChild->Attribute("base").AsString();
+          const std::string& sBaseType = itChild->Attribute("base").AsString();
+          stBaseType.sPrefix = GetPrefix(sBaseType);
+          stBaseType.sName = StripPrefix(sBaseType);
+          stBaseType.sNamespace = FindNamespaceUri(rNodeSimpleType, stBaseType.sPrefix);
         }
       }
     }
@@ -368,15 +449,10 @@ namespace staff
     return *this;
   }
 
-  SSimpleType::SSimpleType()
-  {
-  }
-
-  int SSimpleType::m_nUnnamedSimpleTypeId = 0;
-
 
   //////////////////////////////////////////////////////////////////////////
-  SComplexType::SComplexType()
+  SComplexType::SComplexType():
+    bIsChoice(false), bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false)
   {
   }
 
@@ -390,19 +466,12 @@ namespace staff
     }
     else
     {
-      if (sElementName.empty())
-      {
-        sName = ("UnnamedComplexType" + rise::ToStr(++m_nUnnamedComplexTypeId));
-      }
-      else
-      {
-        sName = sElementName;
-      }
+      sName = sElementName;
     }
 
     GetTns(rNodeComplexType, sNamespace, sPrefix);
 
-    ReadDescr(rNodeComplexType, sDescr);
+    ReadDoc(rNodeComplexType, sDescr, sDetail);
 
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeComplexType.NodeBegin();
       itChild != rNodeComplexType.NodeEnd(); ++itChild)
@@ -417,7 +486,23 @@ namespace staff
         else
         if (sNodeName == "complexContent")
         {
-          ParseComplexContent(*itChild);
+          ParseComplexContent(*itChild, false);
+        }
+        else
+        if (sNodeName == "simpleContent")
+        {
+          ParseComplexContent(*itChild, true);
+        }
+        else
+        if (sNodeName == "choice")
+        {
+          bIsChoice = true;
+          ParseSequence(*itChild);
+        }
+        else
+        if (sNodeName != "annotation" && sNodeName != "documentation")
+        {
+          rise::LogWarning() << "Unsupported complexType with \"" << sNodeName << "\"";
         }
       }
     }
@@ -460,14 +545,16 @@ namespace staff
     }
   }
 
-  void SComplexType::ParseComplexContent( const rise::xml::CXMLNode& rNodeComplexContent )
+  void SComplexType::ParseComplexContent( const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple )
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeExtension = rNodeComplexContent.FindSubnode("extension");
+
+    this->bIsSimpleContent = bIsSimple;
 
     if (itNodeExtension != rNodeComplexContent.NodeEnd())
     {
       sParentName = itNodeExtension->Attribute("base").AsString();
-      sParentTns = FindNamespaceUri(rNodeComplexContent, GetPrefix(sParentName));
+      sParentNs = FindNamespaceUri(rNodeComplexContent, GetPrefix(sParentName));
 
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = itNodeExtension->NodeBegin();
         itChild != itNodeExtension->NodeEnd(); ++itChild)
@@ -537,8 +624,6 @@ namespace staff
     }
   }
 
-  int SComplexType::m_nUnnamedComplexTypeId = 0;
-
   //////////////////////////////////////////////////////////////////////////
   typedef std::map<std::string, SElement> TElementMap;
   typedef std::map<std::string, SComplexType> TComplexTypeMap;
@@ -573,35 +658,69 @@ namespace staff
     {
     }
 
-    void ParsePartElement(const SElement& rElement, SMember& rMember, bool bIsResponse/*, const std::string& sElementNsName*/, int nRecursionLevel = 0)
+    bool ParseTypeAny(const SElement& rElement, SDataType& rDataType)
+    {
+      if (m_rParseSettings.mEnv.count("use_schema_for_any") != 0)
+      {
+        const SElement* pSchemaElem = NULL;
+        const std::string& sNamespace = rElement.stType.sNamespace;
+        // find DataSource declaration
+        for (TElementMap::const_iterator itElem = m_stWsdlTypes.mElements.begin();
+          itElem != m_stWsdlTypes.mElements.end() && !pSchemaElem; ++itElem)
+        {
+          const SElement& rChildElem = itElem->second;
+          if (rChildElem.sNamespace == sNamespace && !rChildElem.lsComplexTypes.empty())
+          {
+            pSchemaElem = &rChildElem;
+            break;
+          }
+        }
+
+        if (!pSchemaElem)
+        {
+          return false;
+        }
+
+        rDataType = ComplexTypeToData(pSchemaElem->lsComplexTypes.front(), m_stWsdlTypes);
+        return true;
+      }
+      return false;
+    }
+
+    void ParsePartElement(const SElement& rElement, SMember& rMember, bool bIsResponse, int nRecursionLevel = 0)
     {
       // parse element operation parameters
       // declared as complex type
       if (!rElement.lsComplexTypes.empty())
       {
-        // complex type
-        for (std::list<SComplexType>::const_iterator itParamType = rElement.lsComplexTypes.begin();
-          itParamType != rElement.lsComplexTypes.end(); ++itParamType)
+        // inline complex type
+        for (std::list<SComplexType>::const_iterator itComplexType = rElement.lsComplexTypes.begin();
+          itComplexType != rElement.lsComplexTypes.end(); ++itComplexType)
         {
-          if (bIsResponse && itParamType->lsElements.empty())
+          const SComplexType& rComplexType = *itComplexType;
+          if (bIsResponse && rComplexType.lsElements.empty())
           {
             rMember.stReturn.stDataType.sName = "void";
           }
           else
           {
-            for (std::list<SElement>::const_iterator itParamElement = itParamType->lsElements.begin();
-              itParamElement != itParamType->lsElements.end(); ++itParamElement)
+            for (std::list<SElement>::const_iterator itParamElement = rComplexType.lsElements.begin();
+              itParamElement != rComplexType.lsElements.end(); ++itParamElement)
             {
               const SElement& rChildElement = *itParamElement;
 
               if (!rChildElement.stType.sName.empty()) // type is set: processing elem as struct
               {
-                SParam stParam; // struct member
+                SParam stParam;
 
-  //              stParam.sName = bIsResponse ? StripPrefix(sElementNsName) : rElem.sName;
                 stParam.sName = rChildElement.sName;
 
-                GetCppType(rChildElement.stType, stParam.stDataType);
+                // trying to parse attached schema to "any" using namespace
+                if (rChildElement.stType.sName != "DataObject" || rChildElement.sNamespace.empty()
+                    || !ParseTypeAny(rChildElement, stParam.stDataType))
+                {
+                  GetCppType(rChildElement.stType, stParam.stDataType);
+                }
                 stParam.stDataType.sNodeName = rChildElement.sName;
                 stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
                 OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
@@ -628,7 +747,6 @@ namespace staff
                   }
                   stParam.stDataType.sNodeName = rElement.sName;
                   rMember.stReturn = stParam;
-                  FixParamDataType(rMember.stReturn.stDataType);
                 }
               }
               else // type is not set: processing as inline complex or simple type
@@ -637,21 +755,86 @@ namespace staff
                 {
                   rMember.mOptions["responseElement"] = rElement.sName;
                 }
-                ParsePartElement(rChildElement, rMember, bIsResponse, /*rElem.sName, */nRecursionLevel + 1);
+                ParsePartElement(rChildElement, rMember, bIsResponse, nRecursionLevel + 1);
               }
             }
           }
         }
       }
       else
-      { // simple/extern type
+      if (!rElement.lsSimpleTypes.empty())
+      { // simple type
+        SParam stParam;
+        stParam.sName = rElement.sName;
+        stParam.stDataType = SimpleTypeToData(rElement.lsSimpleTypes.front(), m_stWsdlTypes);
+        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+
+        if (bIsResponse)
+        {
+          rMember.stReturn = stParam;
+        }
+        else
+        {
+          rMember.lsParamList.push_back(stParam);
+        }
+
+      }
+      else
+      { // reference to type
         SParam stParam;
 
-//        stParam.sName = bIsResponse ? StripPrefix(sElementNsName) : rElement.sName;
         stParam.sName = rElement.sName;
-        rise::LogInfo() << "response: " << rElement.sName;
 
-        GetCppType(rElement.stType, stParam.stDataType);
+        {// search in complex types
+          TComplexTypeMap::iterator itComplexType =
+              m_stWsdlTypes.mComplexTypes.find(rElement.stType.GetNsName());
+          if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+          {
+            SComplexType& rComplexType = itComplexType->second;
+            rComplexType.bIsMessagePart = true;
+            if (rComplexType.lsElements.empty())
+            { // assume void type
+              stParam.stDataType.sName = "void";
+            }
+            else
+            if (rComplexType.lsElements.size() == 1 && !rElement.bIsArray) // inline complex type with element name
+            {
+              const SElement& rElem = rComplexType.lsElements.front();
+
+              GetCppType(rElem.stType, stParam.stDataType);
+
+              if (stParam.stDataType.eType == SDataType::EUnknown)
+              {
+                DataTypeFromName(rElem.stType.GetNsName(), stParam.stDataType, m_stWsdlTypes);
+              }
+
+              stParam.sName = rElem.sName;
+            }
+            else
+            {
+              stParam.stDataType = ComplexTypeToData(rComplexType, m_stWsdlTypes);
+            }
+          }
+          else // search in simple types
+          {
+            TSimpleTypeMap::const_iterator itSimpleType =
+                m_stWsdlTypes.mSimpleTypes.find(rElement.stType.GetNsName());
+            if (itSimpleType != m_stWsdlTypes.mSimpleTypes.end())
+            {
+              stParam.stDataType = SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
+            }
+            else // type is generic or unknown
+            {
+              GetCppType(rElement.stType, stParam.stDataType);
+              if (stParam.stDataType.eType == SDataType::EUnknown)
+              {
+                rise::LogError() << "Cannot detect type of " << rElement.stType.GetNsName();
+              }
+            }
+          }
+        }
+
+
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
         OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
         if (!bIsResponse)
@@ -687,7 +870,7 @@ namespace staff
         RISE_ASSERTES(itElement != rWsdlTypes.mElements.end(), rise::CLogicNoItemException,
           "Element " + itAttrType->sAttrValue.AsString() + " is not found, while parsing part");
 
-        ParsePartElement(itElement->second, rMember, bIsResponse);//, sElementNsName);
+        ParsePartElement(itElement->second, rMember, bIsResponse);
       }
       else
       { // inline part declaration
@@ -779,7 +962,7 @@ namespace staff
         rMember.stReturn.stDataType.sName = "void";
       }
 
-      ReadDescr(rOperation, rMember.sDescr);
+      ReadDoc(rOperation, rMember.sDescr, rMember.sDetail);
     }
 
     class FindNodeBinding
@@ -911,25 +1094,25 @@ namespace staff
         }
       }
 
-      ReadDescr(rService, rClass.sDescr);
+      ReadDoc(rService, rClass.sDescr, rClass.sDetail);
 
       rClass.sNamespace = TnsToCppNs(GetTns(rDefs));
     }
 
-    void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)
-    {
-      for (std::list<SComplexType>::const_iterator itComplex = rElement.lsComplexTypes.begin();
-        itComplex != rElement.lsComplexTypes.end(); ++itComplex)
-      {
-        for (std::list<SElement>::const_iterator itElement = itComplex->lsElements.begin();
-          itElement != itComplex->lsElements.end(); ++itElement)
-        {
-          SDataType stDt;
-          ElementToData(*itElement, stDt, rWsdlTypes);
-          WriteInlineTypes(*itElement, rWsdlTypes);
-        }
-      }
-    }
+//    void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)
+//    {
+//      for (std::list<SComplexType>::const_iterator itComplex = rElement.lsComplexTypes.begin();
+//        itComplex != rElement.lsComplexTypes.end(); ++itComplex)
+//      {
+//        for (std::list<SElement>::const_iterator itElement = itComplex->lsElements.begin();
+//          itElement != itComplex->lsElements.end(); ++itElement)
+//        {
+//          SDataType stDt;
+//          ElementToData(*itElement, stDt, rWsdlTypes);
+//          WriteInlineTypes(*itElement, rWsdlTypes);
+//        }
+//      }
+//    }
 
     static bool SortStructByParent(const SStruct& rStruct1, const SStruct& rStruct2)
     {
@@ -951,26 +1134,6 @@ namespace staff
         m_stWsdlTypes.ParseSchema(rRootNode);
       }
 
-      for (TComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
-            itComplex != m_stWsdlTypes.mComplexTypes.end(); ++itComplex)
-      {
-        ComplexTypeToData(itComplex->second, m_stWsdlTypes);
-      }
-
-      for (TSimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
-        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
-      {
-        SimpleTypeToData(itSimple->second, m_stWsdlTypes);
-      }
-
-      for (TElementMap::const_iterator itElement = m_stWsdlTypes.mElements.begin();
-        itElement != m_stWsdlTypes.mElements.end(); ++itElement)
-      {
-        WriteInlineTypes(itElement->second, m_stWsdlTypes);
-      }
-
-      m_stInterface.lsStruct.sort(SortStructByParent);
-
       if (!bSchema)
       {
         SClass tServiceClass;
@@ -979,6 +1142,29 @@ namespace staff
         tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
         m_stInterface.lsClass.push_back(tServiceClass);
       }
+
+      for (TComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
+            itComplex != m_stWsdlTypes.mComplexTypes.end(); ++itComplex)
+      {
+        if (!itComplex->second.bIsMessagePart)
+        {
+          ComplexTypeToData(itComplex->second, m_stWsdlTypes);
+        }
+      }
+
+      for (TSimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
+        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
+      {
+        SimpleTypeToData(itSimple->second, m_stWsdlTypes);
+      }
+
+//      for (TElementMap::const_iterator itElement = m_stWsdlTypes.mElements.begin();
+//        itElement != m_stWsdlTypes.mElements.end(); ++itElement)
+//      {
+//        WriteInlineTypes(itElement->second, m_stWsdlTypes);
+//      }
+
+//      m_stInterface.lsStruct.sort(SortStructByParent);
     }
 
     SInterface& ParseFile( const std::string& sFileName, SProject& rProject )
@@ -1016,10 +1202,19 @@ namespace staff
           m_stInterface.sName.erase(nPos);
         }
 
-        nPos = m_stInterface.sName.find_last_of('.');
-        if (nPos != std::string::npos)
+        // strip namespace and version number
+        while ((nPos = m_stInterface.sName.find_last_of(".-")) != std::string::npos)
         {
-          m_stInterface.sName.erase(0, nPos + 1);
+          const std::string& sLastToken = m_stInterface.sName.substr(nPos + 1);
+          if (sLastToken.find_first_not_of("0123456789") == std::string::npos)
+          { // version number
+            m_stInterface.sName.erase(nPos);
+          }
+          else
+          {
+            m_stInterface.sName.erase(0, nPos + 1);
+            break;
+          }
         }
 
         ParseInterface(rDefs, rProject);
@@ -1061,9 +1256,7 @@ namespace staff
         }
         else
         {
-          rDataType.sName = sDataType;
-          rDataType.sUsedName = sDataType;
-          rise::LogWarning() << "Can't find element type declaration: " << sDataType;
+          rDataType.eType = SDataType::EUnknown;
         }
       }
     }
@@ -1082,34 +1275,46 @@ namespace staff
 
       if (itTypedef != m_stInterface.lsTypedef.end())
       {
-        stDataType = itTypedef->stDataType;
+        stDataType.eType = SDataType::ETypedef;
+        stDataType.sName = itTypedef->sName;
+        stDataType.sNamespace = itTypedef->sNamespace;
       }
       else
+      if (!rSimpleType.sName.empty())
       {
         STypedef stTypedef;
         stTypedef.sName = rSimpleType.sName;
         stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
         stTypedef.sDescr = rSimpleType.sDescr;
-
-        if (stTypedef.sNamespace.empty())
-        {
-          stDataType.sName = rSimpleType.sBaseType;
-          stDataType.sUsedName = rSimpleType.sBaseType;
-          stTypedef.stDataType.sName = rSimpleType.sBaseType;
-          stTypedef.stDataType.sUsedName = rSimpleType.sBaseType;
-        }
-        else
-        {
-          DataTypeFromName(rSimpleType.sBaseType, stTypedef.stDataType, rWsdlTypes);
-        }
+        stTypedef.sDetail = rSimpleType.sDetail;
 
         m_stInterface.lsTypedef.push_back(stTypedef);
+
+        STypedef& rstTypedef = m_stInterface.lsTypedef.back();
+
+        SDataType stTypedefDataType;
+        GetCppType(rSimpleType.stBaseType, stTypedefDataType);
+        if (stTypedefDataType.eType == SDataType::EUnknown)
+        {
+          DataTypeFromName(rSimpleType.stBaseType.sName, stTypedefDataType, rWsdlTypes);
+        }
+        rstTypedef.stDataType = stTypedefDataType;
+
+
+        stDataType.eType = SDataType::ETypedef;
+        stDataType.sName = rstTypedef.sName;
+        stDataType.sNamespace = rstTypedef.sNamespace;
+      }
+      else
+      {
+        GetCppType(rSimpleType.stBaseType, stDataType);
       }
 
       return stDataType;
     }
 
-    SDataType ComplexTypeToData(const SComplexType& rComplexType, const SWsdlTypes& rWsdlTypes)
+    SDataType ComplexTypeToData(const SComplexType& rComplexType, const SWsdlTypes& rWsdlTypes,
+                                const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
       SDataType stDataType;
 
@@ -1128,9 +1333,11 @@ namespace staff
         if (rComplexType.lsElements.front().bIsArray)
         {
           STypedef stTypedef;
+          stTypedef.bExtern = rComplexType.bIsExtern;
           stTypedef.sName = stDataType.sName;
           stTypedef.sNamespace = stDataType.sNamespace;
           stTypedef.sDescr = rComplexType.sDescr;
+          stTypedef.sDetail = rComplexType.sDetail;
 
           ElementToData(rComplexType.lsElements.front(), stTypedef.stDataType, rWsdlTypes);
 
@@ -1139,46 +1346,120 @@ namespace staff
         }
       }
 
+      if (rComplexType.bIsSimpleContent)
       {
-        SStruct stStruct;
-        stStruct.bForward = false;
-        stStruct.sName = stDataType.sName;
-        stStruct.sNamespace = stDataType.sNamespace;
-        stStruct.sDescr = rComplexType.sDescr;
+        STypedef stTypedef;
+        stTypedef.bExtern = rComplexType.bIsExtern;
+        stTypedef.sName = stDataType.sName;
+        stTypedef.sNamespace = stDataType.sNamespace;
+        stTypedef.sDescr = rComplexType.sDescr;
+        stTypedef.sDetail = rComplexType.sDetail;
 
-        // inheritance
-        stStruct.sParentName = StripPrefix(rComplexType.sParentName);
-        if (!stStruct.sParentName.empty())
+        stTypedef.stDataType = stDataType;
+
+        GetCppType(rComplexType.sParentName, rComplexType.sParentNs, stTypedef.stDataType);
+
+        m_stInterface.lsTypedef.push_back(stTypedef);
+
+        SDataType stResDataType;
+        stResDataType.eType = SDataType::ETypedef;
+        stResDataType.sName = stTypedef.sName;
+        stResDataType.sNamespace = stTypedef.sNamespace;
+
+        return stResDataType;
+      }
+
+      if (!rComplexType.sName.empty())
+      {
         {
-          stStruct.sParentNamespace = TnsToCppNs(rComplexType.sParentTns);
-          if (!stStruct.sParentNamespace.empty())
+          SStruct stStruct;
+
+          stStruct.bExtern = rComplexType.bIsExtern;
+          stStruct.sName = stDataType.sName;
+          stStruct.sNamespace = stDataType.sNamespace;
+          stStruct.sDescr = rComplexType.sDescr;
+          stStruct.sDetail = rComplexType.sDetail;
+
+          // inheritance
+          if (!sForceParentName.empty())
           {
-            stStruct.sParentName = stStruct.sParentNamespace + stStruct.sParentName;
-            OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
+            stStruct.sParentName = sForceParentName;
           }
+          else
+          {
+            stStruct.sParentName = StripPrefix(rComplexType.sParentName);
+          }
+
+          if (!stStruct.sParentName.empty())
+          {
+            if (!sForceParentNs.empty())
+            {
+              stStruct.sParentNamespace = sForceParentNs;
+            }
+            else
+            {
+              stStruct.sParentNamespace = TnsToCppNs(rComplexType.sParentNs);
+            }
+
+            if (!stStruct.sParentNamespace.empty())
+            {
+              stStruct.sParentName = stStruct.sParentNamespace + stStruct.sParentName;
+              OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
+            }
+          }
+
+          // class name getter
+          if (rComplexType.bIsChoice)
+          {
+            SParam stClassNameGetter;
+            stClassNameGetter.sName = "sClassName";
+            stClassNameGetter.stDataType.sName = "string";
+            stClassNameGetter.stDataType.sNamespace = "std::";
+            stClassNameGetter.stDataType.sUsedName = "std::string";
+            stClassNameGetter.stDataType.eType = SDataType::EString;
+            stStruct.lsMember.push_back(stClassNameGetter);
+          }
+
+
+          stDataType.eType = SDataType::EStruct;
+          stDataType.sUsedName = stStruct.sNamespace + stStruct.sName;
+          OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
+
+          m_stInterface.lsStruct.push_back(stStruct);
         }
+
+        SStruct& rstStruct = m_stInterface.lsStruct.back();
+
+        rstStruct.bForward = false;
 
         for (std::list<SElement>::const_iterator itElement = rComplexType.lsElements.begin();
           itElement != rComplexType.lsElements.end(); ++itElement)
         {
           SParam stMember;
           stMember.sName = StripPrefix(itElement->sName);
-          ElementToData(*itElement, stMember.stDataType, rWsdlTypes);
           stMember.sDescr = itElement->sDescr;
-          stStruct.lsMember.push_back(stMember);
+          stMember.sDetail = itElement->sDetail;
+          if (rComplexType.bIsChoice)
+          {
+            ElementToData(*itElement, stMember.stDataType, rWsdlTypes,
+                          rstStruct.sName, rstStruct.sNamespace);
+          }
+          else
+          {
+            ElementToData(*itElement, stMember.stDataType, rWsdlTypes);
+          }
+          if (!rComplexType.bIsChoice)
+          {
+            rstStruct.lsMember.push_back(stMember);
+          }
         }
-
-        stDataType.eType = SDataType::EStruct;
-        stDataType.sUsedName = stStruct.sNamespace + stStruct.sName;
-        OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
-
-        m_stInterface.lsStruct.push_back(stStruct);
       }
 
       return stDataType;
     }
 
-    void ElementToData(const SElement& rElement, SDataType& rDataType, const SWsdlTypes& rWsdlTypes)
+    void ElementToData(const SElement& rElement, SDataType& rDataType, const SWsdlTypes& rWsdlTypes,
+                       const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
       if (rElement.bIsArray)
       {
@@ -1202,18 +1483,58 @@ namespace staff
         OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
       }
 
-      if (!rElement.stType.sName.empty()) // complex/simple type
+      if (!rElement.stType.sName.empty())
       {
-        for (std::list<SSimpleType>::const_iterator itSimpleSubtype = rElement.lsSimpleTypes.begin();
-          itSimpleSubtype != rElement.lsSimpleTypes.end(); ++itSimpleSubtype)
+        // inline complex/simple type declaration
+        if (!rElement.lsSimpleTypes.empty())
         {
-          SimpleTypeToData(*itSimpleSubtype, rWsdlTypes);
+          for (std::list<SSimpleType>::const_iterator itSimpleSubtype = rElement.lsSimpleTypes.begin();
+            itSimpleSubtype != rElement.lsSimpleTypes.end(); ++itSimpleSubtype)
+          {
+            SimpleTypeToData(*itSimpleSubtype, rWsdlTypes);
+          }
         }
-
-        for (std::list<SComplexType>::const_iterator itComplexSubtype = rElement.lsComplexTypes.begin();
-          itComplexSubtype != rElement.lsComplexTypes.end(); ++itComplexSubtype)
+        else
+        if (!rElement.lsComplexTypes.empty())
         {
-          ComplexTypeToData(*itComplexSubtype, rWsdlTypes);
+          for (std::list<SComplexType>::const_iterator itComplexSubtype = rElement.lsComplexTypes.begin();
+            itComplexSubtype != rElement.lsComplexTypes.end(); ++itComplexSubtype)
+          {
+            ComplexTypeToData(*itComplexSubtype, rWsdlTypes, sForceParentName, sForceParentNs);
+          }
+        }
+        else // reference to type
+        {
+          TComplexTypeMap::const_iterator itComplexType = m_stWsdlTypes.mComplexTypes.find(rElement.stType.GetNsName());
+          if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+          {
+            rDataType = ComplexTypeToData(itComplexType->second, m_stWsdlTypes);
+          }
+          else
+          {
+            TSimpleTypeMap::const_iterator itSimpleType = m_stWsdlTypes.mSimpleTypes.find(rElement.stType.GetNsName());
+            if (itSimpleType != m_stWsdlTypes.mSimpleTypes.end())
+            {
+              rDataType = SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
+            }
+          }
+        }
+      }
+      else // element is an inline complex or simple type
+      {
+        if (!rElement.lsSimpleTypes.empty())
+        {
+          rDataType = SimpleTypeToData(rElement.lsSimpleTypes.front(), rWsdlTypes);
+        }
+        else
+        if (!rElement.lsComplexTypes.empty())
+        {
+          rDataType = ComplexTypeToData(rElement.lsComplexTypes.front(), rWsdlTypes,
+                                        sForceParentName, sForceParentNs);
+        }
+        else
+        {
+          rise::LogWarning() << "Untyped element: " << rElement.sName;
         }
       }
     }
@@ -1307,6 +1628,7 @@ namespace staff
         {
           rDataType.sName = stQName.sName;
         }
+        rDataType.eType = SDataType::EGeneric;
       }
       else
       if (stQName.sName == "DataObject") // non xsd:any, may have additional schema
@@ -1343,6 +1665,11 @@ namespace staff
         }
 
         rDataType.eType = SDataType::EUnknown;
+
+        if (rDataType.sName == "DisputeIDType")
+        {
+          rDataType.sName = "DisputeIDType";
+        }
       }
     }
 
@@ -1362,7 +1689,9 @@ namespace staff
         return "";
       }
 
-      std::string sResult;
+      // TODO: parse "urn:" ns form
+
+      std::string sCppNamespace;
 
       // skip protocol
       std::string::size_type nPosBegin = sNamespace.find("://");
@@ -1387,16 +1716,24 @@ namespace staff
       nPosBegin = nPosNewBegin + 1;
 
       std::string::size_type nPosEnd = sNamespace.find_last_of('.');
-      if (nPosEnd == std::string::npos || nPosEnd < nPosBegin)
+      if (nPosEnd == std::string::npos || nPosEnd == (sNamespace.size() - 1) || nPosEnd < nPosBegin)
       {
         return "";
       }
 
-      sResult = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
+      // check namespace is lowercase and service name begins with uppercase letter
+      char chNamespace = sNamespace[nPosBegin];
+      char chService = sNamespace[nPosEnd + 1];
+      if (tolower(chNamespace) != chNamespace || toupper(chService) != chService)
+      {
+        return "";
+      }
 
-      rise::StrReplace(sResult, ".", "::");
+      sCppNamespace = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
 
-      return "::" + sResult + "::";
+      rise::StrReplace(sCppNamespace, ".", "::");
+
+      return "::" + sCppNamespace + "::";
     }
 
     // optimize param as const ref
@@ -1435,7 +1772,6 @@ namespace staff
     SWsdlTypes m_stWsdlTypes;
     const SParseSettings& m_rParseSettings;
   };
-
 
   SWsdlTypes::SWsdlTypes(CWsdlParserImpl* pParser):
     m_pParser(pParser)
@@ -1515,24 +1851,9 @@ namespace staff
     }
   }
 
-  void ReplacePrefix(SElement& rElement, const std::string& sNamespace, const std::string& sPrefix);
-
-  void ReplacePrefix(SComplexType& rComplexType, const std::string& sNamespace, const std::string& sPrefix)
-  {
-    if (rComplexType.sNamespace == sNamespace)
-    {
-      rComplexType.sPrefix = sPrefix;
-    }
-
-    for (std::list<SElement>::iterator itElement = rComplexType.lsElements.begin();
-        itElement != rComplexType.lsElements.end(); ++itElement)
-    {
-      ReplacePrefix(*itElement, sNamespace, sPrefix);
-    }
-  }
-
   void ReplacePrefix(SElement& rElement, const std::string& sNamespace, const std::string& sPrefix)
   {
+    rElement.bIsExtern = true;
     if (rElement.sNamespace == sNamespace)
     {
       rElement.sPrefix = sPrefix;
@@ -1541,6 +1862,7 @@ namespace staff
     for (std::list<SSimpleType>::iterator itSimpleType = rElement.lsSimpleTypes.begin();
         itSimpleType != rElement.lsSimpleTypes.end(); ++itSimpleType)
     {
+      itSimpleType->bIsExtern = true;
       if (itSimpleType->sNamespace == sNamespace)
       {
         itSimpleType->sPrefix = sPrefix;
@@ -1550,9 +1872,20 @@ namespace staff
     for (std::list<SComplexType>::iterator itComplexType = rElement.lsComplexTypes.begin();
         itComplexType != rElement.lsComplexTypes.end(); ++itComplexType)
     {
-      ReplacePrefix(*itComplexType, sNamespace, sPrefix);
-    }
+      SComplexType& rComplexType = *itComplexType;
+      rComplexType.bIsExtern = true;
 
+      if (rComplexType.sNamespace == sNamespace)
+      {
+        rComplexType.sPrefix = sPrefix;
+      }
+
+      for (std::list<SElement>::iterator itElement = rComplexType.lsElements.begin();
+          itElement != rComplexType.lsElements.end(); ++itElement)
+      {
+        ReplacePrefix(*itElement, sNamespace, sPrefix);
+      }
+    }
   }
 
   void SWsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, SProject& rProject, SInterface& rInterface)
@@ -1580,8 +1913,26 @@ namespace staff
 
     if (m_setNsAliases.count(sImportNs) != 0)
     { // import into current namespace
+      static int nUnnamedNsNum = 0;
       rise::LogDebug2() << "Namespace: " << sImportNs << " is alias for current";
-      try
+
+      const std::string& sPrefix = "ns" + rise::ToStr(++nUnnamedNsNum);
+
+      // insert imported namespaces into current definitions
+      rise::xml::CXMLNode* pNodeDefinitions = &rNodeImport;
+      for (; pNodeDefinitions != NULL; pNodeDefinitions = pNodeDefinitions->GetParent())
+      {
+        if (pNodeDefinitions->NodeName() == "definitions")
+        {
+          break;
+        }
+      }
+      RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node");
+
+      rise::xml::CXMLNode::TXMLNsList& rlsNamespaces = pNodeDefinitions->GetNsList();
+      rlsNamespaces.push_back(rise::xml::SXMLNamespace(sPrefix, sImportNs));
+
+/*      try
       {
         rise::xml::CXMLDocument tWsdlDoc;
         rise::xml::CXMLNode& rDefs = tWsdlDoc.GetRoot();
@@ -1601,9 +1952,7 @@ namespace staff
       {
         rise::LogWarning() << "Cannot import xsd schema \"" << sShemaLocation
             << "\": " << rException.GetDescr() << ". Service's interface may be incomplete.";
-      }
-
-      return;
+      }*/
     }
 
     std::string sImportNsPrefix;
@@ -1614,7 +1963,8 @@ namespace staff
     CWsdlParserImpl tWsdlParser(m_pParser->GetParseSettings());
     try
     {
-      SInterface& rNewInterface = tWsdlParser.ParseFile(sShemaLocation, rProject);
+      SInterface& rNewInterface = tWsdlParser.ParseFile(m_pParser->GetParseSettings().sInDir + '/'
+                                                        + sShemaLocation, rProject);
 
       // import operations
       const SWsdlTypes& rImportedWsdlTypes = tWsdlParser.GetWsdlTypes();
@@ -1648,6 +1998,7 @@ namespace staff
         stTypedef.sName = itTypedef->sName;
         stTypedef.sNamespace = itTypedef->sNamespace;
         stTypedef.sDescr = itTypedef->sDescr;
+        stTypedef.sDetail= itTypedef->sDetail;
         stTypedef.bExtern = true;
         rInterface.lsTypedef.push_back(stTypedef);
       }

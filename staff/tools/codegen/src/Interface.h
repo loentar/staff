@@ -62,6 +62,7 @@ namespace staff
     SDataType    stDataType;  //!<  param data type
     std::string  sName;       //!<  param name
     std::string  sDescr;      //!<  param description
+    std::string  sDetail;     //!<  detailed description
 
     SParam& operator=(const SParam& rParam)
     {
@@ -126,6 +127,7 @@ namespace staff
     std::string         sName;          //!<  typedef name
     std::string         sNamespace;     //!<  namespace
     std::string         sDescr;         //!<  description
+    std::string         sDetail;          //!<  detailed description
     SDataType           stDataType;     //!<  base data type
     bool                bExtern;        //!<  extern declaration
 
