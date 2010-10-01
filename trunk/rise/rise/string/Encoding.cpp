@@ -39,9 +39,9 @@ namespace rise
           L"\xD090\xD091\xD092\xD093\xD094\xD095\xD081\xD096\xD097\xD098\xD099\xD09A\xD09B\xD09C\xD09D\xD09E\xD09F"
           L"\xD0A0\xD0A1\xD0A2\xD0A3\xD0A4\xD0A5\xD0A6\xD0A7\xD0A8\xD0A9\xD0AA\xD0AB\xD0AC\xD0AD\xD0AE\xD0AF\x0000",
           "\xEF\xBB\xBF"
-          ));    
-      
-      
+          ));
+
+
       CEncoding::AddUserEncodingType(
         SEncodingType(CEncoding::ET_KOI8R, "koi8-r", "koi8-r",
           "\xc1\xc2\xd7\xc7\xc4\xc5\xa3\xd6\xda\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd2\xd3\xd4\xd5\xc6\xc8\xc3\xde\xdb\xdd\xdf\xd9\xd8\xdc\xc0\xd1"
@@ -53,7 +53,7 @@ namespace rise
           "\xe0\xe1\xe2\xe3\xe4\xe5\xb8\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff"
           "\xc0\xc1\xc2\xc3\xc4\xc5\xa8\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\x0"
           ));
-        
+
       CEncoding::AddUserEncodingType(
         SEncodingType(CEncoding::ET_CP866, "cp866", "cp866",
           "\xa0\xa1\xa2\xa3\xa4\xa5\xf1\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef"
@@ -71,6 +71,43 @@ namespace rise
           "\xd0\xd1\xd2\xd3\xd4\xd5\xf1\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef"
           "\xb0\xb1\xb2\xb3\xb4\xb5\xa1\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\x0"
           ));
+
+
+      CEncoding::AddUserEncodingType(
+        SEncodingType(CEncoding::ET_UTF_16LE, "UTF-16LE", "UTF-16",
+          "",
+          L"\x3004\x3104\x3204\x3304\x3404\x3504\x5104\x3604"
+          L"\x3704\x3804\x3904\x3a04\x3b04\x3c04\x3d04\x3e04"
+          L"\x3f04\x4004\x4104\x4204\x4304\x4404\x4504\x4604"
+          L"\x4704\x4804\x4904\x4a04\x4b04\x4c04\x4d04\x4e04"
+          L"\x4f04"
+          L"\x1004\x1104\x1204\x1304\x1404\x1504\x0104\x1604"
+          L"\x1704\x1804\x1904\x1a04\x1b04\x1c04\x1d04\x1e04"
+          L"\x1f04\x2004\x2104\x2204\x2304\x2404\x2504\x2604"
+          L"\x2704\x2804\x2904\x2a04\x2b04\x2c04\x2d04\x2e04"
+          L"\x2f04"
+          L"\x0000",
+          "\xFF\xFE"
+          ));
+
+      CEncoding::AddUserEncodingType(
+        SEncodingType(CEncoding::ET_UTF_16BE, "UTF-16BE", "UTF-16",
+          "",
+          L"\x0430\x0431\x0432\x0433\x0434\x0435\x0451\x0436"
+          L"\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e"
+          L"\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446"
+          L"\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044e"
+          L"\x044f"
+          L"\x0410\x0411\x0412\x0413\x0414\x0415\x0401\x0416"
+          L"\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e"
+          L"\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426"
+          L"\x0427\x0428\x0429\x042a\x042b\x042c\x042d\x042e"
+          L"\x042f"
+          L"\x0000",
+          "\xFE\xFF"
+          ));
+
+
     }
   };
 
@@ -99,7 +136,7 @@ namespace rise
   const SEncodingType& CEncoding::FindEncodingTypeByID( int nID )
   {
     TEncMap::const_iterator itFind = m_mEncMap.find(nID);
-    RISE_ASSERTES(itFind != m_mEncMap.end(), CLogicNoItemException, "Encoding type #" + ToStr(nID) + "not found");
+    RISE_ASSERTES(itFind != m_mEncMap.end(), CLogicNoItemException, "Encoding type #" + ToStr(nID) + " not found");
     return itFind->second;
   }
 
@@ -109,10 +146,24 @@ namespace rise
       if (itFind->second.sName == sEncName)
         return itFind->second;
 
-    RISE_THROWS(CLogicNoItemException, "Encoding type #" + sEncName + "not found");
+    RISE_THROWS(CLogicNoItemException, "Encoding type #" + sEncName + " not found");
   }
 
-  void CEncoding::Convert( const CString& sFrom, CString& sTo, EType nIdFrom, EType nIdTo )
+  int CEncoding::FindEncodingIdByName(const CString& sEncName)
+  {
+    for(TEncMap::const_iterator itFind = m_mEncMap.begin(); itFind != m_mEncMap.end(); ++itFind)
+    {
+      if (itFind->second.sName == sEncName)
+      {
+        return itFind->first;
+      }
+    }
+
+    return ET_UNKNOWN;
+  }
+
+  void CEncoding::Convert( const CString& sFrom, CString& sTo, int nIdFrom, int nIdTo,
+                           bool bInsertMagicBytes /*= false*/ )
   {
     if (nIdFrom == nIdTo)
     {
@@ -128,19 +179,24 @@ namespace rise
     const SEncodingType& rstEncTo = FindEncodingTypeByID(nIdTo);
 
     sTo.erase();
+    if (bInsertMagicBytes)
+    {
+      sTo += rstEncTo.asMagic;
+    }
 
-    if(nIdTo == ET_UTF_8)
-      sTo.reserve(sFrom.size() * 2);
-    else
-      sTo.reserve(sFrom.size());
-    
+    sTo.reserve(sFrom.size() * (rstEncTo.wsTable.empty() ? 1 : 2));
+
     for(CString::const_iterator itFrom = sFrom.begin(); itFrom != sFrom.end(); ++itFrom)
     {
-      if (nIdFrom == ET_UTF_8) // utf-8
+      // source encoding
+      if (!rstEncFrom.wsTable.empty()) // unicode
       {
         chTmp = *itFrom;
-
-        if ((chTmp & 0x80) != 0) // not latin
+        if (nIdFrom == ET_UTF_8 && (chTmp & 0x80) == 0)
+        {
+          nCharPos = CString::npos; // take as single byte char for utf-8
+        }
+        else
         {
           wchTmp = (wchar_t)chTmp & 0xff;
           ++itFrom;
@@ -154,8 +210,7 @@ namespace rise
 
             nCharPos = rstEncFrom.wsTable.find(wchTmp);
           }
-        } else
-          nCharPos = CString::npos; // take as single byte char
+        }
       } else
       { // single-byte encoding
         chTmp = *itFrom;
@@ -164,11 +219,19 @@ namespace rise
       }
 
       // destination encoding
-      if (nIdTo == ET_UTF_8)
-      { // utf-8
+      if (!rstEncTo.wsTable.empty()) // unicode
+      {
         if (nCharPos == CString::npos)
-        { // if not found, there is a generic symbol(<128)
+        { // if given char is not found, assume it as generic latin symbol(<128)
+          if (nIdTo == ET_UTF_16BE)
+          {
+            sTo += '\0';
+          }
           sTo += chTmp;
+          if (nIdTo == ET_UTF_16LE)
+          {
+            sTo += '\0';
+          }
         } else
         { // found
           sTo += (char)((rstEncTo.wsTable[nCharPos] >> 8) & 0xff);
@@ -184,6 +247,33 @@ namespace rise
       }
     }
   }
-  
+
+  CString CEncoding::Convert(const CString& sFrom, int nIdFrom, int nIdTo, bool bInsertMagicBytes /*= false*/)
+  {
+    CString sResult;
+    Convert(sFrom, sResult, nIdFrom, nIdTo, bInsertMagicBytes);
+    return sResult;
+  }
+
+  void CEncoding::Convert(const CString& sFrom, CString& sTo, const CString& sFromName, const CString& sToName,
+                      bool bInsertMagicBytes /*= false*/)
+  {
+    int nIdFrom = FindEncodingIdByName(sFromName);
+    int nIdTo = FindEncodingIdByName(sToName);
+
+    RISE_ASSERTES(nIdFrom != ET_UNKNOWN, CLogicNoItemException, "Encoding type #" + sFromName + " not found");
+    RISE_ASSERTES(nIdTo != ET_UNKNOWN, CLogicNoItemException, "Encoding type #" + sToName + " not found");
+
+    Convert(sFrom, sTo, nIdFrom, nIdTo, bInsertMagicBytes);
+  }
+
+  CString CEncoding::Convert(const CString& sFrom, const CString& sFromName, const CString& sToName,
+                         bool bInsertMagicBytes /*= false*/)
+  {
+    CString sResult;
+    Convert(sFrom, sResult, sFromName, sToName, bInsertMagicBytes);
+    return sResult;
+  }
+
 }
 
