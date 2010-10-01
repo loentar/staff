@@ -63,6 +63,8 @@ namespace rise
       ET_CP866,      //!<  dos(codepage 866)
       ET_MACINTOSH,  //!<  macintosh
       ET_ISO_8859_5, //!<  iso8859-5
+      ET_UTF_16LE,   //!<  utf-16 little endian
+      ET_UTF_16BE,   //!<  utf-16 big endian
       ET_LAST,       //!<  last used
       ET_USER        //!<  user encoding
     };
@@ -94,15 +96,45 @@ namespace rise
         */
     static const SEncodingType& FindEncodingTypeByName(const CString& sEncName);
 
+    //!         get encoding id by name
+    /*! \param  sEncName - name, case sensitive
+        \return encoding id, ET_UNKNOWN if not found
+        */
+    static int FindEncodingIdByName(const CString& sEncName);
+
     //!         convert string
     /*! \param  sFrom - source string
         \param  sTo - resulting string
         \param  nIdFrom - source encoding
         \param  nIdTo - resulting encoding
-        \return 
         */
-    static void Convert(const CString& sFrom, CString& sTo, EType nIdFrom, EType nIdTo);
+    static void Convert(const CString& sFrom, CString& sTo, int nIdFrom, int nIdTo, bool bInsertMagicBytes = false);
 
+    //!         convert string
+    /*! \param  sFrom - source string
+        \param  nIdFrom - source encoding
+        \param  nIdTo - resulting encoding
+        \return resulting string
+        */
+    static CString Convert(const CString& sFrom, int nIdFrom, int nIdTo, bool bInsertMagicBytes = false);
+
+    //!         convert string
+    /*! \param  sFrom - source string
+        \param  sTo - resulting string
+        \param  sFromName - source encoding name
+        \param  sToName - resulting encoding name
+        */
+    static void Convert(const CString& sFrom, CString& sTo, const CString& sFromName, const CString& sToName,
+                        bool bInsertMagicBytes = false);
+
+    //!         convert string
+    /*! \param  sFrom - source string
+        \param  sFromName - source encoding name
+        \param  sToName - resulting encoding name
+        \return resulting string
+        */
+    static CString Convert(const CString& sFrom, const CString& sFromName, const CString& sToName,
+                           bool bInsertMagicBytes = false);
   private:
     static TEncMap  m_mEncMap; //!<  encoding map
   };
