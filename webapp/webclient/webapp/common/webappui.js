@@ -258,6 +258,16 @@ webapp.ui.Generic.prototype =
   
   SetValue: function(tValue)
   {
+  },
+
+  GetName: function()
+  {
+    return this.tElement.name;
+  },
+
+  SetName: function(sName)
+  {
+    this.tElement.name = sName;
   }
 };
 
@@ -467,6 +477,102 @@ webapp.ui.Button.prototype.extend(webapp.ui.Generic.prototype).extend
   SetValue: function(tValue)
   {
     this.SetCaption(tValue);
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////
+// Radio
+webapp.ui.LabeledRadio = Class.create();
+webapp.ui.LabeledRadio.prototype.extend(webapp.ui.Generic.prototype).extend
+({
+  sClass: 'LabeledRadio',
+
+  Create: function(tParent, tOpt)
+  {
+    var tDiv = document.createElement('div');
+
+    this.tRadio = document.createElement('input');
+    this.tRadio.id = tOpt.sRadioId || webapp.ui.IdGen.Gen('Radio');;
+    this.tRadio.type = "radio";
+    this.tRadio.appendChild(document.createTextNode(tOpt.sCaption || ''));
+    if (tOpt.bChecked)
+    {
+      this.tRadio.checked = "checked";
+    }
+    this.tRadio.name = tOpt.sName;
+    this.tRadio.value = tOpt.sValue;
+    tDiv.appendChild(this.tRadio);
+
+
+    this.tLabel = document.createElement('label');
+    this.tLabel.htmlFor = this.tRadio.id;
+    this.tLabel.appendChild(document.createTextNode(tOpt.sCaption));
+    this.tLabel.style.verticalAlign = 'bottom';
+    tDiv.appendChild(this.tLabel);
+
+    return tDiv;
+  },
+
+  GetCaption: function()
+  {
+    return this.tLabel.firstChild.nodeValue;
+  },
+
+  SetCaption: function(sCaption)
+  {
+    return this.tLabel.firstChild.nodeValue = sCaption;
+  },
+
+  GetValue: function()
+  {
+    return this.tRadio.value;
+  },
+
+  SetValue: function(tValue)
+  {
+    this.tRadio.value = tValue;
+  },
+
+  SetChecked: function(bChecked)
+  {
+    if (bChecked == null)
+    {
+      bChecked = true;
+    }
+
+    if (typeof bChecked == 'string')
+    {
+      this.tRadio.checked = (bChecked.toLowerCase() == 'true');
+    }
+    else
+    {
+      this.tRadio.checked = bChecked;
+    }
+  },
+
+  GetChecked: function(bChecked)
+  {
+    return this.tRadio.checked;
+  },
+
+  On: function(sEvent, fnHandler, tScope, tObject)
+  {
+    var tSelf = this;
+
+    addHandler
+    (
+      this.tRadio,
+      sEvent,
+      function(tEvent)
+      {
+        fnHandler.call(tScope || tSelf, tEvent || window.event, tObject);
+      }
+    );
+  },
+
+  Fire: function(sEvent)
+  {
+    fireEvent(this.tRadio, sEvent);
   }
 });
 
@@ -874,7 +980,17 @@ webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
   
   On: function(sEvent, fnHandler, tScope)
   {
-    addHandler(this.tCheck, sEvent, fnHandler.bindAsEventListener(tScope || this));
+    var tSelf = this;
+
+    addHandler
+    (
+      this.tCheck,
+      sEvent,
+      function(tEvent)
+      {
+        fnHandler.call(tScope || tSelf, tEvent || window.event, tObject);
+      }
+    );
   },
   
   Fire: function(sEvent)
