@@ -978,7 +978,7 @@ webapp.ui.LabeledCheckbox.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.tCheck.checked;
   },
   
-  On: function(sEvent, fnHandler, tScope)
+  On: function(sEvent, fnHandler, tScope, tObject)
   {
     var tSelf = this;
 
