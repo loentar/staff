@@ -726,12 +726,12 @@ namespace staff
                 OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
                 if (!bIsResponse)
-                {
+                { // request
                   FixParamDataType(stParam.stDataType);
                   rMember.lsParamList.push_back(stParam);
                 }
                 else
-                {
+                { // response
                   if (nRecursionLevel == 0)
                   {
                     rMember.mOptions["responseElement"] = rElement.sName;
@@ -775,9 +775,9 @@ namespace staff
         }
         else
         {
+          FixParamDataType(stParam.stDataType);
           rMember.lsParamList.push_back(stParam);
         }
-
       }
       else
       { // reference to type
@@ -792,12 +792,13 @@ namespace staff
           {
             SComplexType& rComplexType = itComplexType->second;
             rComplexType.bIsMessagePart = true;
+
             if (rComplexType.lsElements.empty())
             { // assume void type
               stParam.stDataType.sName = "void";
             }
             else
-            if (rComplexType.lsElements.size() == 1 && !rElement.bIsArray) // inline complex type with element name
+            if (rComplexType.lsElements.size() == 1 && !rComplexType.lsElements.front().bIsArray) // inline complex type with element name
             {
               const SElement& rElem = rComplexType.lsElements.front();
 
@@ -851,7 +852,6 @@ namespace staff
           }
           rMember.stReturn = stParam;
           rMember.stReturn.stDataType.sNodeName = rElement.sName;
-          FixParamDataType(rMember.stReturn.stDataType);
         }
       }
     }
@@ -1339,10 +1339,23 @@ namespace staff
           stTypedef.sDescr = rComplexType.sDescr;
           stTypedef.sDetail = rComplexType.sDetail;
 
-          ElementToData(rComplexType.lsElements.front(), stTypedef.stDataType, rWsdlTypes);
+          SDataType stElemType;
+          ElementToData(rComplexType.lsElements.front(), stElemType, rWsdlTypes);
+          stTypedef.stDataType.eType = SDataType::ETemplate;
+          stTypedef.stDataType.sName = "list";
+          stTypedef.stDataType.sNamespace = "std::";
+          OptimizeCppNs(stElemType.sNamespace, stTypedef.sNamespace);
+
+          stTypedef.stDataType.lsParams.push_back(stElemType);
 
           m_stInterface.lsTypedef.push_back(stTypedef);
-          return stTypedef.stDataType;
+
+          SDataType stResDataType;
+          stResDataType.eType = SDataType::ETypedef;
+          stResDataType.sName = stTypedef.sName;
+          stResDataType.sNamespace = stTypedef.sNamespace;
+
+          return stResDataType;
         }
       }
 
@@ -1561,74 +1574,76 @@ namespace staff
           rDataType.eType = SDataType::EDataObject;
         }
         else
-        if (stQName.sName == "boolean")
         {
-          rDataType.sName = "bool";
+          if (stQName.sName == "boolean")
+          {
+            rDataType.sName = "bool";
+          }
+          else
+          if (stQName.sName == "integer")
+          {
+            rDataType.sName = "int";
+          }
+          else
+          if (stQName.sName == "unsignedLong")
+          {
+            rDataType.sName = "unsigned long";
+          }
+          else
+          if (stQName.sName == "unsignedInt")
+          {
+            rDataType.sName = "unsigned int";
+          }
+          else
+          if (stQName.sName == "unsignedShort")
+          {
+            rDataType.sName = "unsigned short";
+          }
+          else
+          if (stQName.sName == "decimal" ||
+            stQName.sName == "duration" ||
+            stQName.sName == "dateTime" ||
+            stQName.sName == "time" ||
+            stQName.sName == "date" ||
+            stQName.sName == "gYearMonth" ||
+            stQName.sName == "gYear" ||
+            stQName.sName == "gMonthDay" ||
+            stQName.sName == "gDay" ||
+            stQName.sName == "gMonth" ||
+            stQName.sName == "hexBinary" ||
+            stQName.sName == "base64Binary" ||
+            stQName.sName == "anyURI" ||
+            stQName.sName == "QName" ||
+            stQName.sName == "NOTATION" ||
+            stQName.sName == "normalizedString" ||
+            stQName.sName == "token" ||
+            stQName.sName == "language" ||
+            stQName.sName == "IDREFS" ||
+            stQName.sName == "ENTITIES" ||
+            stQName.sName == "NMTOKEN" ||
+            stQName.sName == "NMTOKENS" ||
+            stQName.sName == "Name" ||
+            stQName.sName == "NCName" ||
+            stQName.sName == "ID" ||
+            stQName.sName == "IDREF" ||
+            stQName.sName == "ENTITY" ||
+            stQName.sName == "nonPositiveInteger" ||
+            stQName.sName == "negativeInteger" ||
+            stQName.sName == "nonNegativeInteger" ||
+            stQName.sName == "byte" ||
+            stQName.sName == "unsignedByte" ||
+            stQName.sName == "positiveInteger" ||
+            stQName.sName == "anySimpleType")
+          {
+            rDataType.sName = stQName.sName;
+            rDataType.sNamespace = "staff::";
+          }
+          else
+          {
+            rDataType.sName = stQName.sName;
+          }
+          rDataType.eType = SDataType::EGeneric;
         }
-        else
-        if (stQName.sName == "integer")
-        {
-          rDataType.sName = "int";
-        }
-        else
-        if (stQName.sName == "unsignedLong")
-        {
-          rDataType.sName = "unsigned long";
-        }
-        else
-        if (stQName.sName == "unsignedInt")
-        {
-          rDataType.sName = "unsigned int";
-        }
-        else
-        if (stQName.sName == "unsignedShort")
-        {
-          rDataType.sName = "unsigned short";
-        }
-        else
-        if (stQName.sName == "decimal" ||
-          stQName.sName == "duration" ||
-          stQName.sName == "dateTime" ||
-          stQName.sName == "time" ||
-          stQName.sName == "date" ||
-          stQName.sName == "gYearMonth" ||
-          stQName.sName == "gYear" ||
-          stQName.sName == "gMonthDay" ||
-          stQName.sName == "gDay" ||
-          stQName.sName == "gMonth" ||
-          stQName.sName == "hexBinary" ||
-          stQName.sName == "base64Binary" ||
-          stQName.sName == "anyURI" ||
-          stQName.sName == "QName" ||
-          stQName.sName == "NOTATION" ||
-          stQName.sName == "normalizedString" ||
-          stQName.sName == "token" ||
-          stQName.sName == "language" ||
-          stQName.sName == "IDREFS" ||
-          stQName.sName == "ENTITIES" ||
-          stQName.sName == "NMTOKEN" ||
-          stQName.sName == "NMTOKENS" ||
-          stQName.sName == "Name" ||
-          stQName.sName == "NCName" ||
-          stQName.sName == "ID" ||
-          stQName.sName == "IDREF" ||
-          stQName.sName == "ENTITY" ||
-          stQName.sName == "nonPositiveInteger" ||
-          stQName.sName == "negativeInteger" ||
-          stQName.sName == "nonNegativeInteger" ||
-          stQName.sName == "byte" ||
-          stQName.sName == "unsignedByte" ||
-          stQName.sName == "positiveInteger" ||
-          stQName.sName == "anySimpleType")
-        {
-          rDataType.sName = stQName.sName;
-          rDataType.sNamespace = "staff::";
-        }
-        else
-        {
-          rDataType.sName = stQName.sName;
-        }
-        rDataType.eType = SDataType::EGeneric;
       }
       else
       if (stQName.sName == "DataObject") // non xsd:any, may have additional schema
@@ -1731,7 +1746,7 @@ namespace staff
 
       sCppNamespace = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
 
-      rise::StrReplace(sCppNamespace, ".", "::");
+      rise::StrReplace(sCppNamespace, ".", "::", true);
 
       return "::" + sCppNamespace + "::";
     }

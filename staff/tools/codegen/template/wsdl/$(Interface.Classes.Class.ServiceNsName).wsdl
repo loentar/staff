@@ -31,6 +31,9 @@
 #foreach $(Interface.Classes)
     xmlns:tns_$(Class.ServiceNamespace.!mangledot.!trim/_/)="http://tempui.org/$(Class.ServiceNsName)"
 #end
+#foreach $(Interface.Includes)
+    xmlns:tns_$(Include.NsName.!mangledot.!trim/_/)="http://tempui.org/$(Include.NsName)"
+#end
     targetNamespace="$($TargetNamespace)">
   <wsdl:types>
 #foreach $(Interface.Includes)
