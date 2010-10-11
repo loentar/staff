@@ -555,6 +555,17 @@ webapp.ui.LabeledRadio.prototype.extend(webapp.ui.Generic.prototype).extend
     return this.tRadio.checked;
   },
 
+  Enable: function(bEnable)
+  {
+    this.tRadio.disabled = bEnable === false;
+    this.tLabel.disabled = bEnable === false;
+  },
+
+  Enabled: function()
+  {
+    return !this.tRadio.disabled;
+  },
+
   On: function(sEvent, fnHandler, tScope, tObject)
   {
     var tSelf = this;

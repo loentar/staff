@@ -61,6 +61,8 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     
     this._tParent = tParent;
     
+    addHandler(window, 'resize', this._OnParentResize.bindAsEventListener(this));
+
     return this.tLayout;
   },
 
@@ -79,6 +81,13 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     
     var tLayoutElem = this.tLayout.get('element');
     tLayoutElem.parentNode.removeChild(tLayoutElem);
+  },
+
+  _OnParentResize: function()
+  {
+    this.tLayout.set('height', this._tParent.offsetHeight);
+    this.tLayout.set('width', this._tParent.offsetWidth);
+    this.tLayout.resize();
   },
   
   CreateControls: function(tParent, tLayoutUnits)

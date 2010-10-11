@@ -57,7 +57,7 @@ webapp.widget.Widget.prototype.extend(webapp.Event.prototype).extend
       
       var tFrameOpts = this.GetFrameOptions != null ? this.GetFrameOptions() : {};
       
-      if(tFrameOpts.bNoFrame !== true)
+      if(tFrameOpts.bNoFrame !== true && tOptions.bNoFrame !== true)
       {
         if(tFrameOpts.sCaption == null)
         {
