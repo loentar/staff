@@ -640,21 +640,18 @@ namespace staff
       std::string::size_type nSize = sDataType.size();
 
       for (std::string::size_type nBegin = 0, nEnd = 0;
-           nEnd != std::string::npos && nEnd < nSize; nBegin = nEnd + 1)
+           nEnd != std::string::npos && nEnd < nSize; nBegin = nEnd)
       {
         nEnd = sDataType.find_first_of(" \n\r\t&<*", nBegin);
         if (nEnd != std::string::npos)
         {
           sTmp = sDataType.substr(nBegin, nEnd  - nBegin);
+          nEnd = sDataType.find_first_not_of(" \n\r\t", nEnd); // skip whitespaces
         }
         else
         {
           sTmp = sDataType.substr(nBegin);
         }
-
-//        CSP_ASSERT(!sTmp.empty(), "unexpected EOF(after type parsing)", m_stInterface.sFileName, m_nLine);
-
-        rise::StrTrim(sTmp);
 
         if (sTmp == "static")
         {
@@ -698,6 +695,7 @@ namespace staff
             CSP_ASSERT(sTypeName.empty(), "reference before typename: [" + sDataType + "]",
                        m_stInterface.sFileName, m_nLine);
             bIsRef = true;
+            ++nEnd;
           }
           else
           if(chTmp == '*')
@@ -1027,9 +1025,29 @@ namespace staff
       {
         SParam stParamTmp;
 
-        bFunction = false;
-        SkipWs();
+        SkipWsOnly();
+        while (ReadComment(sTmp))
+        {
+          rise::StrTrim(sTmp);
+          if (sTmp.size() != 0)
+          {
+            if (sTmp[0] == '*') // codegen metacomment
+            {
+              std::string::size_type nPos = sTmp.find(':', 1);
+              if (nPos != std::string::npos)
+              {  // add an option
+                std::string sName = sTmp.substr(1, nPos - 1);
+                std::string sValue = sTmp.substr(nPos + 1);
+                rise::StrTrim(sName);
+                rise::StrTrim(sValue);
+                stParamTmp.mOptions[sName] = sValue;
+              }
+            }
+          }
+          SkipWsOnly();
+        }
 
+        bFunction = false;
         std::string sToken;
         ReadBefore(sToken);
         rise::StrTrim(sToken);

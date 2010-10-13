@@ -572,11 +572,19 @@ namespace rise
       rStream.SkipWhitespace();
       ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
         rStream.GetFileName(), rStream.GetLine());
-      while(rStream.Test("!--"))
+
+      while (rStream.Test("!")) // skip xml parser instructions
       {
-        rStream.ReadStringUntil(sTmp, "-->");
+        if(rStream.Test("--")) // comment
+        {
+          rStream.ReadStringUntil(sTmp, "-->");
+        }
+        else
+        {
+          rStream.ReadStringUntil(sTmp, "]>");
+        }
         rStream.SkipWhitespace();
-        ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
+        ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found",
           rStream.GetFileName(), rStream.GetLine());
       }
 

@@ -189,6 +189,14 @@ namespace staff
       rNodeParam["Description"] = rParam.sDescr;
       rNodeParam.AddSubNode(" Detailed parameter description ", CXMLNode::ENTCOMMENT);
       rNodeParam["Detail"] = rParam.sDetail;
+      rNodeParam.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+      CXMLNode& rNodeOptions = rNodeParam.AddSubNode("Options");
+
+      for (TStringMap::const_iterator itOption = rParam.mOptions.begin();
+          itOption != rParam.mOptions.end(); ++itOption)
+      {
+        rNodeOptions[itOption->first] = itOption->second;
+      }
       rNodeParam.AddSubNode(" Parameter type ", CXMLNode::ENTCOMMENT);
       rNodeParam.AddSubNode("DataType") << rParam.stDataType;
 
