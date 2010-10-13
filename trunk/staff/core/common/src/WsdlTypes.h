@@ -22,8 +22,6 @@
 #ifndef _WSDLTYPES_H_
 #define _WSDLTYPES_H_
 
-#include <list>
-
 namespace staff
 {
   /* primitive types */
@@ -73,16 +71,12 @@ namespace staff
   typedef unsigned short unsignedShort;
   typedef unsigned char unsignedByte;
   typedef unsigned int positiveInteger;
-  
+
   typedef string anySimpleType;
 
-
-  /* SOAP types */
-  //! SOAP Array
-  template<typename Item> 
-  class Array: public std::list<Item>
+  struct anyType
   {
   };
- }
+}
 
 #endif // _WSDLTYPES_H_

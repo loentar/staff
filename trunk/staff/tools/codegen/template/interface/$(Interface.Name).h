@@ -91,7 +91,14 @@ $($sNewOpeningNs)
 
 #ifeqend
   {
+#var bHaveDefaults 0
 #foreach $(Struct.Members)
+#foreach $(Param.Options)
+    // *$($ThisNodeName): $($ThisNodeValue)
+#end
+#ifneq($(Param.Options.*defaultValue),)
+#var bHaveDefaults 1
+#ifeqend
     $(Param.DataType) $(Param.Name);\
 #ifneq($(Param.Description),)
   //!< $(Param.Description)
@@ -99,6 +106,32 @@ $($sNewOpeningNs)
 
 #ifeqend
 #end
+#ifeq($($bHaveDefaults),1) // default constructor
+#var nDefFirst 0
+
+    $(Struct.Name)():
+      \
+#foreach $(Struct.Members)
+#ifneq($(Param.Options.*defaultValue),)
+#ifeq($($nDefFirst),1)
+, \
+#ifeqend
+#var nDefFirst 1
+#ifeq($(Param.DataType.Type),string)
+$(Param.Name)("$(Param.Options.*defaultValue)")\
+#else
+#ifeq($(Param.DataType.Name),char)
+$(Param.Name)('$(Param.Options.*defaultValue)')\
+#else
+$(Param.Name)($(Param.Options.*defaultValue))\
+#ifeqend
+#ifeqend
+#ifeqend
+#end
+
+    {
+    }
+#ifeqend
   };
 
 #ifneq($($sNewOpeningNs),$($sOpeningNs))

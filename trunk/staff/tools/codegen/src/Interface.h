@@ -39,21 +39,6 @@ namespace staff
       bIsConst(false), bIsRef(false), eType(EGeneric)
     {
     }
-
-    //! copy operator
-    SDataType& operator=(const SDataType& stDataType)
-    {
-      bIsConst = stDataType.bIsConst;
-      bIsRef = stDataType.bIsRef;
-      eType = stDataType.eType;
-      sName = stDataType.sName;
-      sNodeName = stDataType.sNodeName;
-      sNamespace = stDataType.sNamespace;
-      sUsedName = stDataType.sUsedName;
-      lsParams = stDataType.lsParams;
-
-      return *this;
-    }
   };
 
   //!  parameter
@@ -63,13 +48,7 @@ namespace staff
     std::string  sName;       //!<  param name
     std::string  sDescr;      //!<  param description
     std::string  sDetail;     //!<  detailed description
-
-    SParam& operator=(const SParam& rParam)
-    {
-      stDataType = rParam.stDataType;
-      sName = rParam.sName;
-      return *this;
-    }
+    TStringMap   mOptions;    //!<  param metacomments options
   };
 
   //!  service operation
@@ -127,7 +106,7 @@ namespace staff
     std::string         sName;          //!<  typedef name
     std::string         sNamespace;     //!<  namespace
     std::string         sDescr;         //!<  description
-    std::string         sDetail;          //!<  detailed description
+    std::string         sDetail;        //!<  detailed description
     SDataType           stDataType;     //!<  base data type
     bool                bExtern;        //!<  extern declaration
 
