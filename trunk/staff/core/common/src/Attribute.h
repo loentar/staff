@@ -56,6 +56,18 @@ namespace staff
 
     //!         initializing constructor
     /*! \param  sLocalNameInit - local name
+        \param  szValue - attribute value as text
+        */
+    explicit CAttribute(const std::string& sLocalNameInit, const char* szValue);
+
+    //!         initializing constructor
+    /*! \param  sLocalNameInit - local name
+        \param  sValue - attribute value as text
+        */
+    explicit CAttribute(const std::string& sLocalNameInit, const std::string& sValue);
+
+    //!         initializing constructor
+    /*! \param  sLocalNameInit - local name
         \param  tValue - attribute value
         */
     CAttribute(const std::string& sLocalNameInit, const CValue& tValue);
@@ -65,7 +77,12 @@ namespace staff
     */
     std::string GetLocalName() const;
 
-    //!         get value
+    //!         get attribute value as string
+    /*! \return text
+    */
+    std::string GetText() const;
+
+    //!         get attribute value
     /*! \return value
     */
     CValue GetValue() const;
