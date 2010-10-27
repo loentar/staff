@@ -51,6 +51,20 @@ namespace staff
   {
   }
 
+  CAttribute::CAttribute(const std::string& sLocalName, const char* szValue):
+      m_bOwner(true),
+      m_pDataObject(NULL)
+  {
+    m_pAxiomAttribute = axiom_attribute_create(CRuntime::Inst().GetAxis2Env(), sLocalName.c_str(), szValue, NULL);
+  }
+
+  CAttribute::CAttribute(const std::string& sLocalName, const std::string& sValue):
+      m_bOwner(true),
+      m_pDataObject(NULL)
+  {
+    m_pAxiomAttribute = axiom_attribute_create(CRuntime::Inst().GetAxis2Env(), sLocalName.c_str(), sValue.c_str(), NULL);
+  }
+
   CAttribute::CAttribute( const std::string& sLocalName, const CValue& tValue):
     m_bOwner(true),
     m_pDataObject(NULL)
@@ -65,9 +79,21 @@ namespace staff
 
     axis2_char_t* szLocalName = axiom_attribute_get_localname(m_pAxiomAttribute, 
       CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szLocalName != NULL, CDomNoItemException, "Can\'t get attribute");
+    RISE_ASSERTES(szLocalName != NULL, CDomNoItemException, "Can\'t get attribute name");
     
     return szLocalName;
+  }
+
+  std::string CAttribute::GetText() const
+  {
+    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
+      CDomNoItemException, "Not Initialized");
+
+    axis2_char_t* szText = axiom_attribute_get_value(m_pAxiomAttribute,
+      CRuntime::Inst().GetAxis2Env());
+    RISE_ASSERTES(szText != NULL, CDomNoItemException, "Can\'t get attribute text");
+
+    return szText;
   }
 
   CValue CAttribute::GetValue() const
@@ -77,7 +103,7 @@ namespace staff
 
     axis2_char_t* szValue = axiom_attribute_get_value(m_pAxiomAttribute, 
       CRuntime::Inst().GetAxis2Env());
-    RISE_ASSERTES(szValue != NULL, CDomNoItemException, "Can\'t get attribute");
+    RISE_ASSERTES(szValue != NULL, CDomNoItemException, "Can\'t get attribute text");
 
     return szValue;
   }

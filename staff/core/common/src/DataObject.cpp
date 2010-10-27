@@ -70,6 +70,14 @@ namespace staff
     operator=(const_cast<CDataObject&>(rDataObject));
   }
 
+  CDataObject::CDataObject( const std::string& sLocalName, const char* szText ):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(sLocalName, szText != NULL ? szText : "");
+  }
+
   CDataObject::CDataObject( const std::string& sLocalName, const std::string& sText ):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
@@ -139,6 +147,11 @@ namespace staff
   CDataObject::operator axiom_element_t*()
   {
     return m_pAxiomElement;
+  }
+
+  bool CDataObject::IsNull() const
+  {
+    return (m_pAxiomNode == NULL || m_pAxiomElement == NULL);
   }
 
   bool CDataObject::IsInit() const
@@ -351,6 +364,15 @@ namespace staff
     m_pAxiomElement = pAxiomElement;
     m_pAxiomNode = pAxiomNode;
     m_bOwner = true;
+  }
+
+  void CDataObject::Create( const std::string& sLocalName, const char* szText )
+  {
+    Create(sLocalName);
+    if (szText != NULL)
+    {
+      SetText(szText);
+    }
   }
 
   void CDataObject::Create( const std::string& sLocalName, const std::string& sText )
@@ -573,8 +595,52 @@ namespace staff
     return tdoClone.Clone(*this);
   }
 
+  CDataObject CDataObject::Parent()
+  {
+    return axiom_node_get_parent(m_pAxiomNode, m_pEnv);
+  }
+
+  CDataObject CDataObject::NextSibling()
+  {
+    axiom_node_t* pNode = NULL;
+    while ((pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
+           axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT);
+    return pNode;
+  }
+
+  CDataObject CDataObject::PreviousSibling()
+  {
+    axiom_node_t* pNode = NULL;
+    while ((pNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
+           axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT);
+    return pNode;
+  }
+
   //////////////////////////////////////////////////////////////////////////
   // child nodes management
+
+  CDataObject CDataObject::FirstChild()
+  {
+    axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
+    {
+      pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv);
+    }
+
+    return pNode;
+  }
+
+  CDataObject CDataObject::LastChild()
+  {
+    axiom_node_t* pNode = axiom_node_get_last_child(m_pAxiomNode, m_pEnv);
+    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
+    {
+      pNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv);
+    }
+
+    return pNode;
+  }
+
   CDataObject CDataObject::CreateChild()
   {
     CDataObject tdoChild;
@@ -590,6 +656,22 @@ namespace staff
   CDataObject CDataObject::CreateChild( const CQName& rstQName )
   {
     CDataObject tdoChild(rstQName);
+    return AppendChild(tdoChild);
+  }
+
+  CDataObject CDataObject::CreateChild( const std::string& sLocalName, const char* szValue )
+  {
+    CDataObject tdoChild(sLocalName);
+    if (szValue != NULL)
+    {
+      tdoChild.SetText(szValue);
+    }
+    return AppendChild(tdoChild);
+  }
+
+  CDataObject CDataObject::CreateChild( const std::string& sLocalName, const std::string& sValue )
+  {
+    CDataObject tdoChild(sLocalName, sValue);
     return AppendChild(tdoChild);
   }
 

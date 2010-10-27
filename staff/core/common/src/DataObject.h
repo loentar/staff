@@ -72,6 +72,12 @@ namespace staff
 
     //!         initializing constructor
     /*! \param  sLocalName - local name for creating node
+        \param  szText - node value(C-string)
+    */
+    explicit CDataObject(const std::string& sLocalName, const char* szText);
+
+    //!         initializing constructor
+    /*! \param  sLocalName - local name for creating node
         \param  sText - node value(string)
     */
     explicit CDataObject(const std::string& sLocalName, const std::string& sText);
@@ -123,6 +129,11 @@ namespace staff
     /*! \return AxiOM element
     */
     operator axiom_element_t*();
+
+    //!         tests if the DataObject is NULL or not
+    /*! \return true if the DataObject is NULL
+    */
+    bool IsNull() const;
 
     //!         tests if the DataObject is initialized or not
     /*! \return true if the DataObject is initialized
@@ -190,6 +201,12 @@ namespace staff
 
     //!         create named node, set ownership flag, set node value(string)
     /*! \param  sLocalName - node name
+        \param  szText - node value(C-string)
+    */
+    void Create(const std::string& sLocalName, const char* szText);
+
+    //!         create named node, set ownership flag, set node value(string)
+    /*! \param  sLocalName - node name
         \param  sText - node value(string)
     */
     void Create(const std::string& sLocalName, const std::string& sText);
@@ -225,9 +242,35 @@ namespace staff
         */
     CDataObject Clone() const;
 
+    //!         get parent element
+    /*! \return parent element
+      */
+    CDataObject Parent();
+
+    //!         get next sibling element
+    /*! \return next sibling element
+      */
+    CDataObject NextSibling();
+
+    //!         get previous sibling element
+    /*! \return previous sibling element
+      */
+    CDataObject PreviousSibling();
+
+
     //////////////////////////////////////////////////////////////////////////
     // child nodes management
-    
+
+    //!         get first child element
+    /*! \return first child element
+      */
+    CDataObject FirstChild();
+
+    //!         get last child element
+    /*! \return last child element
+      */
+    CDataObject LastChild();
+
     //!         create unnamed child node
     /*! \return created child
         */
@@ -247,7 +290,21 @@ namespace staff
 
     //!         create child node with local name and value
     /*! \param  sLocalName - child's local name
-        \param  rValue - child's value
+        \param  sValue - child's text value(C-string)
+        \return created child
+        */
+    CDataObject CreateChild(const std::string& sLocalName, const char* szValue);
+
+    //!         create child node with local name and value
+    /*! \param  sLocalName - child's local name
+        \param  szValue - child's text value(string)
+        \return created child
+        */
+    CDataObject CreateChild(const std::string& sLocalName, const std::string& sValue);
+
+    //!         create child node with local name and value
+    /*! \param  sLocalName - child's local name
+        \param  sValue - child's value
         \return created child
         */
     CDataObject CreateChild(const std::string& sLocalName, const CValue& rValue);

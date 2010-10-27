@@ -39,6 +39,7 @@
 #include <rise/common/console.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
+#include <rise/threading/Thread.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObjectHelper.h>
@@ -311,7 +312,8 @@ rise::LogEntry();
     {
       std::string sTracedStack;
       rise::tools::CStackTracer::StackTraceStr(sTracedStack);
-      rise::LogError() << "Segmentation fault.\nTraced stack:\n" << sTracedStack;
+      rise::LogError() << "Segmentation fault in thread " << rise::threading::CThread::GetCurrentId()
+          << ".\nTraced stack:\n" << sTracedStack;
       exit(1);
     }
   }
