@@ -169,7 +169,7 @@ $($sNewOpeningNs)
 #ifneq($(Param.Options.*defaultValue),)
 #var bHaveDefaults 1
 #ifeqend
-    $(Param.DataType) $(Param.Name);\
+    $(Param.DataType.UsedName) $(Param.Name);\
 #ifneq($(Param.Description),)
   //!< $(Param.Description)
 #else
