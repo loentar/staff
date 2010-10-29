@@ -573,11 +573,36 @@ namespace staff
         */
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName);
 
+    //!         find attribute by QName
+    /*! \param  stQName - QName
+        \return iterator to found attribute or AttributeEnd()
+        */
+    ConstAttributeIterator FindAttributeByQName(const CQName& stQName) const;
+
+    //!         find attribute by QName
+    /*! \param  stQName - QName
+        \param  itStart - iterator to attribute to start with
+        \return iterator to found attribute or AttributeEnd()
+        */
+    ConstAttributeIterator FindAttributeByQName(const CQName& stQName, const ConstAttributeIterator& itStart) const;
+
+    //!         find attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return iterator to found attribute or AttributeEnd()
+        */
+    ConstAttributeIterator FindAttributeByLocalName(const std::string& sLocalName) const;
+
     //!         get attribute by QName
     /*! \param  stQName - attribute's QName
         \return attribute
         */
     CAttribute GetAttributeByQName(const CQName& stQName);
+
+    //!         get attribute by QName
+    /*! \param  stQName - attribute's QName
+        \return attribute
+        */
+    const CAttribute GetAttributeByQName(const CQName& stQName) const;
 
     //!         get attribute value by name
     /*! \param  sLocalName - attribute's local name
@@ -625,6 +650,16 @@ namespace staff
     */
     AttributeIterator AttributeEnd();
 
+    //!         get iterator to the first node's attribute
+    /*! \return iterator to the first node's attribute
+    */
+    ConstAttributeIterator AttributeBegin() const;
+
+    //!         get iterator to the next by last node's attribute
+    /*! \return iterator to the next by last node's attribute
+    */
+    ConstAttributeIterator AttributeEnd() const;
+
     //!         get iterator to the first node's namespace
     /*! \return iterator to the first node's namespace
     */
@@ -634,6 +669,16 @@ namespace staff
     /*! \return iterator to the next by last node's namespace
     */
     NamespaceIterator NamespaceEnd();
+
+    //!         get iterator to the first node's namespace
+    /*! \return iterator to the first node's namespace
+    */
+    ConstNamespaceIterator NamespaceBegin() const;
+
+    //!         get iterator to the next by last node's namespace
+    /*! \return iterator to the next by last node's namespace
+    */
+    ConstNamespaceIterator NamespaceEnd() const;
 
     //////////////////////////////////////////////////////////////////////////
     // support operators
@@ -1008,7 +1053,7 @@ namespace staff
     /*! \param  pDataObject - dataobject
         \param  pNamespaceIndex - AxiOM namespace index
         */
-    ConstNamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
+    ConstNamespaceIterator(const CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
 
     //!         copy constructor
     /*! \param  rIter - iterator

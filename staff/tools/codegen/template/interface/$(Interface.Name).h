@@ -4,9 +4,79 @@
 #ifndef _$(Interface.Name)_h_
 #define _$(Interface.Name)_h_
 
+\
+#var includeList 0
+#var includeMap 0
+#var includeDataObject 0
+\
+#foreach $(Interface.Structs)
+#ifeq($(Struct.Extern),0)
+#foreach $(Struct.Members)
+#ifeq($(Param.DataType.Name),list)
+#var includeList 1
+#ifeqend
+#ifeq($(Param.DataType.Name),map)
+#var includeMap 1
+#ifeqend
+#ifeq($(Param.DataType.Type),dataobject)
+#var includeDataObject 1
+#ifeqend
+#end       // foreach Struct.Members
+#ifeqend
+#end       // foreach Interface.Structs
+\
+#foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),0)
+#ifeq($(Typedef.DataType.Name),list)
+#var includeList 1
+#ifeqend
+#ifeq($(Typedef.DataType.Name),map)
+#var includeMap 1
+#ifeqend
+#ifeq($(Typedef.DataType.Type),dataobject)
+#var includeDataObject 1
+#ifeqend
+#ifeqend
+#end       // foreach Interface.Typedefs
+\
+#foreach $(Interface.Classes)
+#foreach $(Class.Members)
+#foreach $(Member.Params)
+#ifeq($(Param.DataType.Name),list)
+#var includeList 1
+#ifeqend
+#ifeq($(Param.DataType.Name),map)
+#var includeMap 1
+#ifeqend
+#ifeq($(Param.DataType.Type),dataobject)
+#var includeDataObject 1
+#ifeqend
+#end // also check return type
+#ifeq($(Member.Return.Name),list)
+#var includeList 1
+#ifeqend
+#ifeq($(Member.Return.Name),map)
+#var includeMap 1
+#ifeqend
+#ifeq($(Member.Return.Type),dataobject)
+#var includeDataObject 1
+#ifeqend
+#end
+#end       // foreach Interface.Classes
+\
+\
+#ifeq($($includeList),1)
+#include <list>
+#ifeqend
+#ifeq($($includeMap),1)
+#include <map>
+#ifeqend
 #include <staff/common/WsdlTypes.h>
-#include <staff/common/DataObject.h>
 #include <staff/common/IService.h>
+#ifeq($($includeDataObject),1)
+#include <staff/common/DataObject.h>
+#ifeqend
+\
 #foreach $(Interface.Includes)
 #include "$(Include.Name).h"
 #end

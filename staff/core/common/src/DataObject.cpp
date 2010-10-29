@@ -1334,9 +1334,90 @@ namespace staff
     return AttributeIterator(this, NULL);
   }
 
+  CDataObject::ConstAttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName) const
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return ConstAttributeIterator(this, NULL);
+    }
+
+    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (stQName == axiom_attribute_get_qname(pAttr, m_pEnv))
+        {
+          return ConstAttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return ConstAttributeIterator(this, NULL);
+  }
+
+  CDataObject::ConstAttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName, const ConstAttributeIterator& itStart) const
+  {
+    for (axutil_hash_index_t* pIndex = itStart.m_pAttributeIndex;
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (stQName == axiom_attribute_get_qname(pAttr, m_pEnv))
+        {
+          return ConstAttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return ConstAttributeIterator(this, NULL);
+  }
+
+  CDataObject::ConstAttributeIterator CDataObject::FindAttributeByLocalName(const std::string& sLocalName) const
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return ConstAttributeIterator(this, NULL);
+    }
+
+    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+    {
+      void* pHashValue = NULL;
+
+      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+      if (pHashValue != NULL)
+      {
+        axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+        if (sLocalName == axiom_attribute_get_localname(pAttr, m_pEnv))
+        {
+          return ConstAttributeIterator(this, pIndex);
+        }
+      }
+    }
+
+    return ConstAttributeIterator(this, NULL);
+  }
+
   CAttribute CDataObject::GetAttributeByQName(const CQName& stQName)
   {
     CAttribute tAttr(this, axiom_element_get_attribute(m_pAxiomElement, m_pEnv, stQName));
+    return tAttr;
+  }
+
+  const CAttribute CDataObject::GetAttributeByQName(const CQName& stQName) const
+  {
+    CAttribute tAttr(const_cast<CDataObject*>(this), axiom_element_get_attribute(m_pAxiomElement, m_pEnv, stQName));
     return tAttr;
   }
 
@@ -1410,6 +1491,24 @@ namespace staff
     return AttributeIterator(this, NULL);
   }
 
+  CDataObject::ConstAttributeIterator CDataObject::AttributeBegin() const
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash == NULL)
+    {
+      return ConstAttributeIterator(this, NULL); // end
+    }
+
+    axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+
+    return ConstAttributeIterator(this, pIndex);
+  }
+
+  CDataObject::ConstAttributeIterator CDataObject::AttributeEnd() const
+  {
+    return ConstAttributeIterator(this, NULL);
+  }
+
   CDataObject::NamespaceIterator CDataObject::NamespaceBegin()
   {
     axutil_hash_t* pNsHash = axiom_element_get_namespaces(m_pAxiomElement, m_pEnv);
@@ -1426,6 +1525,24 @@ namespace staff
   CDataObject::NamespaceIterator CDataObject::NamespaceEnd()
   {
     return NamespaceIterator(this, NULL);
+  }
+
+  CDataObject::ConstNamespaceIterator CDataObject::NamespaceBegin() const
+  {
+    axutil_hash_t* pNsHash = axiom_element_get_namespaces(m_pAxiomElement, m_pEnv);
+    if (pNsHash == NULL)
+    {
+      return ConstNamespaceIterator(this, NULL); // end
+    }
+
+    axutil_hash_index_t* pIndex = axutil_hash_first(pNsHash, m_pEnv);
+
+    return ConstNamespaceIterator(this, pIndex);
+  }
+
+  CDataObject::ConstNamespaceIterator CDataObject::NamespaceEnd() const
+  {
+    return ConstNamespaceIterator(this, NULL);
   }
 
 
@@ -1938,7 +2055,7 @@ namespace staff
   {
   }
 
-  CDataObject::ConstNamespaceIterator::ConstNamespaceIterator(CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex):
+  CDataObject::ConstNamespaceIterator::ConstNamespaceIterator(const CDataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex):
     m_pDataObject(pDataObject),
     m_pNamespaceIndex(pNamespaceIndex)
   {
