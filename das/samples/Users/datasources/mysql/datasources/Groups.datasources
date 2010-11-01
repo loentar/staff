@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Groups" descr="Data source for manipulating with groups (provider is MySql)">
+    <provider name="staff.das.MySql">
+      <connection>
+        <db>testdas</db>
+        <host>localhost</host>
+        <port>5432</port>
+        <login>dastestuser</login>
+        <password>dastestuserpassword</password>
+      </connection>
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+      <Group type="struct" descr="Group info">
+        <nId type="int" descr="Group id"/>
+        <sName type="string" descr="Group name"/>
+        <sDescr type="string" descr="Group description"/>
+      </Group>
+      <GroupsList type="list" itemtype="Group" descr="Groups list" />
+    </types>
+
+    <operations>
+      <operation name="GetGroup" descr="get group info by group id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="Group" />
+        <execute>SELECT `id`, `name`, `description` FROM `groups` WHERE `id` = $nId</execute>
+      </operation>
+
+      <operation name="GetAllGroups">
+        <params/>
+        <return type="GroupsList" />
+        <execute>SELECT `id`, `name`, `description` FROM `groups`</execute>
+      </operation>
+
+      <operation name="GetAllGroupsAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>SELECT `id`, `name`, `description` FROM `groups`</execute>
+      </operation>
+    </operations>
+
+  </datasource>
+</datasources>
+
