@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Users" descr="Data source for manipulating with users (provider is MySql)">
+    <provider name="staff.das.MySql">
+      <connection>
+        <db>testdas</db>
+        <host>localhost</host>
+        <port>5432</port>
+        <login>dastestuser</login>
+        <password>dastestuserpassword</password>
+      </connection>
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+
+      <User type="struct" descr="User info">
+        <nId type="int" descr="User id"/>
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+      </User>
+      <UsersList type="list" itemtype="User" descr="Users list" />
+
+      <UserToAdd type="struct" descr="User info with password for adding">
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+        <sPassword type="string" descr="User password"/>
+      </UserToAdd>
+      <UserToAddList type="list" itemtype="UserToAdd" descr="Users to add list" />
+
+      <IntList type="list" itemtype="int" descr="list of integers" />
+      <StringList type="list" itemtype="string" descr="list of strings" />
+
+      <TestInclude type="struct">
+        <user type="User" />
+        <role type="Role" />
+      </TestInclude>
+    </types>
+
+    <operations>
+
+      <operation name="Add" descr="add user, returns added user id">
+        <params>
+          <sName type="string" />
+          <sPassword type="string" />
+          <sDescr type="string" />
+        </params>
+        <return type="int" />
+        <script>
+          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+          <execute>SELECT LAST_INSERT_ID()</execute>
+        </script>
+      </operation>
+
+      <operation name="AddStruct" descr="add user, returns added user id">
+        <params>
+          <stUser type="UserToAdd" />
+        </params>
+        <return type="int" />
+        <script>
+          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(stUser.sName)', '$(stUser.sPassword)', '$(stUser.sDescr)')</execute>
+          <execute>SELECT LAST_INSERT_ID()</execute>
+        </script>
+      </operation>
+
+      <operation name="AddList" descr="add multiple users, returns added users ids list">
+        <params>
+          <lsUsers type="UserToAddList" />
+        </params>
+        <return type="IntList" />
+        <script>
+          <foreach element="$(lsUsers)">
+            <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+            <execute>SELECT LAST_INSERT_ID()</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="Remove" descr="remove user by id">
+        <params>
+          <nId type="int" />
+        </params>
+        <script>
+          <execute>DELETE FROM `users` WHERE `id` = $(nId)</execute>
+        </script>
+      </operation>
+
+      <operation name="RemoveByName" descr="remove user by id">
+        <params>
+          <sName type="string" />
+        </params>
+        <script>
+          <execute>DELETE FROM `users` WHERE `name` = '$(sName)'</execute>
+        </script>
+      </operation>
+
+      <operation name="RemoveByNameList" descr="remove users by names list">
+        <params>
+          <lsNames type="StringList" />
+        </params>
+        <script>
+          <var name="names" value="" />
+          <foreach element="$(lsNames)">
+            <ifneq expr1="${names}" expr2="" >
+              <var name="names" value="${names}, " />
+            </ifneq>
+            <var name="names" value="${names}'$nodeValue'" />
+          </foreach>
+          <execute>DELETE FROM `users` WHERE `name` in (${names})</execute>
+        </script>
+      </operation>
+
+      <operation name="RemoveList" descr="remove users by id list">
+        <params>
+          <lsIds type="IntList" />
+        </params>
+        <script>
+          <var name="ids" value="" />
+          <foreach element="$(lsIds)">
+            <ifneq expr1="${ids}" expr2="" >
+              <var name="ids" value="${ids}, " />
+            </ifneq>
+            <var name="ids" value="${ids}'$nodeValue'" />
+          </foreach>
+          <execute>DELETE FROM `users` WHERE `id` in (${ids})</execute>
+        </script>
+      </operation>
+
+      <operation name="GetUserIdByName" descr="get user id by user name">
+        <params>
+          <sName type="string" />
+        </params>
+        <return type="int" />
+        <execute>SELECT `id` FROM `users` WHERE `name` = '$(sName)'</execute>
+      </operation>
+
+      <operation name="GetUser" descr="get user info by user id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="User" />
+        <execute>SELECT `id`, `name`, `description` FROM `users` WHERE `id` = $(nId)</execute>
+      </operation>
+
+      <operation name="GetAllUsers">
+        <params/>
+        <return type="UsersList" />
+        <execute>SELECT `id`, `name`, `description` FROM `users`</execute>
+      </operation>
+
+      <operation name="GetAllUsersDataObject">
+        <params/>
+        <return type="DataObject" />
+        <execute>SELECT `id`, `name`, `description` FROM `users`</execute>
+      </operation>
+
+      <operation name="GetAllUsersAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>SELECT `id`, `name`, `description` FROM `users`</execute>
+      </operation>
+
+    </operations>
+
+  </datasource>
+</datasources>
+

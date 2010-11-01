@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ "$USER" != "root" ]
+then
+  echo -e "run this script under root:\n  sudo -E $0\n"
+  exit 1
+else
+  if [ -z "$STAFF_HOME" ]
+  then
+    echo -e "STAFF_HOME is not set\n"
+    exit 1
+  else
+    # install test database
+    mkdir -p $STAFF_HOME/db
+    sqlite3 $STAFF_HOME/db/testdas.db < testdas.sql
+    chmod go+rw $STAFF_HOME/db/testdas.db
+  fi
+fi
+
