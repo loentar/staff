@@ -11,8 +11,8 @@ else
     exit 1
   else
     # install test database
-    mkdir -p $STAFF_HOME/db
-    sqlite3 $STAFF_HOME/db/testdas.db < testdas.sql
+    mkdir -p $STAFF_HOME/db/
+    cp -f testdas.db $STAFF_HOME/db/testdas.db
     chmod go+rw $STAFF_HOME/db/testdas.db
   fi
 fi
