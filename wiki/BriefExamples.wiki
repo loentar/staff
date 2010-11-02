@@ -1,4 +1,4 @@
-#summary staff brief samples
+#summary staff brief examples
 #labels Featured
 
 <h1>Table of Contents</h1>
@@ -138,7 +138,7 @@ int main(int, const char**)
 include("clients/Calculator");
 
 // some handler to invoke service
-OnButtonAddClick()
+function OnButtonAddClick()
 {
   var calc = new Calculator();
   var result = calc.Add(1, 2);
@@ -261,10 +261,10 @@ UsersList UsersImpl::GetList()
 #include <staff/client/ServiceFactory.h>
 #include "Users.h"
 
-// manipulator to easy screen output
+// manipulator for struct output 
 std::ostream& operator<<(std::ostream& out, const User& user)
 {
-  out << "id: " << user.id << " name: " << user.name << " descr: " << user.description;
+  return out << "id: " << user.id << " name: " << user.name << " descr: " << user.description;
 }
 
 int main(int, const char**)
