@@ -1,0 +1,13 @@
+
+<font size="3">Please, select an action:</font>
+
+ * [Examples View examples]
+
+ * [http://code.google.com/p/staff/source/checkout Download source from svn]
+
+ * [http://code.google.com/p/staff/downloads/list Download tarball]
+
+ * [InstallationManual Read installation manuals]
+
+ * [SupportPage Go to support page]
+
