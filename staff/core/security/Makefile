@@ -4,17 +4,16 @@ include ../../Makefile.env
 TARGET = security
 TARGETNAME = libstaff$(TARGET).so
 
-CFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
 CXXFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
 
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
-LDFLAGS += -lpthread -ldl -lstaffcommon -lrise
+LDFLAGS += -lpthread -ldl -lstaffsqlite3 -lstaffcommon -lrise
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
 HEADERS := $(wildcard $(patsubst %,%*.h,$(SRCDIR)))
-SOURCES := $(wildcard $(patsubst %,%*.c,$(SRCDIR))) $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
-OBJECTS := $(patsubst %,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
+OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 .PHONY: db
 
@@ -26,10 +25,7 @@ $(OUTDIR)$(TARGETNAME): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
 
 # compile
-$(OBJDIR)%.c.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
-
-$(OBJDIR)%.cpp.o: %.cpp
+$(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================

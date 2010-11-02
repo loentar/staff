@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib"
+				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
 				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib"
+				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
 				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
@@ -206,10 +206,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\sqlite3.c"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Time.cpp"
 				>
 			</File>
@@ -249,10 +245,6 @@
 			</File>
 			<File
 				RelativePath=".\src\Sessions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\sqlite3.h"
 				>
 			</File>
 			<File

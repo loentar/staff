@@ -26,7 +26,7 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <staff/common/Runtime.h>
-#include "sqlite3.h"
+#include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 
 namespace staff

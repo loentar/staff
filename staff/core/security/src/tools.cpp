@@ -22,10 +22,10 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
 #include <rise/common/Log.h>
+#include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 #include "Sessions.h"
 #include "Acl.h"
-#include "sqlite3.h"
 #include "tools.h"
 
 int staff_security_init()
