@@ -15,6 +15,14 @@ STAFF_HOME=c:\ws\staff
 PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib
 }}}
 
+While compiling DAS providers MySQL and PostgreSQL this variables must set to DBMS home:
+{{{
+MYSQL_HOME=c:\Program Files\MySQL\MySQL Server 5.1
+POSTGRESQL_HOME=c:\Program Files\PostgreSQL\8.3
+}}}
+
+If You do not needed PostgreSQL or MySQL provider, do not set corresponding variable.
+
 You can set these variables in system properties.
 After setting these variables, You must re-login or reboot windows.
 

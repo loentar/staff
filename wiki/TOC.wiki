@@ -1,8 +1,6 @@
-= Table of contents =
+#summary Wiki index
 
-  * Downloads
-    * [http://code.google.com/p/staff/source/checkout Download source from svn]
-    * [http://code.google.com/p/staff/downloads/list Download tarball]
+== Index ==
 
   * [Examples]
     * [BriefExamples Brief examples]
@@ -34,6 +32,10 @@
       * [CodegenTemplates Codegen templates]
     * DAS
       * [DasScriptProgramming DAS script programming]
+
+  * Downloads
+    * [http://code.google.com/p/staff/source/checkout Download source from svn]
+    * [http://code.google.com/p/staff/downloads/list Download tarball]
 
   * [InstallationManual Installation]
     * Windows

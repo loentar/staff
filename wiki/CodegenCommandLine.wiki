@@ -1,0 +1,28 @@
+#summary Code generator parameters description
+== Code generator parameters description ==
+
+Codegen's command line is:
+<pre>
+staff_codegen`[` -n<project_name>`][` -i<inputdir>`][` -i<outputdir>`][` -c<chagedir>`][` -t<template>`][` -u`][` -e`][` -p<plugin_name>`][ `-x`][ <`source_files`>]`
+</pre>
+
+`*` Parameters, quoted with `[]` is an optional.
+
+=== Detailed parametes description: ===
+|| *parameter*               || *description* || *example* ||
+||  -t`<`template`>`         || Use given template to generate code || {{{staff_codegen -tserviceimpl Service.h}}}<br/><font color="darkgreen" size="1">generate service implementation skeleton</font>||
+||  -p`<`plugin_name`>`      || Use plugin to read source code (default: cpp) || {{{staff_codegen -pwsdl -tinterface Service.wsdl}}}<br/><font color="darkgreen" size="1">create service interface from WSDL</font> ||
+||  -u                       || Update: generate only missing files, update existing files by date || {{{staff_codegen -tclient Service.h}}}<br/><font color="darkgreen" size="1">generate client proxy if proxy files is missing or older than service interface</font> ||
+||  -e                       || Don't error if Interface file is not contain service || {{{staff_codegen -twsdl Types.h}}}<br/><font color="darkgreen" size="1">generate xsd-schema for header file without service declaration</font> ||
+||  -d`<`var`>[=<`value`>]`  || Define variables: -dvar1=value1,var2=2,var3 || {{{staff_codegen -twsdl -dserviceuri=http://services.org/MyService1}}}<br/><font color="darkgreen" size="1">generate wsdl file, set service location uri to given</font> ||
+||  -i`<`input_dir`>`        || Sets input directory || {{{staff_codegen -iwsdl_files -tinterface -pwsdl Service1.wsdl Service2.wsdl}}} <br/><font color="darkgreen" size="1">generate interface files, from WSDL files located in `wsdl_files` into current directory</font> ||
+||  -o`<`output_dir`>`       || Sets output dir || {{{staff_codegen -o../wsdl_files -twsdl Service1.h Service2.h}}} <br/><font color="darkgreen" size="1">generate WSDL files into directory `../wsdl_files` from interface files located in current directory</font> ||
+||  -c`<`change_dir`>`       || Sets input and output dirs, equivalent to -i`<`changedir`>` -o`<`changedir`>`  || {{{staff_codegen -csrc -tcomponent Service1.h}}} <br/><font color="darkgreen" size="1">generate component and service wrapper from directory src into the same directory</font> || 
+||  -n`<`project_name`>`     || Sets project name. || {{{staff_codegen -x -ntest Service1.h}}} <br/><font color="darkgreen" size="1">generate internal xml with given name</font>  ||
+||  -x                       || Write internal xml description.<br/> XML file name is in format: "`<`project_name`>`.xml" || _Please see example above_ ||
+
+See also:
+  * [CodegenPlugins codegen plugins list]
+  * [CodegenMetacomments codegen metacomments description]...
+  * [CodegenTemplates codegen templates list]
+

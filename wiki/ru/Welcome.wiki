@@ -1,0 +1,14 @@
+#summary Welcome page
+
+<font size="3">Выберите действие:</font>
+
+ * [Examples Просмотреть примеры]
+
+ * [http://code.google.com/p/staff/source/checkout Загрузка из SVN]
+
+ * [http://code.google.com/p/staff/downloads/list Загрузка архива]
+
+ * [InstallationManual Инструкции по установке]
+
+ * [SupportPage Перейти на страницу поддержки]
+

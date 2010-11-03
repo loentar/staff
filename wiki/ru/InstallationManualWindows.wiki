@@ -15,6 +15,14 @@ STAFF_HOME=c:\ws\staff
 PATH=%PATH%;%AXIS2C_HOME%/bin;%AXIS2C_HOME%/lib;%STAFF_HOME%/bin;%STAFF_HOME%/lib
 }}}
 
+При компиляции провайдеров DAS MySQL и PostgreSQL эти переменные должны быть установлены на домашний каталог СУБД:
+{{{
+MYSQL_HOME=c:\Program Files\MySQL\MySQL Server 5.1
+POSTGRESQL_HOME=c:\Program Files\PostgreSQL\8.3
+}}}
+
+Если Вы не нуждаетесь в провайдере, не устанавливайте соответствующую переменную окружения.
+
 Данные переменные окружения могут быть выставлены в свойствах системы.
 После установки переменных, необходимо выполнить повторный вход в систему либо перезагрузку Windows.
 

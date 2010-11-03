@@ -1,0 +1,21 @@
+#summary Code generator templates list
+
+== Code generator templates list ==
+
+Codegen templates is designed to write resulting files in various formats.
+
+|| *template name*  || *description* ||
+|| client           || template to generate client proxy ||
+|| clientimpl       || template to generate client stub ||
+|| component        || template to generate service wrapper and component wrapper ||
+|| interface        || template to generate service interface ||
+|| j2meclient       || template to generate j2me client proxy ||
+|| jsclient         || template to generate !JavaScript/AJAX client proxy ||
+|| serviceimpl      || template to generate service implementation skeleton ||
+|| wsdl             || template to generate wsdl file ||
+
+See also:
+  * [CodegenPlugins codegen plugins list]
+  * [CodegenCommandLine codegen command line switches]
+  * [CodegenMetacomments codegen metacomments description]
+

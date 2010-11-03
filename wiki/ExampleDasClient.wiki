@@ -1,0 +1,45 @@
+#summary Example: Creating a data source client
+
+= Example: Creating a data source client =
+
+== 1. Creating Service interface ==
+Service's interface for datasource client can be created by three way:
+  * using codegen's das plugin
+  * from wsdl
+  * from datasourcefile directly
+
+=== 1.1. Using codegen's das plugin ===
+
+To generate service interface start codegen:
+
+{{{
+staff_codegen -pdas -tinterface staff.das.samples.Accounts
+}}}
+
+Service interface will be generated in Accounts.h
+
+=== 1.2. Using wsdl ===
+
+Get wsdl from http://localhost:9090/axis2/services/staff.das.samples.Accounts?wsdl and save as staff.das.samples.Accounts.wsdl;
+
+generate interface:
+{{{
+staff_codegen -pwsdl -tinterface staff.das.samples.Accounts.wsdl
+}}}
+
+Service interface will be generated in Accounts.h
+
+=== 1.3. From datasourcefile directly ===
+
+To generate service interface start codegen:
+
+{{{
+staff_codegen -pdasdatasource -tinterface Accounts.datasources
+}}}
+
+Service interface will be generated in Accounts.h
+
+== 2. Implement client ==
+
+Follow the [ExampleCalculatorClientLinux#3._Generating_client_stub Linux guide] or [ExampleCalculatorClientWindows#3._Generating_client_stub Windows guide] to continue.
+

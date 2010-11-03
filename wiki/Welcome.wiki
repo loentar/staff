@@ -1,3 +1,4 @@
+#summary Welcome page
 
 <font size="3">Please, select an action:</font>
 
