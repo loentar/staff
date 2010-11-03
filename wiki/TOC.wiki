@@ -2,6 +2,7 @@
 
 == Index ==
 
+  * [Welcome]
   * [Examples]
     * [BriefExamples Brief examples]
     * Creating a service
