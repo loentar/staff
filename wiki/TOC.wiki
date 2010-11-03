@@ -3,47 +3,47 @@
 == Index ==
 
   * [Welcome]
-  * [Examples]
-    * [BriefExamples Brief examples]
-    * Creating a service
-      * [ExampleCalculatorServiceLinux C++ service under Linux]
-      * [ExampleCalculatorServiceWindows C++ service under Windows]
-    * Creating a C++ client
-      * [ExampleCalculatorClientWindows C++ client under Windows]
-      * [ExampleCalculatorClientLinux C++ client under Linux]
-      * [ExampleCalculatorNonBlocking Non-blocking C++ client]
-    * DAS
-      * [ExampleDasDataSource Creating datasource]
-      * [ExampleDasClient DAS client]
-    * Creating AJAX client
-      * [ExampleCalculatorAjaxClientLinux Ajax client]
-    * Creating J2ME client
-      * [ExampleCalculatorJ2meClient J2ME client]
-    * REST
-      * [ExampleCalculatorRestfulClient RESTful C++ client]
-      * [ExampleCalculatorRestfulService RESTful service]
-    * WSDL
-      * [ExampleCreatingCppClientFromWsdl Creating C++ client from WSDL]
+    * [Examples]
+      * [BriefExamples Brief examples]
+      * Creating a service
+        * [ExampleCalculatorServiceLinux C++ service under Linux]
+        * [ExampleCalculatorServiceWindows C++ service under Windows]
+      * Creating a C++ client
+        * [ExampleCalculatorClientWindows C++ client under Windows]
+        * [ExampleCalculatorClientLinux C++ client under Linux]
+        * [ExampleCalculatorNonBlocking Non-blocking C++ client]
+      * DAS
+        * [ExampleDasDataSource Creating datasource]
+        * [ExampleDasClient DAS client]
+      * Creating AJAX client
+        * [ExampleCalculatorAjaxClientLinux Ajax client]
+      * Creating J2ME client
+        * [ExampleCalculatorJ2meClient J2ME client]
+      * REST
+        * [ExampleCalculatorRestfulClient RESTful C++ client]
+        * [ExampleCalculatorRestfulService RESTful service]
+      * WSDL
+        * [ExampleCreatingCppClientFromWsdl Creating C++ client from WSDL]
 
-  * Developer reference
-    * Codegen
-      * [CodegenMetacomments Codegen meta comments]
-      * [CodegenCommandLine Codegen command line description]
-      * [CodegenPlugins Codegen plugins]
-      * [CodegenTemplates Codegen templates]
-    * DAS
-      * [DasScriptProgramming DAS script programming]
+    * Developer reference
+      * Codegen
+        * [CodegenMetacomments Codegen meta comments]
+        * [CodegenCommandLine Codegen command line description]
+        * [CodegenPlugins Codegen plugins]
+        * [CodegenTemplates Codegen templates]
+      * DAS
+        * [DasScriptProgramming DAS script programming]
 
-  * Downloads
-    * [http://code.google.com/p/staff/source/checkout Download source from svn]
-    * [http://code.google.com/p/staff/downloads/list Download tarball]
+    * Downloads
+      * [http://code.google.com/p/staff/source/checkout Download source from svn]
+      * [http://code.google.com/p/staff/downloads/list Download tarball]
 
-  * [InstallationManual Installation]
-    * Windows
-      * [InstallationManualWindows Install staff from source code]
-      * [InstallationManualWindowsBinary Install staff from binary tarball]
-    * Linux
-      * [InstallationManualLinux Install staff from source code]
-      * [InstallationManualWebappLinux Install and test webapp]
+    * [InstallationManual Installation]
+      * Windows
+        * [InstallationManualWindows Install staff from source code]
+        * [InstallationManualWindowsBinary Install staff from binary tarball]
+      * Linux
+        * [InstallationManualLinux Install staff from source code]
+        * [InstallationManualWebappLinux Install and test webapp]
 
-  * [SupportPage Support page]
+    * [SupportPage Support page]

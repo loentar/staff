@@ -3,47 +3,47 @@
 == Содержание ==
 
   * [Welcome Добро пожаловать]
-  * [Examples Примеры]
-    * [BriefExamples Примеры кода]
-    * Создание сервиса
-      * [ExampleCalculatorServiceLinux C++ сервис под Linux]
-      * [ExampleCalculatorServiceWindows C++ сервис под Windows]
-    * Создание C++ клиента
-      * [ExampleCalculatorClientWindows C++ клиент под Windows]
-      * [ExampleCalculatorClientLinux C++ клиент под Linux]
-      * [ExampleCalculatorNonBlocking Неблокируемый C++ клиент]
-    * DAS
-      * [ExampleDasDataSource Создание источника данных]
-      * [ExampleDasClient Клиент DAS]
-    * Создание AJAX клиента
-      * [ExampleCalculatorAjaxClientLinux Ajax-клиент]
-    * Создание J2ME клиента
-      * [ExampleCalculatorJ2meClient J2ME-клиент]
-    * REST
-      * [ExampleCalculatorRestfulClient RESTful C++ клиент]
-      * [ExampleCalculatorRestfulService RESTful сервис]
-    * WSDL
-      * [ExampleCreatingCppClientFromWsdl Создание C++ клиента из WSDL]
+    * [Examples Примеры]
+      * [BriefExamples Примеры кода]
+      * Создание сервиса
+        * [ExampleCalculatorServiceLinux C++ сервис под Linux]
+        * [ExampleCalculatorServiceWindows C++ сервис под Windows]
+      * Создание C++ клиента
+        * [ExampleCalculatorClientWindows C++ клиент под Windows]
+        * [ExampleCalculatorClientLinux C++ клиент под Linux]
+        * [ExampleCalculatorNonBlocking Неблокируемый C++ клиент]
+      * DAS
+        * [ExampleDasDataSource Создание источника данных]
+        * [ExampleDasClient Клиент DAS]
+      * Создание AJAX клиента
+        * [ExampleCalculatorAjaxClientLinux Ajax-клиент]
+      * Создание J2ME клиента
+        * [ExampleCalculatorJ2meClient J2ME-клиент]
+      * REST
+        * [ExampleCalculatorRestfulClient RESTful C++ клиент]
+        * [ExampleCalculatorRestfulService RESTful сервис]
+      * WSDL
+        * [ExampleCreatingCppClientFromWsdl Создание C++ клиента из WSDL]
 
-  * Руководство разработчика
-    * Генератор кода
-      * [CodegenMetacomments Метакомментарии]
-      * [CodegenCommandLine Описание коммандной строки]
-      * [CodegenPlugins Подключаемые модули]
-      * [CodegenTemplates Шаблоны]
-    * DAS
-      * [DasScriptProgramming Программирование скриптов DAS]
+    * Руководство разработчика
+      * Генератор кода
+        * [CodegenMetacomments Метакомментарии]
+        * [CodegenCommandLine Описание коммандной строки]
+        * [CodegenPlugins Подключаемые модули]
+        * [CodegenTemplates Шаблоны]
+      * DAS
+        * [DasScriptProgramming Программирование скриптов DAS]
 
-  * Загрузки
-    * [http://code.google.com/p/staff/source/checkout Загрузка из SVN]
-    * [http://code.google.com/p/staff/downloads/list Загрузка архива]
+    * Загрузки
+      * [http://code.google.com/p/staff/source/checkout Загрузка из SVN]
+      * [http://code.google.com/p/staff/downloads/list Загрузка архива]
 
-  * [InstallationManual Установка]
-    * Windows
-      * [InstallationManualWindows Установка staff из исходного кода]
-      * [InstallationManualWindowsBinary Установка staff из бинарного кода]
-    * Linux
-      * [InstallationManualLinux Установка staff из исходного кода]
-      * [InstallationManualWebappLinux Установка и тестирование webapp]
+    * [InstallationManual Установка]
+      * Windows
+        * [InstallationManualWindows Установка staff из исходного кода]
+        * [InstallationManualWindowsBinary Установка staff из бинарного кода]
+      * Linux
+        * [InstallationManualLinux Установка staff из исходного кода]
+        * [InstallationManualWebappLinux Установка и тестирование webapp]
 
-  * [SupportPage Поддержка]
+    * [SupportPage Поддержка]
