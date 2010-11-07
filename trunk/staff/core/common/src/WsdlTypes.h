@@ -74,6 +74,7 @@ namespace staff
 
   typedef string anySimpleType;
 
+  //! WSDL anyType
   struct anyType
   {
   };

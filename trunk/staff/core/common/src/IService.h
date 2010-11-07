@@ -34,7 +34,7 @@ namespace staff
 {
   class CServiceClient;
 
-  //! base service
+  //! base class for services
   class STAFF_COMMON_EXPORT IService
   {
   public:

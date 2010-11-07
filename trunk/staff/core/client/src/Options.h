@@ -31,6 +31,7 @@ typedef struct axis2_options axis2_options_t;
 
 namespace staff
 {
+  //! service client options
   class STAFF_CLIENT_EXPORT COptions
   {
   public:
