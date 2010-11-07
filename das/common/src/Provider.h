@@ -71,9 +71,10 @@ namespace staff
         */
       virtual const std::string& GetDescr() const = 0;
 
-      //! invoke the operation
-      /*! \param  sExecute - execute string
-          \return operation result
+      //! execute query
+      /*! \param  sExecute - execute string(query)
+          \param  rstReturnType - resulting type
+          \param  rdoResult - query result
           */
       virtual void Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult) = 0;
     };

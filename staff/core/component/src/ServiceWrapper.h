@@ -32,7 +32,7 @@ namespace staff
   class CComponent;
   class IService;
 
-  //!  Service
+  //!  base class for service wrappers
   class STAFF_COMPONENT_EXPORT CServiceWrapper
   {
   public:

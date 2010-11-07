@@ -40,7 +40,7 @@ namespace staff
 
     typedef std::list<SGroup> TGroupsList; //!< list of groups
 
-    //! gropus
+    //! groups
     class STAFF_SECURITY_EXPORT CGroups
     {
     public:
