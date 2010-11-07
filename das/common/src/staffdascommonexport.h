@@ -13,39 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-/*
+ 
+/* 
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef PROVIDERSERVICE_H
-#define PROVIDERSERVICE_H
+#ifndef _STAFFDASCOMMONEXPORT_H_
+#define _STAFFDASCOMMONEXPORT_H_
 
-#include <staff/common/IService.h>
-#include "staffdascommonexport.h"
-#include "Provider.h"
+#if defined(WIN32) || defined (_WINDOWS)
+  #pragma warning(disable: 4786 4251)
 
-namespace staff
-{
-  class CDataObject;
+  #ifdef STAFF_DAS_COMMON_DLL_EXPORTS
+    #define STAFF_DAS_COMMON_EXPORT __declspec(dllexport)
+  #else
+    #define STAFF_DAS_COMMON_EXPORT __declspec(dllimport)
+  #endif
 
-namespace das
-{
-  class DataSource;
-  struct Operation;
+  #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
 
-  class STAFF_DAS_COMMON_EXPORT ProviderService: public IService
-  {
-  public:
-    ProviderService();
-    CDataObject Invoke(const CDataObject& rdoOperation);
+#else
+  #define STAFF_DAS_COMMON_EXPORT 
+  #define STAFF_DEPRECATED(Replacement)
+#endif
 
-  private:
-    PProvider m_tpProvider;
-    const DataSource* m_pDataSource;
-  };
-}
-}
-
-#endif // PROVIDERSERVICE_H
+#endif // _STAFFDASCOMMONEXPORT_H_

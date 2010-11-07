@@ -21,6 +21,7 @@
 
 #include <rise/os/oscommon.h>
 #include <string>
+#include "oserror.h"
 #include "osdl.h"
 
 namespace rise
@@ -76,15 +77,11 @@ namespace rise
 #endif
   }
 
-  const TChar* osGetLastLibraryErrorStr()
+  CString osGetLastLibraryErrorStr()
   {
     return
 #ifdef WIN32
-  #ifdef _UNICODE
-      _wcserror(GetLastError());
-  #else
-      strerror(GetLastError());
-  #endif
+      osGetErrorStr(osGetLastLibraryError());
 #else
       dlerror();
 #endif

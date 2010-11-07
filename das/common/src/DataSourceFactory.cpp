@@ -44,7 +44,8 @@ namespace das
   public:
     void Init()
     {
-      const std::string& sDataSourcesDir = staff::CRuntime::Inst().GetComponentHome("staff.das") + "/datasources/";
+      const std::string& sDataSourcesDir = staff::CRuntime::Inst().GetComponentHome("staff.das") + 
+        RISE_PATH_SEPARATOR "datasources" RISE_PATH_SEPARATOR;
 
       StringList lsDataSourcesDirs;
       rise::CFileFind::Find(sDataSourcesDir, lsDataSourcesDirs, "*", rise::CFileFind::EFA_DIR);
@@ -57,7 +58,7 @@ namespace das
         for (StringList::const_iterator itFile = lsDataSourcesFiles.begin(); itFile != lsDataSourcesFiles.end(); ++itFile)
         {
           rise::xml::CXMLDocument tDoc;
-          const std::string& sFileName = sDir + '/' + *itFile;
+          const std::string& sFileName = sDir + RISE_PATH_SEPARATOR + *itFile;
 
           tDoc.LoadFromFile(sFileName);
 

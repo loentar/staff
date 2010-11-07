@@ -23,6 +23,8 @@
 #ifndef SCRIPTEXECUTER_H
 #define SCRIPTEXECUTER_H
 
+#include "staffdascommonexport.h"
+
 namespace rise
 {
   template <typename Type> class CMutablePtr;
@@ -47,7 +49,7 @@ namespace staff
 namespace das
 {
   //! operation script executer
-  class ScriptExecuter
+  class STAFF_DAS_COMMON_EXPORT ScriptExecuter
   {
   public:
     ScriptExecuter(const CDataObject& rdoOperation, const DataSource& rDataSource, PProvider& rpProvider);

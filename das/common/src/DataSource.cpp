@@ -113,11 +113,11 @@ namespace das
 
       ParseDescr(rOperation, stOperation.sDescr);
 
-      rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperation.FindSubnode("return");
-      if (itOperation != rOperation.NodeEnd())
+      rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
+      if (itReturn != rOperation.NodeEnd())
       {
-        const rise::xml::CXMLNode& rNodeOperation = *itOperation;
-        ParseType(rNodeOperation, stOperation.stReturn);
+        const rise::xml::CXMLNode& rNodeReturn = *itReturn;
+        ParseType(rNodeReturn, stOperation.stReturn);
         if (stOperation.stReturn.eType == Type::List ||
             stOperation.stReturn.eType == Type::Struct)
         {

@@ -23,6 +23,7 @@
 #define PROVIDERSERVICEWRAPPER_H
 
 #include <staff/component/ServiceWrapper.h>
+#include "staffdascommonexport.h"
 
 namespace staff
 {
@@ -30,7 +31,7 @@ namespace das
 {
   class DataSource;
 
-  class ProviderServiceWrapper: public CServiceWrapper
+  class STAFF_DAS_COMMON_EXPORT ProviderServiceWrapper: public CServiceWrapper
   {
   public:
     ProviderServiceWrapper(CComponent* pComponent, const DataSource* pDataSource);

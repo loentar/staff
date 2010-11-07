@@ -68,7 +68,7 @@ namespace rise
   //!        get last error description
   /*! \return last error description
   */
-  const TChar* osGetLastLibraryErrorStr();
+  CString osGetLastLibraryErrorStr();
 }
 
 #endif  // _OSDL_H_

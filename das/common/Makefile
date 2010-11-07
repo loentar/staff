@@ -5,7 +5,7 @@ TARGETNAME = libstaff$(TARGET).so
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions
-LDFLAGS += -lstaffcommon -lrise -lpthread -lpq
+LDFLAGS += -lstaffcommon -lrise -lpthread
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

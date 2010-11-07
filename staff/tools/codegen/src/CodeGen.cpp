@@ -476,7 +476,7 @@ namespace staff
 
       if (m_bHasConfig)
       {
-        const std::string& sIn = m_sInDir + "/codegen.config";
+        const std::string& sIn = m_sInDir + RISE_PATH_SEPARATOR "codegen.config";
         std::ostringstream fsOut;
         std::ifstream fsIn;
 
@@ -522,13 +522,14 @@ namespace staff
               if (bProcessFile)
               {
                 // erase input path
-                std::string::size_type nPos = sFile.find_last_of('/');
+                std::string::size_type nPos = sFile.find_last_of(RISE_PATH_SEPARATOR);
                 if (nPos != std::string::npos)
                 {
                   sFile.erase(0, nPos + 1);
                 }
 
-                ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/', sFile,
+                ProcessFile(m_sInDir + RISE_PATH_SEPARATOR + *itTemplateFile, 
+                            sOutDir + RISE_PATH_SEPARATOR, sFile,
                             rNodeInterface, bUpdateOnly, bNeedUpdate);
               }
             }
@@ -541,13 +542,14 @@ namespace staff
           std::string sFile = *itTemplateFile;
 
           // erase input path
-          std::string::size_type nPos = sFile.find_last_of('/');
+          std::string::size_type nPos = sFile.find_last_of(RISE_PATH_SEPARATOR);
           if (nPos != std::string::npos)
           {
             sFile.erase(0, nPos + 1);
           }
 
-          ProcessFile(m_sInDir + '/' + *itTemplateFile, sOutDir + '/', sFile,
+          ProcessFile(m_sInDir + RISE_PATH_SEPARATOR + *itTemplateFile, 
+                      sOutDir + RISE_PATH_SEPARATOR, sFile,
                       rRootNode, bUpdateOnly, bNeedUpdate);
         }
       } // has config

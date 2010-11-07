@@ -60,24 +60,34 @@ if "%VSINSTALLDIR%" == "" (
 
 echo %build%ing log... >%buildlog%
 
-if %VSVERSION% gtr 2005 (
+if %VSVERSION% equ 2005 goto skip_upgrade
+
   rem Upgrading solutions for Visual Studio
   cd rise
   devenv /upgrade rise.sln >%buildlog%
   if %ERRORLEVEL% gtr 0 (
     echo Failed to upgrade solution rise.sln >&2
-    echo Please look at build.log >&2
+    echo Please see build.log >&2
     goto errexit
   )
   cd ..\staff
   devenv /upgrade staff.sln >%buildlog%
   if %ERRORLEVEL% gtr 0 (
     echo Failed to upgrade solution staff.sln >&2
-    echo Please look at build.log >&2
+    echo Please see build.log >&2
+    goto errexit
+  )
+  cd ..\das
+  devenv /upgrade das.sln >%buildlog%
+  if %ERRORLEVEL% gtr 0 (
+    echo Failed to upgrade solution das.sln >&2
+    echo Please see build.log >&2
     goto errexit
   )
   cd ..
-)
+
+:skip_upgrade
+
 
 echo %build%ing %target% version...
 
@@ -93,7 +103,7 @@ cd rise
 devenv /%build% %target% rise.sln >>%buildlog%
 if %ERRORLEVEL% gtr 0 (
     echo Error while building rise >&2
-    echo Please look at build.log >&2
+    echo Please see build.log >&2
     goto errexit
 )
 
@@ -108,11 +118,58 @@ cd ..\staff
 devenv /%build% %target% staff.sln >>%buildlog%
 if %ERRORLEVEL% gtr 0 (
     echo Error while building staff >&2
-    echo Please look at build.log >&2
+    echo Please see build.log >&2
     goto errexit
 )
 
 echo staff %build%ing complete
+
+rem ========== das ===========
+
+echo %build%ing das...
+echo %build%ing das... >>%buildlog%
+cd ..\das
+
+devenv /%build% %target% das.sln >>%buildlog%
+if %ERRORLEVEL% gtr 0 (
+    echo Error while building das >&2
+    echo Please see build.log >&2
+    goto errexit
+)
+
+if "%POSTGRESQL_HOME%" == "" (
+    echo Skipping Postgresql provider compilation: POSTGRESQL_HOME is not set
+    goto skip_postgres
+)
+
+  cd providers\postgres
+  devenv /%build% %target% postgres.vcproj >>%buildlog%
+  if %ERRORLEVEL% gtr 0 (
+    echo Error while building das postgres provider >&2
+    echo Please see build.log >&2
+    goto errexit
+  )
+  cd ..\..
+:skip_postgres
+
+
+  if "%MYSQL_HOME%" == "" (
+    echo Skipping MySql provider compilation: MYSQL_HOME is not set
+    goto skip_mysql
+  )
+
+  cd providers\mysql
+  devenv /%build% %target% mysql.vcproj >>%buildlog%
+  if %ERRORLEVEL% gtr 0 (
+    echo Error while building das mysql provider >&2
+    echo Please see build.log >&2
+    goto errexit
+  )
+  cd ..\..
+:skip_mysql
+
+echo das %build%ing complete
+cd ..
 
 if "%build%" == "rebuild" goto buildok
 if "%build%" == "build" goto buildok

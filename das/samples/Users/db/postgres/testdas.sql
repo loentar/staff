@@ -2,7 +2,7 @@ DROP OWNED BY dastestuser CASCADE;
 --DROP DATABASE IF EXISTS testdas;
 DROP USER IF EXISTS dastestuser;
 
-CREATE DATABASE IF NOT EXISTS testdas;
+CREATE DATABASE testdas;
 CREATE USER dastestuser WITH password 'dastestuserpassword';
 GRANT ALL PRIVILEGES ON DATABASE testdas TO dastestuser;
 

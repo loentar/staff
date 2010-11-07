@@ -24,6 +24,7 @@
 
 #include <string>
 #include <list>
+#include "staffdascommonexport.h"
 
 namespace staff
 {
@@ -33,7 +34,7 @@ namespace das
 
   typedef std::list<std::string> StringList;
 
-  class DataSourceFactory
+  class STAFF_DAS_COMMON_EXPORT DataSourceFactory
   {
   public:
     static DataSourceFactory& Inst();
