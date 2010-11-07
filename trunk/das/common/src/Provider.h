@@ -25,6 +25,7 @@
 #include <string>
 #include <list>
 #include <staff/codegen/Interface.h>
+#include "staffdascommonexport.h"
 
 namespace rise
 {
@@ -47,7 +48,7 @@ namespace staff
     typedef std::list<std::string> StringList; //!< string list
 
     //! DAS provider wrapper
-    class IProvider
+    class STAFF_DAS_COMMON_EXPORT IProvider
     {
     public:
       virtual ~IProvider() {}

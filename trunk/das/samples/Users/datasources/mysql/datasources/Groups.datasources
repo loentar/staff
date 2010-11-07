@@ -5,7 +5,7 @@
       <connection>
         <db>testdas</db>
         <host>localhost</host>
-        <port>5432</port>
+        <port>3306</port>
         <login>dastestuser</login>
         <password>dastestuserpassword</password>
       </connection>

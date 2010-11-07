@@ -37,7 +37,8 @@ namespace das
   public:
     void Init()
     {
-      const std::string sProvidersDir = CRuntime::Inst().GetComponentHome("staff.das") + "/providers";
+      const std::string sProvidersDir = CRuntime::Inst().GetComponentHome("staff.das") 
+        + RISE_PATH_SEPARATOR "providers";
       StringList lsProviderDirs;
 
       // find directories with providers

@@ -24,13 +24,14 @@
 
 #include <string>
 #include <list>
+#include "staffdascommonexport.h"
 #include "Provider.h"
 
 namespace staff
 {
 namespace das
 {
-  class ProviderFactory
+  class STAFF_DAS_COMMON_EXPORT ProviderFactory
   {
   public:
     static ProviderFactory& Inst();

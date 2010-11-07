@@ -73,6 +73,7 @@ namespace das
     const std::string& sProvider = m_pDataSource->GetProviderName();
 
     m_tpProvider = ProviderFactory::Inst().Allocate(sProvider);
+    RISE_ASSERTS(m_tpProvider.Get() != NULL, "Can't allocate provider [" + sProvider + "]");
     m_tpProvider->Init(*m_pDataSource);
   }
 

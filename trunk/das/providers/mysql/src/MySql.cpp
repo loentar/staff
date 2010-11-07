@@ -19,6 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WIN32
+#include <my_global.h>
+#endif
 #include <mysql.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -148,8 +151,8 @@ namespace das
 
       try
       {
-        int nFieldsCount = mysql_num_fields(pResult);
-        int nRowsCount = mysql_num_rows(pResult);
+        unsigned nFieldsCount = mysql_num_fields(pResult);
+        unsigned long long nRowsCount = mysql_num_rows(pResult);
 
         if (rstReturnType.eType == Type::Generic)
         {
@@ -236,7 +239,7 @@ namespace das
                 RISE_ASSERTS(pRow, "Error while fetching row");
 
                 staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                for (int nField = 0; nField < nFieldsCount; ++nField)
+                for (unsigned nField = 0; nField < nFieldsCount; ++nField)
                 {
                   const char* szResult = pRow[nField];
                   RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
@@ -259,7 +262,7 @@ namespace das
             RISE_ASSERTS(pRow, "Error while fetching row");
 
             staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            for (int nField = 0; nField < nFieldsCount; ++nField)
+            for (unsigned nField = 0; nField < nFieldsCount; ++nField)
             {
               const char* szResult = pRow[nField];
               RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");

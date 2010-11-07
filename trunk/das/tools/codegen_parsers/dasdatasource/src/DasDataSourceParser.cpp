@@ -24,7 +24,6 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/plugin/PluginExport.h>
 #include <rise/xml/XMLDocument.h>
-#include <staff/common/DataObject.h>
 #include "DasDataSourceParser.h"
 
 RISE_DECLARE_PLUGIN(staff::CDasDataSourceParser);
@@ -262,10 +261,10 @@ namespace staff
 
       ParseDescr(rOperation, stMember.sDescr);
 
-      rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperation.FindSubnode("return");
-      if (itOperation != rOperation.NodeEnd())
+      rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
+      if (itReturn != rOperation.NodeEnd())
       {
-        stMember.stReturn.stDataType.sName = itOperation->Attribute("type").AsString();
+        stMember.stReturn.stDataType.sName = itReturn->Attribute("type").AsString();
         FixDataType(stMember.stReturn.stDataType, stInterface, sNamespace);
         stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
                                                  + stMember.stReturn.stDataType.sName;

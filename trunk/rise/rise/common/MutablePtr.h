@@ -170,7 +170,10 @@ namespace rise
           delete m_pnCounter;
           m_pnCounter = NULL;
           if(m_pData != NULL)
+          {
             delete m_pData;
+            m_pData = NULL;
+          }
         }
       }
     }

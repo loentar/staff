@@ -24,12 +24,13 @@
 
 #include <string>
 #include <staff/component/Component.h>
+#include "staffdascommonexport.h"
 
 namespace staff
 {
 namespace das
 {
-  class ProviderComponent: public CComponent
+  class STAFF_DAS_COMMON_EXPORT ProviderComponent: public CComponent
   {
   public:
     ProviderComponent(const std::string& sName);

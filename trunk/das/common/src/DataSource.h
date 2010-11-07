@@ -26,6 +26,7 @@
 #include <list>
 #include <map>
 #include <rise/xml/XMLNode.h>
+#include "staffdascommonexport.h"
 
 namespace staff
 {
@@ -33,11 +34,11 @@ namespace das
 {
   typedef std::list<std::string> StringList; //!< string list
 
-  struct Type;
+  struct STAFF_DAS_COMMON_EXPORT Type;
   typedef std::list<Type> TypesList; //!< data types list
 
   //! data type
-  struct Type
+  struct STAFF_DAS_COMMON_EXPORT Type
   {
     //! data type
     enum EType
@@ -62,7 +63,7 @@ namespace das
   typedef std::list<Type> TypesList;  //!< types list
 
   //! include descriptor
-  struct Include
+  struct STAFF_DAS_COMMON_EXPORT Include
   {
     std::string sFileName;  //!< filename
     TypesList lsTypes;      //!< types list
@@ -71,7 +72,7 @@ namespace das
   typedef std::list<Include> IncludesList;  //!< includes list
 
   //! operation
-  struct Operation
+  struct STAFF_DAS_COMMON_EXPORT Operation
   {
     std::string sName;            //!< operation name
     std::string sDescr;           //!< operation description
@@ -83,7 +84,7 @@ namespace das
   typedef std::list<Operation> OperationsList; //! list of operations
 
   //! data source
-  class DataSource
+  class STAFF_DAS_COMMON_EXPORT DataSource
   {
   public:
     //! costructor

@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <sqlite3.h>
+#include <staff/sqlite3/sqlite3.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/string/String.h>
@@ -81,13 +81,26 @@ namespace das
 
     m_pImpl->m_sDataBase = rConnection["db"].AsString();
 
+    // replace env variable to full path
+    std::string::size_type nPosStart = 0;
+    std::string::size_type nPosEnd = 0;
+    
+    while ((nPosStart = m_pImpl->m_sDataBase.find("$(", nPosEnd)) != std::string::npos)
+    {
+      nPosEnd = m_pImpl->m_sDataBase.find(')', nPosStart);
+      RISE_ASSERTS(nPosEnd != std::string::npos, "Invalid Env var declaration: " + m_pImpl->m_sDataBase);
+      const std::string& sVar = m_pImpl->m_sDataBase.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
+      const std::string& sValue = staff::CRuntime::Inst().GetEnv(sVar);
+      m_pImpl->m_sDataBase.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
+      nPosEnd = nPosStart + sValue.size();
+    }
 
     RISE_ASSERTS(m_pImpl->m_pConn == NULL, "Already connected");
     sqlite3_enable_shared_cache(1);
 
     // open db
     int nResult = sqlite3_open(m_pImpl->m_sDataBase.c_str(), &m_pImpl->m_pConn);
-    RISE_ASSERTS(nResult == SQLITE_OK, "Failed to open staff database");
+    RISE_ASSERTS(nResult == SQLITE_OK, "Failed to open database: " + m_pImpl->m_sDataBase);
 
     sqlite3_stmt* pStmt = NULL;
 
