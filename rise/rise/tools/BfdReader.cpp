@@ -37,6 +37,25 @@
 extern "C" const char* cplus_demangle(const char* sym, int opts);
 #endif
 
+// compat with old bfd.h
+#ifndef bfd_get_section_size
+#define bfd_get_section_size(ptr) ((ptr)->_raw_size)
+#endif
+#ifndef FALSE
+#ifdef BFD_TRUE_FALSE
+#define FALSE false
+#else
+#define FALSE bfd_fffalse
+#endif
+#endif
+#ifndef TRUE
+#ifdef BFD_TRUE_FALSE
+#define TRUE true
+#else
+#define TRUE bfd_tttrue
+#endif
+#endif
+
 namespace rise
 {
   namespace tools
