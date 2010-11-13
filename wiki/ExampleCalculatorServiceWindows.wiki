@@ -111,7 +111,7 @@ int CalculatorImpl::Sub(int nA, int nB)
 
   _Component service wrapper is a set of files used to register class as service_
 
-To generate wrapper start command prompt from !Calculator\component\src directory and enter:
+To generate wrapper start command prompt from Calculator\component\src directory and enter:
 {{{
 staff_codegen -tcomponent Calculator.h
 }}}
@@ -173,7 +173,7 @@ Click "Build" => "Configuration manager". Click "Active solution configuration" 
 Compile the solution: "Build" => "Build Solution".
 
 == 7. Installation ==
-Open text editor and create file install.cmd in !Calculator\component directory.
+Open text editor and create file install.cmd in Calculator\component directory.
 Copy and paste this code:
 {{{
 set installdir=%STAFF_HOME%\components\samples
@@ -194,7 +194,7 @@ Open The Web browser and go to address: http://localhost:9090/axis2/services
 
 Your new service must shown as:
 
-||<h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul>||
+||<font face="courier"><h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul></font>||
 
 == 9. Service's source directory structure ==
 

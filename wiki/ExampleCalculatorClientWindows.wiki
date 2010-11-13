@@ -21,10 +21,10 @@ This manipulations is needed to create given directory structure.
 
 == 2. Use service interface ==
 
-Create directory !Calculator\client\src and copy service interface file into this directory.
+Create directory Calculator\client\src and copy service interface file into this directory.
 
 == 3. Generating client stub ==
-To generate client stub start command prompt from !Calculator\client\src directory and enter:
+To generate client stub start command prompt from Calculator\client\src directory and enter:
 {{{
 staff_codegen -tclientimpl Calculator.h
 }}}
@@ -42,7 +42,7 @@ std::cout << "1 - 2 = " << pCalculator->Sub(1, 2) << std::endl;
 
   _Proxy is a set of files, used to work with service_
 
-To generate client proxy start command prompt from !Calculator\client\src directory and enter:
+To generate client proxy start command prompt from Calculator\client\src directory and enter:
 {{{
 staff_codegen -tclient Calculator.h
 }}}
@@ -99,7 +99,7 @@ Compile the solution: "Build" => "Build Solution".
 
 == 7. Start client ==
 
-To start client open command prompt from !Calculator\client\Release directory and enter:
+To start client open command prompt from Calculator\client\Release directory and enter:
 {{{
 calculator_client
 }}}

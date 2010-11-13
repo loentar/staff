@@ -199,7 +199,7 @@ Open The Web browser and go to address: http://localhost:9090/axis2/services
 
 Your new service must shown as:
 
-||<h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul>||
+||<font face="courier"><h3><u>samples.Calculator</u></h3><p>Calculator service <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/samples.Calculator?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Add</li><li>Sub</li></ul></font>||
 
 == 8. Service source directory structure ==
 

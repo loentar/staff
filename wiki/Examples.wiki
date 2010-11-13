@@ -4,16 +4,16 @@
 Windows examples:
   * [ExampleCalculatorServiceWindows Creating a Calculator service using Visual Studio 2005]
   * [ExampleCalculatorClientWindows Creating a Calculator client using Visual Studio 2005]
-  * [ExampleCalculatorNonBlocking How to modify C++ client to call services in non blocking mode]
-  * [ExampleCalculatorRestfulService How to modify web service to support REST]
-  * [ExampleCreatingCppClientFromWsdl How to create C++ client from WSDL]
-  * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME Wireless Toolkit]
 
 Linux examples:
   * [ExampleCalculatorServiceLinux Creating a Calculator service]
   * [ExampleCalculatorClientLinux Creating a Calculator client]
   * [ExampleCalculatorAjaxClientLinux Creating a Calculator AJAX client under Linux]
+
+Common examples:
   * [ExampleCalculatorNonBlocking How to modify C++ client to call services in non blocking mode]
   * [ExampleCalculatorRestfulService How to modify web service to support REST]
   * [ExampleCreatingCppClientFromWsdl How to create C++ client from WSDL]
   * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME Wireless Toolkit]
+  * [ExampleDasDataSource Creating datasource for DAS using sqlite3 provider]
+  * [ExampleDasClient Creating a data source client]

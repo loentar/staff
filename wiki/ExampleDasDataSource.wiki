@@ -137,7 +137,7 @@ Start Axis2/C server and open this url in the browser:
 http://localhost:9090/axis2/services
 
 New datasource service must be shown as:
-||<h3><u>staff.das.samples.Accounts</u></h3><p>Data source for manipulating with accounts <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/staff.das.samples.Accounts?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>Get</li><li>Find</li><li>Add</li><li>!GetAll</li><li>Remove</li></ul>||
+||<font face="courier"><h3><u>staff.das.samples.Accounts</u></h3><p>Data source for manipulating with accounts <sup><a style="font-size: x-small;">{{{[}}}[http://localhost:9090/axis2/services/staff.das.samples.Accounts?wsdl wsdl]{{{]}}}</a></sup></p><i>Available Operations</i> <ul><li>!RemoveByLogin</li><li>Get</li><li>Add</li><li>!GetAll</li><li>Remove</li></ul></font>||
 
 == 4. Create das client ==
 
