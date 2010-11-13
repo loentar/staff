@@ -14,7 +14,7 @@
       * [ExampleCalculatorNonBlocking Non-blocking C++ client]
     * DAS
       * [ExampleDasDataSource Creating datasource]
-      * [ExampleDasClient DAS client]
+      * [ExampleDasClient Creating DAS client]
     * Creating AJAX client
       * [ExampleCalculatorAjaxClientLinux Ajax client]
     * Creating J2ME client
