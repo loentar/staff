@@ -56,10 +56,10 @@ namespace samples
     int CCalcServiceImpl::Sub(int nA, int nB) const
     {
       CSubService* pSubService = static_cast<CSubService*>(staff::CServiceInstanceManager::Inst().
-          ServiceInstance(staff::IService::GetSessionId(), "samples.calc.SubService", staff::IService::GetInstanceId()).Get());
+          ServiceInstance(this, "samples.calc.SubService").Get());
 
       RISE_ASSERTES(pSubService != NULL, rise::CLogicNoItemException,
-          "Service [samples.calc.SubService] with session id [" + staff::IService::GetSessionId() + "] not found");
+          "Cannot get service [samples.calc.SubService] with session id [" + staff::IService::GetSessionId() + "]");
 
       return pSubService->Sub(nA, nB);
     }

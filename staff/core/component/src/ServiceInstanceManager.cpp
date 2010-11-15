@@ -193,5 +193,11 @@ namespace staff
     return itInstance->second;
   }
 
+  PIService& CServiceInstanceManager::ServiceInstance(const IService* pService, const std::string& sServiceName)
+  {
+    RISE_ASSERTS(pService, "pService is NULL!");
+    return ServiceInstance(pService->GetSessionId(), sServiceName, pService->GetInstanceId());
+  }
+
   CServiceInstanceManager* CServiceInstanceManager::m_pInst = NULL;
 }

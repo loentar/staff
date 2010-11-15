@@ -54,7 +54,7 @@ IssuedTicketList CheckerImpl::GetAllTickets() const
   IssuedTicketList lsResult;
 
   Issuer* pIssuer = static_cast<Issuer*>(staff::CServiceInstanceManager::Inst().
-      ServiceInstance(staff::IService::GetSessionId(), "samples.sharedtypes.Issuer", staff::IService::GetInstanceId()).Get());
+      ServiceInstance(this, "samples.sharedtypes.Issuer").Get());
 
   RISE_ASSERTES(pIssuer != NULL, rise::CLogicNoItemException,
       "Service [samples.calc.Issuer] with session id [" + staff::IService::GetSessionId() + "] not found");
