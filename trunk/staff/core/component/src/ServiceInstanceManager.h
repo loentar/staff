@@ -91,6 +91,14 @@ namespace staff
         */
     PIService& GetServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId);
 
+    //! get existing or create service instance
+    /*! more convenient way to get another service instance within service
+        \param pService - current service with sSessionId, sInstanceId info
+        \param sServiceName - service name
+        \return service instance
+        */
+    PIService& ServiceInstance(const IService* pService, const std::string& sServiceName);
+
   protected:
     CServiceInstanceManager();
     ~CServiceInstanceManager();
