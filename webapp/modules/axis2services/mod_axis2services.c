@@ -68,17 +68,25 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
+//#define _DEBUG
+
+#define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
+#define ASSERT1(EXPRESSION, TEXT, PARAM1) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); return 1; }
+#define ASSERT2(EXPRESSION, TEXT, PARAM1, PARAM2) if (!(EXPRESSION)) { LOG2("ERROR: " TEXT, PARAM1, PARAM2); return 1; }
+#define ASSERT_ACT(EXPRESSION, TEXT, ACTION) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); ACTION; return 1; }
+#define ASSERT1_ACT(EXPRESSION, TEXT, PARAM1, ACTION) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); ACTION; return 1; }
+
 #ifdef _DEBUG
 FILE* pLog = NULL;
-#define LABEL fprintf(pLog, "%s[%d]: %s\n", __FILE__, __LINE__, __FUNCTION__); fflush(pLog);
+#define LOGLABEL fprintf(pLog, "%s[%d]: %s\n", __FILE__, __LINE__, __FUNCTION__); fflush(pLog);
 
 #define LOGRAW(str) fprintf(pLog, str); fflush(pLog);
 #define LOG(str) fprintf(pLog, "%s[%d]: %s: %s\n", __FILE__, __LINE__, __FUNCTION__, str); fflush(pLog);
-#define LOG1(str, arg1) fprintf(pLog, "%s[%d]: %s:" str "\n", __FILE__, __LINE__, __FUNCTION__, arg1); fflush(pLog);
-#define LOG2(str, arg1, arg2) fprintf(pLog, "%s[%d]: %s:" str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2); fflush(pLog);
-#define LOG3(str, arg1, arg2, arg3) fprintf(pLog, "%s[%d]: %s:" str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2, arg3); fflush(pLog);
+#define LOG1(str, arg1) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1); fflush(pLog);
+#define LOG2(str, arg1, arg2) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2); fflush(pLog);
+#define LOG3(str, arg1, arg2, arg3) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2, arg3); fflush(pLog);
 
-void dump(const char* szData, unsigned long ulSize)
+void dump(const char* szData, unsigned long ulSize, unsigned long ulStartNum)
 {
   const char* pBuff = szData;
   unsigned long i = 0;
@@ -86,8 +94,8 @@ void dump(const char* szData, unsigned long ulSize)
 
   for(i = 0; i < ulSize; i += 0x10) 
   {
-    if((i % 0x10) == 0) 
-      fprintf(pLog, "\n0x%.8x   ", i + szData);
+    if((i % 0x10) == 0)
+      fprintf(pLog, "\n0x%.8lx   ", i + ulStartNum);
 
     for(j = 0; ((i + j) < ulSize) && (j < 0x10); j++) 
       fprintf(pLog, "%.2x ", (unsigned char)pBuff[i+j]);
@@ -98,399 +106,458 @@ void dump(const char* szData, unsigned long ulSize)
     fprintf(pLog, "  ");
 
     for(j = 0; ((i + j) < ulSize) && (j < 0x10); j++) 
-      fprintf(pLog, "%c", (unsigned char)pBuff[i+j] > ' ' ? pBuff[i+j] : '.');
+      fprintf(pLog, "%c", (unsigned char)pBuff[i+j] >= ' ' ? pBuff[i+j] : '.');
   }
   fprintf(pLog, "\n\n");
   fflush(pLog);
 }
 #else
-#define LABEL
+#define LOGLABEL;
 #define LOGRAW(str)
 #define LOG(str)
 #define LOG1(str, arg1)
 #define LOG2(str, arg1, arg2)
 #define LOG3(str, arg1, arg2, arg3)
-#define dump(a,b)
+#define dump(a,b,c)
 #endif
 
-void CloseSocket(int nSockID)
+void CloseSocket(int nSockId)
 {
   char buf[32];
   struct timeval tv;
 
-  if (nSockID < 0)
+  if (nSockId < 0)
+  {
     return;
+  }
 
-  shutdown(nSockID, SHUT_WR);
+  shutdown(nSockId, SHUT_WR);
 
   tv.tv_sec = 0;
   tv.tv_usec = 1;
-  setsockopt(nSockID, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
 
-  recv(nSockID, buf, 32, 0);
-  close(nSockID);
+  recv(nSockId, buf, 32, 0);
+  close(nSockId);
 }
 
 int CreateSocket()
 {
   int nRet = 0;
-  int nSockID = 0;
+  int nSockId = 0;
   struct sockaddr_in saServer;
   struct timeval tv;
 
-  nSockID = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  nSockId = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-  if(nSockID == -1)
+  if(nSockId == -1)
     return -2;
 
   saServer.sin_family = AF_INET;
   saServer.sin_port = htons(9090);
   saServer.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-  nRet = connect(nSockID, &saServer, sizeof(saServer));
+  nRet = connect(nSockId, &saServer, sizeof(saServer));
   if(nRet == -1)
   {
-    CloseSocket(nSockID);
+    CloseSocket(nSockId);
     return -3;
   }
 
   {
     int nNoDelay = 1;
-    setsockopt(nSockID, IPPROTO_TCP, TCP_NODELAY, (const char*)&nNoDelay, sizeof(nNoDelay));
+    setsockopt(nSockId, IPPROTO_TCP, TCP_NODELAY, (const char*)&nNoDelay, sizeof(nNoDelay));
   }
 
   {
     struct linger stLinger;
     stLinger.l_onoff = 1;
     stLinger.l_linger = 5;
-    setsockopt(nSockID, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
+    setsockopt(nSockId, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
   }
 
   tv.tv_sec = 60;
   tv.tv_usec = 0;
-  setsockopt(nSockID, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
   
-  return nSockID;
+  return nSockId;
 }
 
-static int util_read(request_rec* pReq, const char** rbuf, int* pnLength)
+char* StrDupN(request_rec* pReq, const char* szString, int nStringSize)
 {
-  int nResult = OK;
-
-  if ((nResult = ap_setup_client_block(pReq, REQUEST_CHUNKED_ERROR)) != OK)
-    return nResult;
-
-  if (ap_should_client_block(pReq))
-  {
-    char argsbuffer[HUGE_STRING_LEN];
-    int rsize, len_read, rpos=0;
-    long nLength = pReq->remaining;
-    *pnLength = nLength;
-  
-    *rbuf = apr_pcalloc(pReq->pool, nLength + 1);
-//    ap_hard_timeout("util_read", pReq);
-
-    while ((len_read = ap_get_client_block(pReq, argsbuffer, sizeof(argsbuffer))) > 0) 
-    {
-//      ap_reset_timeout(pReq);
-
-      if((rpos + len_read) > nLength) 
-        rsize = nLength - rpos;
-      else
-        rsize = len_read;
-
-      memcpy((char*)*rbuf + rpos, argsbuffer, rsize);
-      rpos += rsize;
-    }
-//    ap_kill_timeout(pReq);
-  }
-
-  return nResult;
+  char* szTmp = apr_pcalloc(pReq->pool, nStringSize + 1);
+  strncpy(szTmp, szString, nStringSize);
+  szTmp[nStringSize] = '\0';
+  return szTmp;
 }
 
-int InvokeRequest(request_rec* pReq, const char* szRequest, int nRequestSize, const char** pszAnswer, int *pnAnswerSize)
+long long Min(long long llA, long long llB)
 {
-  char szHttpHeader[512];
-  int nRet = 0;
-  int nSockID = 0;
-  int nHttpHeaderLength = 0;
-  int nBufferSize = 0;
+  return llA > llB ? llB : llA;
+}
 
-LABEL  
-  if (pReq == NULL || pszAnswer == NULL || pnAnswerSize == NULL)
-    return 1;
-    
-  *pszAnswer = NULL;
-  *pnAnswerSize = 0;
+int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
+{
+  int nResult = 0;
+  char szBuffer[HUGE_STRING_LEN];
+  static const int nBufferSize = sizeof(szBuffer);
 
-  nSockID = CreateSocket();
-  if(nSockID < 0)
-    return nSockID;
+  { // make request
+    int nHttpHeaderLength = 0;
+    const char* szSoapAction = NULL;
+    const char* szContentLength = NULL;
+    const char* szContentType = NULL;
+    const char* szTransferEncoding = NULL;
 
-LABEL  
-  if (pReq->method_number == M_POST)
-  {
-    const char* szSoapAction = "\"\"";
-    const char* szAprSoapAction = apr_table_get(pReq->headers_in, "SOAPAction");
+    // process HTTP Header
+  LOGLABEL;
+    nHttpHeaderLength = snprintf(szBuffer, nBufferSize,
+      "%s %s HTTP/1.1\r\n", pReq->method,  pReq->unparsed_uri);
+    ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
 
-    if (szAprSoapAction)
+    nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+        "User-Agent: staff http module 1.0\r\n");
+    ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+
+    szSoapAction = apr_table_get(pReq->headers_in, "SOAPAction");
+    if (szSoapAction)
     {
-      szSoapAction = szAprSoapAction;
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "SOAPAction: %s\r\n", szSoapAction);
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
     }
 
-    nHttpHeaderLength = snprintf(szHttpHeader, sizeof(szHttpHeader),
-        "POST %s HTTP/1.1\r\n"
-        "User-Agent: staff http module 1.0\r\n"
-        "SOAPAction: %s\r\n"
-        "Content-Length: %d\r\n"
-        "Content-Type: text/xml;charset=UTF-8\r\n"
-        "Host: 127.0.0.1:9090\r\n\r\n",
-        pReq->unparsed_uri,
-        szSoapAction,
-        nRequestSize);
-  }
-  else
-  {
-    nHttpHeaderLength = snprintf(szHttpHeader, sizeof(szHttpHeader),
-        "GET %s HTTP/1.1\r\n"
-        "User-Agent: staff http module 1.0\r\n"
-        "Content-Length: %d\r\n"
-        "Content-Type: text\r\n"
-        "Host: 127.0.0.1:9090\r\n\r\n",
-        pReq->unparsed_uri,
-        nRequestSize);
-  }
-  
-LABEL
-  nRet = send(nSockID, szHttpHeader, nHttpHeaderLength, 0);
-  if(nRet == -1)
-  {
-    CloseSocket(nSockID);
-    return 4;
-  }
-  
-LABEL
-  if (szRequest)
-  {
-    nRet = send(nSockID, szRequest, nRequestSize, 0);
-    if(nRet == -1)
+    szContentLength = apr_table_get(pReq->headers_in, "Content-Length");
+    if (szContentLength)
     {
-      CloseSocket(nSockID);
-      return 4;
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "Content-Length: %s\r\n", szContentLength);
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
     }
+
+    szContentType = apr_table_get(pReq->headers_in, "Content-Type");
+    if (szContentType)
+    {
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "Content-Type: %s\r\n", szContentType);
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+    }
+
+    szTransferEncoding = apr_table_get(pReq->headers_in, "Transfer-Encoding");
+    if (szTransferEncoding)
+    {
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "Transfer-Encoding: %s\r\n", szTransferEncoding);
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+    }
+
+    nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+        "Host: 127.0.0.1:9090\r\n\r\n");
+    ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+
+
+    // send HTTP-Header to Axis2/C
+  LOGLABEL;
+    nResult = send(nSockId, szBuffer, nHttpHeaderLength, 0);
+    ASSERT(nResult != -1, "Failed to send data");
+
+
+
+  LOGLABEL;
+    // process and send HTTP-Body to Axis2/C
+    if (szContentLength)
+    {
+      long long llBodySize = atoll(szContentLength);
+      // block mode
+      ASSERT(ap_setup_client_block(pReq, REQUEST_CHUNKED_ERROR) == OK, "Error ap_setup_client_block");
+    LOGLABEL;
+      if (ap_should_client_block(pReq))
+      {
+        long long llRead = 0;
+        int nReadSize = 0;
+
+        while ((nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize)) > 0 && (llRead < llBodySize))
+        {
+          nResult = send(nSockId, szBuffer, nReadSize, 0);
+          ASSERT(nResult != -1, "Failed to send data");
+          llRead += nResult;
+        }
+      }
+    }
+    else
+    {
+      // chunked mode
+      ASSERT(ap_setup_client_block(pReq, REQUEST_CHUNKED_DECHUNK) == OK, "Error ap_setup_client_block");
+    LOGLABEL;
+      if (ap_should_client_block(pReq))
+      {
+        char szBufferToSend[HUGE_STRING_LEN + 16 + 2];
+        static const char szChunkSizeEof[] = "0\r\n\r\n";
+        int nBuffSendSize = 0;
+        int nChunkBuffSize = 0;
+        int nReadSize = 0;
+        long long llRequestBodySize = 0;
+
+LOGLABEL;
+        for (nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize); nReadSize > 0;
+             nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize))
+        {
+          // chunk size
+          nBuffSendSize = snprintf(szBufferToSend, sizeof(szBufferToSend), "%x\r\n", nReadSize);
+          memcpy(szBufferToSend + nBuffSendSize, szBuffer, nReadSize);
+          nBuffSendSize += nReadSize;
+          memcpy(szBufferToSend + nBuffSendSize, "\r\n", 2);
+          nBuffSendSize += 2;
+
+          // send chunk block
+          nResult = send(nSockId, szBufferToSend, nBuffSendSize, 0);
+          dump(szBufferToSend, nBuffSendSize, llRequestBodySize);
+          LOG1("sent size: %d", nResult);
+          ASSERT(nResult != -1, "Failed to send data");
+
+          llRequestBodySize += nReadSize;
+        }
+
+        // send eof chunk
+        nResult = send(nSockId, szChunkSizeEof, sizeof(szChunkSizeEof) - 1, 0);
+        dump(szChunkSizeEof, sizeof(szChunkSizeEof) - 1, 0);
+
+        LOG1("Request body size: %lld", llRequestBodySize);
+      }
+    }
+  LOGLABEL;
   }
-  
-LABEL
+
+
   //////////////////////////////////////////////////
-  // retrive and parse HttpHeader
+  // process result
   {
-    int bHeaderParsed = 0;
-    int nReceived = 0;
+    long long llReceived = 0;
+    long long llBodySize = -1;
+    int bChunked = 0;
+    char* szHttpHeaderEnd = NULL;
 
-    char szLineEnd[4] = "";
-    int nLineEndLength = 0;
-
-    char* szCurr = szHttpHeader; // current address for data block receiving
-
-    const char* szBegin = szCurr;
-    const char* szEnd = NULL;
-
-
-    while (!bHeaderParsed)
+    LOGLABEL;
+    while (!szHttpHeaderEnd) // receive only http header
     {
-LOG1("wanna to receive %d bytes", (sizeof(szHttpHeader) - nReceived - 1));
-      nRet = recv(nSockID, szCurr, sizeof(szHttpHeader) - nReceived - 1, 0);
-LOG1("received %d bytes:", nRet);
-      if(nRet <= 0)
+      char* szBuffBegin = szBuffer + llReceived;
+      long long llRecvSize = nBufferSize - llReceived - 1;
+
+      ASSERT(llReceived < nBufferSize, "HTTP Response header is too large");
+
+      nResult = recv(nSockId, szBuffBegin, llRecvSize, MSG_PEEK);
+      LOG1("Received: %d bytes:", nResult);
+
+      ASSERT1(nResult > 0, "Failed to peek: %s", strerror(errno));
+      llReceived += nResult;
+      szBuffer[llReceived] = '\0';
+
+      // find http header end
+      szHttpHeaderEnd = strstr(szBuffer, "\r\n\r\n");
+      if (!szHttpHeaderEnd)
       {
-LOG1("error receiving: %s", strerror(errno));
-        CloseSocket(nSockID);
-        return 5;
+        nResult = recv(nSockId, szBuffBegin, llRecvSize, 0);
       }
-dump(szCurr, nRet);
-
-      nReceived += nRet;
-      
-
-      szCurr[nRet] = '\0';
-      
-      szEnd = strpbrk(szBegin, "\n\r");
-
-      // detect line end of header
-      if (nLineEndLength == 0 && szEnd != NULL)
+      else
       {
-        szLineEnd[0] = *szEnd;
-        if (*(szEnd + 1) == '\n' || *(szEnd + 1) == '\r')
-        {
-          szLineEnd[1] = *(szEnd + 1);
-          szLineEnd[2] = 0;
-          nLineEndLength = 2;
-        } else
-        {
-          szLineEnd[1] = 0;
-          nLineEndLength = 1;
-        }
+        nResult = recv(nSockId, szBuffBegin, szHttpHeaderEnd - szBuffBegin + 4, 0);
       }
-
-LABEL  
-      // parse header
-      while (szEnd != NULL)
-      {
-LABEL  
-        if (szEnd == szBegin && strncmp(szBegin + nLineEndLength, szLineEnd, nLineEndLength)) // there is body part
-        {
-          if(*pszAnswer == NULL) // body part without header!!
-          {
-LABEL  
-            CloseSocket(nSockID);
-            return 6;
-          }
-          
-          szEnd += nLineEndLength;
-          
-LABEL  
-LOG1("(szEnd - szHttpHeader): %d", (szEnd - szHttpHeader));
-LABEL  
-LOG3("buffer ptr: %p, szEnd: %p, nReceived: %d", *pszAnswer, szEnd, nReceived);
-          nReceived -= (szEnd - szHttpHeader);
-
-          if(nReceived > 0)
-          {
-LABEL  
-            memcpy((char*)(*pszAnswer), szEnd, nReceived);
-          }
-LABEL  
-
-          szCurr = (char*)(*pszAnswer) + nReceived;
-          bHeaderParsed = 1;
-          break;
-        }
-
-LABEL  
-        if(strncmp(szBegin, "Content-Length:", 15) == 0)
-        {
-LABEL  
-          *pnAnswerSize = atoi(szBegin + 15);
-          *pszAnswer = apr_pcalloc(pReq->pool, (*pnAnswerSize) + 1);
-          ((char*)(*pszAnswer))[*pnAnswerSize] = '\0';
-LOG1("data size: %d", *pnAnswerSize);
-LOG1("buffer ptr: %p", *pszAnswer);
-        }
-        else
-        if(strncmp(szBegin, "Content-Type:", 13) == 0)
-        {
-          char* szContentTypeCopy = NULL;
-          const char* szContentType = szBegin + 13;
-          const char* szContentTypeEnd = NULL;
-          while (*szContentType == ' ' || *szContentType == '\t')
-          {
-            ++szContentType;
-          }
-LABEL  
-          szContentTypeEnd = strpbrk(szContentType, "\n\r");
-          if (!szContentTypeEnd)
-          {
-            return 8;
-          }
-
-          szContentTypeCopy = apr_pcalloc(pReq->pool, szContentTypeEnd - szContentType + 1);
-          strncpy(szContentTypeCopy, szContentType, szContentTypeEnd - szContentType);
-          szContentTypeCopy[szContentTypeEnd - szContentType] = '\0';
-
-          pReq->content_type = szContentTypeCopy;
-        }
-
-        szEnd += nLineEndLength;
-        szBegin = szEnd;
-        szEnd = strstr(szBegin, szLineEnd);
-      }
-      
-LABEL  
-      if(!bHeaderParsed)
-        szCurr += nRet;
+      ASSERT1(nResult > 0, "Failed to receive: %s", strerror(errno));
     }
-LABEL  
 
+/*
+HTTP/1.1 200 OK
+Date: Wed Nov 17 13:11:27 2010 GMT
+Server: Axis2C/1.6.0 (Simple Axis2 HTTP Server)
+Content-Type: text/xml;charset=UTF-8
+Content-Length: 231
 
-    ///////////////////////////////////////////////////////////
-    // body message
-    while(nReceived < *pnAnswerSize)
+body
+*/
+
+    // process http header
     {
-      nRet = recv(nSockID, szCurr, *pnAnswerSize - nReceived, 0);
-      if(nRet == -1)
+      char* szHeaderPosBegin = szBuffer;
+      char* szHeaderPosEnd = NULL;
+      char* szHeaderNameSplit = NULL;
+      char* szHeaderValueBegin = NULL;
+
+      szHeaderPosEnd = strstr(szHeaderPosBegin, "\r\n");
+      ASSERT(szHeaderPosEnd, "Can't find http status line end");
+      *szHeaderPosEnd = '\0';
+      // find status code
+      szHeaderPosBegin = strchr(szHeaderPosBegin, ' ');
+      ASSERT(szHeaderPosBegin, "Can't find http status code");
+      ++szHeaderPosBegin;
+      *pnHttpStatus = atoi(szHeaderPosBegin);
+      LOG1("HTTP status code: %d", *pnHttpStatus);
+
+      szHeaderPosBegin = szHeaderPosEnd + 2;
+
+      // parse header fields
+      while (szHeaderPosBegin < szHttpHeaderEnd)
       {
-        CloseSocket(nSockID);
-        return 7;
+        szHeaderPosEnd = strstr(szHeaderPosBegin, "\r\n");
+        ASSERT(szHeaderPosEnd, "Can't find header end");
+        *szHeaderPosEnd = '\0';
+
+        szHeaderNameSplit = strchr(szHeaderPosBegin, ':');
+        ASSERT(szHeaderNameSplit, "Can't find header name: value splitter");
+        *szHeaderNameSplit = '\0';
+
+        szHeaderValueBegin = szHeaderNameSplit + 1;
+        // skip whitespace
+        while (strchr(" \t" , *szHeaderValueBegin) && szHeaderValueBegin < szHeaderPosEnd)
+        {
+          ++szHeaderValueBegin;
+        }
+
+        // process header
+        {
+          const char* szName = szHeaderPosBegin;
+          const char* szValue = StrDupN(pReq, szHeaderValueBegin, szHeaderPosEnd - szHeaderValueBegin);
+          LOG2("Header Name: [%s], Value: [%s]", szName, szValue);
+
+          if (!strcmp(szName, "Content-Length"))
+          {
+            llBodySize = atoll(szValue);
+            ap_set_content_length(pReq, llBodySize);
+          }
+          else
+          if (!strcmp(szName, "Transfer-Encoding"))
+          {
+            bChunked = !strcmp(szValue, "chunked");
+          }
+          else
+          if (!strcmp(szName, "Content-Type"))
+          {
+            pReq->content_type = szValue;
+          }
+          else
+          {
+            // set response header value
+            apr_table_set(pReq->headers_out, szName, szValue);
+          }
+        }
+
+        szHeaderPosBegin = szHeaderPosEnd + 2;
+      }
+    }
+
+    ASSERT(llBodySize != -1 || bChunked, "Content-Length is not set and Transfer-Encoding is not chunked");
+
+    pReq->chunked = bChunked; // affects only if not zipped
+
+    llReceived = 0;
+
+    // process message body
+    if (bChunked)
+    {
+      int nChunkSize = 0;
+      char szChunkSizeBuff[16];
+
+      char* szChunkSizeEnd = NULL;
+
+      for (;;)
+      {
+        // get chunk size
+        nResult = recv(nSockId, szChunkSizeBuff, sizeof(szChunkSizeBuff), MSG_PEEK);
+        ASSERT1(nResult > 0, "Failed to peek: %s", strerror(errno));
+
+        szChunkSizeEnd = strstr(szChunkSizeBuff, "\r\n");
+        ASSERT(szChunkSizeEnd, "Can't find chunk size end");
+
+        *szChunkSizeEnd = '\0';
+        ASSERT(sscanf(szChunkSizeBuff, "%x", &nChunkSize) == 1, "Can't read chunk size");
+        LOG1("Chunk Size: %d", nChunkSize);
+        if (!nChunkSize)
+        {
+          // remove last chunk data from buffer
+          recv(nSockId, szChunkSizeBuff, szChunkSizeEnd - szChunkSizeBuff + 4, 0);
+          break; // last chunk
+        }
+
+        // remove chunk header + chunk splitter from buffer
+        nResult = recv(nSockId, szChunkSizeBuff, szChunkSizeEnd - szChunkSizeBuff + 2, 0);
+        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+
+        // read chunk data
+        ASSERT(nChunkSize < nBufferSize, "Chunk size > buffer size");
+        nResult = recv(nSockId, szBuffer, nChunkSize, MSG_WAITALL);
+        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+        ASSERT2(nResult == nChunkSize, "Recvd size(%d) != Chunk size(%d)", nResult, nChunkSize);
+
+        // put to client
+        ap_rwrite(szBuffer, nResult, pReq);
+        dump(szBuffer, nResult, llReceived);
+
+        llReceived += nResult;
+        LOG1("forwarded %d bytes", nResult);
+
+        // remove chunk separator from buffer
+        nResult = recv(nSockId, szBuffer, 2, 0);
+        LOG1("recvd %d bytes", nResult);
+        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+        ASSERT(szBuffer[0] == '\r' && szBuffer[1] == '\n', "Invalid chunk separator");
+      }
+    }
+    else
+    {
+      // allocate buffer for all data
+      char* szOutBuffer = apr_pcalloc(pReq->pool, llBodySize);
+
+      while (llReceived < llBodySize)
+      {
+        nResult = recv(nSockId, szOutBuffer + llReceived, llBodySize - llReceived, 0);
+        ASSERT1(nResult > 0, "Can't recv: %s", strerror(errno));
+
+        llReceived += nResult;
+        LOG2("Received %lld out of %lld", llReceived, llBodySize);
       }
 
-      nReceived += nRet;
-      szCurr += nRet;
+      LOG1("Writing %lld bytes", llReceived);
+      ap_rwrite(szOutBuffer, llReceived, pReq);
+      dump(szOutBuffer, llReceived, 0);
     }
   }
 
-  CloseSocket(nSockID);
-
-LABEL  
-  return 0;
+LOGLABEL;
+  return OK;
 }
 
 /* content handler */
 static int axis2services_handler(request_rec* pReq)
 {
-  int nRet = OK;
   if (strcmp(pReq->handler, "axis2services"))
+  {
     return DECLINED;
+  }
   
-  if (pReq->header_only)
-    return nRet;
-
-LABEL  
-
-  if (pReq->method_number == M_POST || pReq->method_number == M_GET)
+  if (!pReq->header_only &&
+      (pReq->method_number == M_POST || pReq->method_number == M_GET))
   {
-    const char* szRequest = NULL;
-    int nRequestSize = 0;
-
-    const char* szAnswer = NULL;
-    int nAnswerSize = 0;
-  
-    if ((nRet = util_read(pReq, &szRequest, &nRequestSize)) != OK)
+    LOGLABEL;
+    int nRet = OK;
+    int nHttpStatus = OK;
+    int nSockId = CreateSocket();
+    if (nSockId < 0)
     {
-      return nRet;
-    }
-    
-    nRet = InvokeRequest(pReq, szRequest, nRequestSize, &szAnswer, &nAnswerSize);
-
-    if (nRet != 0)
-    {
-      char szError[256];
-
+      LOG1("Connection to Axis2/C server failed: %s", strerror(errno));
       pReq->content_type = "text";
-      if(szAnswer != NULL)
-      {
-        ap_rputs(szAnswer, pReq);
-        ap_rputs("\n\n\n", pReq);
-      }
-
-      snprintf(szError, sizeof(szError), "error while InvokeRequest #%d\n", nRet);
-      ap_rputs(szError, pReq);
-      
-//      return 500;
-      return OK;
+      ap_rputs("Connection to Axis2/C server failed: ", pReq);
+      ap_rputs(strerror(errno), pReq);
+      return 504;
     }
 
-LOG2(" \n\nRESULT(size=%d): %s\n\n", nAnswerSize, szAnswer);
-dump(szAnswer, nAnswerSize);
-//dump(szAnswer, nAnswerSize > 4000 ? 4000 : nAnswerSize);
-//    pReq->content_type = "text/xml;charset=UTF-8";
-    ap_rwrite(szAnswer, nAnswerSize, pReq);
-  }
-  else
-  {
-    return nRet;
+    nRet = ProcessRequest(pReq, nSockId, &nHttpStatus);
+    LOGLABEL;
+
+    CloseSocket(nSockId);
+    LOGLABEL;
+
+    return nRet != OK ? 500 : OK;
   }
 
-//LOG1("%s", "--------------------------------------------------------");      
   return OK;
 }
 
@@ -499,7 +566,7 @@ static void axis2services_register_hooks(apr_pool_t *p)
   ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
 #ifdef _DEBUG
 pLog = fopen("/tmp/apm.log", "wt");
-LABEL
+LOGLABEL;
 #endif
 }
 
