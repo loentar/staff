@@ -202,6 +202,8 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
   char szBuffer[HUGE_STRING_LEN];
   static const int nBufferSize = sizeof(szBuffer);
 
+  LOG("\n=================================================\nProcessing request to axis2/c\n=================================================\n");
+
   { // make request
     int nHttpHeaderLength = 0;
     const char* szSoapAction = NULL;
@@ -261,6 +263,9 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
     nResult = send(nSockId, szBuffer, nHttpHeaderLength, 0);
     ASSERT(nResult != -1, "Failed to send data");
 
+    LOG("Sent HTTP header:")
+    dump(szBuffer, nHttpHeaderLength, 0);
+
 
 
   LOGLABEL;
@@ -280,6 +285,8 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
         {
           nResult = send(nSockId, szBuffer, nReadSize, 0);
           ASSERT(nResult != -1, "Failed to send data");
+          LOG("Sent body part:")
+          dump(szBuffer, nReadSize, 0);
           llRead += nResult;
         }
       }
@@ -294,7 +301,6 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
         char szBufferToSend[HUGE_STRING_LEN + 16 + 2];
         static const char szChunkSizeEof[] = "0\r\n\r\n";
         int nBuffSendSize = 0;
-        int nChunkBuffSize = 0;
         int nReadSize = 0;
         long long llRequestBodySize = 0;
 
@@ -328,6 +334,7 @@ LOGLABEL;
   LOGLABEL;
   }
 
+  LOG("\n=================================================\nProcessing response from axis2/c\n=================================================\n");
 
   //////////////////////////////////////////////////
   // process result
@@ -338,32 +345,29 @@ LOGLABEL;
     char* szHttpHeaderEnd = NULL;
 
     LOGLABEL;
-    while (!szHttpHeaderEnd) // receive only http header
+    while (!szHttpHeaderEnd) // receive http header
     {
       char* szBuffBegin = szBuffer + llReceived;
       long long llRecvSize = nBufferSize - llReceived - 1;
 
       ASSERT(llReceived < nBufferSize, "HTTP Response header is too large");
 
-      nResult = recv(nSockId, szBuffBegin, llRecvSize, MSG_PEEK);
+      LOG1("Wanna to recv: %lld bytes:", llRecvSize);
+      nResult = recv(nSockId, szBuffBegin, llRecvSize, 0);
+      ASSERT1(nResult > 0, "Failed to receive: %s", strerror(errno));
       LOG1("Received: %d bytes:", nResult);
+      dump(szBuffBegin, nResult, llReceived);
 
-      ASSERT1(nResult > 0, "Failed to peek: %s", strerror(errno));
       llReceived += nResult;
       szBuffer[llReceived] = '\0';
 
       // find http header end
       szHttpHeaderEnd = strstr(szBuffer, "\r\n\r\n");
-      if (!szHttpHeaderEnd)
-      {
-        nResult = recv(nSockId, szBuffBegin, llRecvSize, 0);
-      }
-      else
-      {
-        nResult = recv(nSockId, szBuffBegin, szHttpHeaderEnd - szBuffBegin + 4, 0);
-      }
-      ASSERT1(nResult > 0, "Failed to receive: %s", strerror(errno));
     }
+
+    szHttpHeaderEnd[2] = '\0';
+
+    LOG1("HTTP Header is: \n-------------------------\n%s\n-------------------------\n", szBuffer);
 
 /*
 HTTP/1.1 200 OK
@@ -444,67 +448,102 @@ body
       }
     }
 
-    ASSERT(llBodySize != -1 || bChunked, "Content-Length is not set and Transfer-Encoding is not chunked");
-
+    ASSERT(llBodySize != -1 || bChunked, "Content-Length is not set and Transfer-Encoding is not chunked.");
     pReq->chunked = bChunked; // affects only if not zipped
-
-    llReceived = 0;
 
     // process message body
     if (bChunked)
     {
-      int nChunkSize = 0;
-      char szChunkSizeBuff[16];
-
+      char* szChunkBegin = szHttpHeaderEnd + 4;  // pointer to chunk begin
+      int nChunkSize = 0;  // chunk size
       char* szChunkSizeEnd = NULL;
+      int nChunkSizeToSend = 0;
+      int bMoved = 0;
+      int nDataInBuffer = llReceived - (szChunkBegin - szBuffer);
+
+      LOG1("Datacount: %d", nDataInBuffer);
 
       for (;;)
       {
-        // get chunk size
-        nResult = recv(nSockId, szChunkSizeBuff, sizeof(szChunkSizeBuff), MSG_PEEK);
-        ASSERT1(nResult > 0, "Failed to peek: %s", strerror(errno));
+        bMoved = 0;
 
-        szChunkSizeEnd = strstr(szChunkSizeBuff, "\r\n");
-        ASSERT(szChunkSizeEnd, "Can't find chunk size end");
+        // while header end is not found
+        while (!(szChunkSizeEnd = strstr(szChunkBegin, "\r\n")))
+        {
+          if (!bMoved)
+          {
+            // reached eof, but chunk size end not found
+            // moving data to buffer begin, and refill the buffer with the rest data
+            memmove(szBuffer, szChunkBegin, nDataInBuffer);
+            szChunkBegin = szBuffer;
+            bMoved = 1;
+          }
+          // recv rest of buffer to find end of chunk header
+          nResult = recv(nSockId, szChunkBegin + nDataInBuffer, nBufferSize - nDataInBuffer - 1, 0);
+          ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+          nDataInBuffer += nResult;
+        }
 
         *szChunkSizeEnd = '\0';
-        ASSERT(sscanf(szChunkSizeBuff, "%x", &nChunkSize) == 1, "Can't read chunk size");
+        ASSERT(sscanf(szChunkBegin, "%x", &nChunkSize) == 1, "Can't read chunk size");
         LOG1("Chunk Size: %d", nChunkSize);
         if (!nChunkSize)
         {
-          // remove last chunk data from buffer
-          recv(nSockId, szChunkSizeBuff, szChunkSizeEnd - szChunkSizeBuff + 4, 0);
           break; // last chunk
         }
 
-        // remove chunk header + chunk splitter from buffer
-        nResult = recv(nSockId, szChunkSizeBuff, szChunkSizeEnd - szChunkSizeBuff + 2, 0);
-        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+        // send full chunk, if it is fully in buffer or only available part
+        nChunkSizeToSend = Min(nChunkSize, nDataInBuffer - (szChunkSizeEnd - szChunkBegin));
 
-        // read chunk data
-        ASSERT(nChunkSize < nBufferSize, "Chunk size > buffer size");
-        nResult = recv(nSockId, szBuffer, nChunkSize, MSG_WAITALL);
-        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
-        ASSERT2(nResult == nChunkSize, "Recvd size(%d) != Chunk size(%d)", nResult, nChunkSize);
+        LOG1("nDataInBuffer: %d", nDataInBuffer - (szChunkSizeEnd - szChunkBegin));
+        LOG1("Chunk Size to send: %d", nChunkSizeToSend);
 
-        // put to client
-        ap_rwrite(szBuffer, nResult, pReq);
-        dump(szBuffer, nResult, llReceived);
+        szChunkBegin = szChunkSizeEnd + 2; // chunk data begin
 
-        llReceived += nResult;
-        LOG1("forwarded %d bytes", nResult);
+        for(;;)
+        {
+          // put part to client
+          ap_rwrite(szChunkBegin, nChunkSizeToSend, pReq);
+          dump(szChunkBegin, nChunkSizeToSend, nDataInBuffer);
 
-        // remove chunk separator from buffer
-        nResult = recv(nSockId, szBuffer, 2, 0);
-        LOG1("recvd %d bytes", nResult);
-        ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
-        ASSERT(szBuffer[0] == '\r' && szBuffer[1] == '\n', "Invalid chunk separator");
+          nChunkSize -= nChunkSizeToSend;
+
+          if (!nChunkSize) // chunk is fully sent
+          {
+            // end of chunk
+            // skip chunk buffer end
+            if ((nChunkSizeToSend + 2) > nDataInBuffer)
+            {
+              nResult = recv(nSockId, szBuffer, nBufferSize, 0);
+              ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+              szChunkBegin -= nDataInBuffer;
+              nDataInBuffer = nResult;
+            }
+            else
+            {
+              szChunkBegin += nChunkSizeToSend + 2;
+            }
+
+            break;
+          }
+
+          // receive rest of chunk, buffer is freed from data
+          nResult = recv(nSockId, szBuffer, nBufferSize, 0);
+          ASSERT1(nResult > 0, "Failed to recv: %s", strerror(errno));
+          nDataInBuffer = nResult;
+          nChunkSizeToSend = Min(nChunkSize, nDataInBuffer);
+          szChunkBegin = szBuffer;
+        }
       }
     }
     else
     {
       // allocate buffer for all data
       char* szOutBuffer = apr_pcalloc(pReq->pool, llBodySize);
+      const char* szDataBegin = szHttpHeaderEnd + 4;
+
+      llReceived -= szDataBegin - szBuffer;
+      memcpy(szOutBuffer, szDataBegin, llReceived);
 
       while (llReceived < llBodySize)
       {
@@ -515,9 +554,9 @@ body
         LOG2("Received %lld out of %lld", llReceived, llBodySize);
       }
 
-      LOG1("Writing %lld bytes", llReceived);
-      ap_rwrite(szOutBuffer, llReceived, pReq);
-      dump(szOutBuffer, llReceived, 0);
+      LOG1("Writing %lld bytes", llBodySize);
+      ap_rwrite(szOutBuffer, llBodySize, pReq);
+      dump(szOutBuffer, llBodySize, 0);
     }
   }
 
