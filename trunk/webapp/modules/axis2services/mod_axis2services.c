@@ -68,7 +68,7 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-#define _DEBUG
+//#define _DEBUG
 
 #define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
 #define ASSERT1(EXPRESSION, TEXT, PARAM1) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); return 1; }
@@ -112,7 +112,7 @@ void dump(const char* szData, unsigned long ulSize, unsigned long ulStartNum)
   fflush(pLog);
 }
 #else
-#define LOGLABEL;
+#define LOGLABEL
 #define LOGRAW(str)
 #define LOG(str)
 #define LOG1(str, arg1)
