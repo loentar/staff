@@ -68,7 +68,7 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-//#define _DEBUG
+#define _DEBUG
 
 #define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
 #define ASSERT1(EXPRESSION, TEXT, PARAM1) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); return 1; }
@@ -240,8 +240,26 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
     szContentType = apr_table_get(pReq->headers_in, "Content-Type");
     if (szContentType)
     {
-      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
-          "Content-Type: %s\r\n", szContentType);
+      char* szDelim = strchr(szContentType, ';');
+
+      if (!strncmp(szContentType, "application/xml", 15))
+      { // axis2/c is not accepting "application/xml" content-type somewhat, changing to "text/xml" - soap1.1
+        nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+            "Content-Type: text/xml");
+      }
+      else
+      {
+        nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+            "Content-Type: %s", szContentType);
+      }
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+
+      if (szDelim)
+      {
+        nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength, "%s", szDelim);
+        ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+      }
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength, "\r\n");
       ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
     }
 
