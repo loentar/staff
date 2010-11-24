@@ -196,6 +196,41 @@ long long Min(long long llA, long long llB)
   return llA > llB ? llB : llA;
 }
 
+void FreeBlock(char** ppData)
+{
+  if (*ppData)
+  {
+    free(*ppData);
+    *ppData = NULL;
+  }
+}
+
+int ReadBlock(request_rec* pReq, char** ppResultData, long long* pllResultSize)
+{
+  static const int nBlockSize = HUGE_STRING_LEN;
+  long long llBufferSize = nBlockSize;
+  int nReadSize = 0;
+
+  ASSERT(pReq && ppResultData && pllResultSize, "invalid param");
+  *pllResultSize = 0;
+  *ppResultData = malloc(llBufferSize);
+
+  ASSERT(*ppResultData, "failed to alloc");
+
+  while ((nReadSize = ap_get_client_block(pReq, *ppResultData + *pllResultSize, llBufferSize - *pllResultSize)) > 0)
+  {
+    *pllResultSize += nReadSize;
+    if (llBufferSize < (*pllResultSize + nBlockSize))
+    {
+      llBufferSize += nBlockSize;
+      *ppResultData = realloc(*ppResultData, llBufferSize);
+      ASSERT_ACT(*ppResultData, "failed to realloc", FreeBlock(ppResultData));
+    }
+  }
+
+  return 0;
+}
+
 int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
 {
   int nResult = 0;
@@ -207,12 +242,11 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
   { // make request
     int nHttpHeaderLength = 0;
     const char* szSoapAction = NULL;
-    const char* szContentLength = NULL;
     const char* szContentType = NULL;
     const char* szTransferEncoding = NULL;
 
     // process HTTP Header
-  LOGLABEL;
+LOGLABEL;
     nHttpHeaderLength = snprintf(szBuffer, nBufferSize,
       "%s %s HTTP/1.1\r\n", pReq->method,  pReq->unparsed_uri);
     ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
@@ -229,34 +263,28 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
       ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
     }
 
-    szContentLength = apr_table_get(pReq->headers_in, "Content-Length");
-    if (szContentLength)
-    {
-      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
-          "Content-Length: %s\r\n", szContentLength);
-      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
-    }
-
     szContentType = apr_table_get(pReq->headers_in, "Content-Type");
     if (szContentType)
     {
-      char* szDelim = strchr(szContentType, ';');
-
       if (!strncmp(szContentType, "application/xml", 15))
-      { // axis2/c is not accepting "application/xml" content-type somewhat, changing to "text/xml" - soap1.1
+      { // axis2/c is not accepting "application/xml" content-type, we change it to "text/xml"
+        char* szDelim = strchr(szContentType, ';');
+
         nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
             "Content-Type: text/xml");
+        ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+
+        if (szDelim)
+        {
+          nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+                                        "%s", szDelim);
+          ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+        }
       }
       else
       {
         nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
             "Content-Type: %s", szContentType);
-      }
-      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
-
-      if (szDelim)
-      {
-        nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength, "%s", szDelim);
         ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
       }
       nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength, "\r\n");
@@ -272,48 +300,76 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
     }
 
     nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
-        "Host: 127.0.0.1:9090\r\n\r\n");
+        "Host: 127.0.0.1:9090\r\n");
     ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
 
 
-    // send HTTP-Header to Axis2/C
-  LOGLABEL;
-    nResult = send(nSockId, szBuffer, nHttpHeaderLength, 0);
-    ASSERT(nResult != -1, "Failed to send data");
 
-    LOG("Sent HTTP header:")
-    dump(szBuffer, nHttpHeaderLength, 0);
-
-
-
-  LOGLABEL;
+LOGLABEL;
     // process and send HTTP-Body to Axis2/C
-    if (szContentLength)
+    if (!szTransferEncoding || strcmp(szTransferEncoding, "chunked"))
     {
-      long long llBodySize = atoll(szContentLength);
       // block mode
+      long long llContentLength = 0;
+      char* pBuffer = NULL;
+
+      LOG("Processing request in block mode");
+
       ASSERT(ap_setup_client_block(pReq, REQUEST_CHUNKED_ERROR) == OK, "Error ap_setup_client_block");
-    LOGLABEL;
       if (ap_should_client_block(pReq))
       {
-        long long llRead = 0;
-        int nReadSize = 0;
-
-        while ((nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize)) > 0 && (llRead < llBodySize))
-        {
-          nResult = send(nSockId, szBuffer, nReadSize, 0);
-          ASSERT(nResult != -1, "Failed to send data");
-          LOG("Sent body part:")
-          dump(szBuffer, nReadSize, 0);
-          llRead += nResult;
-        }
+        ASSERT(!ReadBlock(pReq, &pBuffer, &llContentLength), "Failed to read block");
+LOGLABEL;
       }
+
+      // don't thrust Content-Length from request: mod_deflate can set wrong info
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "Content-Length: %lld\r\n\r\n", llContentLength);
+      ASSERT_ACT(nHttpHeaderLength < nBufferSize, "Buffer overflow", FreeBlock(&pBuffer););
+
+      // send HTTP-Header to Axis2/C
+LOGLABEL;
+      nResult = send(nSockId, szBuffer, nHttpHeaderLength, 0);
+      ASSERT1_ACT(nResult != -1, "Failed to send http header: %s", strerror(errno), FreeBlock(&pBuffer););
+
+      LOG1("Sent HTTP Header(%d bytes):", nHttpHeaderLength);
+      dump(szBuffer, nHttpHeaderLength, 0);
+
+      if (pBuffer && llContentLength)
+      {
+        nResult = send(nSockId, pBuffer, llContentLength, 0);
+        ASSERT1_ACT(nResult != -1, "Failed to send data: %s", strerror(errno), FreeBlock(&pBuffer););
+
+        LOG1("Sent request(%lld bytes):", llContentLength);
+        dump(pBuffer, llContentLength, 0);
+      }
+      else
+      {
+        LOG2("request is empty. Buffer: %p, len: %lld", pBuffer, llContentLength);
+      }
+
+      FreeBlock(&pBuffer);
     }
     else
     {
       // chunked mode
+      LOG("Processing request in chunked mode");
+
       ASSERT(ap_setup_client_block(pReq, REQUEST_CHUNKED_DECHUNK) == OK, "Error ap_setup_client_block");
-    LOGLABEL;
+
+      nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
+          "\r\n");
+      ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
+
+      // send HTTP-Header to Axis2/C
+LOGLABEL;
+      nResult = send(nSockId, szBuffer, nHttpHeaderLength, 0);
+      ASSERT(nResult != -1, "Failed to send data");
+
+      LOG1("Sent HTTP Header(%d bytes):", nHttpHeaderLength);
+      dump(szBuffer, nHttpHeaderLength, 0);
+
+LOGLABEL;
       if (ap_should_client_block(pReq))
       {
         char szBufferToSend[HUGE_STRING_LEN + 16 + 2];
@@ -323,8 +379,7 @@ int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
         long long llRequestBodySize = 0;
 
 LOGLABEL;
-        for (nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize); nReadSize > 0;
-             nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize))
+        while((nReadSize = ap_get_client_block(pReq, szBuffer, nBufferSize)) > 0)
         {
           // chunk size
           nBuffSendSize = snprintf(szBufferToSend, sizeof(szBufferToSend), "%x\r\n", nReadSize);
@@ -349,20 +404,20 @@ LOGLABEL;
         LOG1("Request body size: %lld", llRequestBodySize);
       }
     }
-  LOGLABEL;
+LOGLABEL;
   }
 
   LOG("\n=================================================\nProcessing response from axis2/c\n=================================================\n");
 
   //////////////////////////////////////////////////
-  // process result
+  // process response
   {
     long long llReceived = 0;
     long long llBodySize = -1;
     int bChunked = 0;
     char* szHttpHeaderEnd = NULL;
 
-    LOGLABEL;
+LOGLABEL;
     while (!szHttpHeaderEnd) // receive http header
     {
       char* szBuffBegin = szBuffer + llReceived;
@@ -386,16 +441,6 @@ LOGLABEL;
     szHttpHeaderEnd[2] = '\0';
 
     LOG1("HTTP Header is: \n-------------------------\n%s\n-------------------------\n", szBuffer);
-
-/*
-HTTP/1.1 200 OK
-Date: Wed Nov 17 13:11:27 2010 GMT
-Server: Axis2C/1.6.0 (Simple Axis2 HTTP Server)
-Content-Type: text/xml;charset=UTF-8
-Content-Length: 231
-
-body
-*/
 
     // process http header
     {
@@ -513,7 +558,7 @@ body
         // send full chunk, if it is fully in buffer or only available part
         nChunkSizeToSend = Min(nChunkSize, nDataInBuffer - (szChunkSizeEnd - szChunkBegin));
 
-        LOG1("nDataInBuffer: %d", nDataInBuffer - (szChunkSizeEnd - szChunkBegin));
+        LOG1("nDataInBuffer: %ld", nDataInBuffer - (szChunkSizeEnd - szChunkBegin));
         LOG1("Chunk Size to send: %d", nChunkSizeToSend);
 
         szChunkBegin = szChunkSizeEnd + 2; // chunk data begin
@@ -593,7 +638,7 @@ static int axis2services_handler(request_rec* pReq)
   if (!pReq->header_only &&
       (pReq->method_number == M_POST || pReq->method_number == M_GET))
   {
-    LOGLABEL;
+LOGLABEL;
     int nRet = OK;
     int nHttpStatus = OK;
     int nSockId = CreateSocket();
@@ -607,10 +652,10 @@ static int axis2services_handler(request_rec* pReq)
     }
 
     nRet = ProcessRequest(pReq, nSockId, &nHttpStatus);
-    LOGLABEL;
+LOGLABEL;
 
     CloseSocket(nSockId);
-    LOGLABEL;
+LOGLABEL;
 
     return nRet != OK ? 500 : OK;
   }
