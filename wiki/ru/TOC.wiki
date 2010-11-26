@@ -18,6 +18,7 @@
     * Создание AJAX клиента
       * [ExampleCalculatorAjaxClientLinux Ajax-клиент]
     * Создание J2ME клиента
+      * [ExampleCalculatorJ2meClientInEclipse J2ME-клиент в Eclipse]
       * [ExampleCalculatorJ2meClient J2ME-клиент]
     * REST
       * [ExampleCalculatorRestfulClient RESTful C++ клиент]
@@ -32,6 +33,8 @@
       * [CodegenTemplates Шаблоны]
     * DAS
       * [DasScriptProgramming Программирование скриптов DAS]
+    * Другое
+      * [TrafficCompression Сжатие трафика]
   * Загрузки
     * [http://code.google.com/p/staff/source/checkout Загрузка из SVN]
     * [http://code.google.com/p/staff/downloads/list Загрузка архива]

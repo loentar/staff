@@ -1,0 +1,123 @@
+#summary Пример: Создание J2ME клиента Calculator
+
+<h1>Содержание</h1>
+<wiki:toc max_depth="3" />
+
+== Установка J2ME WTK ==
+Для установки J2ME WTK следуйте инструкции:
+http://www.oracle.com/technetwork/java/download-135801.html
+
+== Создание J2ME клиента Calculator ==
+=== Создание проекта ===
+Запустите J2ME WTK (KToolbar) и выберите "New Project".
+Введите следующие данные
+{{{
+Project Name: Calculator
+MIDlet Class Name: CalculatorMIDlet
+}}}
+Нажмите "Create Project", "OK".
+
+В текстовой области KToolbar будут выведены различные сообщения, в том числе местоположение исходных файлов проекта.
+
+=== Установка ksoap ===
+Загрузите файл `ksoap2-j2me-core-2.1.2.jar` с http://sourceforge.net/projects/ksoap2/ и поместите его в каталог библиотек проекта `Calculator/lib'
+
+=== Реализация мидлета ===
+Поместите исходный код мидлета в каталог исходного кода проекта, назвав файл CalculatorMIDlet.java:
+{{{
+import javax.microedition.io.*;
+import java.util.*;
+import java.io.*;
+
+import javax.microedition.lcdui.*;
+import javax.microedition.midlet.*;
+
+import org.ksoap2.*;
+import org.ksoap2.serialization.*;
+import org.ksoap2.transport.*;
+import org.kxml2.kdom.*;
+
+import samples.Calculator;
+
+public class CalculatorMIDlet extends MIDlet implements CommandListener, Runnable
+{
+    Form mainForm = new Form("Calculator");
+    TextField tFieldA = new TextField("A=", "1", 5, TextField.NUMERIC);
+    TextField tFieldB = new TextField("B=", "2", 5, TextField.NUMERIC);
+    StringItem resultItem = new StringItem("Result", "");
+    Command getCommand = new Command("Add", Command.SCREEN, 1);
+
+    Calculator tCalcService = new Calculator();
+
+    public CalculatorMIDlet()
+    {
+        mainForm.append(tFieldA);
+        mainForm.append(tFieldB);
+        mainForm.append(resultItem);
+        mainForm.addCommand(getCommand);
+        mainForm.setCommandListener(this);
+    }
+
+    public void startApp()
+    {
+        Display.getDisplay(this).setCurrent(mainForm);
+    }
+
+    public void pauseApp()
+    {
+    }
+
+    public void destroyApp(boolean unconditional)
+    {
+    }
+
+    public void run()
+    {
+      try
+      {
+        int nA = Integer.parseInt(tFieldA.getString());
+        int nB = Integer.parseInt(tFieldB.getString());
+
+        int nResult = tCalcService.Add(nA, nB);
+
+        resultItem.setText(Integer.toString(nResult));
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+        resultItem.setLabel("Error:");
+        resultItem.setText(e.toString());
+      }
+    }
+
+    public void commandAction(Command c, Displayable d)
+    {
+      new Thread(this).start();
+    }
+}
+}}}
+
+=== Генерация прокси клиента ===
+Скопируйте интерфейс сервиса samples.Calculator (Calculator.h) (из ExampleCalculatorServiceWindows или ExampleCalculatorServiceLinux) в каталог исходных файлов прокта.
+
+Запустите генератор кода:
+{{{
+staff_codegen -tj2meclient Calculator.h
+}}}
+
+Прокси клиента будет сгенерирован в `samples/Calculator.java`.
+
+=== Компиляция и запуск ===
+Нажмите "Build" в KToolbar и затем "Run".
+
+== Тестирование ==
+Когда окно эмулятора откроется, нажмите F2 для запуска мидлета Calculator.
+
+Нажмите F2 для вызова операции "Add" в сервисе samples.Calculator.
+
+Нажмите F2 для подтверждения доступа к сети (только один раз).
+
+Результат будет выведен в поле "Result".
+
+[http://staff.googlecode.com/svn/wiki/img/j2me-calculator.png http://staff.googlecode.com/svn/wiki/img/j2me-calculator.png]
+
