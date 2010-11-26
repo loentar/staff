@@ -3,17 +3,30 @@
 
 = Staff details =
 
-Staff is Web Service Framework for C++/!JavaScript based on Apache Axis2/C. 
+=== Main info ===
 
-Together with the support of all functions of Apache Axis2/C, WSF Staff provides additional features: 
-  * stateful web services implementation in C++;
-  * client implementation in C++ and !JavaScript;
-  * service-component architecture implementation;
-  * RESTful web services support;
-  * security support;
-  * WSDL support;
-  * extensible code generator;
-  * webapp toolkit;
+Staff is Web Service Framework for C++, AJAX, and J2ME that is based on Apache Axis2/C.
+
+WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional features:
+  * stateful [ExampleCalculatorServiceWindows#2._Creating_service_interface Web Services implementation] in C++ with instance support;
+  * [ExampleCalculatorClientWindows synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClientLinux AJAX] and [ExampleCalculatorJ2meClient J2ME];
+  * [TrafficCompression traffic compression] support in J2ME and AJAX. 
+  * service-component [SoaApplicationStruct architecture implementation];
+  * support for RESTful [ExampleCalculatorRestfulService web services] and [ExampleCalculatorRestfulClient clients];
+  * [ExampleCreatingCppClientFromWsdl WSDL] support with xsd import/export;
+  * [ExampleCalculatorJ2meClient J2ME client] support is based on ksoap;
+  * [CodegenMetacomments code generator] to generate any sort of Web Services related source code (not only in C++);
+  * access to relational databases via [ExampleDasDataSource DAS] (data access service). <br/>_Supported DBMS: Postgresql, MySQL, SQLite3._;
+  * security support (users, groups, sessions, ACLs, etc.);
+  * web application toolkit (webapp) with widget support. <br/>_(Screenshots [http://staff.googlecode.com/svn/wiki/screenshots/webapp-windowsxp-ie7.png webapp client under windows], [http://staff.googlecode.com/svn/wiki/screenshots/webapp-ubuntu-firefox.png webapp client under linux])_;
+
+<br/>
+In the Service interface:
+  * STL containers supported: list, vector, map;
+  * Structures may be inherited;
+  * Structures may have struct, typedef and template fields;
+  * Typedefs is supported;
+  * Namespaces are treated as component's name.
 
 
 
@@ -37,12 +50,32 @@ Webapp is the easy way to develop the web application, based on SOA from scratch
 
 === Code generator (codegen) ===
 Code generator includes following common templates:
-  * web service interface generation by WSDL file;
-  * WSDL generation by web service interface;
+  * web service interface generation from WSDL;
+  * WSDL generation from web service interface;
   * BPEL support: codegen supports WSDL generation compatible with BPEL;
   * web service stub generation;
   * client skeleton generation;
   * internal files generation (Proxies, Wrappers, etc);
 
-  _Interface is an abstract C++ class that can be used for creating web services and clients;_
-New templates can be created without changing codegen's source code.
+_Interface is an abstract C++ class that can be used for creating web services and clients;_
+Most of new templates can be created without changing codegen's source code.
+
+
+=== License ===
+WSF Staff is released with Apache License V2.0.
+
+=== Third-Party Licenses Used in WSF Staff ===
+
+SQLite license:
+  * SQLite3: http://www.sqlite.org/copyright.html
+
+BSD License:
+  * YahooUI: http://developer.yahoo.com/yui/license.html
+  * MD5: http://pajhome.org.uk/crypt/md5
+
+MIT-style license:
+  * Prototype !JavaScript framework: http://www.prototypejs.org/
+
+Open source IBM License:
+  * WS.JS: http://www.ibm.com/developerworks/webservices/library/ws-wsajax/
+
