@@ -157,9 +157,9 @@ namespace das
     const char* szResult = NULL;
 
     int nResult = sqlite3_prepare_v2(m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &pStmt, NULL);
-    RISE_ASSERTS(nResult == SQLITE_OK, "error executing query #" + rise::ToStr(nResult) + ": \n"
+    RISE_ASSERTS(nResult == SQLITE_OK, "error #" + rise::ToStr(nResult) + ": "
                  + std::string(sqlite3_errmsg(m_pImpl->m_pConn))
-                 + "Query was:\n----------\n" + sExecute + "\n----------\n");
+                 + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
 
     try
     {
