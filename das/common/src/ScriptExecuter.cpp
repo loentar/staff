@@ -104,6 +104,11 @@ namespace das
             ProcessExecute(rdoContext, rNodeOperator, rReturnType, rdoResult);
           }
           else
+          if (sOperator == "log")
+          {
+            ProcessLog(rdoContext, rNodeOperator);
+          }
+          else
           {
             RISE_THROWS(rise::CLogicNoItemException, "Invalid operator: [" + sOperator + "]");
           }
@@ -168,10 +173,16 @@ namespace das
       }
       else
       {
-        ProcessSequence(rdoContext, rScript, rVar.tType, rVar.tdoValue);
+        rVar.tdoValue.Create(sVarName);
         if (rVar.tType.eType == Type::Void)
         {
           rVar.tType.eType = Type::DataObject;
+        }
+        ProcessSequence(rdoContext, rScript, rVar.tType, rVar.tdoValue);
+        if (rVar.tType.eType == Type::Generic)
+        {
+          rVar.sValue = rVar.tdoValue.GetText();
+          rVar.tdoValue.Detach();
         }
       }
     }
@@ -320,10 +331,17 @@ namespace das
             }
             else
             { // dataobject, list, struct
-              CDataObject tdoResult;
-              GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
-              RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
-              sValue = tdoResult.GetText();
+              if (nPos != std::string::npos)
+              {
+                CDataObject tdoResult;
+                GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
+                RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
+                sValue = tdoResult.GetText();
+              }
+              else
+              {
+                sValue = rVar.tdoValue.GetText();
+              }
             }
           }
         } // if request
@@ -333,6 +351,11 @@ namespace das
       } // while find '$'
 
       return sResult;
+    }
+
+    void ProcessLog(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    {
+      rise::LogInfo() << m_rDataSource.GetName() << ": " << Eval(rdoContext, rScript.NodeContent());
     }
 
     void GetChild(const CDataObject& rdoContext, const std::string& sChildPath, CDataObject& rdoResult)
