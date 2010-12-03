@@ -69,6 +69,11 @@ namespace staff
       }
 
     }
+
+    if (!rProject.lsInterfaces.empty())
+    {
+      rProject.sNamespace = rProject.lsInterfaces.front().sNamespace;
+    }
   }
 
   void CDasDataSourceParser::ParseTypes(const rise::xml::CXMLNode& rNodeTypes, SProject& rProject,
@@ -237,6 +242,8 @@ namespace staff
     rise::StrReplace(sNamespace, ".", "::", true);
     sNamespace = "::" + sNamespace + "::";
 
+    stInterface.sNamespace = sNamespace;
+
     // Types
     const rise::xml::CXMLNode& rNodeTypes = rDataSourceNode.Subnode("types");
     ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
@@ -285,6 +292,10 @@ namespace staff
         stParam.stDataType.sName = itParam->Attribute("type").AsString();
 
         FixDataType(stParam.stDataType, stInterface, sNamespace);
+        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
+                                                 + stParam.stDataType.sName;
+        OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
+        stParam.stDataType.sNodeName = stParam.sName;
 
         if (stParam.stDataType.eType == SDataType::EString ||
             stParam.stDataType.eType == SDataType::EStruct ||
