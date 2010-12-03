@@ -71,6 +71,7 @@ namespace staff
       pDataAccessService->SetDataSource(sDataSource);
       const CDataObject& rdoInterface = pDataAccessService->GetInterface().FirstChild();
       Parse(rdoInterface, stInterface, rProject);
+      rProject.sNamespace = stInterface.sNamespace;
 
       pDataAccessService->FreeDataSource();
 
@@ -177,6 +178,8 @@ namespace staff
     rise::StrReplace(sNamespace, ".", "::", true);
     sNamespace = "::" + sNamespace + "::";
 
+    rInterface.sNamespace = sNamespace;
+
     const CDataObject& rdoIncludes = rdoInterface.GetChildByLocalName("Includes");
     for (CDataObject::ConstIterator itInclude = rdoIncludes.Begin();
         itInclude != rdoIncludes.End(); ++itInclude)
@@ -251,6 +254,7 @@ namespace staff
         FixDataType(stParam.stDataType, rInterface, sNamespace);
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
         OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
+        stParam.stDataType.sNodeName = stParam.sName;
 
         if (stParam.stDataType.eType == SDataType::EString ||
             stParam.stDataType.eType == SDataType::EStruct ||
