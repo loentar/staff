@@ -6,6 +6,8 @@ Windows installation manuals:
   * [InstallationManualWindows Staff Installation manual for Windows from sources];
 
 Linux installation manuals:
-  * [InstallationManualLinux Staff Installation manual for Linux from sources];
+  * [InstallationManualLinux Staff Installation manual for Linux];
   * [InstallationManualWebappLinux Webapp Installation manual for Linux].
 
+FreeBSD installation manual:
+  * [InstallationManualFreeBSD Staff Installation manual for FreeBSD];

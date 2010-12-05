@@ -1,0 +1,14 @@
+#summary Installation, configuration and test guide for FreeBSD
+#labels Phase-Deploy
+
+To install WSF Staff under FreeBSD, please follow LinuxInstallationManual with a following exceptions:
+
+  * par 0.<br/>Use ~/.shrc not a ~/.bashrc;<br/><br/>
+  * par 3.<br/>Enter these commands to compile and install rise, Staff and Webapp.
+{{{
+gmake && sudo -E gmake install
+sudo chmod -R go-w /usr/local/staff/
+sudo chmod 777 $AXIS2C_HOME/logs
+sudo ldconfig $STAFF_HOME/lib $AXIS2C_HOME/lib
+}}}
+

@@ -45,5 +45,7 @@
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]
       * [InstallationManualWebappLinux Установка и тестирование webapp]
+    * FreeBSD
+      * [InstallationManualFreeBSD Установка staff из исходного кода]
   * [SupportPage Поддержка]
 

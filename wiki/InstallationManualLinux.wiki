@@ -54,7 +54,7 @@ Enter these commands to compile and install rise, Staff and Webapp.
 make && sudo -E make install
 echo -e "$STAFF_HOME/lib\n$AXIS2C_HOME/lib" | sudo tee /etc/ld.so.conf.d/staff.conf
 sudo ldconfig
-chmod 777 $AXIS2C_HOME/logs
+sudo chmod 777 $AXIS2C_HOME/logs
 }}}
 
 == 4. Starting ==
