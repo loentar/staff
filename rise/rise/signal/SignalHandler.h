@@ -71,7 +71,9 @@ namespace rise
       ESIGPROF = SIGPROF,
       ESIGWINCH = SIGWINCH,
       ESIGIO = SIGIO,
+#if defined OS_Linux
       ESIGPWR = SIGPWR,
+#endif
       ESIGSYS = SIGSYS,
 // mips hack
 #ifdef __SIGRTMIN

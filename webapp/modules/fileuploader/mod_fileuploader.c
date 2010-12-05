@@ -19,6 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#if defined __FreeBSD__
+#include <sys/stat.h>
+#endif
 #include "httpd.h"
 #include "http_config.h"
 #include "http_protocol.h"

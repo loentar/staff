@@ -26,7 +26,7 @@
 #include "StackTracer.h"
 
 
-#if defined __linux__
+#if defined OS_Linux
 #include <execinfo.h>
 
 #define BACKTRACE_SIZE 100
@@ -99,7 +99,7 @@ namespace rise
     }
   }
 }
-#endif
+#else
 #if defined WIN32
 #include <windows.h>
 #include <imagehlp.h>
@@ -205,4 +205,21 @@ namespace rise
 
   }
 }
+#else
+namespace rise
+{
+  namespace tools
+  {
+    void CStackTracer::StackTraceStr(CString& sTraceResult, int nSkip)
+    {
+      rise::LogWarning() << "Stack tracing is not supported";
+    }
+
+    void CStackTracer::StackTrace(TAddrInfoList& rTraceResult, int nSkip)
+    {
+      rise::LogWarning() << "Stack tracing is not supported";
+    }
+  }
+}
+#endif
 #endif

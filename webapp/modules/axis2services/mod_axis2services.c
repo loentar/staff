@@ -634,11 +634,10 @@ static int axis2services_handler(request_rec* pReq)
   {
     return DECLINED;
   }
-  
+
   if (!pReq->header_only &&
       (pReq->method_number == M_POST || pReq->method_number == M_GET))
   {
-LOGLABEL;
     int nRet = OK;
     int nHttpStatus = OK;
     int nSockId = CreateSocket();

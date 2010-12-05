@@ -37,7 +37,9 @@
 #include <cstdarg>
 #include <stdlib.h>
 #include <errno.h>
+#ifdef OS_Linux
 #include <linux/limits.h>
+#endif
 #endif
 
 namespace rise

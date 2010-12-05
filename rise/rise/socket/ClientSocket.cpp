@@ -48,7 +48,12 @@ namespace rise
 
       RISE_ASSERTP(GetPort());
 
-      struct sockaddr_in saServer = { AF_INET, htons(GetPort()), {0}, "" };
+      struct sockaddr_in saServer =
+#if defined OS_Linux
+        { AF_INET, htons(GetPort()), {0}, "" };
+#else
+        { AF_INET, htons(GetPort()), 0, {0} };
+#endif
       saServer.sin_addr.s_addr = ulAddr;
 
       int nRet = connect(GetHandle(), reinterpret_cast<sockaddr*>(&saServer), sizeof(saServer));

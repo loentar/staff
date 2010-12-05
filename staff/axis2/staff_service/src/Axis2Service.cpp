@@ -50,11 +50,15 @@
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 
-#ifdef OS_MCBC
+#if defined LINUX_RELEASE_MCBC
 #define sighandler_t __sighandler_t
+#else
+#if defined OS_FreeBSD
+#define sighandler_t sig_t
 #else
 #ifdef WIN32
 typedef void (*sighandler_t)(int);
+#endif
 #endif
 #endif
 

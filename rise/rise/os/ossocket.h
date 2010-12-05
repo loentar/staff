@@ -64,7 +64,9 @@
 #else
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#ifdef OS_Linux
 #include <bits/sockaddr.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>

@@ -6,11 +6,13 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
+ECHO := echo$(shell test "$$(uname -s)" = "FreeBSD" -o -f /etc/MCBC-release && echo ' -e ')
+
 ifeq "$(BUILD_SAMPLES)" "NO"
 # do not build samples
-MAKEFILES_DEP = $(shell find -type f -name Makefile.dep -a \! -path './samples/*' | sed 's/^.\///g')
+MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' | sed 's/^.\///g')
 else
-MAKEFILES_DEP = $(shell find -type f -name Makefile.dep | sed 's/^.\///g')
+MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
 endif
 
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
@@ -28,7 +30,7 @@ $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 include $(MAKEFILES_DEP)
 
 %.dep:
-	@/bin/echo -e "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
+	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff

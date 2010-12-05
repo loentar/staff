@@ -248,12 +248,16 @@ bool osWaitForThread( HThread hThread )
 #ifdef WIN32
   return WaitForSingleObject(hThread, INFINITE) == WAIT_OBJECT_0;
 #else
+#ifdef OS_Linux
   int nStatus = 0;
   if (waitpid(hThread, &nStatus, 0))
   {
     return false;
   }
   return WIFEXITED(nStatus) != 0;
+#else
+  return osWaitForThreadExit(hThread, 0);
+#endif
 #endif
 }
 
@@ -267,15 +271,19 @@ void osInitializeCriticalSection(PCriticalSection pCriticalSection)
 #ifdef WIN32
   InitializeCriticalSection(pCriticalSection);
 #else
-#ifdef OS_MCBC
+
+#ifdef LINUX_RELEASE_MCBC
   pthread_mutexattr_t tAttr = {PTHREAD_MUTEX_RECURSIVE_NP};
+  pthread_mutex_init(pCriticalSection, &tAttr);
 #else
   pthread_mutexattr_t tAttr;
   pthread_mutexattr_init(&tAttr);
+#if defined OS_Linux
   pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+#else
+  pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE);
 #endif
   pthread_mutex_init(pCriticalSection, &tAttr);
-#ifndef OS_MCBC
   pthread_mutexattr_destroy(&tAttr);
 #endif
 #endif

@@ -57,7 +57,8 @@ $(OUTDIR)$(COMPONENT).%.wsdl: $(SRCDIR)%.h
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/" "$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $<
-	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+	cp -Rf config/* $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/
+	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type d -name .svn | xargs rm -Rf
 	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type d | xargs chmod 777 
 	find $(DEPLOYDIR)usr/local/staff/components/$(TARGET)/db/ -type f | xargs chmod go+rw
 
@@ -68,7 +69,8 @@ distrib:;
 install: check "$(INSTALLDIR)$(TARGET)/" "$(INSTALLDIR)$(TARGET)/db/"
 	cp -f $(OUTDIR)$(TARGETNAME) "$(INSTALLDIR)$(TARGET)/"
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMPONENT)/
-	cd config && find . -type f -name '*.xml' | xargs cp --parents --force --target-directory=$(INSTALLDIR)$(TARGET)/db/
+	cp -Rf config/* $(INSTALLDIR)$(TARGET)/db/
+	find $(INSTALLDIR)$(TARGET)/db/ -type d -name .svn | xargs rm -Rf
 	find $(INSTALLDIR)$(TARGET)/db/ -type d | xargs chmod 777 
 	find $(INSTALLDIR)$(TARGET)/db/ -type f | xargs chmod go+rw
 

@@ -1,44 +1,28 @@
-
 TARGET = rise
 PROJECT = $(TARGET)
 VERSION = 0.2.8
+
+TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
+include $(TOPDIR)/../Makefile.env
 
 SRCDIR = rise/
 TARGETLIB = lib$(TARGET).so
 TARGETLIBVER = $(TARGETLIB).$(VERSION)
 
-ifeq ("$(PLATFORM)","")
-  PLATFORM := $(shell uname -m)
-endif
 
-ifeq ($(TOPDIR),)
-  TOPDIR = $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
-endif
+RISE_LOG_SRC_RECODE=\"utf-8\"
 
-ifneq ($(shell grep -c vniins /proc/version),0)
-  OS = MCBC
-  RISE_LOG_SRC_RECODE=\"utf-8\"
+ifeq ($(shell test "$(OS)" = "FreeBSD" -o "$(LINUX_RELEASE)" = "MCBC" && echo x),x)
   RISE_LOG_DST_RECODE=\"koi8-r\"
 else
-ifneq ($(shell grep -c ubuntu /proc/version),0)
-  OS = UBUNTU
-  RISE_LOG_SRC_RECODE=\"utf-8\"
   RISE_LOG_DST_RECODE=\"utf-8\"
-else
-  OS = UNKNOWN
-  RISE_LOG_SRC_RECODE=\"utf-8\"
-  RISE_LOG_DST_RECODE=\"utf-8\"
-endif
 endif
 
-CXXFLAGS += -DOS_$(OS) -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_DST_RECODE=$(RISE_LOG_DST_RECODE)
+CXXFLAGS += -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_DST_RECODE=$(RISE_LOG_DST_RECODE)
 
 USRINCDIR = /usr/include/
 USRINCDIRVER = /usr/include/rise-$(VERSION)/
 USRLIBDIR = /usr/lib/
-
-OBJDIR = obj/$(PLATFORM)/
-OUTDIR = out/$(PLATFORM)/
 
 DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)/
 DEPLOYINCDIR = $(DEPLOYDIR)usr/include/
@@ -46,15 +30,9 @@ DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise-$(VERSION)/
 DEPLOYLIBDIR = $(DEPLOYDIR)usr/lib/
 
 CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC
-LIBS = -ldl -lpthread -lstdc++
-
-ifeq ($(PLATFORM),x86_64)
-  CXXFLAGS += -D_M_X64
-endif
-
-ifndef ("$(DEBUG)","")
-  CXXFLAGS += -DDEBUG -g -O0
-  LDFLAGS += -g -O0
+LDFLAGS = -lpthread -lstdc++
+ifneq ($(OS),FreeBSD)
+  LDFLAGS += -ldl
 endif
 
 ifeq ($(RISE_NO_DEMANGLE),)
@@ -62,13 +40,13 @@ ifneq ($(wildcard /usr/lib/libiberty_pic.a),)
   DEMANGLELIBNAME = /usr/lib/libiberty_pic.a
   CXXFLAGS += -DRISE_USE_DEMANGLE=1
   DEMANGLEOBJDIR = $(OBJDIR)iberty/
-  LIBS += $(DEMANGLEOBJDIR)*.o
+  LDFLAGS += $(DEMANGLEOBJDIR)*.o
 else
 ifneq ($(wildcard /usr/lib/libiberty.a),)
   DEMANGLELIBNAME = /usr/lib/libiberty.a
   CXXFLAGS += -DRISE_USE_DEMANGLE=1
   DEMANGLEOBJDIR = $(OBJDIR)iberty/
-  LIBS += $(DEMANGLEOBJDIR)*.o
+  LDFLAGS += $(DEMANGLEOBJDIR)*.o
 endif
 endif
 endif
@@ -91,8 +69,8 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) -I. -c $(CXXFLAGS) $< -o $@
 
 $(OUTDIR)$(TARGETLIBVER): $(OBJECTS)
-	[ ! -z "$(DEMANGLEOBJDIR)" ] && mkdir -p $(DEMANGLEOBJDIR) && cd $(DEMANGLEOBJDIR) && ar -x $(DEMANGLELIBNAME)
-	$(CXX) -shared -Wl,-soname,$(TARGETLIBVER) $(LIBS) $(CXXFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETLIBVER)
+	[ ! -z "$(DEMANGLEOBJDIR)" ] && mkdir -p $(DEMANGLEOBJDIR) && cd $(DEMANGLEOBJDIR) && ar -x $(DEMANGLELIBNAME) || true
+	$(CXX) -shared -Wl,-soname,$(TARGETLIBVER) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETLIBVER)
 
 # == deploy  ========================================
 deploy: deploy_headers deploy_lib
@@ -104,10 +82,11 @@ deploy_lib: "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETLIBVER)
 
 deploy_headers: "$(DEPLOYINCDIRVER)"
 	@echo "deploying headers to $(DEPLOYINCDIRVER)";\
- cd $(SRCDIR);\
- cp --parents --force $(HEADERS) $(DEPLOYINCDIRVER);\
+ cp -Rf $(SRCDIR) $(DEPLOYINCDIRVER);\
  chmod -R a+r $(DEPLOYINCDIRVER);\
- find  $(DEPLOYINCDIRVER) -type d | xargs chmod a+x;\
+ chmod -R u+w $(DEPLOYINCDIRVER);\
+ find $(DEPLOYINCDIRVER) -type d -name .svn | xargs rm -Rf;\
+ find $(DEPLOYINCDIRVER) -type d | xargs chmod a+x;\
  ln -nsf rise-$(VERSION) $(DEPLOYINCDIR)rise
 
 include ../Makefile.distrib
@@ -118,13 +97,15 @@ install: install_headers install_libs
 install_libs: $(OUTDIR)$(TARGETLIBVER)
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIBVER)
 	ln -sf $(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIB)
+ifeq ($(OS),Linux)
 	test -f /usr/lib/libbfd.so || ln -sf $$(find /usr/lib/libbfd-*.so | head -1) /usr/lib/libbfd.so
+endif
 
 install_headers: "$(USRINCDIRVER)"
 	@echo "installing headers to $(USRINCDIRVER)";\
- cd $(SRCDIR);\
- cp --parents --force $(HEADERS) $(USRINCDIRVER);\
+ cp -Rf $(SRCDIR) $(USRINCDIRVER);\
  chmod -R a+r $(USRINCDIRVER);\
+ find $(USRINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(USRINCDIRVER) -type d | xargs chmod a+x;\
  ln -nsf rise-$(VERSION) $(USRINCDIR)rise
 

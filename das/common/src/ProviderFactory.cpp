@@ -55,12 +55,11 @@ namespace das
         StringList lsProvidersLibs;
         StringList lsProvidersNames;
         std::string sProviderDir = sProvidersDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
-  #ifdef __linux__
-        rise::CFileFind::Find(sProviderDir, lsProvidersLibs, "*.so", rise::CFileFind::EFA_FILE);
-  #endif
-  #ifdef WIN32
+#ifdef WIN32
         rise::CFileFind::Find(sProviderDir, lsProvidersLibs, "*.dll", rise::CFileFind::EFA_FILE);
-  #endif
+#else
+        rise::CFileFind::Find(sProviderDir, lsProvidersLibs, "*.so", rise::CFileFind::EFA_FILE);
+#endif
         for (StringList::const_iterator itProvider = lsProvidersLibs.begin();
                 itProvider != lsProvidersLibs.end(); ++itProvider )
         {

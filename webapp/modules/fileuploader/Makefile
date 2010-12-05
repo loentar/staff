@@ -8,9 +8,14 @@ ifneq ($(APXS),)
 make: $(TARGETNAME) deploy
 else
 make:
-	@/bin/echo -e "\033[33;1m===============================================================================\033[0m"
-	@/bin/echo -e "\033[33;1mWARNING: Can't find apache apxs. Apache2 module \"$(TARGET)\" will not build\033[0m"
-	@/bin/echo -e "\033[33;1m===============================================================================\033[0m"
+	@$(ECHO) "\033[33;1m===============================================================================\033[0m"
+	@$(ECHO) "\033[33;1mWARNING: Can't find apache apxs. Apache2 module \"$(TARGET)\" will not build\033[0m"
+	@$(ECHO) "\033[33;1m===============================================================================\033[0m"
+endif
+
+ifeq ($(OS),FreeBSD)
+APACHECONFDIR=/usr/local/etc/apache22
+APACHEMODDIR=/usr/local/libexec/apache22
 endif
 
 $(TARGETNAME):
@@ -33,7 +38,7 @@ distrib:;
 
 install:
 ifneq ($(APXS),)
-ifeq ($(OS),UBUNTU)
+ifeq ($(LINUX_VERSION),debian)
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf /etc/apache2/mods-available/
 	ln -sf ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	ln -sf ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load

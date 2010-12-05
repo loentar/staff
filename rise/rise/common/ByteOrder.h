@@ -38,13 +38,29 @@
   (((RISE_LOCAL_ARG) & 0x0000ff00) <<  8) | (((RISE_LOCAL_ARG) & 0x000000ff) << 24))
 
 #else
+#if defined OS_FreeBSD
+#include <sys/endian.h>
+#endif
+#if defined OS_Linux
 #include <endian.h>
 #include <byteswap.h>
+#endif
 
+#if defined OS_FreeBSD
+#define __LITTLE_ENDIAN _LITTLE_ENDIAN
+#define __BIG_ENDIAN  _BIG_ENDIAN
+#define __BYTE_ORDER _BYTE_ORDER
+#define SWAPBYTES16(RISE_LOCAL_ARG) \
+  __bswap16(RISE_LOCAL_ARG)
+#define SWAPBYTES32(RISE_LOCAL_ARG) \
+  __bswap32(RISE_LOCAL_ARG)
+#else
 #define SWAPBYTES16(RISE_LOCAL_ARG) \
   bswap_16(RISE_LOCAL_ARG)
 #define SWAPBYTES32(RISE_LOCAL_ARG) \
   bswap_32(RISE_LOCAL_ARG)
+#endif
+
 #endif
 
 #ifndef __BYTE_ORDER
