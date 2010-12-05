@@ -7,7 +7,7 @@ TARGETNAME = libstaff$(TARGET).so
 CXXFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
 
 LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
-LDFLAGS += -lpthread -ldl -lstaffsqlite3 -lstaffcommon -lrise
+LDFLAGS += -lpthread -lstaffsqlite3 -lstaffcommon -lrise
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -56,7 +56,7 @@ install_headers: "$(INSTALLDIR)$(INCDIR)"
 
 install_db: "$(INSTALLDIR)db/"
 	cp -f db/staff.db $(INSTALLDIR)db/
-	chmod go+rw -R $(INSTALLDIR)db/
+	chmod -R go+rw $(INSTALLDIR)db/
 
 # == clean ==========================================
 clean:

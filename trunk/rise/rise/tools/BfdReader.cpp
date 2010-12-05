@@ -21,7 +21,7 @@
 
 #include "BfdReader.h"
 
-#ifdef __linux__
+#if defined OS_Linux
 #define _GNU_SOURCE 1
 
 #include <dlfcn.h>
@@ -89,7 +89,7 @@ namespace rise
           m_pInst = new CBfdLoader;
         return *m_pInst;
       }
-      
+
     protected:
       CBfdLoader()
       {
@@ -114,9 +114,9 @@ namespace rise
       void* m_hBfdLib;
       static CBfdLoader* m_pInst;
     };
-    
+
     CBfdLoader* CBfdLoader::m_pInst = NULL;
-    
+
     class CBfdReader::CBfdReaderImpl
     {
     public:
@@ -140,8 +140,8 @@ namespace rise
         {
         }
       };
-      
-      
+
+
       CBfdReaderImpl():
         m_ppSymbols(NULL),
         m_pBfd(NULL)
@@ -193,7 +193,7 @@ namespace rise
       static bool m_bExtractFunctionParams;
 #endif
     };
-    
+
 #ifdef RISE_USE_DEMANGLE
     bool CBfdReader::CBfdReaderImpl::m_bExtractFunctionParams = getenv("RISE_DEMANGLE_PARAMS") != NULL;
 #endif
@@ -327,12 +327,15 @@ namespace rise
   }
 }
 #else
-#ifdef WIN32
 namespace rise
 {
   namespace tools
   {
     CBfdReader::CBfdReader()
+    {
+    }
+
+    CBfdReader::~CBfdReader()
     {
     }
 
@@ -368,5 +371,4 @@ namespace rise
 
   }
 }
-#endif
 #endif

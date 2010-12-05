@@ -18,7 +18,7 @@ ifneq ($(MYSQL_DEV_INSTALLED),0)
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 else
 make:
-	@/bin/echo -e "\n\033[33;1mSkipping MySQL provider compilation because MySQL development package is not installed.\033[31;0m\n"
+	@$(ECHO) "\n\033[33;1mSkipping MySQL provider compilation because MySQL development package is not installed.\033[31;0m\n"
 endif
 
 # link

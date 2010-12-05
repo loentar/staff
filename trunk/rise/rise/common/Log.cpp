@@ -187,14 +187,10 @@ namespace rise
     const char* szRiseLogSrcRecode = getenv("RISE_LOG_SRC_RECODE");
     if (szRiseLogSrcRecode == NULL)
     {
-#ifdef OS_MCBC
+#if defined LINUX_RELEASE_MCBC || defined OS_FreeBSD
       m_nSrcRecode = CEncoding::ET_KOI8R;
 #else
-#ifdef OS_UBUNTU
       m_nSrcRecode = CEncoding::ET_UTF_8;
-#else
-      m_nSrcRecode = CEncoding::ET_UTF_8;
-#endif
 #endif
 
 #ifdef RISE_LOG_SRC_RECODE
@@ -209,14 +205,10 @@ namespace rise
     const char* szRiseLogDstRecode = getenv("RISE_LOG_DST_RECODE");
     if (szRiseLogDstRecode == NULL)
     {
-#ifdef OS_MCBC
+#if defined LINUX_RELEASE_MCBC || defined OS_FreeBSD
       m_nDstRecode = CEncoding::ET_KOI8R;
 #else
-#ifdef OS_UBUNTU
       m_nDstRecode = CEncoding::ET_UTF_8;
-#else
-      m_nDstRecode = CEncoding::ET_UTF_8;
-#endif
 #endif
 
 #ifdef RISE_LOG_DST_RECODE

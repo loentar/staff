@@ -20,7 +20,7 @@
  */
 
 
-#ifdef __linux__
+#ifndef WIN32
 #define _GNU_SOURCE 1
 #include <fcntl.h>
 #include <dlfcn.h>

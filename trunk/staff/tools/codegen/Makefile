@@ -28,7 +28,8 @@ $(OBJDIR)%.o: %.cpp
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
-	cp -f --parents $$(find template -type f | grep -v '.svn') $(DEPLOYDIR)$(BINDIR)
+	cp -Rf template $(DEPLOYDIR)$(BINDIR)
+	find $(DEPLOYDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
 	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(DEPLOYDIR)$(INCDIR)
 
 # == distrib =========================================
@@ -37,7 +38,8 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
-	cp --parents $$(find template -type f | grep -v '.svn') $(INSTALLDIR)$(BINDIR)
+	cp -Rf template $(INSTALLDIR)$(BINDIR)
+	find $(INSTALLDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
 	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(INSTALLDIR)$(INCDIR)
 
 # == uninstall ======================================

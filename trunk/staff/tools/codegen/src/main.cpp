@@ -192,11 +192,11 @@ int main(int nArgs, const char* szArgs[])
     std::string sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
     rise::plugin::CPluginManager<staff::ICodegenParser> tPlugins;
 
-#ifdef __linux__
-    const std::string& sFileName = sPluginsDir + "libstaffcgparser-" + sPluginName + ".so";
-#endif
-#ifdef WIN32
-    const std::string& sFileName = sPluginsDir + "staffcgparser-" + sPluginName + ".dll";
+    const std::string& sFileName = sPluginsDir +
+#if defined WIN32
+    "staffcgparser-" + sPluginName + ".dll";
+#else
+    "libstaffcgparser-" + sPluginName + ".so";
 #endif
 
     staff::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);

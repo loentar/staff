@@ -20,7 +20,6 @@
  */
 
 #include <set>
-#include <locale>
 #include <rise/common/Log.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>

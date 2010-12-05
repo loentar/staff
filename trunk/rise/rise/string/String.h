@@ -19,8 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _STRING_H_
-#define _STRING_H_
+#ifndef _RISE_STRING_H_
+#define _RISE_STRING_H_
 
 #include <rise/os/osdllexport.h>
 #include <rise/os/oscommon.h>
@@ -135,4 +135,4 @@ namespace rise
 
 #include "String.hpp"
 
-#endif // _STRING_H_
+#endif // _RISE_STRING_H_
