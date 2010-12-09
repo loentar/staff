@@ -59,6 +59,32 @@ namespace staff
 
       const rise::xml::CXMLNode& rNodeDataSources = tDocDataSources.GetRoot();
 
+      if (rNodeDataSources.NodeName() == "types")
+      {
+        SInterface stInterface;
+        const std::string& sFileNameOnly = sFileName.substr(sFileName.find_last_of('/') + 1);
+        std::string::size_type nPos = sFileNameOnly.find_last_of('.');
+        stInterface.sFileName = sFileNameOnly;
+
+        stInterface.sName = (nPos != std::string::npos) ?  sFileNameOnly.substr(0, nPos) : sFileNameOnly;
+
+        std::string sNamespace;
+        rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rNodeDataSources.FindAttribute("namespace");
+        if (itNs != rNodeDataSources.AttrEnd())
+        {
+          sNamespace = itNs->sAttrValue.AsString();
+        }
+
+        rise::StrReplace(sNamespace, ".", "::", true);
+        sNamespace = "::" + sNamespace + "::";
+
+        stInterface.sNamespace = sNamespace;
+
+        ParseTypes(rNodeDataSources, rProject, stInterface, sNamespace);
+
+        rProject.lsInterfaces.push_back(stInterface);
+      }
+      else
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeDataSource = rNodeDataSources.NodeBegin();
           itNodeDataSource != rNodeDataSources.NodeEnd(); ++itNodeDataSource)
       {

@@ -72,7 +72,9 @@
 #include <map>
 #ifeqend
 #include <staff/common/WsdlTypes.h>
+#ifneq($(Interface.Classes.$Count),0)
 #include <staff/common/IService.h>
+#ifeqend
 #ifeq($($includeDataObject),1)
 #include <staff/common/DataObject.h>
 #ifeqend
