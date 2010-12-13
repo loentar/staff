@@ -494,7 +494,6 @@ webapp.ui.LabeledRadio.prototype.extend(webapp.ui.Generic.prototype).extend
     this.tRadio = document.createElement('input');
     this.tRadio.id = tOpt.sRadioId || webapp.ui.IdGen.Gen('Radio');;
     this.tRadio.type = "radio";
-    this.tRadio.appendChild(document.createTextNode(tOpt.sCaption || ''));
     if (tOpt.bChecked)
     {
       this.tRadio.checked = "checked";

@@ -137,7 +137,7 @@ staff.Client.prototype =
       postBody:       tEnvelope.asElement().ownerDocument,
       requestHeaders: 
       [ 
-        'Content-Type', 'application/xml',
+        'Content-Type', 'text/xml; charset=UTF-8',
         'SOAPAction',   tOperation.GetSoapAction() || '""'
       ]
     };
