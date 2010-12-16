@@ -37,6 +37,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     }
 
     this.tLayoutUnits = this.tProperties.Layout;
+    this.nMenuHeight = tOpts.tMainMenu && tOpts.tMainMenu.element.offsetHeight || 0;
         
     this.CreateControls(tParent, this.tLayoutUnits);
     
@@ -219,7 +220,7 @@ webapp.widget.Layout.prototype.extend(webapp.widget.Widget.prototype).extend
     if (this.tParentElem.parentNode.parentNode === document.body)
     {
       this.tLayout.set('width', YAHOO.util.Dom.getClientWidth());
-      this.tLayout.set('height', YAHOO.util.Dom.getClientHeight() - (window.fullScreen ? 0 : 26));
+      this.tLayout.set('height', YAHOO.util.Dom.getClientHeight() - (window.fullScreen ? 0 : this.nMenuHeight));
     }
   },
   
