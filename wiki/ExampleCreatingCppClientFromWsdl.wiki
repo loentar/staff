@@ -32,7 +32,7 @@ _NOTICE: translated from russian with translate.google.com_
  # Get the WSDL for a web service StockQuote
  wget http://www.webservicex.net/stockquote.asmx?WSDL -O StockQuote.wsdl
  # Generate template implementation of a client
- ${STAFF_HOME}/bin/staff_codegen -w -tclientimpl StockQuote.wsdl
+ ${STAFF_HOME}/bin/staff_codegen -pwsdl -tclientimpl StockQuote.wsdl
 }}}
 
   Then, in a template to implement the client code to call the service. Open the main.cpp file in a text editor:
@@ -52,7 +52,7 @@ and add the code calling the service and output the results after the comment "I
  To generate the service interface and the proxy type:
 
 {{{
- staff_codegen -w -tinterface StockQuote.wsdl
+ staff_codegen -pwsdl -tinterface StockQuote.wsdl
  staff_codegen -tclient StockQuote.h
 }}}
 
