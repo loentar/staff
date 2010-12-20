@@ -1540,14 +1540,7 @@ namespace staff
           stTypedef.sDescr = rComplexType.sDescr;
           stTypedef.sDetail = rComplexType.sDetail;
 
-          SDataType stElemType;
-          ElementToData(rComplexType.lsElements.front(), stElemType, rWsdlTypes);
-          stTypedef.stDataType.eType = SDataType::ETemplate;
-          stTypedef.stDataType.sName = "list";
-          stTypedef.stDataType.sNamespace = "std::";
-          OptimizeCppNs(stElemType.sNamespace, stTypedef.sNamespace);
-
-          stTypedef.stDataType.lsParams.push_back(stElemType);
+          ElementToData(rComplexType.lsElements.front(), stTypedef.stDataType, rWsdlTypes);
 
           m_stInterface.lsTypedef.push_back(stTypedef);
 
@@ -1730,28 +1723,6 @@ namespace staff
         pElement = &itTargetElem->second;
       }
 
-      if (pElement->bIsArray)
-      {
-        SDataType stTempl;
-        GetCppType(pElement->stType, stTempl);
-        stTempl.sNodeName = pElement->sName;
-        stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
-        OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
-
-        rDataType.sName = "list";
-        rDataType.sNamespace = "std::";
-        rDataType.sUsedName = "std::list";
-        rDataType.eType = SDataType::ETemplate;
-        rDataType.lsParams.push_back(stTempl);
-      }
-      else
-      {
-        GetCppType(pElement->stType, rDataType);
-        rDataType.sNodeName = pElement->sName;
-        rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-        OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
-      }
-
       if (!pElement->stType.sName.empty())
       {
         // inline complex/simple type declaration
@@ -1777,14 +1748,14 @@ namespace staff
           TComplexTypeMap::const_iterator itComplexType = m_stWsdlTypes.mComplexTypes.find(pElement->stType.GetNsName());
           if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
           {
-            rDataType = ComplexTypeToData(itComplexType->second, m_stWsdlTypes);
+            ComplexTypeToData(itComplexType->second, m_stWsdlTypes);
           }
           else
           {
             TSimpleTypeMap::const_iterator itSimpleType = m_stWsdlTypes.mSimpleTypes.find(pElement->stType.GetNsName());
             if (itSimpleType != m_stWsdlTypes.mSimpleTypes.end())
             {
-              rDataType = SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
+              SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
             }
           }
         }
@@ -1793,18 +1764,40 @@ namespace staff
       {
         if (!pElement->lsSimpleTypes.empty())
         {
-          rDataType = SimpleTypeToData(pElement->lsSimpleTypes.front(), rWsdlTypes);
+          SimpleTypeToData(pElement->lsSimpleTypes.front(), rWsdlTypes);
         }
         else
         if (!pElement->lsComplexTypes.empty())
         {
-          rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes,
+          ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes,
                                         sForceParentName, sForceParentNs);
         }
         else
         {
           rise::LogWarning() << "Untyped element: " << pElement->sName;
         }
+      }
+
+      if (pElement->bIsArray)
+      {
+        SDataType stTempl;
+        GetCppType(pElement->stType, stTempl);
+        stTempl.sNodeName = pElement->sName;
+        stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
+        OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
+
+        rDataType.sName = "list";
+        rDataType.sNamespace = "std::";
+        rDataType.sUsedName = "std::list";
+        rDataType.eType = SDataType::ETemplate;
+        rDataType.lsParams.push_back(stTempl);
+      }
+      else
+      {
+        GetCppType(pElement->stType, rDataType);
+        rDataType.sNodeName = pElement->sName;
+        rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+        OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
       }
     }
 
