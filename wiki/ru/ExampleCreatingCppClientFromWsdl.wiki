@@ -30,7 +30,7 @@
  # получаем WSDL для веб-сервиса StockQuote
  wget http://www.webservicex.net/stockquote.asmx?WSDL -O StockQuote.wsdl
  # генерируем шаблон реализации клиента
- ${STAFF_HOME}/bin/staff_codegen -w -tclientimpl StockQuote.wsdl
+ ${STAFF_HOME}/bin/staff_codegen -pwsdl -tclientimpl StockQuote.wsdl
 }}}
 
  Далее, в шаблоне клиента необходимо реализовать код для вызова сервиса. Откройте файл main.cpp в текстовом редакторе:
