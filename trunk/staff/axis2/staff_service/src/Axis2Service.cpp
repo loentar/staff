@@ -53,7 +53,7 @@
 #if defined LINUX_RELEASE_MCBC
 #define sighandler_t __sighandler_t
 #else
-#if defined OS_FreeBSD
+#if defined OS_FreeBSD || defined OS_Darwin
 #define sighandler_t sig_t
 #else
 #ifdef WIN32

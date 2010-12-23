@@ -1,12 +1,12 @@
 include ../Makefile.env
 
 TARGET = dascommon
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions
-LDFLAGS += -lstaffcommon -lrise -lpthread
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))

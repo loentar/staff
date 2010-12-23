@@ -32,7 +32,7 @@ namespace rise
     if(bRawName)
       return LoadLibrary(sLibraryName.c_str());
     else
-      return LoadLibrary((sLibraryName + ".dll").c_str());
+      return LoadLibrary((sLibraryName + RISE_LIBRARY_EXT).c_str());
 #else
     if(bRawName)
       return dlopen(sLibraryName.c_str(), RTLD_LAZY);
@@ -40,9 +40,9 @@ namespace rise
     {
       rise::CString::size_type nPos = sLibraryName.find_last_of('/');
       if(nPos == rise::CString::npos)
-        return dlopen(("lib" + sLibraryName + ".so").c_str(), RTLD_LAZY);
+        return dlopen((RISE_LIBRARY_PREFIX + sLibraryName + RISE_LIBRARY_EXT).c_str(), RTLD_LAZY);
       else
-        return dlopen((sLibraryName.substr(nPos) + "lib" + sLibraryName.substr(nPos + 1) + ".so").c_str(), RTLD_LAZY);
+        return dlopen((sLibraryName.substr(nPos) + RISE_LIBRARY_PREFIX + sLibraryName.substr(nPos + 1) + RISE_LIBRARY_EXT).c_str(), RTLD_LAZY);
     }
 #endif
   }

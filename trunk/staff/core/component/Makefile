@@ -1,12 +1,12 @@
 include ../../Makefile.env
 
 TARGET = component
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lrise -lstaffcommon
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += -lrise -lstaffcommon -lstaffsecurity
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

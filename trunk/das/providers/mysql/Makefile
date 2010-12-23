@@ -4,11 +4,11 @@ MYSQL_DEV_INSTALLED := $(shell whereis mysql | grep include -c)
 
 COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql
-TARGETNAME = libstaffdasprov-$(TARGET).so
+TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/mysql
 LDFLAGS += -fexceptions -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))

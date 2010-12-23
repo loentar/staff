@@ -29,6 +29,19 @@
 namespace rise
 {
 #ifdef WIN32
+#define RISE_LIBRARY_PREFIX ""
+#define RISE_LIBRARY_EXT ".dll"
+#else
+#ifdef OS_Darwin
+#define RISE_LIBRARY_PREFIX "lib"
+#define RISE_LIBRARY_EXT ".dylib"
+#else
+#define RISE_LIBRARY_PREFIX "lib"
+#define RISE_LIBRARY_EXT ".so"
+#endif
+#endif
+
+#ifdef WIN32
   //! dynamic library handle
   typedef HMODULE HDynamicLib;
 #else

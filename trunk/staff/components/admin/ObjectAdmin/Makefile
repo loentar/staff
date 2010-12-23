@@ -2,12 +2,12 @@ include ../../../Makefile.env
 
 COMPONENT = staff.admin
 TARGET = ObjectAdmin
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -I$(DEPLOYDIR)lib
 LDFLAGS += -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))

@@ -1,12 +1,12 @@
 include ../../Makefile.env
 
 TARGET = common
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 LDFLAGS += -fexceptions
 LDFLAGS += -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

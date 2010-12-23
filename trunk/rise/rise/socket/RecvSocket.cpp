@@ -22,12 +22,14 @@
 #include <rise/os/oscommon.h>
 #include <rise/os/oserror.h>
 #include <stdio.h>
-#ifndef WIN32
+#if defined WIN32 || defined OS_Darwin
+#define MSG_NOSIGNAL 0
+#endif
+
+#if !defined WIN32
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#else
-#define MSG_NOSIGNAL 0
 #endif
 
 #include <rise/os/ossocket.h>

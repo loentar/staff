@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
 TARGET = staff_security_module
-TARGETNAME = lib$(TARGET).so
+TARGETNAME = lib$(TARGET)$(LIBVEREXT)
 
 DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff_security/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff_security/
@@ -9,7 +9,7 @@ INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff_security/
 CFLAGS += -c -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR)
 LFLAGS += -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR)
 LFLAGS += -laxis2_axiom -laxutil -laxis2_engine -lstaffsecurity
-LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

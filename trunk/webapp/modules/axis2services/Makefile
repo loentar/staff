@@ -16,6 +16,11 @@ endif
 ifeq ($(OS),FreeBSD)
 APACHECONFDIR=/usr/local/etc/apache22
 APACHEMODDIR=/usr/local/libexec/apache22
+else
+ifeq ($(OS),Darwin)
+APACHECONFDIR=/etc/apache2
+APACHEMODDIR=/usr/libexec/apache2
+endif
 endif
 
 
@@ -50,9 +55,9 @@ ifeq ($(APXS),/www/bin/apxs)
 	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
 	cp -f $(TARGETNAME) /www/modules/
 else
-	test ! -z "$(APACHECONFDIR)"
+	test ! -z "$(APACHECONFDIR)" -a -d "$(APACHECONFDIR)"
+	test ! -z "$(APACHEMODDIR)" -a -d "$(APACHEMODDIR)"
 	cat conf/$(TARGET).load conf/$(TARGET).conf > $(APACHECONFDIR)/$(TARGET).conf
-	test ! -z "$(APACHEMODDIR)"
 	cp -f $(TARGETNAME) $(APACHEMODDIR)
 endif
 endif

@@ -2,7 +2,7 @@ include ../../Makefile.env
 
 COMPONENT = webapp.admin
 TARGET = FileUploader
-TARGETNAME = lib$(TARGET).so
+TARGETNAME = lib$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -fPIC -fexceptions -D_REENTRANT -Wall
 LDFLAGS += -fPIC -fexceptions -Wl,-rpath,$(AXIS2C_LIBDIR)
@@ -14,7 +14,7 @@ INSTALLDIR = $(STAFF_HOME)/components/
 CXXFLAGS += -Wno-deprecated -I$(STAFF_DEPLOY_HOME)/include/
 LDFLAGS += -L$(STAFF_DEPLOY_HOME)/lib
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))

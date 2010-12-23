@@ -1,10 +1,11 @@
 include ../../../Makefile.env
 
 TARGET = dasdatasource
-TARGETNAME = libstaffcgparser-$(TARGET).so
+TARGETNAME = libstaffcgparser-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -fPIC
-LDFLAGS += -fexceptions -lrise -shared -Wl,-soname,$(TARGETNAME)  -fPIC
+LDFLAGS += -fexceptions -lrise -fPIC
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

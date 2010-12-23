@@ -6,8 +6,8 @@ TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep 
 include $(TOPDIR)/../Makefile.env
 
 SRCDIR = rise/
-TARGETLIB = lib$(TARGET).so
-TARGETLIBVER = $(TARGETLIB).$(VERSION)
+TARGETLIB = lib$(TARGET)$(LIBEXT)
+TARGETLIBVER = lib$(TARGET)$(LIBVEREXT)
 
 
 RISE_LOG_SRC_RECODE=\"utf-8\"
@@ -34,6 +34,7 @@ LDFLAGS = -lpthread -lstdc++
 ifneq ($(OS),FreeBSD)
   LDFLAGS += -ldl
 endif
+LDFLAGS += $(LDLIB)$(TARGETLIBVER)
 
 ifeq ($(RISE_NO_DEMANGLE),)
 ifneq ($(wildcard /usr/lib/libiberty_pic.a),)
@@ -70,7 +71,7 @@ $(OBJDIR)%.o: %.cpp
 
 $(OUTDIR)$(TARGETLIBVER): $(OBJECTS)
 	[ ! -z "$(DEMANGLEOBJDIR)" ] && mkdir -p $(DEMANGLEOBJDIR) && cd $(DEMANGLEOBJDIR) && ar -x $(DEMANGLELIBNAME) || true
-	$(CXX) -shared -Wl,-soname,$(TARGETLIBVER) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETLIBVER)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETLIBVER)
 
 # == deploy  ========================================
 deploy: deploy_headers deploy_lib
@@ -82,7 +83,7 @@ deploy_lib: "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETLIBVER)
 
 deploy_headers: "$(DEPLOYINCDIRVER)"
 	@echo "deploying headers to $(DEPLOYINCDIRVER)";\
- cp -Rf $(SRCDIR) $(DEPLOYINCDIRVER);\
+ cp -Rf $(SRCDIR)/* $(DEPLOYINCDIRVER);\
  chmod -R a+r $(DEPLOYINCDIRVER);\
  chmod -R u+w $(DEPLOYINCDIRVER);\
  find $(DEPLOYINCDIRVER) -type d -name .svn | xargs rm -Rf;\
@@ -103,7 +104,7 @@ endif
 
 install_headers: "$(USRINCDIRVER)"
 	@echo "installing headers to $(USRINCDIRVER)";\
- cp -Rf $(SRCDIR) $(USRINCDIRVER);\
+ cp -Rf $(SRCDIR)/* $(USRINCDIRVER);\
  chmod -R a+r $(USRINCDIRVER);\
  find $(USRINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(USRINCDIRVER) -type d | xargs chmod a+x;\
