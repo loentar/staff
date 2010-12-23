@@ -74,13 +74,16 @@ namespace rise
 #if defined OS_Linux
       ESIGPWR = SIGPWR,
 #endif
-      ESIGSYS = SIGSYS,
+      ESIGSYS = SIGSYS
+#if !defined OS_Darwin
+,
 // mips hack
 #ifdef __SIGRTMIN
       ESIGRTMIN = __SIGRTMIN
 #else
       ESIGRTMIN = SIGRTMIN
 #endif
+#endif // !darwin
 #endif
     };
     

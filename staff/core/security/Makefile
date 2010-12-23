@@ -1,13 +1,12 @@
 include ../../Makefile.env
 
-
 TARGET = security
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
 
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
 LDFLAGS += -lpthread -lstaffsqlite3 -lstaffcommon -lrise
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

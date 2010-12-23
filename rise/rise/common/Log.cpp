@@ -24,6 +24,7 @@
 #include <locale.h>
 #include <rise/common/console.h>
 #include <rise/common/streamtypes.h>
+#include <rise/os/osdl.h>
 #include <rise/string/String.h>
 #include <rise/string/Encoding.h>
 #include <rise/process/Process.h>
@@ -136,7 +137,7 @@ namespace rise
 #ifndef WIN32
     if(getenv("USER") == NULL)
       std::cout << ColorBright << ColorInkBrown << "Warning: environment variable USER = NULL!\n"
-      "Please, check for proper linking librise.so\n"
+      "Please, check for proper linking " RISE_LIBRARY_PREFIX "rise." RISE_LIBRARY_EXT "\n"
       "Logging, signals etc. may does not work properly." << ColorDefault << std::endl;
 #endif
 

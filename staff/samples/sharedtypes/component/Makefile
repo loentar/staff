@@ -2,12 +2,12 @@ include ../../../Makefile.env
 
 COMPONENT = samples.sharedtypes
 TARGET = $(COMPONENT)
-TARGETNAME = lib$(TARGET).so
+TARGETNAME = lib$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/ -D_REENTRANT
 LDFLAGS += -lpthread -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES)) $(SRCDIR)Ticket.h

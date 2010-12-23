@@ -16,6 +16,11 @@ endif
 ifeq ($(OS),FreeBSD)
 APACHECONFDIR=/usr/local/etc/apache22
 APACHEMODDIR=/usr/local/libexec/apache22
+else
+ifeq ($(OS),Darwin)
+APACHECONFDIR=/etc/apache2
+APACHEMODDIR=/usr/libexec/apache2
+endif
 endif
 
 $(TARGETNAME):

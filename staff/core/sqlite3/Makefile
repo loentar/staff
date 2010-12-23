@@ -1,10 +1,10 @@
 include ../../Makefile.env
 
 TARGET = sqlite3
-TARGETNAME = libstaff$(TARGET).so
+TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
 
 CFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
-LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

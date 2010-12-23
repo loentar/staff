@@ -116,7 +116,9 @@ namespace rise
       RISE_REGISTER_SIGNAL_DESCR(ESIGPWR)
 #endif
       RISE_REGISTER_SIGNAL_DESCR(ESIGSYS)
+#if !defined OS_Darwin
       RISE_REGISTER_SIGNAL_DESCR(ESIGRTMIN)
+#endif
 #endif
 
 #undef RISE_REGISTER_SIGNAL_DESCR
@@ -212,12 +214,14 @@ namespace rise
       TStrSignalMap::const_iterator itFnd = m_tStrSignalMap.find(nSignal);
       if (itFnd == m_tStrSignalMap.end())
       {
+#if !defined OS_Darwin
         if(nSignal > CSignalHandler::ESIGRTMIN)
         {
           static std::string sSig;
           sSig = "ESIGRTMIN+" + ToStr(nSignal - CSignalHandler::ESIGRTMIN);
           return sSig;
         }
+#endif
         return m_sSigUnknown;
       }
 

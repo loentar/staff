@@ -1,15 +1,15 @@
 include ../../Makefile.env
 
 TARGET = staff_module
-TARGETNAME = lib$(TARGET).so
+TARGETNAME = lib$(TARGET)$(LIBVEREXT)
 
 DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
-CFLAGS += -c -Wno-deprecated -fexceptions -I$(AXIS2C_INCDIR)
+CFLAGS += -c -fexceptions -I$(AXIS2C_INCDIR)
 LFLAGS += -fexceptions -L$(AXIS2C_LIBDIR)
 LFLAGS += -laxis2_axiom -laxutil -laxis2_engine
-LFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

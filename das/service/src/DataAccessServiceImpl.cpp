@@ -115,8 +115,6 @@ namespace das
             // chagne format
             CDataObject tdoType = tdoMembers.CreateChild("Type");
 
-            rise::LogInfo() << "name: " << rChildType.sName <<  " type: " << rChildType.sType;
-
             tdoType.CreateChild("Name").SetText(rChildType.sName);
             tdoType.CreateChild("Descr").SetText(rChildType.sDescr);
             tdoType.CreateChild("Extern").SetText(rChildType.bExtern ? "True" : "False");
@@ -255,8 +253,6 @@ namespace das
     {
       tdoOperations << *itOperation;
     }
-
-    rise::LogNotice() << tdoOperations.ToString();
 
     return tdoInterface;
   }

@@ -1,10 +1,11 @@
 include ../../../Makefile.env
 
 TARGET = wsdl
-TARGETNAME = libstaffcgparser-$(TARGET).so
+TARGETNAME = libstaffcgparser-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -lrise -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += -fexceptions -lrise
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

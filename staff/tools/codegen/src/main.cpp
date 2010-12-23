@@ -193,11 +193,7 @@ int main(int nArgs, const char* szArgs[])
     rise::plugin::CPluginManager<staff::ICodegenParser> tPlugins;
 
     const std::string& sFileName = sPluginsDir +
-#if defined WIN32
-    "staffcgparser-" + sPluginName + ".dll";
-#else
-    "libstaffcgparser-" + sPluginName + ".so";
-#endif
+    RISE_LIBRARY_PREFIX "staffcgparser-" + sPluginName + RISE_LIBRARY_EXT;
 
     staff::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
 

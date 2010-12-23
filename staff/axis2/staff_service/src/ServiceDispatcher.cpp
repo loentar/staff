@@ -73,11 +73,7 @@ rise::LogEntry();
         // finding libraries with components
         rise::CStringList lsComponents;
         std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
-#ifdef WIN32
-        rise::CFileFind::Find(sComponentDir, lsComponents, "*.dll", rise::CFileFind::EFA_FILE);
-#else
-        rise::CFileFind::Find(sComponentDir, lsComponents, "*.so", rise::CFileFind::EFA_FILE);
-#endif
+        rise::CFileFind::Find(sComponentDir, lsComponents, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
         for (rise::CStringList::const_iterator itComponent = lsComponents.begin(); 
                 itComponent != lsComponents.end(); ++itComponent )
         {

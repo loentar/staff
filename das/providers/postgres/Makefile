@@ -4,11 +4,11 @@ POSTGRESQL_DEV_INSTALLED := $(shell whereis postgresql pgsql | grep include -c)
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres
-TARGETNAME = libstaffdasprov-$(TARGET).so
+TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
 LDFLAGS += -fexceptions -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))

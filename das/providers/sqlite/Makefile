@@ -2,11 +2,11 @@ include ../../Makefile.env
 
 COMPONENT = staff.das/providers/staff.das.Sqlite
 TARGET = sqlite
-TARGETNAME = libstaffdasprov-$(TARGET).so
+TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))

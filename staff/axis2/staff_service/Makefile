@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
 TARGET = staff_service
-TARGETNAME = lib$(TARGET).so
+TARGETNAME = lib$(TARGET)$(LIBVEREXT)
 
 INSTALLLIBDIR = $(AXIS2C_HOME)/services/staff/
 
@@ -9,8 +9,9 @@ DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/services/staff/
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
+LDFLAGS += -laxis2_axiom -laxutil -laxis2_engine
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread -lstdc++
-LDFLAGS += -shared -Wl,-soname,$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

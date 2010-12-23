@@ -29,39 +29,46 @@
 #define __LITTLE_ENDIAN 1234
 #define __BIG_ENDIAN  4321
 #define __BYTE_ORDER __LITTLE_ENDIAN
-
-#define SWAPBYTES16(RISE_LOCAL_ARG) \
-  (((0xff00 & (RISE_LOCAL_ARG)) >> 8) | ((0x00ff & (RISE_LOCAL_ARG)) << 8))
-
-#define SWAPBYTES32(RISE_LOCAL_ARG) \
-  ((((RISE_LOCAL_ARG) & 0xff000000) >> 24) | (((RISE_LOCAL_ARG) & 0x00ff0000) >>  8) | \
-  (((RISE_LOCAL_ARG) & 0x0000ff00) <<  8) | (((RISE_LOCAL_ARG) & 0x000000ff) << 24))
-
 #else
 #if defined OS_FreeBSD
 #include <sys/endian.h>
-#endif
-#if defined OS_Linux
-#include <endian.h>
-#include <byteswap.h>
-#endif
-
-#if defined OS_FreeBSD
 #define __LITTLE_ENDIAN _LITTLE_ENDIAN
 #define __BIG_ENDIAN  _BIG_ENDIAN
 #define __BYTE_ORDER _BYTE_ORDER
-#define SWAPBYTES16(RISE_LOCAL_ARG) \
-  __bswap16(RISE_LOCAL_ARG)
-#define SWAPBYTES32(RISE_LOCAL_ARG) \
-  __bswap32(RISE_LOCAL_ARG)
 #else
-#define SWAPBYTES16(RISE_LOCAL_ARG) \
-  bswap_16(RISE_LOCAL_ARG)
-#define SWAPBYTES32(RISE_LOCAL_ARG) \
-  bswap_32(RISE_LOCAL_ARG)
-#endif
+#if defined OS_Darwin
+#include <machine/endian.h>
+#define __LITTLE_ENDIAN __DARWIN_LITTLE_ENDIAN
+#define __BIG_ENDIAN  __DARWIN_BIG_ENDIAN
+#define __BYTE_ORDER __DARWIN_BYTE_ORDER
+#else
+#if defined OS_Linux
+#include <endian.h>
+#include <byteswap.h>
+#endif // linux
+#endif // darwin
+#endif // free bsd
+#endif // win32
 
-#endif
+
+#if defined WIN32 || defined OS_Darwin
+#define SWAPBYTES16(RISE_LOCAL_ARG) \
+  (((0xff00 & (RISE_LOCAL_ARG)) >> 8) | ((0x00ff & (RISE_LOCAL_ARG)) << 8))
+#define SWAPBYTES32(RISE_LOCAL_ARG) \
+  ((((RISE_LOCAL_ARG) & 0xff000000) >> 24) | (((RISE_LOCAL_ARG) & 0x00ff0000) >>  8) | \
+  (((RISE_LOCAL_ARG) & 0x0000ff00) <<  8) | (((RISE_LOCAL_ARG) & 0x000000ff) << 24))
+#else
+#if defined OS_FreeBSD
+#define SWAPBYTES16(RISE_LOCAL_ARG) __bswap16(RISE_LOCAL_ARG)
+#define SWAPBYTES32(RISE_LOCAL_ARG) __bswap32(RISE_LOCAL_ARG)
+#else
+#if defined OS_Linux
+#define SWAPBYTES16(RISE_LOCAL_ARG) bswap_16(RISE_LOCAL_ARG)
+#define SWAPBYTES32(RISE_LOCAL_ARG) bswap_32(RISE_LOCAL_ARG)
+#endif // linux
+#endif // free bsd
+#endif // win32 || darwin
+
 
 #ifndef __BYTE_ORDER
 #error "__BYTE_ORDER IS NOT DEFINED" __LINE__ " " __FILE__
