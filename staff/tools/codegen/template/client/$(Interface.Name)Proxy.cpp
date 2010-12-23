@@ -88,8 +88,12 @@ public:
   virtual void OnComplete(const staff::CDataObject& rdoResponse)
   {
 #var sResultName rdoResponse
+#ifneq($(Member.Options.*resultElement),)
+#var sResultName rdoResponse.GetChildByLocalName("$(Member.Options.*resultElement)")
+#else
 #ifneq($(Member.Return.NodeName),)
 #var sResultName rdoResponse.GetChildByLocalName("$(Member.Return.NodeName)")
+#ifeqend
 #ifeqend
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)    // generic
 #ifneq($(Param.DataType.TemplateParams.TemplateParam1.NsName),void)      // non void
