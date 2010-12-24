@@ -1,24 +1,46 @@
-#summary Руководство по установке, конфигурации и тестированию под Linux
+#summary Руководство по установке, конфигурации и тестированию под Mac OS X
 #labels Phase-Deploy
 
 = Вступление =
 
-Это руководство по компиляции и установке Staff на Linux-подобной ОС.
+Это руководство по компиляции и установке Staff под Mac OS X.
 
 = Описание =
 
 == 0. Переменные окружения ==
-При компиляции, запуске axis2/c, клиентского или сервисного приложения, должны быть установлены следующие переменные окружения:
+При компиляции, запуске axis2/c, клиентского или сервисного приложения, должны быть установлены следующие переменные окружения.
 {{{
 export AXIS2C_HOME=/usr/local/axis2c
 export STAFF_HOME=/usr/local/staff
+export PATH=$PATH:$STAFF_HOME/bin
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$AXIS2C_HOME/lib:$STAFF_HOME/lib
 }}}
 
-Вы можете добавить эти строки в конец файла ~/.bashrc после чего произвести повторный вход в систему.
+Добавьте эти строки в файл ~/.profile после чего произведите повторный вход в систему либо выполните:
+{{{
+. ~/.profile
+}}}
+
+Для запрета сброса переменных при выполнении sudo, отредактируйте sudoers-файл, используя visudo:
+{{{
+sudo visudo
+}}}
+
+*Или* если у Вас не хватает опыта по работе в VI, используйте любой другой текстовый редактор:
+{{{
+nano /etc/sudoers
+}}}
+
+Добавьте эти строки за последней строкой "Defaults        env_keep...":
+{{{
+Defaults        env_keep += "STAFF_HOME"
+Defaults        env_keep += "AXIS2C_HOME"
+}}}
+
 
 == 1. Компиляция и установка зависимостей ==
 
-Необходимо сначала установить axis2/c-1.5.0 (или выше). Домашняя страница axis2/c: http://ws.apache.org/axis2/c/
+Необходимо сначала установить axis2/c-1.6.0. Домашняя страница axis2/c: http://ws.apache.org/axis2/c/
 
   <i>*Внимание. Если Вы планируете передавать строки содержащие локальные символы, необходимо:*
     #. использовать libxml (guththila имеет проблемы с utf-8);
@@ -35,26 +57,27 @@ export STAFF_HOME=/usr/local/staff
 
   После чего выполнить компиляцию и сборку Axis2/C.</i>
 
-
 Вы можете использовать следующий набор команд для загрузки и установки axis2/c:
-_Пакет curl-dev(libcurl-gnutls-dev или libcurl-openssl-dev) должен быть установлен._
 {{{
 mkdir ~/devel/axis2c
 cd ~/devel/axis2c
-wget http://apache.rinet.ru/dist/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
+wget http://www.sai.msu.su/apache/ws/axis2/c/1_6_0/axis2c-src-1.6.0.tar.gz
 tar zxvf axis2c-src-1.6.0.tar.gz
 cd axis2c-src-1.6.0
+# загрузка патча axis2c-1.6.0 для mac os x 10.5.5
+curl http://staff.googlecode.com/files/axis2c-src-1.6.0.MacOSX-10.5.5.patch > axis2c-src-1.6.0.MacOSX-10.5.5.patch
+# применение патча:
+patch -p0 -r axis2c-src-1.6.0 < axis2c-src-1.6.0.MacOSX-10.5.5.patch
 # для использования guththila (более потокобезопасный, быстрый чем libxml, но поддержка UTF-8 реализована не полностью)
 #./configure --prefix=$AXIS2C_HOME --enable-tests=no --enable-amqp=no
 # для использования libxml (поддерживает UTF-8, но могут возникать ошибки типа race condition при обработке xml, см. issue 69 )
 ./configure --prefix=$AXIS2C_HOME --enable-libxml2 --enable-tests=no --enable-guththila=no --enable-amqp=no
-make && sudo -E make install
+make && sudo make install
 # установка примеров
 cd samples
 CFLAGS=-I$AXIS2C_HOME/include/axis2-1.6.0 LDFLAGS=-L$AXIS2C_HOME/lib ./configure --prefix=$AXIS2C_HOME
-make && sudo -E make install
+make && sudo make install
 }}}
-
 
 == 2. Получение исходного кода ==
 
@@ -63,13 +86,10 @@ make && sudo -E make install
 
 == 3. Компиляция исходного кода ==
 
-_Пакет binutils-dev должен быть установлен._
-Введите эти команды для компиляции и установки rise, Staff и Webapp из корня рабочей копии (staff-read-only):
+Введите эти команды для компиляции и установки Staff из корня рабочей копии:
 
 {{{
-make && sudo -E make install
-echo -e "$STAFF_HOME/lib\n$AXIS2C_HOME/lib" | sudo tee /etc/ld.so.conf.d/staff.conf
-sudo ldconfig
+make && sudo make install
 chmod 777 $AXIS2C_HOME/logs
 }}}
 
@@ -119,3 +139,4 @@ INFO main.cpp[58]: main: Setting mem: 46
 INFO main.cpp[60]: main: 46
 INFO main.cpp[61]: main: Service mem: 46
 }}}
+

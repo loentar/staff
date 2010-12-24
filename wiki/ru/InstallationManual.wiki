@@ -2,13 +2,16 @@
 #labels Phase-Deploy,Featured
 
 Руководства по установке под Windows:
-  * [InstallationManualWindowsBinary Руководство по установке под Windows из архива бинарного кода];
-  * [InstallationManualWindows Staff Руководство по установке под Windows из исходного кода];
+  * [InstallationManualWindowsBinary Руководство по установке под Windows из архива бинарного кода]
+  * [InstallationManualWindows Руководство по установке под Windows из исходного кода]
 
 Руководства по установке под Linux:
-  * [InstallationManualLinux Staff Руководство по установке под Linux];
-  * [InstallationManualWebappLinux Установка Webapp под Linux].
+  * [InstallationManualLinux Руководство по установке под Linux]
+  * [InstallationManualWebappLinux Установка Webapp под Linux]
+
+Руководство по установке под Mac OS X:
+  * [InstallationManualMacOSX Руководство по установке под Mac OS X]
 
 Руководство под установке под FreeBSD:
-  * [InstallationManualFreeBSD Руководство по установке под FreeBSD];
+  * [InstallationManualFreeBSD Руководство по установке под FreeBSD]
 

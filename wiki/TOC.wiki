@@ -45,6 +45,8 @@
     * Linux
       * [InstallationManualLinux Install staff from source code]
       * [InstallationManualWebappLinux Install and test webapp]
+    * Mac OS X:
+      * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD
       * [InstallationManualFreeBSD Install staff from source code]
   * [SupportPage Support page]
