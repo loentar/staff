@@ -38,6 +38,7 @@
   * Загрузки
     * [http://code.google.com/p/staff/source/checkout Загрузка из SVN]
     * [http://code.google.com/p/staff/downloads/list Загрузка архива]
+    * [VirtualMachineStaffSDK Виртуальная машина Staff SDK]
   * [InstallationManual Установка]
     * Windows
       * [InstallationManualWindows Установка staff из исходного кода]
@@ -45,7 +46,7 @@
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]
       * [InstallationManualWebappLinux Установка и тестирование webapp]
-    * Mac OS X:
+    * Mac OS X
       * [InstallationManualMacOSX Установка staff из исходного кода]
     * FreeBSD
       * [InstallationManualFreeBSD Установка staff из исходного кода]

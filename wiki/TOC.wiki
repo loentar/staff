@@ -38,6 +38,7 @@
   * Downloads
     * [http://code.google.com/p/staff/source/checkout Download source from svn]
     * [http://code.google.com/p/staff/downloads/list Download tarball]
+    * [VirtualMachineStaffSDK Virtual Machine Staff SDK]
   * [InstallationManual Installation]
     * Windows
       * [InstallationManualWindows Install staff from source code]
@@ -45,7 +46,7 @@
     * Linux
       * [InstallationManualLinux Install staff from source code]
       * [InstallationManualWebappLinux Install and test webapp]
-    * Mac OS X:
+    * Mac OS X
       * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD
       * [InstallationManualFreeBSD Install staff from source code]
