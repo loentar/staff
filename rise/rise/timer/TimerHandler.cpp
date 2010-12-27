@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include <rise/signal/SignalHandler.h>
 #include <limits.h>
+#include <errno.h>
 #endif
 #include <rise/common/Log.h>
 #include <rise/common/Exception.h>
@@ -180,11 +181,11 @@ namespace rise
       {
         RISE_ASSERTP(dwTime);
   
-        itimerval value = { { LONG_MAX, LONG_MAX }, {  (long)(dwTime / 1000), (long)((dwTime % 1000) * 1000) } };
+        itimerval value = { { 0, 0 }, {  (long)(dwTime / 1000), (long)((dwTime % 1000) * 1000) } };
   
         int iRet = setitimer( ITIMER_REAL, &value, NULL );
         
-        RISE_ASSERTE(iRet != -1, CFileIOException);
+        RISE_ASSERTES(iRet != -1, CFileIOException, strerror(errno));
       }
   
       void KillTimer()
