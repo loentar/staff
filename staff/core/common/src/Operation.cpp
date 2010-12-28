@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <rise/common/ExceptionTemplate.h>
 #include "QName.h"
 #include "Value.h"
 #include "Operation.h"
@@ -26,7 +27,7 @@
 namespace staff
 {
   COperation::COperation(const std::string& sName /*= ""*/, const std::string& sResponseName /*= ""*/, const std::string& sResultName /*= ""*/):
-    m_sRequestName(sName), m_sResponseName(sResponseName), m_sResultName(sResultName)
+    m_sRequestName(sName), m_sResponseName(sResponseName), m_sResultName(sResultName), m_pMessageContext(NULL)
   {
   }
 
@@ -345,4 +346,16 @@ namespace staff
       }
     }
   }
+
+  void COperation::SetMessageContext(CMessageContext& rMessageContext)
+  {
+    m_pMessageContext = &rMessageContext;
+  }
+
+  CMessageContext& COperation::GetMessageContext()
+  {
+    RISE_ASSERTS(m_pMessageContext, "Message context is NULL");
+    return *m_pMessageContext;
+  }
+
 }

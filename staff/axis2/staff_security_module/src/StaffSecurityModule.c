@@ -38,6 +38,8 @@
 #include <axis2_addr.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
+#include <axis2_http_header.h>
+#include <axis2_http_transport.h>
 #include <staff/security/tools.h>
 #include "StaffSecurityUtils.h"
 
@@ -58,10 +60,25 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
   if (axis2_msg_ctx_get_server_side(pMsgCtx, pEnv))
   {
     axis2_char_t* szServiceOperationPath = NULL;
+    const axis2_char_t* szHttpHost = NULL;
     const axis2_char_t* szSessionId = NULL;
     const axis2_char_t* szInstanceId = NULL;
     axis2_char_t* szServiceName = NULL;
     int nAccess = 0;
+
+    axutil_hash_t * pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);
+
+    if (pHashHeaders != NULL)
+    {
+      axis2_http_header_t* pHostHeader = (axis2_http_header_t *) axutil_hash_get(
+          pHashHeaders, AXIS2_HTTP_HEADER_HOST, AXIS2_HASH_KEY_STRING);
+
+      if (pHostHeader)
+      {
+        szHttpHost = axis2_http_header_get_value(pHostHeader, pEnv);
+      }
+    }
+
 
     AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath, &szServiceName));
 
@@ -115,6 +132,7 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
       axutil_property_set_value(pProp, pEnv, szServiceName);
       axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
 
+
       pProp = axutil_property_create(pEnv);
       if (!pProp)
       {
@@ -125,6 +143,7 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
       axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szSessionId));
       axis2_msg_ctx_set_property(pMsgCtx, pEnv, "SessionId", pProp);
 
+
       pProp = axutil_property_create(pEnv);
       if (!pProp)
       {
@@ -134,6 +153,17 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
       axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szInstanceId ? szInstanceId : ""));
       axis2_msg_ctx_set_property(pMsgCtx, pEnv, "InstanceId", pProp);
+
+
+      pProp = axutil_property_create(pEnv);
+      if (!pProp)
+      {
+        dprintf("WARNING: failed to create property to save host");
+        return AXIS2_FAILURE;
+      }
+
+      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szHttpHost ? szHttpHost : ""));
+      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "HttpHost", pProp);
     }
   }
 

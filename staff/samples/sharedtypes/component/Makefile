@@ -58,7 +58,7 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
-	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(OUTDIR)/samples.ticket.Ticket.xsd $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	chmod 777 $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 
 # == uninstall ======================================

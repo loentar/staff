@@ -104,6 +104,12 @@ GetServiceImpl(sSessionId, sInstanceId)->$(Member.Name)(\
 #ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
+#ifeq($(Param.DataType.Name),staff::CMessageContext||CMessageContext)
+rOperation.GetMessageContext()\
+#else
+#ifeq($(Param.DataType.Name),staff::COperation||COperation)
+rOperation\
+#else
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
 rRequest["$(Param.Name)"]\
 #else
@@ -117,6 +123,8 @@ rRequest["$(Param.Name)"]\
 $(Param.Name)\
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

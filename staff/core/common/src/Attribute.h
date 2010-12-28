@@ -77,15 +77,30 @@ namespace staff
     */
     std::string GetLocalName() const;
 
+    //!         set local name
+    /*! \param  sLocalName - local name
+    */
+    void SetLocalName(const std::string& sLocalName);
+
     //!         get attribute value as string
     /*! \return text
     */
     std::string GetText() const;
 
+    //!         set attribute value as string
+    /*! \param sText - text
+    */
+    void SetText(const std::string& sText);
+
     //!         get attribute value
     /*! \return value
     */
     CValue GetValue() const;
+
+    //!         set attribute value
+    /*! \param  tValue - value
+    */
+    void SetValue(const CValue& rValue);
 
     //!         get qname
     /*! \return qname

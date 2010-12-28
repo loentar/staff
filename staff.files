@@ -166,6 +166,9 @@ staff/components/admin/ObjectAdmin/src/ObjectAdminImpl.h
 staff/components/Login/src/Login.h
 staff/components/Login/src/LoginImpl.cpp
 staff/components/Login/src/LoginImpl.h
+staff/components/wsdl/src/Wsdl.h
+staff/components/wsdl/src/WsdlImpl.cpp
+staff/components/wsdl/src/WsdlImpl.h
 staff/core/client/src/Axis2Callback.cpp
 staff/core/client/src/Axis2Callback.h
 staff/core/client/src/ICallback.h
@@ -190,6 +193,8 @@ staff/core/common/src/Exception.cpp
 staff/core/common/src/Exception.h
 staff/core/common/src/IService.cpp
 staff/core/common/src/IService.h
+staff/core/common/src/MessageContext.cpp
+staff/core/common/src/MessageContext.h
 staff/core/common/src/Namespace.cpp
 staff/core/common/src/Namespace.h
 staff/core/common/src/Operation.cpp
