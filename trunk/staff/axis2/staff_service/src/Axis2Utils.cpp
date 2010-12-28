@@ -177,7 +177,9 @@ bool Axis2UtilsCreateVirtualService( const std::string& sServiceName, const staf
   if (pFile)
   {
     fclose(pFile);
-    sServiceDescr += "&nbsp;<sup><a style='font-size: x-small' href='/axis2/services/" + sServiceName + "?wsdl'>[wsdl]</a></sup>";
+    sServiceDescr += "&nbsp;<sup>[<a style='font-size: x-small' href='/axis2/services/staff.wsdl.Wsdl/get/"
+                     + pServiceWrapper->GetComponent()->GetName() + "/"
+                     + pServiceWrapper->GetName() + ".wsdl'>wsdl</a>]</sup>";
     if(axis2_svc_set_svc_wsdl_path(pAxis2Service, pEnv, sWsdlPath.c_str()) != AXIS2_SUCCESS)
     {
       rise::LogError() << "axis2_svc_set_svc_wsdl_path";

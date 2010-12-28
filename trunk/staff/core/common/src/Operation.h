@@ -32,6 +32,7 @@ typedef struct axiom_node axiom_node_t;
 namespace staff
 {
   class CValue;
+  class CMessageContext;
 
   //!  Service Operation
   class STAFF_COMMON_EXPORT COperation
@@ -212,6 +213,16 @@ namespace staff
         */
     void SetUserFault(CDataObject& rDataObjectFault);
 
+    //!         set message context
+    /*! \param  rMessageContext - message context
+      */
+    void SetMessageContext(CMessageContext& rMessageContext);
+
+    //!         get message context
+    /*! \return message context
+      */
+    CMessageContext& GetMessageContext();
+
   private:
     mutable CDataObject m_tdoRequest;  //!<  request DataObject
     mutable CDataObject m_tdoResponse; //!<  response DataObject
@@ -220,6 +231,7 @@ namespace staff
     std::string m_sResponseName;       //!<  response name
     std::string m_sResultName;         //!<  result name
     std::string m_sSoapAction;         //!<  SOAP action
+    CMessageContext* m_pMessageContext;//!<  message context
   };
 }
 

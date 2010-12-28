@@ -342,6 +342,13 @@ namespace staff
         rDataType.eType = SDataType::EDataObject;
       }
       else
+      if (sDataTypeName == "staff::CMessageContext" || sDataTypeName == "staff::COperation" ||
+          ((sDataTypeName == "CMessageContext" || sDataTypeName == "COperation")
+              && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
+      {
+        rDataType.eType = SDataType::EGeneric; // supress unknown datatype warning
+      }
+      else
       if (
           sDataTypeName == "bool" ||
           sDataTypeName == "char" ||
@@ -814,7 +821,8 @@ namespace staff
             rMember.bIsAsynch = true;
           }
           else
-          if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst)
+          if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst &&
+              stParam.stDataType.sName != "COperation")
           {
             rise::LogWarning() << "Non-const reference to " << stParam.stDataType.sName
                 << " in member: " << rMember.sName

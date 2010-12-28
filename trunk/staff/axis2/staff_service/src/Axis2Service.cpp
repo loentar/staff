@@ -42,7 +42,7 @@
 #include <rise/threading/Thread.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
-#include <staff/common/DataObjectHelper.h>
+#include <staff/common/MessageContext.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
 #include <staff/component/SessionManager.h>
@@ -139,9 +139,9 @@ rise::LogEntry();
     return AXIS2_SUCCESS; 
   }
 
-  static bool IsNeedReply(axis2_msg_ctx_t* pAxis2MsgCtx, const axutil_env_t* pEnv)
+  static bool IsNeedReply(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv)
   {
-    axis2_op* pAxis2Op = axis2_msg_ctx_get_op(pAxis2MsgCtx, pEnv);
+    axis2_op* pAxis2Op = axis2_msg_ctx_get_op(pMsgCtx, pEnv);
     const axis2_char_t* szExchangePattern = axis2_op_get_msg_exchange_pattern(pAxis2Op, pEnv);
 
     return !(axutil_strcmp(szExchangePattern, AXIS2_MEP_URI_OUT_ONLY) == 0 ||
@@ -155,7 +155,7 @@ rise::LogEntry();
     Axis2Service_invoke(axis2_svc_skeleton_t* /*pServiceSkeleton*/,
     const axutil_env_t* pEnv,
     axiom_node_t* pAxiomNode,
-    axis2_msg_ctx_t* pAxis2MsgCtx)
+    axis2_msg_ctx_t* pMsgCtx)
   {
 rise::LogEntry();
 
@@ -179,11 +179,11 @@ rise::LogEntry();
     }
 
     const axis2_char_t* szServiceName = reinterpret_cast<const axis2_char_t*>
-        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "ServiceName"));
+        (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "ServiceName"));
     const axis2_char_t* szSessionId = reinterpret_cast<const axis2_char_t*>
-        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "SessionId"));
+        (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "SessionId"));
     const axis2_char_t* szInstanceId = reinterpret_cast<const axis2_char_t*>
-        (axis2_msg_ctx_get_property_value(pAxis2MsgCtx, pEnv, "InstanceId"));
+        (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "InstanceId"));
 
     if (szServiceName == NULL)
     {
@@ -218,6 +218,7 @@ rise::LogEntry();
     
 
     staff::COperation tOperation;
+    staff::CMessageContext tMessageContext(pEnv, pMsgCtx);
 
     std::string sServiceName = szServiceName;
     std::string sSessionId = szSessionId;
@@ -226,7 +227,8 @@ rise::LogEntry();
     try
     {
       tOperation.SetRequest(pAxiomNode);
-      
+      tOperation.SetMessageContext(tMessageContext);
+
       if (sServiceName == "StaffService")
       {
         staff::CServiceDispatcher::Inst().InvokeSelf(tOperation);
@@ -269,7 +271,7 @@ rise::LogEntry();
       return NULL;
     }
 
-    if(!IsNeedReply(pAxis2MsgCtx, pEnv))
+    if(!IsNeedReply(pMsgCtx, pEnv))
     {
       return NULL;
     }
