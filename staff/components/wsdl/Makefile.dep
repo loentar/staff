@@ -1,0 +1,2 @@
+
+components/wsdl.dep: core/common.dep core/component.dep core/security.dep tools/codegen.dep tools/codegen_parsers/cpp.dep
