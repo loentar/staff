@@ -11,8 +11,24 @@
 
 <schema
     xmlns="http://www.w3.org/2001/XMLSchema"
+#foreach $(Interface.Includes)
+    xmlns:tns_$(Include.NsName.!mangledot.!trim/_/)="http://tempui.org/$(Include.NsName)"
+#end
     targetNamespace="$($TargetNamespace)"
     xmlns:$($TnsPrefix)="$($TargetNamespace)"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+#ifneq($(Interface.Includes.$Count),0)
+
+      <!-- imports -->
+#foreach $(Interface.Includes)
+      <import namespace="\
+#ifneq($(Include.TargetNamespace),)
+$(Include.TargetNamespace)\
+#else
+http://tempui.org/$(Include.NsName)\
+#ifeqend
+" schemaLocation="$(Include.NsName).xsd" />
+#end
+#ifeqend
 #cginclude <common/WsdlTypes.xsd>
 </schema>

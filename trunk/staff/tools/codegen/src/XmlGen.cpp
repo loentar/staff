@@ -115,12 +115,15 @@ namespace staff
 
   CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
   {
+    std::string sUsedTypedef;
+    GetDataType(sUsedTypedef, rDataType, true);
+
     rNodeDataTypes.AddSubNode(" Is const ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["IsConst"] = rDataType.bIsConst;
     rNodeDataTypes.AddSubNode(" Is reference ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["IsRef"] = rDataType.bIsRef;
     rNodeDataTypes.AddSubNode(" Type name as used ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["UsedName"] = (rDataType.sUsedName.size() != 0 ? rDataType.sUsedName : rDataType.sName);
+    rNodeDataTypes["UsedName"] = !rDataType.sUsedName.empty() ? rDataType.sUsedName : sUsedTypedef;
     rNodeDataTypes.AddSubNode(" Type name ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Name"] = rDataType.sName;
     rNodeDataTypes.AddSubNode(" Type ns name ", CXMLNode::ENTCOMMENT);
@@ -153,7 +156,7 @@ namespace staff
     rNodeDataTypes["NativeName"] = sNativeName;
 
     rNodeDataTypes.AddSubNode(" Used typedef ", CXMLNode::ENTCOMMENT);
-    GetDataType(rNodeDataTypes["UsedTypedef"].AsString(), rDataType, true);
+    rNodeDataTypes["UsedTypedef"] = sUsedTypedef;
 
     rNodeDataTypes.NodeContent() = "";
     GetDataType(rNodeDataTypes.NodeContent().AsString(), rDataType);
@@ -339,11 +342,15 @@ namespace staff
     rNodeStruct.AddSubNode(" Struct name ", CXMLNode::ENTCOMMENT);
     rNodeStruct["Name"] = rStruct.sName;
     rNodeStruct.AddSubNode(" Struct name with namespace", CXMLNode::ENTCOMMENT);
-    rNodeStruct["NsName"] = rStruct.sNamespace + rStruct.sName;
+    rNodeStruct["NsName"] = rStruct.sNamespace + (rStruct.sOwnerName.empty() ? "" : (rStruct.sOwnerName + "::")) +
+                            rStruct.sName;
     rNodeStruct.AddSubNode(" Struct namespace", CXMLNode::ENTCOMMENT);
     rNodeStruct["Namespace"] = rStruct.sNamespace;
+    rNodeStruct.AddSubNode(" Struct owner name", CXMLNode::ENTCOMMENT);
+    rNodeStruct["Owner"] = rStruct.sOwnerName;
     rNodeStruct.AddSubNode(" Native struct name ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["NativeName"] = ((rStruct.sName[0] == 'S') &&
+    rNodeStruct["NativeName"] = (rStruct.sOwnerName.empty() ? "" : (rStruct.sOwnerName + "::")) +
+        ((rStruct.sName[0] == 'S') &&
       (toupper(rStruct.sName[1]) == rStruct.sName[1]) ? rStruct.sName.substr(1) : rStruct.sName);
 
 
@@ -372,6 +379,9 @@ namespace staff
     rNodeStruct.AddSubNode("Members") << rStruct.lsMember;
 
     WriteCppNamespace(rNodeStruct, rStruct.sNamespace);
+
+    rNodeStruct.AddSubNode(" Sub structs ", CXMLNode::ENTCOMMENT);
+    rNodeStruct.AddSubNode("Structs") << rStruct.lsStruct;
 
     return rNodeStructs;
   }

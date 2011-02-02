@@ -20,6 +20,8 @@ $(Class.Description)
   public:
     $(Class.Name)Impl();
     virtual ~$(Class.Name)Impl();
+    virtual void OnCreate();
+    virtual void OnFree();
 #foreach $(Class.Members)
     virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const);
 #end

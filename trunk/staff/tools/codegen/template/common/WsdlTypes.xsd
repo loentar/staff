@@ -2,93 +2,8 @@
 
       <!-- structures -->
 #foreach $(Interface.Structs)
-#ifeq($(Struct.Extern),0) // do not serialize extern type
-
-      <complexType name="$(Struct.NativeName)">
-#ifneq($(Struct.Description),)
-        <annotation><documentation>$(Struct.Description)</documentation></annotation>
-#else
-\
-#ifeqend
-#ifneq($(Struct.ParentName),)       // inherited
-#var sIndent     
-        <complexContent mixed="false">
-          <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
-#ifneq($(Struct.Members.$Count),0)
->
-#else
-/>
-#ifeqend
-#else                          // not inherited
-#var sIndent 
-\
-#ifeqend
-#ifneq($(Struct.Members.$Count),0)
-$($sIndent)        <sequence>
-#foreach $(Struct.Members)
-#ifeq($(Param.DataType.Type),dataobject)
-$($sIndent)          <element name="$(Param.Name)">
-$($sIndent)            <complexType>
-#ifneq($(Param.Description),)
-$($sIndent)              <annotation><documentation>$(Param.Description)</documentation></annotation>
-#else
-\
-#ifeqend
-$($sIndent)              <sequence>
-$($sIndent)                <any/>
-$($sIndent)              </sequence>
-$($sIndent)            </complexType>
-$($sIndent)          </element>
-#else
-$($sIndent)          <element name="$(Param.Name)" type="\
-#ifeq($(Param.DataType.Name),bool)
-boolean\
-#else
-#ifeq($(Param.DataType.Type),struct||typedef)
-tns_$(Param.DataType.Namespace.!mangle.!trim/_/):$(Param.DataType.NativeName)\
-#else
-#ifeq($(Param.DataType.Type),template)
-#ifneq($(Param.DataType.TemplateParams.TemplateParam1.Namespace),)
-tns_$(Param.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):\
-#else
-\
-#ifeqend
-$(Param.DataType.TemplateParams.TemplateParam1.Name)" maxOccurs="unbounded\
-#else
-$(Param.DataType.Name)\
-#ifeqend
-#ifeqend
-#ifeqend
-#ifneq($(Param.Description),)
-">
-$($sIndent)            <annotation><documentation>$(Param.Description)</documentation></annotation>
-$($sIndent)          </element>
-#else
-"/>
-#ifeqend
-#ifeqend
-#end // #foreach $(Struct.Members)
-$($sIndent)        </sequence>
-#else
-\
-#ifeqend // $(Struct.Members.$Count),0
-#ifneq($(Struct.ParentName),)
-#ifneq($(Struct.Members.$Count),0)
-          </extension>
-#else
-\
-#ifeqend
-        </complexContent>
-#else
-\
-#ifeqend
-      </complexType>
-#else
-\
-#ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type
+#cginclude <common/WsdlStruct.xsd>
 #end // #foreach $(Interface.Structs)
-#else
-\
 #ifeqend // #ifneq($(Interface.Structs.$Count),0)
 #ifneq($(Interface.Typedefs.$Count),0)
 
@@ -99,8 +14,6 @@ $($sIndent)        </sequence>
       <complexType name="$(Typedef.NativeName)">
 #ifneq($(Typedef.Description),)
         <annotation><documentation>$(Typedef.Description)</documentation></annotation>
-#else
-\
 #ifeqend
         <sequence>
 #ifeq($(Typedef.DataType.NsName),staff::Array||std::list||std::vector)  // -- list ------------------
@@ -126,7 +39,7 @@ $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
 " nillable="true" />
 #ifeqend
 #else // bool
-#ifeq($(Typedef.DataType.NsName),std::map||std::multimap) # -- map -------------------------
+#ifeq($(Typedef.DataType.NsName),std::map||std::multimap) // -- map -------------------------
           <element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true">
             <complexType>
               <sequence>
@@ -207,7 +120,5 @@ $(Typedef.DataType.Name)\
 
 #ifeqend // #ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end // #foreach $(Interface.Typedefs)
-#else
-\
 #ifeqend // #ifneq($(Interface.Typedefs.$Count),0)
 
