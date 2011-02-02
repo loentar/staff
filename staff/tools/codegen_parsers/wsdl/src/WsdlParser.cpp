@@ -100,6 +100,7 @@ namespace staff
     bool bIsArray;
     bool bIsExtern;
     bool bIsRef;
+    std::string sDefault;
 
     std::list<SSimpleType> lsSimpleTypes;
     std::list<SComplexType> lsComplexTypes;
@@ -428,6 +429,12 @@ namespace staff
     GetTns(rNodeElement, sNamespace, sPrefix);
 
     ReadDoc(rNodeElement, sDescr, sDetail);
+
+    rise::xml::CXMLNode::TXMLAttrConstIterator itNodeAttr = rNodeElement.FindAttribute("default");
+    if (itNodeAttr != rNodeElement.AttrEnd())
+    {
+      sDefault = itNodeAttr->sAttrValue.AsString();
+    }
 
     itAttr = rNodeElement.FindAttribute("maxOccurs");
     bIsArray = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
@@ -762,6 +769,7 @@ namespace staff
     SWsdlTypes(CWsdlParserImpl* pParser);
     void Parse(rise::xml::CXMLNode& rNodeWsdl, SProject& rProject, SInterface& rInterface);
     void ParseSchema(const rise::xml::CXMLNode& rSchema);
+    void ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst);
     void Import(rise::xml::CXMLNode& rNodeImport, SProject& rProject, SInterface& rInterface);
     void ImportAll(rise::xml::CXMLNode& rNode, SProject& rProject, SInterface& rInterface);
   };
@@ -843,8 +851,6 @@ namespace staff
                 {
                   GetCppType(rChildElement.stType, stDataType);
                 }
-                stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
-                OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
                 if (rChildElement.bIsArray)
                 {
                   stParam.stDataType.lsParams.push_back(stDataType);
@@ -854,6 +860,8 @@ namespace staff
                 }
                 else
                 {
+                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
+                  OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
                   stParam.stDataType = stDataType;
                 }
                 stParam.stDataType.sNodeName = rChildElement.sName;
@@ -891,6 +899,8 @@ namespace staff
                     else
                     {
                       GetCppType(itAttr->sValue, itAttr->sNamespace, stMember.stDataType);
+                      stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+                      OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
                     }
                     stStruct.lsMember.push_back(stMember);
                   }
@@ -1025,7 +1035,8 @@ namespace staff
               GetCppType(rElement.stType, stParam.stDataType);
               if (stParam.stDataType.eType == SDataType::EUnknown)
               {
-                rise::LogError() << "Cannot detect type of " << rElement.stType.GetNsName();
+                rise::LogError() << "Cannot detect type of " << rElement.stType.GetNsName()
+                     << " interface name: " << m_stInterface.sName;
               }
             }
           }
@@ -1319,10 +1330,10 @@ namespace staff
 //      }
 //    }
 
-    static bool SortStructByParent(const SStruct& rStruct1, const SStruct& rStruct2)
-    {
-      return rStruct1.sName == rStruct2.sParentName;
-    }
+//    static bool SortStructByParent(const SStruct& rStruct1, const SStruct& rStruct2)
+//    {
+//      return rStruct1.sName == rStruct2.sParentName;
+//    }
 
     void ParseInterface(rise::xml::CXMLNode& rRootNode, SProject& rProject)
     {
@@ -1340,15 +1351,6 @@ namespace staff
         // import xsd in definitions
         m_stWsdlTypes.ImportAll(rRootNode, rProject, m_stInterface);
         m_stWsdlTypes.ParseSchema(rRootNode);
-      }
-
-      if (!bSchema)
-      {
-        SClass tServiceClass;
-
-        ParseService(tServiceClass, rRootNode, m_stWsdlTypes);
-        tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
-        m_stInterface.lsClass.push_back(tServiceClass);
       }
 
       for (TComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
@@ -1373,6 +1375,15 @@ namespace staff
 //      }
 
 //      m_stInterface.lsStruct.sort(SortStructByParent);
+
+      if (!bSchema)
+      {
+        SClass tServiceClass;
+
+        ParseService(tServiceClass, rRootNode, m_stWsdlTypes);
+        tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
+        m_stInterface.lsClass.push_back(tServiceClass);
+      }
     }
 
     SInterface& ParseFile( const std::string& sFileName, SProject& rProject )
@@ -1511,7 +1522,6 @@ namespace staff
         }
         rstTypedef.stDataType = stTypedefDataType;
 
-
         stDataType.eType = SDataType::ETypedef;
         stDataType.sName = rstTypedef.sName;
         stDataType.sNamespace = rstTypedef.sNamespace;
@@ -1593,6 +1603,8 @@ namespace staff
 
       if (!rComplexType.sName.empty())
       {
+        SStruct* pstStruct = NULL;
+
         {
           SStruct stStruct;
 
@@ -1644,16 +1656,37 @@ namespace staff
           }
 
           stDataType.eType = SDataType::EStruct;
-          stDataType.sUsedName = stStruct.sNamespace + stStruct.sName;
-          OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
 
-          m_stInterface.lsStruct.push_back(stStruct);
+          std::string::size_type nPos = stStruct.sName.find_last_of("::");
+          if (nPos != std::string::npos)
+          {
+            const std::string& sOwnerName = stStruct.sName.substr(0, nPos - 1);
+            // has a owner
+            SStruct* pstOwner = GetStruct(sOwnerName);
+            if (pstOwner)
+            {
+              stStruct.sName.erase(0, nPos + 1);
+              stStruct.sOwnerName = sOwnerName;
+              pstOwner->lsStruct.push_back(stStruct);
+              pstStruct = &pstOwner->lsStruct.back();
+            }
+            else
+            {
+              rise::LogError() << "Can't find owner struct: " << stStruct.sName.substr(0, nPos - 1);
+            }
+          }
+          else
+          {
+            m_stInterface.lsStruct.push_back(stStruct);
+            pstStruct = &m_stInterface.lsStruct.back();
+          }
         }
 
-        SStruct& rstStruct = m_stInterface.lsStruct.back();
+        RISE_ASSERT(pstStruct);
+
         int nUnnamedElemNo = 0;
 
-        rstStruct.bForward = false;
+        pstStruct->bForward = false;
 
         for (std::list<SElement>::const_iterator itElement = rComplexType.lsElements.begin();
           itElement != rComplexType.lsElements.end(); ++itElement)
@@ -1675,7 +1708,7 @@ namespace staff
           if (rComplexType.bIsChoice)
           {
             ElementToData(*pElement, stMember.stDataType, rWsdlTypes,
-                          rstStruct.sName, rstStruct.sNamespace);
+                          pstStruct->sName, pstStruct->sNamespace);
           }
           else
           {
@@ -1688,7 +1721,45 @@ namespace staff
               stMember.sName = "tUnnamed" + rise::ToStr(nUnnamedElemNo++);
               stMember.mOptions["useParentElement"] = "true";
             }
-            rstStruct.lsMember.push_back(stMember);
+
+            // optimize template argument type
+            if (stMember.stDataType.eType == SDataType::ETemplate)
+            {
+              const std::string& sOwnerName =
+                  pstStruct->sNamespace +
+                  (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+                  pstStruct->sName + "::";
+
+              RISE_ASSERTS(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
+                          " is template, but no template arg is defined");
+              SDataType& rDataType = stMember.stDataType.lsParams.front();
+
+              if (rDataType.eType == SDataType::EStruct ||
+                  rDataType.eType == SDataType::ETypedef)
+              {
+                rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
+              }
+            }
+            else
+            if (stMember.stDataType.eType == SDataType::EStruct ||
+                stMember.stDataType.eType == SDataType::ETypedef)
+            {
+              const std::string& sOwnerName =
+                  pstStruct->sNamespace +
+                  (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+                  pstStruct->sName + "::";
+              stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+              OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
+            }
+
+
+            if (!pElement->sDefault.empty())
+            {
+              stMember.mOptions["defaultValue"] = pElement->sDefault;
+            }
+
+            pstStruct->lsMember.push_back(stMember);
           }
         }
 
@@ -1718,12 +1789,14 @@ namespace staff
           else
           {
             GetCppType(pAttr->sValue, pAttr->sNamespace, stMember.stDataType);
+            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+            OptimizeCppNs(stMember.stDataType.sUsedName, pstStruct->sNamespace);
           }
           if (!pAttr->sDefault.empty())
           {
             stMember.mOptions["defaultValue"] = pAttr->sDefault;
           }
-          rstStruct.lsMember.push_back(stMember);
+          pstStruct->lsMember.push_back(stMember);
         }
       }
 
@@ -1808,8 +1881,8 @@ namespace staff
           rDataType.lsParams.push_back(rDataType);
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
-          rDataType.sUsedName = "std::list";
           rDataType.eType = SDataType::ETemplate;
+          rDataType.sUsedName.erase();
         }
       }
       else
@@ -1824,7 +1897,6 @@ namespace staff
 
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
-          rDataType.sUsedName = "std::list";
           rDataType.eType = SDataType::ETemplate;
           rDataType.lsParams.push_back(stTempl);
         }
@@ -1836,6 +1908,141 @@ namespace staff
           OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
         }
       }
+    }
+
+    std::string::size_type StrIntersect(const std::string& sString1, const std::string& sString2)
+    {
+      std::string::size_type nPosA = sString1.size() - 1;
+      std::string::size_type nPosB = sString2.size() - 1;
+      std::string::size_type nPosA1 = nPosA;
+      std::string::size_type nPosB1 = nPosB;
+      const char* szStr1 = sString1.c_str();
+      const char* szStr2 = sString2.c_str();
+
+      for (; nPosB; --nPosB)
+      {
+        if (szStr1[nPosA] == szStr2[nPosB])
+        {
+          nPosA1 = nPosA - 1;
+          nPosB1 = nPosB - 1;
+          for(; nPosA1 && nPosB1 && szStr1[nPosA1] == szStr2[nPosB1]; --nPosA1, --nPosB1);
+          if (!nPosB1)
+          {
+            return nPosB + 1;
+          }
+        }
+      }
+      return std::string::npos;
+    }
+
+    // [[some::]namespace::][[Struct::]SubStruct::]SubSubstruct
+    SStruct* GetStruct(const std::string& sNsName, SStruct* pstParent = NULL)
+    {
+      SStruct* pstCurr = pstParent;
+      SStruct* pstResult = NULL;
+
+      std::string::size_type nNsNameSize = sNsName.size();
+
+      // look substructs
+      for(;;)
+      {
+        std::list<SStruct>& rStructList = !pstCurr ? m_stInterface.lsStruct : pstCurr->lsStruct;
+        for (std::list<SStruct>::iterator itStruct = rStructList.begin();
+          itStruct != rStructList.end(); ++itStruct)
+        {
+//          if (!itStruct->bForward) // skip forward declarations
+          {
+            std::string sCurrNsName = itStruct->sNamespace;
+            if (!itStruct->sOwnerName.empty())
+            {
+              sCurrNsName += itStruct->sOwnerName + "::";
+            }
+            sCurrNsName += itStruct->sName;
+
+            std::string::size_type nCurrNsNameSize = sCurrNsName.size();
+
+            int nSizeDiff = nCurrNsNameSize - nNsNameSize;
+
+            //  full struct name with namespace
+            if (!nSizeDiff && sCurrNsName == sNsName)
+            {
+              pstResult = &*itStruct;
+              break; // return
+            }
+            else
+            {
+              // empty/partialy namespace
+              if (nSizeDiff >= 2) // size of "::"
+              {
+                if (sCurrNsName.substr(nSizeDiff - 2, 2) == "::" &&
+                    sCurrNsName.substr(nSizeDiff) == sNsName)
+                {
+                  pstResult = &*itStruct;
+                  break; // return
+                }
+              }
+
+              // includes substruct name
+              // find intersection
+              // some::namespace::Struct X namespace::Struct::SubStruct = namespace::Struct
+              std::string::size_type nPos = StrIntersect(sCurrNsName, sNsName);
+              if (nPos != std::string::npos
+                  && (nPos == nCurrNsNameSize || sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::")
+                  && sNsName.substr(nPos, 2) == "::")
+              {
+                // go through child structs
+                nPos += 2;
+                SStruct* pstTmp = &*itStruct;
+                std::string::size_type nBegin = nPos;
+                std::string::size_type nEnd = 0;
+                do
+                {
+                  nEnd = sNsName.find("::", nBegin);
+                  const std::string& sSubName =
+                      nEnd != std::string::npos ?
+                      sNsName.substr(nBegin, nEnd - nBegin) :
+                      sNsName.substr(nBegin);
+                  bool bFound = false;
+                  for (std::list<SStruct>::iterator itSubStruct = pstTmp->lsStruct.begin();
+                    itSubStruct != pstTmp->lsStruct.end(); ++itSubStruct)
+                  {
+                    if (itSubStruct->sName == sSubName)
+                    {
+                      pstTmp = &*itSubStruct;
+                      bFound = true;
+                      break;
+                    }
+                  }
+                  if (!bFound)
+                  {
+                    pstTmp = NULL;
+                    break;
+                  }
+                  nBegin = nEnd + 2;
+                }
+                while (nEnd != std::string::npos);
+
+                if (pstTmp)
+                {
+                  pstResult = pstTmp;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        if (pstResult || !pstCurr)
+        {
+          break;
+        }
+
+        // find in parent owner struct
+        pstCurr = pstCurr->sOwnerName.empty() ? NULL :
+                  GetStruct(pstCurr->sNamespace + pstCurr->sOwnerName);
+      }
+
+      return pstResult;
     }
 
     void GetCppType(const SQName& stQName, SDataType& rDataType)
@@ -1962,16 +2169,27 @@ namespace staff
           }
         }
 
-        for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
-             itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+        rise::StrReplace(rDataType.sName, ".", "::", true);
+
+rise::LogDebug() << (rDataType.sNamespace + rDataType.sName);
+
+        const SStruct* pstStruct = GetStruct(rDataType.sNamespace + rDataType.sName);
+        if (pstStruct)
         {
-          if (itStruct->sName == rDataType.sName &&
-              itStruct->sNamespace == rDataType.sNamespace)
-          {
-            rDataType.eType = SDataType::EStruct;
-            return;
-          }
+          rDataType.eType = SDataType::EStruct;
+          return;
         }
+
+//        for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
+//             itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+//        {
+//          if (itStruct->sName == rDataType.sName &&
+//              itStruct->sNamespace == rDataType.sNamespace)
+//          {
+//            rDataType.eType = SDataType::EStruct;
+//            return;
+//          }
+//        }
 
         rDataType.eType = SDataType::EUnknown;
       }
@@ -2027,12 +2245,12 @@ namespace staff
 
       // check namespace is lowercase and service name begins with uppercase letter
       char chNamespace = sNamespace[nPosBegin];
-      char chService = sNamespace[nPosEnd + 1];
-      if (tolower(chNamespace) != chNamespace || toupper(chService) != chService)
+      if (tolower(chNamespace) != chNamespace)
       {
         return "";
       }
 
+      // exclude service/interface name
       sCppNamespace = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
 
       rise::StrReplace(sCppNamespace, ".", "::", true);
@@ -2203,6 +2421,24 @@ namespace staff
     }
   }
 
+  void SWsdlTypes::ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
+  {
+    for (std::list<SStruct>::const_iterator itStruct = rlsSrc.begin();
+        itStruct != rlsSrc.end(); ++itStruct)
+    {
+      rlsDst.push_back(SStruct());
+      SStruct& rstStruct = rlsDst.back();
+      rstStruct.sName = itStruct->sName;
+      rstStruct.sNamespace = itStruct->sNamespace;
+      rstStruct.sParentName = itStruct->sParentName;
+      rstStruct.sDescr = itStruct->sDescr;
+      rstStruct.sDetail = itStruct->sDetail;
+      rstStruct.bExtern = true;
+      rstStruct.sOwnerName = itStruct->sOwnerName;
+      ImportStruct(itStruct->lsStruct, rstStruct.lsStruct);
+    }
+  }
+
   void SWsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, SProject& rProject, SInterface& rInterface)
   {
     const std::string& sImportNs = rNodeImport.Attribute("namespace");
@@ -2291,19 +2527,7 @@ namespace staff
         ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
       }
 
-      // use extern structs
-      for (std::list<SStruct>::const_iterator itStruct = rNewInterface.lsStruct.begin();
-          itStruct != rNewInterface.lsStruct.end(); ++itStruct)
-      {
-        SStruct stStruct;
-        stStruct.sName = itStruct->sName;
-        stStruct.sNamespace = itStruct->sNamespace;
-        stStruct.sParentName = itStruct->sParentName;
-        stStruct.sDescr = itStruct->sDescr;
-        stStruct.sDetail = itStruct->sDetail;
-        stStruct.bExtern = true;
-        rInterface.lsStruct.push_back(stStruct);
-      }
+      ImportStruct(rNewInterface.lsStruct, rInterface.lsStruct);
 
       // use extern typedefs
       for (std::list<STypedef>::const_iterator itTypedef = rNewInterface.lsTypedef.begin();

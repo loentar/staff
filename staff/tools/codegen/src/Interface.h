@@ -93,6 +93,8 @@ namespace staff
     std::list<SParam>   lsMember;         //!<  struct fields
     bool                bForward;         //!<  is forward declaration
     bool                bExtern;          //!<  extern declaration
+    std::string         sOwnerName;       //!<  owner struct name in format StructName[::SubStructName]
+    std::list<SStruct>  lsStruct;         //!<  sub struct list
 
     SStruct():
       bForward(true), bExtern(false)

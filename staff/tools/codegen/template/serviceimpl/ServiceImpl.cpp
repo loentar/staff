@@ -14,6 +14,16 @@ $(Class.Name)Impl::~$(Class.Name)Impl()
 {
 }
 
+void $(Class.Name)Impl::OnCreate()
+{
+  // this function is called when service instance is created and registered
+}
+
+void $(Class.Name)Impl::OnFree()
+{
+  // this function is called immediately before service instance destruction
+}
+
 #foreach $(Class.Members)
 $(Member.Return.UsedName) $(Class.Name)Impl::$(Member.Name)($(Member.Params))$(Member.Const)
 {

@@ -37,8 +37,7 @@ namespace staff
 {
   class CDataObject;
 #foreach $(Interface.Structs)
-  CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct);
-  const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct);
+#cginclude <common/StructSerialization.h>
 #end
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container

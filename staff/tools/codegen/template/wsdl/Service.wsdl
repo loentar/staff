@@ -36,8 +36,17 @@
 #end
     targetNamespace="$($TargetNamespace)">
   <wsdl:types>
+    <schema
+        targetNamespace="$($TargetNamespace)"
+#foreach $(Interface.Classes)
+        xmlns:tns_$(Class.ServiceNamespace.!mangledot.!trim/_/)="http://tempui.org/$(Class.ServiceNsName)"\
+#end
+>
+#ifneq($(Interface.Includes.$Count),0)
+
+      <!-- imports -->
 #foreach $(Interface.Includes)
-    <import namespace="\
+      <import namespace="\
 #ifneq($(Include.TargetNamespace),)
 $(Include.TargetNamespace)\
 #else
@@ -45,12 +54,7 @@ http://tempui.org/$(Include.NsName)\
 #ifeqend
 " schemaLocation="$(Include.NsName).xsd" />
 #end
-    <schema
-        targetNamespace="$($TargetNamespace)"
-#foreach $(Interface.Classes)
-        xmlns:tns_$(Class.ServiceNamespace.!mangledot.!trim/_/)="http://tempui.org/$(Class.ServiceNsName)"\
-#end
->
+#ifeqend
 
       <!-- service operations -->
 #foreach $(Interface.Classes.Class.Members)
@@ -79,7 +83,7 @@ $(Param.DataType.Name)\
 string\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-tns_$(Param.DataType.Namespace.!trim/:/.!mangle):$(Param.DataType.NativeName)\
+tns_$(Param.DataType.Namespace.!trim/:/.!mangle):$(Param.DataType.NativeName.!dot)\
 #else
 $(Param.DataType.Name)\
 #ifeqend
@@ -132,7 +136,7 @@ tns_$(Member.Return.Namespace.!trim/:/.!mangle)\
 #else
 tns_$(Class.ServiceNamespace.!mangledot.!trim/_/)\
 #ifeqend
-:$(Member.Return.NativeName)\
+:$(Member.Return.NativeName.!dot)\
 #else
 $(Member.Return.Name)\
 #ifeqend
@@ -182,7 +186,7 @@ tns_$(Member.Return.Namespace.!trim/:/.!mangle)\
 #else
 tns_$(Class.ServiceNamespace.!mangledot.!trim/_/)\
 #ifeqend
-:$(Member.Return.NativeName)\
+:$(Member.Return.NativeName.!dot)\
 #else
 $(Member.Return.Name)\
 #ifeqend
@@ -241,14 +245,8 @@ $(Member.Return.Name)\
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
 #foreach $(Class.Members)
     <wsdl:operation name="$(Member.Name)">
-      <soap:operation soapAction="\
-#ifneq($(Member.Options.*soapAction),)
-$(Member.Options.*soapAction)\
-#else
-$(Interface.Classes.Class.ServiceName)#$(Member.Name)\
-#ifeqend
-"/>
-        <wsdl:input name="$(Member.Name)Request">
+      <soap:operation soapAction="$(Member.Options.*soapAction)"/>
+      <wsdl:input name="$(Member.Name)Request">
         <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="$(Member.Name)Response">

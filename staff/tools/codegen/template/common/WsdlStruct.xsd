@@ -1,0 +1,77 @@
+#ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+
+      <complexType name="$(Struct.NativeName.!dot)">
+#ifneq($(Struct.Description),)
+        <annotation><documentation>$(Struct.Description)</documentation></annotation>
+#ifeqend
+#ifneq($(Struct.ParentName),)       // inherited
+        <complexContent mixed="false">
+          <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
+#ifeq($(Struct.Members.$Count),0)
+#indent +
+/\
+#ifeqend
+>
+#ifeqend
+#ifneq($(Struct.Members.$Count),0)
+        <sequence>
+#foreach $(Struct.Members)
+#ifeq($(Param.DataType.Type),dataobject)
+          <element name="$(Param.Name)">
+            <complexType>
+#ifneq($(Param.Description),)
+              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+              <sequence>
+                <any/>
+              </sequence>
+            </complexType>
+          </element>
+#else
+          <element name="$(Param.Name)" type="\
+#ifeq($(Param.DataType.Name),bool)
+boolean\
+#else
+#ifeq($(Param.DataType.Type),struct||typedef)
+tns_$(Param.DataType.Namespace.!mangle.!trim/_/):$(Param.DataType.NativeName.!dot)\
+#else
+#ifeq($(Param.DataType.Type),template)
+#ifneq($(Param.DataType.TemplateParams.TemplateParam1.Namespace),)
+tns_$(Param.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):\
+#ifeqend
+$(Param.DataType.TemplateParams.TemplateParam1.Name.!dot)" maxOccurs="unbounded\
+#else
+$(Param.DataType.Name.!dot)\
+#ifeqend
+#ifeqend
+#ifeqend
+#ifneq($(Param.Description),)
+"\
+#ifneq($(Param.Options.*defaultValue),)
+ default="$(Param.Options.*defaultValue)"\
+#ifeqend
+>
+            <annotation><documentation>$(Param.Description)</documentation></annotation>
+          </element>
+#else
+"/>
+#ifeqend
+#ifeqend
+#end // #foreach $(Struct.Members)
+        </sequence>
+#ifeqend // $(Struct.Members.$Count),0
+#ifneq($(Struct.ParentName),)
+#ifneq($(Struct.Members.$Count),0)
+#indent -
+          </extension>
+#ifeqend
+        </complexContent>
+#ifeqend
+      </complexType>
+#ifneq($(Struct.Structs.$Count),0)
+
+#foreach $(Struct.Structs)
+#cginclude <common/WsdlStruct.xsd>
+#end // #foreach $(Interface.Structs)
+#ifeqend
+#ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type

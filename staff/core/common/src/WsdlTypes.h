@@ -22,6 +22,8 @@
 #ifndef _WSDLTYPES_H_
 #define _WSDLTYPES_H_
 
+#include <string>
+
 namespace staff
 {
   /* primitive types */

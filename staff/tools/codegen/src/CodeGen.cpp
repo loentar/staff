@@ -750,6 +750,50 @@ namespace staff
       fsIncFile.close();
     }
 
+    void ProcessIndent(const std::string& sLine)
+    {
+      std::string sValue = sLine.substr(8);
+      rise::StrTrim(sValue);
+      if (sValue == "+")
+      {
+        RISE_ASSERTS(m_nIndent < 1024, "Invalid indentation: " + rise::ToStr(m_nIndent + 1)
+                     + " while processing line: \n" + sLine);
+        ++m_nIndent;
+      }
+      else
+      if (sValue == "-")
+      {
+        RISE_ASSERTS(m_nIndent > 0, "Invalid indentation: " + rise::ToStr(m_nIndent - 1)
+                     + " while processing line: \n" + sLine);
+        --m_nIndent;
+      }
+      else
+      {
+        int nSign = 0;
+        int nIndent = m_nIndent;
+        if (sValue[0] == '+')
+        {
+          sValue.erase(0, 1);
+          nSign = 1;
+        }
+        else
+        if (sValue[0] == '-')
+        {
+          sValue.erase(0, 1);
+          nSign = -1;
+        }
+
+        rise::FromStr(sValue, nIndent);
+        if (nSign != 0)
+        {
+          nIndent = m_nIndent + nSign * nIndent;
+        }
+        RISE_ASSERTS(nIndent < 1024 && nIndent >= 0, "Invalid indentation: " + rise::ToStr(nIndent)
+                     + " while processing line: \n" + sLine);
+        m_nIndent = nIndent;
+      }
+    }
+
     void Process(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode)
     {
       std::string sLine;
@@ -843,6 +887,7 @@ namespace staff
             throw std::string("can't open output file: " + sFileName);
           }
           std::cout << "Generating " << sFileName << std::endl;
+          m_nIndent = 0;
           Process(fsIn, ofsFile, rNode);
           ofsFile.close();
         }
@@ -903,9 +948,44 @@ namespace staff
           throw sLine.substr(9);
         }
         else
+        if (sLine.substr(0, 8) == "#indent ")
         {
-          ReplaceToValue(sLine, rNode);
-          fsOut << sLine;
+          ProcessIndent(sLine);
+        }
+        else
+        {
+          if (!sLine.empty())
+          {
+            std::string sIndent;
+            for (int nIndent = 0; nIndent < m_nIndent; ++nIndent)
+            {
+              sIndent += "  ";
+            }
+            if (m_bNeedIndent && sLine[0] != '\n')
+            {
+              sLine = sIndent + sLine;
+              m_bNeedIndent = false;
+            }
+
+            std::string::size_type nBegin = 0;
+            std::string::size_type nEnd = 0;
+            while ((nEnd = sLine.find('\n', nBegin)) != std::string::npos)
+            {
+              if (m_bNeedIndent && nEnd > nBegin) // line is not empty
+              {
+                sLine.insert(nBegin, sIndent);
+                nEnd += sIndent.size();
+              }
+
+              nBegin = nEnd + 1;
+
+              m_bNeedIndent = true;
+            }
+
+            ReplaceToValue(sLine, rNode);
+
+            fsOut << sLine;
+          }
         }
         ++m_nLine;
       }
@@ -970,6 +1050,8 @@ namespace staff
         std::cout << "Generating " << sOut << std::endl;
 
         m_nLine = 0;
+        m_nIndent = 0;
+        m_bNeedIndent = true;
         Process(fsIn, fsOut, rNodeInterface);
 
         fsIn.close();
@@ -989,6 +1071,8 @@ namespace staff
     std::string m_sInDir;
     std::string m_sOutDir;
     int m_nLine;
+    int m_nIndent;
+    bool m_bNeedIndent;
     bool m_bHasConfig;
   };
 
