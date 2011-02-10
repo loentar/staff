@@ -8,12 +8,12 @@
         <complexContent mixed="false">
           <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
 #ifeq($(Struct.Members.$Count),0)
-#indent +
 /\
 #ifeqend
 >
 #ifeqend
 #ifneq($(Struct.Members.$Count),0)
+#indent +
         <sequence>
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),dataobject)
@@ -59,10 +59,10 @@ $(Param.DataType.Name.!dot)\
 #ifeqend
 #end // #foreach $(Struct.Members)
         </sequence>
+#indent -
 #ifeqend // $(Struct.Members.$Count),0
 #ifneq($(Struct.ParentName),)
 #ifneq($(Struct.Members.$Count),0)
-#indent -
           </extension>
 #ifeqend
         </complexContent>
