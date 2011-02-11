@@ -24,6 +24,7 @@ WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional 
 In the Service interface:
   * STL containers supported: list, vector, map;
   * Structures may be inherited;
+  * Structures can be nested;
   * Structures may have struct, typedef and template fields;
   * Typedefs is supported;
   * Namespaces are treated as component's name.
@@ -36,7 +37,6 @@ Security model is based on ACL and rules access users and groups to following se
   * services;
   * services operations;
   * webapp widgets;
-  * webapp profiles(pending);
   * any other objects, that service can implement.
 Security DB is on the SQLite 3.
 <p/><p/>
@@ -55,9 +55,12 @@ Code generator includes following common templates:
   * BPEL support: codegen supports WSDL generation compatible with BPEL;
   * web service stub generation;
   * client skeleton generation;
+  * Google Protocol Buffers's proto files can be generated from web service interface;
+  * web service interface can be generated from Google Protocol Buffers's proto files;
   * internal files generation (Proxies, Wrappers, etc);
 
 _Interface is an abstract C++ class that can be used for creating web services and clients;_
+
 Most of new templates can be created without changing codegen's source code.
 
 
@@ -78,4 +81,3 @@ MIT-style license:
 
 Open source IBM License:
   * WS.JS: http://www.ibm.com/developerworks/webservices/library/ws-wsajax/
-
