@@ -805,6 +805,7 @@ namespace staff
         else
         if (sToken == "optional")
         {
+          stParamTmp.mOptions["optional"] = "true";
         }
         else
         if (sToken == "repeated")
@@ -867,6 +868,7 @@ namespace staff
         CSP_ASSERT(!sToken.empty(), "missing tag id. message: " + rStruct.sName,
                    m_stInterface.sFileName, m_nLine);
 
+        stParamTmp.mOptions["protobufTag"] = sToken;
 
         SkipWs();
 

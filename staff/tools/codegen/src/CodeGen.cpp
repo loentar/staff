@@ -58,7 +58,7 @@ namespace staff
 
       if (nPos != std::string::npos)
       {
-        std::string sClass = sVariableName.substr(0, nPos);
+        std::string sClass = !nPos ? rNode.NodeName() : sVariableName.substr(0, nPos);
         sVariable = sVariableName.substr(nPos + 1);
 
         while (pNode != NULL && pNode->NodeName() != sClass)
@@ -345,6 +345,68 @@ namespace staff
         sResult = rNode.NodeContent().AsString();
         rise::StrTrimRight(sResult);
         sFunction.erase(0, 9);
+      }
+      else
+      if (sFunction.substr(0, 3) == "inc")
+      {
+        sResult = rNode.NodeContent().AsString();
+        double dTmp = 0;
+        rise::FromStr(sResult, dTmp);
+        rise::ToStr(dTmp + 1, sResult);
+        sFunction.erase(0, 3);
+      }
+      else
+      if (sFunction.substr(0, 3) == "dec")
+      {
+        sResult = rNode.NodeContent().AsString();
+        double dTmp = 0;
+        rise::FromStr(sResult, dTmp);
+        rise::ToStr(dTmp - 1, sResult);
+        sFunction.erase(0, 3);
+      }
+      else
+      if (sFunction.substr(0, 4) == "add/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 4);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
+          double dOp1 = 0;
+          double dOp2 = 0;
+          rise::FromStr(sResult, dOp1);
+          rise::FromStr(sWhat, dOp2);
+          rise::ToStr(dOp1 + dOp2, sResult);
+          sFunction.erase(0, nPosWhat + 1);
+        }
+        else
+        {
+          throw std::string("Can't get operand for add");
+        }
+      }
+      else
+      if (sFunction.substr(0, 4) == "sub/")
+      {
+        std::string::size_type nPosWhat = sFunction.find('/', 4);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (nPosWhat != std::string::npos)
+        {
+          const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
+          double dOp1 = 0;
+          double dOp2 = 0;
+          rise::FromStr(sResult, dOp1);
+          rise::FromStr(sWhat, dOp2);
+          rise::ToStr(dOp1 - dOp2, sResult);
+          sFunction.erase(0, nPosWhat + 1);
+        }
+        else
+        {
+          throw std::string("Can't get operand for sub");
+        }
       }
       else
       {
@@ -722,6 +784,61 @@ namespace staff
       }
     }
 
+    void ProcessContext(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine)
+    {
+      std::stringbuf sbData;
+      std::string sContextExpr;
+      std::string sLines;
+      int nRecursion = 1;
+
+      std::string::size_type nPosStart = sLine.find("$(", 9);
+      std::string::size_type nPosEnd = 0;
+
+      RISE_ASSERTS(nPosStart != std::string::npos, "context expression is invalid!");
+      nPosEnd = sLine.find(')', nPosStart);
+      RISE_ASSERTS(nPosEnd != std::string::npos, "context expression is invalid!");
+      sContextExpr = sLine.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
+
+      while (!fsIn.eof() && fsIn.good())
+      {
+        if (fsIn.peek() == '\n')
+        {
+          sLine = "\n";
+        }
+        else
+        {
+          fsIn.get(sbData, '\n');
+          sLine = sbData.str();
+          if (fsIn.peek() == '\n')
+          {
+            sLine += "\n";
+          }
+          sbData.str("");
+        }
+        fsIn.ignore();
+        fsIn.peek(); // for EOF
+
+        if (sLine.substr(0, 9) == "#context ")
+          ++nRecursion;
+        else
+        if (sLine.substr(0, 11) == "#contextend")
+        {
+          --nRecursion;
+          if (nRecursion == 0)
+            break;
+        }
+
+        sLines += sLine;
+      }
+
+      RISE_ASSERTS(nRecursion == 0, "Unexpected EOF while parsing: \n---------\n" + sLines + "\n------------\n");
+
+      const CXMLNode& rSubNode = GetNode(sContextExpr, rNode);
+
+      std::istringstream ssStream(sLines);
+      Process(ssStream, fsOut, rSubNode);
+    }
+
     void ProcessInclude(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine)
     {
       std::string sIncludeFileName;
@@ -863,6 +980,11 @@ namespace staff
         if (sLine.substr(0, 9) == "#foreach ")
         {
           ProcessForEach(fsIn, fsOut, rNode, sLine);
+        }
+        else
+        if (sLine.substr(0, 9) == "#context ")
+        {
+          ProcessContext(fsIn, fsOut, rNode, sLine);
         }
         else
         if (sLine.substr(0, 10) == "#fileopen ")
