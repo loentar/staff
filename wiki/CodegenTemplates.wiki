@@ -11,6 +11,7 @@ Codegen templates is designed to write resulting files in various formats.
 || interface        || template to generate service interface ||
 || j2meclient       || template to generate j2me client proxy ||
 || jsclient         || template to generate !JavaScript/AJAX client proxy ||
+|| protobuf         || template to generate Google Protocol Buffers proto file ||
 || serviceimpl      || template to generate service implementation skeleton ||
 || wsdl             || template to generate wsdl file ||
 
