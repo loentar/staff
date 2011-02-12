@@ -548,6 +548,7 @@ namespace staff
           throw std::string("can't open input file: " + sIn);
         }
 
+        m_nIndent = 0;
         m_nLine = 0;
         Process(fsIn, fsOut, rRootNode);
 
@@ -1079,6 +1080,7 @@ namespace staff
           if (!sLine.empty())
           {
             std::string sIndent;
+            RISE_ASSERTS(m_nIndent < 1024, "Invalid indentation: " + rise::ToStr(m_nIndent));
             for (int nIndent = 0; nIndent < m_nIndent; ++nIndent)
             {
               sIndent += "  ";
