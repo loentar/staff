@@ -23,6 +23,7 @@
 #ifndef _MESSAGECONTEXT_H_
 #define _MESSAGECONTEXT_H_
 
+#include "staffcommonexport.h"
 #include <string>
 
 typedef struct axis2_msg_ctx axis2_msg_ctx_t;
@@ -30,7 +31,7 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
-  class CMessageContext
+  class STAFF_COMMON_EXPORT CMessageContext
   {
   public:
     CMessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx);

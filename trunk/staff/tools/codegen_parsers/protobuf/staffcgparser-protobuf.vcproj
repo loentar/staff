@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="staffcgparser-protobuf"
-	ProjectGUID=""
+	ProjectGUID="{8F4E2088-4FB4-4009-BB5E-385A2F6A50BE}"
 	RootNamespace="staffcgparser-protobuf"
 	Keyword="Win32Proj"
 	>

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="common"
-	ProjectGUID="{31DFC1BC-999D-474D-9F2F-415231BA2271}"
-	RootNamespace="staff"
+	Name="staff.Wsdl"
+	ProjectGUID="{4BBBF89C-90B1-4EC6-AB2A-DEF0E4C456D4}"
+	RootNamespace="staff_login_service"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -20,10 +20,11 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -39,10 +40,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="false"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_COMMON_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +64,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
-				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -106,6 +108,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -121,12 +124,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_COMMON_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -140,10 +143,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
-				OutputFile="$(InputDir)$(IntDir)\staff_$(ProjectName).dll"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -186,51 +188,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Attribute.cpp"
+				RelativePath=".\src\ComponentImpl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Config.cpp"
+				RelativePath=".\src\WsdlImpl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\DataObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DataObjectHelper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Exception.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\IService.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\MessageContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Namespace.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Operation.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\QName.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Runtime.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Value.cpp"
+				RelativePath=".\src\WsdlWrapper.cpp"
 				>
 			</File>
 		</Filter>
@@ -240,59 +206,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\Attribute.h"
+				RelativePath=".\src\ComponentImpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Config.h"
+				RelativePath=".\src\Wsdl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\DataObject.h"
+				RelativePath=".\src\WsdlImpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\DataObjectHelper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Exception.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\IService.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\MessageContext.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Namespace.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Operation.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\QName.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Runtime.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\staffcommonexport.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Value.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\WsdlTypes.h"
+				RelativePath=".\src\WsdlWrapper.h"
 				>
 			</File>
 		</Filter>
