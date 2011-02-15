@@ -8,7 +8,7 @@ INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff_security/
 
 CFLAGS += -c -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR)
 LFLAGS += -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR)
-LFLAGS += -laxis2_axiom -laxutil -laxis2_engine -lstaffsecurity
+LFLAGS += -laxis2_axiom -laxutil -laxis2_engine -laxis2_http_common -lstaffsecurity
 LFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
