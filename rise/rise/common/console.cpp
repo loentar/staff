@@ -24,6 +24,15 @@
 #include <iostream>
 #include "console.h"
 
+#ifdef __MINGW32__
+#ifndef COMMON_LVB_REVERSE_VIDEO
+#define COMMON_LVB_REVERSE_VIDEO   0x4000
+#endif
+#ifndef COMMON_LVB_UNDERSCORE
+#define COMMON_LVB_UNDERSCORE      0x8000
+#endif
+#endif
+
 namespace rise
 {
 #ifdef WIN32
@@ -199,7 +208,7 @@ namespace rise
   COStream& ColorInkRed(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_GREEN | FOREGROUND_BLUE) | FOREGROUND_RED);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (FOREGROUND_GREEN | FOREGROUND_BLUE)) | FOREGROUND_RED);
 #else
     return (rStream << "\033[31m");
 #endif
@@ -208,7 +217,7 @@ namespace rise
   COStream& ColorInkGreen(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_BLUE) | FOREGROUND_GREEN);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_BLUE)) | FOREGROUND_GREEN);
 #else
     return (rStream << "\033[32m");
 #endif
@@ -217,7 +226,7 @@ namespace rise
   COStream& ColorInkBrown(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ FOREGROUND_BLUE) | FOREGROUND_RED | FOREGROUND_GREEN);
 #else
     return (rStream << "\033[33m");
 #endif
@@ -226,7 +235,7 @@ namespace rise
   COStream& ColorInkBlue(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_GREEN) | FOREGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (FOREGROUND_RED | FOREGROUND_GREEN)) | FOREGROUND_BLUE);
 #else
     return (rStream << "\033[34m");
 #endif
@@ -235,7 +244,7 @@ namespace rise
   COStream& ColorInkMagenta(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ FOREGROUND_GREEN) | FOREGROUND_RED | FOREGROUND_BLUE);
 #else
     return (rStream << "\033[35m");
 #endif
@@ -244,7 +253,7 @@ namespace rise
   COStream& ColorInkCyan(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ FOREGROUND_RED) | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #else
     return (rStream << "\033[36m");
 #endif
@@ -272,7 +281,7 @@ namespace rise
   COStream& ColorPaperRed(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_GREEN | BACKGROUND_BLUE) | BACKGROUND_RED);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (BACKGROUND_GREEN | BACKGROUND_BLUE)) | BACKGROUND_RED);
 #else
     return (rStream << "\033[41m");
 #endif
@@ -281,7 +290,7 @@ namespace rise
   COStream& ColorPaperGreen(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_BLUE) | BACKGROUND_GREEN);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_BLUE)) | BACKGROUND_GREEN);
 #else
     return (rStream << "\033[42m");
 #endif
@@ -290,7 +299,7 @@ namespace rise
   COStream& ColorPaperBrown(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ BACKGROUND_BLUE) | BACKGROUND_RED | BACKGROUND_GREEN);
 #else
     return (rStream << "\033[43m");
 #endif
@@ -299,7 +308,7 @@ namespace rise
   COStream& ColorPaperBlue(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_GREEN) | BACKGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ (BACKGROUND_RED | BACKGROUND_GREEN)) | BACKGROUND_BLUE);
 #else
     return (rStream << "\033[44m");
 #endif
@@ -308,7 +317,7 @@ namespace rise
   COStream& ColorPaperMagenta(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ BACKGROUND_GREEN) | BACKGROUND_RED | BACKGROUND_BLUE);
 #else
     return (rStream << "\033[45m");
 #endif
@@ -317,7 +326,7 @@ namespace rise
   COStream& ColorPaperCyan(COStream& rStream)
   {
 #ifdef WIN32
-    return tConsAttr.SetAttribute(rStream, tConsAttr.GetAttribute() & ~ BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+    return tConsAttr.SetAttribute(rStream, (tConsAttr.GetAttribute() & ~ BACKGROUND_RED) | BACKGROUND_GREEN | BACKGROUND_BLUE);
 #else
     return (rStream << "\033[46m");
 #endif
@@ -467,7 +476,9 @@ namespace rise
   COStream& _PaletteSet(COStream& rStream, short nPaletteIndex, short nR, short nG, short nB)
   {
 #ifdef WIN32
+#ifndef __MINGW32__ // warning: statement has no effect
     nPaletteIndex; nR; nG; nB;
+#endif
     return rStream;
 #else
     return (rStream << "\033]P" << std::setw(2) << std::setfill('0') 
@@ -492,7 +503,9 @@ namespace rise
   COStream& _ConsoleSwitchTo(COStream& rStream, short nValue)
   {
 #ifdef WIN32
+#ifndef __MINGW32__ // warning: statement has no effect
     nValue;
+#endif
     return rStream;
 #else
     return (rStream << "\033[12;" << nValue << "]");
@@ -537,7 +550,9 @@ namespace rise
   COStream& _ConsoleSetIcon(COStream& rStream, const CString& sText)
   {
 #ifdef WIN32
+#ifndef __MINGW32__ // warning: statement has no effect
     sText;
+#endif
     return rStream;
 #else
     return (rStream << "\033]1;" + sText + "\007");

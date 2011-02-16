@@ -2,7 +2,7 @@ include ../../../Makefile.env
 
 COMPONENT = samples.rest
 TARGET = $(COMPONENT)
-TARGETNAME = lib$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/ -D_REENTRANT
 LDFLAGS += -lpthread -lstaffcommon -lstaffcomponent -lrise
@@ -29,7 +29,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): codegen $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

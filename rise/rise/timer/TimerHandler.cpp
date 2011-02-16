@@ -100,7 +100,7 @@ namespace rise
       }
   
 #ifdef WIN32
-      friend void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD);
+      static void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD);
 #endif
 
       CTimerHandler::TTimerID AddTimer(dword dwMSec, dword dwRepeat, CTimerHandler* pTimer)
@@ -273,7 +273,7 @@ namespace rise
   } timeCatcher;
 
 #ifdef WIN32
-  void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD)
+  void CALLBACK CTimeCatcher::TimerProc( HWND, UINT, UINT nIDEvent, DWORD)
   {
     timeCatcher.OnTimer(static_cast<CTimerHandler::TTimerID>(nIDEvent));
   }

@@ -22,8 +22,10 @@
 #ifndef _STAFFCOMPONENTEXPORT_H_
 #define _STAFFCOMPONENTEXPORT_H_
 
-#if defined(WIN32) || defined (_WINDOWS)
-  #pragma warning(disable: 4786)
+#ifdef WIN32
+  #ifndef __MINGW32__
+    #pragma warning(disable: 4786 4251)
+  #endif
 
   #ifdef STAFF_COMPONENT_DLL_EXPORTS
     #define STAFF_COMPONENT_EXPORT __declspec(dllexport)
@@ -32,7 +34,11 @@
   #endif
 
   #ifndef STAFF_DEPRECATED
-    #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+    #ifndef __MINGW32__
+      #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+    #else
+      #define STAFF_DEPRECATED(Replacement)
+    #endif
   #endif
 
 #else

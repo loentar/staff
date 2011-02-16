@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (disable : 4267)
 #endif
 

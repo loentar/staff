@@ -1,9 +1,12 @@
 include ../../Makefile.env
 
 TARGET = sqlite3
-TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
 CFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
+ifeq ($(OS),MINGW)
+  CFLAGS += -DSQLITE_DLL_EXPORTS=1
+endif
 LFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

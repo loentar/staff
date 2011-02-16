@@ -51,7 +51,11 @@ namespace rise
   {
     return
 #ifdef WIN32
+#ifdef __MINGW32__
+      reinterpret_cast<rise::PLibSymbol>(GetProcAddress(hDynamicLib, sSymName.c_str()));
+#else
       GetProcAddress(hDynamicLib, sSymName.c_str());
+#endif
 #else
       dlsym(hDynamicLib, sSymName.c_str());
 #endif

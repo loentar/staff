@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined(WIN32)  || defined (_WINDOWS)
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning(disable: 4786)
 #pragma warning(disable: 4091)
 #endif
@@ -38,7 +38,7 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_init(axis2_module_t* pModule, co
 axis2_status_t AXIS2_CALL Axis2DispatcherModule_fill_handler_create_func_map(axis2_module_t *module,
                                                                              const axutil_env_t *env);
 
-AXIS2_EXTERN axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t* pEnv, axutil_qname_t* pQname);
+AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t* pEnv, axutil_qname_t* pQname);
 
 
 

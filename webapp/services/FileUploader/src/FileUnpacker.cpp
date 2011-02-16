@@ -62,7 +62,11 @@ namespace webapp
         else
         if (nStatus != -1)
         { // finished
-          m_nStatus = WIFEXITED(nStatus) ? WEXITSTATUS(nStatus) : EGenericError;
+          #ifndef WIN32
+            m_nStatus = WIFEXITED(nStatus) ? WEXITSTATUS(nStatus) : EGenericError;
+          #else
+            m_nStatus = nStatus;
+          #endif
         }
       }
     }

@@ -24,22 +24,28 @@
 
 #include <exception>
 
+#ifdef __MINGW32__
+#define RISE_PRETTY_FUNCTION __FUNCTION__
+#else
+#define RISE_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
 //! throw exception 1 arg
 #define RISE_THROW1(RISE_EXCEPTION)\
   {RISE_EXCEPTION cException; \
-    cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, #RISE_EXCEPTION); \
+    cException.Create(__FILE__, __LINE__, RISE_PRETTY_FUNCTION, #RISE_EXCEPTION); \
     throw cException;}
 
 //! throw exception 2 arg
 #define RISE_THROW2(RISE_EXCEPTION, RISE_DESCRIPTION)\
   {RISE_EXCEPTION cException; \
-    cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, RISE_DESCRIPTION); \
+    cException.Create(__FILE__, __LINE__, RISE_PRETTY_FUNCTION, RISE_DESCRIPTION); \
     throw cException;}
 
 //! throw exception 3 arg
 #define RISE_THROW3(RISE_EXCEPTION, RISE_DESCRIPTION, RISE_EXPRESSION)\
   {RISE_EXCEPTION cException; \
-    cException.Create(__FILE__, __LINE__, __PRETTY_FUNCTION__, RISE_DESCRIPTION, RISE_EXPRESSION); \
+    cException.Create(__FILE__, __LINE__, RISE_PRETTY_FUNCTION, RISE_DESCRIPTION, RISE_EXPRESSION); \
     throw cException;}
 
 //! throw exception

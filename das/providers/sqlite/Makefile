@@ -2,7 +2,7 @@ include ../../Makefile.env
 
 COMPONENT = staff.das/providers/staff.das.Sqlite
 TARGET = sqlite
-TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
@@ -16,7 +16,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

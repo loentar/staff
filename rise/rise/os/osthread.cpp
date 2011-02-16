@@ -31,11 +31,15 @@ namespace rise
 {
 
 #ifdef WIN32
-  LARGE_INTEGER g_llFrequency = {0};
+  LARGE_INTEGER g_llFrequency = {{0}};
   BOOL g_bQueryResult = QueryPerformanceFrequency(&g_llFrequency);
 
   // windows version is lower 2003 server
 #if _WIN32_WINNT < 0x0502
+
+#ifdef __MINGW32__
+  typedef ULONG_PTR KAFFINITY;
+#endif
 
   typedef struct _CLIENT_ID
   {
@@ -342,7 +346,7 @@ void osSleep(unsigned long ulMSec)
 long long osQueryPerfomance()
 {
 #ifdef WIN32
-  LARGE_INTEGER llPerf = {0};
+  LARGE_INTEGER llPerf = {{0}};
   QueryPerformanceCounter(&llPerf);
   return llPerf.QuadPart * 1000ll / ( g_llFrequency.QuadPart / 1000ll);
 #else

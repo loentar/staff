@@ -24,6 +24,9 @@
 
 #include <errno.h>
 #include <stdio.h>
+#ifdef WIN32
+#include <io.h>
+#endif
 #include <sys/stat.h>
 #include <fstream>
 #include <rise/common/ExceptionTemplate.h>
@@ -58,7 +61,11 @@ namespace webapp
       const std::string& sFilePathTo = sPathTo + "/" + sFileName;
       int nResult = 0;
 
+#ifndef WIN32
       mkdir(sPathTo.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#else
+      _mkdir(sPathTo.c_str()); 
+#endif
 
       unlink(sFilePathTo.c_str());
 
@@ -114,7 +121,11 @@ namespace webapp
       
       RISE_ASSERTES(m_tUnpacker.GetStatus() != CFileUnpacker::ERunning, rise::CLogicAlreadyExistsException, "Unpacking already running");
 
+#ifndef WIN32
       mkdir(sPathTo.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#else
+      _mkdir(sPathTo.c_str()); 
+#endif
 
       if (m_mUnpackers.size() == 0)
       { // load config

@@ -26,7 +26,9 @@
 
 #ifdef WIN32
 
+#ifndef __MINGW32__
 #pragma warning (disable : 4251) // needs to have dll-interface to be used by clients of class rise...
+#endif
 
   #define RISE_DLL_EXPORT __declspec(dllexport)
   #define RISE_DLL_IMPORT __declspec(dllimport)

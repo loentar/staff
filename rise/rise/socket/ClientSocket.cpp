@@ -49,7 +49,7 @@ namespace rise
       RISE_ASSERTP(GetPort());
 
       struct sockaddr_in saServer =
-#if defined OS_Linux
+#if defined OS_Linux || defined __MINGW32__
         { AF_INET, htons(GetPort()), {0}, "" };
 #else
         { AF_INET, htons(GetPort()), 0, {0} };

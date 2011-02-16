@@ -1,9 +1,12 @@
 include ../Makefile.env
 
 TARGET = dascommon
-TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
+ifeq ($(OS),MINGW)
+  CXXFLAGS += -DSTAFF_DAS_COMMON_DLL_EXPORTS
+endif
 LDFLAGS += -fexceptions
 LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread
 LDFLAGS += $(LDLIB)$(TARGETNAME)
@@ -16,7 +19,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

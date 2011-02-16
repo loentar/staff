@@ -46,8 +46,8 @@ namespace rise
     if( nFile != -1 )
       do
       {
-        if( ((nAttrs & EFA_FILE) != 0 && (stSearchData.attrib & _A_SUBDIR) == 0) ||
-            ((nAttrs & EFA_DIR) != 0 && (stSearchData.attrib & _A_SUBDIR) != 0) && !IsDots(stSearchData.name) )
+        if( (((nAttrs & EFA_FILE) != 0 && (stSearchData.attrib & _A_SUBDIR) == 0)) ||
+            (((nAttrs & EFA_DIR) != 0 && (stSearchData.attrib & _A_SUBDIR) != 0) && (!IsDots(stSearchData.name))) )
           rList.push_back(stSearchData.name);
       }
       while (!_findnext(nFile, &stSearchData));

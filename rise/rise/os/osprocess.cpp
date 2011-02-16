@@ -49,8 +49,10 @@ namespace rise
   {
   #ifdef WIN32
     #pragma message ( "WIN32 osSetSignalHandler not realized!" ) 
-    pSignalProc;
-    nSignal;
+    #ifndef __MINGW32__ // warning: statement has no effect
+      pSignalProc;
+      nSignal;
+    #endif
   #else 
     static struct sigaction stAction; 
     static bool bIsInitialized = false;

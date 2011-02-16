@@ -27,7 +27,7 @@
 #include "Runtime.h"
 #include "Config.h"
 
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (disable:4996)
 #endif
 

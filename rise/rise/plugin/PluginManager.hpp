@@ -39,7 +39,7 @@ namespace rise
 
 #ifdef WIN32      
       typedef TPluginBaseClass* (*PRiseGetPluginAddress)();
-      PRiseGetPluginAddress CallFun = static_cast<PRiseGetPluginAddress>(pDynLib->GetSymbol("RiseGetPluginAddress"));
+      PRiseGetPluginAddress CallFun = reinterpret_cast<PRiseGetPluginAddress>(pDynLib->GetSymbol("RiseGetPluginAddress"));
       pPlugin = reinterpret_cast<TPluginBaseClass*>(CallFun());
 #else
       pPlugin = reinterpret_cast<TPluginBaseClass*>(pDynLib->GetSymbol(RISE_PLUGIN_EXPORTED_SYMBOL_STR));

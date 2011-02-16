@@ -19,8 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef _RISE_TYPES_H_
+#define _RISE_TYPES_H_
 
 #include <wchar.h>
 
@@ -70,4 +70,4 @@ namespace rise
   typedef const TBuffer* PCBuffer;
 }
 
-#endif
+#endif // _RISE_TYPES_H_
