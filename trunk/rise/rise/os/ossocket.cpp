@@ -72,12 +72,12 @@ namespace rise
     struct timeval tv;
 
     FD_ZERO(&rfds);
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (push)
 #pragma warning ( disable : 4127 )
 #endif
     FD_SET(sock, &rfds);
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (pop)
 #endif
 
@@ -92,12 +92,12 @@ namespace rise
     fd_set rfds;
 
     FD_ZERO(&rfds);
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (push)
 #pragma warning ( disable : 4127 )
 #endif
     FD_SET(sock, &rfds);
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning (pop)
 #endif
 

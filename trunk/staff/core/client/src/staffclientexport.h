@@ -22,8 +22,10 @@
 #ifndef _STAFFCLIENTEXPORT_H_
 #define _STAFFCLIENTEXPORT_H_
 
-#if defined(WIN32) || defined (_WINDOWS)
-  #pragma warning(disable: 4786)
+#ifdef WIN32
+  #ifndef __MINGW32__
+    #pragma warning(disable: 4786 4251)
+  #endif
 
   #ifdef STAFF_CLIENT_DLL_EXPORTS
     #define STAFF_CLIENT_EXPORT __declspec(dllexport)

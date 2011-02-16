@@ -1,23 +1,18 @@
 
 
-ifneq "$(shell which rpm)" ""
+ifneq "$(shell which rpm 2>/dev/null)" ""
   DISTRIBSCRIPTSDIR=distrib/rpm/
 else
-ifneq "$(shell which deb)" ""
+ifneq "$(shell which deb 2>/dev/null)" ""
   DISTRIBSCRIPTSDIR=distrib/deb/
 endif
 endif
 
-ifeq ($(PLATFORM),)
-  PLATFORM = $(shell uname -m)
-endif
-
-ifeq ($(TOPDIR),)
-  TOPDIR = $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/$(PROJECT)\/\).*/\1/g' | grep \/$(PROJECT)\/)
-endif
+PLATFORM ?= $(shell uname -m)
+TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/$(PROJECT)\/\).*/\1/g' | grep \/$(PROJECT)\/)
 
 
-DISTRIBDIR = $(TOPDIR)/../distrib/
+DISTRIBDIR ?= $(TOPDIR)/../distrib/
 DISTRIBDIRQ := $(shell echo $(DISTRIBDIR) | sed 's/\//\\\//g')
 MANGLEDVERSION := $(shell echo $(VERSION) | sed 's/-/_/g')
 
@@ -30,8 +25,6 @@ distrib: "$(DISTRIBDIR)" $(patsubst $(DISTRIBSCRIPTSDIR)%,%,$(wildcard $(DISTRIB
 	sed "s/__version__/$(MANGLEDVERSION)/g" $(DISTRIBSCRIPTSDIR)$@ | sed "s/__topdir__/$(DISTRIBDIRQ)/g" >$(DISTRIBDIR)/buildrpm_$@
 	rpmbuild --quiet -bb $(DISTRIBDIR)/buildrpm_$@ --buildroot $(TOPDIR)/deploy/$(PLATFORM)/ --target $(PLATFORM)
 	rm -f $(DISTRIBDIR)/buildrpm_$@
-
-# mv /usr/src/RPM/RPMS/$(PLATFORM)/$(PROJECT)-$(VERSION)-$(patsubst %.spec,%,$@).$(PLATFORM).rpm $(DISTRIBDIR); \
 
 # == mkdir ==========================================
 "%/":

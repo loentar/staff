@@ -1,10 +1,10 @@
 include ../../Makefile.env
 
-MYSQL_DEV_INSTALLED := $(shell whereis mysql | grep include -c)
+MYSQL_DEV_INSTALLED := $(shell whereis mysql 2>/dev/null | grep include -c)
 
 COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql
-TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/mysql
 LDFLAGS += -fexceptions -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
@@ -23,7 +23,7 @@ endif
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

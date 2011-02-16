@@ -2,10 +2,10 @@ include ../../Makefile.env
 
 COMPONENT = webapp.admin
 TARGET = FileUploader
-TARGETNAME = lib$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -fPIC -fexceptions -D_REENTRANT -Wall
-LDFLAGS += -fPIC -fexceptions -Wl,-rpath,$(AXIS2C_LIBDIR)
+CXXFLAGS += -D_REENTRANT -Wall
+LDFLAGS += -Wl,-rpath,$(AXIS2C_LIBDIR)
 
 VPATH = $(SRCDIR)
 
@@ -36,7 +36,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

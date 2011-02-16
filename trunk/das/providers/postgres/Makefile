@@ -1,10 +1,10 @@
 include ../../Makefile.env
 
-POSTGRESQL_DEV_INSTALLED := $(shell whereis postgresql pgsql | grep include -c)
+POSTGRESQL_DEV_INSTALLED := $(shell whereis postgresql pgsql 2>/dev/null | grep include -c)
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres
-TARGETNAME = libstaffdasprov-$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
 LDFLAGS += -fexceptions -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
@@ -23,7 +23,7 @@ endif
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

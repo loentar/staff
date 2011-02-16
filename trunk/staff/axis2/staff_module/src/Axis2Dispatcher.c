@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined(WIN32)  || defined (_WINDOWS)
+#if defined WIN32 && !defined __MINGW32__
 #pragma warning(disable: 4786)
 #pragma warning(disable: 4091)
 #endif
@@ -49,7 +49,6 @@ axis2_svc_t* AXIS2_CALL Axis2Dispatcher_find_svc(axis2_msg_ctx_t* pMsgCtx, const
 
 axis2_op_t* AXIS2_CALL Axis2Dispatcher_find_op(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
                                                axis2_svc_t* pSvc);
-
 
 AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t* pEnv, axutil_qname_t* pqName)
 {

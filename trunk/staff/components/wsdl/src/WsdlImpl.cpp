@@ -28,11 +28,6 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, COpe
   const std::string& sFilePath = staff::CRuntime::Inst().GetComponentHome(sComponent) +
                                      RISE_PATH_SEPARATOR + sFile;
 
-  rise::LogInfo() << "host: " << sHost;
-  rise::LogInfo() << "Component: " << sComponent;
-  rise::LogInfo() << "Service: " << sFile;
-  rise::LogInfo() << "File: " << sFilePath;
-
   std::ifstream ifsWsdlFile(sFilePath.c_str());
   RISE_ASSERTS(ifsWsdlFile.good(), "Can't open [" + sFilePath + "]");
   std::string sWsdl((std::istreambuf_iterator<char>(ifsWsdlFile)), std::istreambuf_iterator<char>());
@@ -69,7 +64,6 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, COpe
               std::string::size_type nPosEnd = sLocation.find('/', nPosBegin);
               if (nPosEnd != std::string::npos)
               {
-                rise::LogInfo() << "locpart: [" << sLocation.substr(nPosBegin, nPosEnd - nPosBegin) << "]";
                 sLocation.replace(nPosBegin, nPosEnd - nPosBegin, sHost);
                 itAttrLocation->SetText(sLocation);
               }

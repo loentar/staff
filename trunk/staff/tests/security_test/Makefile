@@ -17,7 +17,7 @@ make: "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@

@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
 TARGET = staff_service
-TARGETNAME = lib$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
 INSTALLLIBDIR = $(AXIS2C_HOME)/services/staff/
 
@@ -9,7 +9,12 @@ DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/services/staff/
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -laxis2_axiom -laxutil -laxis2_engine
+LDFLAGS += -laxutil -laxis2_engine
+ifeq ($(OS),MINGW) # axis2/c library naming bug?
+  LDFLAGS += -laxiom
+else
+  LDFLAGS += -laxis2_axiom
+endif
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread -lstdc++
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
@@ -24,7 +29,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp

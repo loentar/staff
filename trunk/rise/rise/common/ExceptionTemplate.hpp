@@ -48,7 +48,7 @@ namespace rise
     m_sObject = sObject;
     
     char* szStackTracingEnv = NULL;
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
     _dupenv_s(&szStackTracingEnv, NULL, "RISE_EXCEPTION_STACKTRACING");
 #else
     szStackTracingEnv = getenv("RISE_EXCEPTION_STACKTRACING");

@@ -1,10 +1,10 @@
 include ../../../Makefile.env
 
 TARGET = dasdatasource
-TARGETNAME = libstaffcgparser-$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -fPIC
-LDFLAGS += -fexceptions -lrise -fPIC
+CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
+LDFLAGS += -fexceptions -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
@@ -19,7 +19,7 @@ make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp

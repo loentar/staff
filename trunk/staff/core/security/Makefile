@@ -1,9 +1,12 @@
 include ../../Makefile.env
 
 TARGET = security
-TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wall -D_REENTRANT -DSQLITE_THREADSAFE=1
+ifeq ($(OS),MINGW)
+  CXXFLAGS += -DSTAFF_SECURITY_DLL_EXPORTS=1
+endif
 
 LDFLAGS += -lpthread -lstaffsqlite3 -lstaffcommon -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
@@ -21,7 +24,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp

@@ -1,11 +1,21 @@
 include ../../Makefile.env
 
 TARGET = common
-TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+ifeq ($(OS),MINGW)
+  CXXFLAGS += -DSTAFF_COMMON_DLL_EXPORTS=1 -DAXIS2_DECLARE_EXPORT
+endif
 LDFLAGS += -fexceptions
-LDFLAGS += -lrise -laxis2_axiom -laxutil -laxis2_engine $(LDAXIS2LIBS)
+LDFLAGS += -lrise -laxutil -laxis2_engine
+ifeq ($(OS),MINGW) # axis2/c library naming bug?
+  LDFLAGS += -laxiom
+else
+  LDFLAGS += -laxis2_axiom
+endif
+LDFLAGS += $(LDAXIS2LIBS)
+
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
@@ -19,7 +29,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp

@@ -22,8 +22,10 @@
 #ifndef _STAFFSECURITYEXPORT_H_
 #define _STAFFSECURITYEXPORT_H_
 
-#if defined(WIN32) || defined (_WINDOWS)
-  #pragma warning(disable: 4786)
+#ifdef WIN32
+  #ifndef __MINGW32__
+    #pragma warning(disable: 4786 4251)
+  #endif
 
   #ifdef STAFF_SECURITY_DLL_EXPORTS
     #define STAFF_SECURITY_EXPORT __declspec(dllexport)
@@ -31,7 +33,13 @@
     #define STAFF_SECURITY_EXPORT __declspec(dllimport)
   #endif
 
-  #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+  #ifndef STAFF_DEPRECATED
+    #ifndef __MINGW32__
+      #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+    #else
+      #define STAFF_DEPRECATED(Replacement)
+    #endif
+  #endif
 
 #else
   #define STAFF_SECURITY_EXPORT 

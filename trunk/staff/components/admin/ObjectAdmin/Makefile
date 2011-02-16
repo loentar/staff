@@ -2,7 +2,7 @@ include ../../../Makefile.env
 
 COMPONENT = staff.admin
 TARGET = ObjectAdmin
-TARGETNAME = libstaff$(TARGET)$(LIBVEREXT)
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
 LDFLAGS += -fexceptions -I$(DEPLOYDIR)lib
@@ -29,7 +29,7 @@ make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp

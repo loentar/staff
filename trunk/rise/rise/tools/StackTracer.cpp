@@ -149,8 +149,13 @@ namespace rise
       DWORD tebp = 0;
       DWORD tesp = 0;
 
+#ifndef __MINGW32__
       _asm mov tesp, esp
       _asm mov tebp, ebp
+#else
+      asm("movl %%esp, %0":"=d"(tesp));
+      asm("movl %%ebp, %0":"=d"(tebp));
+#endif
 
       rise::LogDebug3() << "tracing stack(list)...";
 
