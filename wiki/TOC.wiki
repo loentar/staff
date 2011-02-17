@@ -23,6 +23,8 @@
     * REST
       * [ExampleCalculatorRestfulClient RESTful C++ client]
       * [ExampleCalculatorRestfulService RESTful service]
+    * Qt
+      * [ExampleStockQuoteQtCreator Creating C++ client that uses Qt]
     * WSDL
       * [ExampleCreatingCppClientFromWsdl Creating C++ client from WSDL]
   * Developer reference

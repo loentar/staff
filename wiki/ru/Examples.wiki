@@ -1,0 +1,20 @@
+#summary Examples
+#labels Featured
+
+Примеры в Windows:
+  * [ExampleCalculatorServiceWindows Создание сервиса Calculator в Visual Studio 2005]
+  * [ExampleCalculatorClientWindows Создание клиента Calculator в Visual Studio 2005]
+
+Примеры в Linux:
+  * [ExampleCalculatorServiceLinux Создение сервиса Calculator]
+  * [ExampleCalculatorClientLinux Создание клиента Calculator]
+  * [ExampleCalculatorAjaxClientLinux Создание AJAX клиента Calculator в Linux]
+
+Общие примеры:
+  * [ExampleStockQuoteQtCreator Создание клиента StockQuote использующего Qt]
+  * [ExampleCalculatorNonBlocking Как модифицировать C++ клиент для вызова сервисов в неблокируемом режиме]
+  * [ExampleCalculatorRestfulService Как модифицировать Сервис для поддержки REST]
+  * [ExampleCreatingCppClientFromWsdl Как создать C++ клиент из WSDL]
+  * [ExampleCalculatorJ2meClient Создание J2ME клиента Calculator используя Sun J2ME Wireless Toolkit]
+  * [ExampleDasDataSource Создание источников данных для DAS используя провайдер sqlite3]
+  * [ExampleDasClient Создание клиента источника данных]
