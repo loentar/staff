@@ -1086,14 +1086,17 @@ namespace staff
         RISE_ASSERTES(itType != rPart.AttrEnd(), rise::CLogicNoItemException,
           "Unknown part type: " + sPartName);
 
+        const std::string& sType = itType->sAttrValue.AsString();
+
         SParam stParam;
         stParam.sName = StripPrefix(sPartName);
         stParam.stDataType.sNodeName = stParam.sName;
 
-        const std::string& sPartPrefix = GetPrefix(sPartName);
-        const std::string& sNamespace = sPartPrefix.empty() ? GetTns(rPart) : FindNamespaceUri(rPart, sPartPrefix);
+        const std::string& sName = StripPrefix(sType);
+        const std::string& sPrefix = GetPrefix(sType);
+        const std::string& sNamespace = FindNamespaceUri(rPart, sPrefix);
 
-        GetCppType(itType->sAttrValue.AsString(), sNamespace, stParam.stDataType);
+        GetCppType(SQName(sName, sPrefix, sNamespace), stParam.stDataType);
         RISE_ASSERTES(!stParam.stDataType.sName.empty(), rise::CLogicNoItemException, "Unknown part type");
         stParam.stDataType.sNodeName = stParam.stDataType.sName;
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
@@ -1987,7 +1990,8 @@ namespace staff
               // some::namespace::Struct X namespace::Struct::SubStruct = namespace::Struct
               std::string::size_type nPos = StrIntersect(sCurrNsName, sNsName);
               if (nPos != std::string::npos
-                  && (nPos == nCurrNsNameSize || sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::")
+                  && (nPos == nCurrNsNameSize ||
+                      (nCurrNsNameSize > (nPos + 2) && sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::"))
                   && sNsName.substr(nPos, 2) == "::")
               {
                 // go through child structs

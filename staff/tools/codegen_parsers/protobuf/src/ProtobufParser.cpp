@@ -357,7 +357,8 @@ namespace staff
             // some::namespace::Struct X namespace::Struct::SubStruct = namespace::Struct
             std::string::size_type nPos = StrIntersect(sCurrNsName, sNsName);
             if (nPos != std::string::npos
-                && (nPos == nCurrNsNameSize || sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::")
+                && (nPos == nCurrNsNameSize ||
+                    (nCurrNsNameSize > (nPos + 2) && sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::"))
                 && sNsName.substr(nPos, 2) == "::")
             {
               // go through child structs
