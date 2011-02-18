@@ -16,7 +16,7 @@ PATH=%WS_HOME%\lib;%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin;%PATH%
 You can set these variables in system properties. After setting these variables, You must relogin or reboot Windows.
 
 == 2. Install ==
-Unpack archive file {{{ws-win32-vs2005-staff-<STAFF_VERSION>.7z}}} or {{{ws-win32-gccXXX-staff-<STAFF_VERSION>-tp4-r399.7z}}} to c:\
+Unpack archive file {{{ws-win32-vs2005-staff-<STAFF_VERSION>.7z}}} or {{{ws-win32-gccXXX-staff-<STAFF_VERSION>.7z}}} to c:\
 
 You should see following directories, if using MSVC (vs2005) version:
 {{{
