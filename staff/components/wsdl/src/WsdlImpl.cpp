@@ -3,6 +3,7 @@
 // Service Implementation
 
 #include <fstream>
+#include <strstream>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <staff/common/Runtime.h>
@@ -30,10 +31,12 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, COpe
 
   std::ifstream ifsWsdlFile(sFilePath.c_str());
   RISE_ASSERTS(ifsWsdlFile.good(), "Can't open [" + sFilePath + "]");
-  std::string sWsdl((std::istreambuf_iterator<char>(ifsWsdlFile)), std::istreambuf_iterator<char>());
 
   staff::CDataObject tdoWsdl;
-  tdoWsdl.FromString(sWsdl);
+
+  std::stringstream ssWsdl;
+  ssWsdl << ifsWsdlFile.rdbuf();
+  tdoWsdl.FromString(ssWsdl.str());
 
   // finding service url..
   staff::CDataObject::Iterator itService = tdoWsdl.FindChildByLocalName("service");
