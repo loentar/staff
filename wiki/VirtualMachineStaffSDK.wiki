@@ -16,13 +16,15 @@ Guest OS is Ubuntu 10.10. [http://code.google.com/p/staff/wiki/Screenshots#VM_St
 
 == Download ==
 
-Virtual Machine has size 1,8Gb.
+Virtual Machine has size 1,8Gb (1 925 099 907 bytes).
+
+Sha-1 sum: *e1d53678fc83e2be94c19ff744bedf6fed4d420c*
 
 Please select download location:
+  * [ftp://95.83.100.210/upload/Ubuntu-staff-sdk-r374.7z Direct FTP Mirror] _Internet Speed ~2Mbit_
   * [http://narod.ru/disk/1872669001/Ubuntu-staff-sdk-r374.7z.html Yandex] _fast, no ads, no wait, not splitted, easy captcha_
   * [http://www.badongo.com/file/24853104 Badongo] _ads, wait, splitted_
   * [http://s-projects.ru/upload/download.php?f=Ubuntu-staff-sdk-r374.7z our site] _slow, direct link_
-
 
 == Installation directions ==
 
