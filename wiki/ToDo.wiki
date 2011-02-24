@@ -6,21 +6,21 @@
 
 == Codegen == 
  * === Increase the number of bindings ===
- # Today we have C++, JavaScript, J2ME binding. Codegen generates stub and proxy only for it. We plan to increase support for PHP, Python, Ruby, Java, ObjC, QT etc.
- # need to close some issues (support some WSDL attributes)
+  # Today we have C++, JavaScript, J2ME binding. Codegen generates stub and proxy only for it. We plan to increase support for PHP, Python, Ruby, Java, ObjC, QT etc.
+  # need to close some issues (support some WSDL attributes)
 
  * === Transform webapp component to javascript binding ===
-Webapp have the same goal with WSO2 Gadget Server, Google Gadget Server. Unfortunately we do not have enough resources to compete with them. We plan to save only main parts of Webapp in the Staff and focus on one of ther Gadget Servers.
+  Webapp have the same goal with WSO2 Gadget Server, Google Gadget Server. Unfortunately we do not have enough resources to compete with them. We plan to save only main parts of Webapp in the Staff and focus on one of ther Gadget Servers.
 
  * === Generate Google gadget stubs from WSDL and web service interface ===
 
 
 == Data Access Service == 
  * === User interface for DAS ===
-DAS works on config files. You need a config file to create service. Need a web interface for managing DAS (like DSS in wso2.org).
+  DAS works on config files. You need a config file to create service. Need a web interface for managing DAS (like DSS in wso2.org).
 
  * === Increase the number of providers ===
-Today we have sqlite, MySQL, PostreSQL providers. Need to create providers for XML, CSV, MS SQL Server.
+  Today we have sqlite, MySQL, PostreSQL providers. Need to create providers for XML, CSV, MS SQL Server.
 
 
 == Apache Axis2c / Staff == 
