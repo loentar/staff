@@ -1,0 +1,40 @@
+#TODO
+
+We have the following plans.
+
+== Platforms ==
+# Need binaries for Windows, Mac OS X, others
+# Support Android, iOS
+
+== Codegen == 
+=== Increase the number of bindings ===
+# Today we have C++, JavaScript, J2ME binding. Codegen generates stub and proxy only for it. We plan to increase support for PHP, Python, Ruby, Java, ObjC etc.
+# need to close some issues (support some attribute)
+
+=== Transform webapp component to javascript binding ===
+
+=== Generate Google gadget stubs from WSDL and web service interface ===
+
+
+== Data Access Service == 
+=== User interface for DAS ===
+DAS works on config files. You need a config file to create service. Need a web interface for managing DAS (like DSS in wso2.org).
+
+=== Increase the number of providers ===
+Today we have sqlite, MySQL, PostreSQL providers. Need to create providers for XML, CSV, MS SQL Server.
+
+
+== Apache Axis2c / Staff == 
+# some patches (issues 84, 85)
+# HTTP streaming support
+# Ws-* specs support
+# UDDI service
+# Gateway to "Protocol buffers systems" (codegen generates interface form .proto-files, now we need a gateway to route SOAP-envelops to/from Proto-services)
+
+== QA == 
+# unite tests for Staff
+# integration tests to work with .NET and other frameworks
+# video course for beginers
+
+== J2ME == 
+Increase the stability of j2me applications at low-speed networks (GPRS, etc).
