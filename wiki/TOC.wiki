@@ -52,5 +52,5 @@
       * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD
       * [InstallationManualFreeBSD Install staff from source code]
+  * [http://code.google.com/p/staff/wiki/ToDo?ts=1298556440&updated=ToDo TODO plans]
   * [SupportPage Support page]
-
