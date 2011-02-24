@@ -148,7 +148,7 @@ Node\
 #ifeq($(Member.Return.Name),bool)
 boolean\
 #else
-$(Member.Return.UsedName.!trim/:/.!dot)\
+$(Member.Return.NsName.!trim/:/.!dot)\
 #ifeqend
 #ifeqend
 #ifeqend
@@ -174,7 +174,7 @@ Node\
 #ifeq($(Param.DataType.Name),bool)
 boolean\
 #else
-$(Param.DataType.UsedName.!trim/:/.!dot)\
+$(Param.DataType.NsName.!trim/:/.!dot)\
 #ifeqend
 #ifeqend
 #ifeqend
