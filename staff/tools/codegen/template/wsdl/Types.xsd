@@ -30,5 +30,5 @@ http://tempui.org/$(Include.NsName)\
 " schemaLocation="$(Include.NsName).xsd" />
 #end
 #ifeqend
-#cginclude <common/WsdlTypes.xsd>
+#cginclude <wsdl/WsdlTypes.xsd>
 </schema>

@@ -9,6 +9,10 @@
 message $(Struct.Name)
 {
 #indent +
+#foreach $(Struct.Enums)
+#cginclude <common/ProtoEnum.proto>
+#end
+\
 #foreach $(Struct.Structs)
 #cginclude <common/ProtoStruct.proto>
 #end

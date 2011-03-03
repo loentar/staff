@@ -1,10 +1,10 @@
-include ../../../Makefile.env
+include ../../Makefile.env
 
-TARGET = cpp
-TARGETNAME = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
+TARGET = codegen
+TARGETNAME = $(LIBPREFIX)staff$(TARGET)parser$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -lrise -lstaffcodegenparser
+LDFLAGS += -fexceptions -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
@@ -26,15 +26,17 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
-deploy: "$(DEPLOYDIR)$(LIBDIR)codegen/parsers/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(LIBDIR)codegen/parsers/
+deploy: "$(DEPLOYDIR)$(LIBDIR)" "$(DEPLOYDIR)$(INCDIR)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(LIBDIR)
+	cp -f $(SRCDIR)*.h $(DEPLOYDIR)$(INCDIR)
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
-install: check "$(INSTALLDIR)$(LIBDIR)codegen/parsers/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(LIBDIR)codegen/parsers/
+install: check "$(INSTALLDIR)$(LIBDIR)" "$(INSTALLDIR)$(INCDIR)"
+	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(LIBDIR)
+	cp -f $(SRCDIR)*.h $(INSTALLDIR)$(INCDIR)
 
 # == clean ==========================================
 clean:

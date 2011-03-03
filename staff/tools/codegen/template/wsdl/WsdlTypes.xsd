@@ -1,13 +1,21 @@
+#ifneq($(Interface.Enums.$Count),0)
+
+      <!-- enums -->
+#foreach $(Interface.Enums)
+#cginclude <wsdl/WsdlEnum.xsd>
+#end // #foreach $(Interface.Enums)
+#ifeqend // #ifneq($(Interface.Enums.$Count),0)
 #ifneq($(Interface.Structs.$Count),0)
 
       <!-- structures -->
 #foreach $(Interface.Structs)
-#cginclude <common/WsdlStruct.xsd>
+#cginclude <wsdl/WsdlStruct.xsd>
 #end // #foreach $(Interface.Structs)
 #ifeqend // #ifneq($(Interface.Structs.$Count),0)
 #ifneq($(Interface.Typedefs.$Count),0)
 
       <!-- typedefs -->
+
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0) // do not serialize extern type
 #ifeq($(Typedef.DataType.IsTemplate),1)
@@ -17,8 +25,13 @@
 #ifeqend
         <sequence>
 #ifeq($(Typedef.DataType.NsName),staff::Array||std::list||std::vector)  // -- list ------------------
+#ifneq($(Typedef.Options.*elementName),)
+#var ElementName $(Typedef.Options.*elementName)
+#else
+#var ElementName Item
+#ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-          <element minOccurs="0" maxOccurs="unbounded" name="Item">
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)">
             <complexType>
               <sequence>
                 <any/>
@@ -26,21 +39,15 @@
             </complexType>
           </element>
 #else
-          <element minOccurs="0" maxOccurs="unbounded" name="Item" type="\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
-boolean\
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
-tns_$(Typedef.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
-#else
-$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
-#ifeqend
-#ifeqend
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" type="\
+#context $(Typedef.DataType.TemplateParams.TemplateParam1)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
 " nillable="true" />
 #ifeqend
 #else // bool
 #ifeq($(Typedef.DataType.NsName),std::map||std::multimap) // -- map -------------------------
-          <element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true">
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" nillable="true">
             <complexType>
               <sequence>
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -53,15 +60,9 @@ $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
                 </element>
 #else
                 <element name="Key" type="\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),bool)
-boolean\
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
-tns_$(Typedef.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
-#else
-$(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
-#ifeqend
-#ifeqend
+#context $(Typedef.DataType.TemplateParams.TemplateParam1)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
 " />
 #ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
@@ -74,15 +75,9 @@ $(Typedef.DataType.TemplateParams.TemplateParam1.NativeName)\
                 </element>
 #else
                 <element name="Value" type="\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Name),bool)
-boolean\
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct||typedef)
-tns_$(Typedef.DataType.TemplateParams.TemplateParam2.Namespace.!mangle.!trim/_/):$(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
-#else
-$(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
-#ifeqend
-#ifeqend
+#context $(Typedef.DataType.TemplateParams.TemplateParam2)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
 " />
 #ifeqend
               </sequence>
@@ -104,15 +99,9 @@ $(Typedef.DataType.TemplateParams.TemplateParam2.NativeName)\
         </complexType>
 #else
         <restriction base="\
-#ifeq($(Typedef.DataType.Name),bool)
-boolean\
-#else
-#ifeq($(Typedef.DataType.Type),struct||typedef)
-tns_$(Typedef.DataType.Namespace.!mangle.!trim/_/):$(Typedef.DataType.NativeName)\
-#else
-$(Typedef.DataType.Name)\
-#ifeqend
-#ifeqend
+#context $(Typedef.DataType)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
 "/>
 #ifeqend
       </simpleType>

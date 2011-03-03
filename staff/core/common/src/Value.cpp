@@ -534,7 +534,7 @@ namespace staff
           rise::ToStr(m_uValue.ullValue, m_sValue); 
           break;
         case ET_BOOL:
-          m_sValue = m_uValue.bValue ? "True" : "False"; 
+          m_sValue = m_uValue.bValue ? "true" : "false"; 
           break;
         case ET_NOTINIT:
         case ET_UNKNOWN:
@@ -1362,7 +1362,7 @@ namespace staff
         rise::ToStr(m_uValue.ullValue, m_sValue); 
         break;
       case ET_BOOL:
-        m_sValue = m_uValue.bValue ? "True" : "False"; 
+        m_sValue = m_uValue.bValue ? "true" : "false"; 
         break;
       case ET_NOTINIT:
       case ET_UNKNOWN:

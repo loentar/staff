@@ -15,6 +15,23 @@
 #include "Checker.h"
 #include "Issuer.h"
 
+std::ostream& operator<<(std::ostream& rStream, ::samples::ticket::Ticket::Type eType)
+{
+  switch (eType)
+  {
+    case ::samples::ticket::Ticket::Primary:
+      rStream << "Primary";
+      break;
+    case ::samples::ticket::Ticket::Reissued:
+      rStream << "Reissued";
+      break;
+    default:
+      rStream << "<INVALID>";
+  }
+
+  return rStream;
+}
+
 int main(int nArgs, const char* paszArgs[])
 {
   try
@@ -29,9 +46,13 @@ int main(int nArgs, const char* paszArgs[])
 
 
     ::samples::ticket::Ticket stTicket = pIssuer->Issue("me");
+    std::cout << "issued ticket with id: " << stTicket.nId << " type: " << stTicket.eType << std::endl;
+
+    ::samples::ticket::Ticket stTicket1 = pIssuer->Issue("me");
+    std::cout << "issued ticket with id: " << stTicket1.nId << " type: " << stTicket1.eType << std::endl;
+
     pIssuer->Issue("Owner1");
     pIssuer->Issue("Owner2");
-    std::cout << "issued new ticket with id: " << stTicket.nId << std::endl;
 
     bool tCheckResult = pChecker->Check(stTicket);
     std::cout << "check status: " << (tCheckResult ? "Not used" : "Used") << std::endl;
@@ -46,7 +67,7 @@ int main(int nArgs, const char* paszArgs[])
     for (::samples::sharedtypes::IssuedTicketList::const_iterator itTicket = tGetAllTicketsResult.begin();
         itTicket != tGetAllTicketsResult.end(); ++itTicket)
     {
-      std::cout << "id: " << itTicket->nId << " owner: " << itTicket->sOwner << " used: " << itTicket->bUsed << std::endl;
+      std::cout << "id: " << itTicket->nId << " | type: " << itTicket->eType << " | owner: " << itTicket->sOwner << " | used: " << itTicket->bUsed << std::endl;
     }
   }
   RISE_CATCH_ALL

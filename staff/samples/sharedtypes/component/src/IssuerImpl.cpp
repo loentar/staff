@@ -24,6 +24,17 @@ ticket::Ticket IssuerImpl::Issue(const std::string& sOwner)
 
   tResult.nId = ++m_nLastIssuedId;
   tResult.sOwner = sOwner;
+  tResult.eType = ticket::Ticket::Primary;
+
+  for (TicketMap::const_iterator itTicket = m_mIssuedTickets.begin();
+    itTicket != m_mIssuedTickets.end(); ++itTicket)
+  {
+    if (itTicket->second.sOwner == sOwner)
+    {
+      tResult.eType = ticket::Ticket::Reissued;
+      break;
+    }
+  }
 
   m_mIssuedTickets[tResult.nId] = tResult;
 

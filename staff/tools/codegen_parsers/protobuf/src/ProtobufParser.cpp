@@ -30,11 +30,14 @@
 #include <rise/common/exmacros.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/plugin/PluginExport.h>
+#include <staff/codegen/tools.h>
 #include "ProtobufParser.h"
 
-RISE_DECLARE_PLUGIN(staff::CProtobufParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CProtobufParser);
 
 namespace staff
+{
+namespace codegen
 {
   class CProtobufHeaderParser
   {
@@ -115,6 +118,21 @@ namespace staff
         }
 
         if(chData != ' ' && chData != '\n' && chData != '\r' && chData != '\t')
+        {
+          break;
+        }
+        m_tFile.ignore();
+      }
+    }
+
+    void SkipWsInLine()
+    {
+      char chData = 0;
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        chData = m_tFile.peek();
+
+        if(chData != ' ' && chData != '\t')
         {
           break;
         }
@@ -241,31 +259,6 @@ namespace staff
       return true;
     }
 
-    std::string::size_type StrIntersect(const std::string& sString1, const std::string& sString2)
-    {
-      std::string::size_type nPosA = sString1.size() - 1;
-      std::string::size_type nPosB = sString2.size() - 1;
-      std::string::size_type nPosA1 = nPosA;
-      std::string::size_type nPosB1 = nPosB;
-      const char* szStr1 = sString1.c_str();
-      const char* szStr2 = sString2.c_str();
-
-      for (; nPosB; --nPosB)
-      {
-        if (szStr1[nPosA] == szStr2[nPosB])
-        {
-          nPosA1 = nPosA - 1;
-          nPosB1 = nPosB - 1;
-          for(; nPosA1 && nPosB1 && szStr1[nPosA1] == szStr2[nPosB1]; --nPosA1, --nPosB1);
-          if (!nPosB1)
-          {
-            return nPosB + 1;
-          }
-        }
-      }
-      return std::string::npos;
-    }
-
     template<typename TStructType>
     bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
     {
@@ -305,113 +298,6 @@ namespace staff
       }
 
       return false;
-    }
-
-    // [[some::]namespace::][[Struct::]SubStruct::]SubSubstruct
-    const SStruct* GetStruct(const std::string& sNsName, const SStruct* pstParent = NULL)
-    {
-      const SStruct* pstCurr = pstParent;
-      const SStruct* pstResult = NULL;
-
-      std::string::size_type nNsNameSize = sNsName.size();
-
-      // look substructs
-      do
-      {
-        const std::list<SStruct>& rStructList = !pstCurr ? m_stInterface.lsStruct : pstCurr->lsStruct;
-        for (std::list<SStruct>::const_iterator itStruct = rStructList.begin();
-          itStruct != rStructList.end(); ++itStruct)
-        {
-          std::string sCurrNsName = itStruct->sNamespace;
-          if (!itStruct->sOwnerName.empty())
-          {
-            sCurrNsName += itStruct->sOwnerName + "::";
-          }
-          sCurrNsName += itStruct->sName;
-
-          std::string::size_type nCurrNsNameSize = sCurrNsName.size();
-
-          int nSizeDiff = nCurrNsNameSize - nNsNameSize;
-
-          //  full struct name with namespace
-          if (!nSizeDiff && sCurrNsName == sNsName)
-          {
-            pstResult = &*itStruct;
-            break; // return
-          }
-          else
-          {
-            // empty/partialy namespace
-            if (nSizeDiff >= 2) // size of "::"
-            {
-              if (sCurrNsName.substr(nSizeDiff - 2, 2) == "::" &&
-                  sCurrNsName.substr(nSizeDiff) == sNsName)
-              {
-                pstResult = &*itStruct;
-                break; // return
-              }
-            }
-
-            // includes substruct name
-            // find intersection
-            // some::namespace::Struct X namespace::Struct::SubStruct = namespace::Struct
-            std::string::size_type nPos = StrIntersect(sCurrNsName, sNsName);
-            if (nPos != std::string::npos
-                && (nPos == nCurrNsNameSize ||
-                    (nCurrNsNameSize > (nPos + 2) && sCurrNsName.substr(nCurrNsNameSize - nPos - 2, 2) == "::"))
-                && sNsName.substr(nPos, 2) == "::")
-            {
-              // go through child structs
-              nPos += 2;
-              const SStruct* pstTmp = &*itStruct;
-              std::string::size_type nBegin = nPos;
-              std::string::size_type nEnd = 0;
-              do
-              {
-                nEnd = sNsName.find("::", nBegin);
-                const std::string& sSubName =
-                    nEnd != std::string::npos ?
-                    sNsName.substr(nBegin, nEnd - nBegin) :
-                    sNsName.substr(nBegin);
-                bool bFound = false;
-                for (std::list<SStruct>::const_iterator itSubStruct = pstTmp->lsStruct.begin();
-                  itSubStruct != pstTmp->lsStruct.end(); ++itSubStruct)
-                {
-                  if (itSubStruct->sName == sSubName)
-                  {
-                    pstTmp = &*itSubStruct;
-                    bFound = true;
-                    break;
-                  }
-                }
-                if (!bFound)
-                {
-                  pstTmp = NULL;
-                  break;
-                }
-                nBegin = nEnd + 2;
-              }
-              while (nEnd != std::string::npos);
-
-              if (pstTmp)
-              {
-                pstResult = pstTmp;
-                break;
-              }
-            }
-          }
-        }
-
-        // find in parent owner struct
-        if (!pstResult && pstCurr)
-        {
-          pstCurr = GetStruct(pstCurr->sNamespace + pstCurr->sOwnerName);
-          continue; // even if pstCurr == null we must check interface structs
-        }
-      }
-      while (!pstResult && pstCurr);
-
-      return pstResult;
     }
 
     void GetDataType(const std::string& sDataTypeName, SDataType& rDataType)
@@ -579,19 +465,23 @@ namespace staff
 
       if (rDataType.eType == SDataType::EUnknown)
       {
-        const SStruct* pstStruct = GetStruct(sTypeName, pstParent);
-        if (pstStruct)
+        const SBaseType* pstType = GetBaseType(sTypeName, m_stInterface, SBaseType::EAny, pstParent);
+        if (pstType)
         {
-          rDataType.eType = SDataType::EStruct;
-          rDataType.sNamespace = pstStruct->sNamespace;
-          if (!pstStruct->sOwnerName.empty())
+          rDataType.eType = pstType->eType == SBaseType::EStruct ? SDataType::EStruct : SDataType::EEnum;
+          rDataType.sNamespace = pstType->sNamespace;
+          rDataType.sName = pstType->sName;
+          if ((pstType->eType == SBaseType::EStruct || SBaseType::EEnum) &&
+              !pstType->sOwnerName.empty())
           {
-            rDataType.sName = pstStruct->sOwnerName + "::" + pstStruct->sName;
+            rDataType.sName = pstType->sOwnerName + "::" + rDataType.sName;
           }
-          else
-          {
-            rDataType.sName = pstStruct->sName;
-          }
+
+          rDataType.sUsedName = sTypeName;
+        }
+        else
+        {
+          rise::LogWarning() << "Can't find type declaration: " << sDataType;
         }
       }
     }
@@ -632,7 +522,7 @@ namespace staff
         rMember.lsParamList.push_back(stParam);
 
 //      expand requests
-//        const SStruct* pMessage = GetStruct(sMessage);
+//        const SStruct* pMessage = GetStruct(sMessage, m_stInterface);
 //        CSP_ASSERT(pMessage, "Can't find message declaration: [" + sMessage + "]",
 //                   m_stInterface.sFileName, m_nLine);
 
@@ -744,14 +634,89 @@ namespace staff
       }
     }
 
+    void ParseEnum( SEnum& rEnum )
+    {
+      char chTmp = '\0';
+      std::string sTmp;
+      std::string sDescr;
+
+      CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
+                 m_stInterface.sFileName, m_nLine);
+
+      ReadStr(sTmp);
+      CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
+                 m_stInterface.sFileName, m_nLine);
+
+      if (sTmp == ";")
+      {
+        m_tFile.unget();
+        return;
+      }
+
+      rEnum.bForward = false;
+
+      CSP_ASSERT(sTmp == "{", "'{' or ';' after enum name expected: " + rEnum.sName,
+                 m_stInterface.sFileName, m_nLine);
+
+      while (m_tFile.good() && !m_tFile.eof())
+      {
+        SEnum::SEnumMember stMember;
+
+        SkipWsOnly();
+        while (ReadComment(sTmp))
+        {
+          rise::StrTrim(sTmp);
+          if (sTmp.size() != 0)
+          {
+            sDescr = sTmp.substr(1);
+            rise::StrTrim(sDescr);
+          }
+          SkipWsOnly();
+        }
+
+        ReadBefore(stMember.sName, "=;}");
+        rise::StrTrim(stMember.sName);
+
+        chTmp = m_tFile.peek();
+        if (chTmp == '=')
+        { // read value
+          m_tFile.ignore();
+          ReadBefore(stMember.sValue, ";}");
+          rise::StrTrim(stMember.sValue);
+          chTmp = m_tFile.peek();
+        }
+
+        if (!stMember.sName.empty())
+        {
+          rEnum.lsMember.push_back(stMember);
+        }
+
+        m_tFile.ignore(); // '}' or ';'
+
+        if (chTmp == '}')
+        {
+          break;
+        }
+
+        sDescr.erase();
+      }
+
+      SkipWsInLine();
+      if (m_tFile.peek() == ';')
+      {
+        m_tFile.ignore();
+      }
+
+      SkipSingleLineComment();
+    }
+
     void ParseStruct( SStruct& rStruct )
     {
       char chTmp = '\0';
       std::string sTmp;
+      const std::string& sOwnerName = (!rStruct.sOwnerName.empty() ?
+                                        (rStruct.sOwnerName + "::") : "") + rStruct.sName;
 
-      SkipWs();
-      ReadBefore(rStruct.sName, " \r\n\t:;{}");
-      rStruct.sNamespace = m_sCurrentNamespace;
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after message name): " + rStruct.sName,
                  m_stInterface.sFileName, m_nLine);
 
@@ -793,6 +758,7 @@ namespace staff
         chTmp = m_tFile.peek();
         if (chTmp == '}')
         {
+          m_tFile.ignore();
           break;
         }
 
@@ -814,15 +780,39 @@ namespace staff
           bRepeated = true;
         }
         else
+        if (sToken == "enum")
+        {
+          std::string sName;
+          SkipWs();
+          ReadBefore(sName, " \r\n\t;{}");
+
+          SEnum& rstEnum = TypeInList(rStruct.lsEnum, sName, m_sCurrentNamespace, sOwnerName);
+
+          ParseEnum(rstEnum);
+          if (!rstEnum.bForward)
+          {
+            rstEnum.sDescr = stParamTmp.sDescr;
+            rstEnum.mOptions = stParamTmp.mOptions;
+          }
+
+          continue;
+        }
+        else
         if (sToken == "message")
         {
-          rStruct.lsStruct.push_back(SStruct());
-          SStruct& rstSubStruct = rStruct.lsStruct.back();
-          rstSubStruct.sDescr = stParamTmp.sDescr;
-          rstSubStruct.sOwnerName = (!rStruct.sOwnerName.empty() ?
-                                (rStruct.sOwnerName + "::") : "") + rStruct.sName;
-          ParseStruct(rstSubStruct);
-          m_tFile.ignore();
+          std::string sName;
+          SkipWs();
+          ReadBefore(sName, " \r\n\t;{}");
+
+          SStruct& rstStruct = TypeInList(rStruct.lsStruct, sName, m_sCurrentNamespace, sOwnerName);
+
+          ParseStruct(rstStruct);
+          if (!rstStruct.bForward)
+          {
+            rstStruct.sDescr = stParamTmp.sDescr;
+            rstStruct.mOptions = stParamTmp.mOptions;
+          }
+
           continue;
         }
         else
@@ -910,11 +900,9 @@ namespace staff
         }
 
         SkipWs();
-        chTmp = m_tFile.peek();
+        m_tFile >> chTmp;
         CSP_ASSERT(chTmp == ';', "missing end of message field. message: " + rStruct.sName,
                    m_stInterface.sFileName, m_nLine);
-
-        m_tFile.ignore();
 
         SkipWsOnly();
         if (ReadComment(sTmp))
@@ -933,6 +921,13 @@ namespace staff
         rStruct.lsMember.push_back(stParamTmp);
       }
 
+      SkipWsInLine();
+      if (m_tFile.peek() == ';')
+      {
+        m_tFile.ignore();
+      }
+
+      SkipSingleLineComment();
     }
 
     void ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
@@ -989,7 +984,14 @@ namespace staff
           }
           sDescr += sTmp;
         }
+
+        // don't get file header comment
+        int nLine = m_nLine;
         SkipWsOnly();
+        if (m_nLine > (nLine + 1))
+        {
+          sDescr.erase();
+        }
       }
 
       chData = m_tFile.peek();
@@ -1039,41 +1041,40 @@ namespace staff
         sDescr.erase();
       }
       else
-      if (sTmp == "message")
+      if (sTmp == "enum")
       {
-        std::list<SStruct>::iterator itNewStruct = rInterface.lsStruct.insert(rInterface.lsStruct.end(), SStruct());
-        SStruct& rstStruct = *itNewStruct;
-        rstStruct.sDescr = sDescr;
-        ParseStruct(rstStruct);
-
-        // check for forward declaration
-        for (std::list<SStruct>::iterator itStruct = rInterface.lsStruct.begin();
-            itStruct != rInterface.lsStruct.end();)
-        {
-          if (itStruct != itNewStruct &&
-              itStruct->sName == rstStruct.sName &&
-              itStruct->sNamespace == rstStruct.sNamespace)
-          {
-            CSP_ASSERT(!rstStruct.bForward, "Duplicating struct " + rstStruct.sName, m_stInterface.sFileName, m_nLine);
-            // remove forward declaration
-            itStruct = rInterface.lsStruct.erase(itStruct);
-          }
-          else
-          {
-            ++itStruct;
-          }
-        }
-
+        std::string sName;
         SkipWs();
-        m_tFile >> chData;
-        if (chData == ';')
+        ReadBefore(sName, " \r\n\t;{}");
+
+        SEnum& rstEnum = TypeInList(rInterface.lsEnum, sName, m_sCurrentNamespace);
+
+        ParseEnum(rstEnum);
+        if (!rstEnum.bForward)
         {
-          m_tFile.ignore();
+          rstEnum.sDescr = sDescr;
+          rstEnum.mOptions = mOptions;
         }
 
         sDescr.erase();
+      }
+      else
+      if (sTmp == "message")
+      {
+        std::string sName;
+        SkipWs();
+        ReadBefore(sName, " \r\n\t;{}");
 
-        SkipSingleLineComment();
+        SStruct& rstStruct = TypeInList(rInterface.lsStruct, sName, m_sCurrentNamespace);
+
+        ParseStruct(rstStruct);
+        if (!rstStruct.bForward)
+        {
+          rstStruct.sDescr = sDescr;
+          rstStruct.mOptions = mOptions;
+        }
+
+        sDescr.erase();
       }
       else
       if (sTmp == "import")
@@ -1271,29 +1272,12 @@ namespace staff
           continue;
         }
 
-        const SStruct* pstParent = GetStruct(sNsParent);
+        const SStruct* pstParent = GetStruct(sNsParent, m_stInterface);
         if (pstParent)
         {
           itStruct->sParentName = pstParent->sName;
           itStruct->sParentNamespace = pstParent->sNamespace;
         }
-      }
-    }
-
-    void OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs)
-    {
-      // sOptimizeNs: ::samples::ticket::
-      // sCurrentNs: ::samples::sharedtypes::
-      // result: ticket::
-
-      std::string::size_type nPos = 0;
-      for (; nPos < sOptimizeNs.size() &&
-             nPos < sCurrentNs.size() &&
-             sOptimizeNs[nPos] == sCurrentNs[nPos]; ++nPos);
-
-      if (nPos > 2)
-      {
-        sOptimizeNs.erase(0, nPos);
       }
     }
 
@@ -1357,4 +1341,5 @@ namespace staff
   }
 
   const std::string CProtobufParser::m_sId = "protobuf";
+}
 }

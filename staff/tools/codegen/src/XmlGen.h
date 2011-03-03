@@ -32,6 +32,8 @@ namespace rise
 
 namespace staff
 {
+namespace codegen
+{
   struct SProject;
 
   //!         process project struct into xml
@@ -40,6 +42,7 @@ namespace staff
       \return resulting xml-project node
       */
   rise::xml::CXMLNode& operator<<(rise::xml::CXMLNode& rRootNode, const SProject& rProject);
+}
 }
 
 #endif // _XMLGEN_H_

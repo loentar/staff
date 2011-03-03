@@ -65,6 +65,7 @@ IssuedTicketList CheckerImpl::GetAllTickets() const
   {
     IssuedTicket stTicket;
 
+    stTicket.eType = itTicket->eType;
     stTicket.nId = itTicket->nId;
     stTicket.sOwner = itTicket->sOwner;
 

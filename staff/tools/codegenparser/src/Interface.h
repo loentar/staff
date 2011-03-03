@@ -1,3 +1,24 @@
+/*
+ *  Copyright 2011 Utkin Dmitry
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+/* 
+ *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
+ */
+
 #ifndef _INTERFACE_H_
 #define _INTERFACE_H_
 
@@ -6,6 +27,8 @@
 #include <map>
 
 namespace staff
+{
+namespace codegen
 {
   typedef std::list<std::string> TStringList; //!< string list
   typedef std::map<std::string, std::string> TStringMap; //!< string map
@@ -19,6 +42,7 @@ namespace staff
       EGeneric,     //!<  generic(supported by staff)
       EString,      //!<  string type
       EDataObject,  //!<  DataObject
+      EEnum,        //!<  enum
       EStruct,      //!<  struct
       ETypedef,     //!<  typedef
       ETemplate     //!<  template container (list, map, etc)
@@ -35,10 +59,7 @@ namespace staff
 
     //! default constructor
     /*! non-const, not a ref, Generic datatype */
-    SDataType():
-      bIsConst(false), bIsRef(false), eType(EGeneric)
-    {
-    }
+    SDataType();
   };
 
   //!  parameter
@@ -63,59 +84,76 @@ namespace staff
     bool               bIsAsynch;      //!<  operation is asynchronous(client)
     TStringMap         mOptions;       //!<  member metacomments options
 
-    SMember():
-      bIsConst(false), bIsAsynch(false)
-    {
-    }
+    SMember();
   };
 
-  //! service class
-  struct SClass
+
+  //! base type for data types
+  struct SBaseType
   {
-    std::string         sName;          //!<  class name
+    //!< base type enum
+    enum EType
+    {
+      EUnknown = 0, //!< unknown/unintialized
+      EEnum    = 1, //!< type is enum
+      EStruct  = 2, //!< type is struct
+      ETypedef = 4, //!< type is typedef
+      EAny = EEnum|EStruct|ETypedef //!< any type
+    };
+
+    EType               eType;          //!<  type
+    std::string         sName;          //!<  name
     std::string         sNamespace;     //!<  namespace
+    std::string         sOwnerName;     //!<  owner struct name in format StructName[::SubType]
     std::string         sDescr;         //!<  service description
     std::string         sDetail;        //!<  detailed description
-    TStringMap          mOptions;       //!<  class metacomments options
-    TStringList         lsModules;      //!<  axis2/c modules list to engage
-    std::list<SMember>  lsMember;       //!<  service operations
+    bool                bExtern;        //!<  imported from other interface
+    bool                bForward;       //!<  is forward declaration
+    TStringMap          mOptions;       //!<  metacomments options
+
+    SBaseType();
+  };
+
+  //! enum
+  struct SEnum: public SBaseType
+  {
+    //! enum member
+    struct SEnumMember
+    {
+      std::string sName;   //!<  enum member name
+      std::string sValue;  //!<  enum member value (optional)
+    };
+
+    std::list<SEnumMember>  lsMember;     //!<  members
+
+    SEnum();
   };
 
   //! struct
-  struct SStruct
+  struct SStruct: public SBaseType
   {
-    std::string         sName;            //!<  struct name
-    std::string         sNamespace;       //!<  namespace
     std::string         sParentName;      //!<  parent struct name (with namespace as used)
     std::string         sParentNamespace; //!<  parent struct namespace (actual)
-    std::string         sDescr;           //!<  struct description
-    std::string         sDetail;          //!<  detailed description
     std::list<SParam>   lsMember;         //!<  struct fields
-    bool                bForward;         //!<  is forward declaration
-    bool                bExtern;          //!<  extern declaration
-    std::string         sOwnerName;       //!<  owner struct name in format StructName[::SubStructName]
     std::list<SStruct>  lsStruct;         //!<  sub struct list
+    std::list<SEnum>    lsEnum;           //!<  sub enum list
 
-    SStruct():
-      bForward(true), bExtern(false)
-    {
-    }
+    SStruct();
   };
 
   //! typedef
-  struct STypedef
+  struct STypedef: public SBaseType
   {
-    std::string         sName;          //!<  typedef name
-    std::string         sNamespace;     //!<  namespace
-    std::string         sDescr;         //!<  description
-    std::string         sDetail;        //!<  detailed description
-    SDataType           stDataType;     //!<  base data type
-    bool                bExtern;        //!<  extern declaration
+    SDataType           stDataType;     //!<  defined data type
 
-    STypedef():
-      bExtern(false)
-    {
-    }
+    STypedef();
+  };
+
+  //! service class
+  struct SClass: public SBaseType
+  {
+    TStringList         lsModules;      //!<  axis2/c modules list to engage
+    std::list<SMember>  lsMember;       //!<  service operations
   };
 
   //! include info
@@ -135,6 +173,7 @@ namespace staff
     std::string           sFileName;      //!<  input filename
     std::string           sTargetNs;      //!<  target namespace
     std::list<SInclude>   lsInclude;      //!<  included files
+    std::list<SEnum>      lsEnum;         //!<  enum list
     std::list<STypedef>   lsTypedef;      //!<  typedef list
     std::list<SStruct>    lsStruct;       //!<  struct list
     std::list<SClass>     lsClass;        //!<  service classes list
@@ -147,6 +186,7 @@ namespace staff
     std::string            sNamespace;    //!<  component namespace
     std::list<SInterface>  lsInterfaces;  //!<  interface list
   };
+}
 }
 
 #endif // _INTERFACE_H_

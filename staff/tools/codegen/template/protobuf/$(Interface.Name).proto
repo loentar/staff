@@ -9,6 +9,10 @@ import "$(Include.Name).proto";
 package $(Interface.Namespace.!trim/:/.!dot);
 #ifeqend
 
+#foreach $(Interface.Enums)
+#cginclude <common/ProtoEnum.proto>
+#end
+\
 #foreach $(Interface.Structs)
 #cginclude <common/ProtoStruct.proto>
 #end

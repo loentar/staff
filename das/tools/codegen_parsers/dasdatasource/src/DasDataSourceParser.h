@@ -37,6 +37,8 @@ namespace staff
 {
   class CDataObject;
 
+namespace codegen
+{
   //!  DasParser
   class CDasDataSourceParser: public ICodegenParser
   {
@@ -53,12 +55,12 @@ namespace staff
                     const std::string& sNamespace);
     void ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr);
     bool FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace);
-    void OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs);
 
   private:
     static const std::string m_sId;
     std::string m_sDir;
   };
+}
 }
 
 #endif // _DASPARSER_H_

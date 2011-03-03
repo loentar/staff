@@ -29,6 +29,8 @@ namespace staff
 {
   class CDataObject;
 
+namespace codegen
+{
   //!  DasParser
   class CDasParser: public ICodegenParser
   {
@@ -48,6 +50,7 @@ namespace staff
   private:
     static const std::string m_sId;
   };
+}
 }
 
 #endif // _DASPARSER_H_

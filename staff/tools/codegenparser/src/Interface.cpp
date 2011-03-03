@@ -19,24 +19,42 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _PROTOBUFPARSER_H_
-#define _PROTOBUFPARSER_H_
-
-#include <staff/codegen/CodegenParser.h>
+#include "Interface.h"
 
 namespace staff
 {
 namespace codegen
 {
-  class CProtobufParser: public ICodegenParser
-  {
-  public:
-    virtual const std::string& GetId();
-    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
-  private:
-    static const std::string m_sId;
-  };
-}
-}
 
-#endif // _PROTOBUFPARSER_H_
+  SDataType::SDataType():
+    bIsConst(false), bIsRef(false), eType(EGeneric)
+  {
+  }
+
+  SMember::SMember():
+    bIsConst(false), bIsAsynch(false)
+  {
+  }
+
+  SBaseType::SBaseType():
+    eType(EUnknown), bExtern(false), bForward(true)
+  {
+  }
+
+  SEnum::SEnum()
+  {
+    eType = EEnum;
+  }
+
+  SStruct::SStruct()
+  {
+    eType = EStruct;
+  }
+
+  STypedef::STypedef()
+  {
+    eType = ETypedef;
+  }
+
+}
+}

@@ -1,5 +1,5 @@
 #ifeq($(.Type),generic)
-#ifeq($(.Name),int)
+#ifeq($(.Name),int||short)
 int32\
 #else
 #ifeq($(.Name),long)
@@ -11,9 +11,20 @@ uint32\
 #ifeq($(.Name),unsigned long)
 uint64\
 #else
+#ifeq($(.Name),float||double||bool)
 $(.Name)\
-#ifneq($(.Name),float||double||bool)
-#cgwarning unsupported generic: $(.Name)
+#else
+#ifneq($(.Name.!replace/Int//.!replace/Short//),$(.Name))
+#cgwarning unsupported generic: $(.Name). Using int32
+int32\
+#else
+#ifneq($(.Name.!replace/Long//),$(.Name))
+#cgwarning unsupported generic: $(.Name). Using int64
+int64\
+#else
+#cgwarning unsupported generic: $(.Name). Using as is
+#ifeqend // others
+#ifeqend // others
 #ifeqend // others
 #ifeqend // ulong
 #ifeqend // uint
@@ -27,10 +38,10 @@ string\
 #else
 \
 \
-#ifeq($(.Type),struct)
+#ifeq($(.Type),struct||enum)
 $(.UsedName.!trim/:/.!dot)\
 #else
-#cgerror Type $(.Type) is not supported
+#cgerror $(.Type) is not supported
 #ifeqend // struct
 #ifeqend // string
 #ifeqend // generic
