@@ -12,6 +12,9 @@ $($sNewOpeningNs)
 #ifneq($(Struct.Detail),)
   /*! $(Struct.Detail) */
 #ifeqend
+#foreach $(Struct.Options)
+  // *$($ThisNodeName): $($ThisNodeValue)
+#end
   struct $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
 : public $(Struct.ParentUsedName)
@@ -19,6 +22,11 @@ $($sNewOpeningNs)
 
 #ifeqend
   {
+#foreach $(Struct.Enums)
+#indent +
+#cginclude <common/InterfaceEnum.h>
+#indent -
+#end
 #foreach $(Struct.Structs)
 #indent +
 #cginclude <common/InterfaceStruct.h>

@@ -23,14 +23,17 @@
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/plugin/PluginExport.h>
+#include <staff/codegen/tools.h>
 #include <staff/common/DataObject.h>
 #include "DataAccessService.h"
 #include <staff/client/ServiceFactory.h>
 #include "DasParser.h"
 
-RISE_DECLARE_PLUGIN(staff::CDasParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CDasParser);
 
 namespace staff
+{
+namespace codegen
 {
 
   CDasParser::CDasParser()
@@ -322,23 +325,7 @@ namespace staff
     return false;
   }
 
-  void CDasParser::OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs)
-  {
-    // sOptimizeNs: ::samples::ticket::
-    // sCurrentNs: ::samples::sharedtypes::
-    // result: ticket::
-
-    std::string::size_type nPos = 0;
-    for (; nPos < sOptimizeNs.size() &&
-           nPos < sCurrentNs.size() &&
-           sOptimizeNs[nPos] == sCurrentNs[nPos]; ++nPos);
-
-    if (nPos > 2)
-    {
-      sOptimizeNs.erase(0, nPos);
-    }
-  }
-
 
   const std::string CDasParser::m_sId = "das";
+}
 }

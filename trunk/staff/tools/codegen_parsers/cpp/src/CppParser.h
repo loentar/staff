@@ -22,10 +22,11 @@
 #ifndef _CPPPARSER_H_
 #define _CPPPARSER_H_
 
-#include <staff/codegen/Interface.h>
 #include <staff/codegen/CodegenParser.h>
 
 namespace staff
+{
+namespace codegen
 {
   class CCppParser: public ICodegenParser
   {
@@ -35,6 +36,7 @@ namespace staff
   private:
     static const std::string m_sId;
   };
+}
 }
 
 #endif // _CPPPARSER_H_

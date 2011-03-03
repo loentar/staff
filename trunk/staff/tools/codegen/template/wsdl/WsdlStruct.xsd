@@ -1,4 +1,9 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+#ifneq($(Struct.Enums.$Count),0)
+#foreach $(Struct.Enums)
+#cginclude <wsdl/WsdlEnum.xsd>
+#end // #foreach $(Struct.Enums)
+#ifeqend // #ifneq($(Struct.Enums.$Count),0)
 
       <complexType name="$(Struct.NativeName.!dot)">
 #ifneq($(Struct.Description),)
@@ -9,14 +14,18 @@
           <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
 #ifeq($(Struct.Members.$Count),0)
 /\
+#else
+#indent +2
 #ifeqend
 >
 #ifeqend
 #ifneq($(Struct.Members.$Count),0)
-#indent +
         <sequence>
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),dataobject)
+#ifeq($(Param.Options.*isAttribute),true||1)
+#cgerror cannot serialize DataObject as attribute
+#ifeqend
           <element name="$(Param.Name)">
             <complexType>
 #ifneq($(Param.Description),)
@@ -28,23 +37,11 @@
             </complexType>
           </element>
 #else
+#ifneq($(Param.Options.*isAttribute),true||1)
           <element name="$(Param.Name)" type="\
-#ifeq($(Param.DataType.Name),bool)
-boolean\
-#else
-#ifeq($(Param.DataType.Type),struct||typedef)
-tns_$(Param.DataType.Namespace.!mangle.!trim/_/):$(Param.DataType.NativeName.!dot)\
-#else
-#ifeq($(Param.DataType.Type),template)
-#ifneq($(Param.DataType.TemplateParams.TemplateParam1.Namespace),)
-tns_$(Param.DataType.TemplateParams.TemplateParam1.Namespace.!mangle.!trim/_/):\
-#ifeqend
-$(Param.DataType.TemplateParams.TemplateParam1.Name.!dot)" maxOccurs="unbounded\
-#else
-$(Param.DataType.Name.!dot)\
-#ifeqend
-#ifeqend
-#ifeqend
+#context $(Param.DataType)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
 #ifneq($(Param.Description),)
 "\
 #ifneq($(Param.Options.*defaultValue),)
@@ -56,13 +53,33 @@ $(Param.DataType.Name.!dot)\
 #else
 "/>
 #ifeqend
+#ifeqend // attribute
 #ifeqend
-#end // #foreach $(Struct.Members)
+#end // #foreach $(Struct.Members) -- elements
         </sequence>
-#indent -
+#foreach $(Struct.Members)
+#ifeq($(Param.Options.*isAttribute),true||1)
+        <attribute name="$(Param.Name)" type="\
+#context $(Param.DataType)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
+#ifneq($(Param.Description),)
+"\
+#ifneq($(Param.Options.*defaultValue),)
+ default="$(Param.Options.*defaultValue)"\
+#ifeqend
+>
+            <annotation><documentation>$(Param.Description)</documentation></annotation>
+          </attribute>
+#else
+"/>
+#ifeqend // attribute
+#ifeqend
+#end // #foreach $(Struct.Members) -- attributes
 #ifeqend // $(Struct.Members.$Count),0
 #ifneq($(Struct.ParentName),)
 #ifneq($(Struct.Members.$Count),0)
+#indent -2
           </extension>
 #ifeqend
         </complexContent>
@@ -71,7 +88,7 @@ $(Param.DataType.Name.!dot)\
 #ifneq($(Struct.Structs.$Count),0)
 
 #foreach $(Struct.Structs)
-#cginclude <common/WsdlStruct.xsd>
+#cginclude <wsdl/WsdlStruct.xsd>
 #end // #foreach $(Interface.Structs)
 #ifeqend
 #ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type

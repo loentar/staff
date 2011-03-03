@@ -3,11 +3,9 @@ include ../../Makefile.env
 TARGET = codegen
 TARGETNAME = staff_$(TARGET)
 
-HEADERS = $(shell find src *.h | grep -v Proxy | grep -v Factory)
-
 CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lrise
+LDFLAGS += -lrise -lstaffcodegenparser
 
 VPATH = $(SRCDIR)
 
@@ -30,7 +28,6 @@ deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
 	cp -Rf template $(DEPLOYDIR)$(BINDIR)
 	find $(DEPLOYDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
-	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(DEPLOYDIR)$(INCDIR)
 
 # == distrib =========================================
 distrib:;
@@ -38,9 +35,9 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
+	ls -d ./template/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/gm" | xargs rm -Rf
 	cp -Rf template $(INSTALLDIR)$(BINDIR)
 	find $(INSTALLDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
-	cp -f $(SRCDIR)Interface.h $(SRCDIR)CodegenParser.h $(INSTALLDIR)$(INCDIR)
 
 # == uninstall ======================================
 uninstall: check

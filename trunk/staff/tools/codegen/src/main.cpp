@@ -30,8 +30,8 @@
 #include <rise/tools/FileFind.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
-#include "Interface.h"
-#include "CodegenParser.h"
+#include <staff/codegen/Interface.h>
+#include <staff/codegen/CodegenParser.h>
 #include "CodeGen.h"
 #include "XmlGen.h"
 
@@ -61,14 +61,14 @@ int main(int nArgs, const char* szArgs[])
 
   const char* szStaffHome = getenv("STAFF_HOME");
 
-  staff::SParseSettings stParseSettings;
-  staff::SProject stProject;
+  staff::codegen::SParseSettings stParseSettings;
+  staff::codegen::SProject stProject;
 
   std::string sTemplate;
   std::string sPluginName = "cpp";
   bool bGenXml = false;
   bool bUpdateOnly = false;
-  staff::TStringMap mEnv;
+  staff::codegen::TStringMap mEnv;
   int nResult = 0;
 
   if(szStaffHome == NULL)
@@ -190,12 +190,12 @@ int main(int nArgs, const char* szArgs[])
   {
     // loading plugin
     std::string sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
-    rise::plugin::CPluginManager<staff::ICodegenParser> tPlugins;
+    rise::plugin::CPluginManager<staff::codegen::ICodegenParser> tPlugins;
 
     const std::string& sFileName = sPluginsDir +
     RISE_LIBRARY_PREFIX "staffcgparser-" + sPluginName + RISE_LIBRARY_EXT;
 
-    staff::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
+    staff::codegen::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
 
     if (!pCodegenParser)
     {
@@ -222,11 +222,11 @@ int main(int nArgs, const char* szArgs[])
     if (sTemplate != "")
     {
       rise::LogDebug() << "template: " << sTemplate;
-      staff::CCodeGen tGen;
+      staff::codegen::CCodeGen tGen;
       tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
   }
-  catch (const staff::CParseException& rException)
+  catch (const staff::codegen::CParseException& rException)
   {
     rise::LogError() << rException;
     nResult = 1;

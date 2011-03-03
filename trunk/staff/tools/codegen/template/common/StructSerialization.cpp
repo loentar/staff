@@ -1,4 +1,11 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+#foreach $(Struct.Structs)
+#cginclude <common/StructSerialization.cpp>
+#end
+#foreach $(Struct.Enums)
+#cginclude <common/EnumSerialization.cpp>
+#end
+
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.ParentName),)
@@ -20,7 +27,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #else
 #var SerializeNodeInstruct .CreateChild("$(Param.Name)")
 #ifeqend
-#ifeq($(Param.DataType.Type),struct||typedef)
+#ifeq($(Param.DataType.Type),struct||typedef||enum)
 #ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
 #var doName rdoParam
 #else
@@ -51,7 +58,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tdoKey.SetText(it->first);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoKey << tKey;
 #else
 #cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
@@ -66,7 +73,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tdoValue.SetText(it->second);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoValue << it->second;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -85,7 +92,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tdoItem.SetText(*it);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoItem << *it;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -110,7 +117,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #ifeq($(Param.DataType.Type),string)
   rdoParam$($SerializeNodeInstruct).SetText(rstStruct.$(Param.Name));
 #else
-#cgerror unknown type of Param.Name: $(Struct.NsName)::$(Param.DataType.Name)
+#cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Struct.NsName)::$(Param.DataType.Name)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -145,7 +152,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #else
 #var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
 #ifeqend
-#ifeq($(Param.DataType.Type),struct||typedef)
+#ifeq($(Param.DataType.Type),struct||typedef||enum)
   rdoParam$($DeserializeNodeInstruct) >> rstStruct.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),template)
@@ -165,7 +172,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tKey = tdoKey.GetText();
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoKey >> tKey;
 #else
 #cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
@@ -179,7 +186,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tValue = tdoValue.GetText();
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoValue >> tValue;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -200,7 +207,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
     tItem = it->GetText();
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     (*it) >> tItem;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -225,7 +232,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #ifeq($(Param.DataType.Type),string)
   rstStruct.$(Param.Name) = rdoParam$($DeserializeNodeInstruct).GetText();
 #else
-#cgerror unknown type of Param.Name: $(Param.Name)::$(Param.DataType.Name)
+#cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Param.Name)::$(Param.DataType.Name)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -235,8 +242,4 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 #end
   return rdoParam;
 }
-
-#foreach $(Struct.Structs)
-#cginclude <common/StructSerialization.cpp>
-#end
 #ifeqend

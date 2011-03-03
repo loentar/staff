@@ -1,0 +1,20 @@
+#ifeq($(.Name),bool)
+boolean\
+#else
+#ifeq($(.Type),struct||typedef||enum)
+tns_$(.Namespace.!mangle.!trim/_/):$(.NativeName.!dot)\
+#else
+#ifeq($(.Type),template)
+#context $(.TemplateParams.TemplateParam1)
+#cginclude <wsdl/WsdlDataType.xsd>
+#contextend
+" minOccurs="0" maxOccurs="unbounded\
+#else
+#ifeq($(.Type),generic||string)
+$(.Name)\
+#else
+#cgerror $(.Type) is not supported
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend

@@ -4,7 +4,7 @@ TARGET = protobuf
 TARGETNAME = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -lrise
+LDFLAGS += -fexceptions -lrise -lstaffcodegenparser
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

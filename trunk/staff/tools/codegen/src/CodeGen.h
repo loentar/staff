@@ -23,7 +23,7 @@
 #define _CODEGEN_H_
 
 #include <string>
-#include "Interface.h"
+#include <staff/codegen/Interface.h>
 
 namespace rise 
 {
@@ -34,6 +34,8 @@ namespace rise
 }
 
 namespace staff
+{
+namespace codegen
 {
   //!  Code generator
   class CCodeGen
@@ -47,6 +49,7 @@ namespace staff
         */
     void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv);
   };
+}
 }
 
 #endif // _CODEGEN_H_

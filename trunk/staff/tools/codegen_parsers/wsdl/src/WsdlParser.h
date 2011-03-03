@@ -22,10 +22,11 @@
 #ifndef _WSDLPARSER_H_
 #define _WSDLPARSER_H_
 
-#include <staff/codegen/Interface.h>
 #include <staff/codegen/CodegenParser.h>
 
 namespace staff
+{
+namespace codegen
 {
   //!  WsdlParser
   class CWsdlParser: public ICodegenParser
@@ -40,6 +41,7 @@ namespace staff
   private:
     static const std::string m_sId;
   };
+}
 }
 
 #endif // _WSDLPARSER_H_

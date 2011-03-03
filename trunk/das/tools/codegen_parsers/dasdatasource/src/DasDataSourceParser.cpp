@@ -24,11 +24,14 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/plugin/PluginExport.h>
 #include <rise/xml/XMLDocument.h>
+#include <staff/codegen/tools.h>
 #include "DasDataSourceParser.h"
 
-RISE_DECLARE_PLUGIN(staff::CDasDataSourceParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CDasDataSourceParser);
 
 namespace staff
+{
+namespace codegen
 {
 
   CDasDataSourceParser::CDasDataSourceParser()
@@ -400,22 +403,6 @@ namespace staff
     return false;
   }
 
-  void CDasDataSourceParser::OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs)
-  {
-    // sOptimizeNs: ::samples::ticket::
-    // sCurrentNs: ::samples::sharedtypes::
-    // result: ticket::
-
-    std::string::size_type nPos = 0;
-    for (; nPos < sOptimizeNs.size() &&
-           nPos < sCurrentNs.size() &&
-           sOptimizeNs[nPos] == sCurrentNs[nPos]; ++nPos);
-
-    if (nPos > 2)
-    {
-      sOptimizeNs.erase(0, nPos);
-    }
-  }
-
   const std::string CDasDataSourceParser::m_sId = "dasdatasource";
+}
 }

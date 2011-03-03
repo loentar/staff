@@ -24,10 +24,12 @@
 #include <rise/xml/XMLNode.h>
 #include <rise/string/String.h>
 #include <rise/common/Log.h>
-#include "Interface.h"
+#include <staff/codegen/Interface.h>
 #include "XmlGen.h"
 
 namespace staff
+{
+namespace codegen
 {
   using rise::xml::CXMLNode;
 
@@ -45,6 +47,10 @@ namespace staff
 
     case SDataType::EDataObject:
       rStream << "dataobject";
+      break;
+
+    case SDataType::EEnum:
+      rStream << "enum";
       break;
 
     case SDataType::EStruct:
@@ -251,6 +257,20 @@ namespace staff
     return rNodeMembers;
   }
 
+
+  CXMLNode& operator<<(CXMLNode& rNodeEnumMembers, const SEnum::SEnumMember& rEnumMember)
+  {
+    rNodeEnumMembers.AddSubNode(" Enum members ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeMember = rNodeEnumMembers.AddSubNode("Member");
+
+    rNodeMember.AddSubNode(" Operation name ", CXMLNode::ENTCOMMENT);
+    rNodeMember["Name"] = rEnumMember.sName;
+    rNodeMember.AddSubNode(" Value ", CXMLNode::ENTCOMMENT);
+    rNodeMember["Value"] = rEnumMember.sValue;
+
+    return rNodeEnumMembers;
+  }
+
   void WriteCppNamespace(CXMLNode& rNode, const std::string& sNamespace)
   {
     std::string sRealNamespace =
@@ -330,6 +350,53 @@ namespace staff
     return rNodeClasses;
   }
 
+  CXMLNode& operator<<(CXMLNode& rNodeEnums, const SEnum& rEnum)
+  {
+    if (rEnum.bForward && !rEnum.bExtern)
+    {
+      throw "Enum \"" + rEnum.sName + "\" is not fully declared";
+    }
+
+    CXMLNode& rNodeEnum = rNodeEnums.AddSubNode("Enum");
+
+    rNodeEnum.AddSubNode(" Enum name ", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Name"] = rEnum.sName;
+    rNodeEnum.AddSubNode(" Enum name with namespace", CXMLNode::ENTCOMMENT);
+    rNodeEnum["NsName"] = rEnum.sNamespace + (rEnum.sOwnerName.empty() ? "" : (rEnum.sOwnerName + "::"))
+                          + rEnum.sName;
+    rNodeEnum.AddSubNode(" Enum namespace", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Namespace"] = rEnum.sNamespace;
+    rNodeEnum.AddSubNode(" Native enum name ", CXMLNode::ENTCOMMENT);
+    rNodeEnum["NativeName"] = ((rEnum.sName[0] == 'E') &&
+      (toupper(rEnum.sName[1]) == rEnum.sName[1]) ? rEnum.sName.substr(1) : rEnum.sName);
+    rNodeEnum.AddSubNode(" Enum owner name", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Owner"] = rEnum.sOwnerName;
+
+    rNodeEnum.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Description"] = rEnum.sDescr;
+    rNodeEnum.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Detail"] = rEnum.sDetail;
+
+    rNodeEnum.AddSubNode(" Is defined in other interface ", CXMLNode::ENTCOMMENT);
+    rNodeEnum["Extern"] = rEnum.bExtern;
+
+    rNodeEnum.AddSubNode(" Enum fields ", CXMLNode::ENTCOMMENT);
+    rNodeEnum.AddSubNode("Members") << rEnum.lsMember;
+
+    WriteCppNamespace(rNodeEnum, rEnum.sNamespace);
+
+    rNodeEnum.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeEnum.AddSubNode("Options");
+
+    for (TStringMap::const_iterator itOption = rEnum.mOptions.begin();
+        itOption != rEnum.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
+
+    return rNodeEnums;
+  }
+
   CXMLNode& operator<<(CXMLNode& rNodeStructs, const SStruct& rStruct)
   {
     if (rStruct.bForward && !rStruct.bExtern)
@@ -380,6 +447,18 @@ namespace staff
 
     WriteCppNamespace(rNodeStruct, rStruct.sNamespace);
 
+    rNodeStruct.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeStruct.AddSubNode("Options");
+
+    for (TStringMap::const_iterator itOption = rStruct.mOptions.begin();
+        itOption != rStruct.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
+
+    rNodeStruct.AddSubNode(" Sub enums ", CXMLNode::ENTCOMMENT);
+    rNodeStruct.AddSubNode("Enums") << rStruct.lsEnum;
+
     rNodeStruct.AddSubNode(" Sub structs ", CXMLNode::ENTCOMMENT);
     rNodeStruct.AddSubNode("Structs") << rStruct.lsStruct;
 
@@ -412,6 +491,15 @@ namespace staff
     rNodeTypedef["Extern"] = rTypedef.bExtern;
 
     WriteCppNamespace(rNodeTypedef, rTypedef.sNamespace);
+
+    rNodeTypedef.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeTypedef.AddSubNode("Options");
+
+    for (TStringMap::const_iterator itOption = rTypedef.mOptions.begin();
+        itOption != rTypedef.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
 
     return rNodeTypedefs;
   }
@@ -451,6 +539,9 @@ namespace staff
     rNodeInterface.AddSubNode(" Interface services ", CXMLNode::ENTCOMMENT);
     rNodeInterface.AddSubNode("Classes") << rInterface.lsClass;
 
+    rNodeInterface.AddSubNode(" Interface enums ", CXMLNode::ENTCOMMENT);
+    rNodeInterface.AddSubNode("Enums") << rInterface.lsEnum;
+
     rNodeInterface.AddSubNode(" Interface structs ", CXMLNode::ENTCOMMENT);
     rNodeInterface.AddSubNode("Structs") << rInterface.lsStruct;
 
@@ -470,6 +561,8 @@ namespace staff
       CXMLNode& rNodeInclude = rNodeIncludes.AddSubNode("Include");
       rNodeInclude.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
       rNodeInclude["Name"] = itInclude->sInterfaceName;
+      rNodeInclude.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
+      rNodeInclude["Namespace"] = itInclude->sNamespace;
       rNodeInclude.AddSubNode(" Interface ns name ", CXMLNode::ENTCOMMENT);
       rNodeInclude["NsName"] = sNamespace + itInclude->sInterfaceName;
       rNodeInclude.AddSubNode(" File name ", CXMLNode::ENTCOMMENT);
@@ -506,4 +599,5 @@ namespace staff
 
     return rRootNode;
   }
+}
 }

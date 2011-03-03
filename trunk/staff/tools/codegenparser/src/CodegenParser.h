@@ -1,3 +1,24 @@
+/*
+ *  Copyright 2009 Utkin Dmitry
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+/* 
+ *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
+ */
+
 #ifndef _CODEGENPARSER_H_
 #define _CODEGENPARSER_H_
 
@@ -7,6 +28,8 @@
 
 namespace staff
 {
+namespace codegen
+{
   //! source code parse settings
   struct SParseSettings
   {
@@ -14,19 +37,16 @@ namespace staff
     std::string    sOutDir;         //!<  output dir
     TStringList    lsFiles;         //!<  input files
     TStringMap     mEnv;            //!<  environment - arguments passed through -d option
-    bool           bNoServiceError; //!<  error if no service found
+    bool           bNoServiceError; //!<  throw error if no service found
 
-    SParseSettings():
-      bNoServiceError(true)
-    {
-    }
+    SParseSettings();
   };
 
   //! codegen source code parser plugin
   class ICodegenParser
   {
   public:
-    virtual ~ICodegenParser() {}
+    virtual ~ICodegenParser();
 
     //! get parser's id
     /*! \return parser's id
@@ -45,22 +65,11 @@ namespace staff
   {
   public:
     CParseException(const std::string& sFile, int nLine, const std::string& sMessage,
-                    const std::string& sSourceFile, int nSourceLine):
-      m_sFile(sFile), m_nLine(nLine), m_sMessage(sMessage),
-      m_sSourceFile(sSourceFile), m_nSourceLine(nSourceLine)
-    {
-    }
+                    const std::string& sSourceFile, int nSourceLine);
 
-    std::ostream& operator<<(std::ostream& rStream) const
-    {
-      return rStream << m_sFile << "[" << m_nLine << "]: " << m_sMessage
-              << "\n While parsing " << m_sSourceFile << "[" << m_nSourceLine << "]\n";
-    }
+    std::ostream& operator<<(std::ostream& rStream) const;
 
-    std::string& Message()
-    {
-      return m_sMessage;
-    }
+    std::string& Message();
 
   private:
     std::string m_sFile;
@@ -70,17 +79,15 @@ namespace staff
     int m_nSourceLine;
   };
 
-  std::ostream& operator<<(std::ostream& rStream, const CParseException& rParseException)
-  {
-    return rParseException.operator<<(rStream);
-  }
+  std::ostream& operator<<(std::ostream& rStream, const CParseException& rParseException);
 
 #define CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)\
-  throw ::staff::CParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_FILE, CSP_LINE)
+  throw ::staff::codegen::CParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_FILE, CSP_LINE)
 
 #define CSP_ASSERT(CSP_EXPRESSION, CSP_MESSAGE, CSP_FILE, CSP_LINE)\
   if (!(CSP_EXPRESSION)) CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)
 
+}
 }
 
 #endif // _CODEGENPARSER_H_

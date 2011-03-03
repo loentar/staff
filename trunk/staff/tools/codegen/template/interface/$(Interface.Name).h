@@ -125,6 +125,9 @@ $($sEndingNs)
 $($sNewOpeningNs)
 #ifeqend   // namespace changed
 \
+#foreach $(Typedef.Options)
+  // *$($ThisNodeName): $($ThisNodeValue)
+#end
   typedef $(Typedef.DataType.UsedTypedef) $(Typedef.Name);\
 #ifneq($(Typedef.Description),)
   //!< $(Typedef.Description)\
@@ -138,6 +141,10 @@ $($sNewOpeningNs)
 #end        // foreach Interface.Typedefs
 
 #ifeqend
+\
+#foreach $(Interface.Enums)
+#cginclude <common/InterfaceEnum.h>
+#end
 \
 #ifneq($(Interface.Structs.$Count),0)
 \

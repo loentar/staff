@@ -44,6 +44,8 @@
 
 namespace staff
 {
+namespace codegen
+{
   using rise::xml::CXMLNode;
 
   class CTemplateParser
@@ -186,6 +188,43 @@ namespace staff
       return pNode->Subnode(sVariable);
     }
 
+    std::string::size_type ParseParam(std::string& sParamBegin) const
+    {
+      std::string::size_type nPos = sParamBegin.find_first_of("/\\");
+      // slash demasking
+      for (;;)
+      {
+        if (nPos == std::string::npos)
+        {
+          throw std::string("Can't get param");
+        }
+
+        char chFound = sParamBegin[nPos];
+        if (chFound == '\\')
+        {
+          // demask
+          if (nPos < sParamBegin.size())
+          {
+            switch (sParamBegin[nPos + 1])
+            {
+            case '/': sParamBegin.replace(nPos, 2, 1, '/'); break;
+            case 'r': sParamBegin.replace(nPos, 2, 1, '\r'); break;
+            case 'n': sParamBegin.replace(nPos, 2, 1, '\n'); break;
+            case 't': sParamBegin.replace(nPos, 2, 1, '\t'); break;
+            case '\\': sParamBegin.erase(nPos, 1); break;
+            }
+          }
+        }
+        else
+        { // '/'
+          break;
+        }
+
+        nPos = sParamBegin.find_first_of("/\\", nPos + 1);
+      }
+      return nPos;
+    }
+
     const CXMLNode& ExecuteFunction(std::string& sFunction, const CXMLNode& rNode) const
     {
       static rise::xml::CXMLNode tResult("Result");
@@ -213,117 +252,75 @@ namespace staff
         sFunction.erase(0, 3);
       }
       else
+      if (sFunction.substr(0, 6) == "match/")
+      {
+        sFunction.erase(0, 6);
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        sResult = (rNode.NodeContent().AsString().find(sWhat) != std::string::npos) ? "true" : "false";
+      }
+      else
       if (sFunction.substr(0, 8) == "replace/")
       {
-        std::string::size_type nPosWhatEnd = sFunction.find('/', 8);
-
+        sFunction.erase(0, 8);
         sResult = rNode.NodeContent().AsString();
 
         // what replace
-        // slash masking
-        for (;;)
-        {
-          if (nPosWhatEnd == std::string::npos)
-          {
-            throw std::string("Can't get what to replace");
-          }
-          if (sFunction[nPosWhatEnd - 1] != '\\')
-          {
-            break;
-          }
-          nPosWhatEnd = sFunction.find('/', nPosWhatEnd + 1);
-        }
-
-        std::string sWhat = sFunction.substr(8, nPosWhatEnd - 8);
-        rise::StrReplace(sWhat, "\\/", "/", true); // demasking
-        rise::StrReplace(sWhat, "\\n", "\n", true);
-        rise::StrReplace(sWhat, "\\r", "\r", true);
-        rise::StrReplace(sWhat, "\\t", "\t", true);
-        rise::StrReplace(sWhat, "\\\\", "\\", true);
-
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
         ReplaceToValue(sWhat, rNode);
 
         // replace with
-        std::string::size_type nPosWith = sFunction.find('/', nPosWhatEnd + 1);
-        // slash masking
-        for (;;)
-        {
-          if (nPosWith == std::string::npos)
-          {
-            throw std::string("Can't get replace with");
-          }
-          if (sFunction[nPosWith - 1] != '\\')
-          {
-            break;
-          }
-          nPosWith = sFunction.find('/', nPosWith + 1);
-        }
-
-        std::string sWith = sFunction.substr(nPosWhatEnd + 1, nPosWith - nPosWhatEnd - 1);
-        rise::StrReplace(sWith, "\\/", "/", true); // demasking
-        rise::StrReplace(sWith, "\\n", "\n", true);
-        rise::StrReplace(sWith, "\\r", "\r", true);
-        rise::StrReplace(sWith, "\\t", "\t", true);
-        rise::StrReplace(sWith, "\\\\", "\\", true);
-
+        nPosEnd = ParseParam(sFunction);
+        std::string sWith = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
         ReplaceToValue(sWith, rNode);
 
         rise::StrReplace(sResult, sWhat, sWith, true);
-        sFunction.erase(0, nPosWith + 1);
       }
       else
       if (sFunction.substr(0, 5) == "trim/")
       {
-        std::string::size_type nPosWhat = sFunction.find('/', 5);
-
+        sFunction.erase(0, 5);
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(5, nPosWhat - 5);
-          rise::StrTrim(sResult, sWhat.c_str());
-          sFunction.erase(0, nPosWhat + 1);
-        }
-        else
-        {
-          throw std::string("Can't get trim with");
-        }
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        rise::StrTrim(sResult, sWhat.c_str());
       }
       else
       if (sFunction.substr(0, 9) == "trimleft/")
       {
-        std::string::size_type nPosWhat = sFunction.find('/', 9);
-
+        sFunction.erase(0, 9);
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(9, nPosWhat - 9);
-          rise::StrTrimLeft(sResult, sWhat.c_str());
-          sFunction.erase(0, nPosWhat + 1);
-        }
-        else
-        {
-          throw std::string("Can't get trimleft with");
-        }
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        rise::StrTrimLeft(sResult, sWhat.c_str());
       }
       else
       if (sFunction.substr(0, 10) == "trimright/")
       {
-        std::string::size_type nPosWhat = sFunction.find('/', 10);
-
+        sFunction.erase(0, 10);
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(10, nPosWhat - 10);
-          rise::StrTrimRight(sResult, sWhat.c_str());
-          sFunction.erase(0, nPosWhat + 1);
-        }
-        else
-        {
-          throw std::string("Can't get trimright with");
-        }
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        rise::StrTrimRight(sResult, sWhat.c_str());
       }
       else
       if (sFunction.substr(0, 4) == "trim")
@@ -345,6 +342,28 @@ namespace staff
         sResult = rNode.NodeContent().AsString();
         rise::StrTrimRight(sResult);
         sFunction.erase(0, 9);
+      }
+      else
+      if (sFunction.substr(0, 7) == "append/")
+      {
+        sFunction.erase(0, 7);
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        sResult = rNode.NodeContent().AsString() + sWhat;
+      }
+      else
+      if (sFunction.substr(0, 8) == "prepend/")
+      {
+        sFunction.erase(0, 8);
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        sResult = sWhat + rNode.NodeContent().AsString();
       }
       else
       if (sFunction.substr(0, 3) == "inc")
@@ -459,6 +478,45 @@ namespace staff
       return nPosEnd;
     }
 
+
+    void ProcessValue(const std::string& sName, std::string& sValue, const CXMLNode& rNode) const
+    {
+      if (sName[0] == '$')
+      {
+        if (sName == "$ThisNodeName")
+        {
+          sValue = rNode.NodeName();
+        }
+        else
+        if (sName == "$ThisNodeValue")
+        {
+          sValue = rNode.NodeContent().AsString();
+        }
+        else
+        {
+          std::string::size_type nPos = sName.find('.');
+          if (nPos != std::string::npos) // variable + functions
+          {
+            const std::string& sVarName = sName.substr(1, nPos - 1);
+            sValue = m_tVariables[sVarName];
+            // process functions and other
+            rise::xml::CXMLNode tVarNode(sVarName);
+            tVarNode.NodeContent() = sValue;
+            sValue = GetValue(sName.substr(1), tVarNode);
+            m_tVariables[sVarName] = sValue; // write updated value
+          }
+          else // variable only
+          {
+            sValue = m_tVariables[sName.substr(1)];
+          }
+        }
+      }
+      else // node value
+      {
+        sValue = GetValue(sName, rNode);
+      }
+    }
+
     void ReplaceToValue(std::string& sString, const CXMLNode& rNode) const
     {
       std::string::size_type nPosStart = 0;
@@ -469,41 +527,32 @@ namespace staff
         nPosEnd = ReplaceToValueFindBracketMatch(sString, nPosStart + 2, rNode);
 
         RISE_ASSERTS(nPosEnd != std::string::npos, "end of variable name expected: [" + sString + "]");
-        const std::string& sName = sString.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
+        const std::string& sExpression = sString.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
         std::string sValue;
-        if (sName[0] == '$')
-        {
-          if (sName == "$ThisNodeName")
+
+        { // parse "node.name||$var.!func||some.other"
+          std::string::size_type nNamePosBegin = 0;
+          std::string::size_type nNamePosEnd = 0;
+
+          // use first nonempty value
+          for(;;)
           {
-            sValue = rNode.NodeName();
-          }
-          else
-          if (sName == "$ThisNodeValue")
-          {
-            sValue = rNode.NodeContent().AsString();
-          }
-          else
-          {
-            std::string::size_type nPos = sName.find('.');
-            if (nPos != std::string::npos)
+            nNamePosEnd = sExpression.find("||", nNamePosBegin);
+
+            const std::string& sName = sExpression.substr(nNamePosBegin,
+                           (nNamePosEnd != std::string::npos) ? nNamePosEnd - nNamePosBegin : nNamePosEnd);
+
+            ProcessValue(sName, sValue, rNode);
+
+            if (!sValue.empty() || nNamePosEnd == std::string::npos)
             {
-              const std::string& sVarName = sName.substr(1, nPos - 1);
-              sValue = m_tVariables[sVarName];
-              // process functions and other
-              rise::xml::CXMLNode tVarNode(sVarName);
-              tVarNode.NodeContent() = sValue;
-              sValue = GetNode(sName.substr(1), tVarNode).NodeContent().AsString();
+              break;
             }
-            else
-            {
-              sValue = m_tVariables[sName.substr(1)];
-            }
+
+            nNamePosBegin = nNamePosEnd + 2;
           }
         }
-        else
-        {
-          sValue = GetValue(sName, rNode);
-        }
+
         sString.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
         nPosEnd = nPosStart + sValue.size();
       }
@@ -1209,4 +1258,5 @@ namespace staff
     tTemplateParser.SetEnv(rmEnv);
     tTemplateParser.Start(sOutDir, rRootNode, bUpdateOnly);
   }
+}
 }

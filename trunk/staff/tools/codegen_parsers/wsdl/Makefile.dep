@@ -1,2 +1,2 @@
 
-tools/codegen_parsers/wsdl.dep: tools/codegen.dep
+tools/codegen_parsers/wsdl.dep: tools/codegenparser.dep
