@@ -18,7 +18,7 @@ namespace ticket
       Reissued
     };
 
-    // *defaultValue: Primary
+    // *defaultValue: Unknown
     Type eType;                //!< ticket type
     // *defaultValue: 0
     int nId;                   //!< ticket id

@@ -1118,8 +1118,6 @@ namespace codegen
             rstEnum.mOptions = stParamTmp.mOptions;
           }
 
-          stParamTmp.sDescr.erase();
-
           continue;
         }
 
@@ -1137,8 +1135,6 @@ namespace codegen
             rstStruct.sDescr = stParamTmp.sDescr;
             rstStruct.mOptions = stParamTmp.mOptions;
           }
-
-          stParamTmp.sDescr.erase();
 
           continue;
         }
@@ -1202,8 +1198,6 @@ namespace codegen
         {
           IgnoreFunction();
         }
-
-        stParamTmp.sDescr.erase();
       }
 
       SkipWsInLine();

@@ -1,8 +1,4 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
-#ifneq($(Struct.Enums.$Count),0)
-#foreach $(Struct.Enums)
-#cginclude <wsdl/WsdlEnum.xsd>
-#end // #foreach $(Struct.Enums)
 #ifeqend // #ifneq($(Struct.Enums.$Count),0)
 
       <complexType name="$(Struct.NativeName.!dot)">
@@ -85,8 +81,11 @@
         </complexContent>
 #ifeqend
       </complexType>
+#ifneq($(Struct.Enums.$Count),0)
+#foreach $(Struct.Enums)
+#cginclude <wsdl/WsdlEnum.xsd>
+#end // #foreach $(Struct.Enums)
 #ifneq($(Struct.Structs.$Count),0)
-
 #foreach $(Struct.Structs)
 #cginclude <wsdl/WsdlStruct.xsd>
 #end // #foreach $(Interface.Structs)
