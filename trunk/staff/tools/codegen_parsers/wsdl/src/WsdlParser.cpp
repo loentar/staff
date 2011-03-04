@@ -1493,43 +1493,52 @@ namespace codegen
       // write enum
       if (!rSimpleType.lsEnumValues.empty() && rSimpleType.stBaseType.sName == "string")
       {
-        std::list<SEnum>::const_iterator itEnum = m_stInterface.lsEnum.begin();
-        for (; itEnum != m_stInterface.lsEnum.end(); ++itEnum)
-        {
-          if (itEnum->sName == rSimpleType.sName)
-          {
-            break;
-          }
-        }
+        SEnum stEnum;
 
-        if (itEnum != m_stInterface.lsEnum.end())
-        {
-          stDataType.eType = SDataType::EEnum;
-          stDataType.sName = itEnum->sName;
-          stDataType.sNamespace = itEnum->sNamespace;
-        }
-        else
-        {
-          m_stInterface.lsEnum.push_back(SEnum());
-          SEnum& rstEnum = m_stInterface.lsEnum.back();
+        stEnum.sName = rSimpleType.sName;
+        stEnum.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
+        rise::StrReplace(stEnum.sName, ".", "::", true);
 
-          rstEnum.bForward = false;
-          rstEnum.sName = rSimpleType.sName;
-          rstEnum.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
-          rstEnum.sDescr = rSimpleType.sDescr;
-          rstEnum.sDetail = rSimpleType.sDetail;
-          rstEnum.mOptions["baseType"] = rSimpleType.stBaseType.sName;
+        stDataType.eType = SDataType::EEnum;
+        stDataType.sName = stEnum.sName;
+        stDataType.sNamespace = stEnum.sNamespace;
+
+        const SBaseType* pEnum = GetBaseType(stEnum.sNamespace + stEnum.sName, m_stInterface, SBaseType::EEnum);
+        if (!pEnum)
+        {
+          stEnum.bForward = false;
+          stEnum.sDescr = rSimpleType.sDescr;
+          stEnum.sDetail = rSimpleType.sDetail;
+          stEnum.mOptions["baseType"] = rSimpleType.stBaseType.sName;
 
           for (TStringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
             itValue != rSimpleType.lsEnumValues.end(); ++itValue)
           {
-            rstEnum.lsMember.push_back(SEnum::SEnumMember());
-            rstEnum.lsMember.back().sName = *itValue;
+            stEnum.lsMember.push_back(SEnum::SEnumMember());
+            stEnum.lsMember.back().sName = *itValue;
           }
 
-          stDataType.eType = SDataType::EEnum;
-          stDataType.sName = rstEnum.sName;
-          stDataType.sNamespace = rstEnum.sNamespace;
+          std::string::size_type nPos = stEnum.sName.rfind("::");
+          if (nPos != std::string::npos)
+          {
+            const std::string& sOwnerName = stEnum.sName.substr(0, nPos);
+            // has a owner
+            SStruct* pstOwner = const_cast<SStruct*>(GetStruct(sOwnerName, m_stInterface));
+            if (pstOwner)
+            {
+              stEnum.sName.erase(0, nPos + 2);
+              stEnum.sOwnerName = sOwnerName;
+              pstOwner->lsEnum.push_back(stEnum);
+            }
+            else
+            {
+              rise::LogError() << "Can't find owner struct: " << stEnum.sName.substr(0, nPos);
+            }
+          }
+          else
+          {
+            m_stInterface.lsEnum.push_back(stEnum);
+          }
         }
       }
       // write typedef
@@ -1728,22 +1737,22 @@ namespace codegen
 
           stDataType.eType = SDataType::EStruct;
 
-          std::string::size_type nPos = stStruct.sName.find_last_of("::");
+          std::string::size_type nPos = stStruct.sName.rfind("::");
           if (nPos != std::string::npos)
           {
-            const std::string& sOwnerName = stStruct.sName.substr(0, nPos - 1);
+            const std::string& sOwnerName = stStruct.sName.substr(0, nPos);
             // has a owner
             SStruct* pstOwner = const_cast<SStruct*>(GetStruct(sOwnerName, m_stInterface));
             if (pstOwner)
             {
-              stStruct.sName.erase(0, nPos + 1);
+              stStruct.sName.erase(0, nPos + 2);
               stStruct.sOwnerName = sOwnerName;
               pstOwner->lsStruct.push_back(stStruct);
               pstStruct = &pstOwner->lsStruct.back();
             }
             else
             {
-              rise::LogError() << "Can't find owner struct: " << stStruct.sName.substr(0, nPos - 1);
+              rise::LogError() << "Can't find owner struct: " << stStruct.sName.substr(0, nPos);
             }
           }
           else
@@ -1806,7 +1815,8 @@ namespace codegen
               SDataType& rDataType = stMember.stDataType.lsParams.front();
 
               if (rDataType.eType == SDataType::EStruct ||
-                  rDataType.eType == SDataType::ETypedef)
+                  rDataType.eType == SDataType::ETypedef ||
+                  rDataType.eType == SDataType::EEnum)
               {
                 rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
                 OptimizeCppNs(rDataType.sUsedName, sOwnerName);
@@ -1814,7 +1824,8 @@ namespace codegen
             }
             else
             if (stMember.stDataType.eType == SDataType::EStruct ||
-                stMember.stDataType.eType == SDataType::ETypedef)
+                stMember.stDataType.eType == SDataType::ETypedef ||
+                stMember.stDataType.eType == SDataType::EEnum)
             {
               // do not optimize namespace if member name equals data type name
               bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
