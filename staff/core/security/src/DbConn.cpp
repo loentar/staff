@@ -92,6 +92,69 @@ namespace staff
       --m_nCounter;
     }
 
+    void CDbConn::BeginTransaction()
+    {
+      sqlite3_stmt* pVm = NULL;
+
+      int nResult = sqlite3_prepare_v2(m_pDb, "BEGIN TRANSACTION", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+
+      try
+      {
+        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to begin transaction: "
+                     + std::string(sqlite3_errmsg(m_pDb)));
+      }
+      catch(...)
+      {
+        sqlite3_finalize(pVm);
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+    }
+
+    void CDbConn::EndTransaction()
+    {
+      sqlite3_stmt* pVm = NULL;
+
+      int nResult = sqlite3_prepare_v2(m_pDb, "END TRANSACTION", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+
+      try
+      {
+        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to commit transaction: "
+                     + std::string(sqlite3_errmsg(m_pDb)));
+      }
+      catch(...)
+      {
+        sqlite3_finalize(pVm);
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+    }
+
+    void CDbConn::RollbackTransaction()
+    {
+      sqlite3_stmt* pVm = NULL;
+
+      int nResult = sqlite3_prepare_v2(m_pDb, "ROLLBACK TRANSACTION", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+
+      try
+      {
+        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to rollback transaction: "
+                     + std::string(sqlite3_errmsg(m_pDb)));
+      }
+      catch(...)
+      {
+        sqlite3_finalize(pVm);
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+    }
+
     sqlite3* CDbConn::GetDb()
     {
       return m_pDb;

@@ -41,6 +41,15 @@ namespace staff
       //! close db
       static void Close();
 
+      //! begin transaction
+      static void BeginTransaction();
+
+      //! commit transaction
+      static void EndTransaction();
+
+      //! rollback transaction
+      static void RollbackTransaction();
+
       //! get db
       /*! \return pointer to db object
         */
