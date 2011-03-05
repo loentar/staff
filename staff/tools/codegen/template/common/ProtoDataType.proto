@@ -39,7 +39,7 @@ string\
 \
 \
 #ifeq($(.Type),struct||enum)
-$(.UsedName.!trim/:/.!dot)\
+$(.UsedName.!dot)\
 #else
 #cgerror $(.Type) is not supported
 #ifeqend // struct

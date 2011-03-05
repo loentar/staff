@@ -362,7 +362,7 @@ namespace codegen
         rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
       }
       else
-      if(ParseCompositeDataType(m_stInterface.lsStruct, rDataType))
+      if(ParseCompositeDataType(m_stInterface.lsStructs, rDataType))
       {
         rDataType.eType = SDataType::EStruct;
       }
@@ -519,7 +519,7 @@ namespace codegen
         stParam.stDataType.bIsConst = true;
         stParam.stDataType.bIsRef = true;
         OptimizeCppNs(stParam.stDataType.sUsedName, m_sCurrentNamespace);
-        rMember.lsParamList.push_back(stParam);
+        rMember.lsParams.push_back(stParam);
 
 //      expand requests
 //        const SStruct* pMessage = GetStruct(sMessage, m_stInterface);
@@ -529,7 +529,7 @@ namespace codegen
 //        // todo: remove const_cast
 //        const_cast<SStruct*>(pMessage)->bExtern = true; // mark struct as extern to hide it from interface file
 
-//        rMember.lsParamList = pMessage->lsMember;
+//        rMember.lsParamList = pMessage->lsMembers;
 
 //        for (std::list<SParam>::iterator itParam = rMember.lsParamList.begin();
 //          itParam != rMember.lsParamList.end(); ++itParam)
@@ -625,7 +625,7 @@ namespace codegen
         {
           SkipWs();
           ParseMember(stMember);
-          rClass.lsMember.push_back(stMember);
+          rClass.lsMembers.push_back(stMember);
         }
         else
         {
@@ -688,7 +688,7 @@ namespace codegen
 
         if (!stMember.sName.empty())
         {
-          rEnum.lsMember.push_back(stMember);
+          rEnum.lsMembers.push_back(stMember);
         }
 
         m_tFile.ignore(); // '}' or ';'
@@ -786,7 +786,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SEnum& rstEnum = TypeInList(rStruct.lsEnum, sName, m_sCurrentNamespace, sOwnerName);
+          SEnum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseEnum(rstEnum);
           if (!rstEnum.bForward)
@@ -804,7 +804,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SStruct& rstStruct = TypeInList(rStruct.lsStruct, sName, m_sCurrentNamespace, sOwnerName);
+          SStruct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseStruct(rstStruct);
           if (!rstStruct.bForward)
@@ -918,7 +918,7 @@ namespace codegen
           }
         }
 
-        rStruct.lsMember.push_back(stParamTmp);
+        rStruct.lsMembers.push_back(stParamTmp);
       }
 
       SkipWsInLine();
@@ -944,7 +944,7 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
-        ImportStruct(itStruct->lsStruct, rstStruct.lsStruct);
+        ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
       }
     }
 
@@ -954,14 +954,14 @@ namespace codegen
       const SInterface& rInterface = tProtobufHeaderParser.Parse(m_sInDir, sFileName, *m_pProject);
 
       // use extern structs
-      ImportStruct(rInterface.lsStruct, m_stInterface.lsStruct);
+      ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
 
       SInclude stInclude;
       stInclude.sInterfaceName = rInterface.sName;
       stInclude.sNamespace = rInterface.sNamespace;
       stInclude.sFileName = rInterface.sFileName;
       stInclude.sTargetNs = rInterface.sTargetNs;
-      m_stInterface.lsInclude.push_back(stInclude);
+      m_stInterface.lsIncludes.push_back(stInclude);
     }
 
     void ParseHeaderBlock( SInterface& rInterface )
@@ -1031,7 +1031,7 @@ namespace codegen
         stClass.sDescr = sDescr;
         stClass.lsModules = lsModules;
         stClass.mOptions = mOptions;
-        rInterface.lsClass.push_back(stClass);
+        rInterface.lsClasses.push_back(stClass);
 
         SkipWs();
 
@@ -1047,7 +1047,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t;{}");
 
-        SEnum& rstEnum = TypeInList(rInterface.lsEnum, sName, m_sCurrentNamespace);
+        SEnum& rstEnum = TypeInList(rInterface.lsEnums, sName, m_sCurrentNamespace);
 
         ParseEnum(rstEnum);
         if (!rstEnum.bForward)
@@ -1065,7 +1065,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t;{}");
 
-        SStruct& rstStruct = TypeInList(rInterface.lsStruct, sName, m_sCurrentNamespace);
+        SStruct& rstStruct = TypeInList(rInterface.lsStructs, sName, m_sCurrentNamespace);
 
         ParseStruct(rstStruct);
         if (!rstStruct.bForward)
@@ -1217,8 +1217,8 @@ namespace codegen
         // detect interface main namespace
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClass.begin();
-              itClass != m_stInterface.lsClass.end(); ++itClass)
+          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClasses.begin();
+              itClass != m_stInterface.lsClasses.end(); ++itClass)
           {
             if (!itClass->sNamespace.empty())
             {
@@ -1230,8 +1230,8 @@ namespace codegen
 
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
-              itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStructs.begin();
+              itStruct != m_stInterface.lsStructs.end(); ++itStruct)
           {
             if (!itStruct->sNamespace.empty())
             {
@@ -1262,8 +1262,8 @@ namespace codegen
     void CorrectStuctParentNs()
     {
       // correct structs parent namespaces
-      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStruct.begin();
-          itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStructs.begin();
+          itStruct != m_stInterface.lsStructs.end(); ++itStruct)
       {
         std::string& sNsParent = itStruct->sParentName;
         // skip structs with no parent and with namespace, declared from global scope
@@ -1303,7 +1303,7 @@ namespace codegen
     {
       CProtobufHeaderParser tProtobufHeaderParser;
       const SInterface& rInterface = tProtobufHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
-      uServicesCount += rInterface.lsClass.size();
+      uServicesCount += rInterface.lsClasses.size();
     }
 
     TStringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
@@ -1316,8 +1316,8 @@ namespace codegen
       for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
         itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        for (std::list<SClass>::const_iterator itClass = itInterface->lsClass.begin();
-            itClass != itInterface->lsClass.end(); ++itClass)
+        for (std::list<SClass>::const_iterator itClass = itInterface->lsClasses.begin();
+            itClass != itInterface->lsClasses.end(); ++itClass)
         {
           if (!itClass->sNamespace.empty())
           {

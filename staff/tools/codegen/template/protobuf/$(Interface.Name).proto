@@ -4,9 +4,9 @@
 #foreach $(Interface.Includes)
 import "$(Include.Name).proto";
 #end
-#ifneq($(Interface.Namespace.!trim/:/),)
+#ifneq($(Interface.Namespace.!dot),)
 
-package $(Interface.Namespace.!trim/:/.!dot);
+package $(Interface.Namespace.!dot);
 #ifeqend
 
 #foreach $(Interface.Enums)
@@ -40,9 +40,9 @@ service $(Class.Name)
 #ifneq($(Param.$Num),0)
 , \
 #ifeqend
-$(Param.DataType.UsedName.!trim/:/.!dot)\
+$(Param.DataType.UsedName.!dot)\
 #end
-) returns ($(Member.Return.UsedName.!trim/:/.!dot));
+) returns ($(Member.Return.UsedName.!dot));
 #end
 };
 #end

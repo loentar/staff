@@ -125,13 +125,13 @@ namespace codegen
           stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
           OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
 
-          stStruct.lsMember.push_back(stMember);
+          stStruct.lsMembers.push_back(stMember);
         }
 
         stStruct.sDescr = rdoType.GetChildByLocalName("Descr").GetText();
         stStruct.bForward = false;
 
-        rInterface.lsStruct.push_back(stStruct);
+        rInterface.lsStructs.push_back(stStruct);
       }
       else
       if (sType == "list")
@@ -154,7 +154,7 @@ namespace codegen
 
         stTypedef.stDataType.lsParams.push_back(stItemDataType);
 
-        rInterface.lsTypedef.push_back(stTypedef);
+        rInterface.lsTypedefs.push_back(stTypedef);
       }
       else
       if (sType == "generic" || sType == "dataobject") // typedef
@@ -168,7 +168,7 @@ namespace codegen
         stTypedef.sDescr = rdoType.GetChildByLocalName("Descr").GetText();
         stTypedef.bExtern = bExtern;
 
-        rInterface.lsTypedef.push_back(stTypedef);
+        rInterface.lsTypedefs.push_back(stTypedef);
       }
     }
   }
@@ -206,7 +206,7 @@ namespace codegen
       stInclude.sNamespace = rdoInclude.GetChildByLocalName("Namespace").GetText();
       rise::StrReplace(stInclude.sNamespace, ".", "::", true);
       stInclude.sNamespace = "::" + stInclude.sNamespace + "::";
-      rInterface.lsInclude.push_back(stInclude);
+      rInterface.lsIncludes.push_back(stInclude);
 
       if (!bExists)
       {
@@ -267,13 +267,13 @@ namespace codegen
           stParam.stDataType.bIsRef = true;
         }
 
-        stMember.lsParamList.push_back(stParam);
+        stMember.lsParams.push_back(stParam);
       }
 
-      stClass.lsMember.push_back(stMember);
+      stClass.lsMembers.push_back(stMember);
     }
 
-    rInterface.lsClass.push_back(stClass);
+    rInterface.lsClasses.push_back(stClass);
   }
 
   bool CDasParser::FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace)
@@ -298,8 +298,8 @@ namespace codegen
       return true;
     }
 
-    for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedef.begin();
-        itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
+    for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
+        itTypedef != rInterface.lsTypedefs.end(); ++itTypedef)
     {
       const STypedef& rTypedef = *itTypedef;
       if (rTypedef.sName == rDataType.sName)
@@ -310,8 +310,8 @@ namespace codegen
       }
     }
 
-    for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStruct.begin();
-        itStruct != rInterface.lsStruct.end(); ++itStruct)
+    for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStructs.begin();
+        itStruct != rInterface.lsStructs.end(); ++itStruct)
     {
       const SStruct& rStruct = *itStruct;
       if (rStruct.sName == rDataType.sName)

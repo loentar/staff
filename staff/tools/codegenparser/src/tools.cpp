@@ -64,7 +64,7 @@ namespace codegen
     // look substructs
     for(;;)
     {
-      const std::list<SStruct>& rStructList = !pstCurr ? rstInterface.lsStruct : pstCurr->lsStruct;
+      const std::list<SStruct>& rStructList = !pstCurr ? rstInterface.lsStructs : pstCurr->lsStructs;
       for (std::list<SStruct>::const_iterator itStruct = rStructList.begin();
         itStruct != rStructList.end(); ++itStruct)
       {
@@ -128,8 +128,8 @@ namespace codegen
                 // find in sub enums
                 if ((eBaseType & SBaseType::EEnum) != 0)
                 {
-                  for (std::list<SEnum>::const_iterator itSubEnum = pstTmp->lsEnum.begin();
-                    itSubEnum != pstTmp->lsEnum.end(); ++itSubEnum)
+                  for (std::list<SEnum>::const_iterator itSubEnum = pstTmp->lsEnums.begin();
+                    itSubEnum != pstTmp->lsEnums.end(); ++itSubEnum)
                   {
                     if (itSubEnum->sName == sSubName)
                     {
@@ -139,8 +139,8 @@ namespace codegen
                 }
 
                 // go into sub struct
-                for (std::list<SStruct>::const_iterator itSubStruct = pstTmp->lsStruct.begin();
-                  itSubStruct != pstTmp->lsStruct.end(); ++itSubStruct)
+                for (std::list<SStruct>::const_iterator itSubStruct = pstTmp->lsStructs.begin();
+                  itSubStruct != pstTmp->lsStructs.end(); ++itSubStruct)
                 {
                   if (itSubStruct->sName == sSubName)
                   {
@@ -172,9 +172,9 @@ namespace codegen
       // find in sub enums
       if (!pstResult && ((eBaseType & SBaseType::EEnum) != 0))
       {
-        const std::list<SEnum>& rlsEnum = !pstCurr ? rstInterface.lsEnum : pstCurr->lsEnum;
-        for (std::list<SEnum>::const_iterator itEnum = rlsEnum.begin();
-          itEnum != rlsEnum.end(); ++itEnum)
+        const std::list<SEnum>& rlsEnums = !pstCurr ? rstInterface.lsEnums : pstCurr->lsEnums;
+        for (std::list<SEnum>::const_iterator itEnum = rlsEnums.begin();
+          itEnum != rlsEnums.end(); ++itEnum)
         {
           if (itEnum->sName == sNsName)
           {

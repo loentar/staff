@@ -241,6 +241,16 @@ namespace codegen
       if (sFunction.substr(0, 6) == "mangle")
       {
         sResult = rNode.NodeContent().AsString();
+        if (sResult.size() >= 2 && sResult.substr(0, 2) == "::")
+        {
+          sResult.erase(0, 2);
+        }
+
+        if (sResult.size() >= 2 && sResult.substr(sResult.size() - 2, 2) == "::")
+        {
+          sResult.erase(sResult.size() - 2, 2);
+        }
+
         rise::StrReplace(sResult, "::", "_", true);
         sFunction.erase(0, 6);
       }
@@ -248,6 +258,16 @@ namespace codegen
       if (sFunction.substr(0, 3) == "dot")
       {
         sResult = rNode.NodeContent().AsString();
+        if (sResult.size() >= 2 && sResult.substr(0, 2) == "::")
+        {
+          sResult.erase(0, 2);
+        }
+
+        if (sResult.size() >= 2 && sResult.substr(sResult.size() - 2, 2) == "::")
+        {
+          sResult.erase(sResult.size() - 2, 2);
+        }
+
         rise::StrReplace(sResult, "::", ".", true);
         sFunction.erase(0, 3);
       }

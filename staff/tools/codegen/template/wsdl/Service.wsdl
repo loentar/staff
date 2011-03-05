@@ -8,7 +8,7 @@
 #context $(Interface.Classes.Class)
 \
 #var TargetNamespace $($tns||Interface.TargetNamespace||Class.ServiceNsName.!prepend/http:\/\/tempui.org\//)
-#var TnsPrefix tns_$(Class.Namespace.!trim/:/.!mangle):
+#var TnsPrefix tns_$(Class.Namespace.!mangle):
 \
 <wsdl:definitions
     name="$(Interface.Name)"
@@ -17,9 +17,9 @@
 #ifeqend
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:tns_$(Class.Namespace.!trim/:/.!mangle)="http://tempui.org/$(Class.ServiceNsName)"
+    xmlns:tns_$(Class.Namespace.!mangle)="http://tempui.org/$(Class.ServiceNsName)"
 #foreach $(Interface.Includes)
-    xmlns:tns_$(Include.Namespace.!trim/:/.!mangle)="$(Include.TargetNamespace||Include.NsName.!prepend/http:\/\/tempui.org\//)"
+    xmlns:tns_$(Include.Namespace.!mangle)="$(Include.TargetNamespace||Include.NsName.!prepend/http:\/\/tempui.org\//)"
 #end
     xmlns:tns="$($TargetNamespace)"
     targetNamespace="$($TargetNamespace)">

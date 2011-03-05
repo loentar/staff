@@ -869,7 +869,7 @@ namespace codegen
                   stStruct.sDetail = rElement.sDetail;
 
                   stParam.mOptions["useParentElement"] = "true";
-                  stStruct.lsMember.push_back(stParam);
+                  stStruct.lsMembers.push_back(stParam);
 
                   for (std::list<SAttribute>::const_iterator itAttr = rComplexType.lsAttributes.begin();
                     itAttr != rComplexType.lsAttributes.end(); ++itAttr)
@@ -894,10 +894,10 @@ namespace codegen
                       stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
                       OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
                     }
-                    stStruct.lsMember.push_back(stMember);
+                    stStruct.lsMembers.push_back(stMember);
                   }
 
-                  m_stInterface.lsStruct.push_back(stStruct);
+                  m_stInterface.lsStructs.push_back(stStruct);
 
                   stParam.stDataType.eType = SDataType::EStruct;
                   stParam.stDataType.sName = stStruct.sName;
@@ -912,7 +912,7 @@ namespace codegen
                 if (!bIsResponse)
                 { // request
                   FixParamDataType(stParam.stDataType);
-                  rMember.lsParamList.push_back(stParam);
+                  rMember.lsParams.push_back(stParam);
                   if (nRecursionLevel == 0 && rElement.sName != rMember.sName)
                   {
                     rMember.mOptions["requestElement"] = rElement.sName;
@@ -974,7 +974,7 @@ namespace codegen
         else
         {
           FixParamDataType(stParam.stDataType);
-          rMember.lsParamList.push_back(stParam);
+          rMember.lsParams.push_back(stParam);
         }
       }
       else
@@ -1049,7 +1049,7 @@ namespace codegen
 
           rMember.mOptions["inlineRequestElement"] = "true";
 
-          rMember.lsParamList.push_back(stParam);
+          rMember.lsParams.push_back(stParam);
         }
         else
         {
@@ -1106,7 +1106,7 @@ namespace codegen
 
         if (!bIsResponse)
         {
-          rMember.lsParamList.push_back(stParam);
+          rMember.lsParams.push_back(stParam);
         }
         else
         {
@@ -1309,7 +1309,7 @@ namespace codegen
           {
             tOperationMember.mOptions["soapAction"] = sSoapAction;
           }
-          rClass.lsMember.push_back(tOperationMember);
+          rClass.lsMembers.push_back(tOperationMember);
         }
       }
 
@@ -1377,7 +1377,7 @@ namespace codegen
 //        WriteInlineTypes(itElement->second, m_stWsdlTypes);
 //      }
 
-//      m_stInterface.lsStruct.sort(SortStructByParent);
+//      m_stInterface.lsStructs.sort(SortStructByParent);
 
       if (!bSchema)
       {
@@ -1385,7 +1385,7 @@ namespace codegen
 
         ParseService(tServiceClass, rRootNode, m_stWsdlTypes);
         tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
-        m_stInterface.lsClass.push_back(tServiceClass);
+        m_stInterface.lsClasses.push_back(tServiceClass);
       }
     }
 
@@ -1514,8 +1514,8 @@ namespace codegen
           for (TStringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
             itValue != rSimpleType.lsEnumValues.end(); ++itValue)
           {
-            stEnum.lsMember.push_back(SEnum::SEnumMember());
-            stEnum.lsMember.back().sName = *itValue;
+            stEnum.lsMembers.push_back(SEnum::SEnumMember());
+            stEnum.lsMembers.back().sName = *itValue;
           }
 
           std::string::size_type nPos = stEnum.sName.rfind("::");
@@ -1528,7 +1528,7 @@ namespace codegen
             {
               stEnum.sName.erase(0, nPos + 2);
               stEnum.sOwnerName = sOwnerName;
-              pstOwner->lsEnum.push_back(stEnum);
+              pstOwner->lsEnums.push_back(stEnum);
             }
             else
             {
@@ -1537,15 +1537,15 @@ namespace codegen
           }
           else
           {
-            m_stInterface.lsEnum.push_back(stEnum);
+            m_stInterface.lsEnums.push_back(stEnum);
           }
         }
       }
       // write typedef
       else
       {
-        std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
-        for (; itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
+        std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
+        for (; itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
         {
           if (itTypedef->sName == rSimpleType.sName)
           {
@@ -1553,7 +1553,7 @@ namespace codegen
           }
         }
 
-        if (itTypedef != m_stInterface.lsTypedef.end())
+        if (itTypedef != m_stInterface.lsTypedefs.end())
         {
           stDataType.eType = SDataType::ETypedef;
           stDataType.sName = itTypedef->sName;
@@ -1568,9 +1568,9 @@ namespace codegen
           stTypedef.sDescr = rSimpleType.sDescr;
           stTypedef.sDetail = rSimpleType.sDetail;
 
-          m_stInterface.lsTypedef.push_back(stTypedef);
+          m_stInterface.lsTypedefs.push_back(stTypedef);
 
-          STypedef& rstTypedef = m_stInterface.lsTypedef.back();
+          STypedef& rstTypedef = m_stInterface.lsTypedefs.back();
 
           std::string sEnumValues;
           for (TStringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
@@ -1642,7 +1642,7 @@ namespace codegen
             stTypedef.mOptions["elementName"] = rElem.sName;
           }
 
-          m_stInterface.lsTypedef.push_back(stTypedef);
+          m_stInterface.lsTypedefs.push_back(stTypedef);
 
           SDataType stResDataType;
           stResDataType.eType = SDataType::ETypedef;
@@ -1671,7 +1671,7 @@ namespace codegen
           DataTypeFromName(rComplexType.sParentName, stTypedef.stDataType, m_stWsdlTypes);
         }
 
-        m_stInterface.lsTypedef.push_back(stTypedef);
+        m_stInterface.lsTypedefs.push_back(stTypedef);
 
         SDataType stResDataType;
         stResDataType.eType = SDataType::ETypedef;
@@ -1732,7 +1732,7 @@ namespace codegen
             stClassNameGetter.stDataType.sNamespace = "std::";
             stClassNameGetter.stDataType.sUsedName = "std::string";
             stClassNameGetter.stDataType.eType = SDataType::EString;
-            stStruct.lsMember.push_back(stClassNameGetter);
+            stStruct.lsMembers.push_back(stClassNameGetter);
           }
 
           stDataType.eType = SDataType::EStruct;
@@ -1747,8 +1747,8 @@ namespace codegen
             {
               stStruct.sName.erase(0, nPos + 2);
               stStruct.sOwnerName = sOwnerName;
-              pstOwner->lsStruct.push_back(stStruct);
-              pstStruct = &pstOwner->lsStruct.back();
+              pstOwner->lsStructs.push_back(stStruct);
+              pstStruct = &pstOwner->lsStructs.back();
             }
             else
             {
@@ -1757,8 +1757,8 @@ namespace codegen
           }
           else
           {
-            m_stInterface.lsStruct.push_back(stStruct);
-            pstStruct = &m_stInterface.lsStruct.back();
+            m_stInterface.lsStructs.push_back(stStruct);
+            pstStruct = &m_stInterface.lsStructs.back();
           }
         }
 
@@ -1852,7 +1852,7 @@ namespace codegen
               stMember.mOptions["defaultValue"] = pElement->sDefault;
             }
 
-            pstStruct->lsMember.push_back(stMember);
+            pstStruct->lsMembers.push_back(stMember);
           }
         }
 
@@ -1889,7 +1889,7 @@ namespace codegen
           {
             stMember.mOptions["defaultValue"] = pAttr->sDefault;
           }
-          pstStruct->lsMember.push_back(stMember);
+          pstStruct->lsMembers.push_back(stMember);
         }
       }
 
@@ -2118,8 +2118,8 @@ namespace codegen
         rDataType.sName = stQName.sName;
         rDataType.sNamespace = TnsToCppNs(stQName.sNamespace);
 
-        for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
-            itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
+        for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
+            itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
         {
           if (itTypedef->sName == rDataType.sName &&
               itTypedef->sNamespace == rDataType.sNamespace)
@@ -2365,7 +2365,7 @@ namespace codegen
       rstStruct.sDetail = itStruct->sDetail;
       rstStruct.bExtern = true;
       rstStruct.sOwnerName = itStruct->sOwnerName;
-      ImportStruct(itStruct->lsStruct, rstStruct.lsStruct);
+      ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
     }
   }
 
@@ -2457,11 +2457,11 @@ namespace codegen
         ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
       }
 
-      ImportStruct(rNewInterface.lsStruct, rInterface.lsStruct);
+      ImportStruct(rNewInterface.lsStructs, rInterface.lsStructs);
 
       // use extern typedefs
-      for (std::list<STypedef>::const_iterator itTypedef = rNewInterface.lsTypedef.begin();
-          itTypedef != rNewInterface.lsTypedef.end(); ++itTypedef)
+      for (std::list<STypedef>::const_iterator itTypedef = rNewInterface.lsTypedefs.begin();
+          itTypedef != rNewInterface.lsTypedefs.end(); ++itTypedef)
       {
         STypedef stTypedef = *itTypedef;
         stTypedef.sName = itTypedef->sName;
@@ -2469,7 +2469,7 @@ namespace codegen
         stTypedef.sDescr = itTypedef->sDescr;
         stTypedef.sDetail= itTypedef->sDetail;
         stTypedef.bExtern = true;
-        rInterface.lsTypedef.push_back(stTypedef);
+        rInterface.lsTypedefs.push_back(stTypedef);
       }
 
       SInclude stInclude;
@@ -2477,7 +2477,7 @@ namespace codegen
       stInclude.sNamespace = rNewInterface.sNamespace;
       stInclude.sFileName = rNewInterface.sFileName;
       stInclude.sTargetNs = rNewInterface.sTargetNs;
-      rInterface.lsInclude.push_back(stInclude);
+      rInterface.lsIncludes.push_back(stInclude);
 
       // insert imported namespaces into current definitions or xsd's schema element
       rise::xml::CXMLNode* pNodeDefinitions = &rNodeImport;

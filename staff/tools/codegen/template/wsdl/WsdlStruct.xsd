@@ -7,7 +7,7 @@
 #ifeqend
 #ifneq($(Struct.ParentName),)       // inherited
         <complexContent mixed="false">
-          <extension base="tns_$(Struct.ParentNamespace.!mangle.!trim/_/):$(Struct.ParentName)"\
+          <extension base="tns_$(Struct.ParentNamespace.!mangle):$(Struct.ParentName)"\
 #ifeq($(Struct.Members.$Count),0)
 /\
 #else
