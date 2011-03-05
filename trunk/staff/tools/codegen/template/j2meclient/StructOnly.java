@@ -1,4 +1,4 @@
-/* struct: $(Struct.NsName.!dot.!trim/./) */
+/* struct: $(Struct.NsName.!dot) */
 public class $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
  extends $(Struct.ParentName)\
@@ -25,7 +25,7 @@ Node\
 #ifeq($(Param.DataType.Name),bool)
 boolean\
 #else
-$(Param.DataType.UsedName.!trim/:/.!dot)\
+$(Param.DataType.UsedName.!dot)\
 #ifeqend
 #ifeqend
 #ifeqend
@@ -107,7 +107,7 @@ $(Param.DataType.UsedName.!trim/:/.!dot)\
     $(Param.Name) = tElement.getElement("", "$(Param.Name)");
 #else
 #ifeq($(Param.DataType.Type),struct||typedef)
-    $(Param.Name) = new $(Param.DataType.UsedName.!trim/:/.!dot)();
+    $(Param.Name) = new $(Param.DataType.UsedName.!dot)();
     $(Param.Name).Deserialize(tElement.getElement("", "$(Param.Name)"));
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"

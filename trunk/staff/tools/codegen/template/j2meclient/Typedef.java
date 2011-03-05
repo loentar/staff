@@ -2,19 +2,19 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 \
-#var currentNs $(Typedef.Namespace.!trim/:/.!dot)
+#var currentNs $(Typedef.Namespace.!dot)
 #ifneq($($currentNs),)
 
 package $($currentNs);
 #ifeqend
 
 #ifeq($(Typedef.DataType.IsTemplate),1)
-#var templateParam1 $(Typedef.DataType.TemplateParams.TemplateParam1.!trim/:/.!dot)
+#var templateParam1 $(Typedef.DataType.TemplateParams.TemplateParam1.!dot)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
 import $($templateParam1);
 #ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.$Count),2)
-#var templateParam2 $(Typedef.DataType.TemplateParams.TemplateParam2.!trim/:/.!dot)
+#var templateParam2 $(Typedef.DataType.TemplateParams.TemplateParam2.!dot)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct||typedef)
 import $($templateParam2);
 #ifeqend
@@ -54,7 +54,7 @@ import org.kxml2.kdom.*;
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Name),dataobject)
 #var templateParam1Type Node
 #else
-#var templateParam1Type $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)
+#var templateParam1Type $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!dot)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -92,7 +92,7 @@ import org.kxml2.kdom.*;
 #ifeq($(Typedef.DataType.Name),dataobject)
 #var typedefType Node
 #else
-#var typedefType $(Typedef.DataType.UsedName.!trim/:/.!dot)
+#var typedefType $(Typedef.DataType.UsedName.!dot)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -130,7 +130,7 @@ public class $(Typedef.Name)
 #ifeq($(Typedef.DataType.Name),dataobject)
 #var typeName Node
 #else
-#var typeName $(Typedef.DataType.UsedName.!trim/:/.!dot)
+#var typeName $(Typedef.DataType.UsedName.!dot)
 #ifeqend
 #ifeqend
 #ifeqend
@@ -254,7 +254,7 @@ tItemElement.getText(0)\
 tItemElement\
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
-new $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Deserialize(tItemElement)\
+new $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!dot)().Deserialize(tItemElement)\
 #else
 #cgerror "Typedef.DataType.TemplateParams.TemplateParam1.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -303,7 +303,7 @@ new $(Typedef.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().D
     m_tData = tElement;
 #else
 #ifeq($(Typedef.DataType.Type),struct||typedef)
-    m_tData = ($(Typedef.DataType.UsedName.!trim/:/.!dot))new $(Typedef.DataType.UsedName.!trim/:/.!dot)().Deserialize(tElement);
+    m_tData = ($(Typedef.DataType.UsedName.!trim/:/.!dot))new $(Typedef.DataType.UsedName.!dot)().Deserialize(tElement);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
 #ifeqend

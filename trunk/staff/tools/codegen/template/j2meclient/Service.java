@@ -4,7 +4,7 @@
 \
 #ifneq($(Interface.Namespace.!trim/:/),)
 
-package $(Interface.Namespace.!trim/:/.!dot);
+package $(Interface.Namespace.!dot);
 #ifeqend
 
 import java.io.*;
@@ -148,7 +148,7 @@ Node\
 #ifeq($(Member.Return.Name),bool)
 boolean\
 #else
-$(Member.Return.NsName.!trim/:/.!dot)\
+$(Member.Return.NsName.!dot)\
 #ifeqend
 #ifeqend
 #ifeqend
@@ -174,7 +174,7 @@ Node\
 #ifeq($(Param.DataType.Name),bool)
 boolean\
 #else
-$(Param.DataType.NsName.!trim/:/.!dot)\
+$(Param.DataType.NsName.!dot)\
 #ifeqend
 #ifeqend
 #ifeqend
@@ -251,7 +251,7 @@ $(Class.Options.*soapVersion.!replace/.//)\
       tItemElement.addChild(Node.ELEMENT, (Node)$(Param.Name).elementAt(nItem));
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
-      (($(Param.DataType.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot))$(Param.Name).elementAt(nItem)).Serialize(tItemElement);
+      (($(Param.DataType.TemplateParams.TemplateParam1.UsedName.!dot))$(Param.Name).elementAt(nItem)).Serialize(tItemElement);
 #else
 #cgerror "Param.DataType.TemplateParams.TemplateParam1.Type = $(Param.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -360,7 +360,7 @@ tElement.getText(0)\
 tElement\
 #else
 #ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),struct||typedef)
-new $(Member.Return.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Deserialize(tItemElement)\
+new $(Member.Return.TemplateParams.TemplateParam1.UsedName.!dot)().Deserialize(tItemElement)\
 #else
 #cgerror "Member.Return.TemplateParams.TemplateParam1.Type = $(Member.Return.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -413,7 +413,7 @@ new $(Member.Return.TemplateParams.TemplateParam1.UsedName.!trim/:/.!dot)().Dese
 #else
 #ifeq($(Member.Return.Type),struct||typedef)
 
-    return ($(Member.Return.UsedName.!trim/:/.!dot))new $(Member.Return.UsedName.!trim/:/.!dot)().Deserialize(tResultElement);
+    return ($(Member.Return.UsedName.!dot))new $(Member.Return.UsedName.!trim/:/.!dot)().Deserialize(tResultElement);
 #else
 #cgerror "Member.Return.Type = $(Member.Return.Type);"
 #ifeqend

@@ -452,7 +452,7 @@ namespace codegen
         rDataType.eType = SDataType::EString;
       }
       else
-      if(ParseCompositeDataType(m_stInterface.lsTypedef, rDataType))
+      if(ParseCompositeDataType(m_stInterface.lsTypedefs, rDataType))
       {
         rDataType.eType = SDataType::ETypedef;
       }
@@ -865,7 +865,7 @@ namespace codegen
 
           SkipWs();
           m_tFile >> chData; // more arguments?
-          rMember.lsParamList.push_back(stParam);
+          rMember.lsParams.push_back(stParam);
 
           if (chData == ')')
           {
@@ -1005,7 +1005,7 @@ namespace codegen
           } else
           {
             ParseMember(stMember);
-            rClass.lsMember.push_back(stMember);
+            rClass.lsMembers.push_back(stMember);
           }
         }
         else
@@ -1109,7 +1109,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SEnum& rstEnum = TypeInList(rStruct.lsEnum, sName, m_sCurrentNamespace, sOwnerName);
+          SEnum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseEnum(rstEnum);
           if (!rstEnum.bForward)
@@ -1127,7 +1127,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SStruct& rstStruct = TypeInList(rStruct.lsStruct, sName, m_sCurrentNamespace, sOwnerName);
+          SStruct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseStruct(rstStruct);
           if (!rstStruct.bForward)
@@ -1186,7 +1186,7 @@ namespace codegen
 
             ReadDescrComment(stParamTmp.sDescr);
 
-            rStruct.lsMember.push_back(stParamTmp);
+            rStruct.lsMembers.push_back(stParamTmp);
             //m_tStream >> SkipSingleLineComment;
           } else
           {
@@ -1266,7 +1266,7 @@ namespace codegen
           chTmp = m_tFile.peek();
         }
 
-        rEnum.lsMember.push_back(stMember);
+        rEnum.lsMembers.push_back(stMember);
 
         m_tFile.ignore(); // '}' or ','
 
@@ -1318,7 +1318,7 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
-        ImportStruct(itStruct->lsStruct, rstStruct.lsStruct);
+        ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
       }
     }
 
@@ -1342,18 +1342,18 @@ namespace codegen
           const SInterface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
 
           // import extern structs
-          ImportStruct(rInterface.lsStruct, m_stInterface.lsStruct);
+          ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
 
           // use extern typedefs
-          for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedef.begin();
-              itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
+          for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
+              itTypedef != rInterface.lsTypedefs.end(); ++itTypedef)
           {
             STypedef stTypedef = *itTypedef;
             stTypedef.sName = itTypedef->sName;
             stTypedef.sNamespace = itTypedef->sNamespace;
             stTypedef.sDescr = itTypedef->sDescr;
             stTypedef.bExtern = true;
-            m_stInterface.lsTypedef.push_back(stTypedef);
+            m_stInterface.lsTypedefs.push_back(stTypedef);
           }
 
           SInclude stInclude;
@@ -1361,7 +1361,7 @@ namespace codegen
           stInclude.sNamespace = rInterface.sNamespace;
           stInclude.sFileName = rInterface.sFileName;
           stInclude.sTargetNs = rInterface.sTargetNs;
-          m_stInterface.lsInclude.push_back(stInclude);
+          m_stInterface.lsIncludes.push_back(stInclude);
         }
       }
 
@@ -1499,7 +1499,7 @@ namespace codegen
         stClass.sDetail = sDetail;
         stClass.lsModules = lsModules;
         stClass.mOptions = mOptions;
-        rInterface.lsClass.push_back(stClass);
+        rInterface.lsClasses.push_back(stClass);
 
         SkipWs();
         m_tFile >> chData;
@@ -1517,7 +1517,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t;{}");
 
-        SEnum& rstEnum = TypeInList(rInterface.lsEnum, sName, m_sCurrentNamespace);
+        SEnum& rstEnum = TypeInList(rInterface.lsEnums, sName, m_sCurrentNamespace);
 
         ParseEnum(rstEnum);
         if (!rstEnum.bForward)
@@ -1536,7 +1536,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t:;{}");
 
-        SStruct& rstStruct = TypeInList(rInterface.lsStruct, sName, m_sCurrentNamespace);
+        SStruct& rstStruct = TypeInList(rInterface.lsStructs, sName, m_sCurrentNamespace);
 
         ParseStruct(rstStruct);
         if (!rstStruct.bForward)
@@ -1561,7 +1561,7 @@ namespace codegen
         ReadDescrComment(stTypedef.sDescr);
 
         stTypedef.mOptions = mOptions;
-        rInterface.lsTypedef.push_back(stTypedef);
+        rInterface.lsTypedefs.push_back(stTypedef);
 
         sDescr.erase();
         sDetail.erase();
@@ -1690,8 +1690,8 @@ namespace codegen
         // detect interface main namespace
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClass.begin();
-              itClass != m_stInterface.lsClass.end(); ++itClass)
+          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClasses.begin();
+              itClass != m_stInterface.lsClasses.end(); ++itClass)
           {
             if (!itClass->sNamespace.empty())
             {
@@ -1703,8 +1703,8 @@ namespace codegen
 
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStruct.begin();
-              itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStructs.begin();
+              itStruct != m_stInterface.lsStructs.end(); ++itStruct)
           {
             if (!itStruct->sNamespace.empty())
             {
@@ -1716,8 +1716,8 @@ namespace codegen
 
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedef.begin();
-              itTypedef != m_stInterface.lsTypedef.end(); ++itTypedef)
+          for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
+              itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
           {
             if (!itTypedef->sNamespace.empty())
             {
@@ -1748,8 +1748,8 @@ namespace codegen
     void CorrectStuctParentNs()
     {
       // correct structs parent namespaces
-      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStruct.begin();
-          itStruct != m_stInterface.lsStruct.end(); ++itStruct)
+      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStructs.begin();
+          itStruct != m_stInterface.lsStructs.end(); ++itStruct)
       {
         std::string& sNsParent = itStruct->sParentName;
         // skip structs with no parent and with namespace, declared from global scope
@@ -1789,7 +1789,7 @@ namespace codegen
     {
       CCppHeaderParser tCppHeaderParser;
       const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
-      uServicesCount += rInterface.lsClass.size();
+      uServicesCount += rInterface.lsClasses.size();
     }
 
     TStringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
@@ -1802,8 +1802,8 @@ namespace codegen
       for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
         itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        for (std::list<SClass>::const_iterator itClass = itInterface->lsClass.begin();
-            itClass != itInterface->lsClass.end(); ++itClass)
+        for (std::list<SClass>::const_iterator itClass = itInterface->lsClasses.begin();
+            itClass != itInterface->lsClasses.end(); ++itClass)
         {
           if (!itClass->sNamespace.empty())
           {

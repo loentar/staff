@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 \
-#var currentNs $(Struct.Namespace.!trim/:/.!dot)
+#var currentNs $(Struct.Namespace.!dot)
 #ifneq($($currentNs),)
 
 package $($currentNs);
@@ -12,7 +12,7 @@ package $($currentNs);
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
 #ifeq($(Param.DataType.Name.!dot),$(Param.DataType.Name)) // filter out substructs
-#var type $(Param.DataType.NsName.!trim/:/.!dot)
+#var type $(Param.DataType.NsName.!dot)
 #ifeq($($importedTypes.!replace/|$($type)|//),$($importedTypes)) // type is not present
 import $($type);
 #var importedTypes $($importedTypes)|$($type)|

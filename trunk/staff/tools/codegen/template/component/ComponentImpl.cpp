@@ -67,7 +67,7 @@ $(Project.OpeningNs)
     return m_mServices;
   }
 
-  const std::string CComponentImpl::m_sName = "$(Project.ComponentName)";
+  const std::string CComponentImpl::m_sName = "$(Project.Namespace.!dot)";
 
 $(Project.EndingNs)
 

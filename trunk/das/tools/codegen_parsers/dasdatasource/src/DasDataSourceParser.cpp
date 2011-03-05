@@ -128,7 +128,7 @@ namespace codegen
             stInclude.sFileName = itInterface->sFileName;
             stInclude.sNamespace = itInterface->sNamespace;
             stInclude.sInterfaceName = itInterface->sName;
-            rInterface.lsInclude.push_back(stInclude);
+            rInterface.lsIncludes.push_back(stInclude);
             bFound = true;
             break;
           }
@@ -162,20 +162,20 @@ namespace codegen
           stInclude.sFileName = sFileName;
           stInclude.sNamespace = sNamespace;
           stInclude.sInterfaceName = stInterface.sName;
-          rInterface.lsInclude.push_back(stInclude);
+          rInterface.lsIncludes.push_back(stInclude);
 
-          for (std::list<SStruct>::const_iterator itStruct = stInterface.lsStruct.begin();
-            itStruct != stInterface.lsStruct.end(); ++itStruct)
+          for (std::list<SStruct>::const_iterator itStruct = stInterface.lsStructs.begin();
+            itStruct != stInterface.lsStructs.end(); ++itStruct)
           {
-            rInterface.lsStruct.push_back(*itStruct);
-            rInterface.lsStruct.back().bExtern = true;
+            rInterface.lsStructs.push_back(*itStruct);
+            rInterface.lsStructs.back().bExtern = true;
           }
 
-          for (std::list<STypedef>::const_iterator itTypedef = stInterface.lsTypedef.begin();
-            itTypedef != stInterface.lsTypedef.end(); ++itTypedef)
+          for (std::list<STypedef>::const_iterator itTypedef = stInterface.lsTypedefs.begin();
+            itTypedef != stInterface.lsTypedefs.end(); ++itTypedef)
           {
-            rInterface.lsTypedef.push_back(*itTypedef);
-            rInterface.lsTypedef.back().bExtern = true;
+            rInterface.lsTypedefs.push_back(*itTypedef);
+            rInterface.lsTypedefs.back().bExtern = true;
           }
 
           rProject.lsInterfaces.push_back(stInterface);
@@ -210,10 +210,10 @@ namespace codegen
             stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
             OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
 
-            stStruct.lsMember.push_back(stMember);
+            stStruct.lsMembers.push_back(stMember);
           }
 
-          rInterface.lsStruct.push_back(stStruct);
+          rInterface.lsStructs.push_back(stStruct);
         }
         else
         if (sType == "list")
@@ -235,7 +235,7 @@ namespace codegen
 
           stTypedef.stDataType.lsParams.push_back(stItemDataType);
 
-          rInterface.lsTypedef.push_back(stTypedef);
+          rInterface.lsTypedefs.push_back(stTypedef);
         }
         else
         {
@@ -248,7 +248,7 @@ namespace codegen
           stTypedef.stDataType.sUsedName = stTypedef.stDataType.sNamespace + stTypedef.stDataType.sName;
           OptimizeCppNs(stTypedef.stDataType.sNamespace, stTypedef.sNamespace);
 
-          rInterface.lsTypedef.push_back(stTypedef);
+          rInterface.lsTypedefs.push_back(stTypedef);
         }
       }
     }
@@ -334,13 +334,13 @@ namespace codegen
           stParam.stDataType.bIsRef = true;
         }
 
-        stMember.lsParamList.push_back(stParam);
+        stMember.lsParams.push_back(stParam);
       }
 
-      stClass.lsMember.push_back(stMember);
+      stClass.lsMembers.push_back(stMember);
     }
 
-    stInterface.lsClass.push_back(stClass);
+    stInterface.lsClasses.push_back(stClass);
 
     rProject.lsInterfaces.push_back(stInterface);
   }
@@ -376,8 +376,8 @@ namespace codegen
       return true;
     }
 
-    for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedef.begin();
-        itTypedef != rInterface.lsTypedef.end(); ++itTypedef)
+    for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
+        itTypedef != rInterface.lsTypedefs.end(); ++itTypedef)
     {
       const STypedef& rTypedef = *itTypedef;
       if (rTypedef.sName == rDataType.sName)
@@ -388,8 +388,8 @@ namespace codegen
       }
     }
 
-    for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStruct.begin();
-        itStruct != rInterface.lsStruct.end(); ++itStruct)
+    for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStructs.begin();
+        itStruct != rInterface.lsStructs.end(); ++itStruct)
     {
       const SStruct& rStruct = *itStruct;
       if (rStruct.sName == rDataType.sName)

@@ -2,12 +2,12 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 \
-#ifneq($(Interface.Namespace.!trim/:/),)
+#ifneq($(Interface.Namespace.!dot),)
 
-namespace('$(Interface.Namespace.!trim/:/.!dot)');
+namespace('$(Interface.Namespace.!dot)');
 #ifeqend
 
-#ifeq($(Interface.*IncludeNsName),) // temporary fix begin
+#ifeq($(Interface.Classes.$Count),0) // temporary fix begin
 (function(){
 #ifeqend // temporary fix end
 #ifneq($(Interface.Structs.$Count),0)
@@ -15,19 +15,19 @@ namespace('$(Interface.Namespace.!trim/:/.!dot)');
 // struct serializators
 #foreach $(Interface.Structs)
 #ifeq($(Struct.Extern),0)
-function SerializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, rstStruct, tNode)
+function SerializeStruct_$(Struct.NsName.!mangle)(tOperation, rstStruct, tNode)
 {
 #ifneq($(Struct.ParentName),)
   // serialize parent struct
-  SerializeStruct_$(Struct.ParentNsName.!trim/:/.!mangle)(tOperation, rstStruct, tNode);
+  SerializeStruct_$(Struct.ParentNsName.!mangle)(tOperation, rstStruct, tNode);
 
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  SerializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
+  SerializeStruct_$(Param.DataType.NsName.!mangle)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  SerializeTypedef_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
+  SerializeTypedef_$(Param.DataType.NsName.!mangle)(tOperation, rstStruct.$(Param.Name), tOperation.AddParameter('$(Param.Name)', '', tNode));
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   rstStruct.$(Param.Name).ToElement(tOperation.AddParameter('$(Param.Name)', null, tNode));
@@ -46,21 +46,21 @@ function SerializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, rstStruct
 // struct deserializators
 #foreach $(Interface.Structs)
 #ifeq($(Struct.Extern),0)
-function DeserializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, tNode)
+function DeserializeStruct_$(Struct.NsName.!mangle)(tOperation, tNode)
 {
 #ifneq($(Struct.ParentName),)
   // deserialize parent struct
-  var tResult = DeserializeStruct_$(Struct.ParentNsName.!trim/:/.!mangle)(tOperation, tNode);
+  var tResult = DeserializeStruct_$(Struct.ParentNsName.!mangle)(tOperation, tNode);
 
 #else
   var tResult = {};
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),struct)
-  tResult.$(Param.Name) = DeserializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
+  tResult.$(Param.Name) = DeserializeStruct_$(Param.DataType.NsName.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
 #else
 #ifeq($(Param.DataType.Type),typedef)
-  tResult.$(Param.Name) = DeserializeTypedef_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
+  tResult.$(Param.Name) = DeserializeTypedef_$(Param.DataType.NsName.!mangle)(tOperation, tOperation.SubNode('$(Param.Name)', tNode));
 #else
 #ifeq($(Param.DataType.Type),dataobject)
   tResult.$(Param.Name) = new staff.DataObject();
@@ -109,7 +109,7 @@ function DeserializeStruct_$(Struct.NsName.!trim/:/.!mangle)(tOperation, tNode)
 
 // $(Typedef.NsName)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.NsName)
 #ifeq($(Typedef.DataType.IsTemplate),1)
-function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode)
+function SerializeTypedef_$(Typedef.NsName.!mangle)(tOperation, rtType, tNode)
 {
 #ifeq($(Typedef.DataType.NsName),std::map) // ---- map -------------------------- key
   for(var tKey in rtType)
@@ -119,7 +119,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
     {
       var tItem = tOperation.AddParameter('Item', '', tNode);
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
-      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tValue, tOperation.AddParameter('Key', '', tItem));
+      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tValue, tOperation.AddParameter('Key', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)    // !!generic,string!!
       tOperation.AddParameter('Key', tKey, tItem);
@@ -128,10 +128,10 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
       tOperation.AddDataObjectParameter('Key', tKey, tItem); // dataobject as key??? very strange
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
-      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),template)    // !!template!!
-      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tKey, tOperation.AddParameter('Key', '', tItem));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -140,7 +140,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
 #ifeqend
 #ifeqend //  - value -
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)    // !!struct!!
-      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
+      SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic||string)    // !!generic,string!!
       tOperation.AddParameter('Value', tValue, tItem);
@@ -149,10 +149,10 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
       tOperation.AddDataObjectParameter('Value', tValue, tItem);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)    // !!typedef!!
-      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),template)    // !!template!!
-      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
+      SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tOperation, tValue, tOperation.AddParameter('Value', '', tItem));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam2.Type);"
 #ifeqend
@@ -167,7 +167,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
   {
 // Typedef.DataType.TemplateParams.TemplateParam1.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)    // !!struct!!
-    SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+    SerializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)    // !!generic,string!!
     tOperation.AddParameter('Item', rtType[i], tNode);
@@ -176,10 +176,10 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
     tOperation.AddDataObjectParameter('Item', rtType[i], tNode);
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)    // !!typedef!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),template)    // !!template!!
-    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, rtType[i], tOperation.AddParameter('Item', '', tNode));
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.TemplateParams.TemplateParam1.Type);"
 #ifeqend
@@ -192,7 +192,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
   return tNode;
 }
 #else // DataType.IsTemplate
-function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode)
+function SerializeTypedef_$(Typedef.NsName.!mangle)(tOperation, rtType, tNode)
 {
 #ifeq($(Typedef.DataType.Type),generic||string)    // !!generic,string!!
   return tOperation.SetValue(rtType, tNode);
@@ -201,13 +201,13 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
   return tOperation.SetDataObject(rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
-  return SerializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
+  return SerializeTypedef_$(Typedef.DataType.NsName.!mangle)(tOperation, rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),struct)    // !!struct!!
-  return SerializeStruct_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
+  return SerializeStruct_$(Typedef.DataType.NsName.!mangle)(tOperation, rtType, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),template)    // !!template!!
-  return SerializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, rtType, tNode);
+  return SerializeTypedef_$(Typedef.DataType.NsName.!mangle)(tOperation, rtType, tNode);
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
 #ifeqend
@@ -225,7 +225,7 @@ function SerializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, rtType,
 // typedef deserializators
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0)
-function DeserializeTypedef_$(Typedef.NsName.!trim/:/.!mangle)(tOperation, tNode)
+function DeserializeTypedef_$(Typedef.NsName.!mangle)(tOperation, tNode)
 {
 #ifeq($(Typedef.DataType.IsTemplate),1)
 // container :: $(Typedef.DataType)
@@ -263,11 +263,11 @@ tResult.childNodes[i].firstChild.nodeValue;
 #else // generic
 #ifeq($(Typedef.DataType.Type),struct)
 // *** struct1 $(Typedef.DataType.NsName)
-    aResult[j++] = DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]);
+    aResult[j++] = DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tResult.childNodes[i]);
 #else
 #ifeq($(Typedef.DataType.Type),typedef)
 // *** td1 $(Typedef.DataType.NsName)
-    aResult[j++] = DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]);
+    aResult[j++] = DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tResult.childNodes[i]);
 #else
 #ifeq($(Typedef.DataType.Type),dataobject)
     aResult[j++] = tResult.childNodes[i]; // dataobject 2
@@ -282,10 +282,10 @@ tResult.childNodes[i].firstChild.nodeValue;
 
       var tKey =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, pKeyElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, pKeyElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, pKeyElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
  pKeyElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
@@ -317,10 +317,10 @@ tResult.childNodes[i].firstChild.nodeValue;
 #ifeqend // struct
       aResult[tKey] =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tOperation, pValueElem); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!trim/:/.!mangle)(tOperation, pValueElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tOperation, pValueElem); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
  pValueElem; // *** dataobject $(Typedef.DataType.TemplateParams.TemplateParam2.NsName)
@@ -354,10 +354,10 @@ tResult.childNodes[i].firstChild.nodeValue;
 //template $(Typedef.DataType.NsName)<$(Typedef.DataType.TemplateParams.TemplateParam1.NsName)>
       aResult[j++] =\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct)
- DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ DeserializeStruct_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tResult.childNodes[i]); // *** struct $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
- DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!trim/:/.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
+ DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tOperation, tResult.childNodes[i]); // *** typedef $(Typedef.DataType.TemplateParams.TemplateParam1.NsName)
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
  tResult.childNodes[i].firstChild != null ? tResult.childNodes[i].firstChild.nodeValue : '';
@@ -425,10 +425,10 @@ tResult.childNodes[i].firstChild.nodeValue;
   return tNode;
 #else
 #ifeq($(Typedef.DataType.Type),typedef)    // !!typedef!!
-  return DeserializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, tNode);
+  return DeserializeTypedef_$(Typedef.DataType.NsName.!mangle)(tOperation, tNode);
 #else
 #ifeq($(Typedef.DataType.Type),struct)    // !!typedef!!
-  return DeserializeTypedef_$(Typedef.DataType.NsName.!trim/:/.!mangle)(tOperation, tNode);
+  return DeserializeTypedef_$(Typedef.DataType.NsName.!mangle)(tOperation, tNode);
 #else
 #cgerror unsupported type: $(Typedef.DataType.Type)
 #ifeqend
@@ -509,10 +509,10 @@ $(Member.Return.ResponseName)\
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct) // !!struct!!
-    SerializeStruct_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
+    SerializeStruct_$(Param.DataType.NsName.!mangle)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
 #else
 #ifeq($(Param.DataType.Type),typedef)    // !!typedef!!
-    SerializeTypedef_$(Param.DataType.NsName.!trim/:/.!mangle)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
+    SerializeTypedef_$(Param.DataType.NsName.!mangle)(tOperation, $(Param.Name), tOperation.AddParameter('$(Param.Name)'));
 #else
 #ifeq($(Param.DataType.Type),generic||string)    // !!generic,string!!
     tOperation.AddParameter('$(Param.Name)', $(Param.Name));
@@ -542,10 +542,10 @@ $(Member.Return.ResponseName)\
         function(tOperation)
         {
 #ifeq($(Member.Return.Type),struct) // !!struct!!
-          pOnComplete(DeserializeStruct_$(Member.Return.NsName.!trim/:/.!mangle)(tOperation), tOperation);
+          pOnComplete(DeserializeStruct_$(Member.Return.NsName.!mangle)(tOperation), tOperation);
 #else
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!
-          pOnComplete(DeserializeTypedef_$(Member.Return.NsName.!trim/:/.!mangle)(tOperation), tOperation);
+          pOnComplete(DeserializeTypedef_$(Member.Return.NsName.!mangle)(tOperation), tOperation);
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
           if (!bDataObjectAsXml)
@@ -597,11 +597,11 @@ tOperation.ResultValue()\
       this.tClient.InvokeOperation(tOperation);
 #ifeq($(Member.Return.Type),struct) // !!struct!!
 
-      return DeserializeStruct_$(Member.Return.NsName.!trim/:/.!mangle)(tOperation);
+      return DeserializeStruct_$(Member.Return.NsName.!mangle)(tOperation);
 #else // end struct
 #ifeq($(Member.Return.Type),typedef)    // !!typedef!!
 
-      return DeserializeTypedef_$(Member.Return.NsName.!trim/:/.!mangle)(tOperation);
+      return DeserializeTypedef_$(Member.Return.NsName.!mangle)(tOperation);
 #else // end typedef
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
 
@@ -651,6 +651,6 @@ tOperation.ResultValue();
 
 #end // Interface.Classes
 
-#ifeq($(Interface.*IncludeNsName),) // temporary fix begin
+#ifeq($(Interface.Classes.$Count),0) // temporary fix begin
 })();
 #ifeqend // temporary fix end

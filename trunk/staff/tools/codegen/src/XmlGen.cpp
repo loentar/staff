@@ -246,7 +246,7 @@ namespace codegen
       rNodeOptions[itOption->first] = itOption->second;
     }
 
-    rNodeMember.AddSubNode("Params") << rMember.lsParamList;
+    rNodeMember.AddSubNode("Params") << rMember.lsParams;
 
     rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeReturn = rNodeMember.AddSubNode("Return");
@@ -343,7 +343,7 @@ namespace codegen
     }
 
     rNodeClass.AddSubNode(" Service operations ", CXMLNode::ENTCOMMENT);
-    rNodeClass.AddSubNode("Members") << rClass.lsMember;
+    rNodeClass.AddSubNode("Members") << rClass.lsMembers;
 
     WriteCppNamespace(rNodeClass, rClass.sNamespace);
 
@@ -381,7 +381,7 @@ namespace codegen
     rNodeEnum["Extern"] = rEnum.bExtern;
 
     rNodeEnum.AddSubNode(" Enum fields ", CXMLNode::ENTCOMMENT);
-    rNodeEnum.AddSubNode("Members") << rEnum.lsMember;
+    rNodeEnum.AddSubNode("Members") << rEnum.lsMembers;
 
     WriteCppNamespace(rNodeEnum, rEnum.sNamespace);
 
@@ -443,7 +443,7 @@ namespace codegen
     rNodeStruct["Extern"] = rStruct.bExtern;
 
     rNodeStruct.AddSubNode(" Struct fields ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Members") << rStruct.lsMember;
+    rNodeStruct.AddSubNode("Members") << rStruct.lsMembers;
 
     WriteCppNamespace(rNodeStruct, rStruct.sNamespace);
 
@@ -457,10 +457,10 @@ namespace codegen
     }
 
     rNodeStruct.AddSubNode(" Sub enums ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Enums") << rStruct.lsEnum;
+    rNodeStruct.AddSubNode("Enums") << rStruct.lsEnums;
 
     rNodeStruct.AddSubNode(" Sub structs ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Structs") << rStruct.lsStruct;
+    rNodeStruct.AddSubNode("Structs") << rStruct.lsStructs;
 
     return rNodeStructs;
   }
@@ -504,31 +504,18 @@ namespace codegen
     return rNodeTypedefs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeInterfaces, const SInterface& rInterface)
+  void WriteInterface(CXMLNode& rNodeInterfaces, const SInterface& rInterface, const SProject& rProject)
   {
     CXMLNode& rNodeInterface = rNodeInterfaces.AddSubNode("Interface");
-
-    std::string sNsName = rInterface.sNamespace.substr(0, 2) == "::" ?
-                          rInterface.sNamespace.substr(2) : rInterface.sNamespace;
-    rise::StrReplace(sNsName, "::", ".", true);
 
     rNodeInterface.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
     rNodeInterface["Name"] = rInterface.sName;
 
-    rNodeInterface.AddSubNode(" Interface ns name ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["NsName"] = sNsName + rInterface.sName;
-
     rNodeInterface.AddSubNode(" Interface namespace ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["Namespace"] = sNsName.substr(0, sNsName.size() - 1);
+    rNodeInterface["Namespace"] = rInterface.sNamespace;
 
-    if (rInterface.lsClass.empty())
-    {
-      rNodeInterface.AddSubNode(" Interface include name ", CXMLNode::ENTCOMMENT);
-      rNodeInterface["IncludeName"] = rInterface.sName;
-
-      rNodeInterface.AddSubNode(" Interface include ns name ", CXMLNode::ENTCOMMENT);
-      rNodeInterface["IncludeNsName"] = sNsName + rInterface.sName;
-    }
+    rNodeInterface.AddSubNode(" Interface name with namespace ", CXMLNode::ENTCOMMENT);
+    rNodeInterface["NsName"] = rInterface.sNamespace + rInterface.sName;
 
     rNodeInterface.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
     rNodeInterface["TargetNamespace"] = rInterface.sTargetNs;
@@ -536,23 +523,12 @@ namespace codegen
     rNodeInterface.AddSubNode(" Interface file name ", CXMLNode::ENTCOMMENT);
     rNodeInterface["FileName"] = rInterface.sFileName;
 
-    rNodeInterface.AddSubNode(" Interface services ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Classes") << rInterface.lsClass;
-
-    rNodeInterface.AddSubNode(" Interface enums ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Enums") << rInterface.lsEnum;
-
-    rNodeInterface.AddSubNode(" Interface structs ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Structs") << rInterface.lsStruct;
-
-    rNodeInterface.AddSubNode(" Interface typedefs ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Typedefs") << rInterface.lsTypedef;
-
+    // included files
     rNodeInterface.AddSubNode(" Included files ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeIncludes = rNodeInterface.AddSubNode("Includes");
 
-    for (std::list<SInclude>::const_iterator itInclude = rInterface.lsInclude.begin();
-        itInclude != rInterface.lsInclude.end(); ++itInclude)
+    for (std::list<SInclude>::const_iterator itInclude = rInterface.lsIncludes.begin();
+        itInclude != rInterface.lsIncludes.end(); ++itInclude)
     {
       std::string sNamespace = itInclude->sNamespace.substr(0, 2) == "::" ?
                             itInclude->sNamespace.substr(2) : itInclude->sNamespace;
@@ -571,31 +547,42 @@ namespace codegen
       rNodeInclude["TargetNamespace"] = itInclude->sTargetNs;
     }
 
-    return rNodeInterfaces;
+    // Enums
+//    for (std::list<SEnum>::const_iterator itEnum = rProject.lsEnumss.begin();
+//        itEnum != rProject.lsEnumss.end(); ++itEnum)
+//    {
+//      WriteEnum(rNodeEnums, rProject);
+//    }
+
+    rNodeInterface.AddSubNode(" Interface enums ", CXMLNode::ENTCOMMENT);
+    rNodeInterface.AddSubNode("Enums") << rInterface.lsEnums;
+
+    rNodeInterface.AddSubNode(" Interface structs ", CXMLNode::ENTCOMMENT);
+    rNodeInterface.AddSubNode("Structs") << rInterface.lsStructs;
+
+    rNodeInterface.AddSubNode(" Interface typedefs ", CXMLNode::ENTCOMMENT);
+    rNodeInterface.AddSubNode("Typedefs") << rInterface.lsTypedefs;
+
+    rNodeInterface.AddSubNode(" Interface services ", CXMLNode::ENTCOMMENT);
+    rNodeInterface.AddSubNode("Classes") << rInterface.lsClasses;
   }
 
   CXMLNode& operator<<(CXMLNode& rRootNode, const SProject& rProject)
   {
-    std::string sNamespace =
-      (rProject.sNamespace.substr(0, 2) == "::") ? rProject.sNamespace.substr(2) : rProject.sNamespace;
-
-    std::string sComponentName = sNamespace;
-    rise::StrReplace(sComponentName, "::", ".", true);
-    if (!sComponentName.empty())
-    {
-      sComponentName.erase(sComponentName.size() - 1);
-    }
-
     rRootNode.NodeName() = "Project";
     rRootNode["Name"] = rProject.sName;
     rRootNode.AddSubNode(" Component namespace ", CXMLNode::ENTCOMMENT);
-    rRootNode["Namespace"] = sNamespace;
-    WriteCppNamespace(rRootNode, sNamespace);
-    rRootNode.AddSubNode(" Component name ", CXMLNode::ENTCOMMENT);
-    rRootNode["ComponentName"] = sComponentName;
+    rRootNode["Namespace"] = rProject.sNamespace;
+    WriteCppNamespace(rRootNode, rProject.sNamespace);
 
     rRootNode.AddSubNode(" Project interfaces ", CXMLNode::ENTCOMMENT);
-    rRootNode.AddSubNode("Interfaces") << rProject.lsInterfaces;
+    CXMLNode& rNodeInterfaces = rRootNode.AddSubNode("Interfaces");
+
+    for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+        itInterface != rProject.lsInterfaces.end(); ++itInterface)
+    {
+      WriteInterface(rNodeInterfaces, *itInterface, rProject);
+    }
 
     return rRootNode;
   }

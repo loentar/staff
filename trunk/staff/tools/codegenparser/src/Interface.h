@@ -77,7 +77,7 @@ namespace codegen
   {
     SParam             stReturn;       //!<  return type
     std::string        sName;          //!<  operation name
-    std::list<SParam>  lsParamList;    //!<  parameters
+    std::list<SParam>  lsParams;       //!<  parameters
     bool               bIsConst;       //!<  operation is const
     std::string        sDescr;         //!<  operation description
     std::string        sDetail;        //!<  detailed description
@@ -124,7 +124,7 @@ namespace codegen
       std::string sValue;  //!<  enum member value (optional)
     };
 
-    std::list<SEnumMember>  lsMember;     //!<  members
+    std::list<SEnumMember>  lsMembers;     //!<  members
 
     SEnum();
   };
@@ -134,9 +134,9 @@ namespace codegen
   {
     std::string         sParentName;      //!<  parent struct name (with namespace as used)
     std::string         sParentNamespace; //!<  parent struct namespace (actual)
-    std::list<SParam>   lsMember;         //!<  struct fields
-    std::list<SStruct>  lsStruct;         //!<  sub struct list
-    std::list<SEnum>    lsEnum;           //!<  sub enum list
+    std::list<SParam>   lsMembers;        //!<  struct fields
+    std::list<SStruct>  lsStructs;        //!<  sub struct list
+    std::list<SEnum>    lsEnums;          //!<  sub enum list
 
     SStruct();
   };
@@ -153,7 +153,7 @@ namespace codegen
   struct SClass: public SBaseType
   {
     TStringList         lsModules;      //!<  axis2/c modules list to engage
-    std::list<SMember>  lsMember;       //!<  service operations
+    std::list<SMember>  lsMembers;      //!<  service operations
   };
 
   //! include info
@@ -172,11 +172,11 @@ namespace codegen
     std::string           sNamespace;     //!<  interface main namespace
     std::string           sFileName;      //!<  input filename
     std::string           sTargetNs;      //!<  target namespace
-    std::list<SInclude>   lsInclude;      //!<  included files
-    std::list<SEnum>      lsEnum;         //!<  enum list
-    std::list<STypedef>   lsTypedef;      //!<  typedef list
-    std::list<SStruct>    lsStruct;       //!<  struct list
-    std::list<SClass>     lsClass;        //!<  service classes list
+    std::list<SInclude>   lsIncludes;     //!<  included files
+    std::list<SEnum>      lsEnums;        //!<  enum list
+    std::list<STypedef>   lsTypedefs;     //!<  typedef list
+    std::list<SStruct>    lsStructs;      //!<  struct list
+    std::list<SClass>     lsClasses;      //!<  service classes list
   };
 
   //! project
