@@ -38,16 +38,17 @@
 void Help()
 {
   std::cerr << "Code generator for Staff\n"
-    "staff_codegen [-n<Project_Name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-t<template>][-u][-e][-p<plugin_name>][-x][Source_files]\n"
-    "  -n              - Project name\n"
-    "  -i<inputdir>    - Interface headers dir\n"
-    "  -o<outputdir>   - Output dir\n"
+    "staff_codegen [source files][-t<template>][-p<plugin_name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-u][-e][-n<prj_name>][-x]\n"
+    "  -t<template>    - Generate source with template name. Example: -tserviceimpl\n"
+    "  -p<plugin_name> - Use parser <plugin_name> to read source file(s). (default is cpp). Example: -pwsdl\n"
+    "  -i<inputdir>    - Set input dir\n"
+    "  -o<outputdir>   - Set output dir\n"
     "  -c<changedir>   - Set input and output dirs\n"
-    "  -t<template>    - Generate source with template name\n"
-    "  -u              - Update only(generate only missing files, update existing files if needed)\n"
-    "  -e              - Don't error if Interface file is not contain service\n"
+    "  -u              - Update only (generate only missing files, update existing files if needed)\n"
+    "  -e              - Don't error if Interface file does not contain a service\n"
     "  -d              - Define environment variables: -dvar1=value1,var2=2,var3\n"
-    "  -p<plugin_name> - Use plugin with given name(default: cpp). Example: -pwsdl\n"
+    "  -l[t|p]         - Display parsers(p) and/or templates(t) lists\n"
+    "  -n<prj_name>    - Set project name (output file name for xml description)\n"
     "  -x              - Write xml description\n\n";
 }
 
@@ -60,6 +61,11 @@ int main(int nArgs, const char* szArgs[])
   }
 
   const char* szStaffHome = getenv("STAFF_HOME");
+  if (!szStaffHome)
+  {
+    std::cerr << "Environment variable STAFF_HOME is not set!!" << std::endl;
+    return 1;
+  }
 
   staff::codegen::SParseSettings stParseSettings;
   staff::codegen::SProject stProject;
@@ -71,11 +77,9 @@ int main(int nArgs, const char* szArgs[])
   staff::codegen::TStringMap mEnv;
   int nResult = 0;
 
-  if(szStaffHome == NULL)
-  {
-    std::cerr << "Environment variable STAFF_HOME is not set!!" << std::endl;
-    return 1;
-  }
+  const std::string& sTemplatesDir = std::string(szStaffHome) + "/bin/template/";
+  const std::string& sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
+  const std::string& sPluginPrefix = RISE_LIBRARY_PREFIX "staffcgparser-";
 
   stProject.sName = "Project1";
   stParseSettings.sInDir = ".";
@@ -170,6 +174,51 @@ int main(int nArgs, const char* szArgs[])
         sPluginName = &szArgs[i][2];
         break;
 
+      case 'l':
+      {
+        const std::string sWhat = &szArgs[i][2];
+
+        if (sWhat.empty() || sWhat.find('t') != std::string::npos)
+        {
+          staff::codegen::TStringList lsTemplates;
+
+          rise::CFileFind::Find(sTemplatesDir, lsTemplates, "*", rise::CFileFind::EFA_DIR);
+          lsTemplates.sort();
+
+          std::cout << "Templates:\n";
+          for (staff::codegen::TStringList::const_iterator itTemplate = lsTemplates.begin();
+              itTemplate != lsTemplates.end(); ++itTemplate)
+          {
+            if (*itTemplate != "common")
+            {
+              std::cout << "  " << *itTemplate << std::endl;
+            }
+          }
+        }
+
+        if (sWhat.empty() || sWhat.find('p') != std::string::npos)
+        {
+          const int nPluginPrefixSize = sPluginPrefix.size();
+          const int nPluginExtSize = strlen(RISE_LIBRARY_EXT);
+          staff::codegen::TStringList lsPlugins;
+          rise::CFileFind::Find(sPluginsDir, lsPlugins, sPluginPrefix + "*" RISE_LIBRARY_EXT,
+                                rise::CFileFind::EFA_FILE);
+
+          lsPlugins.sort();
+
+          std::cout << "\nParsers:\n";
+          for (staff::codegen::TStringList::const_iterator itPlugin = lsPlugins.begin();
+              itPlugin != lsPlugins.end(); ++itPlugin)
+          {
+            std::cout << "  "
+                << itPlugin->substr(nPluginPrefixSize, itPlugin->size() - nPluginPrefixSize - nPluginExtSize)
+                << std::endl;
+          }
+        }
+
+        return 0;
+      }
+
       default:
         std::cerr << "unrecognized option: " << szArgs[i] << std::endl << std::endl;
         Help();
@@ -189,11 +238,9 @@ int main(int nArgs, const char* szArgs[])
   try
   {
     // loading plugin
-    std::string sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
     rise::plugin::CPluginManager<staff::codegen::ICodegenParser> tPlugins;
 
-    const std::string& sFileName = sPluginsDir +
-    RISE_LIBRARY_PREFIX "staffcgparser-" + sPluginName + RISE_LIBRARY_EXT;
+    const std::string& sFileName = sPluginsDir + sPluginPrefix + sPluginName + RISE_LIBRARY_EXT;
 
     staff::codegen::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
 
@@ -223,7 +270,7 @@ int main(int nArgs, const char* szArgs[])
     {
       rise::LogDebug() << "template: " << sTemplate;
       staff::codegen::CCodeGen tGen;
-      tGen.Start(std::string(szStaffHome) + "/bin/template/" + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
+      tGen.Start(sTemplatesDir + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
   }
   catch (const staff::codegen::CParseException& rException)
