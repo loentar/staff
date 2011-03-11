@@ -60,8 +60,6 @@ namespace das
     Type();
   };
 
-  typedef std::list<Type> TypesList;  //!< types list
-
   //! include descriptor
   struct STAFF_DAS_COMMON_EXPORT Include
   {

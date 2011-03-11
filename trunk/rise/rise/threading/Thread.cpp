@@ -151,7 +151,7 @@ namespace rise
     void* CThread::InternalRun(void* pParam)
     {
       CThread* pThread = static_cast<CThread*>(pParam);
-  
+
       if ( pThread == NULL )
         LogError() << "invalid param: pParam == NULL!";
       else
@@ -161,10 +161,11 @@ namespace rise
           pThread->Run(pThread->m_pParam);
         }
         RISE_CATCH_ALL
+
+        pThread->m_hThread = 0;
+        pThread->m_bStopping = false;
       }
 
-      pThread->m_hThread = 0;
-      pThread->m_bStopping = false;
       Exit();
       return NULL;
     }
