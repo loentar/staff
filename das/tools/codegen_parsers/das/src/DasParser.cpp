@@ -52,6 +52,14 @@ namespace codegen
 
   void CDasParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
+    std::string sRootNs = "::";
+    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+    {
+      sRootNs = "::" + itRootNs->second + "::";
+      rise::StrReplace(sRootNs, ".", "::", true);
+    }
+
     TStringMap::const_iterator itServiceUri = rParseSettings.mEnv.find("serviceuri");
 
     std::string sServiceUri;
@@ -73,7 +81,7 @@ namespace codegen
 
       pDataAccessService->SetDataSource(sDataSource);
       const CDataObject& rdoInterface = pDataAccessService->GetInterface().FirstChild();
-      Parse(rdoInterface, stInterface, rProject);
+      Parse(rdoInterface, stInterface, rProject, sRootNs);
       rProject.sNamespace = stInterface.sNamespace;
 
       pDataAccessService->FreeDataSource();
@@ -173,13 +181,14 @@ namespace codegen
     }
   }
 
-  void CDasParser::Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject)
+  void CDasParser::Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject,
+                         const std::string& sRootNs)
   {
     rInterface.sName = rdoInterface.GetChildByLocalName("Name").GetText();
 
     std::string sNamespace = rdoInterface.GetChildByLocalName("Namespace").GetText();
     rise::StrReplace(sNamespace, ".", "::", true);
-    sNamespace = "::" + sNamespace + "::";
+    sNamespace = sRootNs + sNamespace + "::";
 
     rInterface.sNamespace = sNamespace;
 
@@ -205,7 +214,7 @@ namespace codegen
       stInclude.sFileName = sName + ".h";
       stInclude.sNamespace = rdoInclude.GetChildByLocalName("Namespace").GetText();
       rise::StrReplace(stInclude.sNamespace, ".", "::", true);
-      stInclude.sNamespace = "::" + stInclude.sNamespace + "::";
+      stInclude.sNamespace = sRootNs + stInclude.sNamespace + "::";
       rInterface.lsIncludes.push_back(stInclude);
 
       if (!bExists)

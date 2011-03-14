@@ -42,8 +42,8 @@ namespace codegen
   class CCppHeaderParser
   {
   public:
-    CCppHeaderParser():
-      m_sCurrentNamespace("::"), m_nLine(1), m_pProject(NULL)
+    CCppHeaderParser(const std::string& sRootNs):
+      m_sRootNamespace(sRootNs), m_sCurrentNamespace(sRootNs), m_nLine(1), m_pProject(NULL)
     {
     }
 
@@ -1338,7 +1338,7 @@ namespace codegen
           m_tFile.ignore();
           m_tFile.get(sbTmp, chData);
 
-          CCppHeaderParser tCppHeaderParser;
+          CCppHeaderParser tCppHeaderParser(m_sRootNamespace);
           const SInterface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
 
           // import extern structs
@@ -1768,6 +1768,7 @@ namespace codegen
     }
 
     std::string m_sInDir;
+    std::string m_sRootNamespace;
     std::string m_sCurrentNamespace;
     std::ifstream m_tFile;
     int m_nLine;
@@ -1784,10 +1785,19 @@ namespace codegen
   void CCppParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
     unsigned uServicesCount = 0;
+
+    std::string sRootNs = "::";
+    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+    {
+      sRootNs = "::" + itRootNs->second + "::";
+      rise::StrReplace(sRootNs, ".", "::", true);
+    }
+
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      CCppHeaderParser tCppHeaderParser;
+      CCppHeaderParser tCppHeaderParser(sRootNs);
       const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
     }

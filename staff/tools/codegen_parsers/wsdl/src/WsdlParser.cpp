@@ -776,6 +776,13 @@ namespace codegen
     CWsdlParserImpl(const SParseSettings& rParseSettings):
       m_stWsdlTypes(this), m_rParseSettings(rParseSettings)
     {
+      m_sRootNamespace = "::";
+      TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+      if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+      {
+        m_sRootNamespace = "::" + itRootNs->second + "::";
+        rise::StrReplace(m_sRootNamespace, ".", "::", true);
+      }
     }
 
     bool ParseTypeAny(const SElement& rElement, SDataType& rDataType)
@@ -2202,7 +2209,7 @@ namespace codegen
 
       rise::StrReplace(sCppNamespace, ".", "::", true);
 
-      return "::" + sCppNamespace + "::";
+      return m_sRootNamespace + sCppNamespace + "::";
     }
 
     // optimize param as const ref
@@ -2222,6 +2229,7 @@ namespace codegen
   private:
     SInterface m_stInterface;
     SWsdlTypes m_stWsdlTypes;
+    std::string m_sRootNamespace;
     const SParseSettings& m_rParseSettings;
   };
 
