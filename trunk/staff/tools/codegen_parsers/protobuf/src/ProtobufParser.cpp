@@ -42,8 +42,8 @@ namespace codegen
   class CProtobufHeaderParser
   {
   public:
-    CProtobufHeaderParser():
-      m_sCurrentNamespace("::"), m_nLine(1), m_pProject(NULL)
+    CProtobufHeaderParser(const std::string& sRootNs):
+      m_sRootNamespace(sRootNs), m_sCurrentNamespace(sRootNs), m_nLine(1), m_pProject(NULL)
     {
     }
 
@@ -816,6 +816,13 @@ namespace codegen
           continue;
         }
         else
+        if (sToken == "option")
+        { // skip options
+          ReadBefore(sTmp, ";");
+          rise::LogDebug() << "Ignoring option" << sTmp;
+          continue;
+        }
+        else
         {
           CSP_THROW("missing field specificator. message: " + rStruct.sName, m_stInterface.sFileName, m_nLine);
         }
@@ -950,7 +957,7 @@ namespace codegen
 
     void Import(const std::string& sFileName)
     {
-      CProtobufHeaderParser tProtobufHeaderParser;
+      CProtobufHeaderParser tProtobufHeaderParser(m_sRootNamespace);
       const SInterface& rInterface = tProtobufHeaderParser.Parse(m_sInDir, sFileName, *m_pProject);
 
       // use extern structs
@@ -1104,7 +1111,7 @@ namespace codegen
         ReadBefore(sNamespace, ";");
         rise::StrTrim(sNamespace);
         rise::StrReplace(sNamespace, ".", "::", true);
-        m_sCurrentNamespace = "::" + sNamespace + "::";
+        m_sCurrentNamespace = m_sRootNamespace + sNamespace + "::";
 
         SkipWs();
         char chTmp = '\0';
@@ -1121,6 +1128,12 @@ namespace codegen
       if (sTmp == ";")
       {
         SkipSingleLineComment();
+      }
+      else
+      if (sTmp == "option")
+      { // skip options
+        ReadBefore(sTmp, ";");
+        rise::LogDebug() << "Ignoring option" << sTmp;
       }
       else
       {
@@ -1282,6 +1295,7 @@ namespace codegen
     }
 
     std::string m_sInDir;
+    std::string m_sRootNamespace;
     std::string m_sCurrentNamespace;
     std::ifstream m_tFile;
     int m_nLine;
@@ -1298,10 +1312,19 @@ namespace codegen
   void CProtobufParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
     unsigned uServicesCount = 0;
+
+    std::string sRootNs = "::";
+    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+    {
+      sRootNs = "::" + itRootNs->second + "::";
+      rise::StrReplace(sRootNs, ".", "::", true);
+    }
+
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      CProtobufHeaderParser tProtobufHeaderParser;
+      CProtobufHeaderParser tProtobufHeaderParser(sRootNs);
       const SInterface& rInterface = tProtobufHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
     }

@@ -50,7 +50,8 @@ namespace codegen
     virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
 
   private:
-    void ParseProject(const rise::xml::CXMLNode& rDataSourceNode, SProject& rProject);
+    void ParseProject(const rise::xml::CXMLNode& rDataSourceNode, SProject& rProject,
+                      const std::string& sRootNs);
     void ParseTypes(const rise::xml::CXMLNode& rNodeTypes, SProject& rProject, SInterface& rInterface,
                     const std::string& sNamespace);
     void ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr);

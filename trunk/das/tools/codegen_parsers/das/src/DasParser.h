@@ -43,7 +43,8 @@ namespace codegen
 
   private:
     void ParseTypes(const CDataObject& rdoTypes, const std::string& sNamespace, SInterface& rInterface);
-    void Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject);
+    void Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject,
+               const std::string& sRootNs);
     bool FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace);
     void OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs);
 

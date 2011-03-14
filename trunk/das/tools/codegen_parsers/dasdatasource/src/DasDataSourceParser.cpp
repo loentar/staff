@@ -50,6 +50,14 @@ namespace codegen
 
   void CDasDataSourceParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
+    std::string sRootNs = "::";
+    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+    {
+      sRootNs = "::" + itRootNs->second + "::";
+      rise::StrReplace(sRootNs, ".", "::", true);
+    }
+
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
@@ -79,7 +87,7 @@ namespace codegen
         }
 
         rise::StrReplace(sNamespace, ".", "::", true);
-        sNamespace = "::" + sNamespace + "::";
+        sNamespace = sRootNs + sNamespace + "::";
 
         stInterface.sNamespace = sNamespace;
 
@@ -93,7 +101,7 @@ namespace codegen
       {
         if (itNodeDataSource->NodeName() == "datasource")
         {
-          ParseProject(*itNodeDataSource, rProject);
+          ParseProject(*itNodeDataSource, rProject, sRootNs);
         }
       }
 
@@ -255,7 +263,8 @@ namespace codegen
   }
 
 
-  void CDasDataSourceParser::ParseProject(const rise::xml::CXMLNode& rDataSourceNode, SProject& rProject)
+  void CDasDataSourceParser::ParseProject(const rise::xml::CXMLNode& rDataSourceNode, SProject& rProject,
+                                          const std::string& sRootNs)
   {
     SInterface stInterface;
 
@@ -269,7 +278,7 @@ namespace codegen
     }
 
     rise::StrReplace(sNamespace, ".", "::", true);
-    sNamespace = "::" + sNamespace + "::";
+    sNamespace = sRootNs + sNamespace + "::";
 
     stInterface.sNamespace = sNamespace;
 
