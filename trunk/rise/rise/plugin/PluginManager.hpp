@@ -65,7 +65,7 @@ namespace rise
     void CPluginManager<TPluginBaseClass>::UnLoadPlugin( const CString& sPluginName )
     {
       TDynLibMap::iterator itPlugin = m_lsDynLibMap.find(sPluginName);
-      RISE_ASSERTES(itPlugin != m_lsPluginMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
+      RISE_ASSERTES(itPlugin != m_lsDynLibMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
       itPlugin->second->UnloadLibrary();
       m_lsPluginMap.erase(sPluginName);
       m_lsDynLibMap.erase(sPluginName);

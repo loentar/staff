@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"

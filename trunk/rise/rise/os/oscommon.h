@@ -46,8 +46,10 @@
 /*! \mainpage Rise
 Rise is an tool library for C++, that wraps system-specific functions into classes.
 <br>Supported OSes are:
-  - Linux (x86/x86_64/mips);
-  - Windows (x86/x86_64).
+  - Linux (x86/x86_64/mips/arm);
+  - Windows (x86/x86_64);
+  - Mac OS X;
+  - FreeBSD.
 <p>
 Rise implements the following tools and classes:
   - Logs <a href="classrise_1_1CLog.html">More...</a>;

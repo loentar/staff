@@ -12,8 +12,8 @@ endif
 OBJDIR = obj/$(PLATFORM)/
 OUTDIR = out/$(PLATFORM)/
 
-CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC
-LIBS = -lrise
+CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC -I../..
+LIBS = -lrise -L../../$(OUTDIR)
 
 ifeq ($(PLATFORM),x86_64)
   CXXFLAGS += -D_M_X64

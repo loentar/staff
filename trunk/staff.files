@@ -102,6 +102,8 @@ rise/rise/threading/CriticalData.h
 rise/rise/threading/CriticalData.hpp
 rise/rise/threading/CriticalSection.cpp
 rise/rise/threading/CriticalSection.h
+rise/rise/threading/Event.cpp
+rise/rise/threading/Event.h
 rise/rise/threading/SharedPtrCount.h
 rise/rise/threading/SharedPtrCount.hpp
 rise/rise/threading/SharedPtr.h
@@ -315,6 +317,7 @@ staff/tools/codegenparser/src/CodegenParser.cpp
 staff/tools/codegenparser/src/CodegenParser.h
 staff/tools/codegenparser/src/Interface.cpp
 staff/tools/codegenparser/src/Interface.h
+staff/tools/codegenparser/src/staffcodegenparserexport.h
 staff/tools/codegenparser/src/tools.cpp
 staff/tools/codegenparser/src/tools.h
 staff/tools/codegen_parsers/wsdl/src/WsdlParser.cpp

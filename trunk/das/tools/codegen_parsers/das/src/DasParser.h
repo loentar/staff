@@ -46,7 +46,6 @@ namespace codegen
     void Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject,
                const std::string& sRootNs);
     bool FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace);
-    void OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs);
 
   private:
     static const std::string m_sId;

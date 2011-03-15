@@ -26,9 +26,12 @@
 
 #ifndef WIN32
 #include <pthread.h>
+#include <semaphore.h>
 #include <unistd.h>
 #include <sys/time.h>
 #endif
+
+#define RISE_WAIT_INFINITE -1
 
 namespace rise
 {
@@ -130,6 +133,46 @@ namespace rise
       */
   void osLeaveCriticalSection(PCriticalSection pCriticalSection);
   
+
+#ifdef WIN32
+  //! Event
+  typedef HANDLE HEvent;
+#else
+  //! Event
+  typedef sem_t HEvent;
+#endif
+  //! Event pointer
+  typedef HEvent* PEvent;
+
+  enum EEventWaitResult
+  {
+    EEventWaitError,
+    EEventWaitSignalled,
+    EEventWaitTimeout
+  };
+
+  //!         create thread event object
+  /*! \param  pThreadEvent - thread event
+    */
+  void osThreadEventCreate(PEvent pThreadEvent);
+
+  //!         destroy thread event object
+  /*! \param  pThreadEvent - thread event
+    */
+  void osThreadEventFree(PEvent pThreadEvent);
+
+  //!         wait for the event be signaled
+  /*! \param  pThreadEvent - thread event
+      \param  ulTimeout - timeout in msec
+    */
+  EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout = RISE_WAIT_INFINITE);
+
+  //!         signal event
+  /*! \param  pThreadEvent - thread event
+    */
+  void osThreadEventSignal(PEvent pThreadEvent);
+
+
   //!         sleep for ulMSec millisecond
   /*! \param  ulMSec - millisecond to sleep
       */
