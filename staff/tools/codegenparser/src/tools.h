@@ -24,6 +24,7 @@
 #define STAFF_CODEGEN_TOOLS_H
 
 #include <string>
+#include "staffcodegenparserexport.h"
 #include "Interface.h"
 
 namespace staff
@@ -36,6 +37,7 @@ namespace codegen
       \param  pstParent - optional pointer to structure search from
       \return found structure, NULL if not found
     */
+  STAFF_CODEGENPARSER_EXPORT
   const SBaseType* GetBaseType(const std::string& sNsName, const SInterface& rstInterface,
                                const int eBaseType = SBaseType::EAny,
                                const SStruct* pstParent = NULL);
@@ -46,6 +48,7 @@ namespace codegen
       \param  pstParent - optional pointer to structure search from
       \return found structure, NULL if not found
     */
+  STAFF_CODEGENPARSER_EXPORT
   const SStruct* GetStruct(const std::string& sNsName, const SInterface& rstInterface,
                            const SStruct* pstParent = NULL);
 
@@ -59,6 +62,7 @@ namespace codegen
       \param  sOptimizeNs - namespace to optimize
       \param  sCurrentNs - current namespace
   */
+  STAFF_CODEGENPARSER_EXPORT
   void OptimizeCppNs(std::string& sOptimizeNs, const std::string& sCurrentNs);
 
   //! find existing or add new type in list

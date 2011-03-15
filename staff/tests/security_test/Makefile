@@ -4,8 +4,8 @@ TARGET = staff_security_test
 TARGETNAME = $(TARGET)
 
 # == 
-CXXFLAGS += -c -Wall -D_REENTRANT
-LDFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise 
+CXXFLAGS += -c -Wall -D_REENTRANT -I$(DEPLOYDIR)$(INCDIR)
+LDFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise -L$(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -13,7 +13,7 @@ SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
-make: "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+make: checkdeploy "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
@@ -25,6 +25,14 @@ $(OBJDIR)%.o: %.cpp
 install:;
 uninstall:;
 distrib:;
+
+
+# == test ===========================================
+test: make
+	unset RISE_LOG_LEVEL; LD_LIBRARY_PATH=:../../$(OUTDIR) $(OUTDIR)$(TARGET)
+
+checkdeploy:
+	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)
 
 # == clean ==========================================
 clean:

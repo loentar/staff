@@ -112,17 +112,20 @@ namespace rise
 
     void CThread::JoinThread()
     {
-      osJoinThread(m_hThread);
+      if (m_hThread != 0)
+      {
+        osJoinThread(m_hThread);
+      }
     }
 
     bool CThread::Wait()
     {
-      return osWaitForThread(m_hThread);
+      return (m_hThread == 0) ? true : osWaitForThread(m_hThread);
     }
 
     bool CThread::Wait(unsigned long ulTimeout)
     {
-      return osWaitForThreadExit(m_hThread, ulTimeout);
+      return (m_hThread == 0) ? true : osWaitForThreadExit(m_hThread, ulTimeout);
     }
 
     void CThread::Stop( ulong ulTimeout /*= 0ul*/ )

@@ -24,11 +24,14 @@
 #ifndef WIN32
 #include <sys/wait.h>
 #endif
+#include <errno.h>
 #include "osthread.h"
-
 
 namespace rise
 {
+  //////////////////////////////////////////////////////////////////////////////
+  //    Threading
+  //////////////////////////////////////////////////////////////////////////////
 
 #ifdef WIN32
   LARGE_INTEGER g_llFrequency = {{0}};
@@ -267,7 +270,7 @@ bool osWaitForThread( HThread hThread )
 
 
 //////////////////////////////////////////////////////////////////////////////
-//    Threading
+//    Critical section
 //////////////////////////////////////////////////////////////////////////////
 
 void osInitializeCriticalSection(PCriticalSection pCriticalSection)
@@ -333,6 +336,90 @@ void osLeaveCriticalSection(PCriticalSection pCriticalSection)
   pthread_mutex_unlock(pCriticalSection);
 #endif
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+//    Events
+//////////////////////////////////////////////////////////////////////////////
+
+void osThreadEventCreate(PEvent pThreadEvent)
+{
+#ifdef WIN32
+  *pThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+#else
+  sem_init(pThreadEvent, 0, 0);
+#endif
+}
+
+void osThreadEventFree(PEvent pThreadEvent)
+{
+#ifdef WIN32
+  CloseHandle(*pThreadEvent);
+#else
+  sem_destroy(pThreadEvent);
+#endif
+}
+
+
+EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout /*= RISE_WAIT_INFINITE*/)
+{
+  EEventWaitResult eResult;
+#ifdef WIN32
+  DWORD dwWaitResult = WaitForSingleObject(pThreadEvent, 5000);
+  switch (dwWaitResult)
+  {
+  case WAIT_OBJECT_0:
+    eResult = EEventWaitSignalled;
+    break;
+
+  case WAIT_TIMEOUT:
+    eResult = EEventWaitTimeout;
+    break;
+
+  default:
+    eResult = EEventWaitError;
+  }
+#else
+  int nResult = 0;
+  struct timeval tvNow;
+  struct timespec tvAbsTimeout;
+
+  gettimeofday(&tvNow, NULL);
+
+  tvAbsTimeout.tv_sec = tvNow.tv_sec + ulTimeout / 1000;
+  tvAbsTimeout.tv_nsec = ((ulTimeout % 1000) * 1000 + tvNow.tv_usec) * 1000;
+
+  // check for overflow
+  if (tvAbsTimeout.tv_nsec > 1000000000)
+  {
+    ++tvAbsTimeout.tv_sec;
+    tvAbsTimeout.tv_nsec -= 1000000000;
+  }
+
+  // Wait for the event be signaled
+  nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout);
+
+  if (nResult == 0)
+  {
+    eResult = EEventWaitSignalled;
+  }
+  else
+  {
+    eResult = (errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError;
+  }
+#endif
+  return eResult;
+}
+
+void osThreadEventSignal(PEvent pThreadEvent)
+{
+#ifdef WIN32
+  SetEvent(*pThreadEvent);
+#else
+  sem_post(pThreadEvent);
+#endif
+}
+
 
 void osSleep(unsigned long ulMSec)
 {

@@ -63,10 +63,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
+				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib staffcodegenparser.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib\codegen\parsers&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -142,10 +142,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
+				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib staffcodegenparser.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib\codegen\parsers&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"

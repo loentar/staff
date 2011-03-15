@@ -25,6 +25,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include "staffcodegenparserexport.h"
 
 namespace staff
 {
@@ -34,7 +35,7 @@ namespace codegen
   typedef std::map<std::string, std::string> TStringMap; //!< string map
 
   //! data type
-  struct SDataType
+  struct STAFF_CODEGENPARSER_EXPORT SDataType
   {
     enum EDataType  //! data type enum
     {
@@ -63,7 +64,7 @@ namespace codegen
   };
 
   //!  parameter
-  struct SParam
+  struct STAFF_CODEGENPARSER_EXPORT SParam
   {
     SDataType    stDataType;  //!<  param data type
     std::string  sName;       //!<  param name
@@ -73,7 +74,7 @@ namespace codegen
   };
 
   //!  service operation
-  struct SMember
+  struct STAFF_CODEGENPARSER_EXPORT SMember
   {
     SParam             stReturn;       //!<  return type
     std::string        sName;          //!<  operation name
@@ -89,7 +90,7 @@ namespace codegen
 
 
   //! base type for data types
-  struct SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT SBaseType
   {
     //!< base type enum
     enum EType
@@ -115,7 +116,7 @@ namespace codegen
   };
 
   //! enum
-  struct SEnum: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT SEnum: public SBaseType
   {
     //! enum member
     struct SEnumMember
@@ -130,7 +131,7 @@ namespace codegen
   };
 
   //! struct
-  struct SStruct: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT SStruct: public SBaseType
   {
     std::string         sParentName;      //!<  parent struct name (with namespace as used)
     std::string         sParentNamespace; //!<  parent struct namespace (actual)
@@ -142,7 +143,7 @@ namespace codegen
   };
 
   //! typedef
-  struct STypedef: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT STypedef: public SBaseType
   {
     SDataType           stDataType;     //!<  defined data type
 
@@ -157,7 +158,7 @@ namespace codegen
   };
 
   //! include info
-  struct SInclude
+  struct STAFF_CODEGENPARSER_EXPORT SInclude
   {
     std::string sInterfaceName;      //!<  interface name
     std::string sNamespace;          //!<  interface namespace
@@ -166,7 +167,7 @@ namespace codegen
   };
 
   //! service interface
-  struct SInterface
+  struct STAFF_CODEGENPARSER_EXPORT SInterface
   {
     std::string           sName;          //!<  interface name, based on input filename
     std::string           sNamespace;     //!<  interface main namespace
@@ -180,7 +181,7 @@ namespace codegen
   };
 
   //! project
-  struct SProject
+  struct STAFF_CODEGENPARSER_EXPORT SProject
   {
     std::string            sName;         //!<  project name
     std::string            sNamespace;    //!<  component namespace

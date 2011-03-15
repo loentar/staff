@@ -1,4 +1,3 @@
-
 TARGET = rise_test
 PROJECT = $(TARGET)
 
@@ -11,8 +10,8 @@ endif
 OBJDIR = obj/$(PLATFORM)/
 OUTDIR = out/$(PLATFORM)/
 
-CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC
-LIBS = -lpthread -lstdc++ -lrise
+CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC -I../..
+LIBS = -lpthread -lstdc++ -lrise -L../../$(OUTDIR)
 
 ifndef ("$(DEBUG)","")
   CXXFLAGS += -DDEBUG -g -O0
@@ -25,14 +24,12 @@ SOURCES := $(wildcard $(SRCDIR)*.cpp)
 OBJECTS := $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%.o,$(SOURCES))
 
 # == make ===========================================
-make: dirs $(OUTDIR)$(TARGET)
+make: "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGET)
 	make -C ../myplugin
 
 # == test ===========================================
-test:
-	LD_LIBRARY_PATH=../myplugin/$(OUTDIR) $(OUTDIR)$(TARGET)
-
-dirs: "$(OBJDIR)" "$(OUTDIR)"
+test: make
+	unset RISE_LOG_LEVEL; LD_LIBRARY_PATH=../myplugin/$(OUTDIR):../../$(OUTDIR) $(OUTDIR)$(TARGET)
 
 # == compile ========================================
 $(OBJDIR)%.o: %.cpp

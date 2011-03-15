@@ -24,6 +24,7 @@
 
 #include <string>
 #include <iosfwd>
+#include "staffcodegenparserexport.h"
 #include "Interface.h"
 
 namespace staff
@@ -31,7 +32,7 @@ namespace staff
 namespace codegen
 {
   //! source code parse settings
-  struct SParseSettings
+  struct STAFF_CODEGENPARSER_EXPORT SParseSettings
   {
     std::string    sInDir;          //!<  input dir
     std::string    sOutDir;         //!<  output dir
@@ -43,7 +44,7 @@ namespace codegen
   };
 
   //! codegen source code parser plugin
-  class ICodegenParser
+  class STAFF_CODEGENPARSER_EXPORT ICodegenParser
   {
   public:
     virtual ~ICodegenParser();
@@ -61,7 +62,7 @@ namespace codegen
   };
 
   //! parse exception
-  class CParseException
+  class STAFF_CODEGENPARSER_EXPORT CParseException
   {
   public:
     CParseException(const std::string& sFile, int nLine, const std::string& sMessage,
@@ -79,6 +80,7 @@ namespace codegen
     int m_nSourceLine;
   };
 
+  STAFF_CODEGENPARSER_EXPORT
   std::ostream& operator<<(std::ostream& rStream, const CParseException& rParseException);
 
 #define CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)\

@@ -49,6 +49,7 @@
 #include <rise/xml/XMLDecl.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/threading/Thread.h>
+#include <rise/threading/Event.h>
 #include <rise/timer/TimerHandler.h>
 #include <rise/os/osprocess.h>
 #include <rise/socket/Socket.h>
@@ -62,33 +63,21 @@
 #include <rise/tools/StackTracer.h>
 #include <rise/tools/FileFind.h>
 #include <rise/string/Encoding.h>
-
-/*#ifndef WIN32
 #include <rise/plugin/PluginManager.h>
 #include "../../myplugin/src/MyPlugin.h"
-#endif*/
 
-class CEntry
+static void OnSignal(int nSignal)
 {
-public:
-  CEntry()
+  if(nSignal == SIGSEGV)
   {
-    tStdOut << "Testing ";
+    std::string sTracedStack;
+    rise::tools::CStackTracer::StackTraceStr(sTracedStack);
+    std::cout << "\n\n";
+    rise::LogError() << "Segmentation fault in thread " << rise::threading::CThread::GetCurrentId()
+        << ".\nTraced stack:\n" << sTracedStack;
+    exit(1);
   }
-  
-  ~CEntry()
-  {
-    tStdOut << "End" << std::endl;
-  }
-  
-  template<typename TDATA>
-  rise::COStream& operator<<( TDATA tData )
-  {
-    return tStdOut << tData;
-  }
-
-};
-
+}
 
 class CMyThread: public rise::threading::CThread 
 {
@@ -303,6 +292,9 @@ public:
 
 int main(int argc, const rise::TChar* argv[])
 {
+#ifndef WIN32
+  signal(SIGSEGV, OnSignal);
+#endif
 
   tStdOut << rise::ConsoleSetWindowText("rise test");
 
@@ -363,7 +355,7 @@ int main(int argc, const rise::TChar* argv[])
   try
   {
     {
-      CEntry() << "test timer";
+      tStdOut << "Test timer";
 
       CMyTimer tTimer1;
       CMyTimer tTimer2;
@@ -372,7 +364,7 @@ int main(int argc, const rise::TChar* argv[])
 
       for (int i = 0; i < 5; ++i)
       {
-        pause();
+        rise::threading::CThread::Sleep(110);
       }
 
       RISE_ASSERT(tTimer1.GetCount() == 2 && tTimer2.GetCount() == 3);
@@ -381,7 +373,6 @@ int main(int argc, const rise::TChar* argv[])
     }
 
     {
-      CEntry() << "testcs";
       tStdOut << "Testing CS ";
       CTestCS tTestCS;
       tTestCS.TestCrit();
@@ -923,6 +914,61 @@ int main(int argc, const rise::TChar* argv[])
     }
 
     //////////////////////////////////////////////////////////////////////////////
+    //    CEvent
+    //////////////////////////////////////////////////////////////////////////////
+
+    {
+      struct SEventTest
+      {
+        rise::threading::CEvent tEvent;
+        bool bSignaled;
+        SEventTest(): bSignaled(false) {}
+      };
+
+      class CMyThreadEvent: public rise::threading::CThread
+      {
+      public:
+        void Run(void* pParam)
+        {
+          SEventTest* pEventTest = reinterpret_cast<SEventTest*>(pParam);
+          RISE_ASSERT(pEventTest);
+          Sleep(200);
+          pEventTest->bSignaled = true;
+          pEventTest->tEvent.Signal();
+        }
+      };
+
+      { // test signaled state
+        tStdOut << "CEvent generic" << std::flush;
+        CMyThreadEvent th;
+        SEventTest tEventTest;
+        th.Start(&tEventTest);
+
+        RISE_ASSERT(tEventTest.tEvent.Wait(400));
+        RISE_ASSERT(tEventTest.bSignaled);
+
+        th.Wait(100);
+
+        tStdOut << rise::LogResultSuccess << std::endl;
+      }
+
+
+      { // test timeout
+        tStdOut << "CEvent timeout" << std::flush;
+        CMyThreadEvent th;
+        SEventTest tEventTest;
+        th.Start(&tEventTest);
+
+        RISE_ASSERT(!tEventTest.tEvent.Wait(100));
+        RISE_ASSERT(!tEventTest.bSignaled);
+
+        th.Wait(300);
+
+        tStdOut << rise::LogResultSuccess << std::endl;
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
     //    Sockets
     //////////////////////////////////////////////////////////////////////////////
     {
@@ -932,7 +978,7 @@ int main(int argc, const rise::TChar* argv[])
       rise::CStreamBuffer cBuffer;
       rise::sockets::CClientSocket cClientSocket;
       cServerSocket.Start();
-      
+
       rise::threading::CThread::Sleep(1000); // wait while server starts...
 
       cClientSocket.Create();
@@ -946,7 +992,7 @@ int main(int argc, const rise::TChar* argv[])
       cServerSocket.JoinThread();
     }
 
-/*
+
 #ifndef WIN32 // temporary disabled for win
     //////////////////////////////////////////////////////////////////////////////
     //    plugin system
@@ -955,7 +1001,7 @@ int main(int argc, const rise::TChar* argv[])
       tStdOut << "plugin system" << std::flush;
 
       rise::CString sPluginName = "MyPlugin";
-      
+
       typedef rise::plugin::CPluginManager<myplugin::CMyPlugin> CMyPluginManager;
 
       CMyPluginManager tPluginManager;
@@ -968,9 +1014,9 @@ int main(int argc, const rise::TChar* argv[])
       tStdOut << rise::LogResultSuccess << std::endl;
     }
 #endif
-*/
+
   }
-  RISE_CATCH_ALL_DESCR_ACTION("\nError while testing!", tStdOut << rise::LogResultFailed);
+  RISE_CATCH_ALL_DESCR_ACTION("\nError while testing!", tStdOut << rise::LogResultFailed << "\n\n");
 
   return 0;
 }

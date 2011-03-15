@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staffcgparser-dasdatasource"
-	ProjectGUID="{C8E123BF-5E3A-44AE-95EE-12E2F432FAF3}"
-	RootNamespace="staffcgparser-dasdatasource"
+	Name="staffcodegenparser"
+	ProjectGUID="{6D6790A9-B950-4A74-9206-FE2EDCDD7138}"
+	RootNamespace="staffcodegenparser"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -41,8 +41,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CODEGENPARSER_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
+				AdditionalDependencies="rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib\codegen\parsers&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -121,8 +121,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include\&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CODEGENPARSER_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -140,10 +140,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
+				AdditionalDependencies="rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib\codegen\parsers&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -187,7 +187,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\DasDataSourceParser.cpp"
+				RelativePath=".\src\CodegenParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Interface.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.cpp"
 				>
 			</File>
 		</Filter>
@@ -197,7 +205,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\DasDataSourceParser.h"
+				RelativePath=".\src\CodegenParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\staffcodegenparserexport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.h"
 				>
 			</File>
 		</Filter>
