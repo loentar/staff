@@ -19,6 +19,10 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef LINUX_RELEASE_MCBC
+#define _XOPEN_SOURCE 600
+#endif
+
 #include <signal.h>
 #include <sys/types.h>
 #ifndef WIN32
