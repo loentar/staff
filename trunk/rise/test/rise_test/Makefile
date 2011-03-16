@@ -1,3 +1,6 @@
+TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
+include $(TOPDIR)/../Makefile.env
+
 TARGET = rise_test
 PROJECT = $(TARGET)
 
@@ -25,7 +28,7 @@ OBJECTS := $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%.o,$(SOURCES))
 
 # == make ===========================================
 make: "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGET)
-	make -C ../myplugin
+	$(MAKE) -C ../myplugin
 
 # == test ===========================================
 test: make

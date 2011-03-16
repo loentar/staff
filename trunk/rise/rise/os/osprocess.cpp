@@ -21,6 +21,10 @@
 
 #include <rise/os/oscommon.h>
 #include <stdio.h>
+#ifdef OS_FreeBSD
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 #include "osprocess.h"
 
 namespace rise
@@ -211,13 +215,39 @@ namespace rise
 
     if(GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
 #else
+#ifdef OS_FreeBSD
+    TChar szPath[PATH_MAX];
+    size_t nPathSize = PATH_MAX;
+    int mib[4];
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PATHNAME;
+    mib[3] = -1;
+    sysctl(mib, 4, szPath, &nPathSize, NULL, 0);
+
+    if(nPathSize > 0)
+    {
+      szPath[nPathSize] = '\0';
+    } else
+#else
+#ifdef OS_Darwin
+    TChar szPath[PATH_MAX];
+    size_t nPathSize = PATH_MAX;
+    _NSGetExecutablePath(path, &nPathSize);
+    if(nPathSize > 0)
+    {
+      szPath[nPathSize] = '\0';
+    } else
+#else
     TChar szPath[PATH_MAX];
     int nReaded = readlink("/proc/self/exe", szPath, PATH_MAX);
-    
+
     if(nReaded > 0)
     {
       szPath[nReaded] = '\0';
     } else
+#endif
+#endif
 #endif
       return "";
 
