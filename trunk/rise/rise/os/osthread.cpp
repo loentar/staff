@@ -31,6 +31,8 @@
 #include <errno.h>
 #include "osthread.h"
 
+#include <iostream>
+
 namespace rise
 {
   //////////////////////////////////////////////////////////////////////////////
@@ -401,16 +403,19 @@ EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout 
   }
 
   // Wait for the event be signaled
-  nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout);
+  while ((nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout)) == -1 && errno == EINTR);
 
-  if (nResult == 0)
-  {
-    eResult = EEventWaitSignalled;
-  }
-  else
-  {
-    eResult = (errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError;
-  }
+#if defined PTHREAD_VERSION_MAJOR && defined PTHREAD_VERSION_MINOR && PTHREAD_VERSION_MAJOR == 0 && PTHREAD_VERSION_MINOR < 10
+  eResult = (nResult == 0) ? 
+                EEventWaitSignalled : 
+                ((nResult == ETIMEDOUT && errno == EINTR) ? EEventWaitTimeout : EEventWaitError);
+  // pthread 0.9 returns ETIMEOUT instead of -1
+#else
+  eResult = (nResult == 0) ? 
+                EEventWaitSignalled : 
+                ((errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError);
+#endif // not win32
+
 #endif
   return eResult;
 }

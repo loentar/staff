@@ -13,8 +13,10 @@ endif
 OBJDIR = obj/$(PLATFORM)/
 OUTDIR = out/$(PLATFORM)/
 
-CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC -I../..
-LIBS = -lpthread -lstdc++ -lrise -L../../$(OUTDIR)
+DEPLOYDIR = ../../deploy/$(PLATFORM)
+
+CXXFLAGS += -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC -I$(DEPLOYDIR)/usr/include
+LIBS = -L$(DEPLOYDIR)/usr/lib/ -lpthread -lstdc++ -lrise
 
 ifndef ("$(DEBUG)","")
   CXXFLAGS += -DDEBUG -g -O0
@@ -43,6 +45,7 @@ $(OUTDIR)$(TARGET): $(OBJECTS)
 
 # == clean ==========================================
 clean:
+	$(MAKE) -C ../myplugin clean
 	rm -Rf $(OBJDIR) $(OUTDIR)
 
 # == mkdir ==========================================
