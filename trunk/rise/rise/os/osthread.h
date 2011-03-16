@@ -147,7 +147,7 @@ namespace rise
   enum EEventWaitResult
   {
     EEventWaitError,
-    EEventWaitSignalled,
+    EEventWaitSignaled,
     EEventWaitTimeout
   };
 

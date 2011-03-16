@@ -1421,6 +1421,12 @@ namespace codegen
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
+        std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
+        if (nPos != std::string::npos)
+        {
+          m_stInterface.sFileName.erase(0, nPos + 1);
+        }
+
         m_stInterface.sName = sInterfaceFileName;
 
         m_stInterface.sNamespace = TnsToCppNs(m_stInterface.sTargetNs);

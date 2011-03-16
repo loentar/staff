@@ -371,11 +371,11 @@ EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout 
 {
   EEventWaitResult eResult;
 #ifdef WIN32
-  DWORD dwWaitResult = WaitForSingleObject(pThreadEvent, 5000);
+  DWORD dwWaitResult = WaitForSingleObject(pThreadEvent, ulTimeout != RISE_WAIT_INFINITE ? ulTimeout : INFINITE);
   switch (dwWaitResult)
   {
   case WAIT_OBJECT_0:
-    eResult = EEventWaitSignalled;
+    eResult = EEventWaitSignaled;
     break;
 
   case WAIT_TIMEOUT:
@@ -386,37 +386,46 @@ EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout 
     eResult = EEventWaitError;
   }
 #else
-  int nResult = 0;
-  struct timeval tvNow;
-  struct timespec tvAbsTimeout;
-
-  gettimeofday(&tvNow, NULL);
-
-  tvAbsTimeout.tv_sec = tvNow.tv_sec + ulTimeout / 1000;
-  tvAbsTimeout.tv_nsec = ((ulTimeout % 1000) * 1000 + tvNow.tv_usec) * 1000;
-
-  // check for overflow
-  if (tvAbsTimeout.tv_nsec > 1000000000)
+  if (ulTimeout != RISE_WAIT_INFINITE)
   {
-    ++tvAbsTimeout.tv_sec;
-    tvAbsTimeout.tv_nsec -= 1000000000;
-  }
+    int nResult = 0;
+    struct timeval tvNow;
+    struct timespec tvAbsTimeout;
 
-  // Wait for the event be signaled
-  while ((nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout)) == -1 && errno == EINTR);
+    gettimeofday(&tvNow, NULL);
+
+    tvAbsTimeout.tv_sec = tvNow.tv_sec + ulTimeout / 1000;
+    tvAbsTimeout.tv_nsec = ((ulTimeout % 1000) * 1000 + tvNow.tv_usec) * 1000;
+
+    // check for overflow
+    if (tvAbsTimeout.tv_nsec > 1000000000)
+    {
+      ++tvAbsTimeout.tv_sec;
+      tvAbsTimeout.tv_nsec -= 1000000000;
+    }
+
+    // Wait for the event be signaled
+    while ((nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout)) == -1 && errno == EINTR);
 
 #if defined PTHREAD_VERSION_MAJOR && defined PTHREAD_VERSION_MINOR && PTHREAD_VERSION_MAJOR == 0 && PTHREAD_VERSION_MINOR < 10
-  eResult = (nResult == 0) ? 
-                EEventWaitSignalled : 
-                ((nResult == ETIMEDOUT && errno == EINTR) ? EEventWaitTimeout : EEventWaitError);
-  // pthread 0.9 returns ETIMEOUT instead of -1
+    eResult = (nResult == 0) ? 
+                  EEventWaitSignaled : 
+                  ((nResult == ETIMEDOUT && errno == EINTR) ? EEventWaitTimeout : EEventWaitError);
+    // pthread 0.9 returns ETIMEOUT instead of -1
 #else
-  eResult = (nResult == 0) ? 
-                EEventWaitSignalled : 
-                ((errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError);
+    eResult = (nResult == 0) ? 
+                  EEventWaitSignaled : 
+                  ((errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError);
+#endif
+  }
+  else
+  { // wait infinite
+    int nResult = 0;
+    while ((nResult = sem_wait(pThreadEvent)) == -1 && errno == EINTR);
+    eResult = (nResult == 0) ? EEventWaitSignaled : EEventWaitError;
+  }
 #endif // not win32
 
-#endif
   return eResult;
 }
 
