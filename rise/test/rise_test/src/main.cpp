@@ -27,12 +27,11 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <iomanip>
-#ifdef __linux__
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
 #ifdef WIN32
 #include <direct.h>
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 
@@ -509,6 +508,7 @@ int main(int argc, const rise::TChar* argv[])
       tStdOut << rise::LogResultSuccess << std::endl;
     }
 
+#ifndef OS_FreeBSD
     {
       tStdOut << "StackTracer" << std::flush;
       rise::CString sTrace;
@@ -517,6 +517,7 @@ int main(int argc, const rise::TChar* argv[])
       RISE_ASSERTS(sTrace != "", "StackTraceStr");
       tStdOut << rise::LogResultSuccess << std::endl;
     }
+#endif
 
     //////////////////////////////////////////////////////////////////////////////
     //    CSharedPtr test
