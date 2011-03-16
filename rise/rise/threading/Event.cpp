@@ -43,7 +43,7 @@ namespace threading
   {
     EEventWaitResult eResult = osThreadEventWait(&m_hEvent, ulTimeout);
     RISE_ASSERTS(eResult != EEventWaitError, "Failed to wait event: " + osGetErrorStr(errno));
-    return eResult == EEventWaitSignalled;
+    return eResult == EEventWaitSignaled;
   }
 
   void CEvent::Signal()

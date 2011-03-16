@@ -1674,6 +1674,11 @@ namespace codegen
       }
 
       m_stInterface.sFileName = sFileName;
+      std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
+      if (nPos != std::string::npos)
+      {
+        m_stInterface.sFileName.erase(0, nPos + 1);
+      }
 
       m_tFile.open((m_sInDir + sFileName).c_str());
       CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFileName + ": "
