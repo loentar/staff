@@ -31,7 +31,7 @@
 #include <sys/time.h>
 #endif
 
-#define RISE_WAIT_INFINITE -1
+#define RISE_WAIT_INFINITE static_cast<unsigned long>(-1)
 
 namespace rise
 {

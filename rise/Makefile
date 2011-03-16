@@ -18,6 +18,13 @@ else
   RISE_LOG_DST_RECODE=\"utf-8\"
 endif
 
+ifeq ($(LINUX_RELEASE),MCBC)
+  PTHREAD_VERSION := $(shell readlink /lib/libpthread.so.0 | sed 's/.*-\([\.0-9]*\)\..*/\1/')
+  PTHREAD_VERSION_MAJOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f1)
+  PTHREAD_VERSION_MINOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f2)
+  CXXFLAGS += -DPTHREAD_VERSION_MAJOR=$(PTHREAD_VERSION_MAJOR) -DPTHREAD_VERSION_MINOR=$(PTHREAD_VERSION_MINOR)
+endif
+
 CXXFLAGS += -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_DST_RECODE=$(RISE_LOG_DST_RECODE)
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DRISE_DLL_EXPORTS=1
@@ -80,6 +87,8 @@ VPATH = $(subst $(empty) $(empty),:,$(SRCDIRS))
 
 SOURCES := $(wildcard $(patsubst %,%/*.cpp,$(SRCDIRS)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+.PHONY: test
 
 # == make ===========================================
 make: dirs $(OUTDIR)$(TARGETLIBVER) deploy
@@ -146,6 +155,9 @@ uninstall:
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
+
+test: make
+	$(MAKE) -C test/rise_test test
 
 # == mkdir ==========================================
 "%/":

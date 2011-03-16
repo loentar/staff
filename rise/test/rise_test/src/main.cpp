@@ -939,13 +939,27 @@ int main(int argc, const rise::TChar* argv[])
         }
       };
 
-      { // test signaled state
-        tStdOut << "CEvent generic" << std::flush;
+      { // test timeout
+        tStdOut << "CEvent timeout infinite" << std::flush;
         CMyThreadEvent th;
         SEventTest tEventTest;
         th.Start(&tEventTest);
 
-        RISE_ASSERT(tEventTest.tEvent.Wait(400));
+        RISE_ASSERT(tEventTest.tEvent.Wait());
+        RISE_ASSERT(tEventTest.bSignaled);
+
+        th.Wait(100);
+
+        tStdOut << rise::LogResultSuccess << std::endl;
+      }
+
+      { // test signaled state
+        tStdOut << "CEvent wait limited" << std::flush;
+        CMyThreadEvent th;
+        SEventTest tEventTest;
+        th.Start(&tEventTest);
+
+        RISE_ASSERT(tEventTest.tEvent.Wait(300));
         RISE_ASSERT(tEventTest.bSignaled);
 
         th.Wait(100);
@@ -963,7 +977,7 @@ int main(int argc, const rise::TChar* argv[])
         RISE_ASSERT(!tEventTest.tEvent.Wait(100));
         RISE_ASSERT(!tEventTest.bSignaled);
 
-        th.Wait(300);
+        th.Wait(100);
 
         tStdOut << rise::LogResultSuccess << std::endl;
       }
@@ -1008,10 +1022,12 @@ int main(int argc, const rise::TChar* argv[])
       CMyPluginManager tPluginManager;
       myplugin::CMyPlugin* pPlugin = tPluginManager.LoadPlugin(sPluginName);
 
-      tStdOut << "PluginResult: Sum(2,3) = " << pPlugin->Sum(2, 3);
+      int nResult = pPlugin->Sum(2, 3);
+      rise::LogDebug() << "PluginResult: Sum(2,3) = " << nResult;
 
       tPluginManager.UnLoadPlugin(sPluginName);
 
+      RISE_ASSERT(nResult == 5);
       tStdOut << rise::LogResultSuccess << std::endl;
     }
 #endif
