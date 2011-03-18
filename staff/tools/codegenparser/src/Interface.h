@@ -151,7 +151,7 @@ namespace codegen
   };
 
   //! service class
-  struct SClass: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT SClass: public SBaseType
   {
     TStringList         lsModules;      //!<  axis2/c modules list to engage
     std::list<SMember>  lsMembers;      //!<  service operations

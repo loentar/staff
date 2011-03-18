@@ -74,7 +74,7 @@ namespace staff
     virtual CServiceClient* GetClient();
 
     //! internal function
-    void Init(const std::string& sServiceName, const std::string& sSessionId, std::string sInstanceId);
+    void Init(const std::string& sServiceName, const std::string& sSessionId, const std::string& sInstanceId);
 
   private:
     std::string m_sServiceName; //!< service name with component name

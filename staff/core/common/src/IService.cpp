@@ -59,7 +59,7 @@ namespace staff
     return m_sInstanceId;
   }
 
-  void IService::Init(const std::string& sServiceName, const std::string& sSessionId, std::string sInstanceId)
+  void IService::Init(const std::string& sServiceName, const std::string& sSessionId, const std::string& sInstanceId)
   {
     m_sServiceName = sServiceName;
     m_sSessionId = sSessionId;

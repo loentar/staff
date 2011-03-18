@@ -1673,6 +1673,9 @@ namespace codegen
         }
       }
 
+      rProject.lsInterfaces.push_back(m_stInterface);
+      SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
+
       m_stInterface.sFileName = sFileName;
       std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
       if (nPos != std::string::npos)
@@ -1732,7 +1735,7 @@ namespace codegen
           }
         }
 
-        rProject.lsInterfaces.push_back(m_stInterface);
+        rProjectThisInterface = m_stInterface;
         m_tFile.close();
       }
       catch (CParseException& rParseException)
