@@ -17,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.das.DataAccessService
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "codegen-parsers", "codegen-parsers", "{A77004F6-B04C-48AA-8F9C-50F45B78033B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-das", "tools\codegen_parsers\das\staffcgparser-das.vcproj", "{ABCEE43D-4FA8-4CB9-8300-24CD3A160F1D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-das", "tools\codegen_parsers\das-client\staffcgparser-das.vcproj", "{ABCEE43D-4FA8-4CB9-8300-24CD3A160F1D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-dasdatasource", "tools\codegen_parsers\dasdatasource\staffcgparser-dasdatasource.vcproj", "{C8E123BF-5E3A-44AE-95EE-12E2F432FAF3}"
 EndProject

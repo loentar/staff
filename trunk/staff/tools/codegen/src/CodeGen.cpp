@@ -36,6 +36,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <algorithm>
 #include <rise/common/exmacros.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/xml/XMLNode.h>
@@ -357,6 +358,20 @@ namespace codegen
         sFunction.erase(0, 8);
       }
       else
+      if (sFunction.substr(0, 7) == "tolower")
+      {
+        sResult = rNode.NodeContent().AsString();
+        std::transform(sResult.begin(), sResult.end(), sResult.begin(), ::tolower);
+        sFunction.erase(0, 7);
+      }
+      else
+      if (sFunction.substr(0, 7) == "toupper")
+      {
+        sResult = rNode.NodeContent().AsString();
+        std::transform(sResult.begin(), sResult.end(), sResult.begin(), ::toupper);
+        sFunction.erase(0, 7);
+      }
+      else
       if (sFunction.substr(0, 9) == "trimright")
       {
         sResult = rNode.NodeContent().AsString();
@@ -384,6 +399,41 @@ namespace codegen
         ReplaceToValue(sWhat, rNode);
 
         sResult = sWhat + rNode.NodeContent().AsString();
+      }
+      else
+      if (sFunction.substr(0, 9) == "deprefix/")
+      {
+        sFunction.erase(0, 9);
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        sResult = rNode.NodeContent().AsString();
+
+        if (!sResult.compare(0, sWhat.size(), sWhat))
+        {
+          sResult.erase(0, sWhat.size());
+        }
+      }
+      else
+      if (sFunction.substr(0, 10) == "depostfix/")
+      {
+        sFunction.erase(0, 10);
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        sResult = rNode.NodeContent().AsString();
+        std::string::size_type nResSize = sResult.size();
+        std::string::size_type nWhatSize = sWhat.size();
+
+        if (nResSize > nWhatSize &&
+            !sResult.compare(nResSize - nWhatSize, nWhatSize, sWhat))
+        {
+          sResult.erase(nResSize - nWhatSize);
+        }
       }
       else
       if (sFunction.substr(0, 3) == "inc")

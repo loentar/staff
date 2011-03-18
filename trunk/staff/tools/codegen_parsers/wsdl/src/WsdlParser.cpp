@@ -1411,6 +1411,9 @@ namespace codegen
         }
       }
 
+      rProject.lsInterfaces.push_back(m_stInterface);
+      SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
+
       // parse new interface
       {
         rise::xml::CXMLDocument tWsdlDoc;
@@ -1457,7 +1460,7 @@ namespace codegen
 
         ParseInterface(rDefs, rProject);
 
-        rProject.lsInterfaces.push_back(m_stInterface);
+        rProjectThisInterface = m_stInterface;
 
         // put namespaces into cache
         NamespacesCache::mCache[sFileName] = rDefs.GetNsList();
