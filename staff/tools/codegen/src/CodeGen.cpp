@@ -411,7 +411,7 @@ namespace codegen
 
         sResult = rNode.NodeContent().AsString();
 
-        if (!sResult.compare(0, sWhat.size(), sWhat))
+        if (sResult.substr(0, sWhat.size()) == sWhat)
         {
           sResult.erase(0, sWhat.size());
         }
@@ -430,7 +430,7 @@ namespace codegen
         std::string::size_type nWhatSize = sWhat.size();
 
         if (nResSize > nWhatSize &&
-            !sResult.compare(nResSize - nWhatSize, nWhatSize, sWhat))
+            sResult.substr(nResSize - nWhatSize) == sWhat)
         {
           sResult.erase(nResSize - nWhatSize);
         }
