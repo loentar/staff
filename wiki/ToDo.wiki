@@ -12,7 +12,8 @@
  * === Transform webapp component to javascript binding ===
   Webapp have the same goal with WSO2 Gadget Server, Google Gadget Server. Unfortunately we do not have enough resources to compete with them. We plan to save only main parts of Webapp in the Staff and focus on one of ther Gadget Servers.
 
- * === Generate Google gadget stubs from WSDL and web service interface ===
+ * === Generate gadgets for the services ===
+  Google gadgets, YUI widgets. It will simplify creation of UI-components for various sysmtems.
 
 
 == Data Access Service == 
