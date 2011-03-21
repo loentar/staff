@@ -1813,7 +1813,8 @@ namespace codegen
     TStringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
     if (itComponentNs != rParseSettings.mEnv.end())
     {
-      rProject.sNamespace = itComponentNs->second;
+      rProject.sNamespace = "::" + itComponentNs->second + "::";
+      rise::StrReplace(rProject.sNamespace, ".", "::", true);
     }
     else
     { // autodetect: take first defined namespace
