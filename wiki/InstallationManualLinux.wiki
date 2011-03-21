@@ -3,12 +3,12 @@
 
 = Introduction =
 
-It's a little guide for compiling and installing Staff on Linux-like OS.
+Guide to install WSF Staff under Linux.
 
 = Details =
 
 == 0. Environment variables ==
-While compiling, starting axis2/c or any client/service application, these environment variables must be set:
+While compiling, starting Axis2/C or any client/service application, these environment variables must be set:
 {{{
 export AXIS2C_HOME=/usr/local/axis2c
 export STAFF_HOME=/usr/local/staff

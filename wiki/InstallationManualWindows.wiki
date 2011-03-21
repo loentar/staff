@@ -3,12 +3,12 @@
 
 = Introduction =
 
-It's a little guide for compiling and installing Staff on Windows.
+Guide to install WSF Staff under Windows.
 
 = Details =
 
 == 0. Environment variables ==
-While compiling, starting axis2/c or any client/service application, these environment variables, points to Axis2/С и Staff homes and system paths, must be set:
+While compiling, starting Axis2/C or any client/service application, these environment variables, must set:
 {{{
 AXIS2C_HOME=c:\ws\axis2c
 STAFF_HOME=c:\ws\staff
@@ -44,7 +44,7 @@ Started Simple Axis2 HTTP Server ...
 }}}
 If You encounter some errors, please refer to Axis2/C site or get `ws-win32-bin*.7z` from our download section.
 
-Make sure, that Axis2/C is working, take a look at:
+Make sure, that Axis2/C is working properly, take a look at:
 http://localhost:9090/axis2/services/
 It must be Axis2/С service list.
 

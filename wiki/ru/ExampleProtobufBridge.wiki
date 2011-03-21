@@ -1,0 +1,140 @@
+#summary Пример создания сервиса-шлюза Soap-Protobuf
+
+<h1>Содержание</h1>
+<wiki:toc max_depth="3" />
+
+== Вступление ==
+Сервис-шлюз предназначен для вызова операций protobuf-сервиса посредством SOAP-клиента.
+
+== Зависимости ==
+Должны быть установлены и скофигурированы следующие зависимости:
+  * Axis2/C;
+  * WSF Staff;
+  * Google protocol buffers;
+  * Реализация RPC для protocol buffers [http://code.google.com/p/protobuf/wiki/ThirdPartyAddOns#RPC_Implementations Список].
+
+== Создание Protobuf сервиса ==
+Если у Вас уже есть Protobuf сервис, перейдите к секции [ExampleProtobufBridge#Создание_сервиса-шлюза Создание сервиса-шлюза].
+
+=== Создание proto-файла ===
+Создайте файл !ProtoCalc.proto, описывающий сообщения и сервис.
+{{{
+package samples;
+
+message Request
+{
+  required int32 a = 1;
+  required int32 b = 2;
+};
+
+message Response
+{
+  required int32 result = 1;
+};
+
+
+service ProtoCalc
+{
+  rpc add(Request) returns (Response);
+};
+}}}
+
+Поместите этот файл в каталог "!ProtoCalc/protobuf_service/src".
+
+=== Генерация кода Protobuf сервиса ==
+Сгенерируйте protobuf-обертку сервиса, запустив команду из каталога "!ProtoCalc/protobuf_service/src":
+{{{
+protoc ProtoCalc.proto --cpp_out=.
+}}}
+
+Будут сгенерированы файлы:
+{{{
+ProtoCalc.pb.cc  ProtoCalc.pb.h
+}}}
+
+=== Реализация Protobuf сервиса ===
+Создайте заголовочный файл реализации Protobuf сервиса "!ProtoCalcImpl.h" и поместите его в тот-же каталог:
+{{{
+#ifndef _PROTOCALCIMPL_H_
+#define _PROTOCALCIMPL_H_
+
+#include "ProtoCalc.pb.h"
+
+namespace samples
+{
+  class ProtoCalcImpl: public ProtoCalc
+  {
+  public:
+    virtual void Test(::google::protobuf::RpcController* controller,
+                       const Request* request,
+                       Response* response,
+                       ::google::protobuf::Closure* done);
+
+  };
+}
+
+#endif
+}}}
+
+Создайте файл реализации Protobuf сервиса "!ProtoCalcImpl.cpp" и поместите его в тот-же каталог:
+{{{
+#include <google/protobuf/service.h>
+#include "ProtoCalcImpl.h"
+
+namespace samples
+{
+  void TestServiceImpl::Test(::google::protobuf::RpcController* controller,
+                       const Request* request,
+                       Response* response,
+                       ::google::protobuf::Closure* done)
+  {
+    response->set_result(request->a() + request->b());
+    done->Run();
+  }
+}
+}}}
+
+Реализуйте RPC транспорт для Protobuf-сервиса, скомпилируйте и установите, согласно инструкции к транспорту.
+
+
+== Создание сервиса-шлюза ==
+
+=== Генерация кода сервиса-шлюза ===
+Создайте каталог "!ProtoCalc/staff_bridge/src" и скопируйте в него proto-файл.
+
+Сгенерируйте protobuf-обертку запустив команду из каталога "!ProtoCalc/staff_bridge/src":
+{{{
+protoc ProtoCalc.proto --cpp_out=.
+}}}
+
+Сгенерируйте интерфейс, реализацию сервиса, обертку запустив команды из того-же каталога:
+{{{
+# генерация интерфейса
+staff_codegen -tinterface -pprotobuf -drootns=<ROOTNS> ProtoCalc.proto
+# генерация реализации сервиса
+staff_codegen -tprotobufserviceimpl -dusedns=<ROOTNS>,componentns=<COMPONENTNS> ProtoCalc.h
+# генерация компонента и оберток с заданием имени компонента
+staff_codegen -tcomponent ProtoCalc.h -dcomponentns=<COMPONENTNS>
+}}}
+Где:
+ * `<ROOTNS>` - префикс staff-компонента (например, "protobuf").<br/> Данный префикс необходим во избежании пересечения пространств имен protobuf и staff;<br/><br/>
+ * `<COMPONENTNS>` - _необязательная опция_. Имя компонента которому будет принадлежать сервис (например, "protobuf"). Это-же же имя будет использовано в качестве пространства имен protobuf-коннектора.<br/> Опция может быть полезна, если Вы желаете использовать один коннектор для нескольких сервисов в разных подкомпонентах.<br/> Рекомендуется одинаковое значение для `<COMPONENTNS>` и `<ROOTNS>`.
+
+=== Cоздание коннектора ===
+Коннектор - это реализация RPC транспорта для сервиса-шлюза.
+
+Сгенерируйте шаблон реализации коннектора:
+{{{
+staff_codegen -tprotobufconnector ProtoCalc.h
+}}}
+
+будут созданы файлы:
+{{{
+ProtobufConnector.h    ProtobufConnector.cpp
+}}}
+
+Реализуйте функции коннектора в зависимости от используемой Вами реализации RPC.
+
+Скомпилируйте и установите компонент как описано в примере под [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceLinux#6._Compilation_and_installation Linux] или [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceWindows#6._Compilation Windows].
+
+

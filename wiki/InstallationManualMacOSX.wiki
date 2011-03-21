@@ -8,7 +8,7 @@ This is a guide for compiling and installing Staff under Mac OS X.
 = Details =
 
 == 0. Environment variables ==
-While compiling, starting axis2/c or any client/service application, these environment variables must be set:
+While compiling, starting Axis2/C or any client/service application, these environment variables must be set:
 {{{
 export AXIS2C_HOME=/usr/local/axis2c
 export STAFF_HOME=/usr/local/staff
@@ -28,7 +28,7 @@ sudo visudo
 
 *Or* if You is not so expirenced in VI, please use any other text editor:
 {{{
-nano /etc/sudoers
+sudo nano /etc/sudoers
 }}}
 
 Add these lines after last "Defaults        env_keep...":
@@ -92,7 +92,7 @@ cd $AXIS2C_HOME/bin
 
 === 4.2 Starting in debug mode == 
 
-To start axis2/c in debug mode, please enter:
+To start Axis2/C in debug mode, please enter:
 {{{
 cd $AXIS2C_HOME/bin
 RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server

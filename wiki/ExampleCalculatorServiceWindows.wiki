@@ -126,7 +126,7 @@ ComponentImpl.cpp
 
 Add these files into Solution:
 
-Right click to !samples.Calculator project, select "Add" => "Existing Item...".
+Right click to samples.Calculator project, select "Add" => "Existing Item...".
 In opened dialog go inside "src" directory and add select !CalculatorWrapper.h !CalculatorWrapper.cpp !ComponentImpl.h !ComponentImpl.cpp.
 
 Click "Add".staff_codegen -tcomponent -csrc -u Calculator.h
@@ -136,7 +136,7 @@ _Notice: Don't include this files in the source code archive/CVS. This files mus
 
 == 6. Compilation ==
 
-Go to Project Settings: Right click to "!samples.Calculator" project and select "Properties".
+Go to Project Settings: Right click to "samples.Calculator" project and select "Properties".
 
 Click to Configuration Drop down box and select "All configurations"
 

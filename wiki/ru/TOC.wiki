@@ -27,6 +27,8 @@
       * [ExampleStockQuoteQtCreator Создание C++ клиента использующего Qt]
     * WSDL
       * [ExampleCreatingCppClientFromWsdl Создание C++ клиента из WSDL]
+    * Protobuf
+      * [ExampleProtobufBridge Создание C++ сервиса-шлюза Soap-Protobuf]
   * Руководство разработчика
     * Генератор кода
       * [CodegenMetacomments Метакомментарии]
