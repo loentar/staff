@@ -498,16 +498,22 @@ namespace codegen
 
       // read return type and operation name
       std::string sOperation;
-      ReadBefore(sOperation, "(");
-      rise::StrTrim(sOperation);
+      ReadBefore(sOperation);
       CSP_ASSERT(!sOperation.empty(), "Can't get operation name", m_stInterface.sFileName, m_nLine);
       rMember.sName = sOperation;
 
-      m_tFile.ignore();
+      SkipWs();
+      CSP_ASSERT(m_tFile.get() == '(', "Error after operation name: [" + sOperation + "]",
+                 m_stInterface.sFileName, m_nLine);
+
+      SkipWs();
+
       std::string sMessage;
-      ReadBefore(sMessage, ")");
-      m_tFile.ignore();
-      rise::StrTrim(sMessage);
+      ReadBefore(sMessage);
+
+      SkipWs();
+      CSP_ASSERT(m_tFile.get() == ')', "Error after message name in operation: [" + sOperation + "]",
+                 m_stInterface.sFileName, m_nLine);
 
       if (!sMessage.empty())
       {
@@ -547,16 +553,21 @@ namespace codegen
 //        }
       }
 
-      ReadStr(sTmp);
+      SkipWs();
+      ReadBefore(sTmp);
 
       if (sTmp == "returns")
       {
         std::string sReturn;
         SkipWs();
-        m_tFile.ignore();
-        ReadBefore(sReturn, ")");
-        m_tFile.ignore();
-        rise::StrTrim(sReturn);
+        CSP_ASSERT(m_tFile.get() == '(', "Error after \"returns\" in operation: [" + sOperation + "]",
+                   m_stInterface.sFileName, m_nLine);
+        SkipWs();
+        ReadBefore(sReturn);
+        CSP_ASSERT(!sReturn.empty(), "Can't get result message name", m_stInterface.sFileName, m_nLine);
+        SkipWs();
+        CSP_ASSERT(m_tFile.get() == ')', "Error after message type in operation: [" + sOperation + "]",
+                   m_stInterface.sFileName, m_nLine);
 
         rise::StrReplace(sReturn, ".", "::", true);
 
