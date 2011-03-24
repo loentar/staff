@@ -35,7 +35,7 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #define RISE_PATH_SEPARATOR "\\"
 #define RISE_EXPLICIT_TEMPLATE(RISE_LOCAL_TEMPLATE) RISE_LOCAL_TEMPLATE
 #else

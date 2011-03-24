@@ -5,7 +5,7 @@
 #ifndef _$(Interface.Name)Impl_h_
 #define _$(Interface.Name)Impl_h_
 
-#include "$(Interface.Name).h"
+#include "$(Interface.FilePath)$(Interface.Name).h"
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)

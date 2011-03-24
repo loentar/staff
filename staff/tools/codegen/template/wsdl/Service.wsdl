@@ -36,7 +36,7 @@
 #end
 #ifeqend
 \
-#cginclude <wsdl/WsdlTypes.xsd>
+#cginclude "WsdlTypes.xsd"
 
 
       <!-- requests, responses -->
@@ -47,7 +47,7 @@
 #ifeqend
       <element name="$(Member.Options.*requestElement||Member.Name)" type="\
 #context $(Member.Params.Param.DataType)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 "/>
 #else           //  not inline 
@@ -68,7 +68,7 @@
 #else                                     // not dataobject
             <element name="$(Param.Name)" type="\
 #context $(Param.DataType)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 "/>
 #ifeqend                                  // if dataobject
@@ -103,7 +103,7 @@
 #else            // not dataobject
             <element name="$($sResult)" type="\
 #context $(Member.Return)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 "/>
 #ifeqend         // is dataobject
@@ -138,7 +138,7 @@
 #else
       <element name="$($sResult)" type="\
 #context $(Member.Return)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 "/>
 #ifeqend

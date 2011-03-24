@@ -36,7 +36,7 @@
 #ifneq($(Param.Options.*isAttribute),true||1)
           <element name="$(Param.Name)" type="\
 #context $(Param.DataType)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 #ifneq($(Param.Description),)
 "\
@@ -57,7 +57,7 @@
 #ifeq($(Param.Options.*isAttribute),true||1)
         <attribute name="$(Param.Name)" type="\
 #context $(Param.DataType)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 #ifneq($(Param.Description),)
 "\
@@ -83,11 +83,11 @@
       </complexType>
 #ifneq($(Struct.Enums.$Count),0)
 #foreach $(Struct.Enums)
-#cginclude <wsdl/WsdlEnum.xsd>
+#cginclude "WsdlEnum.xsd"
 #end // #foreach $(Struct.Enums)
 #ifneq($(Struct.Structs.$Count),0)
 #foreach $(Struct.Structs)
-#cginclude <wsdl/WsdlStruct.xsd>
+#cginclude "WsdlStruct.xsd"
 #end // #foreach $(Interface.Structs)
 #ifeqend
 #ifeqend //#ifeq($(Struct.Extern),0) // do not serialize extern type

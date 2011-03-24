@@ -8,6 +8,7 @@
 #include <string>
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/component/ServiceWrapper.h>
+#include "$(Interface.FilePath)$(Interface.Name).h"
 
 namespace staff
 {
@@ -94,33 +95,12 @@ $(Class.OpeningNs)
 $(Class.EndingNs)
 
 #end
-#else // included types
-#include "$(Interface.Name).h"
-
-namespace staff
-{
-  class CDataObject;
-#foreach $(Interface.Structs)
-#cginclude <common/StructSerialization.h>
-#end
-#foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#end // foreach $(Interface.Typedefs)
-}
+#ifeqend // serializators
+#ifeq($(Interface.Classes.$Count),0)
+#include "$(Interface.FilePath)$(Interface.Name).h"
 #ifeqend
+
+#cginclude <common/Serialization.h>
 
 #endif // _$(Interface.Name)Wrapper_h_
 

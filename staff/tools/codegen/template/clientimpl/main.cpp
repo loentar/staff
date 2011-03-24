@@ -25,7 +25,7 @@
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #foreach $(Project.Interfaces)
-#include "$(Interface.Name).h"
+#include "$(Interface.FilePath)$(Interface.Name).h"
 #end
 
 #foreach $(Project.Interfaces)

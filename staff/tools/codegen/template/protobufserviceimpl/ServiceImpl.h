@@ -5,7 +5,8 @@
 #ifndef _$(Interface.Name)Impl_h_
 #define _$(Interface.Name)Impl_h_
 
-#include "$(Interface.Name).h"
+#include "$(Interface.FilePath)$(Interface.Name).h"
+#include "$(Interface.FilePath)$(Interface.Name).pb.h"
 #ifneq($(Interface.Classes.$Count),0)
 
 #foreach $(Interface.Classes)
@@ -28,17 +29,15 @@ $(Class.Description)
 $(Class.EndingNs)
 
 #end
-#else // included types
-#include "$(Interface.Name).pb.h"
+#ifeqend
 
 #indent +
 #foreach $(Interface.Enums)
-#cginclude <protobufserviceimpl/EnumSerialization.h>
+#cginclude "EnumSerialization.h"
 #end
 #foreach $(Interface.Structs)
-#cginclude <protobufserviceimpl/StructSerialization.h>
+#cginclude "StructSerialization.h"
 #end
 #indent -
 
-#ifeqend
 #endif // _$(Interface.Name)Impl_h_

@@ -523,6 +523,9 @@ namespace codegen
     rNodeInterface.AddSubNode(" Interface file name ", CXMLNode::ENTCOMMENT);
     rNodeInterface["FileName"] = rInterface.sFileName;
 
+    rNodeInterface.AddSubNode(" Interface file path ", CXMLNode::ENTCOMMENT);
+    rNodeInterface["FilePath"] = rInterface.sFilePath;
+
     // included files
     rNodeInterface.AddSubNode(" Included files ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeIncludes = rNodeInterface.AddSubNode("Includes");
@@ -543,6 +546,8 @@ namespace codegen
       rNodeInclude["NsName"] = sNamespace + itInclude->sInterfaceName;
       rNodeInclude.AddSubNode(" File name ", CXMLNode::ENTCOMMENT);
       rNodeInclude["FileName"] = itInclude->sFileName;
+      rNodeInclude.AddSubNode(" File path ", CXMLNode::ENTCOMMENT);
+      rNodeInclude["FilePath"] = itInclude->sFilePath;
       rNodeInclude.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
       rNodeInclude["TargetNamespace"] = itInclude->sTargetNs;
     }

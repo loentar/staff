@@ -23,4 +23,4 @@ import $($type);
 
 import org.kxml2.kdom.*;
 
-#cginclude <j2meclient/StructOnly.java>
+#cginclude "StructOnly.java"

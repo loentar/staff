@@ -8,7 +8,7 @@ public class $(Struct.Name)\
 #ifneq($(Struct.Structs.$Count),0)
 #indent +
 #foreach $(Struct.Structs)
-#cginclude <j2meclient/StructOnly.java>
+#cginclude "StructOnly.java"
 
 #end
 #indent -

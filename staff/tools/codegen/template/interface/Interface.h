@@ -80,7 +80,7 @@
 #ifeqend
 \
 #foreach $(Interface.Includes)
-#include "$(Include.Name).h"
+#include "$(Include.FilePath)$(Include.Name).h"
 #end
 \
 #var sOpeningNs

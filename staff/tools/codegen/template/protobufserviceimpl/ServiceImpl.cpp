@@ -6,25 +6,12 @@
 #include <rise/common/ExceptionTemplate.h>
 #include "ProtobufConnector.h"
 #foreach $(Interface.Includes)
-#include "$(Include.Name)Impl.h"
+#include "$(Include.FilePath)$(Include.Name)Impl.h"
 #end
-#include "$(Interface.Name).pb.h"
-#include "$(Interface.Name)Impl.h"
-
-#ifneq($(Interface.Classes.$Count),0)
-$(Project.OpeningNs)\
-  enum { ProtobufRequestTimeout = \
-#ifneq($($protobufRequestTimeout),)
-$($protobufRequestTimeout)\
-#else
-60000\
-#ifeqend
- }; // protobuf request timeout
-$(Project.EndingNs)
-#ifeqend
+#include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 
 #indent +
-#cginclude <protobufserviceimpl/Serialization.cpp>
+#cginclude "Serialization.cpp"
 #indent -
 
 #foreach $(Interface.Classes)
@@ -66,15 +53,16 @@ $(Member.Return.UsedName) $(Class.Name)Impl::$(Member.Name)($(Member.Params))$(M
   $(Class.NsName.!deprefix/$($rootns)/)::Stub tProtobufService(pProtobufChannel);
 
   // make request
-  rise::threading::CEvent tEvent;
+  ::rise::threading::CEvent tEvent;
   $(Member.Params.Param.DataType.NsName.!deprefix/$($rootns)/) tProtoRequest;
   $(Member.Return.NsName.!deprefix/$($rootns)/) tProtoResponse;
 
   tProtoRequest << request;
 
   tProtobufService.$(Member.Name)(pProtobufController, &tProtoRequest, &tProtoResponse,
-      google::protobuf::NewCallback(&tEvent, &rise::threading::CEvent::Signal));
-  RISE_ASSERTS(tEvent.Wait($(Project.Namespace)ProtobufRequestTimeout), "Timeout while waiting response from protobuf service");
+      ::google::protobuf::NewCallback(&tEvent, &rise::threading::CEvent::Signal));
+  RISE_ASSERTS(tEvent.Wait($(Project.Namespace)ProtobufConnector::ProtobufRequestTimeout),
+               "Timeout while waiting response from protobuf service");
 
   tResult << tProtoResponse;
 

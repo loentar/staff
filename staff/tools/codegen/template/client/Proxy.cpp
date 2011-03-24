@@ -18,9 +18,9 @@
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #include <staff/common/Attribute.h>
 #foreach $(Interface.Includes)
-#include "$(Include.Name)Proxy.h"
+#include "$(Include.FilePath)$(Include.Name)Proxy.h"
 #end
-#include "$(Interface.Name)Proxy.h"
+#include "$(Interface.FilePath)$(Interface.Name)Proxy.h"
 
 #cginclude <common/Serialization.cpp>
 

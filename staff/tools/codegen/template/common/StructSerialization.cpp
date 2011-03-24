@@ -1,9 +1,9 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
 #foreach $(Struct.Structs)
-#cginclude <common/StructSerialization.cpp>
+#cginclude "StructSerialization.cpp"
 #end
 #foreach $(Struct.Enums)
-#cginclude <common/EnumSerialization.cpp>
+#cginclude "EnumSerialization.cpp"
 #end
 
 CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)

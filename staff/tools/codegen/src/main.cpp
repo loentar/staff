@@ -82,8 +82,6 @@ int main(int nArgs, const char* szArgs[])
   const std::string& sPluginPrefix = RISE_LIBRARY_PREFIX "staffcgparser-";
 
   stProject.sName = "Project1";
-  stParseSettings.sInDir = ".";
-  stParseSettings.sOutDir = ".";
 
   for (int i = 1; i < nArgs; ++i)
   {
@@ -97,7 +95,7 @@ int main(int nArgs, const char* szArgs[])
 
       case 'i':
         stParseSettings.sInDir = &szArgs[i][2];
-        break;
+       break;
 
       case 'o':
         stParseSettings.sOutDir = &szArgs[i][2];
@@ -234,6 +232,15 @@ int main(int nArgs, const char* szArgs[])
     }
   }
 
+  if (stParseSettings.sInDir.size() > 0 && stParseSettings.sInDir.substr(stParseSettings.sInDir.size() - 1) != RISE_PATH_SEPARATOR)
+  {
+    stParseSettings.sInDir += RISE_PATH_SEPARATOR;
+  }
+  if (stParseSettings.sOutDir.size() > 0 && stParseSettings.sOutDir.substr(stParseSettings.sOutDir.size() - 1) != RISE_PATH_SEPARATOR)
+  {
+    stParseSettings.sOutDir += RISE_PATH_SEPARATOR;
+  }
+
 
   try
   {
@@ -260,17 +267,18 @@ int main(int nArgs, const char* szArgs[])
 
     if (bGenXml)
     {
-      std::string sXmlFileName = stParseSettings.sOutDir + "/" + stProject.sName + ".xml";
+      std::string sXmlFileName = stParseSettings.sOutDir + stProject.sName + ".xml";
       std::cout << "Generating " << sXmlFileName << std::endl;
       tDoc.GetDecl().m_sEncoding = "utf-8";
       tDoc.SaveToFile(sXmlFileName);
     }
 
-    if (sTemplate != "")
+    if (!sTemplate.empty())
     {
       rise::LogDebug() << "template: " << sTemplate;
       staff::codegen::CCodeGen tGen;
-      tGen.Start(sTemplatesDir + sTemplate, stParseSettings.sOutDir, tDoc.GetRoot(), bUpdateOnly, mEnv);
+      tGen.Start(sTemplatesDir + sTemplate + RISE_PATH_SEPARATOR, stParseSettings.sOutDir,
+                  tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
   }
   catch (const staff::codegen::CParseException& rException)

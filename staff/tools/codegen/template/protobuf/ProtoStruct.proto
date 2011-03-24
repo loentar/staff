@@ -10,11 +10,11 @@ message $(Struct.Name)
 {
 #indent +
 #foreach $(Struct.Enums)
-#cginclude <common/ProtoEnum.proto>
+#cginclude "ProtoEnum.proto"
 #end
 \
 #foreach $(Struct.Structs)
-#cginclude <common/ProtoStruct.proto>
+#cginclude "ProtoStruct.proto"
 #end
 \
 #var tag 0
@@ -36,7 +36,7 @@ message $(Struct.Name)
 #ifeq($(Param.DataType.Name),list||vector)
 repeated \
 #context $(Param.DataType.TemplateParams.TemplateParam1)
-#cginclude <common/ProtoDataType.proto>
+#cginclude "ProtoDataType.proto"
 #contextend
 #else
 #cgerror unsupported template $(Param.DataType.NsName)
@@ -45,7 +45,7 @@ repeated \
 \
 $($prefix) \
 #context $(Param.DataType)
-#cginclude <common/ProtoDataType.proto>
+#cginclude "ProtoDataType.proto"
 #contextend
 #ifeqend // if else template
 \

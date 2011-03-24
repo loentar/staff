@@ -5,44 +5,16 @@ namespace staff
 // enums
 #foreach $(Interface.Enums)
 #ifeq($(Enum.Extern),0) // do not serialize extern type
-#cginclude <common/EnumSerialization.cpp>
+#cginclude "EnumSerialization.cpp"
 #ifeqend
 #end
 
-#ifeqend
+#ifeqend // enums
 #ifneq($(Interface.Structs.$Count),0)
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// forward declarations
-#foreach $(Interface.Structs)
-#ifeq($(Struct.Extern),0) // do not serialize extern type
-CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct);
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct);
-#ifeqend
-#end
-
-#foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0) // do not serialize extern type
-#ifeq($(Typedef.DataType.IsTemplate),1)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#ifeqend // #ifneq($(Typedef.DataType.Type),struct)
-#ifeqend // #ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
-#ifeq($(Typedef.DataType.IsTemplate),1)
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#ifeqend
-#else                 // !!not_a_struct!!
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#ifeqend
-#ifeqend
-#end // foreach $(Interface.Typedefs)
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators/deserializators
 #foreach $(Interface.Structs)
-#cginclude <common/StructSerialization.cpp>
+#cginclude "StructSerialization.cpp"
 #end
 
 #ifeqend

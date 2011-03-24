@@ -10,11 +10,11 @@ package $(Interface.Namespace.!dot);
 #ifeqend
 
 #foreach $(Interface.Enums)
-#cginclude <common/ProtoEnum.proto>
+#cginclude "ProtoEnum.proto"
 #end
 \
 #foreach $(Interface.Structs)
-#cginclude <common/ProtoStruct.proto>
+#cginclude "ProtoStruct.proto"
 #end
 \
 #ifneq($(Interface.Typedefs.$Count),0)

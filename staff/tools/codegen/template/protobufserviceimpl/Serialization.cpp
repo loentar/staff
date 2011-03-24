@@ -3,7 +3,7 @@
 // enums
 #foreach $(Interface.Enums)
 #ifeq($(Enum.Extern),0) // do not serialize extern type
-#cginclude <protobufserviceimpl/EnumSerialization.cpp>
+#cginclude "EnumSerialization.cpp"
 #ifeqend
 #end
 
@@ -13,14 +13,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // forward declarations
 #foreach $(Interface.Structs)
-#cginclude <protobufserviceimpl/StructSerialization.h>
+#cginclude "StructSerialization.h"
 #end
 #ifeqend // forward
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // struct serializators/deserializators
 #foreach $(Interface.Structs)
-#cginclude <protobufserviceimpl/StructSerialization.cpp>
+#cginclude "StructSerialization.cpp"
 #end
 
 #ifeqend // Interface.Structs.$Count != 0

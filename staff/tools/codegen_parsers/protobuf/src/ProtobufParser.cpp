@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <string.h>
 #include <list>
+#include <set>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -258,6 +259,38 @@ namespace codegen
 
       return true;
     }
+    
+    void CheckAndFixName(std::string& sName, bool bIgnoreBool = false)
+    {
+      static std::set<std::string> setCppReservedWords;
+      if (setCppReservedWords.empty())
+      {
+        const unsigned nCppReservedWordsCount = 78;
+        const char* aszCppReservedWords[nCppReservedWordsCount] = 
+        {
+          "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "_Bool", "break", "case", "catch",
+          "char", "class", "compl", "_Complex", "const", "const_cast", "continue", "default", "delete",
+          "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float",
+          "for", "friend", "goto", "if", "_Imaginary", "inline", "int", "long", "mutable", "namespace",
+          "new", "not", "not_eq", "operator", "or", "or_eq", "private", "protected", "public", "register",
+          "reinterpret_cast", "restrict", "return", "short", "signed", "sizeof", "static", "static_cast",
+          "struct", "switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename",
+          "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
+        };
+        for (unsigned nIndex = 0; nIndex < nCppReservedWordsCount; ++nIndex)
+        {
+          setCppReservedWords.insert(aszCppReservedWords[nIndex]);
+        }
+      }
+      
+      if (setCppReservedWords.count(sName))
+      {
+        if (!bIgnoreBool || (sName != "true" && sName != "false"))
+        {
+          sName += '_';
+        }
+      }
+    }
 
     template<typename TStructType>
     bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
@@ -479,10 +512,6 @@ namespace codegen
 
           rDataType.sUsedName = sTypeName;
         }
-        else
-        {
-          rise::LogWarning() << "Can't find type declaration: " << sDataType;
-        }
       }
     }
 
@@ -500,6 +529,7 @@ namespace codegen
       std::string sOperation;
       ReadBefore(sOperation);
       CSP_ASSERT(!sOperation.empty(), "Can't get operation name", m_stInterface.sFileName, m_nLine);
+      CheckAndFixName(sOperation);
       rMember.sName = sOperation;
 
       SkipWs();
@@ -556,37 +586,55 @@ namespace codegen
       SkipWs();
       ReadBefore(sTmp);
 
-      if (sTmp == "returns")
+      CSP_ASSERT(sTmp == "returns", "Missing return message name", m_stInterface.sFileName, m_nLine);
+
+      std::string sReturn;
+      SkipWs();
+      CSP_ASSERT(m_tFile.get() == '(', "Error after \"returns\" in operation: [" + sOperation + "]",
+                 m_stInterface.sFileName, m_nLine);
+      SkipWs();
+      ReadBefore(sReturn);
+      CSP_ASSERT(!sReturn.empty(), "Can't get result message name", m_stInterface.sFileName, m_nLine);
+      SkipWs();
+      CSP_ASSERT(m_tFile.get() == ')', "Error after message type in operation: [" + sOperation + "]",
+                 m_stInterface.sFileName, m_nLine);
+
+      rise::StrReplace(sReturn, ".", "::", true);
+
+      ParseDataType(sReturn, rMember.stReturn.stDataType);
+      if (rMember.stReturn.stDataType.eType == SDataType::EStruct)
       {
-        std::string sReturn;
-        SkipWs();
-        CSP_ASSERT(m_tFile.get() == '(', "Error after \"returns\" in operation: [" + sOperation + "]",
-                   m_stInterface.sFileName, m_nLine);
-        SkipWs();
-        ReadBefore(sReturn);
-        CSP_ASSERT(!sReturn.empty(), "Can't get result message name", m_stInterface.sFileName, m_nLine);
-        SkipWs();
-        CSP_ASSERT(m_tFile.get() == ')', "Error after message type in operation: [" + sOperation + "]",
-                   m_stInterface.sFileName, m_nLine);
-
-        rise::StrReplace(sReturn, ".", "::", true);
-
-        ParseDataType(sReturn, rMember.stReturn.stDataType);
-        if (rMember.stReturn.stDataType.eType == SDataType::EStruct)
-        {
-          OptimizeCppNs(rMember.stReturn.stDataType.sUsedName, m_sCurrentNamespace);
-        }
-
-        ReadStr(sTmp);
+        OptimizeCppNs(rMember.stReturn.stDataType.sUsedName, m_sCurrentNamespace);
       }
       else
       {
-        rMember.stReturn.stDataType.sName = "void";
-        rMember.stReturn.stDataType.eType = SDataType::EGeneric;
+        rise::LogWarning() << "Return type for " << sOperation << " is not struct";
       }
 
-      CSP_ASSERT(sTmp == ";", "Missing ';' after operation declaration",
+      SkipWs();
+
+      char chTmp = m_tFile.peek();
+      if (chTmp == '{')
+      {
+        IgnoreFunction();
+        SkipWsOnly();
+        while ((chTmp = m_tFile.peek()) == ';' && !m_tFile.eof())
+        {
+          m_tFile.ignore();
+        }
+      }
+      else
+      {
+        CSP_ASSERT(chTmp == ';', "Missing ';' or '{' after operation declaration",
                  m_stInterface.sFileName, m_nLine);
+
+        do
+        {
+          m_tFile.ignore();
+        }
+        while ((chTmp = m_tFile.peek()) == ';' && !m_tFile.eof());
+      }
+
 
       SkipSingleLineComment();
     }
@@ -597,6 +645,7 @@ namespace codegen
       char chTmp = '\0';
       std::string sTmp;
 
+      CheckAndFixName(rClass.sName);
       SkipWs();
       rClass.sNamespace = m_sCurrentNamespace;
 
@@ -639,6 +688,14 @@ namespace codegen
           rClass.lsMembers.push_back(stMember);
         }
         else
+        if (sTmp == "option")
+        { // skip options
+          ReadBefore(sTmp, ";");
+          rise::LogDebug() << "Ignoring option" << sTmp;
+          m_tFile.ignore();
+          continue;
+        }
+        else
         {
           CSP_THROW("parse error! before: (" + sTmp + ")", m_stInterface.sFileName, m_nLine);
         }
@@ -650,6 +707,8 @@ namespace codegen
       char chTmp = '\0';
       std::string sTmp;
       std::string sDescr;
+
+      CheckAndFixName(rEnum.sName);
 
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
                  m_stInterface.sFileName, m_nLine);
@@ -687,6 +746,7 @@ namespace codegen
 
         ReadBefore(stMember.sName, "=;}");
         rise::StrTrim(stMember.sName);
+        CheckAndFixName(stMember.sName);
 
         chTmp = m_tFile.peek();
         if (chTmp == '=')
@@ -694,6 +754,7 @@ namespace codegen
           m_tFile.ignore();
           ReadBefore(stMember.sValue, ";}");
           rise::StrTrim(stMember.sValue);
+          CheckAndFixName(stMember.sValue);
           chTmp = m_tFile.peek();
         }
 
@@ -725,25 +786,27 @@ namespace codegen
     {
       char chTmp = '\0';
       std::string sTmp;
+
+      CheckAndFixName(rStruct.sName);
+
       const std::string& sOwnerName = (!rStruct.sOwnerName.empty() ?
                                         (rStruct.sOwnerName + "::") : "") + rStruct.sName;
 
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after message name): " + rStruct.sName,
                  m_stInterface.sFileName, m_nLine);
+      SkipWs();
+      chTmp = m_tFile.get();
+      if (chTmp == ';')
+      {
+        return; // forward declaration
+      }
 
-      ReadStr(sTmp);
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after message name): " + rStruct.sName,
                  m_stInterface.sFileName, m_nLine);
 
-      if (sTmp == ";")
-      {
-        m_tFile.unget();
-        return;
-      }
-
       rStruct.bForward = false;
 
-      CSP_ASSERT(sTmp == "{", "'{' or ';' after structname expected: " + rStruct.sName,
+      CSP_ASSERT(chTmp == '{', "'{' or ';' after structname expected: " + rStruct.sName,
                  m_stInterface.sFileName, m_nLine);
 
       while (m_tFile.good() && !m_tFile.eof())
@@ -796,6 +859,7 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
+          CheckAndFixName(sName);
 
           SEnum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
 
@@ -814,6 +878,7 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
+          CheckAndFixName(sName);
 
           SStruct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
@@ -831,6 +896,15 @@ namespace codegen
         { // skip options
           ReadBefore(sTmp, ";");
           rise::LogDebug() << "Ignoring option" << sTmp;
+          m_tFile.ignore();
+          continue;
+        }
+        else
+        if (sToken == "extensions")
+        { // skip options
+          ReadBefore(sTmp, ";");
+          rise::LogDebug() << "Ignoring extensions " << sTmp;
+          m_tFile.ignore();
           continue;
         }
         else
@@ -864,6 +938,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sToken);
         stParamTmp.sName = sToken;
+        CheckAndFixName(stParamTmp.sName);
 
         SkipWs();
         chTmp = m_tFile.peek();
@@ -911,6 +986,18 @@ namespace codegen
 
             if (sToken == "default")
             {
+              if (stParamTmp.stDataType.eType == SDataType::EEnum)
+              {
+                // fix namespace
+                CheckAndFixName(sTmp);
+                sTmp = stParamTmp.stDataType.sNamespace + sTmp;
+                OptimizeCppNs(sTmp, rStruct.sNamespace + sOwnerName);
+              }
+              else
+              {
+                CheckAndFixName(sTmp, true);
+              }
+              
               stParamTmp.mOptions["defaultValue"] = sTmp;
             }
           }
@@ -948,6 +1035,16 @@ namespace codegen
       SkipSingleLineComment();
     }
 
+    void ImportEnums(const std::list<SEnum>& rlsSrc, std::list<SEnum>& rlsDst)
+    {
+      for (std::list<SEnum>::const_iterator itEnum = rlsSrc.begin();
+          itEnum != rlsSrc.end(); ++itEnum)
+      {
+        rlsDst.push_back(*itEnum);
+        rlsDst.back().bExtern = true;
+      }
+    }
+
     void ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
     {
       for (std::list<SStruct>::const_iterator itStruct = rlsSrc.begin();
@@ -962,6 +1059,7 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
+        ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
         ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
       }
     }
@@ -969,7 +1067,12 @@ namespace codegen
     void Import(const std::string& sFileName)
     {
       CProtobufHeaderParser tProtobufHeaderParser(m_sRootNamespace);
+      
+      rise::LogDebug() << "importing file " << sFileName << " from " << m_stInterface.sFileName;
       const SInterface& rInterface = tProtobufHeaderParser.Parse(m_sInDir, sFileName, *m_pProject);
+
+      // use extern enums
+      ImportEnums(rInterface.lsEnums, m_stInterface.lsEnums);
 
       // use extern structs
       ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
@@ -978,6 +1081,7 @@ namespace codegen
       stInclude.sInterfaceName = rInterface.sName;
       stInclude.sNamespace = rInterface.sNamespace;
       stInclude.sFileName = rInterface.sFileName;
+      stInclude.sFilePath = rInterface.sFilePath;
       stInclude.sTargetNs = rInterface.sTargetNs;
       m_stInterface.lsIncludes.push_back(stInclude);
     }
@@ -1130,8 +1234,10 @@ namespace codegen
         CSP_ASSERT(chTmp == ';', "';' is not found!", m_stInterface.sFileName, m_nLine);
       }
       else
-      if (sTmp == "enum")   // enum -ignore
+      if (sTmp == "extend")   // extend -ignore
       {
+        ReadBefore(sTmp, "{;");
+        rise::LogDebug() << "Ignoring extend" << sTmp;
         IgnoreFunction();
         SkipSingleLineComment();
       }
@@ -1209,33 +1315,186 @@ namespace codegen
       }
     }
 
+
+    static bool IsStructUsesAnother(const SStruct& rstStruct, const SStruct& rstOtherStruct)
+    {
+      bool bResult = false;
+      // check the same level
+      for (std::list<SParam>::const_iterator itMember = rstStruct.lsMembers.begin();
+          itMember != rstStruct.lsMembers.end(); ++itMember)
+      {
+        const SDataType& rstDataType = itMember->stDataType;
+        if ((rstDataType.eType == SDataType::EStruct &&
+            rstDataType.sNamespace == rstOtherStruct.sNamespace &&
+            rstDataType.sName == rstOtherStruct.sName)
+/*            ||
+            (rstDataType.eType == SDataType::ETemplate &&
+            !rstDataType.lsParams.empty() &&
+            rstDataType.lsParams.front().sNamespace == rstOtherStruct.sNamespace &&
+            rstDataType.lsParams.front().sName == rstOtherStruct.sName)*/
+          )
+        {
+          bResult = true;
+          break;
+        }
+      }
+
+      if (!bResult) // check nested structs
+      {
+        for (std::list<SStruct>::const_iterator itStruct = rstStruct.lsStructs.begin();
+            itStruct != rstStruct.lsStructs.end(); ++itStruct)
+        {
+          if (IsStructUsesAnother(*itStruct, rstOtherStruct))
+          {
+            bResult = true;
+            break;
+          }
+        }
+      }
+
+      return bResult;
+    }
+
+    bool FixStructOrderByUsing(std::list<SStruct>& rlsStructs)
+    {
+      bool bWasChanged = false;
+      for (std::list<SStruct>::size_type nRetry = rlsStructs.size(); nRetry; --nRetry)
+      {
+        bWasChanged = false;
+        for (std::list<SStruct>::iterator itThisStruct = rlsStructs.begin();
+            itThisStruct != rlsStructs.end();)
+        {
+          // check is
+          bool bFound = false;
+          std::list<SStruct>::iterator itOtherStruct = itThisStruct;
+          ++itOtherStruct;
+          for (; itOtherStruct != rlsStructs.end(); ++itOtherStruct)
+          {
+            if (IsStructUsesAnother(*itThisStruct, *itOtherStruct))
+            {
+              rise::LogDebug() << "Moving " << itOtherStruct->sName
+                  << " to before " << itThisStruct->sName;
+              rlsStructs.splice(itThisStruct++, rlsStructs, itOtherStruct);
+              // now itThisStruct points to new pos of the itThisStruct
+              bWasChanged = true;
+              bFound = true;
+              break;
+            }
+          }
+
+          ++itThisStruct;
+        }
+
+        for (std::list<SStruct>::iterator itStruct = rlsStructs.begin();
+            itStruct != rlsStructs.end(); ++itStruct)
+        {
+          bWasChanged |= FixStructOrderByUsing(itStruct->lsStructs);
+        }
+
+        if (!bWasChanged)
+        {
+          break;
+        }
+      }
+
+      if (bWasChanged)
+      {
+        rise::LogWarning() << "Failed to reorder structures. Build may fail";
+      }
+
+      return bWasChanged;
+    }
+
+
+    void CheckAndFixUnknownDataType(SDataType& rstDataType, SStruct* pstStruct = NULL)
+    {
+      if (rstDataType.eType == SDataType::EUnknown)
+      {
+        rise::LogDebug() << "2nd pass: fixing datatype: " << rstDataType.sName;
+        ParseDataType(rstDataType.sNamespace + rstDataType.sName, rstDataType, pstStruct);
+      }
+      
+      if (rstDataType.eType == SDataType::ETemplate && !rstDataType.lsParams.empty())
+      {
+        SDataType& rstTemplParam = rstDataType.lsParams.front();
+        if (rstTemplParam.eType == SDataType::EUnknown)
+        {
+          rise::LogDebug() << "2nd pass fixing datatype: " << rstTemplParam.sName;
+          ParseDataType( rstTemplParam.sNamespace + rstTemplParam.sName, rstTemplParam, pstStruct);
+        }
+      }
+    }
+
+    void FixUnknownDataTypesInStructs(std::list<SStruct>& rlsStructs)
+    {
+      // search unknown data types in structures
+      for (std::list<SStruct>::iterator itStruct = rlsStructs.begin();
+          itStruct != rlsStructs.end(); ++itStruct)
+      {
+        for (std::list<SParam>::iterator itMember = itStruct->lsMembers.begin();
+            itMember != itStruct->lsMembers.end(); ++itMember)
+        {
+          CheckAndFixUnknownDataType(itMember->stDataType, &*itStruct);
+        }
+        FixUnknownDataTypesInStructs(itStruct->lsStructs);
+      }
+    }
+
+    void FixUnknownDataTypesInClasses(std::list<SClass>& rlsClasses)
+    {
+      // search unknown data types in services
+      for (std::list<SClass>::iterator itClass = rlsClasses.begin();
+          itClass != rlsClasses.end(); ++itClass)
+      {
+        for (std::list<SMember>::iterator itMember = itClass->lsMembers.begin();
+            itMember != itClass->lsMembers.end(); ++itMember)
+        {
+          CheckAndFixUnknownDataType(itMember->stReturn.stDataType);
+
+          for (std::list<SParam>::iterator itParam = itMember->lsParams.begin();
+              itParam != itMember->lsParams.end(); ++itParam)
+          {
+            CheckAndFixUnknownDataType(itParam->stDataType);
+          }
+
+        }
+      }
+    }
+
+
     // Interface
     const SInterface& Parse( const std::string& sInDir, const std::string& sFileName, SProject& rProject )
     {
       m_pProject = &rProject;
       m_sInDir = sInDir;
 
+      std::string::size_type nPos = sFileName.find_last_of("/\\");
+      const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
+                                              sFileName.substr(nPos + 1) : sFileName;
+      const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
+                                              sFileName.substr(0, nPos + 1) : "";
+
       for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
-        itInterface != rProject.lsInterfaces.end(); ++itInterface)
+          itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        if (itInterface->sFileName == sFileName)
+        if (itInterface->sFileName == sInterfaceFileName &&
+            itInterface->sFilePath == sInterfaceFilePath)
         {
-          return *itInterface;
+          return *itInterface; // already parsed
         }
       }
 
       rProject.lsInterfaces.push_back(m_stInterface);
       SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
 
-      m_stInterface.sFileName = sFileName;
-      std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
-      if (nPos != std::string::npos)
-      {
-        m_stInterface.sFileName.erase(0, nPos + 1);
-      }
+      m_stInterface.sFileName = sInterfaceFileName;
+      m_stInterface.sFilePath = sInterfaceFilePath;
 
-      m_tFile.open((m_sInDir + sFileName).c_str());
-      CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFileName + ": "
+      const std::string& sFilePath = m_sInDir + sFileName;
+
+      rise::LogDebug() << "processing file: " << sFilePath;
+      m_tFile.open(sFilePath.c_str());
+      CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFilePath + ": "
                  + std::string(strerror(errno)), m_stInterface.sFileName, m_nLine);
       try
       {
@@ -1272,6 +1531,10 @@ namespace codegen
             }
           }
         }
+        
+        FixUnknownDataTypesInStructs(m_stInterface.lsStructs);
+        FixUnknownDataTypesInClasses(m_stInterface.lsClasses);
+        FixStructOrderByUsing(m_stInterface.lsStructs);
 
         rProjectThisInterface = m_stInterface;
         m_tFile.close();
@@ -1290,7 +1553,7 @@ namespace codegen
 
       return m_stInterface;
     }
-
+    
     void CorrectStuctParentNs()
     {
       // correct structs parent namespaces
@@ -1343,8 +1606,9 @@ namespace codegen
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
+      rise::LogDebug() << "---- " << *itFile << " -------------------------------------------------------";
       CProtobufHeaderParser tProtobufHeaderParser(sRootNs);
-      const SInterface& rInterface = tProtobufHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
+      const SInterface& rInterface = tProtobufHeaderParser.Parse(rParseSettings.sInDir, *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
     }
 

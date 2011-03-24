@@ -1401,11 +1401,14 @@ namespace codegen
       std::string::size_type nPos = sFileName.find_last_of("/\\");
       const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
                                               sFileName.substr(nPos + 1) : sFileName;
+      const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
+                                              sFileName.substr(0, nPos + 1) : "";
 
       for (std::list<SInterface>::iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        if (itInterface->sFileName == sInterfaceFileName)
+        if (itInterface->sFileName == sInterfaceFileName &&
+            itInterface->sFilePath == sInterfaceFilePath)
         {
           return *itInterface; // already parsed
         }
@@ -1424,16 +1427,9 @@ namespace codegen
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
-        std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
-        if (nPos != std::string::npos)
-        {
-          m_stInterface.sFileName.erase(0, nPos + 1);
-        }
-
-        m_stInterface.sName = sInterfaceFileName;
-
+        m_stInterface.sFilePath = sInterfaceFilePath;
         m_stInterface.sNamespace = TnsToCppNs(m_stInterface.sTargetNs);
-
+        m_stInterface.sName = sInterfaceFileName;
         nPos = m_stInterface.sName.find_last_of('.');
         if (nPos != std::string::npos)
         {
@@ -2368,6 +2364,16 @@ namespace codegen
     }
   }
 
+  void ImportEnums(const std::list<SEnum>& rlsSrc, std::list<SEnum>& rlsDst)
+  {
+    for (std::list<SEnum>::const_iterator itEnum = rlsSrc.begin();
+        itEnum != rlsSrc.end(); ++itEnum)
+    {
+      rlsDst.push_back(*itEnum);
+      rlsDst.back().bExtern = true;
+    }
+  }
+
   void SWsdlTypes::ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
   {
     for (std::list<SStruct>::const_iterator itStruct = rlsSrc.begin();
@@ -2382,6 +2388,7 @@ namespace codegen
       rstStruct.sDetail = itStruct->sDetail;
       rstStruct.bExtern = true;
       rstStruct.sOwnerName = itStruct->sOwnerName;
+      ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
       ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
     }
   }
@@ -2461,7 +2468,7 @@ namespace codegen
     CWsdlParserImpl tWsdlParser(m_pParser->GetParseSettings());
     try
     {
-      SInterface& rNewInterface = tWsdlParser.ParseFile(m_pParser->GetParseSettings().sInDir + '/'
+      SInterface& rNewInterface = tWsdlParser.ParseFile(m_pParser->GetParseSettings().sInDir
                                                         + sShemaLocation, rProject);
 
       // import operations
@@ -2474,6 +2481,7 @@ namespace codegen
         ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
       }
 
+      ImportEnums(rNewInterface.lsEnums, rInterface.lsEnums);
       ImportStruct(rNewInterface.lsStructs, rInterface.lsStructs);
 
       // use extern typedefs
@@ -2493,6 +2501,7 @@ namespace codegen
       stInclude.sInterfaceName = rNewInterface.sName;
       stInclude.sNamespace = rNewInterface.sNamespace;
       stInclude.sFileName = rNewInterface.sFileName;
+      stInclude.sFilePath = rNewInterface.sFilePath;
       stInclude.sTargetNs = rNewInterface.sTargetNs;
       rInterface.lsIncludes.push_back(stInclude);
 
@@ -2570,7 +2579,7 @@ namespace codegen
           itFileName != rParseSettings.lsFiles.end(); ++itFileName)
     {
       CWsdlParserImpl tWsdlParser(rParseSettings);
-      std::string sFileName = rParseSettings.sInDir + "/" + *itFileName;
+      std::string sFileName = rParseSettings.sInDir + *itFileName;
 
       rise::LogDebug() << "Processing wsdl: " << *itFileName;
 

@@ -2,14 +2,14 @@
 
       <!-- enums -->
 #foreach $(Interface.Enums)
-#cginclude <wsdl/WsdlEnum.xsd>
+#cginclude "WsdlEnum.xsd"
 #end // #foreach $(Interface.Enums)
 #ifeqend // #ifneq($(Interface.Enums.$Count),0)
 #ifneq($(Interface.Structs.$Count),0)
 
       <!-- structures -->
 #foreach $(Interface.Structs)
-#cginclude <wsdl/WsdlStruct.xsd>
+#cginclude "WsdlStruct.xsd"
 #end // #foreach $(Interface.Structs)
 #ifeqend // #ifneq($(Interface.Structs.$Count),0)
 #ifneq($(Interface.Typedefs.$Count),0)
@@ -41,7 +41,7 @@
 #else
           <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" type="\
 #context $(Typedef.DataType.TemplateParams.TemplateParam1)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 " nillable="true" />
 #ifeqend
@@ -61,7 +61,7 @@
 #else
                 <element name="Key" type="\
 #context $(Typedef.DataType.TemplateParams.TemplateParam1)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 " />
 #ifeqend
@@ -76,7 +76,7 @@
 #else
                 <element name="Value" type="\
 #context $(Typedef.DataType.TemplateParams.TemplateParam2)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 " />
 #ifeqend
@@ -100,7 +100,7 @@
 #else
         <restriction base="\
 #context $(Typedef.DataType)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 "/>
 #ifeqend
