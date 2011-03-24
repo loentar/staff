@@ -6,7 +6,7 @@ tns_$(.Namespace.!mangle):$(.NativeName.!dot)\
 #else
 #ifeq($(.Type),template)
 #context $(.TemplateParams.TemplateParam1)
-#cginclude <wsdl/WsdlDataType.xsd>
+#cginclude "WsdlDataType.xsd"
 #contextend
 " minOccurs="0" maxOccurs="unbounded\
 #else

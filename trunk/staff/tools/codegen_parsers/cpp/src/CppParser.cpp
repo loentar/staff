@@ -1304,6 +1304,16 @@ namespace codegen
       rTypedef.sNamespace = m_sCurrentNamespace;
     }
 
+    void ImportEnums(const std::list<SEnum>& rlsSrc, std::list<SEnum>& rlsDst)
+    {
+      for (std::list<SEnum>::const_iterator itEnum = rlsSrc.begin();
+          itEnum != rlsSrc.end(); ++itEnum)
+      {
+        rlsDst.push_back(*itEnum);
+        rlsDst.back().bExtern = true;
+      }
+    }
+
     void ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
     {
       for (std::list<SStruct>::const_iterator itStruct = rlsSrc.begin();
@@ -1318,6 +1328,7 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
+        ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
         ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
       }
     }
@@ -1341,6 +1352,9 @@ namespace codegen
           CCppHeaderParser tCppHeaderParser(m_sRootNamespace);
           const SInterface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
 
+          // import extern enums
+          ImportEnums(rInterface.lsEnums, m_stInterface.lsEnums);
+
           // import extern structs
           ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
 
@@ -1360,6 +1374,7 @@ namespace codegen
           stInclude.sInterfaceName = rInterface.sName;
           stInclude.sNamespace = rInterface.sNamespace;
           stInclude.sFileName = rInterface.sFileName;
+          stInclude.sFilePath = rInterface.sFilePath;
           stInclude.sTargetNs = rInterface.sTargetNs;
           m_stInterface.lsIncludes.push_back(stInclude);
         }
@@ -1664,10 +1679,17 @@ namespace codegen
       m_pProject = &rProject;
       m_sInDir = sInDir;
 
+      std::string::size_type nPos = sFileName.find_last_of("/\\");
+      const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
+                                              sFileName.substr(nPos + 1) : sFileName;
+      const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
+                                              sFileName.substr(0, nPos + 1) : "";
+
       for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
         itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        if (itInterface->sFileName == sFileName)
+        if (itInterface->sFileName == sInterfaceFileName &&
+            itInterface->sFilePath == sInterfaceFilePath)
         {
           return *itInterface;
         }
@@ -1676,12 +1698,8 @@ namespace codegen
       rProject.lsInterfaces.push_back(m_stInterface);
       SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
 
-      m_stInterface.sFileName = sFileName;
-      std::string::size_type nPos = m_stInterface.sFileName.find_last_of("\\/");
-      if (nPos != std::string::npos)
-      {
-        m_stInterface.sFileName.erase(0, nPos + 1);
-      }
+      m_stInterface.sFileName = sInterfaceFileName;
+      m_stInterface.sFilePath = sInterfaceFilePath;
 
       m_tFile.open((m_sInDir + sFileName).c_str());
       CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFileName + ": "
@@ -1806,7 +1824,7 @@ namespace codegen
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
       CCppHeaderParser tCppHeaderParser(sRootNs);
-      const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir + "/", *itFile, rProject);
+      const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir, *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
     }
 

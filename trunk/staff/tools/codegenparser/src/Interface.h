@@ -163,6 +163,7 @@ namespace codegen
     std::string sInterfaceName;      //!<  interface name
     std::string sNamespace;          //!<  interface namespace
     std::string sFileName;           //!<  file name
+    std::string sFilePath;           //!<  file path
     std::string sTargetNs;           //!<  target namespace
   };
 
@@ -171,7 +172,8 @@ namespace codegen
   {
     std::string           sName;          //!<  interface name, based on input filename
     std::string           sNamespace;     //!<  interface main namespace
-    std::string           sFileName;      //!<  input filename
+    std::string           sFileName;      //!<  input file name
+    std::string           sFilePath;      //!<  input file path
     std::string           sTargetNs;      //!<  target namespace
     std::list<SInclude>   lsIncludes;     //!<  included files
     std::list<SEnum>      lsEnums;        //!<  enum list

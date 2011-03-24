@@ -19,6 +19,15 @@ $(Project.OpeningNs)
   class ProtobufConnector
   {
   public:
+    enum { ProtobufRequestTimeout = \
+#ifneq($($protobufRequestTimeout),)
+$($protobufRequestTimeout)\
+#else
+60000\
+#ifeqend
+ }; // protobuf request timeout
+
+  public:
     ProtobufConnector();
     virtual ~ProtobufConnector();
 

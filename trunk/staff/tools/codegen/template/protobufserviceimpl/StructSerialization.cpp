@@ -1,9 +1,9 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
 #foreach $(Struct.Structs)
-#cginclude <protobufserviceimpl/StructSerialization.cpp>
+#cginclude "StructSerialization.cpp"
 #end
 #foreach $(Struct.Enums)
-#cginclude <protobufserviceimpl/EnumSerialization.cpp>
+#cginclude "EnumSerialization.cpp"
 #end
 
 $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($rootns)/)& rLeft, const $(Struct.NsName)& rRight)

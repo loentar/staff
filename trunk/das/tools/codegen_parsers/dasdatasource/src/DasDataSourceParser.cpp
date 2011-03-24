@@ -61,7 +61,7 @@ namespace codegen
     for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      const std::string& sFileName = rParseSettings.sInDir + "/" + *itFile;
+      const std::string& sFileName = rParseSettings.sInDir + *itFile;
 
       m_sDir = sFileName.substr(0, sFileName.find_last_of('/') + 1);
 
@@ -73,11 +73,19 @@ namespace codegen
       if (rNodeDataSources.NodeName() == "types")
       {
         SInterface stInterface;
-        const std::string& sFileNameOnly = sFileName.substr(sFileName.find_last_of('/') + 1);
-        std::string::size_type nPos = sFileNameOnly.find_last_of('.');
-        stInterface.sFileName = sFileNameOnly;
 
-        stInterface.sName = (nPos != std::string::npos) ?  sFileNameOnly.substr(0, nPos) : sFileNameOnly;
+        std::string::size_type nPos = sFileName.find_last_of("/\\");
+        stInterface.sFileName = (nPos != std::string::npos) ?
+                                                sFileName.substr(nPos + 1) : sFileName;
+        stInterface.sFilePath = (nPos != std::string::npos) ?
+                                                sFileName.substr(0, nPos + 1) : "";
+
+        stInterface.sName = stInterface.sFileName;
+        nPos = stInterface.sName.find_last_of('.');
+        if (nPos != std::string::npos)
+        {
+          stInterface.sName.erase(nPos);
+        }
 
         std::string sNamespace;
         rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rNodeDataSources.FindAttribute("namespace");
@@ -125,15 +133,24 @@ namespace codegen
       {
         const std::string& sFileName = rNodeType.Attribute("filename");
 
+        std::string::size_type nPos = sFileName.find_last_of("/\\");
+        const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
+                                                sFileName.substr(nPos + 1) : sFileName;
+        const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
+                                                sFileName.substr(0, nPos + 1) : "";
+
+
         bool bFound = false;
 
         for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
         {
-          if (itInterface->sFileName == sFileName)
+          if (itInterface->sFileName == sInterfaceFileName &&
+              itInterface->sFilePath == sInterfaceFilePath)
           {
             SInclude stInclude;
             stInclude.sFileName = itInterface->sFileName;
+            stInclude.sFilePath = itInterface->sFilePath;
             stInclude.sNamespace = itInterface->sNamespace;
             stInclude.sInterfaceName = itInterface->sName;
             rInterface.lsIncludes.push_back(stInclude);
@@ -146,17 +163,18 @@ namespace codegen
         {
           SInterface stInterface;
 
-          std::string::size_type nPos = sFileName.find_last_of('.');
+          std::string::size_type nPos = sInterfaceFileName.find_last_of('.');
           if (nPos != std::string::npos)
           {
-            stInterface.sName = sFileName.substr(0, nPos);
+            stInterface.sName = sInterfaceFileName.substr(0, nPos);
           }
           else
           {
-            stInterface.sName = sFileName;
+            stInterface.sName = sInterfaceFileName;
           }
 
-          stInterface.sFileName = sFileName;
+          stInterface.sFileName = sInterfaceFileName;
+          stInterface.sFilePath = sInterfaceFilePath;
           stInterface.sNamespace = sNamespace;
 
           rise::LogDebug() << "including " << sFileName;
@@ -167,7 +185,8 @@ namespace codegen
 
 
           SInclude stInclude;
-          stInclude.sFileName = sFileName;
+          stInclude.sFileName = sInterfaceFileName;
+          stInclude.sFilePath = sInterfaceFilePath;
           stInclude.sNamespace = sNamespace;
           stInclude.sInterfaceName = stInterface.sName;
           rInterface.lsIncludes.push_back(stInclude);

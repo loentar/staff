@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include "$(Interface.Name)Impl.h"
+#include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 
 #foreach $(Interface.Classes)
 $(Class.OpeningNs)

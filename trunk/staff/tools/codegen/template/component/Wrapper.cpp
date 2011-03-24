@@ -10,16 +10,16 @@
 #include <staff/common/Value.h>
 #include <staff/common/IService.h>
 #include <staff/component/ServiceInstanceManager.h>
-#include "$(Interface.Name)Impl.h"
+#include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #else // types only interface
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #ifeqend // #ifneq($(Interface.Classes.$Count),0) 
 #include <staff/common/Attribute.h>
 #foreach $(Interface.Includes)
-#include "$(Include.Name)Wrapper.h"
+#include "$(Include.FilePath)$(Include.Name)Wrapper.h"
 #end
-#include "$(Interface.Name)Wrapper.h"
+#include "$(Interface.FilePath)$(Interface.Name)Wrapper.h"
 
 #cginclude <common/Serialization.cpp>
 

@@ -9,7 +9,7 @@
 #include <staff/component/ServiceInstanceManager.h>
 #include <staff/security/tools.h>
 #foreach $(Project.Interfaces)
-#include "$(Interface.Name)Wrapper.h"
+#include "$(Interface.FilePath)$(Interface.Name)Wrapper.h"
 #end
 #include "ComponentImpl.h"
 

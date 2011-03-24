@@ -657,7 +657,7 @@ namespace codegen
 
       if (m_bHasConfig)
       {
-        const std::string& sIn = m_sInDir + RISE_PATH_SEPARATOR "codegen.config";
+        const std::string& sIn = m_sInDir + "codegen.config";
         std::ostringstream fsOut;
         std::ifstream fsIn;
 
@@ -710,8 +710,8 @@ namespace codegen
                   sFile.erase(0, nPos + 1);
                 }
 
-                ProcessFile(m_sInDir + RISE_PATH_SEPARATOR + *itTemplateFile, 
-                            sOutDir + RISE_PATH_SEPARATOR, sFile,
+                ProcessFile(m_sInDir + *itTemplateFile, 
+                            sOutDir, sFile,
                             rNodeInterface, bUpdateOnly, bNeedUpdate);
               }
             }
@@ -730,9 +730,7 @@ namespace codegen
             sFile.erase(0, nPos + 1);
           }
 
-          ProcessFile(m_sInDir + RISE_PATH_SEPARATOR + *itTemplateFile, 
-                      sOutDir + RISE_PATH_SEPARATOR, sFile,
-                      rRootNode, bUpdateOnly, bNeedUpdate);
+          ProcessFile(m_sInDir + *itTemplateFile, sOutDir, sFile, rRootNode, bUpdateOnly, bNeedUpdate);
         }
       } // has config
     }
@@ -959,17 +957,31 @@ namespace codegen
       Process(ssStream, fsOut, rSubNode);
     }
 
-    void ProcessInclude(std::istream& fsIn, std::ostream& fsOut, const CXMLNode& rNode, std::string& sLine)
+    void ProcessInclude(std::ostream& fsOut, const CXMLNode& rNode, const std::string& sLine)
     {
       std::string sIncludeFileName;
 
-      std::string::size_type nPosStart = sLine.find('<', 9);
-      std::string::size_type nPosEnd = 0;
+      char chQuote = *sLine.begin();
+      std::string::size_type nPos = 0;
 
-      RISE_ASSERTS(nPosStart != std::string::npos, "cginclude expression is invalid!");
-      nPosEnd = sLine.find('>', nPosStart);
-      RISE_ASSERTS(nPosEnd != std::string::npos, "cginclude expression is invalid!");
-      sIncludeFileName = m_sInDir + "/../" + sLine.substr(nPosStart + 1, nPosEnd - nPosStart - 1);
+      if (chQuote == '<')
+      {
+        nPos = sLine.find('>', 1);
+        RISE_ASSERTS(nPos != std::string::npos, "cginclude expression is invalid!");
+        sIncludeFileName = m_sInDir + "../" + sLine.substr(1, nPos - 1);
+      }
+      else
+      if (chQuote == '"')
+      {
+        nPos = sLine.find('"', 1);
+        RISE_ASSERTS(nPos != std::string::npos, "cginclude expression is invalid!");
+        sIncludeFileName = m_sInDir + sLine.substr(1, nPos - 1);
+      }
+      else
+      {
+        RISE_THROWS(rise::CInternalAssertException, "cginclude expression is invalid!");
+      }
+
 
       std::ifstream fsIncFile;
       fsIncFile.open(sIncludeFileName.c_str());
@@ -979,10 +991,13 @@ namespace codegen
         throw std::string("can't include file: " + sIncludeFileName);
       }
 
+      std::string sCurrInDir = m_sInDir;
+      m_sInDir = sIncludeFileName.substr(0, sIncludeFileName.find_last_of('/') + 1);
       while (!fsIncFile.eof() && fsIncFile.good())
       {
         Process(fsIncFile, fsOut, rNode);
       }
+      m_sInDir = sCurrInDir;
 
       fsIncFile.close();
     }
@@ -1118,10 +1133,7 @@ namespace codegen
             throw std::string("#fileopen: Filename is empty");
           }
 
-          if (!m_sOutDir.empty())
-          {
-            sFileName = m_sOutDir + '/' + sFileName;
-          }
+          sFileName = m_sOutDir + sFileName;
 
           std::ofstream ofsFile(sFileName.c_str());
           if (!ofsFile.good())
@@ -1145,37 +1157,38 @@ namespace codegen
           ReplaceToValue(sDirName, rNode);
           rise::StrTrim(sDirName);
 
-          if (!m_sOutDir.empty())
-          {
-            sDirName = m_sOutDir + '/' + sDirName;
-          }
+          sDirName = m_sOutDir + sDirName;
 
           for (std::string::size_type nPos = 0; nPos != std::string::npos;)
           {
             nPos = sDirName.find('/', nPos + 1);
             const std::string& sCurrDir = sDirName.substr(0, nPos);
-
+            if (!sCurrDir.empty())
+            {
 #ifndef WIN32
-            if (mkdir(sCurrDir.c_str(), 0755) == -1)
-            {
-              if (errno != EEXIST)
+              if (mkdir(sCurrDir.c_str(), 0755) == -1)
               {
-                throw std::string("Failed to create dir: " + sCurrDir + strerror(errno));
+                if (errno != EEXIST)
+                {
+                  throw std::string("Failed to create dir [" + sCurrDir + "]: " + strerror(errno));
+                }
               }
-            }
 #else
-            int nRes = _mkdir(sCurrDir.c_str());
-            if (nRes != 0 && nRes != EEXIST)
-            {
-              throw std::string("Failed to create dir: " + sCurrDir + strerror(errno));
-            }
+              int nRes = _mkdir(sCurrDir.c_str());
+              if (nRes != 0 && nRes != EEXIST)
+              {
+                throw std::string("Failed to create dir [" + sCurrDir + "]: " + strerror(errno));
+              }
 #endif
+            }
           }
         }
         else
         if (sLine.substr(0, 11) == "#cginclude ")
         {
-          ProcessInclude(fsIn, fsOut, rNode, sLine);
+          sLine.erase(0, 11);
+          rise::StrTrim(sLine);
+          ProcessInclude(fsOut, rNode, sLine);
         }
         else
         if (sLine.substr(0, 11) == "#cgwarning ")

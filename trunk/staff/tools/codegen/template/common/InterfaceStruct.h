@@ -24,12 +24,12 @@ $($sNewOpeningNs)
   {
 #foreach $(Struct.Enums)
 #indent +
-#cginclude <common/InterfaceEnum.h>
+#cginclude "InterfaceEnum.h"
 #indent -
 #end
 #foreach $(Struct.Structs)
 #indent +
-#cginclude <common/InterfaceStruct.h>
+#cginclude "InterfaceStruct.h"
 #indent -
 #end
 #var bHaveDefaults 0
