@@ -86,7 +86,7 @@ namespace staff
     //!         get services list
     /*! \return services list
         */
-    TServiceWrapperMap GetServices() const;
+    const TServiceWrapperMap& GetServices() const;
 
     //!         clear component list
     void Clear();
@@ -97,6 +97,7 @@ namespace staff
 
   private:
     TCompositeComponentMap m_mComponents;
+    TServiceWrapperMap m_mServiceWrappers;
     static CSharedContext* m_pInst;
   };
 }

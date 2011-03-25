@@ -4,6 +4,9 @@
 
 #include <rise/threading/Event.h>
 #include <rise/common/ExceptionTemplate.h>
+#ifneq($($protobufEncoding),)
+#include <rise/string/Encoding.h>
+#ifeqend
 #include "ProtobufConnector.h"
 #foreach $(Interface.Includes)
 #include "$(Include.FilePath)$(Include.Name)Impl.h"
@@ -11,7 +14,24 @@
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 
 #indent +
-#cginclude "Serialization.cpp"
+#ifneq($(Interface.Enums.$Count),0)
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// enums
+#foreach $(Interface.Enums)
+#ifeq($(Enum.Extern),0) // do not serialize extern type
+#cginclude "EnumSerialization.cpp"
+#ifeqend
+#end
+
+#ifeqend
+#ifneq($(Interface.Structs.$Count),0)
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// struct serializators/deserializators
+#foreach $(Interface.Structs)
+#cginclude "StructSerialization.cpp"
+#end
+
+#ifeqend // Interface.Structs.$Count != 0
 #indent -
 
 #foreach $(Interface.Classes)
