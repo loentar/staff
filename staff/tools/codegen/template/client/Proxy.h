@@ -32,31 +32,8 @@ private:
 
 $(Class.EndingNs)
 #end
-#else // included types
-namespace staff
-{
-  class CDataObject;
-#foreach $(Interface.Structs)
-#cginclude <common/StructSerialization.h>
-#end
-#foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#end // foreach $(Interface.Typedefs)
-}
+#ifeqend // serializators
+#cginclude <common/Serialization.h>
 
-#ifeqend
 #endif
 

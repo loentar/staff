@@ -51,7 +51,29 @@ namespace staff
         m_mComponents.insert(TCompositeComponentMap::value_type(pComponent->GetName(), PCompositeComponent(new CCompositeComponent)));
       tInsertResult.first->second->Compose(pComponent);
     } else
+    {
       itFind->second->Compose(pComponent);
+    }
+
+
+    TServiceWrapperMap::const_iterator itExistingWrapper;
+    const TServiceWrapperMap& rmWrappers = pComponent->GetServices();
+    for (TServiceWrapperMap::const_iterator itWrapper = rmWrappers.begin();
+         itWrapper != rmWrappers.end(); ++itWrapper)
+    {
+      itExistingWrapper = m_mServiceWrappers.find(itWrapper->first);
+      if (itExistingWrapper != m_mServiceWrappers.end())
+      {
+        rise::LogError() << "Service [" << itWrapper->second->GetName()
+          << "] from component [" << pComponent->GetName()
+          << "] already registered in component ["
+          << itWrapper->second->GetComponent()->GetName() << "].";
+      }
+      else
+      {
+        m_mServiceWrappers.insert(*itWrapper);
+      }
+    }
   }
 
   CCompositeComponent* CSharedContext::GetComponent( const std::string& sName )
@@ -77,73 +99,33 @@ namespace staff
 
   const CServiceWrapper* CSharedContext::GetService( const std::string& sName ) const
   {
-    std::string sComponentName;
-    std::string sServiceName;
-    std::string::size_type nPos = sName.find_last_of('.');
-    if (nPos != std::string::npos)
-    {
-      sComponentName.assign(sName, 0, nPos - 1);
-      sServiceName.assign(sName, nPos + 1, std::string::npos);
-    } else
-      sServiceName = sName;
+    TServiceWrapperMap::const_iterator itExistingWrapper =
+        m_mServiceWrappers.find(sName);
 
-    const CCompositeComponent* pComponent = GetComponent(sComponentName);
-    if (pComponent == NULL)
+    if (itExistingWrapper != m_mServiceWrappers.end())
     {
-      pComponent = GetComponent("");
-      if (pComponent == NULL)
-      {
-        return NULL;
-      }
+      return itExistingWrapper->second;
     }
 
-    return pComponent->GetService(sName);
+    return NULL;
   }
 
   CServiceWrapper* CSharedContext::GetService( const std::string& sName )
   {
-    std::string sComponentName;
-    std::string sServiceName;
-    std::string::size_type nPos = sName.find_last_of('.');
-    if (nPos != std::string::npos)
-    {
-      sComponentName.assign(sName, 0, nPos);
-      sServiceName.assign(sName, nPos + 1, std::string::npos);
-    } else
-      sServiceName = sName;
+    TServiceWrapperMap::const_iterator itExistingWrapper =
+        m_mServiceWrappers.find(sName);
 
-    CCompositeComponent* pComponent = GetComponent(sComponentName);
-    if (pComponent == NULL)
+    if (itExistingWrapper != m_mServiceWrappers.end())
     {
-      pComponent = GetComponent("");
-      if (pComponent == NULL)
-      {
-        return NULL;
-      }
+      return itExistingWrapper->second;
     }
 
-    return pComponent->GetService(sName);
+    return NULL;
   }
 
-  TServiceWrapperMap CSharedContext::GetServices() const
+  const TServiceWrapperMap& CSharedContext::GetServices() const
   {
-    TServiceWrapperMap mServices;
-    for(TCompositeComponentMap::const_iterator itComponent = m_mComponents.begin();
-          itComponent != m_mComponents.end(); ++itComponent)
-    {
-      const TServiceWrapperMap& rmNewComponent = itComponent->second->GetServices();
-      for (TServiceWrapperMap::const_iterator itService = rmNewComponent.begin();
-        itService != rmNewComponent.end(); ++itService)
-      {
-        const std::pair<TServiceWrapperMap::iterator, bool>& tInsertResult = 
-          mServices.insert(TServiceWrapperMap::value_type(itService->first, itService->second));
-        if (!tInsertResult.second)
-          rise::LogWarning() << "Duplicate service: \"" << itService->first 
-          << "\": in component: \"" << itComponent->first << "\".";
-      }
-    }
-
-    return mServices;
+    return m_mServiceWrappers;
   }
 
   void CSharedContext::Clear()
