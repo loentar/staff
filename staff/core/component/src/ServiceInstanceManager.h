@@ -27,7 +27,7 @@
 
 namespace rise
 {
-  template<typename Type> class CMutablePtr;
+  template<typename Type> class CSharedPtr;
 }
 
 namespace staff
@@ -35,7 +35,7 @@ namespace staff
   class IService;
   class CServiceWrapper;
 
-  typedef rise::CMutablePtr<IService> PIService; //!< mutable pointer to service
+  typedef rise::CSharedPtr<IService> PIService; //!< thread-safe counted pointer to service
 
   //! service instance manager
   class STAFF_COMPONENT_EXPORT CServiceInstanceManager

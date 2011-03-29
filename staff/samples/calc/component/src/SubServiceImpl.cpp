@@ -31,15 +31,10 @@ namespace samples
   namespace calc
   {
 
-    CSubServiceImpl::~CSubServiceImpl()
-    {
-    }
-
     int CSubServiceImpl::Sub(int nA, int nB) const
     {
       return nA - nB;
     }
-
 
   }
 }

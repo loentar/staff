@@ -23,6 +23,7 @@
 #define _ACCOUNTADMIN_H_
 
 #include <string>
+#include <list>
 #include <staff/common/IService.h>
 
 namespace staff

@@ -27,9 +27,10 @@
 #include <rise/common/MutablePtr.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
+#include <rise/common/SharedPtr.h>
 #include <staff/common/IService.h>
+#include "SharedContext.h"
 #include "ServiceWrapper.h"
-#include "ServiceWrapperFactory.h"
 #include "ServiceInstanceManager.h"
 
 namespace staff
@@ -41,9 +42,12 @@ namespace staff
     typedef std::map<std::string, TInstanceMap> TServiceMap;
     typedef std::map<std::string, TServiceMap> TSessionMap;
 
-    PIService& CreateServiceInstance(TServiceMap& rmServiceMap, const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
+    PIService& CreateServiceInstance(TServiceMap& rmServiceMap, const std::string& sSessionId,
+                                     const std::string& sServiceName, const std::string& sInstanceId)
     {
-      PIService tpService(CServiceWrapperFactory::Inst().GetServiceWrapper(sServiceName)->NewImpl());
+      CServiceWrapper* pServiceWrapper = staff::CSharedContext::Inst().GetService(sServiceName);
+      RISE_ASSERTS(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
+      PIService tpService = pServiceWrapper->NewImpl();
 
       tpService->Init(sServiceName, sSessionId, sInstanceId);
 
@@ -51,7 +55,9 @@ namespace staff
       {
         tpService->OnCreate();
       }
-      RISE_CATCH_ALL_DESCR_ACTION("Exception while creating service instance... [" + sServiceName + ":" + sInstanceId + "]: service is not created", throw);
+      RISE_CATCH_ALL_DESCR_ACTION("Exception while creating service instance... ["
+                                  + sServiceName + ":" + sInstanceId + "]: service is not created",
+                                  throw);
 
       return (rmServiceMap[sServiceName][sInstanceId] = tpService);
     }

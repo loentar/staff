@@ -236,7 +236,7 @@ rise::LogEntry();
       else
       {
         staff::CServiceWrapper* pServiceWrapper = staff::CSharedContext::Inst().GetService(sServiceName);
-        RISE_ASSERTS(pServiceWrapper != NULL, "Service not found!");
+        RISE_ASSERTS(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
         pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
       }
     }

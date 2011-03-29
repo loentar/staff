@@ -21,6 +21,7 @@
 
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
+#include <rise/common/MutablePtr.h>
 #include "ServiceWrapper.h"
 #include "SharedContext.h"
 

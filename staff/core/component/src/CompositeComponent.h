@@ -76,15 +76,9 @@ namespace staff
     */
     const TServiceWrapperMap& GetServices() const;
 
-    //!         get component properties
-    /*! \return component properties
-    */
-    CDataObject& GetProperties();
-  
   private:
     std::string m_sName;        //!<  component name
     TServiceWrapperMap m_mServices;      //!<  services map
-    CDataObject m_doProperties;   //!<  component properties
   };
 }
 

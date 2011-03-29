@@ -42,7 +42,7 @@
 #include <rise/common/types.h>
 #include <rise/common/DataEncoder.h>
 #include <rise/common/PerformanceCounter.h>
-#include <rise/threading/SharedPtr.h>
+#include <rise/common/SharedPtr.h>
 #include <rise/xml/XMLFileStream.h>
 #include <rise/xml/XMLNode.h>
 #include <rise/xml/XMLDecl.h>

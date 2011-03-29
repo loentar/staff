@@ -26,7 +26,6 @@
 #include <rise/common/types.h>
 #include <rise/os/osprocess.h>
 #include <rise/os/osdllexport.h>
-#include <rise/threading/SharedPtr.h>
 
 namespace rise
 {

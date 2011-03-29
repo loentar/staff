@@ -20,7 +20,7 @@
  */
 
 #include <rise/common/MutablePtr.h>
-#include <staff/security/tools.h>
+#include <rise/common/SharedPtr.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
@@ -127,9 +127,9 @@ namespace das
     }
     else
     {
-      ProviderService* pService = static_cast<ProviderService*>(GetImpl(sSessionId, sInstanceId));
-      RISE_ASSERT(pService);
-      CDataObject tdoResponse = pService->Invoke(rRequest);
+      rise::CSharedPtr<ProviderService> tpService = GetImpl(sSessionId, sInstanceId);
+      RISE_ASSERT(tpService);
+      CDataObject tdoResponse = tpService->Invoke(rRequest);
       rOperation.SetResponse(tdoResponse);
     }
   }
@@ -144,14 +144,24 @@ namespace das
     return m_pComponent;
   }
 
-  IService* ProviderServiceWrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
+  PIService& ProviderServiceWrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
   {
-    return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId).Get();
+    return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
   }
 
-  IService* ProviderServiceWrapper::NewImpl()
+  PIService ProviderServiceWrapper::NewImpl()
   {
     return new ProviderService;
+  }
+
+  bool ProviderServiceWrapper::IsLoadAtStartup() const
+  {
+    return false;
+  }
+
+  std::string ProviderServiceWrapper::GetDependencies() const
+  {
+    return "";
   }
 
   CDataObject ProviderServiceWrapper::GetServiceDescription() const

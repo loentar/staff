@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <rise/common/MutablePtr.h>
 #include <rise/tools/FileFind.h>
 #include <rise/xml/XMLDocument.h>
 #include <staff/common/Runtime.h>
@@ -87,7 +88,7 @@ namespace das
         PProviderComponent tpComponent(new ProviderComponent(sNamespace));
         m_lsComponents.push_back(tpComponent);
 
-        if (sNamespace.size() != 0)
+        if (!sNamespace.empty())
         {
           sNamespace += '.';
         }
@@ -97,8 +98,7 @@ namespace das
           itDataSource != itDataSourceNamespace->second.end(); ++itDataSource)
         {
           const std::string& sName = sNamespace + itDataSource->first;
-          PServiceWrapper tpServiceWrapper(new ProviderServiceWrapper(tpComponent, &itDataSource->second));
-          tpComponent->AddServiceWrapper(sName, tpServiceWrapper);
+          tpComponent->AddServiceWrapper(sName, new ProviderServiceWrapper(tpComponent, &itDataSource->second));
         }
 
         CSharedContext::Inst().AddComponent(tpComponent);

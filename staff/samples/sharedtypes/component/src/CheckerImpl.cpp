@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/MutablePtr.h>
+#include <rise/common/SharedPtr.h>
 #include <staff/common/Exception.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include "Issuer.h"
@@ -31,11 +31,10 @@ void CheckerImpl::Use(const ticket::Ticket& stTicket)
 bool CheckerImpl::Check(const ticket::Ticket& stTicket) const
 {
   bool tResult = false;
-  Issuer* pIssuer = static_cast<Issuer*>(staff::CServiceInstanceManager::Inst().
-      ServiceInstance(staff::IService::GetSessionId(), "samples.sharedtypes.Issuer", staff::IService::GetInstanceId()).Get());
+  rise::CSharedPtr<Issuer> pIssuer =
+    staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
-  RISE_ASSERTES(pIssuer != NULL, rise::CLogicNoItemException,
-      "Service [samples.calc.Issuer] with session id [" + staff::IService::GetSessionId() + "] not found");
+  RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
 
   if (pIssuer->WasIssued(stTicket))
   {
@@ -53,11 +52,10 @@ IssuedTicketList CheckerImpl::GetAllTickets() const
 {
   IssuedTicketList lsResult;
 
-  Issuer* pIssuer = static_cast<Issuer*>(staff::CServiceInstanceManager::Inst().
-      ServiceInstance(this, "samples.sharedtypes.Issuer").Get());
+  rise::CSharedPtr<Issuer> pIssuer =
+    staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
-  RISE_ASSERTES(pIssuer != NULL, rise::CLogicNoItemException,
-      "Service [samples.calc.Issuer] with session id [" + staff::IService::GetSessionId() + "] not found");
+  RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
 
   ticket::TicketsList lsTickets = pIssuer->GetAllTickets();
 

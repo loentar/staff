@@ -24,7 +24,6 @@
 
 #include "staffcomponentexport.h"
 #include <string>
-#include <rise/common/MutablePtr.h>
 #include <map>
 #include "CompositeComponent.h"
 

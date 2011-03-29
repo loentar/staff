@@ -34,10 +34,11 @@ namespace rise
 namespace staff
 {
   class CServiceWrapper;
-  
+
   //! Pointer to service wrapper
   typedef rise::CMutablePtr<CServiceWrapper> PServiceWrapper;
-  //! Pointer to service wrapper map
+
+  //! Service wrappers map
   typedef std::map<std::string, PServiceWrapper> TServiceWrapperMap;
 
 
@@ -46,7 +47,7 @@ namespace staff
   {
   public:
     //!        destructor
-    virtual ~CComponent() {}
+    virtual ~CComponent();
 
     //!         get component name
     /*! \return component name
@@ -57,18 +58,28 @@ namespace staff
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    virtual const CServiceWrapper* GetService(const std::string& sService) const = 0;
+    const CServiceWrapper* GetService(const std::string& sService) const;
 
     //!         get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    virtual CServiceWrapper* GetService(const std::string& sService) = 0;
+    CServiceWrapper* GetService(const std::string& sService);
 
     //!         get component's services map
     /*! \return component's services map
-    */
-    virtual const TServiceWrapperMap& GetServices() const = 0;
+        */
+    const TServiceWrapperMap& GetServices() const;
+
+  protected:
+    //!         register new service in component
+    /*! \param  sService - full service name
+        \param  pWrapper - service wrapper
+        */
+    void RegisterService(const std::string& sService, CServiceWrapper* pWrapper);
+
+  private:
+    TServiceWrapperMap m_mServices;
   };
 }
 

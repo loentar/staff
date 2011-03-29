@@ -72,20 +72,22 @@ $(Class.OpeningNs)
         \param  sInstanceId - service instance id
         \return pointer to service implementation
         */
-    virtual staff::IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
+    virtual staff::PIService& GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
 
     //!         create new service impl
     /*! \return resulting service impl
       */
-    virtual staff::IService* NewImpl();
+    virtual staff::PIService NewImpl();
 
-  protected:
-    //!         get service implementation
-    /*! \param  sSessionId - service session id
-        \param  sInstanceId - service instance id
-        \return service implementation
-    */
-    $(Class.Name)Impl* GetServiceImpl(const std::string& sSessionId, const std::string& sInstanceId);
+    //!         load service at startup
+    /*! \return true, if service needed to be loaded at startup
+      */
+    virtual bool IsLoadAtStartup() const;
+
+    //!         get comma-delimeted list of dependecies
+    /*! \return comma-delimeted list of dependecies
+      */
+    virtual std::string GetDependencies() const;
 
   private:
     staff::CComponent* m_pComponent;   //!< parent component

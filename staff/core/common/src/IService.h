@@ -27,7 +27,7 @@
 
 namespace rise
 {
-  template<typename Type> class CMutablePtr;
+  template<typename Type> class CSharedPtr;
 }
 
 namespace staff
@@ -82,7 +82,7 @@ namespace staff
     std::string m_sInstanceId;  //!< instance id
   };
 
-  typedef rise::CMutablePtr<IService> PIService; //!< smart pointer to service
+  typedef rise::CSharedPtr<IService> PIService; //!< smart pointer to service
 }
 
 #endif // ISERVICE_H

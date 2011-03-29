@@ -34,7 +34,6 @@ namespace samples
     class CSubServiceImpl: public CSubService
     {
     public:
-      virtual ~CSubServiceImpl();
       virtual int Sub(int nA, int nB) const;
     };
   }

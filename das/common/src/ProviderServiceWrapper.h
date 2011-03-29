@@ -31,6 +31,7 @@ namespace das
 {
   class DataSource;
 
+  //! DAS virtual service wrapper
   class STAFF_DAS_COMMON_EXPORT ProviderServiceWrapper: public CServiceWrapper
   {
   public:
@@ -73,12 +74,22 @@ namespace das
         \param  sInstanceId - service instance id
         \return pointer to service implementation or NULL, if service non-local
         */
-    virtual IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
+    virtual PIService& GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
 
     //!         create new service impl
     /*! \return resulting service impl
       */
-    virtual IService* NewImpl();
+    virtual PIService NewImpl();
+
+    //!         load service at startup
+    /*! \return true, if service needed to be loaded at startup
+      */
+    virtual bool IsLoadAtStartup() const;
+
+    //!         get comma-delimeted list of dependecies
+    /*! \return comma-delimeted list of dependecies
+      */
+    virtual std::string GetDependencies() const;
 
   private:
     //!         get service description

@@ -4,18 +4,19 @@
 
 #include <map>
 #ifneq($(Interface.Classes.$Count),0)
-#include <rise/common/MutablePtr.h>
+#include <rise/common/SharedPtr.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Value.h>
 #include <staff/common/IService.h>
+#include <staff/common/Attribute.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #else // types only interface
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
-#ifeqend // #ifneq($(Interface.Classes.$Count),0) 
 #include <staff/common/Attribute.h>
+#ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Includes)
 #include "$(Include.FilePath)$(Include.Name)Wrapper.h"
 #end
@@ -56,31 +57,34 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
     staff::CServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
                                                                rRequest.GetChildByLocalName("sInstanceId").GetText());
   } else
-#foreach $(Class.Members)
-  if (sOperationName == "$(Member.Name)")
   {
+    rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl;
+    tpServiceImpl = GetImpl(sSessionId, sInstanceId);
+#foreach $(Class.Members)
+    if (sOperationName == "$(Member.Name)")
+    {
 #ifneq($(Member.Options.*responseElement),)
-    rOperation.SetResponseName("$(Member.Options.*responseElement)");
+      rOperation.SetResponseName("$(Member.Options.*responseElement)");
 #else
 #ifneq($(Member.Return.ResponseName),)
-    rOperation.SetResponseName("$(Member.Return.ResponseName)");
+      rOperation.SetResponseName("$(Member.Return.ResponseName)");
 #ifeqend
 #ifeqend
 #ifneq($(Member.Options.*resultElement),)
-    rOperation.SetResultName("$(Member.Options.*resultElement)");
+      rOperation.SetResultName("$(Member.Options.*resultElement)");
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
-    $(Param.DataType.NsName) $(Param.Name);
+      $(Param.DataType.NsName) $(Param.Name);
 #ifeqend
 #end
 \
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
-    rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
+      rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #ifeqend
 #end
-    \
+      \
 #ifeq($(Member.Return.Type),struct||typedef||template)
 $(Member.Return.NsName) tResult = \
 #else
@@ -99,7 +103,7 @@ staff::CDataObject tResultDO = \
 #ifeqend
 #ifeqend // invoke an function
 \
-GetServiceImpl(sSessionId, sInstanceId)->$(Member.Name)(\
+tpServiceImpl->$(Member.Name)(\
 #foreach $(Member.Params)
 #ifneq($(Param.$Num),0) // param splitter
 , \
@@ -132,16 +136,17 @@ $(Param.Name)\
 #end // end of function param list
 );
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-    rOperation.Result().AppendChild(tResultDO);
+      rOperation.Result().AppendChild(tResultDO);
 #ifeqend // end of function invokation
 #ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
-    staff::CDataObject& rdoResult = rOperation.Result();
-    rdoResult << tResult;
+      staff::CDataObject& rdoResult = rOperation.Result();
+      rdoResult << tResult;
 #ifeqend
-  } else
+    } else
 #end
-  {
-    RISE_THROWS(staff::CRemoteException, "Unknown Operation: " + rOperation.GetName());
+    {
+      RISE_THROWS(staff::CRemoteException, "Unknown Operation: " + rOperation.GetName());
+    }
   }
 }
 
@@ -165,19 +170,29 @@ staff::CComponent* $(Class.Name)Wrapper::GetComponent()
   return m_pComponent;
 }
 
-staff::IService* $(Class.Name)Wrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
+staff::PIService& $(Class.Name)Wrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
 {
-  return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId).Get();
+  return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
 }
 
-staff::IService* $(Class.Name)Wrapper::NewImpl()
+staff::PIService $(Class.Name)Wrapper::NewImpl()
 {
   return new $(Class.Name)Impl;
 }
 
-$(Class.Name)Impl* $(Class.Name)Wrapper::GetServiceImpl(const std::string& sSessionId, const std::string& sInstanceId)
+bool $(Class.Name)Wrapper::IsLoadAtStartup() const
 {
-  return static_cast<$(Class.Name)Impl*>(GetImpl(sSessionId, sInstanceId));
+  return \
+#ifeq($(Class.Options.*loadAtStartup),true)
+true;
+#else
+false;
+#ifeqend
+}
+
+std::string $(Class.Name)Wrapper::GetDependencies() const
+{
+  return "$(Class.Options.*dependencies)";
 }
 
 staff::CDataObject $(Class.Name)Wrapper::GetOperations() const

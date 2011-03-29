@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <rise/threading/SharedPtr.h>
+#include <rise/common/SharedPtr.h>
 #include <rise/string/String.h>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
