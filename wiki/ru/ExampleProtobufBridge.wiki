@@ -125,7 +125,7 @@ staff_codegen -tcomponent ProtoCalc.h -dcomponentns=<COMPONENTNS>
 
 Сгенерируйте шаблон реализации коннектора:
 {{{
-staff_codegen -tprotobufconnector ProtoCalc.h
+staff_codegen -tprotobufconnector -dcomponentns=<COMPONENTNS> -e
 }}}
 
 будут созданы файлы:

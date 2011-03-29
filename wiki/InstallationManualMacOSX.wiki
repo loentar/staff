@@ -80,6 +80,12 @@ make && sudo make install
 sudo chmod 777 $AXIS2C_HOME/logs
 }}}
 
+To compile and install samples start:
+{{{
+cd staff/samples
+make && sudo -E make install
+}}}
+
 == 4. Starting ==
 
 === 4.1 Starting in normal mode ===

@@ -93,6 +93,12 @@ make && sudo make install
 chmod 777 $AXIS2C_HOME/logs
 }}}
 
+Для компиляции и установки примеров запустите:
+{{{
+cd staff/samples
+make && sudo -E make install
+}}}
+
 == 4. Запуск ==
 
 === 4.1 Запуск в обычном режиме ===
