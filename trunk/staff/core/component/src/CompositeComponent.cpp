@@ -83,11 +83,6 @@ namespace staff
     return m_mServices;
   }
 
-  CDataObject& CCompositeComponent::GetProperties()
-  {
-    return m_doProperties;
-  }
-
   void CCompositeComponent::AddService( CServiceWrapper* pService )
   {
     if (pService == NULL)

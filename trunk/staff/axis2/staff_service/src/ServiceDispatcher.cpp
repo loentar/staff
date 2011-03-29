@@ -19,29 +19,19 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <signal.h>
-#ifdef __linux__
-#include <pthread.h>
-#endif
 #include <list>
-#include <set>
-#include <stdio.h>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/MutablePtr.h>
-#include <rise/socket/ServerSocket.h>
-#include <rise/threading/Thread.h>
-#include <rise/xml/XMLNode.h>
 #include <rise/tools/FileFind.h>
 #include <rise/plugin/PluginManager.h>
-#include <staff/security/Sessions.h>
 #include <staff/common/Runtime.h>
-#include <staff/common/Config.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
-#include <staff/common/Value.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
+#include <staff/component/ServiceInstanceManager.h>
+#include <staff/security/tools.h>
 #include "ServiceDispatcher.h"
 
 
@@ -53,12 +43,16 @@ namespace staff
   class CServiceDispatcher::CServiceDispatcherImpl
   {
   public:
+    typedef std::list<std::string> TStringList;
+    typedef std::map<std::string, TStringList> TDepsMap;
+
+  public:
     void Init()
     {
 rise::LogEntry();
       const std::string sComponentsDir = CRuntime::Inst().GetComponentsHome();
       CSharedContext& rSharedContext = CSharedContext::Inst();
-      rise::CStringList lsComponentDirs;
+      TStringList lsComponentDirs;
       
       // find directories with components
       rise::CFileFind::Find(sComponentsDir, lsComponentDirs, "*", rise::CFileFind::EFA_DIR);
@@ -67,14 +61,14 @@ rise::LogEntry();
         rise::LogDebug() << "components is not found";
       }
 
-      for (rise::CStringList::const_iterator itDir = lsComponentDirs.begin(); 
+      for (TStringList::const_iterator itDir = lsComponentDirs.begin();
                 itDir != lsComponentDirs.end(); ++itDir )
       {
         // finding libraries with components
-        rise::CStringList lsComponents;
+        TStringList lsComponents;
         std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
         rise::CFileFind::Find(sComponentDir, lsComponents, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
-        for (rise::CStringList::const_iterator itComponent = lsComponents.begin(); 
+        for (TStringList::const_iterator itComponent = lsComponents.begin();
                 itComponent != lsComponents.end(); ++itComponent )
         {
           try
@@ -97,15 +91,17 @@ rise::LogEntry();
         }
       }
 
+      const TServiceWrapperMap& rServices = rSharedContext.GetServices();
       if (m_stEvents.pOnConnect != NULL)
       {
-        const TServiceWrapperMap& rServices = rSharedContext.GetServices();
         for (TServiceWrapperMap::const_iterator itService = rServices.begin();
                  itService != rServices.end(); ++itService)
         {
           m_stEvents.pOnConnect(itService->first, itService->second);
         }
       }
+
+      LoadServices();
     }
 
     void Deinit()
@@ -123,6 +119,130 @@ rise::LogEntry();
 
       rSharedContext.Clear();
       m_lsComponents.UnloadAll();
+    }
+
+
+    void ResolveDepsOrder(TStringList& rlsLoadOrder, const TDepsMap& rmDeps)
+    {
+      bool bWasChanged = false;
+      for (TStringList::size_type nRetry = rlsLoadOrder.size(); nRetry; --nRetry)
+      {
+        bWasChanged = false;
+        for (TStringList::iterator itThisDep = rlsLoadOrder.begin();
+            itThisDep != rlsLoadOrder.end();)
+        {
+          TDepsMap::const_iterator itThisDeps = rmDeps.find(*itThisDep);
+          RISE_ASSERT(itThisDeps != rmDeps.end()); // should not happen
+
+          const TStringList& rlsThisDeps = itThisDeps->second;
+          if (!rlsThisDeps.empty())
+          {
+            TStringList::iterator itOtherDep = itThisDep;
+            ++itOtherDep;
+            for (; itOtherDep != rlsLoadOrder.end(); ++itOtherDep)
+            {
+              bool bHasDep = false;
+              for (TStringList::const_iterator itFind = rlsThisDeps.begin();
+                   itFind != rlsThisDeps.end(); ++itFind)
+              {
+                if (*itFind == *itOtherDep)
+                {
+                  bHasDep = true;
+                  break;
+                }
+              }
+
+              if (bHasDep)
+              {
+                rise::LogDebug() << *itThisDep << " => " << *itOtherDep;
+                rlsLoadOrder.splice(itThisDep++, rlsLoadOrder, itOtherDep);
+                // now itThisDep points to new pos of the itThisDep
+                bWasChanged = true;
+                break;
+              }
+            }
+          }
+
+          ++itThisDep;
+        }
+
+        if (!bWasChanged)
+        {
+          break;
+        }
+      }
+
+      if (bWasChanged)
+      {
+        rise::LogWarning() << "Failed to reorder services.";
+      }
+    }
+
+    // load services that marked as loadAtStartup
+    void LoadServices()
+    {
+      // build dependencies
+
+      const TServiceWrapperMap& rmServices = CSharedContext::Inst().GetServices();
+
+      TStringList lsServicesLoadOrder;
+      TDepsMap mDependencies;
+
+      for (TServiceWrapperMap::const_iterator itService = rmServices.begin();
+           itService != rmServices.end(); ++itService)
+      {
+        if (itService->second->IsLoadAtStartup())
+        {
+          lsServicesLoadOrder.push_back(itService->first);
+
+          // fill in dependencies
+          TStringList& rlsDeps = mDependencies[itService->first];
+          const std::string& sDeps = itService->second->GetDependencies();
+          if (!sDeps.empty())
+          {
+            std::string::size_type nPosBegin = 0;
+            std::string::size_type nPosEnd = 0;
+            while (nPosEnd != std::string::npos)
+            {
+              nPosEnd = sDeps.find(',', nPosBegin);
+              std::string sDep = sDeps.substr(nPosBegin,
+                (nPosEnd == std::string::npos) ? std::string::npos : (nPosEnd - nPosBegin));
+
+              rise::StrTrim(sDep);
+              rlsDeps.push_back(sDep);
+
+              nPosBegin = nPosEnd + 1;
+            }
+          }
+        }
+      }
+
+      // check dependencies
+      for (TDepsMap::const_iterator itService = mDependencies.begin();
+           itService != mDependencies.end(); ++itService)
+      {
+        for (TStringList::const_iterator itDependOn = itService->second.begin();
+            itDependOn != itService->second.end(); ++itDependOn)
+        {
+          if (!mDependencies.count(*itDependOn))
+          {
+            rise::LogWarning() << "Service [" << itService->first
+                               << "] has a dependency on unknown service [" << *itDependOn << "]";
+          }
+        }
+      }
+
+      // resolve dependencies
+      ResolveDepsOrder(lsServicesLoadOrder, mDependencies);
+
+      // load services in order
+      staff::CServiceInstanceManager& rInstanceManager = staff::CServiceInstanceManager::Inst();
+      for (TStringList::const_iterator itService = lsServicesLoadOrder.begin();
+          itService != lsServicesLoadOrder.end(); ++itService)
+      {
+        rise::LogDebug() << "loading service [" << *itService << "]";
+        rInstanceManager.CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, *itService, "");
+      }
     }
 
     CServiceDispatcher::SEvents m_stEvents;
@@ -181,6 +301,8 @@ rise::LogEntry();
 
   void CServiceDispatcher::InvokeSelf( COperation& rOperation )
   {
+    staff::CDataObject& rResult = rOperation.Result();
+
     CSharedContext& rSharedContext = CSharedContext::Inst();
     const std::string& sOpName = rOperation.GetName();
     if (sOpName == "GetServices")
@@ -189,31 +311,18 @@ rise::LogEntry();
       for (TServiceWrapperMap::const_iterator itService = rServices.begin();
             itService != rServices.end(); ++itService)
       {
-        std::string sServiceName;
-        const CComponent* pServiceComponent = itService->second->GetComponent();
-
-        if (pServiceComponent != NULL)
-        {
-          sServiceName = pServiceComponent->GetName();
-          if (sServiceName.size() != 0)
-          {
-            sServiceName += ".";
-          }
-        }
-
-        sServiceName += itService->second->GetName();
-        rOperation.Result().CreateChild("Service", sServiceName);
+        rResult.CreateChild("Service", itService->second->GetName());
       }
     }
     else
     if (sOpName == "GetOperations")
     {
       const staff::CDataObject& rRequest = rOperation.Request();
-      const CServiceWrapper* pService = rSharedContext.GetService(rRequest["sServiceName"]);
-      RISE_ASSERTES(pService != NULL, CRemoteInternalException, 
-        "Service is not registered: " + rOperation.Request()["ServiceName"].AsString());
+      const std::string& sServiceName = rRequest.GetChildByLocalName("sServiceName").GetText();
+      const CServiceWrapper* pService = rSharedContext.GetService(sServiceName);
+      RISE_ASSERTES(pService, CRemoteInternalException, "Service [" + sServiceName + "] is not registered");
 
-      rOperation.Result() = pService->GetOperations();
+      rResult = pService->GetOperations();
     }
     else
     {
@@ -228,7 +337,7 @@ rise::LogEntry();
 
   CServiceDispatcher::~CServiceDispatcher()
   {
-    if (m_pImpl != NULL)
+    if (m_pImpl)
     {
       delete m_pImpl;
       m_pImpl = NULL;

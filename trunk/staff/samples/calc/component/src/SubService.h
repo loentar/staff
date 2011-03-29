@@ -32,8 +32,11 @@ namespace samples
     class CSubService: public staff::IService
     {
     public:
-      //!        destructor
-      virtual ~CSubService() {}
+      //! substract nA and nB.
+      /*! \param  nA - operand 1
+          \param  nB - operand 2
+          \return result nA - nB
+      */
       virtual int Sub(int nA, int nB) const = 0;
     };
   }

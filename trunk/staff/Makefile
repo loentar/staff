@@ -8,12 +8,7 @@ endif
 
 ECHO := echo$(shell test "$$(uname -o 2>/dev/null)" = "Msys" -o "$$(uname -s)" = "FreeBSD" -o -f /etc/MCBC-release && echo ' -e ')
 
-ifeq "$(BUILD_SAMPLES)" "NO"
-# do not build samples
 MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' | sed 's/^.\///g')
-else
-MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
-endif
 
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
@@ -34,7 +29,7 @@ include $(MAKEFILES_DEP)
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
-VERSION=2.0.0-tp4
+VERSION=2.0.0-tp5
 
 ifeq ($(MAKECMDGOALS),distrib)
 include ../Makefile.distrib

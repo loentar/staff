@@ -25,6 +25,7 @@
 #include <string>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
+#include <rise/common/SharedPtr.h>
 #include <rise/xml/XMLNode.h>
 #include <staff/common/Config.h>
 #include <staff/component/SharedContext.h>
@@ -55,13 +56,13 @@ namespace samples
 
     int CCalcServiceImpl::Sub(int nA, int nB) const
     {
-      CSubService* pSubService = static_cast<CSubService*>(staff::CServiceInstanceManager::Inst().
-          ServiceInstance(this, "samples.calc.SubService").Get());
+      rise::CSharedPtr<CSubService> rpSubService =
+        staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.calc.SubService");
 
-      RISE_ASSERTES(pSubService != NULL, rise::CLogicNoItemException,
-          "Cannot get service [samples.calc.SubService] with session id [" + staff::IService::GetSessionId() + "]");
+      RISE_ASSERTES(rpSubService, rise::CLogicNoItemException,
+          "Cannot get service [samples.calc.SubService]");
 
-      return pSubService->Sub(nA, nB);
+      return rpSubService->Sub(nA, nB);
     }
 
     void CCalcServiceImpl::SetMem(int nMem)

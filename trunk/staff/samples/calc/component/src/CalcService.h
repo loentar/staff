@@ -28,15 +28,11 @@ namespace samples
 {
   namespace calc
   {
-    // description: sample component service CalcService
-    // uri: http://localhost:9090/axis2/services/samples.calc.CalcService
-    // loadAtStartup: true
+    //! sample component service CalcService
+    // *loadAtStartup: true
     class CCalcService: public staff::IService
     {
     public:
-      //! destructor
-      virtual ~CCalcService() {}
-
       //! add nA and nB.
       /*! example of using non-default result node
           \param  nA - operand 1
@@ -61,7 +57,7 @@ namespace samples
       */
       virtual void SetMem(int nMem) = 0;
 
-      //! retrieve integer value.
+      //! get stored integer value.
       /*! example of using service configuration
           \return stored value
       */

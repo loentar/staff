@@ -24,25 +24,7 @@ $(Project.OpeningNs)
     */
     const std::string& GetName() const;
 
-    //!         get service
-    /*! \param  sService - service name
-        \return pointer to work with service, NULL if no service found
-        */
-    const staff::CServiceWrapper* GetService(const std::string& sService) const;
-
-    //!         get service
-    /*! \param  sService - service name
-        \return pointer to work with service, NULL if no service found
-        */
-    staff::CServiceWrapper* GetService(const std::string& sService);
-
-    //!         get services map
-    /*! \return services map
-    */
-    const staff::TServiceWrapperMap& GetServices() const;
-
   private:
-    staff::TServiceWrapperMap m_mServices;
     static const std::string m_sName;
   };
 $(Project.EndingNs)

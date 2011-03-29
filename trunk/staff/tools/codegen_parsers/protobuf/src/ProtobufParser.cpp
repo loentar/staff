@@ -1324,15 +1324,9 @@ namespace codegen
           itMember != rstStruct.lsMembers.end(); ++itMember)
       {
         const SDataType& rstDataType = itMember->stDataType;
-        if ((rstDataType.eType == SDataType::EStruct &&
+        if (rstDataType.eType == SDataType::EStruct &&
             rstDataType.sNamespace == rstOtherStruct.sNamespace &&
             rstDataType.sName == rstOtherStruct.sName)
-/*            ||
-            (rstDataType.eType == SDataType::ETemplate &&
-            !rstDataType.lsParams.empty() &&
-            rstDataType.lsParams.front().sNamespace == rstOtherStruct.sNamespace &&
-            rstDataType.lsParams.front().sName == rstOtherStruct.sName)*/
-          )
         {
           bResult = true;
           break;

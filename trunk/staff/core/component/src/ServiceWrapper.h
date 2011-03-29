@@ -25,12 +25,18 @@
 #include <string>
 #include "staffcomponentexport.h"
 
+namespace rise
+{
+  template<typename Type> class CSharedPtr;
+}
+
 namespace staff
 {
   class CDataObject;
   class COperation;
   class CComponent;
   class IService;
+  typedef rise::CSharedPtr<IService> PIService;
 
   //!  base class for service wrappers
   class STAFF_COMPONENT_EXPORT CServiceWrapper
@@ -76,12 +82,22 @@ namespace staff
         \param  sInstanceId - service instance id
         \return pointer to service implementation or NULL, if service non-local
         */
-    virtual IService* GetImpl(const std::string& sSessionId, const std::string& sInstanceId) = 0;
+    virtual PIService& GetImpl(const std::string& sSessionId, const std::string& sInstanceId) = 0;
 
     //!         create new service impl
     /*! \return resulting service impl
       */
-    virtual IService* NewImpl() = 0;
+    virtual PIService NewImpl() = 0;
+
+    //!         load service at startup
+    /*! \return true, if service needed to be loaded at startup
+      */
+    virtual bool IsLoadAtStartup() const = 0;
+
+    //!         get comma-delimeted list of dependecies
+    /*! \return comma-delimeted list of dependecies
+      */
+    virtual std::string GetDependencies() const = 0;
   };
 }
 
