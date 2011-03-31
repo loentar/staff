@@ -32,18 +32,18 @@
   #else
     #define STAFF_DAS_COMMON_EXPORT __declspec(dllimport)
   #endif
-
-  #ifndef STAFF_DEPRECATED
-    #ifndef __MINGW32__
-      #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
-    #else
-      #define STAFF_DEPRECATED(Replacement)
-    #endif
-  #endif
-
 #else
   #define STAFF_DAS_COMMON_EXPORT 
-  #define STAFF_DEPRECATED(Replacement)
+#endif
+
+#ifndef STAFF_DEPRECATED
+  #if defined WIN32 && !defined __MINGW32__
+    #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+  #elif __GNUC__ >= 3
+    #define STAFF_DEPRECATED(Replacement) __attribute__ ((deprecated))
+  #else
+    #define STAFF_DEPRECATED(Replacement)
+  #endif
 #endif
 
 #endif // _STAFFDASCOMMONEXPORT_H_

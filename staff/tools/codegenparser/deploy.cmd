@@ -8,7 +8,7 @@ if "%target%" == "" (
 )
 
 set deploydir=%cd%\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
-set libdir=%deploydir%\staff\lib\codegen\parsers
+set libdir=%deploydir%\staff\lib
 set incdir=%deploydir%\staff\include\staff
 set thisincdir=%incdir%\%projectname%
 

@@ -186,6 +186,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\src\Component.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\ComponentConfig.cpp"
 				>
 			</File>
@@ -203,10 +207,6 @@
 			</File>
 			<File
 				RelativePath=".\src\ServiceWrapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ServiceWrapperFactory.cpp"
 				>
 			</File>
 			<File
@@ -245,10 +245,6 @@
 			</File>
 			<File
 				RelativePath=".\src\ServiceWrapper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ServiceWrapperFactory.h"
 				>
 			</File>
 			<File

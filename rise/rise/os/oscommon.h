@@ -43,6 +43,17 @@
 #define RISE_EXPLICIT_TEMPLATE(RISE_LOCAL_TEMPLATE)
 #endif
 
+#ifndef RISE_DEPRECATED
+  #if defined WIN32 && !defined __MINGW32__
+    #define RISE_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+  #elif __GNUC__ >= 3
+    #define RISE_DEPRECATED(Replacement) __attribute__ ((deprecated))
+  #else
+    #define RISE_DEPRECATED(Replacement)
+  #endif
+#endif
+
+
 /*! \mainpage Rise
 Rise is an tool library for C++, that wraps system-specific functions into classes.
 <br>Supported OSes are:

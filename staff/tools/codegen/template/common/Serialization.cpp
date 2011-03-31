@@ -120,7 +120,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
     rtType.push_back(it->GetText());
 #else
 #ifeq($(Typedef.DataType.Type),dataobject)
-    rtType.push_back(*(it->Begin()));
+    rtType.push_back(it->FirstChild());
 #else
 #ifeq($(Typedef.DataType.Type),typedef)
     *it >> tItem;
@@ -129,24 +129,24 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
 #ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.NsName),std::map)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
-    tKey = (*it)["Key"].AsString();
+    tKey = it->GetChildByLocalName("Key").GetText();
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-    tKey = (*it)["Key"];
+    tKey = it->GetChildByLocalName("Key").GetValue();
 #else
-    (*it)("Key") >> tKey;
+    it->GetChildByLocalName("Key") >> tKey;
 #ifeqend
 #ifeqend
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)
-    tValue = (*it)["Value"].AsString();
+    tValue = it->GetChildByLocalName("Value").GetText();
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
-    tValue = (*it)["Value"];
+    tValue = it->GetChildByLocalName("Value").GetValue();
 #else
-    (*it)("Value") >> tValue;
+    it->GetChildByLocalName("Value") >> tValue;
 #ifeqend
 #ifeqend
-    rtType[ tKey ] = tValue;
+    rtType[tKey] = tValue;
 #else // ----------------------- list, vector, etc.
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
     tItem = it->GetText();
@@ -179,7 +179,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
-  rtType = *rdoParam.Begin();
+  rtType = rdoParam.FirstChild();
   return rdoParam;
 #else
 #ifeq($(Typedef.DataType.Type),typedef||template)    // !!typedef||template!!

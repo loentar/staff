@@ -5,6 +5,8 @@
 #include <map>
 #ifneq($(Interface.Classes.$Count),0)
 #include <rise/common/SharedPtr.h>
+#include <staff/utils/HexBinary.h>
+#include <staff/utils/Base64Binary.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Value.h>
@@ -13,6 +15,8 @@
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #else // types only interface
+#include <staff/utils/HexBinary.h>
+#include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/common/Attribute.h>
@@ -115,13 +119,13 @@ rOperation.GetMessageContext()\
 rOperation\
 #else
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
-rRequest["$(Param.Name)"]\
+rRequest.GetChildByLocalName("$(Param.Name)").GetValue()\
 #else
 #ifeq($(Param.DataType.Type),string)    // !!string!!
-rRequest["$(Param.Name)"]\
+rRequest.GetChildByLocalName("$(Param.Name)").GetText()\
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
-*rRequest.GetChildByLocalName("$(Param.Name)").Begin()\
+rRequest.GetChildByLocalName("$(Param.Name)").FirstChild()\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef||template)
 $(Param.Name)\
