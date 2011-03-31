@@ -1,2 +1,2 @@
 
-core/common.dep:
+core/common.dep: core/utils.dep

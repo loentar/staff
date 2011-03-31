@@ -22,6 +22,7 @@
 #include <list>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
+#include <rise/common/SharedPtr.h>
 #include <rise/common/MutablePtr.h>
 #include <rise/tools/FileFind.h>
 #include <rise/plugin/PluginManager.h>

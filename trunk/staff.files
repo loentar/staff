@@ -247,6 +247,18 @@ staff/core/security/src/UsersToGroups.cpp
 staff/core/security/src/UsersToGroups.h
 staff/core/sqlite3/src/sqlite3.c
 staff/core/sqlite3/src/sqlite3.h
+staff/core/utils/src/Base64Binary.cpp
+staff/core/utils/src/Base64Binary.h
+staff/core/utils/src/ByteArray.cpp
+staff/core/utils/src/ByteArray.h
+staff/core/utils/src/HexBinary.cpp
+staff/core/utils/src/HexBinary.h
+staff/core/utils/src/staffutilsexport.h
+staff/samples/binarydata/client/src/KeyGenerator.h
+staff/samples/binarydata/client/src/main.cpp
+staff/samples/binarydata/component/src/KeyGenerator.h
+staff/samples/binarydata/component/src/KeyGeneratorImpl.cpp
+staff/samples/binarydata/component/src/KeyGeneratorImpl.h
 staff/samples/calc/client/src/CalcService.h
 staff/samples/calc/client/src/main.cpp
 staff/samples/calc/component/src/CalcService.h
@@ -355,6 +367,8 @@ staff/tools/codegen/template/component/ComponentImpl.h
 staff/tools/codegen/template/component/Wrapper.cpp
 staff/tools/codegen/template/component/Wrapper.h
 staff/tools/codegen/template/interface/codegen.config
+staff/tools/codegen/template/interfacegen/codegen.config
+staff/tools/codegen/template/interfacegen/Interface.h
 staff/tools/codegen/template/interface/Interface.h
 staff/tools/codegen/template/j2meclient/codegen.config
 staff/tools/codegen/template/j2meclient/Service.java

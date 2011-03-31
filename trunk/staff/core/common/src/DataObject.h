@@ -266,10 +266,20 @@ namespace staff
       */
     CDataObject FirstChild();
 
+    //!         get first child elemen (const)t
+    /*! \return first child element
+      */
+    const CDataObject FirstChild() const;
+
     //!         get last child element
     /*! \return last child element
       */
     CDataObject LastChild();
+
+    //!         get last child element (const)
+    /*! \return last child element
+      */
+    const CDataObject LastChild() const;
 
     //!         create unnamed child node
     /*! \return created child

@@ -5,6 +5,8 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
 #include <rise/common/MutablePtr.h>
+#include <staff/utils/HexBinary.h>
+#include <staff/utils/Base64Binary.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Value.h>
@@ -13,6 +15,8 @@
 #include <staff/client/ICallback.h>
 #include <staff/client/Options.h>
 #else // types only interface
+#include <staff/utils/HexBinary.h>
+#include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
@@ -336,7 +340,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
 
-  return const_cast<const staff::COperation&>(tOperation).ResultValue();
+  return const_cast<const staff::COperation&>(tOperation).ResultValue().AsString();
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 

@@ -27,7 +27,7 @@
 namespace staff
 {
   /* primitive types */
-  using std::string;
+  typedef std::string string;
   typedef bool boolean;
 //  typedef float float;
 //  typedef double double;
@@ -41,8 +41,8 @@ namespace staff
   typedef string gMonthDay;
   typedef string gDay;
   typedef string gMonth;
-  typedef string hexBinary;
-  typedef string base64Binary;
+  typedef class HexBinary hexBinary;
+  typedef class Base64Binary base64Binary;
   typedef string anyURI;
   typedef string QName;
   typedef string NOTATION;
@@ -80,6 +80,7 @@ namespace staff
   struct anyType
   {
   };
+
 }
 
 #endif // _WSDLTYPES_H_

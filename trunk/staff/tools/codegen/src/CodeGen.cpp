@@ -573,7 +573,6 @@ namespace codegen
             rise::xml::CXMLNode tVarNode(sVarName);
             tVarNode.NodeContent() = sValue;
             sValue = GetValue(sName.substr(1), tVarNode);
-            m_tVariables[sVarName] = sValue; // write updated value
           }
           else // variable only
           {
@@ -982,6 +981,9 @@ namespace codegen
         RISE_THROWS(rise::CInternalAssertException, "cginclude expression is invalid!");
       }
 
+#ifdef WIN32
+      rise::StrReplace(sIncludeFileName, "/", "\\", true);
+#endif
 
       std::ifstream fsIncFile;
       fsIncFile.open(sIncludeFileName.c_str());
@@ -992,7 +994,7 @@ namespace codegen
       }
 
       std::string sCurrInDir = m_sInDir;
-      m_sInDir = sIncludeFileName.substr(0, sIncludeFileName.find_last_of('/') + 1);
+      m_sInDir = sIncludeFileName.substr(0, sIncludeFileName.find_last_of("/\\") + 1);
       while (!fsIncFile.eof() && fsIncFile.good())
       {
         Process(fsIncFile, fsOut, rNode);

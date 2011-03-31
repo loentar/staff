@@ -224,7 +224,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 
 #else
 #ifeq($(Param.DataType.Type),dataobject)
-  rstStruct.$(Param.Name) = *rdoParam("$(Param.Name)").Begin();
+  rstStruct.$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)").FirstChild();
 #else
 #ifeq($(Param.DataType.Type),generic)
   rstStruct.$(Param.Name) = rdoParam$($DeserializeNodeInstruct).GetValue();

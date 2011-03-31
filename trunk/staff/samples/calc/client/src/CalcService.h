@@ -39,8 +39,8 @@ namespace samples
           \param  nB - operand 2
           \return result nA + nB
       */
-      // responseElement: AddResponse
-      // resultElement: addResult
+      // *responseElement: AddResponse
+      // *resultElement: addResult
       virtual int Add(int nA, int nB) const = 0;
 
       //! substract nA and nB.

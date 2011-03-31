@@ -630,7 +630,29 @@ namespace staff
     return pNode;
   }
 
+  const CDataObject CDataObject::FirstChild() const
+  {
+    axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
+    {
+      pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv);
+    }
+
+    return pNode;
+  }
+
   CDataObject CDataObject::LastChild()
+  {
+    axiom_node_t* pNode = axiom_node_get_last_child(m_pAxiomNode, m_pEnv);
+    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
+    {
+      pNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv);
+    }
+
+    return pNode;
+  }
+
+  const CDataObject CDataObject::LastChild() const
   {
     axiom_node_t* pNode = axiom_node_get_last_child(m_pAxiomNode, m_pEnv);
     while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
