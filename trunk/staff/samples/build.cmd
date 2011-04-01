@@ -63,28 +63,12 @@ echo %build%ing log... >%buildlog%
 if %VSVERSION% equ 2005 goto skip_upgrade
 
   rem Upgrading solutions for Visual Studio
-  cd rise
-  devenv /upgrade rise.sln >%buildlog%
+  devenv /upgrade samples.sln >%buildlog%
   if %ERRORLEVEL% gtr 0 (
-    echo Failed to upgrade solution rise.sln >&2
+    echo Failed to upgrade solution samples.sln >&2
     echo Please see build.log >&2
     goto errexit
   )
-  cd ..\staff
-  devenv /upgrade staff.sln >%buildlog%
-  if %ERRORLEVEL% gtr 0 (
-    echo Failed to upgrade solution staff.sln >&2
-    echo Please see build.log >&2
-    goto errexit
-  )
-  cd ..\das
-  devenv /upgrade das.sln >%buildlog%
-  if %ERRORLEVEL% gtr 0 (
-    echo Failed to upgrade solution das.sln >&2
-    echo Please see build.log >&2
-    goto errexit
-  )
-  cd ..
 
 :skip_upgrade
 
@@ -101,7 +85,7 @@ echo %build%ing samples... >>%buildlog%
 
 devenv /%build% %target% samples.sln >>%buildlog%
 if %ERRORLEVEL% gtr 0 (
-    echo Error while building rise >&2
+    echo Error while building samples >&2
     echo Please see build.log >&2
     goto errexit
 )

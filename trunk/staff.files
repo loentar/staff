@@ -331,7 +331,8 @@ staff/samples/sharedtypes/component/src/Issuer.h
 staff/samples/sharedtypes/component/src/IssuerImpl.cpp
 staff/samples/sharedtypes/component/src/IssuerImpl.h
 staff/samples/sharedtypes/component/src/Ticket.h
-staff/tests/security_test/src/main.cpp
+staff/tests/core/common/src/main.cpp
+staff/tests/core/security/src/main.cpp
 staff/tools/codegen_parsers/cpp/src/CppParser.cpp
 staff/tools/codegen_parsers/cpp/src/CppParser.h
 staff/tools/codegen_parsers/protobuf/src/ProtobufParser.cpp

@@ -7,8 +7,10 @@ ifeq "" "$(MAKECMDGOALS)"
 endif
 
 ECHO := echo$(shell test "$$(uname -o 2>/dev/null)" = "Msys" -o "$$(uname -s)" = "FreeBSD" -o -f /etc/MCBC-release && echo ' -e ')
-
-MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' | sed 's/^.\///g')
+ifneq ($(MAKECMDGOALS),test)
+  EXCLUDE_TESTS := -a \! -path './tests/*'
+endif
+MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' $(EXCLUDE_TESTS) | sed 's/^.\///g')
 
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)

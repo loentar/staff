@@ -1,0 +1,2 @@
+
+tests/security_test.dep: core/security.dep
