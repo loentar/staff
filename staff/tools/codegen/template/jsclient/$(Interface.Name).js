@@ -7,7 +7,7 @@
 namespace('$(Interface.Namespace.!dot)');
 #ifeqend
 
-#ifeq($(Interface.Classes.$Count),0) // temporary fix begin
+#ifneq($(Interface.Classes.$Count),0) // temporary fix begin
 (function(){
 #ifeqend // temporary fix end
 #ifneq($(Interface.Structs.$Count),0)
@@ -651,6 +651,6 @@ tOperation.ResultValue();
 
 #end // Interface.Classes
 
-#ifeq($(Interface.Classes.$Count),0) // temporary fix begin
+#ifneq($(Interface.Classes.$Count),0) // temporary fix begin
 })();
 #ifeqend // temporary fix end

@@ -1,4 +1,4 @@
-set projectname=samples.binarydata
+set projectname=samples.loadorder
 
 set target=%1%
 if "%target%" == "" (

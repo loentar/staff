@@ -527,14 +527,23 @@ int main(int argc, const rise::TChar* argv[])
 
       rise::CSharedPtr<int> p1(new int(1));
       rise::CSharedPtr<int> p2(new int(2));
-      rise::CSharedPtr<int> p11(p1);
+
+      RISE_ASSERT(p1.GetRefCount() == 1);
+      RISE_ASSERT(p1.IsUnique());
+      {
+        rise::CSharedPtr<int> p11(p1);
+        RISE_ASSERT(*p11 == 1);
+        RISE_ASSERT(*p11 == *p1);
+        RISE_ASSERT(p11.GetRefCount() == 2);
+        RISE_ASSERT(p1.GetRefCount() == 2);
+        RISE_ASSERT(!p1.IsUnique());
+
+      }
+      RISE_ASSERT(p1.GetRefCount() == 1);
+      RISE_ASSERT(p1.IsUnique());
 
       p2.Swap(p1);
-
-      RISE_ASSERT( p11 == p2 );
-      RISE_ASSERT( p1 > p2 );
-      RISE_ASSERT( p2 < p1 );
-      RISE_ASSERT( p2 != p1 );
+      RISE_ASSERT(*p1 == 2);
 
       tStdOut << rise::LogResultSuccess << std::endl;
     }

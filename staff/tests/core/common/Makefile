@@ -1,11 +1,11 @@
-include ../../Makefile.env
+include ../../../Makefile.env
 
-TARGET = staff_security_test
-TARGETNAME = $(TARGET)
+TARGET = core_common
+TARGETNAME = staff_test_$(TARGET)
 
 # == 
 CXXFLAGS += -c -Wall -D_REENTRANT -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lpthread -lstaffcommon -lrise -L$(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-	unset RISE_LOG_LEVEL; LD_LIBRARY_PATH=:../../$(OUTDIR) $(OUTDIR)$(TARGET)
+	unset RISE_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

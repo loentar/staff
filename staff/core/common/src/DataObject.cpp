@@ -1781,12 +1781,11 @@ namespace staff
     {
       pNode = axiom_node_get_last_child(m_pDataObject->m_pAxiomNode, m_pDataObject->m_pEnv);
         
-      do
+      while (pNode != NULL &&
+        (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT))
       {
         pNode = axiom_node_get_previous_sibling(pNode, m_pDataObject->m_pEnv);
       }
-      while (pNode != NULL && 
-        (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     } else
     {
       do
@@ -1901,19 +1900,17 @@ namespace staff
   {
     RISE_ASSERT(m_pDataObject);
     
-    // !! CONST HACK !!
     axiom_node_t* pNode = m_pAxiomNode;
 
-    if (m_pAxiomNode == NULL) // iterator == end()
+    if (pNode == NULL) // iterator == end()
     {
       pNode = axiom_node_get_last_child(m_pDataObject->m_pAxiomNode, m_pDataObject->m_pEnv);
         
-      do
+      while (pNode != NULL &&
+        (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT))
       {
         pNode = axiom_node_get_previous_sibling(pNode, m_pDataObject->m_pEnv);
       }
-      while (pNode != NULL && 
-        (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     } else
     {
       do
