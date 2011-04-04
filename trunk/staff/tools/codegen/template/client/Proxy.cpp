@@ -181,6 +181,8 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
   rOptions.SetSoapVersionUri("$(Interface.Options.*soapVersionUri)");
 #ifeqend
 
+  rOptions.SetSessionId(sSessionId);
+
   if (!sInstanceId.empty())
   {
     staff::COperation tOperation("CreateInstance");
