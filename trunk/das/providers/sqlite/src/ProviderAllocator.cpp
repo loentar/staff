@@ -34,7 +34,7 @@ namespace das
     {
       if (sName == "staff.das.Sqlite")
       {
-        return PProvider(new ::staff::das::Sqlite);
+        return PProvider(new ::staff::das::SqliteProvider);
       }
       else
       {

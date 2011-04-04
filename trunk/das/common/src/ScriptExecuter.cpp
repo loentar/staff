@@ -51,6 +51,15 @@ namespace das
     {
     }
 
+    PQueryExecutor& GetQueryExecutor()
+    {
+      if (!m_tpExec.Get())
+      {
+        m_tpExec = m_rpProvider->GetQueryExecutor();
+      }
+      return m_tpExec;
+    }
+
     CDataObject Process()
     {
       m_pOperation = &m_rDataSource.GetOperation(m_rdoOperation.GetLocalName());
@@ -125,7 +134,102 @@ namespace das
       sExecute = Eval(rdoContext, sExecute);
       rise::LogDebug1() << "Query with params [" + sExecute + "]";
 
-      m_rpProvider->Invoke(sExecute, rReturnType, rdoResult);
+      PQueryExecutor& rpExec = GetQueryExecutor();
+      rpExec->Execute(sExecute);
+
+      StringList lsResult;
+
+      if (rReturnType.eType == Type::Generic)
+      {
+        if (rpExec->GetNextResult(lsResult))
+        {
+          RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+              rise::ToStr(lsResult.size()) + " expected: 1");
+          rdoResult.SetText(lsResult.front());
+        }
+      }
+      else
+      if (rReturnType.eType == Type::Struct)
+      {
+        if (rpExec->GetNextResult(lsResult))
+        {
+          RISE_ASSERTS(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
+              rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
+
+          StringList::const_iterator itResult = lsResult.begin();
+          for (TypesList::const_iterator itType = rReturnType.lsChilds.begin();
+              itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
+          {
+            rdoResult.CreateChild(itType->sName).SetText(*itResult);
+          }
+        }
+      }
+      else
+      if (rReturnType.eType == Type::DataObject ||
+          (rReturnType.eType == Type::List && rReturnType.lsChilds.front().eType == Type::DataObject))
+      {
+        StringList lsFieldsNames;
+        rpExec->GetFieldsNames(lsFieldsNames);
+        while (rpExec->GetNextResult(lsResult))
+        {
+          staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
+
+          for (StringList::const_iterator itResult = lsResult.begin(), itName = lsFieldsNames.begin();
+               itResult != lsResult.end(); ++itResult, ++itName)
+          {
+            tdoItem.CreateChild(*itName).SetText(*itResult);
+          }
+        }
+      }
+      else
+      if (rReturnType.eType == Type::List) // ---------------- list ----------------------------
+      {
+        const Type& rItemType = rReturnType.lsChilds.front();
+        if (rItemType.eType == Type::Generic) // list of generics
+        {
+          if (rpExec->GetNextResult(lsResult))
+          {
+            RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+                         rise::ToStr(lsResult.size()) + " expected: 1");
+            do
+            {
+              rdoResult.CreateChild("Item").SetText(lsResult.front());
+            }
+            while (rpExec->GetNextResult(lsResult));
+          }
+        }
+        else
+        if (rItemType.eType == Type::Struct) // list of structs
+        {
+          if (rpExec->GetNextResult(lsResult))
+          {
+            RISE_ASSERTS(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
+                         rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
+            do
+            {
+              staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
+
+              StringList::const_iterator itResult = lsResult.begin();
+              for (TypesList::const_iterator itType = rItemType.lsChilds.begin();
+                  itType != rItemType.lsChilds.end(); ++itType, ++itResult)
+              {
+                tdoItem.CreateChild(itType->sName).SetText(*itResult);
+              }
+            }
+            while (rpExec->GetNextResult(lsResult));
+          }
+        }
+        else
+        {
+          RISE_THROWS(rise::CLogicNoItemException, "Unsupported list item type: " + rReturnType.sType);
+        }
+      }
+      else
+      if (rReturnType.eType != Type::Void)
+      {
+        RISE_THROWS(rise::CLogicNoItemException, "Unsupported return type: " + rReturnType.sType);
+      }
+
     }
 
     void ProcessVar(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript)
@@ -408,6 +512,7 @@ namespace das
     const DataSource& m_rDataSource;
     PProvider& m_rpProvider;
     VarMap m_mVars;
+    PQueryExecutor m_tpExec;
   };
 
 

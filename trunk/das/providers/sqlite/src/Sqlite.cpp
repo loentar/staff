@@ -22,6 +22,7 @@
 #include <staff/sqlite3/sqlite3.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
+#include <rise/common/MutablePtr.h>
 #include <rise/string/String.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
@@ -34,7 +35,7 @@ namespace staff
 namespace das
 {
 
-  class Sqlite::SqliteImpl
+  class SqliteProvider::SqliteImpl
   {
   public:
     SqliteImpl():
@@ -54,23 +55,121 @@ namespace das
     std::string m_sDataBase;
   };
 
-  const std::string Sqlite::SqliteImpl::m_sName = "staff.das.Sqlite";
-  const std::string Sqlite::SqliteImpl::m_sDescr = "Sqlite data access provider";
+  const std::string SqliteProvider::SqliteImpl::m_sName = "staff.das.Sqlite";
+  const std::string SqliteProvider::SqliteImpl::m_sDescr = "Sqlite data access provider";
 
 
   //  ---------------------------------------------------------------
 
-  Sqlite::Sqlite()
+  class SqliteQueryExecutor: public IQueryExecutor
+  {
+  public:
+    SqliteQueryExecutor(SqliteProvider* pProvider):
+      m_pProvider(pProvider), m_pResult(NULL), m_nLastStepStatus(0), m_nFieldsCount(0)
+    {
+    }
+
+    virtual ~SqliteQueryExecutor()
+    {
+      Reset();
+    }
+
+    virtual void Reset()
+    {
+      if (m_pResult)
+      {
+        sqlite3_finalize(m_pResult);
+        m_pResult = NULL;
+        m_nFieldsCount = 0;
+      }
+    }
+
+    virtual void Execute(const std::string& sExecute)
+    {
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL
+                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+
+      Reset();
+
+      int nResult = sqlite3_prepare_v2(m_pProvider->m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &m_pResult, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, "error #" + rise::ToStr(nResult) + ": "
+                   + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
+                   + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
+
+      m_nLastStepStatus = sqlite3_step(m_pResult);
+      if (m_nLastStepStatus == SQLITE_ROW)
+      {
+        m_nFieldsCount = static_cast<unsigned>(sqlite3_column_count(m_pResult));
+      }
+    }
+
+    virtual void GetFieldsNames(StringList& rNames)
+    {
+      RISE_ASSERTS(m_pResult, "Execute was not called");
+
+      if (rNames.size() != m_nFieldsCount)
+      {
+        rNames.resize(m_nFieldsCount);
+      }
+
+      const char* szFieldName = NULL;
+      int nField = 0;
+      for (StringList::iterator itItem = rNames.begin();
+          itItem != rNames.end(); ++itItem, ++nField)
+      {
+        szFieldName = sqlite3_column_name(m_pResult, nField);
+        RISE_ASSERTS(szFieldName, "Error while getting field name");
+        *itItem = szFieldName;
+      }
+    }
+
+    virtual bool GetNextResult(StringList& rResult)
+    {
+      RISE_ASSERTS(m_pResult, "Execute was not called");
+
+      if (m_nLastStepStatus != SQLITE_ROW)
+      {
+        return false;
+      }
+
+      if (rResult.size() != m_nFieldsCount)
+      {
+        rResult.resize(m_nFieldsCount);
+      }
+
+      int nField = 0;
+      const char* szResult = NULL;
+      for (StringList::iterator itItem = rResult.begin();
+          itItem != rResult.end(); ++itItem, ++nField)
+      {
+        szResult = reinterpret_cast<const char*>(sqlite3_column_text(m_pResult, nField));
+        *itItem = szResult ? szResult : "(NULL)";
+      }
+
+      m_nLastStepStatus = sqlite3_step(m_pResult);
+
+      return true;
+    }
+
+  private:
+    SqliteProvider* m_pProvider;
+    sqlite3_stmt* m_pResult;
+    int m_nLastStepStatus;
+    unsigned m_nFieldsCount;
+  };
+
+
+  SqliteProvider::SqliteProvider()
   {
     m_pImpl = new SqliteImpl;
   }
 
-  Sqlite::~Sqlite()
+  SqliteProvider::~SqliteProvider()
   {
     delete m_pImpl;
   }
 
-  void Sqlite::Init(const DataSource& rDataSource)
+  void SqliteProvider::Init(const DataSource& rDataSource)
   {
     m_pImpl->m_pDataSource = &rDataSource;
 
@@ -121,7 +220,7 @@ namespace das
     RISE_ASSERTS(sqlite3_finalize(pStmt) == SQLITE_OK, sqlite3_errmsg(m_pImpl->m_pConn));
   }
 
-  void Sqlite::Deinit()
+  void SqliteProvider::Deinit()
   {
     if (m_pImpl->m_pConn)
     {
@@ -139,134 +238,19 @@ namespace das
     }
   }
 
-  const std::string& Sqlite::GetName() const
+  const std::string& SqliteProvider::GetName() const
   {
     return SqliteImpl::m_sName;
   }
 
-  const std::string& Sqlite::GetDescr() const
+  const std::string& SqliteProvider::GetDescr() const
   {
     return SqliteImpl::m_sDescr;
   }
 
-  void Sqlite::Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult)
+  PQueryExecutor SqliteProvider::GetQueryExecutor()
   {
-    RISE_ASSERTS(m_pImpl->m_pConn != NULL && m_pImpl->m_pDataSource != NULL, "Not Initialized");
-
-    sqlite3_stmt* pStmt = NULL;
-    const char* szResult = NULL;
-
-    int nResult = sqlite3_prepare_v2(m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &pStmt, NULL);
-    RISE_ASSERTS(nResult == SQLITE_OK, "error #" + rise::ToStr(nResult) + ": "
-                 + std::string(sqlite3_errmsg(m_pImpl->m_pConn))
-                 + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
-
-    try
-    {
-      while ((nResult = sqlite3_step(pStmt)) == SQLITE_ROW)
-      {
-        int nColumnsCount = sqlite3_column_count(pStmt);
-        if (rstReturnType.eType == Type::Generic)
-        {
-          RISE_ASSERTS(nColumnsCount == 1, "Columns count does not match: " + rise::ToStr(nColumnsCount) + " expected: 1");
-          szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, 0));
-          RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-          rdoResult.SetText(szResult);
-        }
-        else
-        if (rstReturnType.eType == Type::Struct)
-        {
-          RISE_ASSERTS(nColumnsCount == static_cast<int>(rstReturnType.lsChilds.size()), "Columns count does not match: " +
-              rise::ToStr(nColumnsCount) + " expected: " + rise::ToStr(rstReturnType.lsChilds.size()));
-
-          int nColumn = 0;
-          for (TypesList::const_iterator itType = rstReturnType.lsChilds.begin();
-              itType != rstReturnType.lsChilds.end(); ++itType, ++nColumn)
-          {
-            szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, nColumn));
-            RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-            rdoResult.CreateChild(itType->sName).SetText(szResult);
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::List)
-        {
-          const Type& rItemType = rstReturnType.lsChilds.front();
-          if (rItemType.eType == Type::Generic) // list of generics
-          {
-            int nColumnsCount = sqlite3_column_count(pStmt);
-            RISE_ASSERTS(nColumnsCount == 1, "Columns count does not match: " + rise::ToStr(nColumnsCount)
-                         + " expected: 1 (generic)");
-
-            staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, 0));
-            RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-            tdoItem.SetText(szResult);
-          }
-          else
-          if (rItemType.eType == Type::Struct) // list of structs
-          {
-            RISE_ASSERTS(nColumnsCount == static_cast<int>(rItemType.lsChilds.size()),
-               "Columns count does not match: " + rise::ToStr(nColumnsCount) + " expected: "
-               + rise::ToStr(rItemType.lsChilds.size()));
-            staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            int nColumn = 0;
-
-            for (TypesList::const_iterator itType = rItemType.lsChilds.begin();
-                itType != rItemType.lsChilds.end(); ++itType, ++nColumn)
-            {
-              szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, nColumn));
-              RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-              tdoItem.CreateChild(itType->sName).SetText(szResult);
-            }
-          }
-          else
-          if (rItemType.eType == Type::DataObject)
-          {
-            staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            for (int nColumn = 0; nColumn < nColumnsCount; ++nColumn)
-            {
-              szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, nColumn));
-              RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-              szResult = sqlite3_column_name(pStmt, nColumn);
-              RISE_ASSERTS(szResult, "Error while getting Column name");
-
-              tdoItem.CreateChild(szResult).SetText(szResult);
-            }
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::DataObject)
-        {
-          staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-          for (int nColumn = 0; nColumn < nColumnsCount; ++nColumn)
-          {
-            szResult = reinterpret_cast<const char*>(sqlite3_column_text(pStmt, nColumn));
-            RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-            szResult = sqlite3_column_name(pStmt, nColumn);
-            RISE_ASSERTS(szResult, "Error while getting Column name");
-
-            tdoItem.CreateChild(szResult).SetText(szResult);
-          }
-        }
-        else
-        {
-          RISE_ASSERTS(rstReturnType.eType == Type::Void, "Invalid return type: " + rise::ToStr(rstReturnType.eType));
-        }
-      }
-
-      RISE_ASSERTS(nResult == SQLITE_DONE, "error#" + rise::ToStr(nResult) + " while executing query: \n"
-                   + std::string(sqlite3_errmsg(m_pImpl->m_pConn))
-                   + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
-
-    }
-    catch(...)
-    {
-      sqlite3_finalize(pStmt);
-      throw;
-    }
-
-    sqlite3_finalize(pStmt);
+    return new SqliteQueryExecutor(this);
   }
 
 }

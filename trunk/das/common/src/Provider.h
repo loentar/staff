@@ -24,41 +24,68 @@
 
 #include <string>
 #include <list>
-#include <staff/codegen/Interface.h>
 #include "staffdascommonexport.h"
 
 namespace rise
 {
   template <typename Type> class CMutablePtr;
-  namespace xml
-  {
-    class CXMLNode;
-  }
 }
 
 namespace staff
 {
-  class CDataObject;
-
   namespace das
   {
-    class DataSource;
-    struct Type;
+    class STAFF_DAS_COMMON_EXPORT DataSource;
 
-    typedef std::list<std::string> StringList; //!< string list
+    //! string list
+    typedef std::list<std::string> StringList;
 
-    //! DAS provider wrapper
-    class STAFF_DAS_COMMON_EXPORT IProvider
+    //! Query executor interface
+    class IQueryExecutor
     {
     public:
+      //! destructor
+      virtual ~IQueryExecutor() {}
+
+      //! reset executor and free result
+      virtual void Reset() = 0;
+
+      //! execute query
+      /*! \param  sExecute - query to execute
+        */
+      virtual void Execute(const std::string& sExecute) = 0;
+
+      //! get fields names
+      /*! \sa Execute
+          \param  rNames - resulting field names
+        */
+      virtual void GetFieldsNames(StringList& rNames) = 0;
+
+      //! get next row
+      /*! \sa Execute
+          \param  rResult - resulting row
+          \return true if result was get
+        */
+      virtual bool GetNextResult(StringList& rResult) = 0;
+    };
+
+    //! smart pointer to Query executor object
+    typedef rise::CMutablePtr<IQueryExecutor> PQueryExecutor;
+
+
+    //! DAS provider interface
+    class IProvider
+    {
+    public:
+      //! destructor
       virtual ~IProvider() {}
 
-      //! initialize
+      //! initialize provider
       /*! \param rDataSource - data source
         */
       virtual void Init(const DataSource& rDataSource) = 0;
 
-      //! deinitialize
+      //! deinitialize provider
       virtual void Deinit() = 0;
 
       //! get provider name
@@ -71,16 +98,15 @@ namespace staff
         */
       virtual const std::string& GetDescr() const = 0;
 
-      //! execute query
-      /*! \param  sExecute - execute string(query)
-          \param  rstReturnType - resulting type
-          \param  rdoResult - query result
-          */
-      virtual void Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult) = 0;
+      //! create new executor object to execute query
+      /*! \return new executor
+        */
+      virtual PQueryExecutor GetQueryExecutor() = 0;
     };
 
     //! pointer to provider wrapper
     typedef rise::CMutablePtr<IProvider> PProvider;
+
 
     //! provider allocator
     class ProviderAllocator

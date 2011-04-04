@@ -34,7 +34,7 @@ namespace das
     {
       if (sName == "staff.das.Postgres")
       {
-        return PProvider(new ::staff::das::Postgres);
+        return PProvider(new ::staff::das::PostgresProvider);
       }
       else
       {
