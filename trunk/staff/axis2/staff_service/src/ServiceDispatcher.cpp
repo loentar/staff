@@ -92,6 +92,8 @@ rise::LogEntry();
         }
       }
 
+      LoadServices();
+
       const TServiceWrapperMap& rServices = rSharedContext.GetServices();
       if (m_stEvents.pOnConnect != NULL)
       {
@@ -101,8 +103,6 @@ rise::LogEntry();
           m_stEvents.pOnConnect(itService->first, itService->second);
         }
       }
-
-      LoadServices();
     }
 
     void Deinit()
