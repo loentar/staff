@@ -34,7 +34,7 @@ namespace das
     {
       if (sName == "staff.das.MySql")
       {
-        return PProvider(new ::staff::das::MySql);
+        return PProvider(new ::staff::das::MySqlProvider);
       }
       else
       {

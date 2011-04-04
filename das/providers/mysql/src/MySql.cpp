@@ -25,6 +25,7 @@
 #include <mysql.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
+#include <rise/common/MutablePtr.h>
 #include <rise/string/String.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
@@ -37,7 +38,7 @@ namespace staff
 namespace das
 {
 
-  class MySql::MySqlImpl
+  class MySqlProvider::MySqlImpl
   {
   public:
     MySqlImpl():
@@ -64,23 +65,128 @@ namespace das
     bool m_bConnected;
   };
 
-  const std::string MySql::MySqlImpl::m_sName = "staff.das.MySql";
-  const std::string MySql::MySqlImpl::m_sDescr = "MySql data access provider";
+  const std::string MySqlProvider::MySqlImpl::m_sName = "staff.das.MySql";
+  const std::string MySqlProvider::MySqlImpl::m_sDescr = "MySql data access provider";
 
 
   //  ---------------------------------------------------------------
 
-  MySql::MySql()
+  class MySqlQueryExecutor: public IQueryExecutor
+  {
+  public:
+    MySqlQueryExecutor(MySqlProvider* pProvider):
+      m_pProvider(pProvider), m_pResult(NULL),
+      m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0)
+    {
+    }
+
+    virtual ~MySqlQueryExecutor()
+    {
+      Reset();
+    }
+
+    virtual void Reset()
+    {
+      if (m_pResult)
+      {
+        mysql_free_result(m_pResult);
+        m_pResult = NULL;
+        m_nFieldsCount = 0;
+        m_nRowsCount = 0;
+        m_nCurrentRow = 0;
+      }
+    }
+
+    virtual void Execute(const std::string& sExecute)
+    {
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected
+                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+
+      Reset();
+
+      int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
+      RISE_ASSERTS(nStatus == 0, "error executing query #" + rise::ToStr(nStatus) + ": \n"
+                  + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                  + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+      if (mysql_field_count(&m_pProvider->m_pImpl->m_tConn) > 0)
+      {
+        m_pResult = mysql_store_result(&m_pProvider->m_pImpl->m_tConn);
+        RISE_ASSERTS(m_pResult, "Cannot retreive result: \n" + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
+
+        m_nFieldsCount = mysql_num_fields(m_pResult);
+        m_nRowsCount = mysql_num_rows(m_pResult);
+      }
+    }
+
+    virtual void GetFieldsNames(StringList& rNames)
+    {
+      if (rNames.size() != m_nFieldsCount)
+      {
+        rNames.resize(m_nFieldsCount);
+      }
+
+      if (m_pResult)
+      {
+        MYSQL_FIELD* pFields = mysql_fetch_fields(m_pResult);
+        const char* szFieldName = NULL;
+        int nField = 0;
+        for (StringList::iterator itItem = rNames.begin();
+            itItem != rNames.end(); ++itItem, ++nField)
+        {
+          szFieldName = pFields[nField].name;
+          RISE_ASSERTS(szFieldName, "Error while getting field name");
+          *itItem = szFieldName;
+        }
+      }
+    }
+
+    virtual bool GetNextResult(StringList& rResult)
+    {
+      if (!m_pResult || m_nCurrentRow == m_nRowsCount)
+      {
+        return false;
+      }
+
+      if (rResult.size() != m_nFieldsCount)
+      {
+        rResult.resize(m_nFieldsCount);
+      }
+
+      MYSQL_ROW pRow = mysql_fetch_row(m_pResult);
+      RISE_ASSERTS(pRow, "Error while fetching row");
+
+      int nField = 0;
+      for (StringList::iterator itResult = rResult.begin();
+          itResult != rResult.end(); ++itResult, ++nField)
+      {
+        *itResult = pRow[nField] ? pRow[nField] : "(NULL)";
+      }
+
+      ++m_nCurrentRow;
+      return true;
+    }
+
+  private:
+    MySqlProvider* m_pProvider;
+    MYSQL_RES* m_pResult;
+    unsigned m_nFieldsCount;
+    unsigned long long m_nRowsCount;
+    unsigned long long m_nCurrentRow;
+  };
+
+
+  MySqlProvider::MySqlProvider()
   {
     m_pImpl = new MySqlImpl;
   }
 
-  MySql::~MySql()
+  MySqlProvider::~MySqlProvider()
   {
     delete m_pImpl;
   }
 
-  void MySql::Init(const DataSource& rDataSource)
+  void MySqlProvider::Init(const DataSource& rDataSource)
   {
     m_pImpl->m_pDataSource = &rDataSource;
 
@@ -112,7 +218,7 @@ namespace das
     RISE_ASSERTS(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_pImpl->m_tConn));
   }
 
-  void MySql::Deinit()
+  void MySqlProvider::Deinit()
   {
     if (m_pImpl->m_bConnected)
     {
@@ -121,167 +227,19 @@ namespace das
     }
   }
 
-  const std::string& MySql::GetName() const
+  const std::string& MySqlProvider::GetName() const
   {
     return MySqlImpl::m_sName;
   }
 
-  const std::string& MySql::GetDescr() const
+  const std::string& MySqlProvider::GetDescr() const
   {
     return MySqlImpl::m_sDescr;
   }
 
-  void MySql::Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult)
+  PQueryExecutor MySqlProvider::GetQueryExecutor()
   {
-    RISE_ASSERTS(m_pImpl->m_bConnected && m_pImpl->m_pDataSource != NULL, "Not Initialized");
-
-    int nStatus = 0;
-    MYSQL_ROW pRow;
-
-    nStatus = mysql_query(&m_pImpl->m_tConn, sExecute.c_str());
-    RISE_ASSERTS(nStatus == 0, "error executing query #" + rise::ToStr(nStatus) + ": \n"
-                + std::string(mysql_error(&m_pImpl->m_tConn))
-                + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
-
-    if (mysql_field_count(&m_pImpl->m_tConn) > 0)
-    {
-      MYSQL_RES* pResult = NULL;
-      pResult = mysql_store_result(&m_pImpl->m_tConn);
-      RISE_ASSERTS(pResult, "Cannot retreive result: \n" + std::string(mysql_error(&m_pImpl->m_tConn)));
-
-      try
-      {
-        unsigned nFieldsCount = mysql_num_fields(pResult);
-        unsigned long long nRowsCount = mysql_num_rows(pResult);
-
-        if (rstReturnType.eType == Type::Generic)
-        {
-          RISE_ASSERTS(nRowsCount == 1, "Rows count does not match: " + rise::ToStr(nRowsCount) + " expected: 1");
-          RISE_ASSERTS(nFieldsCount == 1, "Fields count does not match: " + rise::ToStr(nFieldsCount) + " expected: 1");
-          pRow = mysql_fetch_row(pResult);
-          RISE_ASSERTS(pRow, "Error while fetching row: " + std::string(mysql_error(&m_pImpl->m_tConn)));
-          const char* szResult = pRow[0];
-          RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-          rdoResult.SetText(szResult);
-        }
-        else
-        if (rstReturnType.eType == Type::Struct)
-        {
-          RISE_ASSERTS(nRowsCount == 1, "Rows count does not match: " + rise::ToStr(nRowsCount) + " expected: 1");
-          RISE_ASSERTS(nFieldsCount == static_cast<int>(rstReturnType.lsChilds.size()), "Fields count does not match: " +
-              rise::ToStr(nFieldsCount) + " expected: " + rise::ToStr(rstReturnType.lsChilds.size()));
-
-          pRow = mysql_fetch_row(pResult);
-          RISE_ASSERTS(pRow, "Error while fetching row");
-
-          int nField = 0;
-          for (TypesList::const_iterator itType = rstReturnType.lsChilds.begin();
-              itType != rstReturnType.lsChilds.end(); ++itType, ++nField)
-          {
-            const char* szResult = pRow[nField];
-            RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-            rdoResult.CreateChild(itType->sName).SetText(szResult);
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::List)
-        {
-          RISE_ASSERTS(nRowsCount >= 0, "Invalid rows count");
-
-          if (nRowsCount > 0)
-          {
-            const Type& rItemType = rstReturnType.lsChilds.front();
-            if (rItemType.eType == Type::Generic) // list of generics
-            {
-              RISE_ASSERTS(nFieldsCount == 1, "Fields count does not match: " + rise::ToStr(nFieldsCount)
-                           + " expected: 1 (generic)");
-              for (int nTuple = 0; nTuple < nRowsCount; ++nTuple)
-              {
-                pRow = mysql_fetch_row(pResult);
-                RISE_ASSERTS(pRow, "Error while fetching row");
-
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                const char* szResult = pRow[0];
-                RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                tdoItem.SetText(szResult);
-              }
-            }
-            else
-            if (rItemType.eType == Type::Struct) // list of structs
-            {
-              RISE_ASSERTS(nFieldsCount == static_cast<int>(rItemType.lsChilds.size()),
-                 "Fields count does not match: " + rise::ToStr(nFieldsCount) + " expected: "
-                 + rise::ToStr(rItemType.lsChilds.size()));
-              for (int nTuple = 0; nTuple < nRowsCount; ++nTuple)
-              {
-                pRow = mysql_fetch_row(pResult);
-                RISE_ASSERTS(pRow, "Error while fetching row");
-
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                int nField = 0;
-
-                for (TypesList::const_iterator itType = rItemType.lsChilds.begin();
-                    itType != rItemType.lsChilds.end(); ++itType, ++nField)
-                {
-                  const char* szResult = pRow[nField];
-                  RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                  tdoItem.CreateChild(itType->sName).SetText(szResult);
-                }
-              }
-            }
-            else
-            if (rItemType.eType == Type::DataObject)
-            {
-              MYSQL_FIELD* pFields = mysql_fetch_fields(pResult);
-              for (int nTuple = 0; nTuple < nRowsCount; ++nTuple)
-              {
-                pRow = mysql_fetch_row(pResult);
-                RISE_ASSERTS(pRow, "Error while fetching row");
-
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                for (unsigned nField = 0; nField < nFieldsCount; ++nField)
-                {
-                  const char* szResult = pRow[nField];
-                  RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                  const char* szFieldName = pFields[nField].name;
-                  RISE_ASSERTS(szFieldName, "Error while getting field name");
-
-                  tdoItem.CreateChild(szFieldName).SetText(szResult);
-                }
-              }
-            }
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::DataObject)
-        {
-          MYSQL_FIELD* pFields = mysql_fetch_fields(pResult);
-          for (int nTuple = 0; nTuple < nRowsCount; ++nTuple)
-          {
-            pRow = mysql_fetch_row(pResult);
-            RISE_ASSERTS(pRow, "Error while fetching row");
-
-            staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            for (unsigned nField = 0; nField < nFieldsCount; ++nField)
-            {
-              const char* szResult = pRow[nField];
-              RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-              const char* szFieldName = pFields[nField].name;
-              RISE_ASSERTS(szFieldName, "Error while getting field name");
-
-              tdoItem.CreateChild(szFieldName).SetText(szResult);
-            }
-          }
-        }
-      }
-      catch(...)
-      {
-        mysql_free_result(pResult);
-        throw;
-      }
-
-      mysql_free_result(pResult);
-    }
+    return new MySqlQueryExecutor(this);
   }
 
 }

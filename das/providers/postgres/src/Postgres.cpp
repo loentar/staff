@@ -22,6 +22,7 @@
 #include <libpq-fe.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
+#include <rise/common/MutablePtr.h>
 #include <rise/string/String.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
@@ -34,7 +35,7 @@ namespace staff
 namespace das
 {
 
-  class Postgres::PostgresImpl
+  class PostgresProvider::PostgresImpl
   {
   public:
     PostgresImpl():
@@ -63,23 +64,124 @@ namespace das
     std::string m_sPassword;
   };
 
-  const std::string Postgres::PostgresImpl::m_sName = "staff.das.Postgres";
-  const std::string Postgres::PostgresImpl::m_sDescr = "Postgres data access provider";
-
+  const std::string PostgresProvider::PostgresImpl::m_sName = "staff.das.Postgres";
+  const std::string PostgresProvider::PostgresImpl::m_sDescr = "Postgres data access provider";
 
   //  ---------------------------------------------------------------
 
-  Postgres::Postgres()
+  class PostgresQueryExecutor: public IQueryExecutor
+  {
+  public:
+    PostgresQueryExecutor(PostgresProvider* pProvider):
+      m_pProvider(pProvider), m_pResult(NULL),
+      m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0)
+    {
+    }
+
+    virtual ~PostgresQueryExecutor()
+    {
+      Reset();
+    }
+
+    virtual void Reset()
+    {
+      if (m_pResult)
+      {
+        PQclear(m_pResult);
+        m_pResult = NULL;
+        m_nFieldsCount = 0;
+        m_nRowsCount = 0;
+        m_nCurrentRow = 0;
+      }
+    }
+
+    virtual void Execute(const std::string& sExecute)
+    {
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL
+                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+
+      Reset();
+
+      m_pResult = PQexec(m_pProvider->m_pImpl->m_pConn, sExecute.c_str());
+
+      ExecStatusType tQueryStatus = PQresultStatus(m_pResult);
+      if (tQueryStatus != PGRES_COMMAND_OK)
+      {
+        RISE_ASSERTS(tQueryStatus == PGRES_TUPLES_OK, "error executing query #" + rise::ToStr(tQueryStatus) + ": \n"
+                     + std::string(PQerrorMessage(m_pProvider->m_pImpl->m_pConn))
+                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+        m_nRowsCount = static_cast<unsigned>(PQntuples(m_pResult));
+        m_nFieldsCount = static_cast<unsigned>(PQnfields(m_pResult));
+      }
+    }
+
+    virtual void GetFieldsNames(StringList& rNames)
+    {
+      RISE_ASSERTS(m_pResult, "Execute was not called");
+
+      if (rNames.size() != m_nFieldsCount)
+      {
+        rNames.resize(m_nFieldsCount);
+      }
+
+      const char* szFieldName = NULL;
+      int nField = 0;
+      for (StringList::iterator itItem = rNames.begin();
+          itItem != rNames.end(); ++itItem, ++nField)
+      {
+        szFieldName = PQfname(m_pResult, nField);
+        RISE_ASSERTS(szFieldName, "Error while getting field name");
+        *itItem = szFieldName;
+      }
+    }
+
+    virtual bool GetNextResult(StringList& rResult)
+    {
+      RISE_ASSERTS(m_pResult, "Execute was not called");
+
+      if (m_nCurrentRow == m_nRowsCount)
+      {
+        return false;
+      }
+
+      if (rResult.size() != m_nFieldsCount)
+      {
+        rResult.resize(m_nFieldsCount);
+      }
+
+      int nField = 0;
+      const char* szResult = NULL;
+      for (StringList::iterator itResult = rResult.begin();
+          itResult != rResult.end(); ++itResult, ++nField)
+      {
+        szResult = PQgetvalue(m_pResult, m_nCurrentRow, nField);
+        *itResult = szResult ? szResult : "(NULL)";
+      }
+
+      ++m_nCurrentRow;
+      return true;
+    }
+
+  private:
+    PostgresProvider* m_pProvider;
+    PGresult* m_pResult;
+    unsigned m_nFieldsCount;
+    unsigned m_nRowsCount;
+    unsigned m_nCurrentRow;
+  };
+
+  PostgresProvider::PostgresProvider()
   {
     m_pImpl = new PostgresImpl;
   }
 
-  Postgres::~Postgres()
+  PostgresProvider::~PostgresProvider()
   {
     delete m_pImpl;
   }
 
-  void Postgres::Init(const DataSource& rDataSource)
+  void PostgresProvider::Init(const DataSource& rDataSource)
   {
     m_pImpl->m_pDataSource = &rDataSource;
 
@@ -112,7 +214,7 @@ namespace das
     RISE_ASSERTS(nResult == 0, std::string("error setting encoding: ") + PQerrorMessage(m_pImpl->m_pConn));
   }
 
-  void Postgres::Deinit()
+  void PostgresProvider::Deinit()
   {
     if (m_pImpl->m_pConn)
     {
@@ -121,145 +223,19 @@ namespace das
     }
   }
 
-  const std::string& Postgres::GetName() const
+  const std::string& PostgresProvider::GetName() const
   {
     return PostgresImpl::m_sName;
   }
 
-  const std::string& Postgres::GetDescr() const
+  const std::string& PostgresProvider::GetDescr() const
   {
     return PostgresImpl::m_sDescr;
   }
 
-  void Postgres::Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult)
+  PQueryExecutor PostgresProvider::GetQueryExecutor()
   {
-    RISE_ASSERTS(m_pImpl->m_pConn != NULL && m_pImpl->m_pDataSource != NULL, "Not Initialized");
-
-    ExecStatusType tQueryStatus;
-    PGresult* pPgResult = NULL;
-
-    pPgResult = PQexec(m_pImpl->m_pConn, sExecute.c_str());
-    try
-    {
-      tQueryStatus = PQresultStatus(pPgResult);
-      if (tQueryStatus != PGRES_COMMAND_OK)
-      {
-        RISE_ASSERTS(tQueryStatus == PGRES_TUPLES_OK, "error executing query #" + rise::ToStr(tQueryStatus) + ": \n"
-                     + std::string(PQerrorMessage(m_pImpl->m_pConn))
-                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
-
-        int nTuplesCount = PQntuples(pPgResult);
-        int nFieldsCount = PQnfields(pPgResult);
-
-        if (rstReturnType.eType == Type::Generic)
-        {
-          RISE_ASSERTS(nTuplesCount == 1, "Tuples count does not match: " + rise::ToStr(nTuplesCount) + " expected: 1");
-          RISE_ASSERTS(nFieldsCount == 1, "Fields count does not match: " + rise::ToStr(nFieldsCount) + " expected: 1");
-          const char* szResult = PQgetvalue(pPgResult, 0, 0);
-          RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-          rdoResult.SetText(szResult);
-        }
-        else
-        if (rstReturnType.eType == Type::Struct)
-        {
-          RISE_ASSERTS(nTuplesCount == 1, "Tuples count does not match: " + rise::ToStr(nTuplesCount) + " expected: 1");
-          RISE_ASSERTS(nFieldsCount == static_cast<int>(rstReturnType.lsChilds.size()), "Fields count does not match: " +
-              rise::ToStr(nFieldsCount) + " expected: " + rise::ToStr(rstReturnType.lsChilds.size()));
-
-          int nField = 0;
-          for (TypesList::const_iterator itType = rstReturnType.lsChilds.begin();
-              itType != rstReturnType.lsChilds.end(); ++itType, ++nField)
-          {
-            const char* szResult = PQgetvalue(pPgResult, 0, nField);
-            RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-            rdoResult.CreateChild(itType->sName).SetText(szResult);
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::List)
-        {
-          RISE_ASSERTS(nTuplesCount >= 0, "Invalid tuples count");
-
-          if (nTuplesCount > 0)
-          {
-            const Type& rItemType = rstReturnType.lsChilds.front();
-            if (rItemType.eType == Type::Generic) // list of generics
-            {
-              RISE_ASSERTS(nFieldsCount == 1, "Fields count does not match: " + rise::ToStr(nFieldsCount)
-                           + " expected: 1 (generic)");
-              for (int nTuple = 0; nTuple < nTuplesCount; ++nTuple)
-              {
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                const char* szResult = PQgetvalue(pPgResult, nTuple, 0);
-                RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                tdoItem.SetText(szResult);
-              }
-            }
-            else
-            if (rItemType.eType == Type::Struct) // list of structs
-            {
-              RISE_ASSERTS(nFieldsCount == static_cast<int>(rItemType.lsChilds.size()),
-                 "Fields count does not match: " + rise::ToStr(nFieldsCount) + " expected: "
-                 + rise::ToStr(rItemType.lsChilds.size()));
-              for (int nTuple = 0; nTuple < nTuplesCount; ++nTuple)
-              {
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                int nField = 0;
-
-                for (TypesList::const_iterator itType = rItemType.lsChilds.begin();
-                    itType != rItemType.lsChilds.end(); ++itType, ++nField)
-                {
-                  const char* szResult = PQgetvalue(pPgResult, nTuple, nField);
-                  RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                  tdoItem.CreateChild(itType->sName).SetText(szResult);
-                }
-              }
-            }
-            else
-            if (rItemType.eType == Type::DataObject)
-            {
-              for (int nTuple = 0; nTuple < nTuplesCount; ++nTuple)
-              {
-                staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-                for (int nField = 0; nField < nFieldsCount; ++nField)
-                {
-                  const char* szResult = PQgetvalue(pPgResult, nTuple, nField);
-                  RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-                  const char* szFieldName = PQfname(pPgResult, nField);
-                  RISE_ASSERTS(szFieldName, "Error while getting field name");
-
-                  tdoItem.CreateChild(szFieldName).SetText(szResult);
-                }
-              }
-            }
-          }
-        }
-        else
-        if (rstReturnType.eType == Type::DataObject)
-        {
-          for (int nTuple = 0; nTuple < nTuplesCount; ++nTuple)
-          {
-            staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
-            for (int nField = 0; nField < nFieldsCount; ++nField)
-            {
-              const char* szResult = PQgetvalue(pPgResult, nTuple, nField);
-              RISE_ASSERTS(szResult, "Error while getting result value (result is NULL)");
-              const char* szFieldName = PQfname(pPgResult, nField);
-              RISE_ASSERTS(szFieldName, "Error while getting field name");
-
-              tdoItem.CreateChild(szFieldName).SetText(szResult);
-            }
-          }
-        }
-      }
-    }
-    catch(...)
-    {
-      PQclear(pPgResult);
-      throw;
-    }
-
-    PQclear(pPgResult);
+    return new PostgresQueryExecutor(this);
   }
 
 }

@@ -29,16 +29,13 @@ namespace staff
 {
   namespace das
   {
-    class DataSource;
-    struct Type;
-
     //! postgres provider
-    class Postgres: public IProvider
+    class PostgresProvider: public IProvider
     {
     public:
-      Postgres();
+      PostgresProvider();
 
-      virtual ~Postgres();
+      virtual ~PostgresProvider();
 
       //! initialize
       /*! \param rDataSource - data source
@@ -58,15 +55,15 @@ namespace staff
         */
       virtual const std::string& GetDescr() const;
 
-      //! invoke the operation
-      /*! \param  sExecute - execute string
-          \param  rdoResult - operation result
-          */
-      virtual void Invoke(const std::string& sExecute, const Type& rstReturnType, staff::CDataObject& rdoResult);
+      //! create new executor object to execute query
+      /*! \return new executor
+        */
+      virtual PQueryExecutor GetQueryExecutor();
 
     private:
       class PostgresImpl;
       PostgresImpl* m_pImpl;
+      friend class PostgresQueryExecutor;
     };
 
   }

@@ -22,7 +22,7 @@ int main(int nArgs, const char* paszArgs[])
       rise::CSharedPtr< ::staff::das::DataAccessService > pDataAccessService = 
         ::staff::CServiceFactory::Inst().GetService< ::staff::das::DataAccessService >();
 
-      RISE_ASSERTES(pDataAccessService != NULL, rise::CLogicNoItemException, "Cannot get client for service staff.das.DataAccessService!");
+      RISE_ASSERTES(pDataAccessService, rise::CLogicNoItemException, "Cannot get client for service staff.das.DataAccessService!");
 
       // Invoke Your service here:
       std::cout << "Providers: \n";
