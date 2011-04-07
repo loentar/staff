@@ -409,79 +409,79 @@ namespace staff
     return m_sValue;
   }
 
-  CValue::operator const float() const
+  CValue::operator float() const
   {
     SyncTo(ET_FLOAT);
     return m_uValue.fValue;
   }
 
-  CValue::operator const double() const
+  CValue::operator double() const
   {
     SyncTo(ET_DOUBLE);
     return m_uValue.dValue;
   }
 
-  CValue::operator const byte() const
+  CValue::operator byte() const
   {
     SyncTo(ET_BYTE);
     return m_uValue.btValue;
   }
 
-  CValue::operator const int() const
+  CValue::operator int() const
   {
     SyncTo(ET_INT);
     return m_uValue.nValue;
   }
 
-  CValue::operator const short() const
+  CValue::operator short() const
   {
     SyncTo(ET_SHORT);
     return m_uValue.shValue;
   }
 
-  CValue::operator const long() const
+  CValue::operator long() const
   {
     SyncTo(ET_LONG);
     return m_uValue.lValue;
   }
 
-  CValue::operator const long long() const
+  CValue::operator long long() const
   {
     SyncTo(ET_LONGLONG);
     return m_uValue.llValue;
   }
 
-  CValue::operator const unsignedByte() const
+  CValue::operator unsignedByte() const
   {
     SyncTo(ET_UBYTE);
     return m_uValue.ubtValue;
   }
 
-  CValue::operator const unsigned int() const
+  CValue::operator unsigned int() const
   {
     SyncTo(ET_UINT);
     return m_uValue.unValue;
   }
 
-  CValue::operator const unsigned short() const
+  CValue::operator unsigned short() const
   {
     SyncTo(ET_USHORT);
     return m_uValue.ushValue;
   }
 
-  CValue::operator const unsigned long() const
+  CValue::operator unsigned long() const
   {
     SyncTo(ET_ULONG);
     return m_uValue.ulValue;
   }
 
-  CValue::operator const unsigned long long() const
+  CValue::operator unsigned long long() const
   {
     SyncTo(ET_ULONGLONG);
     return m_uValue.ullValue;
   }
 
-  CValue::operator const bool() const
+  CValue::operator bool() const
   {
     SyncTo(ET_BOOL);
     return m_uValue.bValue;
@@ -1215,7 +1215,7 @@ namespace staff
     m_ePrevType = eTypeTo;
   }
 
-  const CValue::EType CValue::GetType() const
+  CValue::EType CValue::GetType() const
   {
     return m_eType;
   }

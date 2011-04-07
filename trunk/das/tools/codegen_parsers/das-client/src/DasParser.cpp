@@ -29,7 +29,7 @@
 #include <staff/client/ServiceFactory.h>
 #include "DasParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CDasParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CDasParser)
 
 namespace staff
 {

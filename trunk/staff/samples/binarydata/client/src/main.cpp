@@ -38,7 +38,7 @@ void OutputData(const staff::ByteArray& rByteArray)
   std::cout << "]" << std::dec << std::endl;
 }
 
-int main(int nArgs, const char* paszArgs[])
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {

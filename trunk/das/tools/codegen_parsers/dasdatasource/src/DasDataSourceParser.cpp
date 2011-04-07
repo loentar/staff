@@ -27,7 +27,7 @@
 #include <staff/codegen/tools.h>
 #include "DasDataSourceParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CDasDataSourceParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CDasDataSourceParser)
 
 namespace staff
 {

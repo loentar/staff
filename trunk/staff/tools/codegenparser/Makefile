@@ -3,8 +3,8 @@ include ../../Makefile.env
 TARGET = codegen
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)parser$(LIBVEREXT)
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -lrise
+CXXFLAGS += -c -I$(DEPLOYDIR)include
+LDFLAGS += -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

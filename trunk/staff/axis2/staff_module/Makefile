@@ -6,9 +6,8 @@ TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
-CFLAGS += -c -fexceptions -I$(AXIS2C_INCDIR)
-LFLAGS += -fexceptions -L$(AXIS2C_LIBDIR)
-LFLAGS += -laxutil -laxis2_engine
+CFLAGS += -c -I$(AXIS2C_INCDIR)
+LFLAGS += -L$(AXIS2C_LIBDIR) -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LFLAGS += -laxiom
 else

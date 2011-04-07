@@ -76,7 +76,7 @@ public:
     return svc_skeleton;
   }
 
-  static int AXIS2_CALL Axis2Service_init(axis2_svc_skeleton_t *svc_skeleton, const axutil_env_t *pEnv)
+  static int AXIS2_CALL Axis2Service_init(axis2_svc_skeleton_t* /*svc_skeleton*/, const axutil_env_t* /*pEnv*/)
   {
     // This method never seems to be called - an old Axis2C artifact?
 //    svc_skeleton->func_array = axutil_array_list_create(pEnv, 0);

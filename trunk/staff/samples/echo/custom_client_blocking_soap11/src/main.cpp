@@ -26,7 +26,7 @@
 #include <staff/client/Options.h>
 #include <staff/client/ServiceClient.h>
 
-int main(int nArgs, const char* paszArgs[])
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {

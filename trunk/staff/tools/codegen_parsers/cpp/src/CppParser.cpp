@@ -33,7 +33,7 @@
 #include <staff/codegen/tools.h>
 #include "CppParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CCppParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CCppParser)
 
 namespace staff
 {

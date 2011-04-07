@@ -6,8 +6,8 @@ COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres
 TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
-LDFLAGS += -fexceptions -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
+CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
+LDFLAGS += -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

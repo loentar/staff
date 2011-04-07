@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <stdlib.h>
 #include <locale.h>
 #include <iomanip>

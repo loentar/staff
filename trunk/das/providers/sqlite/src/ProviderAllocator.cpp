@@ -54,5 +54,5 @@ namespace das
 }
 }
 
-RISE_DECLARE_PLUGIN(::staff::das::ProviderAllocatorImpl);
+RISE_DECLARE_PLUGIN(::staff::das::ProviderAllocatorImpl)
 

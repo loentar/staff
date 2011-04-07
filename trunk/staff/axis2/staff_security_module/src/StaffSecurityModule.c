@@ -43,6 +43,8 @@
 #include <staff/security/tools.h>
 #include "StaffSecurityUtils.h"
 
+#define STAFF_PARAM_UNUSED(param) (void)param
+
 struct axis2_handler
 {
   axis2_handler_desc_t* handler_desc;
@@ -51,10 +53,11 @@ struct axis2_handler
                                        struct axis2_msg_ctx* msg_ctx);
 };
 
-axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler, 
+axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
                                                  const axutil_env_t *pEnv, 
                                                  struct axis2_msg_ctx* pMsgCtx)
 {
+  STAFF_PARAM_UNUSED(pHandler);
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   if (axis2_msg_ctx_get_server_side(pMsgCtx, pEnv))
@@ -120,7 +123,7 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
     AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
 
-    { // remember service name, sessionid instanceid in message context
+    { /* remember service name, sessionid instanceid in message context */
       axutil_property_t* pProp = axutil_property_create(pEnv);
       if (!pProp)
       {
@@ -170,11 +173,16 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
   return AXIS2_SUCCESS;
 }
 
-axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule, 
+axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
                                                       const axutil_env_t* pEnv,
-                                                      axis2_conf_ctx_t* pConfCtx, 
+                                                      axis2_conf_ctx_t* pConfCtx,
                                                       axis2_module_desc_t* pModuleDesc)
 {
+  STAFF_PARAM_UNUSED(pModule);
+  STAFF_PARAM_UNUSED(pEnv);
+  STAFF_PARAM_UNUSED(pConfCtx);
+  STAFF_PARAM_UNUSED(pModuleDesc);
+
   if (!staff_security_init())
   {
     fprintf(stderr, "Failed to initialize staff::security.\n");
@@ -184,9 +192,10 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
 }
 
 AXIS2_EXPORT axis2_handler_t* AXIS2_CALL StaffSecurity_create(const axutil_env_t *pEnv, 
-                                                                axutil_qname_t* pQName) 
+                                                                axutil_qname_t* pQName)
 {
   axis2_handler_t* pHandler = NULL;
+  STAFF_PARAM_UNUSED(pQName);
 
   pHandler = axis2_handler_create(pEnv);
   if (!pHandler)
@@ -222,11 +231,14 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_shutdown(axis2_module_t* pModule,
 axis2_status_t AXIS2_CALL StaffSecurityModule_fill_handler_create_func_map(axis2_module_t* pModule, 
                                                                              const axutil_env_t* pEnv)
 {
+  /* avoiding the warning "ISO C forbids conversion of function pointer to object pointer type" */
+  axis2_handler_t* (*const pFunction)(const axutil_env_t*, axutil_qname_t*) = StaffSecurity_create;
+
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   pModule->handler_create_func_map = axutil_hash_make(pEnv);
-  axutil_hash_set(pModule->handler_create_func_map, "StaffSecurity", 
-    (axis2_ssize_t)AXIS2_HASH_KEY_STRING, StaffSecurity_create);
+  axutil_hash_set(pModule->handler_create_func_map, "StaffSecurity",
+    (axis2_ssize_t)AXIS2_HASH_KEY_STRING, *(const void**)&pFunction);
 
   return AXIS2_SUCCESS;
 }

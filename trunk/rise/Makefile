@@ -47,7 +47,6 @@ DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise/
 endif
 DEPLOYLIBDIR = $(DEPLOYDIR)usr/lib/
 
-CXXFLAGS += -D_REENTRANT -Wall -Wno-deprecated -fexceptions
 ifneq ($(OS),MINGW)
   CXXFLAGS += -fPIC -rdynamic
 endif

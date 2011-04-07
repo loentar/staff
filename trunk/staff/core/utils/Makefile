@@ -3,13 +3,11 @@ include ../../Makefile.env
 TARGET = utils
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_UTILS_DLL_EXPORTS=1
 endif
-LDFLAGS += -fexceptions
 LDFLAGS += -lrise
-
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

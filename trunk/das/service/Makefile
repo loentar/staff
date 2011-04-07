@@ -4,8 +4,7 @@ COMPONENT = staff.das
 TARGET = service
 TARGETNAME = $(LIBPREFIX)staffdas$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions
+CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread -lstaffdascommon
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 

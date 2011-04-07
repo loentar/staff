@@ -34,7 +34,7 @@
 #include <staff/codegen/tools.h>
 #include "ProtobufParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CProtobufParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CProtobufParser)
 
 namespace staff
 {

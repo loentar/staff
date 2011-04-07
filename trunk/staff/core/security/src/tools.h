@@ -40,4 +40,4 @@ extern "C"
 }
 #endif
 
-#endif // _TOOLS_H_
+#endif /* _TOOLS_H_ */

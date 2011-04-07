@@ -46,4 +46,4 @@
   #endif
 #endif
 
-#endif // _STAFFSECURITYEXPORT_H_
+#endif /* _STAFFSECURITYEXPORT_H_ */

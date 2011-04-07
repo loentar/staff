@@ -3,7 +3,7 @@
 // Service Implementation
 
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <staff/common/Runtime.h>

@@ -3,11 +3,10 @@ include ../Makefile.env
 TARGET = dascommon
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
+CXXFLAGS += -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_DAS_COMMON_DLL_EXPORTS
 endif
-LDFLAGS += -fexceptions
 LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 

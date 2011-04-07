@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <strstream>
+#include <sstream>
 #include <rise/string/String.h>
 #include "XMLException.h"
 #include "XMLFileStream.h"
@@ -49,7 +49,7 @@ namespace rise
           return sMetaChar_ == sMetaChar;
         }
 
-        operator const TChar() const
+        operator TChar() const
         {
           return chChar;
         }

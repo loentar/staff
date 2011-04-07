@@ -15,7 +15,7 @@ OUTDIR = out/$(PLATFORM)/
 
 DEPLOYDIR = ../../deploy/$(PLATFORM)
 
-CXXFLAGS += -DRISE_TEST -D_REENTRANT -Wall -rdynamic -Wno-deprecated -fexceptions -fPIC -I$(DEPLOYDIR)/usr/include
+CXXFLAGS += -DRISE_TEST -rdynamic -I$(DEPLOYDIR)/usr/include
 LIBS = -L$(DEPLOYDIR)/usr/lib/ -lpthread -lstdc++ -lrise
 
 ifndef ("$(DEBUG)","")

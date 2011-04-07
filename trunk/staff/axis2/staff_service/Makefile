@@ -7,9 +7,8 @@ INSTALLLIBDIR = $(AXIS2C_HOME)/services/staff/
 
 DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/services/staff/
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -laxutil -laxis2_engine
+CXXFLAGS += -c -I$(DEPLOYDIR)include
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
 else

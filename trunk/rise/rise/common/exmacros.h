@@ -103,6 +103,8 @@
 
 //    exception catching
 
+#define RISE_EMPTY
+
 //! catch all exception, make description and some action
 #define RISE_CATCH_ALL_DESCR_ACTION(RISE_DESCRIPTION, RISE_ACTION) \
   catch (const rise::CException& rException) \
@@ -129,10 +131,10 @@
 
 //! catch all exceptions
 #define RISE_CATCH_ALL \
-  RISE_CATCH_ALL_DESCR_ACTION("",)
+  RISE_CATCH_ALL_DESCR_ACTION("",RISE_EMPTY)
 
 //! catch all exceptions and give description
 #define RISE_CATCH_ALL_DESCR(RISE_DESCRIPTION) \
-  RISE_CATCH_ALL_DESCR_ACTION(RISE_DESCRIPTION,)
+  RISE_CATCH_ALL_DESCR_ACTION(RISE_DESCRIPTION,RISE_EMPTY)
 
 #endif // _EXMACROS_H_

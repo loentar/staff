@@ -235,67 +235,67 @@ namespace staff
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const float() const;
+    operator float() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const double() const;
+    operator double() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const byte() const;
+    operator byte() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const int() const;
+    operator int() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const short() const;
+    operator short() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const long() const;
+    operator long() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const long long() const;
+    operator long long() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const unsignedByte() const;
+    operator unsignedByte() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const unsigned int() const;
+    operator unsigned int() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const unsigned short() const;
+    operator unsigned short() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const unsigned long() const;
+    operator unsigned long() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const unsigned long long() const;
+    operator unsigned long long() const;
 
     //!         const value cast operator
     /*! \return casted const value
         */
-    operator const bool() const;
+    operator bool() const;
 
 
     //!         value cast operator
@@ -381,7 +381,7 @@ namespace staff
     //!         get stored value type
     /*! \return stored value type
         */
-    const EType GetType() const;
+    EType GetType() const;
 
     //!         is stored type number
     /*! \return true - stored type is number
