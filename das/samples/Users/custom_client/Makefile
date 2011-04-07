@@ -5,9 +5,8 @@ TARGETNAME = $(TARGET)
 
 HEADERS := $(filter-out %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffclient -lrise
+CXXFLAGS += -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffcommon -lstaffclient -lrise
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

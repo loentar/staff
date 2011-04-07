@@ -3,8 +3,8 @@ include ../../Makefile.env
 TARGET = codegen
 TARGETNAME = staff_$(TARGET)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
+CXXFLAGS += -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
 LDFLAGS += -lrise -lstaffcodegenparser
 
 VPATH = $(SRCDIR)

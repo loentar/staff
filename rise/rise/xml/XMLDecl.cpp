@@ -20,7 +20,7 @@
  */
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/xml/XMLAttribute.h>

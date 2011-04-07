@@ -47,7 +47,7 @@ axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_e
   AXIS2_UTILS_CHECK(pEnv);
   AXIS2_UTILS_CHECK(pszServiceOperationPath);
 
-  // HTTP-request header
+  /* HTTP-request header */
   pEndPoint = axis2_msg_ctx_get_to(pMsgCtx, pEnv);
   if (pEndPoint != NULL)
   {
@@ -91,8 +91,8 @@ axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_e
 
   if (szServiceName == NULL)
   {
-    // target namespace does not contain "axis2/services"
-    // trying to guess service name
+    /* target namespace does not contain "axis2/services"
+       trying to guess service name */
     szServiceName = strrchr(szServiceUri, '/');
     if (szServiceName == NULL)
     {
@@ -109,7 +109,7 @@ axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_e
     const char* szServiceNameEnd = NULL;
     szServiceName += 16;
 
-    // cut off REST request params from service name
+    /* cut off REST request params from service name */
     szServiceNameEnd = strchr(szServiceName, '/');
     if (szServiceNameEnd)
     {
@@ -191,9 +191,9 @@ void GetSessionAndInstanceId( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv
             }
           }
         }
-      } // for (axutil_hash_index_t* pSoapHeadersHashIndex =...
-    } // if(pHeaderHash != NULL)
-  } // if(pSoapHeader != NULL)
+      } /* for (axutil_hash_index_t* pSoapHeadersHashIndex =... */
+    } /* if(pHeaderHash != NULL) */
+  } /* if(pSoapHeader != NULL) */
 }
 
 const char* GetBaseFile( const char* szFilePath )

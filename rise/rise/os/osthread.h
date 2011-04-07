@@ -183,7 +183,7 @@ namespace rise
   */
   long long osQueryPerfomance();
 
-}; //namespace rise  
+} //namespace rise
   
 #endif  // _OSTHREAD_H_
 

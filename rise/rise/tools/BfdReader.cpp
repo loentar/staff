@@ -75,10 +75,13 @@ namespace rise
     t_bfd_map_over_sections p_bfd_map_over_sections = NULL;
 
 #define RISE_LOAD_SYM(RISE_LOCAL_SYM)\
-        p_##RISE_LOCAL_SYM = (t_##RISE_LOCAL_SYM)dlsym(m_hBfdLib, #RISE_LOCAL_SYM);\
+      {\
+        /* avoiding the warning "ISO C++ forbids casting between pointer-to-function and pointer-to-object" */ \
+        void* pSymbol = dlsym(m_hBfdLib, #RISE_LOCAL_SYM);\
+        p_##RISE_LOCAL_SYM = *reinterpret_cast<t_##RISE_LOCAL_SYM*>(&pSymbol);\
         if (p_##RISE_LOCAL_SYM == NULL)  \
-          LogError() << "can't load symbol: "  #RISE_LOCAL_SYM  ": " << dlerror();
-
+          LogError() << "can't load symbol: "  #RISE_LOCAL_SYM  ": " << dlerror();\
+      }
 
     class CBfdLoader
     {

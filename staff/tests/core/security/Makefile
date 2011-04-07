@@ -4,7 +4,7 @@ TARGET = core_security
 TARGETNAME = staff_test_$(TARGET)
 
 # == 
-CXXFLAGS += -c -Wall -D_REENTRANT -I$(DEPLOYDIR)$(INCDIR)
+CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
 LDFLAGS += -lpthread -lstaffcommon -lstaffsecurity -lrise -L$(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

@@ -4,8 +4,8 @@ COMPONENT = staff.das/providers/staff.das.Sqlite
 TARGET = sqlite
 TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
+CXXFLAGS += -I$(DEPLOYDIR)include
+LDFLAGS += -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

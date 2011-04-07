@@ -4,9 +4,8 @@ COMPONENT = staff.wsdl
 TARGET = wsdl
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include
-LDFLAGS += -fexceptions -I$(DEPLOYDIR)lib
-LDFLAGS += -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread
+CXXFLAGS += -I$(DEPLOYDIR)include
+LDFLAGS += -I$(DEPLOYDIR)lib -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))

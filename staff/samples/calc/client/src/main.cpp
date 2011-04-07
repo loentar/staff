@@ -34,7 +34,7 @@
 #include <staff/client/ServiceFactory.h>
 #include "CalcService.h"
 
-int main(int nArgs, const char* paszArgs[])
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {

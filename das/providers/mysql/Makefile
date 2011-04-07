@@ -6,8 +6,8 @@ COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql
 TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I/usr/include/mysql
-LDFLAGS += -fexceptions -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
+CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/mysql
+LDFLAGS += -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

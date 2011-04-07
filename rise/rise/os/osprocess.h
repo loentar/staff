@@ -113,7 +113,7 @@ namespace rise
       \return 0 - ok,  1 - process is not found,  2 - access denied
   */
   int osTerminateProcess(HProcess hProcess);
-};
+}
 
 
 #endif  // _OSPROCESS_H_

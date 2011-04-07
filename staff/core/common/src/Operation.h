@@ -156,7 +156,7 @@ namespace staff
     //!         get result value
     /*! \return value
     */
-    const CValue ResultValue() const;
+    CValue ResultValue() const;
 
     //!         set result
     /*! \param  rDataObject - DataObject with results

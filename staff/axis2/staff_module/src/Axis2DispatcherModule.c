@@ -29,6 +29,8 @@
 #include <axis2_conf_ctx.h>
 #include <axis2_disp.h>
 
+#define STAFF_PARAM_UNUSED(param) (void)param
+
 /* forward decl */
 axis2_status_t AXIS2_CALL Axis2DispatcherModule_shutdown(axis2_module_t *module, const axutil_env_t *env);
 
@@ -59,6 +61,10 @@ axis2_module_t* Axis2DispatcherModule_create(const axutil_env_t* pEnv)
 axis2_status_t AXIS2_CALL Axis2DispatcherModule_init(axis2_module_t* pModule, const axutil_env_t* pEnv,
                                                      axis2_conf_ctx_t* pConfCtx, axis2_module_desc_t* pModuleDesc)
 {
+  STAFF_PARAM_UNUSED(pModule);
+  STAFF_PARAM_UNUSED(pEnv);
+  STAFF_PARAM_UNUSED(pConfCtx);
+  STAFF_PARAM_UNUSED(pModuleDesc);
   return AXIS2_SUCCESS;
 }
 
@@ -82,11 +88,14 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_shutdown(axis2_module_t* pModule
 axis2_status_t AXIS2_CALL Axis2DispatcherModule_fill_handler_create_func_map(axis2_module_t* pModule,
                                                                              const axutil_env_t* pEnv)
 {
+  /* avoiding the warning "ISO C forbids conversion of function pointer to object pointer type" */
+  axis2_handler_t* (*const pFunction)(const axutil_env_t*, axutil_qname_t*) = Axis2Dispatcher_create;
+
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   pModule->handler_create_func_map = axutil_hash_make(pEnv);
   axutil_hash_set(pModule->handler_create_func_map, "StaffDispatcher",
-      (axis2_ssize_t)AXIS2_HASH_KEY_STRING, (const void *)Axis2Dispatcher_create);
+      (axis2_ssize_t)AXIS2_HASH_KEY_STRING, *(const void **)&pFunction);
 
   return AXIS2_SUCCESS;
 }

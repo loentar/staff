@@ -54,6 +54,6 @@ namespace rise
     long long m_llLastMeasuredValue;  //!< last measured value
   };
 
-}; // namespace rise
+} // namespace rise
 
 #endif // _PERFORMANCECOUNTER_H_

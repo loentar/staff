@@ -168,6 +168,7 @@ namespace staff
 
   HexBinary& HexBinary::operator=(const ByteArray& rData)
   {
+    Encode(rData.GetData(), rData.GetSize(), m_sEncodedData);
     return *this;
   }
 

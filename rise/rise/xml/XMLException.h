@@ -84,7 +84,7 @@ namespace rise
         //!         get xml file line number
         /*! \return xml file line number
         */
-        virtual const int GetLineNo() const throw()
+        virtual int GetLineNo() const throw()
         {
           return m_uLineNo;
         }

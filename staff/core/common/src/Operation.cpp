@@ -142,7 +142,7 @@ namespace staff
     return Result().Value();
   }
 
-  const CValue COperation::ResultValue() const
+  CValue COperation::ResultValue() const
   {
     return Result().Value();
   }

@@ -4,9 +4,9 @@ COMPONENT = samples.rest
 TARGET = $(COMPONENT)
 TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/ -D_REENTRANT
+CXXFLAGS += -I$(STAFF_HOME)/include/
 LDFLAGS += -lpthread -lstaffcommon -lstaffcomponent -lrise
-LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+LDFLAGS += -L$(STAFF_HOME)/lib
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))

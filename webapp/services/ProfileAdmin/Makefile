@@ -4,14 +4,13 @@ COMPONENT = webapp.admin
 TARGET = ProfileAdmin
 TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -D_REENTRANT -Wall
 LDFLAGS += -Wl,-rpath,$(AXIS2C_LIBDIR)
 
 VPATH = $(SRCDIR)
 
 INSTALLDIR = $(STAFF_HOME)/components/
 
-CXXFLAGS += -Wno-deprecated -I$(STAFF_DEPLOY_HOME)/include/
+CXXFLAGS += -I$(STAFF_DEPLOY_HOME)/include/
 LDFLAGS += -L$(STAFF_DEPLOY_HOME)/lib
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread
 LDFLAGS += $(LDLIB)$(TARGETNAME)

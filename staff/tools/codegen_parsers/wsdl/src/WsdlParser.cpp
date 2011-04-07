@@ -29,7 +29,7 @@
 #include <staff/codegen/tools.h>
 #include "WsdlParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CWsdlParser);
+RISE_DECLARE_PLUGIN(staff::codegen::CWsdlParser)
 
 namespace staff
 {

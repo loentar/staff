@@ -35,6 +35,8 @@
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
 
+#define STAFF_PARAM_UNUSED(param) (void)param
+
 struct axis2_handler
 {
   axis2_handler_desc_t *handler_desc;
@@ -53,6 +55,8 @@ axis2_op_t* AXIS2_CALL Axis2Dispatcher_find_op(axis2_msg_ctx_t* pMsgCtx, const a
 AXIS2_EXPORT axis2_handler_t* AXIS2_CALL Axis2Dispatcher_create(const axutil_env_t* pEnv, axutil_qname_t* pqName)
 {
   axis2_handler_t* pHandler = NULL;
+
+  STAFF_PARAM_UNUSED(pqName);
 
   pHandler = axis2_handler_create(pEnv);
   if (!pHandler)
@@ -108,6 +112,7 @@ axis2_svc_t* AXIS2_CALL Axis2Dispatcher_find_svc(axis2_msg_ctx_t* pMsgCtx, const
 axis2_op_t* AXIS2_CALL Axis2Dispatcher_find_op(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
                                                axis2_svc_t* pSvc)
 {
+  STAFF_PARAM_UNUSED(pMsgCtx);
   AXIS2_ENV_CHECK(pEnv, NULL);
   if (pSvc == NULL)
   {
@@ -123,6 +128,7 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
   axis2_svc_t* pService = NULL;
   axis2_op_t* pOperation = NULL;
 
+  STAFF_PARAM_UNUSED(pHandler);
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
   if (!(axis2_msg_ctx_get_server_side(pMsgCtx, pEnv)))
@@ -148,7 +154,7 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
   else
   { /* is staff service ? */
     axutil_param_t* pParam = axis2_svc_get_param(pService, pEnv, "IsStaffVirtualService");
-    if (pParam != NULL) // Staff virtual service?
+    if (pParam != NULL) /* Staff virtual service? */
     {
       int* pbIsStaffVirtualService = (int*)axutil_param_get_value(pParam, pEnv);
       if (pbIsStaffVirtualService != NULL)

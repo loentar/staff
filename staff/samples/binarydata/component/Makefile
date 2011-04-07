@@ -4,9 +4,8 @@ COMPONENT = samples.binarydata
 TARGET = $(COMPONENT)
 TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include/ -D_REENTRANT
-LDFLAGS += -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
-LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
+CXXFLAGS += -I$(STAFF_HOME)/include/
+LDFLAGS += -L$(STAFF_HOME)/lib -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))

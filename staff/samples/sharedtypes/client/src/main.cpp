@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& rStream, ::samples::ticket::Ticket::Type 
   return rStream;
 }
 
-int main(int nArgs, const char* paszArgs[])
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {

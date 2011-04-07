@@ -3,11 +3,11 @@ include ../../Makefile.env
 TARGET = client
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 
-CXXFLAGS += -c -Wno-deprecated -fexceptions -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_CLIENT_DLL_EXPORTS=1
 endif
-LDFLAGS += -fexceptions -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
 LDFLAGS += -lstaffcommon -lrise -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
