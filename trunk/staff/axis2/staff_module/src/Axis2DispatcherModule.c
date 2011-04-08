@@ -89,7 +89,7 @@ axis2_status_t AXIS2_CALL Axis2DispatcherModule_fill_handler_create_func_map(axi
                                                                              const axutil_env_t* pEnv)
 {
   /* avoiding the warning "ISO C forbids conversion of function pointer to object pointer type" */
-  axis2_handler_t* (*const pFunction)(const axutil_env_t*, axutil_qname_t*) = Axis2Dispatcher_create;
+  axis2_handler_t* (AXIS2_CALL *const pFunction)(const axutil_env_t*, axutil_qname_t*) = Axis2Dispatcher_create;
 
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
