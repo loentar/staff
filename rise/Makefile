@@ -117,6 +117,7 @@ deploy_headers: "$(DEPLOYINCDIRVER)"
  cp -Rf $(SRCDIR)/* $(DEPLOYINCDIRVER);\
  chmod -R a+r $(DEPLOYINCDIRVER);\
  chmod -R u+w $(DEPLOYINCDIRVER);\
+ find $(DEPLOYINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
  find $(DEPLOYINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(DEPLOYINCDIRVER) -type d | xargs chmod a+x;
 ifneq ($(OS),MINGW)
@@ -141,6 +142,7 @@ install_headers: "$(USRINCDIRVER)"
 	@echo "installing headers to $(USRINCDIRVER)";\
  cp -Rf $(SRCDIR)/* $(USRINCDIRVER);\
  chmod -R a+r $(USRINCDIRVER);\
+ find $(USRINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
  find $(USRINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(USRINCDIRVER) -type d | xargs chmod a+x;
 ifneq ($(OS),MINGW)
