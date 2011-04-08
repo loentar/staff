@@ -29,23 +29,26 @@ namespace codegen
 
   std::string::size_type StrIntersect(const std::string& sString1, const std::string& sString2)
   {
-    std::string::size_type nPosA = sString1.size() - 1;
-    std::string::size_type nPosB = sString2.size() - 1;
-    std::string::size_type nPosA1 = nPosA;
-    std::string::size_type nPosB1 = nPosB;
-    const char* szStr1 = sString1.c_str();
-    const char* szStr2 = sString2.c_str();
-
-    for (; nPosB; --nPosB)
+    if (!sString1.empty() && !sString2.empty())
     {
-      if (szStr1[nPosA] == szStr2[nPosB])
+      std::string::size_type nPosA = sString1.size() - 1;
+      std::string::size_type nPosB = sString2.size() - 1;
+      std::string::size_type nPosA1 = nPosA;
+      std::string::size_type nPosB1 = nPosB;
+      const char* szStr1 = sString1.c_str();
+      const char* szStr2 = sString2.c_str();
+
+      for (; nPosB; --nPosB)
       {
-        nPosA1 = nPosA - 1;
-        nPosB1 = nPosB - 1;
-        for(; nPosA1 && nPosB1 && szStr1[nPosA1] == szStr2[nPosB1]; --nPosA1, --nPosB1);
-        if (!nPosB1)
+        if (szStr1[nPosA] == szStr2[nPosB])
         {
-          return nPosB + 1;
+          nPosA1 = nPosA - 1;
+          nPosB1 = nPosB - 1;
+          for(; nPosA1 && nPosB1 && szStr1[nPosA1] == szStr2[nPosB1]; --nPosA1, --nPosB1);
+          if (!nPosB1)
+          {
+            return nPosB + 1;
+          }
         }
       }
     }

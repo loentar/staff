@@ -497,6 +497,14 @@ namespace rise
         if (rStream.Test("/"))
           return rStream;
 
+        if (rStream.Test("?")) // skip xml parser instructions
+        {
+          rStream.ReadStringUntil(sTmp, "?>");
+          rStream.SkipWhitespace();
+          ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found",
+            rStream.GetFileName(), rStream.GetLine());
+        }
+        else
         if (rStream.Test("!"))  // special
         {
           if (rStream.Test("[CDATA["))
@@ -573,20 +581,36 @@ namespace rise
       ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found", 
         rStream.GetFileName(), rStream.GetLine());
 
-      while (rStream.Test("!")) // skip xml parser instructions
+      bool bFound = false;
+      do
       {
-        if(rStream.Test("--")) // comment
+        bFound = false;
+        while (rStream.Test("!")) // skip xml parser instructions
         {
-          rStream.ReadStringUntil(sTmp, "-->");
+          if(rStream.Test("--")) // comment
+          {
+            rStream.ReadStringUntil(sTmp, "-->");
+          }
+          else
+          {
+            rStream.ReadStringUntil(sTmp, "]>");
+          }
+          rStream.SkipWhitespace();
+          ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found",
+            rStream.GetFileName(), rStream.GetLine());
+          bFound = true;
         }
-        else
+
+        while (rStream.Test("?")) // skip xml parser instructions
         {
-          rStream.ReadStringUntil(sTmp, "]>");
+          rStream.ReadStringUntil(sTmp, "?>");
+          rStream.SkipWhitespace();
+          ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found",
+            rStream.GetFileName(), rStream.GetLine());
+          bFound = true;
         }
-        rStream.SkipWhitespace();
-        ASSERTXMLS(rStream.Test("<"), CXMLFormatException, "open tag not found",
-          rStream.GetFileName(), rStream.GetLine());
       }
+      while(bFound);
 
       rStream.ReadId(sTmp);
       rXMLNode.SetNodeNsName(sTmp);
