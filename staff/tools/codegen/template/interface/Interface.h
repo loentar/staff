@@ -187,7 +187,21 @@ $($sNewOpeningNs)
 #foreach $(Member.Options)
     // *$($ThisNodeName): $($ThisNodeValue)
 #end
+#ifneq($($nonblocking),)
+    virtual void $(Member.Name)($(Member.Params)\
+#ifneq($(Member.Params.$Count),0)
+, \
+#ifeqend
+staff::ICallback< \
+#ifeq($(Member.Return.Type),struct||typedef||template||string)
+const $(Member.Return.UsedName)&\
+#else
+$(Member.Return.UsedName)\
+#ifeqend
+ >& rCallback)$(Member.Const) = 0;
+#else
     virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const) = 0;
+#ifeqend
 #end
   };
 \

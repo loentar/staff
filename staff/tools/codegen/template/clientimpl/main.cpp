@@ -41,7 +41,11 @@
 class $(Class.Name)$(Member.Name)Callback: public staff::ICallback< $(Param.DataType.TemplateParams.TemplateParam1) >
 {
 public:
-  virtual void OnComplete($(Param.DataType.TemplateParams.TemplateParam1) tResult)
+  virtual void OnComplete(\
+#ifneq($(Param.DataType.TemplateParams.TemplateParam1),void)
+$(Param.DataType.TemplateParams.TemplateParam1) tResult\
+#ifeqend
+)
   {
     // process result here
     // rise::LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
