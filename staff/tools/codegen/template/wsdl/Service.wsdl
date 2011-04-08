@@ -32,7 +32,7 @@
 
       <!-- imports -->
 #foreach $(Interface.Includes)
-      <import namespace="$(Include.TargetNamespace||Include.NsName.!prepend/http:\/\/tempui.org\//)" schemaLocation="$(Include.NsName).xsd" />
+      <import namespace="$(Include.TargetNamespace||Include.NsName.!prepend/http:\/\/tempui.org\//)" schemaLocation="$(Include.NsName.!dot).xsd" />
 #end
 #ifeqend
 \

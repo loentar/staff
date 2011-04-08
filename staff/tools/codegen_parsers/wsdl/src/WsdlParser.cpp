@@ -391,10 +391,6 @@ namespace codegen
         bIsRef = true;
         FromType(rNodeAttr, itAttr->sAttrValue.AsString());
       }
-      else
-      {
-        rise::LogError() << "Unknown attr type: " << sName;
-      }
     }
 
     return *this;
@@ -1284,45 +1280,52 @@ namespace codegen
       }
     }
 
-    void ParseService(SClass& rClass, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
+    bool ParseService(SClass& rClass, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
     {
-      const rise::xml::CXMLNode& rService = rDefs.Subnode("service");
-      rClass.sName = rService.Attribute("name").AsString();
-
-      rise::xml::CXMLNode::TXMLNodeConstIterator itNodePort = rService.FindSubnode("port");
-      if (itNodePort != rService.NodeEnd())
+      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeService = rDefs.FindSubnode("service");
+      if (itNodeService != rDefs.NodeEnd())
       {
-        rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAddress = itNodePort->FindSubnode("address");
-        if (itNodeAddress != itNodePort->NodeEnd())
-        {
-          rClass.mOptions["serviceUri"] = itNodeAddress->Attribute("location").AsString();
-        }
-      }
+        const rise::xml::CXMLNode& rService = *itNodeService;
+        rClass.sName = rService.Attribute("name").AsString();
 
-      const rise::xml::CXMLNode& rPortType = rDefs.Subnode("portType");
-      const std::string& sPortTypeName = rPortType.Attribute("name").AsString();
-
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOp = rPortType.NodeBegin();
-        itNodeOp != rPortType.NodeEnd(); ++itNodeOp)
-      {
-        if (itNodeOp->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
-          itNodeOp->NodeName() == "operation")
+        rise::xml::CXMLNode::TXMLNodeConstIterator itNodePort = rService.FindSubnode("port");
+        if (itNodePort != rService.NodeEnd())
         {
-          SMember tOperationMember;
-          ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
-          std::string sSoapAction;
-          ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, sSoapAction);
-          if (!sSoapAction.empty())
+          rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAddress = itNodePort->FindSubnode("address");
+          if (itNodeAddress != itNodePort->NodeEnd())
           {
-            tOperationMember.mOptions["soapAction"] = sSoapAction;
+            rClass.mOptions["serviceUri"] = itNodeAddress->Attribute("location").AsString();
           }
-          rClass.lsMembers.push_back(tOperationMember);
         }
+
+        const rise::xml::CXMLNode& rPortType = rDefs.Subnode("portType");
+        const std::string& sPortTypeName = rPortType.Attribute("name").AsString();
+
+        for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOp = rPortType.NodeBegin();
+          itNodeOp != rPortType.NodeEnd(); ++itNodeOp)
+        {
+          if (itNodeOp->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+            itNodeOp->NodeName() == "operation")
+          {
+            SMember tOperationMember;
+            ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
+            std::string sSoapAction;
+            ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, sSoapAction);
+            if (!sSoapAction.empty())
+            {
+              tOperationMember.mOptions["soapAction"] = sSoapAction;
+            }
+            rClass.lsMembers.push_back(tOperationMember);
+          }
+        }
+
+        ReadDoc(rService, rClass.sDescr, rClass.sDetail);
+
+        rClass.sNamespace = TnsToCppNs(GetTns(rDefs));
+        return true;
       }
 
-      ReadDoc(rService, rClass.sDescr, rClass.sDetail);
-
-      rClass.sNamespace = TnsToCppNs(GetTns(rDefs));
+      return false;
     }
 
 //    void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)
@@ -1390,9 +1393,11 @@ namespace codegen
       {
         SClass tServiceClass;
 
-        ParseService(tServiceClass, rRootNode, m_stWsdlTypes);
-        tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
-        m_stInterface.lsClasses.push_back(tServiceClass);
+        if (ParseService(tServiceClass, rRootNode, m_stWsdlTypes))
+        {
+          tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
+          m_stInterface.lsClasses.push_back(tServiceClass);
+        }
       }
     }
 
@@ -1413,9 +1418,6 @@ namespace codegen
           return *itInterface; // already parsed
         }
       }
-
-      rProject.lsInterfaces.push_back(m_stInterface);
-      SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
 
       // parse new interface
       {
@@ -1453,6 +1455,9 @@ namespace codegen
             break;
           }
         }
+
+        rProject.lsInterfaces.push_back(m_stInterface);
+        SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
 
         ParseInterface(rDefs, rProject);
 
@@ -2479,6 +2484,13 @@ namespace codegen
         SElement& rElement = mElements[sImportNsPrefix + ":" + itElement->second.sName];
         rElement = itElement->second;
         ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
+      }
+
+      // import extern attributes
+      const TAttributeMap& rmImpAttrs = tWsdlParser.GetWsdlTypes().mAttributes;
+      for (TAttributeMap::const_iterator itAttr = rmImpAttrs.begin(); itAttr != rmImpAttrs.end(); ++itAttr)
+      {
+        mAttributes[sImportNsPrefix + ":" + itAttr->second.sName] = itAttr->second;
       }
 
       ImportEnums(rNewInterface.lsEnums, rInterface.lsEnums);

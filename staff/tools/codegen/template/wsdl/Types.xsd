@@ -5,14 +5,14 @@
 #ifneq($($tns),)
 #var TargetNamespace $($tns)
 #else
-#var TargetNamespace http://tempui.org/$(Interface.NsName)
+#var TargetNamespace http://tempui.org/$(Interface.NsName.!dot)
 #ifeqend
-#var TnsPrefix tns_$(Interface.Namespace.!mangledot)
+#var TnsPrefix tns_$(Interface.Namespace.!mangle)
 
 <schema
     xmlns="http://www.w3.org/2001/XMLSchema"
 #foreach $(Interface.Includes)
-    xmlns:tns_$(Include.NsName.!mangledot.!trim/_/)="http://tempui.org/$(Include.NsName)"
+    xmlns:tns_$(Include.NsName.!mangle)="http://tempui.org/$(Include.NsName.!dot)"
 #end
     targetNamespace="$($TargetNamespace)"
     xmlns:$($TnsPrefix)="$($TargetNamespace)"
@@ -25,9 +25,9 @@
 #ifneq($(Include.TargetNamespace),)
 $(Include.TargetNamespace)\
 #else
-http://tempui.org/$(Include.NsName)\
+http://tempui.org/$(Include.NsName.!dot)\
 #ifeqend
-" schemaLocation="$(Include.NsName).xsd" />
+" schemaLocation="$(Include.NsName.!dot).xsd" />
 #end
 #ifeqend
 #cginclude "WsdlTypes.xsd"
