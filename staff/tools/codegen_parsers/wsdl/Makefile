@@ -4,7 +4,7 @@ TARGET = wsdl
 TARGETNAME = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lrise -lstaffcodegenparser
+LDFLAGS += -lrise -lstaffcodegenparser -laxis2_http_receiver -laxis2_http_common -laxis2_http_sender
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

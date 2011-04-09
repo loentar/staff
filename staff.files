@@ -344,6 +344,8 @@ staff/tools/codegenparser/src/Interface.h
 staff/tools/codegenparser/src/staffcodegenparserexport.h
 staff/tools/codegenparser/src/tools.cpp
 staff/tools/codegenparser/src/tools.h
+staff/tools/codegen_parsers/wsdl/src/HttpClient.cpp
+staff/tools/codegen_parsers/wsdl/src/HttpClient.h
 staff/tools/codegen_parsers/wsdl/src/WsdlParser.cpp
 staff/tools/codegen_parsers/wsdl/src/WsdlParser.h
 staff/tools/codegen/src/CodeGen.cpp
