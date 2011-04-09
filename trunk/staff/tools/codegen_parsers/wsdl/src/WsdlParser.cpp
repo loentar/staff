@@ -27,6 +27,7 @@
 #include <rise/xml/XMLNamespace.h>
 #include <rise/plugin/PluginExport.h>
 #include <staff/codegen/tools.h>
+#include "HttpClient.h"
 #include "WsdlParser.h"
 
 RISE_DECLARE_PLUGIN(staff::codegen::CWsdlParser)
@@ -1401,13 +1402,14 @@ namespace codegen
       }
     }
 
-    SInterface& ParseFile( const std::string& sFileName, SProject& rProject )
+    SInterface& Parse( const std::string& sFileUri, SProject& rProject )
     {
-      std::string::size_type nPos = sFileName.find_last_of("/\\");
+      std::string::size_type nPos = sFileUri.find_last_of("/\\");
+      bool bRemote = sFileUri.find("://") != std::string::npos;
       const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
-                                              sFileName.substr(nPos + 1) : sFileName;
-      const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
-                                              sFileName.substr(0, nPos + 1) : "";
+                                              sFileUri.substr(nPos + 1) : sFileUri;
+      const std::string& sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
+                                              sFileUri.substr(0, nPos + 1) : "";
 
       for (std::list<SInterface>::iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
@@ -1423,7 +1425,22 @@ namespace codegen
       {
         rise::xml::CXMLDocument tWsdlDoc;
         rise::xml::CXMLNode& rDefs = tWsdlDoc.GetRoot();
-        tWsdlDoc.LoadFromFile(sFileName);
+
+        if (bRemote)
+        {
+          std::string sFileData;
+          rise::LogDebug() << "Downloading the " << sFileUri;
+          if (!HttpClient::Get(sFileUri, sFileData))
+          {
+            rise::LogError() << "Can't download file " << sFileUri;
+          }
+          std::istringstream issData(sFileData);
+          tWsdlDoc.LoadFromStream(issData);
+        }
+        else
+        {
+          tWsdlDoc.LoadFromFile(sFileUri);
+        }
 
         m_stInterface.sTargetNs = rDefs.Attribute("targetNamespace").AsString();
 
@@ -1464,7 +1481,7 @@ namespace codegen
         rProjectThisInterface = m_stInterface;
 
         // put namespaces into cache
-        NamespacesCache::mCache[sFileName] = rDefs.GetNsList();
+        NamespacesCache::mCache[sFileUri] = rDefs.GetNsList();
       }
 
       return m_stInterface;
@@ -2401,11 +2418,11 @@ namespace codegen
   void SWsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, SProject& rProject, SInterface& rInterface)
   {
     const std::string& sImportNs = rNodeImport.Attribute("namespace");
-    std::string sShemaLocation;
+    std::string sSchemaLocation;
     rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = rNodeImport.FindAttribute("location");
     if (itLocation != rNodeImport.AttrEnd())
     {
-      sShemaLocation = itLocation->sAttrValue.AsString();
+      sSchemaLocation = itLocation->sAttrValue.AsString();
     }
     else
     {
@@ -2416,7 +2433,7 @@ namespace codegen
         m_setNsAliases.insert(sImportNs);
         return;
       }
-      sShemaLocation = itLocation->sAttrValue.AsString();
+      sSchemaLocation = itLocation->sAttrValue.AsString();
     }
 
     RISE_ASSERTP(m_pParser);
@@ -2449,18 +2466,18 @@ namespace codegen
 
         try
         {
-          tWsdlDoc.LoadFromFile(sShemaLocation);
+          tWsdlDoc.LoadFromFile(sSchemaLocation);
         }
         catch(rise::CException&)
         { // retry with include option
-          tWsdlDoc.LoadFromFile(m_pParser->GetParseSettings().sInDir + '/' + sShemaLocation);
+          tWsdlDoc.LoadFromFile(m_pParser->GetParseSettings().sInDir + '/' + sSchemaLocation);
         }
 
         m_pParser->ParseInterface(rDefs, rProject);
       }
       catch (rise::CException& rException)
       {
-        rise::LogWarning() << "Cannot import xsd schema \"" << sShemaLocation
+        rise::LogWarning() << "Cannot import xsd schema \"" << sSchemaLocation
             << "\": " << rException.GetDescr() << ". Service's interface may be incomplete.";
       }*/
     }
@@ -2468,13 +2485,13 @@ namespace codegen
     std::string sImportNsPrefix;
     GetNsPrefix(rNodeImport, sImportNs, sImportNsPrefix);
 
-    rise::LogDebug2() << "Importing: " << sShemaLocation << " into namespace: " << sImportNs;
+    rise::LogDebug2() << "Importing: " << sSchemaLocation << " into namespace: " << sImportNs;
 
     CWsdlParserImpl tWsdlParser(m_pParser->GetParseSettings());
     try
     {
-      SInterface& rNewInterface = tWsdlParser.ParseFile(m_pParser->GetParseSettings().sInDir
-                                                        + sShemaLocation, rProject);
+      SInterface& rNewInterface = tWsdlParser.Parse(m_pParser->GetParseSettings().sInDir
+                                                        + sSchemaLocation, rProject);
 
       // import operations
       const SWsdlTypes& rImportedWsdlTypes = tWsdlParser.GetWsdlTypes();
@@ -2529,7 +2546,7 @@ namespace codegen
       }
       RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node");
 
-      const rise::xml::CXMLNode::TXMLNsList& lsImportedNamespaces = NamespacesCache::mCache[sShemaLocation];
+      const rise::xml::CXMLNode::TXMLNsList& lsImportedNamespaces = NamespacesCache::mCache[sSchemaLocation];
       rise::xml::CXMLNode::TXMLNsList& lsNamespaces = pNodeDefinitions->GetNsList();
       for (rise::xml::CXMLNode::TXMLNsList::const_iterator itImpNs = lsImportedNamespaces.begin();
           itImpNs != lsImportedNamespaces.end(); ++itImpNs)
@@ -2551,11 +2568,11 @@ namespace codegen
         }
       }
 
-      rise::LogDebug2() << "Importing: " << sShemaLocation << " is complete";
+      rise::LogDebug2() << "Importing: " << sSchemaLocation << " is complete";
     }
     catch (rise::CException& rException)
     {
-      rise::LogWarning() << "Cannot import xsd schema \"" << sShemaLocation
+      rise::LogWarning() << "Cannot import xsd schema \"" << sSchemaLocation
           << "\": " << rException.GetDescr() << ". Service's interface may be incomplete.";
     }
   }
@@ -2595,7 +2612,7 @@ namespace codegen
 
       rise::LogDebug() << "Processing wsdl: " << *itFileName;
 
-      tWsdlParser.ParseFile(sFileName, rProject);
+      tWsdlParser.Parse(sFileName, rProject);
     }
   }
 
