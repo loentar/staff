@@ -12,9 +12,13 @@ While compiling, starting Axis2/C or any client/service application, these envir
 {{{
 export AXIS2C_HOME=/usr/local/axis2c
 export STAFF_HOME=/usr/local/staff
+export PATH=$PATH:/usr/local/staff/bin
 }}}
 
-Append these lines into ~/.bashrc file, and then relogin.
+Append these lines into ~/.profile file, and then relogin or execute:
+{{{
+. ~/.profile
+}}}
 
 == 1. Compile and install dependencies ==
 

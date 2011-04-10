@@ -4,7 +4,7 @@
 <wiki:toc max_depth="3" />
 
 == Зависимости ==
-Должны быть установлены и скофигурированы следующие зависимости:
+Должны быть установлены и сконфигурированы следующие зависимости:
   * Axis2/C;
   * WSF Staff;
   * Qt Creator;
@@ -17,9 +17,12 @@
 
 == Генерация cpp кода из wsdl ==
 
-Перейдите на сайт webservicex.net и загрузите файл wsdl схемы http://www.webservicex.net/stockquote.asmx?WSDL в каталог qt-soap-stockquote/src;
 
-Выполните генерацию интерфейса, прокси и шаблона реализации клиента из wsdl файла stockquote.asmx.
+Выполните генерацию интерфейса клиента из wsdl файла stockquote.asmx.
+
+Wsdl файл может быть загружен как из локального файла либо
+
+Перейдите на сайт webservicex.net и загрузите файл wsdl схемы http://www.webservicex.net/stockquote.asmx?WSDL в каталог qt-soap-stockquote/src.
 
 Войдите в каталог qt-soap-stockquote/src и запустите генератор кода:
 {{{
@@ -27,8 +30,14 @@
 staff_codegen stockquote.asmx -pwsdl -tinterface
 # если необходимо создать неблокирующую (асинхронную) версию
 #staff_codegen stockquote.asmx -pwsdl -tinterface -dnonblocking
-staff_codegen stockquote.asmx -pwsdl -tclient
-staff_codegen stockquote.asmx -pwsdl -tclientimpl
+}}}
+
+  _Замечание: wsdl модуль ревизии r448 и выше позволяет загружать wsdl и xsd-схемы по http. Для использования этой возможности вводите url вместо имени файла._
+
+Выполните генерацию прокси и шаблона реализации клиента:
+{{{
+staff_codegen stockquote.h -tclient
+staff_codegen stockquote.h -tclientimpl
 }}}
 
 Будут сгенерированы следующие файлы:

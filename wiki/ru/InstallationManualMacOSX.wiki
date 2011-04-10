@@ -16,7 +16,7 @@ export PATH=$PATH:$STAFF_HOME/bin
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$AXIS2C_HOME/lib:$STAFF_HOME/lib
 }}}
 
-Добавьте эти строки в файл ~/.profile после чего произведите повторный вход в систему либо выполните:
+Добавьте эти строки в файл ~/.profile, после чего либо произведите повторный вход в систему, либо выполните:
 {{{
 . ~/.profile
 }}}
