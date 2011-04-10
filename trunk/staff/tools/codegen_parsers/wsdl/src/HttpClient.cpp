@@ -50,9 +50,32 @@ namespace codegen
     char* szBody = NULL;
     axis2_ssize_t nBodySize = 0;
 
+    // axutil_url_parse_string strips get parameters
+    std::string sPath;
+    std::string::size_type nPos = sUrl.find("://");
+    RISE_ASSERTS(nPos != std::string::npos, "invalid url: [" + sUrl + "]");
+    if (sUrl.substr(0, nPos) != "file")
+    { // skip host and port
+      nPos = sUrl.find('/', nPos + 3);
+    }
+    else
+    { // skip protocol only
+      nPos += 2;
+    }
+
+    if (nPos == std::string::npos)
+    {
+      sPath = '/';
+    }
+    else
+    {
+      sPath = sUrl.substr(nPos);
+    }
+
     pUrl = axutil_url_parse_string(pEnv, sUrl.c_str());
-    pRequestLine = axis2_http_request_line_create(pEnv, "GET", axutil_url_get_path(pUrl, pEnv), "HTTP/1.0");
+    pRequestLine = axis2_http_request_line_create(pEnv, "GET", sPath.c_str(), "HTTP/1.0");
     pRequest = axis2_http_simple_request_create(pEnv, pRequestLine, NULL, 0, NULL);
+
     pHeader = axis2_http_header_create(pEnv, "Host", axutil_url_get_host(pUrl, pEnv));
     axis2_http_simple_request_add_header(pRequest, pEnv, pHeader);
 
