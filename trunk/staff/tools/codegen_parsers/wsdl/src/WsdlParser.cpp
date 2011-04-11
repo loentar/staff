@@ -1281,13 +1281,18 @@ namespace codegen
       }
     }
 
-    bool ParseService(SClass& rClass, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes)
+    void ParseService(SInterface& rInterface, const rise::xml::CXMLNode& rDefs, const SWsdlTypes& rWsdlTypes,
+                      const std::string& sTargetNamespace)
     {
-      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeService = rDefs.FindSubnode("service");
-      if (itNodeService != rDefs.NodeEnd())
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeService = rDefs.FindSubnode("service");
+            itNodeService != rDefs.NodeEnd(); itNodeService = rDefs.FindSubnode("service", ++itNodeService))
       {
+        rInterface.lsClasses.push_back(SClass());
+        SClass& rClass = rInterface.lsClasses.back();
         const rise::xml::CXMLNode& rService = *itNodeService;
         rClass.sName = rService.Attribute("name").AsString();
+        rClass.mOptions["targetNamespace"] = sTargetNamespace;
+
 
         rise::xml::CXMLNode::TXMLNodeConstIterator itNodePort = rService.FindSubnode("port");
         if (itNodePort != rService.NodeEnd())
@@ -1297,36 +1302,46 @@ namespace codegen
           {
             rClass.mOptions["serviceUri"] = itNodeAddress->Attribute("location").AsString();
           }
-        }
 
-        const rise::xml::CXMLNode& rPortType = rDefs.Subnode("portType");
-        const std::string& sPortTypeName = rPortType.Attribute("name").AsString();
+          const std::string& sBindingName = StripPrefix(itNodePort->Attribute("binding").AsString());
 
-        for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOp = rPortType.NodeBegin();
-          itNodeOp != rPortType.NodeEnd(); ++itNodeOp)
-        {
-          if (itNodeOp->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
-            itNodeOp->NodeName() == "operation")
+          rise::xml::CXMLNode::TXMLNodeConstIterator itBinding =
+              rDefs.FindNodeMatch("binding", rise::xml::SXMLAttribute("name", sBindingName));
+          RISE_ASSERTS(itBinding != rDefs.NodeEnd(), "Can't find service binding: " + sBindingName);
+
+          const std::string& sPortTypeName = StripPrefix(itBinding->Attribute("type").AsString());
+
+          rise::xml::CXMLNode::TXMLNodeConstIterator itPortType =
+              rDefs.FindNodeMatch("portType", rise::xml::SXMLAttribute("name", sPortTypeName));
+
+          RISE_ASSERTS(itPortType != rDefs.NodeEnd(), "Can't find portType: " + sPortTypeName);
+
+          const rise::xml::CXMLNode& rPortType = *itPortType;
+
+          for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeOp = rPortType.NodeBegin();
+            itNodeOp != rPortType.NodeEnd(); ++itNodeOp)
           {
-            SMember tOperationMember;
-            ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
-            std::string sSoapAction;
-            ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, sSoapAction);
-            if (!sSoapAction.empty())
+            if (itNodeOp->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+              itNodeOp->NodeName() == "operation")
             {
-              tOperationMember.mOptions["soapAction"] = sSoapAction;
+              SMember tOperationMember;
+              ParseOperation(tOperationMember, *itNodeOp, rDefs, rWsdlTypes);
+              std::string sSoapAction;
+              ParseSoapAction(sPortTypeName, tOperationMember.sName, rDefs, sSoapAction);
+              if (!sSoapAction.empty())
+              {
+                tOperationMember.mOptions["soapAction"] = sSoapAction;
+              }
+              rClass.lsMembers.push_back(tOperationMember);
             }
-            rClass.lsMembers.push_back(tOperationMember);
           }
+
         }
 
         ReadDoc(rService, rClass.sDescr, rClass.sDetail);
 
         rClass.sNamespace = TnsToCppNs(GetTns(rDefs));
-        return true;
       }
-
-      return false;
     }
 
 //    void WriteInlineTypes(const SElement& rElement, const SWsdlTypes& rWsdlTypes)
@@ -1392,13 +1407,7 @@ namespace codegen
 
       if (!bSchema)
       {
-        SClass tServiceClass;
-
-        if (ParseService(tServiceClass, rRootNode, m_stWsdlTypes))
-        {
-          tServiceClass.mOptions["targetNamespace"] = m_stInterface.sTargetNs;
-          m_stInterface.lsClasses.push_back(tServiceClass);
-        }
+        ParseService(m_stInterface, rRootNode, m_stWsdlTypes, m_stInterface.sTargetNs);
       }
     }
 

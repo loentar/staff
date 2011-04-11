@@ -30,7 +30,12 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
-    CDataObject tdoItem = rdoParam.CreateChild("Item");
+#ifneq($(Typedef.Options.*elementName),)
+#var ElementName $(Typedef.Options.*elementName)
+#else
+#var ElementName Item
+#ifeqend
+    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
 #ifeq($(Typedef.DataType.NsName),std::map)
     CDataObject tdoKey = tdoItem.CreateChild("Key");
     CDataObject tdoValue = tdoItem.CreateChild("Value");

@@ -46,7 +46,12 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
   for ($(Param.DataType)::const_iterator it = rstStruct.$(Param.Name).begin();
       it != rstStruct.$(Param.Name).end(); ++it)
   {
-    CDataObject tdoItem = $($doName).CreateChild("Item");
+#ifneq($(Param.Options.*elementName),)
+#var ElementName $(Param.Options.*elementName)
+#else
+#var ElementName Item
+#ifeqend
+    CDataObject tdoItem = $($doName).CreateChild("$($ElementName)");
 #ifeq($(Param.DataType.NsName),std::map)
     CDataObject tdoKey = tdoItem.CreateChild("Key");
     CDataObject tdoValue = tdoItem.CreateChild("Value");
