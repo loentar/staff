@@ -258,7 +258,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   rOptions.UseSeparateListener($(Member.Options.*wsaUseSeparateListener));
 #ifeqend
 #ifneq($(Member.Options.*timeout),)
-  rOptions.SetTimeout("$(Member.Options.*timeout)");
+  rOptions.SetTimeout($(Member.Options.*timeout));
 #ifeqend
 #ifeq($(Member.Options.*mep),||in-out)
 #var SendMethod Invoke
