@@ -22,7 +22,9 @@ MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 ifeq ($(MAKECMDGOALS),distclean)
 $(MAKECMDGOALS):
 	$(MAKE) clean
-	find . -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rfv
+	$(MAKE) -C staff/samples clean
+	find das/samples -name Makefile -exec bash -c "echo {} | sed 's/[^\/]*$$//gm' | xargs make clean -C" \;
+	find . -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rf
 else
 ifeq ($(MAKECMDGOALS),test)
 $(MAKECMDGOALS):

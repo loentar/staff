@@ -143,13 +143,13 @@ $($sNewOpeningNs)
 #ifeqend
 \
 #foreach $(Interface.Enums)
-#cginclude <common/InterfaceEnum.h>
+#cginclude "InterfaceEnum.h"
 #end
 \
 #ifneq($(Interface.Structs.$Count),0)
 \
 #foreach $(Interface.Structs)              // structs declaration
-#cginclude <common/InterfaceStruct.h>
+#cginclude "InterfaceStruct.h"
 #end // struct declaration
 #ifeqend // extern
 #foreach $(Interface.Classes)

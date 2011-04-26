@@ -34,6 +34,11 @@ namespace rise
   {
   }
 
+  long long CPerformanceCounter::GetCurrent()
+  {
+    return osQueryPerfomance();
+  }
+
   void CPerformanceCounter::Start()
   {
     m_llStartValue = osQueryPerfomance();
