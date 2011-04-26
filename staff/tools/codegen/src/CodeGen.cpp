@@ -36,6 +36,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <stack>
 #include <algorithm>
 #include <rise/common/exmacros.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -52,25 +53,76 @@ namespace codegen
   class CTemplateParser
   {
   public:
+    CTemplateParser()
+    {
+      m_tmVariables.push(StringMap());
+    }
+
+    std::string GetNodePath(const CXMLNode* pNode) const
+    {
+      if (pNode)
+      {
+        std::string sPath = pNode->NodeName();
+        while ((pNode = pNode->GetParent()))
+        {
+          sPath = pNode->NodeName() + "." + sPath;
+        }
+        return sPath;
+      }
+      else
+      {
+        return "";
+      }
+    }
+
     const CXMLNode& GetNode(const std::string& sVariableName, const CXMLNode& rNode) const
     {
       static CXMLNode tEmptyNode;
       const CXMLNode* pNode = &rNode;
       std::string::size_type nPos = sVariableName.find('.');
       std::string sVariable;
+      std::string sClass;
 
       if (nPos != std::string::npos)
       {
-        std::string sClass = !nPos ? rNode.NodeName() : sVariableName.substr(0, nPos);
-        sVariable = sVariableName.substr(nPos + 1);
-
-        while (pNode != NULL && pNode->NodeName() != sClass)
+        if (!nPos)
         {
-          pNode = pNode->GetParent();
+          sVariable = sVariableName.substr(1);
+          RISE_ASSERTS(!sVariable.empty(), "Element name expected in Name: " + sVariableName);
+          nPos = sVariable.find('.');
+          sClass = sVariable.substr(0, nPos); // next element name
+
+          for (; pNode != NULL; pNode = pNode->GetParent())
+          {
+            rise::xml::CXMLNode::TXMLNodeConstIterator itNode = pNode->FindSubnode(sClass);
+            if (itNode != pNode->NodeEnd())
+            {
+              if (nPos == std::string::npos)
+              {
+                return *itNode;
+              }
+
+              sVariable.erase(0, nPos + 1);
+              pNode = &*itNode;
+              break;
+            }
+          }
+        }
+        else
+        {
+          sClass = sVariableName.substr(0, nPos);
+          sVariable = sVariableName.substr(nPos + 1);
+
+          while (pNode != NULL && pNode->NodeName() != sClass)
+          {
+            pNode = pNode->GetParent();
+          }
         }
 
-        RISE_ASSERTS(pNode != NULL, "Can't find node which match current class: \"" + sClass + "\", context: " + rNode.NodeName() + ", Variable: " + sVariableName);
-        RISE_ASSERTS(pNode->NodeName() == sClass, "node name does not match current class: \"" + pNode->NodeName() + "\" <=> \"" + sClass + "\", current context: " + rNode.NodeName());
+        RISE_ASSERTS(pNode != NULL, "\nCan't find node which match current class: \"" + sClass
+                     + "\"\n context: " + GetNodePath(&rNode) + "\n Variable: " + sVariableName + "\n");
+        RISE_ASSERTS(pNode->NodeName() == sClass, "\nNode name does not match current class: \""
+                     + pNode->NodeName() + "\" <=> \"" + sClass + "\"\n context: " + GetNodePath(&rNode) + "\n");
 
         while ((nPos = sVariable.find('.')) != std::string::npos)
         {
@@ -568,7 +620,7 @@ namespace codegen
           if (nPos != std::string::npos) // variable + functions
           {
             const std::string& sVarName = sName.substr(1, nPos - 1);
-            sValue = m_tVariables[sVarName];
+            sValue = m_tmVariables.top()[sVarName];
             // process functions and other
             rise::xml::CXMLNode tVarNode(sVarName);
             tVarNode.NodeContent() = sValue;
@@ -576,7 +628,7 @@ namespace codegen
           }
           else // variable only
           {
-            sValue = m_tVariables[sName.substr(1)];
+            sValue = m_tmVariables.top()[sName.substr(1)];
           }
         }
       }
@@ -610,8 +662,17 @@ namespace codegen
 
             const std::string& sName = sExpression.substr(nNamePosBegin,
                            (nNamePosEnd != std::string::npos) ? nNamePosEnd - nNamePosBegin : nNamePosEnd);
+            std::string::size_type nNameSize = sName.size();
 
-            ProcessValue(sName, sValue, rNode);
+            if (nNameSize > 0 && sName[0] == '"' && sName[nNameSize - 1] == '"')
+            {
+              sValue = sName.substr(1, nNameSize - 2);
+              ReplaceToValue(sValue, rNode);
+            }
+            else
+            {
+              ProcessValue(sName, sValue, rNode);
+            }
 
             if (!sValue.empty() || nNamePosEnd == std::string::npos)
             {
@@ -1101,7 +1162,7 @@ namespace codegen
             throw "invalid var declaration: " + sLine;
           }
 
-          m_tVariables[sVariable] = sValue;
+          m_tmVariables.top()[sVariable] = sValue;
         }
         else
         if (sLine.substr(0, 6) == "#ifeq(")
@@ -1196,6 +1257,7 @@ namespace codegen
         if (sLine.substr(0, 11) == "#cgwarning ")
         {
           ReplaceToValue(sLine, rNode);
+          rise::StrTrimRight(sLine, "\n\r");
           std::cerr << "Warning: " << sLine.substr(11) << std::endl;
         }
         else
@@ -1208,6 +1270,16 @@ namespace codegen
         if (sLine.substr(0, 8) == "#indent ")
         {
           ProcessIndent(sLine);
+        }
+        else
+        if (sLine.substr(0, 11) == "#cgpushvars")
+        {
+          m_tmVariables.push(m_tmVariables.top());
+        }
+        else
+        if (sLine.substr(0, 10) == "#cgpopvars")
+        {
+          m_tmVariables.pop();
         }
         else
         {
@@ -1319,13 +1391,14 @@ namespace codegen
 
     void SetEnv(const TStringMap& rmEnv)
     {
-      m_tVariables = rmEnv;
+      m_tmVariables.top() = rmEnv;
     }
 
   private:
+    typedef std::map<std::string, std::string> StringMap;
     std::list<std::string> m_tTemplateFileList;
     std::list<std::string> m_tConstFileList;
-    mutable std::map<std::string, std::string> m_tVariables;
+    mutable std::stack<StringMap> m_tmVariables;
     std::string m_sInDir;
     std::string m_sOutDir;
     int m_nLine;

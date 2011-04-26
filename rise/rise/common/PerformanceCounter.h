@@ -36,6 +36,11 @@ namespace rise
     //!        destructor
     ~CPerformanceCounter();
 
+    //!        get current time
+    /*! \return current time
+    */
+    static long long GetCurrent();
+
     //!        start counting time
     void Start();
 

@@ -47,35 +47,3 @@
 #endif
 
 #endif // _STAFFCODEGENPARSEREXPORT_H_
-
-/*! \namespace staff 
-    \brief staff namespace
-*/
-
-/*! \mainpage Staff
-
-Staff is Web Service Framework for C++/JavaScript based on Apache Axis2/C. 
-
-Together with the support of all functions of Apache Axis2/C, WSF Staff provides additional features: 
- - stateful web services and clients implementation in C++, client implementaion in JavaScript;
- - service-component architecture implementation;
- - security support (acls. users, groups support, access to components, services, operations, widgets, etc.);
- - webapp toolkit;
- - extensible code generator.
-
-Webapp is a toolkit written on JavaScript/Ajax for creating web-applications.
-Webapp includes Javascript SDK based on YahooUI!, Prototype, WS.JS libraries.
-Webapp is the easy way to develop the web application, based on SOA from scratch;
-
-Code generator include following common templates:
-  - web service interface generation by WSDL file. This interface is an abstract C++ class that can be used for creating web services and clients;
-  - WSDL generation by web service interface;
-  - BPEL support: codegen supports WSDL generation compatible with BPEL;
-  - web service stub generation;
-  - client skeleton generation;
-  - internal files generation (Proxies, Wrappers, etc).
-
-See also <a href="annotated.html">annotated class list</a>, implemented by library.
-*/
-
-
