@@ -69,7 +69,7 @@ make && sudo -E make install
 
 _Пакет binutils-dev должен быть установлен._
 
-Введите эти команды для компиляции и установки rise, Staff и Webapp из корня рабочей копии (staff-read-only):
+Введите эти команды для компиляции и установки staff из корня рабочей копии (staff-read-only):
 
 {{{
 make && sudo -E make install

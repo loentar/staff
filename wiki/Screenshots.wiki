@@ -2,15 +2,3 @@
 
 = VM Staff SDK =
 [http://staff.googlecode.com/svn/wiki/screenshots/ubuntu-staff-sdk.png http://staff.googlecode.com/svn/wiki/screenshots/ubuntu-staff-sdk.png]
-
-<br/>
-
-= Webapp Under Linux =
-
-[http://staff.googlecode.com/svn/wiki/screenshots/webapp-ubuntu-firefox.png http://staff.googlecode.com/svn/wiki/screenshots/webapp-ubuntu-firefox.png]
-
-<br/>
-
-= Webapp Under Windows =
-
-[http://staff.googlecode.com/svn/wiki/screenshots/webapp-windowsxp-ie7.png http://staff.googlecode.com/svn/wiki/screenshots/webapp-windowsxp-ie7.png]

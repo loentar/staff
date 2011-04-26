@@ -16,7 +16,7 @@
       * [ExampleDasDataSource Creating datasource]
       * [ExampleDasClient Creating DAS client]
     * Creating AJAX client
-      * [ExampleCalculatorAjaxClientLinux Ajax client]
+      * [ExampleCalculatorAjaxClient Ajax client]
     * Creating J2ME client
       * [ExampleCalculatorJ2meClientInEclipse J2ME client in Eclipse]
       * [ExampleCalculatorJ2meClient J2ME client]
@@ -49,7 +49,6 @@
       * [InstallationManualWindowsBinary Install staff from binary tarball]
     * Linux
       * [InstallationManualLinux Install staff from source code]
-      * [InstallationManualWebappLinux Install and test webapp]
     * Mac OS X
       * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD

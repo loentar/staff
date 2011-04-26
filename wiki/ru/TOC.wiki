@@ -16,7 +16,7 @@
       * [ExampleDasDataSource Создание источника данных]
       * [ExampleDasClient Создание клиента DAS]
     * Создание AJAX клиента
-      * [ExampleCalculatorAjaxClientLinux Ajax-клиент]
+      * [ExampleCalculatorAjaxClient Ajax-клиент]
     * Создание J2ME клиента
       * [ExampleCalculatorJ2meClientInEclipse J2ME-клиент в Eclipse]
       * [ExampleCalculatorJ2meClient J2ME-клиент]
@@ -49,7 +49,6 @@
       * [InstallationManualWindowsBinary Установка staff из бинарного кода]
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]
-      * [InstallationManualWebappLinux Установка и тестирование webapp]
     * Mac OS X
       * [InstallationManualMacOSX Установка staff из исходного кода]
     * FreeBSD

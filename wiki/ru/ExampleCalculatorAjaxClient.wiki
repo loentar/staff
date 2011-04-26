@@ -1,0 +1,70 @@
+#summary Пример: создание AJAX клиента Calculator
+
+_Внимание: Примеры должны быть установлены._
+
+== 1. Создание клиента ==
+
+Создайте каталог "calc" в каталоге htdocs apache2 (обычно в {{{/var/www}}});
+
+Загрузите скритп jQuery с http://jquery.com/ и сохраните его под именем jquery.js в каталог "calc".
+
+Скопируйте staff.js из {{{staff/bindings/javascript/client}}} в каталог "calc".
+
+Поместите index.html в каталог "calc":
+{{{
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="staff.js"></script>
+  <script type="text/javascript" src="CalcService.js"></script>
+  <script type="text/javascript" src="calc.js"></script>
+</head>
+
+<body>
+  <div>
+    a = <input id="a" value="1"></input><br/>
+    b = <input id="b" value="2"></input><br/>
+    <input type="button" value="add" onclick="javascript:CalcAdd($('#a')[0].value, $('#b')[0].value);"></input>
+  </div>
+</body>
+</html>
+}}}
+
+Поместите исходный код клиента под именем calc.js в тот-же каталог:
+{{{
+function CalcAdd(nA, nB)
+{
+  var oCalcService = new samples.calc.CalcService();
+  var nResult = oCalcService.Add(nA, nB);
+  alert(nA + " + " + nB + " = " + nResult);
+}
+}}}
+
+== 2. Генерация прокси ==
+
+Для генерации прокси можно использовать интерфейсный файл или wsdl.
+
+Для генерации прокси из интерфейсного файла введите команду из каталога `staff/samples/calc/component/src`:
+{{{
+staff_codegen -tjsclient CalcService.h
+}}}
+
+Для генерации прокси из wsdl введите команду:
+{{{
+staff_codegen -pwsdl -tjsclient http://localhost:9090/axis2/services/staff.wsdl.Wsdl/get/samples.calc/samples.calc.CalcService.wsdl
+}}}
+
+Поместите сгенерированный файл !CalcService.js в каталог "calc".
+
+== 4. Тестирование ==
+
+Откройте страницу в веб браузере:
+
+http://localhost/calc
+
+Для вызова сервиса введите числа в поля ввода и нажмите кнопку "add".
+
+Должно появиться окно сообщения с результатами вызова сервиса.
+

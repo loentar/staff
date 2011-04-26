@@ -8,7 +8,7 @@
 Примеры в Linux:
   * [ExampleCalculatorServiceLinux Создение сервиса Calculator]
   * [ExampleCalculatorClientLinux Создание клиента Calculator]
-  * [ExampleCalculatorAjaxClientLinux Создание AJAX клиента Calculator в Linux]
+  * [ExampleCalculatorAjaxClient Создание AJAX клиента Calculator]
 
 Общие примеры:
   * [ExampleStockQuoteQtCreator Создание клиента StockQuote использующего Qt]

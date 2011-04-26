@@ -7,7 +7,6 @@
 
 Руководства по установке под Linux:
   * [InstallationManualLinux Руководство по установке под Linux]
-  * [InstallationManualWebappLinux Установка Webapp под Linux]
 
 Руководство по установке под Mac OS X:
   * [InstallationManualMacOSX Руководство по установке под Mac OS X]

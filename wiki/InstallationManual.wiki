@@ -7,7 +7,6 @@ Windows installation manuals:
 
 Linux installation manuals:
   * [InstallationManualLinux Staff Installation manual for Linux]
-  * [InstallationManualWebappLinux Webapp Installation manual for Linux]
 
 Mac OS X installation manual:
   * [InstallationManualMacOSX Staff Installation manual for Mac OS X]

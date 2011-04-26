@@ -135,9 +135,7 @@ int main(int, const char**)
 == Sample of Calculator AJAX client ==
 
 {{{
-include("clients/Calculator");
-
-// some handler to invoke service
+// invoke the service
 function OnButtonAddClick()
 {
   var calc = new Calculator();

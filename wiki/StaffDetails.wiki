@@ -9,7 +9,7 @@ Staff is Web Service Framework for C++, AJAX, and J2ME that is based on Apache A
 
 WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional features:
   * stateful [ExampleCalculatorServiceWindows#2._Creating_service_interface Web Services implementation] in C++ with instance support;
-  * [ExampleCalculatorClientWindows synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClientLinux AJAX] and [ExampleCalculatorJ2meClient J2ME];
+  * [ExampleCalculatorClientWindows synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClient AJAX] and [ExampleCalculatorJ2meClient J2ME];
   * [TrafficCompression traffic compression] support in J2ME and AJAX. 
   * service-component [SoaApplicationStruct architecture implementation];
   * support for RESTful [ExampleCalculatorRestfulService web services] and [ExampleCalculatorRestfulClient clients];
@@ -18,7 +18,6 @@ WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional 
   * [CodegenMetacomments code generator] to generate any sort of Web Services related source code (not only in C++);
   * access to relational databases via [ExampleDasDataSource DAS] (data access service). <br/>_Supported DBMS: Postgresql, MySQL, SQLite3._;
   * security support (users, groups, sessions, ACLs, etc.);
-  * web application toolkit (webapp) with widget support. <br/>_(Screenshots [http://staff.googlecode.com/svn/wiki/screenshots/webapp-windowsxp-ie7.png webapp client under windows], [http://staff.googlecode.com/svn/wiki/screenshots/webapp-ubuntu-firefox.png webapp client under linux])_;
 
 <br/>
 In the Service interface:
@@ -36,17 +35,9 @@ Security model is based on ACL and rules access users and groups to following se
   * components;
   * services;
   * services operations;
-  * webapp widgets;
   * any other objects, that service can implement.
 Security DB is on the SQLite 3.
 <p/><p/>
-
-=== Webapp ===
-Webapp is a toolkit written on !JavaScript/Ajax for creating web-applications.
-Webapp includes Javascript SDK based on YahooUI!, Prototype, WS.JS libraries.
-Webapp is the easy way to develop the web application, based on SOA from scratch;
-
-
 
 === Code generator (codegen) ===
 Code generator includes following common templates:
@@ -66,18 +57,3 @@ Most of new templates can be created without changing codegen's source code.
 
 === License ===
 WSF Staff is released with Apache License V2.0.
-
-=== Third-Party Licenses Used in WSF Staff ===
-
-SQLite license:
-  * SQLite3: http://www.sqlite.org/copyright.html
-
-BSD License:
-  * YahooUI: http://developer.yahoo.com/yui/license.html
-  * MD5: http://pajhome.org.uk/crypt/md5
-
-MIT-style license:
-  * Prototype !JavaScript framework: http://www.prototypejs.org/
-
-Open source IBM License:
-  * WS.JS: http://www.ibm.com/developerworks/webservices/library/ws-wsajax/
