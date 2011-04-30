@@ -60,6 +60,9 @@ namespace staff
       */
     void FreeSession(const std::string& sSessionId);
 
+    //! free all sessions
+    void FreeAllSessions();
+
     //! get existing or create service instance
     /*! \param sSessionId - session id
         \param sServiceName - service name

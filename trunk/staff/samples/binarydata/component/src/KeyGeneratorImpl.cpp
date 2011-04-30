@@ -26,7 +26,7 @@ void KeyGeneratorImpl::OnCreate()
   // this function is called when service instance is created and registered
 }
 
-void KeyGeneratorImpl::OnFree()
+void KeyGeneratorImpl::OnDestroy()
 {
   // this function is called immediately before service instance destruction
 }

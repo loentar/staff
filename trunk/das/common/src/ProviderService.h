@@ -39,7 +39,12 @@ namespace das
   {
   public:
     ProviderService();
-    CDataObject Invoke(const CDataObject& rdoOperation);
+    virtual void OnCreate();
+    virtual void OnDestroy();
+    virtual CDataObject Invoke(const CDataObject& rdoOperation);
+
+  private:
+    PProvider& GetProvider();
 
   private:
     PProvider m_tpProvider;

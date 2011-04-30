@@ -21,7 +21,7 @@ $(Class.Description)
     $(Class.Name)Impl();
     virtual ~$(Class.Name)Impl();
     virtual void OnCreate();
-    virtual void OnFree();
+    virtual void OnDestroy();
 #foreach $(Class.Members)
     virtual $(Member.Return.UsedName) $(Member.Name)($(Member.Params))$(Member.Const);
 #end

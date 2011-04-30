@@ -19,7 +19,7 @@ namespace binarydata
     KeyGeneratorImpl();
     virtual ~KeyGeneratorImpl();
     virtual void OnCreate();
-    virtual void OnFree();
+    virtual void OnDestroy();
     virtual staff::hexBinary GenerateHexKey(unsigned uSourceKey);
     virtual staff::base64Binary GenerateBase64Key(unsigned uSourceKey);
     virtual bool ValidateHexKey(const staff::hexBinary& rKey);

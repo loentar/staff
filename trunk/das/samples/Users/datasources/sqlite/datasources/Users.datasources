@@ -5,6 +5,17 @@
       <connection>
         <db>$(STAFF_HOME)/db/testdas.db</db>
       </connection>
+
+      <!-- this script is executed on when this datasource is loaded -->
+      <oncreate>
+        <script>
+          <execute>PRAGMA synchronous = OFF</execute>
+        </script>
+      </oncreate>
+      <!-- you can write script here to execute it when datasource is unloaded
+      <ondestroy>
+      </ondestroy>
+      -->
     </provider>
 
     <types>
@@ -65,10 +76,13 @@
         </params>
         <return type="IntList" />
         <script>
+          <!-- transaction significantly increases bulk insertion speed -->
+          <execute>BEGIN TRANSACTION</execute>
           <foreach element="$(lsUsers)">
             <execute>INSERT INTO "users"("name", "password", "description") VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
             <execute>SELECT last_insert_rowid()</execute>
           </foreach>
+          <execute>COMMIT</execute>
         </script>
       </operation>
 

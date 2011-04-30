@@ -19,7 +19,7 @@ void $(Class.Name)Impl::OnCreate()
   // this function is called when service instance is created and registered
 }
 
-void $(Class.Name)Impl::OnFree()
+void $(Class.Name)Impl::OnDestroy()
 {
   // this function is called immediately before service instance destruction
 }

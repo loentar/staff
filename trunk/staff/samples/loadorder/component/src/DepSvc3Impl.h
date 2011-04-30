@@ -19,7 +19,7 @@ namespace loadorder
     DepSvc3Impl();
     virtual ~DepSvc3Impl();
     virtual void OnCreate();
-    virtual void OnFree();
+    virtual void OnDestroy();
   };
 }
 }
