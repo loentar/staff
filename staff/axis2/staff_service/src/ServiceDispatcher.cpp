@@ -119,6 +119,7 @@ rise::LogEntry();
       }
 
       rSharedContext.Clear();
+      CServiceInstanceManager::Inst().FreeAllSessions();
       m_lsComponents.UnloadAll();
     }
 

@@ -261,8 +261,8 @@ namespace das
   {
     RISE_ASSERTS(m_tpProvider.Get() != NULL, "Not initialized");
 
-    ScriptExecuter tScriptExecuter(rdoOperation, *m_pDataSource, m_tpProvider);
-    return tScriptExecuter.Process();
+    ScriptExecuter tScriptExecuter(*m_pDataSource, m_tpProvider);
+    return tScriptExecuter.Process(rdoOperation);
   }
 
 }

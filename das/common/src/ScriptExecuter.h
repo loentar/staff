@@ -28,6 +28,11 @@
 namespace rise
 {
   template <typename Type> class CMutablePtr;
+
+namespace xml
+{
+  class CXMLNode;
+}
 }
 
 namespace staff
@@ -36,7 +41,7 @@ namespace staff
 
 namespace das
 {
-  struct Operation;
+  struct Type;
   class DataSource;
   class IProvider;
   typedef rise::CMutablePtr<IProvider> PProvider;
@@ -48,15 +53,38 @@ namespace staff
 {
 namespace das
 {
-  //! operation script executer
+  //! script executer
   class STAFF_DAS_COMMON_EXPORT ScriptExecuter
   {
   public:
-    ScriptExecuter(const CDataObject& rdoOperation, const DataSource& rDataSource, PProvider& rpProvider);
+    //! construct script executer
+    /*! \param rDataSource - data source
+        \param rpProvicer - provider from datasource
+      */
+    ScriptExecuter(const DataSource& rDataSource, PProvider& rpProvider);
 
+    //! destructor
     ~ScriptExecuter();
 
-    CDataObject Process();
+    //! process operation
+    /*! \param rdoOperation - operation request data object
+        \return operation result
+      */
+    CDataObject Process(const CDataObject& rdoOperation);
+
+    //! process script
+    /*! \param rdoContext - current context
+        \param rScript - script to execute
+        \param rReturnType - return type
+        \param rdoResult - result
+      */
+    void Process(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                 const Type& rReturnType, CDataObject& rdoResult);
+
+    //! process script
+    /*! \param rScript - script to execute
+      */
+    void Process(const rise::xml::CXMLNode& rScript);
 
   private:
     class ScriptExecuterImpl;

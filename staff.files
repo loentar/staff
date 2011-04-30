@@ -26,6 +26,15 @@ das/providers/sqlite/src/Sqlite.h
 das/samples/Users/client/src/main.cpp
 das/samples/Users/custom_client/src/DataAccessService.h
 das/samples/Users/custom_client/src/main.cpp
+das/samples/Users/datasources/mysql/datasources/Groups.datasources
+das/samples/Users/datasources/mysql/datasources/Role.datatypes
+das/samples/Users/datasources/mysql/datasources/Users.datasources
+das/samples/Users/datasources/postgres/datasources/Groups.datasources
+das/samples/Users/datasources/postgres/datasources/Role.datatypes
+das/samples/Users/datasources/postgres/datasources/Users.datasources
+das/samples/Users/datasources/sqlite/datasources/Groups.datasources
+das/samples/Users/datasources/sqlite/datasources/Role.datatypes
+das/samples/Users/datasources/sqlite/datasources/Users.datasources
 das/service/src/DataAccessService.h
 das/service/src/DataAccessServiceImpl.cpp
 das/service/src/DataAccessServiceImpl.h

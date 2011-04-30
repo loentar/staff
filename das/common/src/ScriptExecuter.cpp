@@ -46,8 +46,8 @@ namespace das
     typedef std::map<std::string, Var> VarMap;
 
   public:
-    ScriptExecuterImpl(const CDataObject& rdoOperation, const DataSource& rDataSource, PProvider& rpProvider):
-      m_pOperation(NULL), m_rdoOperation(rdoOperation), m_rDataSource(rDataSource), m_rpProvider(rpProvider)
+    ScriptExecuterImpl(const DataSource& rDataSource, PProvider& rpProvider):
+      m_rDataSource(rDataSource), m_rpProvider(rpProvider)
     {
     }
 
@@ -60,13 +60,13 @@ namespace das
       return m_tpExec;
     }
 
-    CDataObject Process()
+    CDataObject ProcessOperation(const CDataObject& rdoOperation)
     {
-      m_pOperation = &m_rDataSource.GetOperation(m_rdoOperation.GetLocalName());
+      const Operation* pOperation = &m_rDataSource.GetOperation(rdoOperation.GetLocalName());
 
-      CDataObject tdoResult(m_pOperation->sName + "Result");
+      CDataObject tdoResult(pOperation->sName + "Result");
 
-      ProcessSequence(m_rdoOperation, m_pOperation->tScript, m_pOperation->stReturn, tdoResult);
+      ProcessSequence(rdoOperation, pOperation->tScript, pOperation->stReturn, tdoResult);
 
       return tdoResult;
     }
@@ -507,8 +507,6 @@ namespace das
     }
 
   public:
-    const Operation* m_pOperation;
-    const CDataObject& m_rdoOperation;
     const DataSource& m_rDataSource;
     PProvider& m_rpProvider;
     VarMap m_mVars;
@@ -516,10 +514,9 @@ namespace das
   };
 
 
-  ScriptExecuter::ScriptExecuter(const CDataObject& rdoOperation,
-                                 const DataSource& rDataSource, PProvider& rpProvider)
+  ScriptExecuter::ScriptExecuter(const DataSource& rDataSource, PProvider& rpProvider)
   {
-    m_pImpl = new ScriptExecuterImpl(rdoOperation, rDataSource, rpProvider);
+    m_pImpl = new ScriptExecuterImpl(rDataSource, rpProvider);
   }
 
   ScriptExecuter::~ScriptExecuter()
@@ -527,11 +524,22 @@ namespace das
     delete m_pImpl;
   }
 
-  CDataObject ScriptExecuter::Process()
+  CDataObject ScriptExecuter::Process(const CDataObject& rdoOperation)
   {
-    return m_pImpl->Process();
+    return m_pImpl->ProcessOperation(rdoOperation);
   }
 
+  void ScriptExecuter::Process(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                               const Type& rReturnType, CDataObject& rdoResult)
+  {
+    return m_pImpl->ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
+  }
+
+  void ScriptExecuter::Process(const rise::xml::CXMLNode& rScript)
+  {
+    staff::CDataObject doResult;
+    return m_pImpl->ProcessSequence(staff::CDataObject(), rScript, Type(), doResult);
+  }
 
 
 } // namespace das

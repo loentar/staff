@@ -42,6 +42,15 @@ namespace staff
     typedef std::map<std::string, TInstanceMap> TServiceMap;
     typedef std::map<std::string, TServiceMap> TSessionMap;
 
+    ~CServiceInstanceManagerImpl()
+    {
+      try
+      {
+        Destroy();
+      }
+      RISE_CATCH_ALL
+    }
+
     PIService& CreateServiceInstance(TServiceMap& rmServiceMap, const std::string& sSessionId,
                                      const std::string& sServiceName, const std::string& sInstanceId)
     {
@@ -60,6 +69,31 @@ namespace staff
                                   throw);
 
       return (rmServiceMap[sServiceName][sInstanceId] = tpService);
+    }
+
+    void Destroy()
+    {
+      // generate OnDestroy event for all services
+      for (CServiceInstanceManagerImpl::TSessionMap::iterator itSession = m_mSessions.begin();
+           itSession != m_mSessions.end(); ++itSession)
+      {
+        for (CServiceInstanceManagerImpl::TServiceMap::iterator itService = itSession->second.begin();
+          itService != itSession->second.end(); ++itService)
+        {
+          for (CServiceInstanceManagerImpl::TInstanceMap::iterator itInstance = itService->second.begin();
+            itInstance != itService->second.end(); ++itInstance)
+          {
+            try
+            {
+              itInstance->second->OnDestroy();
+            }
+            RISE_CATCH_ALL_DESCR("Exception while destroying service instance... [" + itService->first + ":" +
+                                 itInstance->first + "]: ignored");
+          }
+        }
+      }
+
+      m_mSessions.clear();
     }
 
     TSessionMap m_mSessions;
@@ -125,6 +159,11 @@ namespace staff
     }
 
     m_pImpl->m_mSessions.erase(sSessionId);
+  }
+
+  void CServiceInstanceManager::FreeAllSessions()
+  {
+    m_pImpl->Destroy();
   }
 
   PIService& CServiceInstanceManager::ServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)

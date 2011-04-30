@@ -20,6 +20,7 @@
  */
 
 #include <rise/common/MutablePtr.h>
+#include <rise/xml/XMLNode.h>
 #include <staff/common/DataObject.h>
 #include "ProviderFactory.h"
 #include "DataSourceFactory.h"
@@ -37,17 +38,67 @@ namespace das
   {
   }
 
+  void ProviderService::OnCreate()
+  {
+    m_pDataSource = &DataSourceFactory::Inst().GetDataSource(IService::GetServiceName());
+
+    const rise::xml::CXMLNode& rConfigElem = m_pDataSource->GetProviderConfig();
+    rise::xml::CXMLNode::TXMLNodeConstIterator itOnCreate = rConfigElem.FindSubnode("oncreate");
+    if (itOnCreate != rConfigElem.NodeEnd())
+    {
+      rise::xml::CXMLNode::TXMLNodeConstIterator itScript = itOnCreate->FindSubnode("script");
+      if (itScript == itOnCreate->NodeEnd())
+      {
+        itScript = itOnCreate->FindSubnode("execute");
+      }
+
+      if (itScript != itOnCreate->NodeEnd())
+      {
+        ScriptExecuter tScriptExecuter(*m_pDataSource, GetProvider());
+        return tScriptExecuter.Process(*itScript);
+      }
+    }
+  }
+
+  void ProviderService::OnDestroy()
+  {
+    RISE_ASSERTS(m_pDataSource, "Can't get datasource");
+
+    const rise::xml::CXMLNode& rConfigElem = m_pDataSource->GetProviderConfig();
+    rise::xml::CXMLNode::TXMLNodeConstIterator itOnDestroy = rConfigElem.FindSubnode("ondestroy");
+    if (itOnDestroy != rConfigElem.NodeEnd())
+    {
+      rise::xml::CXMLNode::TXMLNodeConstIterator itScript = itOnDestroy->FindSubnode("script");
+      if (itScript == itOnDestroy->NodeEnd())
+      {
+        itScript = itOnDestroy->FindSubnode("execute");
+      }
+
+      if (itScript != itOnDestroy->NodeEnd())
+      {
+        ScriptExecuter tScriptExecuter(*m_pDataSource, GetProvider());
+        return tScriptExecuter.Process(*itScript);
+      }
+    }
+  }
+
   CDataObject ProviderService::Invoke(const CDataObject& rdoOperation)
+  {
+    RISE_ASSERTS(m_pDataSource, "Can't get datasource");
+
+    ScriptExecuter tScriptExecuter(*m_pDataSource, GetProvider());
+    return tScriptExecuter.Process(rdoOperation);
+  }
+
+  PProvider& ProviderService::GetProvider()
   {
     if (!m_tpProvider.Get())
     {
-      m_pDataSource = &DataSourceFactory::Inst().GetDataSource(IService::GetServiceName());
       m_tpProvider = ProviderFactory::Inst().Allocate(m_pDataSource->GetProviderName());
       m_tpProvider->Init(*m_pDataSource);
     }
 
-    ScriptExecuter tScriptExecuter(rdoOperation, *m_pDataSource, m_tpProvider);
-    return tScriptExecuter.Process();
+    return m_tpProvider;
   }
 
 }

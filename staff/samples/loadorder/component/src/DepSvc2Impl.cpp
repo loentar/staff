@@ -23,7 +23,7 @@ void DepSvc2Impl::OnCreate()
   rise::LogInfo() << "Service 2 is loaded";
 }
 
-void DepSvc2Impl::OnFree()
+void DepSvc2Impl::OnDestroy()
 {
   // this function is called immediately before service instance destruction
 }
