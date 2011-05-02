@@ -1228,21 +1228,16 @@ namespace codegen
             const std::string& sCurrDir = sDirName.substr(0, nPos);
             if (!sCurrDir.empty())
             {
+              int nRes =
 #ifndef WIN32
-              if (mkdir(sCurrDir.c_str(), 0755) == -1)
-              {
-                if (errno != EEXIST)
-                {
-                  throw std::string("Failed to create dir [" + sCurrDir + "]: " + strerror(errno));
-                }
-              }
+                mkdir(sCurrDir.c_str(), 0755);
 #else
-              int nRes = _mkdir(sCurrDir.c_str());
-              if (nRes != 0 && nRes != EEXIST)
+                _mkdir(sCurrDir.c_str());
+#endif
+              if (nRes == -1 && errno != EEXIST)
               {
                 throw std::string("Failed to create dir [" + sCurrDir + "]: " + strerror(errno));
               }
-#endif
             }
           }
         }
