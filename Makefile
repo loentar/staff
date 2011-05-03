@@ -6,7 +6,7 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-ECHO := echo$(shell test $$(readlink /bin/sh) = "dash" || echo ' -e ')
+ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 
 MAKEFILES_DEP = $(wildcard */Makefile.dep)
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
