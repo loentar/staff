@@ -34,9 +34,27 @@ clean:
 
 # == deploy ==========================================
 deploy: $(TARGETNAME)
-	mkdir -p $(DEPLOYDIR)www/conf/mods-enabled/ $(DEPLOYDIR)www/modules/
-	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > $(DEPLOYDIR)/www/conf/mods-enabled/$(TARGET).conf
-	cp -f $(TARGETNAME) $(DEPLOYDIR)www/modules/
+ifneq ($(APXS),)
+ifeq ($(LINUX_VERSION),debian)
+	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)etc/apache2/mods-enabled/ $(DEPLOYROOTDIR)usr/lib/apache2/modules/
+	cp -f conf/$(TARGET).load conf/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-available/
+	ln -sf ../mods-available/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).conf
+	ln -sf ../mods-available/$(TARGET).load $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).load
+	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)usr/lib/apache2/modules/
+else
+ifeq ($(APXS),/www/bin/apxs)
+	mkdir -p $(DEPLOYROOTDIR)www/conf/mods-enabled/
+	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > $(DEPLOYROOTDIR)www/conf/mods-enabled/$(TARGET).conf
+	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
+	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)www/modules/
+else
+	test ! -z "$(APACHECONFDIR)" -a -d "$(APACHECONFDIR)"
+	test ! -z "$(APACHEMODDIR)" -a -d "$(APACHEMODDIR)"
+	cat conf/$(TARGET).load conf/$(TARGET).conf > $(DEPLOYROOTDIR)$(APACHECONFDIR)/$(TARGET).conf
+	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)$(APACHEMODDIR)
+endif
+endif
+endif
 
 # == distrib =========================================
 distrib:;

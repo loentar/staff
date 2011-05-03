@@ -9,7 +9,7 @@ ifeq "all" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-ECHO := echo$(shell test "$$(uname -o 2>/dev/null)" = "Msys" -o "$$(uname -s)" = "FreeBSD" -o -f /etc/MCBC-release && echo ' -e ')
+ECHO := echo$(shell test $$(readlink /bin/sh) = "dash" || echo ' -e ')
 
 MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
