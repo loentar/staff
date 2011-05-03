@@ -30,13 +30,15 @@ ifeq ($(OS),MINGW)
   CXXFLAGS += -DRISE_DLL_EXPORTS=1
 endif
 
-USRINCDIR = /usr/include/
 ifneq ($(OS),MINGW)
-USRINCDIRVER = /usr/include/rise-$(VERSION)/
-else
-USRINCDIRVER = /usr/include/rise/
-endif
+USRINCDIR = /usr/include/
+USRINCDIRVER = $(USRINCDIR)rise-$(VERSION)/
 USRLIBDIR = /usr/lib/
+else
+USRINCDIR = $(STAFF_HOME)/include/
+USRINCDIRVER = $(USRINCDIR)rise/
+USRLIBDIR = $(STAFF_HOME)/lib/
+endif
 
 DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)/
 DEPLOYINCDIR = $(DEPLOYDIR)usr/include/
@@ -129,7 +131,7 @@ include ../Makefile.distrib
 # == install ========================================
 install: install_headers install_libs
 
-install_libs: $(OUTDIR)$(TARGETLIBVER)
+install_libs: $(OUTDIR)$(TARGETLIBVER) "$(USRLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIBVER)
 ifneq ($(OS),MINGW)
 	ln -sf $(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIB)

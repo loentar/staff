@@ -3,6 +3,10 @@ include ../../Makefile.env
 TARGET = codegen
 TARGETNAME = $(LIBPREFIX)staff$(TARGET)parser$(LIBVEREXT)
 
+ifeq ($(OS),MINGW)
+  CXXFLAGS += -DSTAFF_CODEGENPARSER_DLL_EXPORTS=1 -DAXIS2_DECLARE_EXPORT
+endif
+
 CXXFLAGS += -c -I$(DEPLOYDIR)include
 LDFLAGS += -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)

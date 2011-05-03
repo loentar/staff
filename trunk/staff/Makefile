@@ -6,7 +6,7 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-ECHO := echo$(shell test $$(readlink /bin/sh) = "dash" || echo ' -e ')
+ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 ifneq ($(MAKECMDGOALS),test)
   EXCLUDE_TESTS := -a \! -path './tests/*'
 endif

@@ -9,7 +9,7 @@ ifeq "all" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-ECHO := echo$(shell test $$(readlink /bin/sh) = "dash" || echo ' -e ')
+ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 
 MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
