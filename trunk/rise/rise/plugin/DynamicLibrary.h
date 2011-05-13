@@ -61,6 +61,10 @@ namespace rise
       void UnloadLibrary();
 
     private:
+      CDynamicLibrary(const CDynamicLibrary&);
+      CDynamicLibrary& operator=(const CDynamicLibrary&);
+
+    private:
       HDynamicLib  m_hDynLib; //!< library handle
       CString      m_sName;   //!< library name
     };

@@ -35,7 +35,7 @@ namespace staff
   {
   }
 
-  void COperation::SetName( const std::string& sName )
+  void COperation::SetName(const std::string& sName)
   {
     m_sRequestName = sName;
   }
@@ -45,7 +45,7 @@ namespace staff
     return m_tdoRequest.IsInit() ? m_tdoRequest.GetLocalName() : m_sRequestName;
   }
 
-  void COperation::SetResponseName( const std::string& sResponseName )
+  void COperation::SetResponseName(const std::string& sResponseName)
   {
     m_sResponseName = sResponseName;
     if (m_tdoResponse.IsInit())
@@ -59,7 +59,7 @@ namespace staff
     return m_tdoResponse.IsInit() ? m_tdoResponse.GetLocalName() : m_sResponseName;
   }
 
-  void COperation::SetResultName( const std::string& sResultName )
+  void COperation::SetResultName(const std::string& sResultName)
   {
     m_sResultName = sResultName;
     if (m_tdoResult.IsInit() && m_tdoResult != m_tdoRequest)
@@ -83,14 +83,14 @@ namespace staff
     return m_sSoapAction;
   }
 
-  void COperation::AddParameter( const std::string& sName, const CValue& tValue )
+  void COperation::AddParameter(const std::string& sName, const CValue& tValue)
   {
     CDataObject tParam(sName);
     tParam.Value() = tValue;
     Request().AppendChild(tParam);
   }
 
-  void COperation::AddParameter( CDataObject& rDataObject )
+  void COperation::AddParameter(CDataObject& rDataObject)
   {
     Request().AppendChild(rDataObject);
   }
@@ -125,15 +125,29 @@ namespace staff
 
   const CDataObject& COperation::Result() const
   {
-    m_tdoResult = (m_sResultName.size() == 0 ? GetResponse() : GetResponse().GetChildByLocalName(m_sResultName));
-    m_tdoResult.SetOwner(false);
+    if (m_tdoResult.IsNull())
+    {
+      if (m_sResultName.empty())
+      {
+        return GetResponse();
+      }
+
+      m_tdoResult = GetResponse().GetChildByLocalName(m_sResultName);
+    }
     return m_tdoResult;
   }
 
   CDataObject& COperation::Result()
   {
-    m_tdoResult = (m_sResultName.size() == 0 ? GetResponse() : GetResponse().CreateChildOnce(m_sResultName));
-    m_tdoResult.SetOwner(false);
+    if (m_tdoResult.IsNull())
+    {
+      if (m_sResultName.empty())
+      {
+        return GetResponse();
+      }
+
+      m_tdoResult = GetResponse().CreateChildOnce(m_sResultName);
+    }
     return m_tdoResult;
   }
 
@@ -144,10 +158,10 @@ namespace staff
 
   CValue COperation::ResultValue() const
   {
-    return Result().Value();
+    return Result().GetValue();
   }
 
-  void COperation::SetResult( CDataObject& rDataObject )
+  void COperation::SetResult(CDataObject& rDataObject)
   {
     Result().ReplaceNode(rDataObject);
   }
@@ -180,7 +194,7 @@ namespace staff
     m_tdoResponse = pResponse;
   }
 
-  void COperation::SetResultValue( const CValue& rValue )
+  void COperation::SetResultValue(const CValue& rValue)
   {
     Result().Value() = rValue;
   }
@@ -190,7 +204,7 @@ namespace staff
     return GetResponse().GetLocalName() == "Fault";
   }
 
-  void COperation::SetFault( const std::string& sFaultCode, const std::string& sFaultString, const std::string& sDetail /*= ""*/ )
+  void COperation::SetFault(const std::string& sFaultCode, const std::string& sFaultString, const std::string& sDetail /*= ""*/)
   {
     CDataObject& rFault = GetResponse();
 
@@ -212,7 +226,7 @@ namespace staff
     rFault.RemoveChildByLocalName("detail");
   }
 
-  void COperation::SetUserFault( CDataObject& rDataObjectFault )
+  void COperation::SetUserFault(CDataObject& rDataObjectFault)
   {
     SetResponse(rDataObjectFault);
     GetResponse().SetLocalName("Fault");
@@ -243,8 +257,6 @@ namespace staff
 
   std::string COperation::GetFaultString() const
   {
-    static const std::string sEmpty;
-
     const CDataObject& rResponse = GetResponse();
     CDataObject::ConstIterator itFind = rResponse.FindChildByLocalName("faultstring");
     if (itFind != rResponse.End())
@@ -255,7 +267,7 @@ namespace staff
     itFind = rResponse.FindChildByLocalName("Reason");
     if (itFind == rResponse.End())
     {
-      return sEmpty;
+      return "";
     }
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Text");
@@ -269,8 +281,6 @@ namespace staff
 
   std::string COperation::GetFaultCode() const
   {
-    static const std::string sEmpty;
-
     const CDataObject& rResponse = GetResponse();
     CDataObject::ConstIterator itFind = rResponse.FindChildByLocalName("faultcode");
     if (itFind != rResponse.End())
@@ -281,7 +291,7 @@ namespace staff
     itFind = rResponse.FindChildByLocalName("Code");
     if (itFind == rResponse.End())
     {
-      return sEmpty;
+      return "";
     }
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Value");
@@ -295,8 +305,6 @@ namespace staff
 
   std::string COperation::GetFaultDetail() const
   {
-    static const std::string sEmpty;
-
     const CDataObject& rResponse = GetResponse();
     CDataObject::ConstIterator itFind = rResponse.FindChildByLocalName("detail");
     if (itFind != rResponse.End())
@@ -307,7 +315,7 @@ namespace staff
     itFind = rResponse.FindChildByLocalName("Detail");
     if (itFind == rResponse.End())
     {
-      return sEmpty;
+      return "";
     }
 
     CDataObject::ConstIterator itFindValue = itFind->FindChildByLocalName("Exception");

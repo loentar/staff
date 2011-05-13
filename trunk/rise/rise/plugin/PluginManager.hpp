@@ -19,7 +19,6 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <memory>
 #include <rise/string/String.h>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -34,7 +33,7 @@ namespace rise
     TPluginBaseClass* CPluginManager<TPluginBaseClass>::LoadPlugin( const CString& sPluginName, bool bRawName /*= false*/ )
     {
       TPluginBaseClass* pPlugin = NULL;
-      std::auto_ptr<CDynamicLibrary> pDynLib(new CDynamicLibrary);
+      PDynamicLibrary pDynLib(new CDynamicLibrary);
       pDynLib->Load(sPluginName, bRawName);
 
 #ifdef WIN32      
@@ -47,8 +46,8 @@ namespace rise
 
       RISE_ASSERTES(pPlugin != NULL, rise::CFileOpenException, "Error while getting plugin object");
 
-      m_lsPluginMap[sPluginName] = pPlugin;
-      m_lsDynLibMap[sPluginName] = pDynLib.release();
+      m_mPlugins[sPluginName] = pPlugin;
+      m_mDynLibs[sPluginName] = pDynLib;
 
       return pPlugin;
     }
@@ -56,58 +55,55 @@ namespace rise
     template<typename TPluginBaseClass> 
     TPluginBaseClass* CPluginManager<TPluginBaseClass>::GetPlugin(const CString& sPluginName)
     {
-      TPluginIterator itPlugin = m_lsPluginMap.find(sPluginName);
-      RISE_ASSERTES(itPlugin != m_lsPluginMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
+      TPluginIterator itPlugin = m_mPlugins.find(sPluginName);
+      RISE_ASSERTES(itPlugin != m_mPlugins.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
       return itPlugin->second;
     }
 
     template<typename TPluginBaseClass> 
     void CPluginManager<TPluginBaseClass>::UnLoadPlugin( const CString& sPluginName )
     {
-      TDynLibMap::iterator itPlugin = m_lsDynLibMap.find(sPluginName);
-      RISE_ASSERTES(itPlugin != m_lsDynLibMap.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
-      itPlugin->second->UnloadLibrary();
-      m_lsPluginMap.erase(sPluginName);
-      m_lsDynLibMap.erase(sPluginName);
+      TDynLibMap::iterator itPlugin = m_mDynLibs.find(sPluginName);
+      RISE_ASSERTES(itPlugin != m_mDynLibs.end(), rise::CLogicNoItemException, "Plugin \'" + sPluginName + "\' is not loaded");
+      m_mPlugins.erase(sPluginName);
+      m_mDynLibs.erase(sPluginName);
     }
 
     template<typename TPluginBaseClass> 
     void CPluginManager<TPluginBaseClass>::UnloadAll()
     {
-      for(TDynLibMap::iterator itPlugin = m_lsDynLibMap.begin(); itPlugin != m_lsDynLibMap.end(); ++itPlugin)
-        itPlugin->second->UnloadLibrary();
-      m_lsPluginMap.clear();
-      m_lsDynLibMap.clear();
+      m_mPlugins.clear();
+      m_mDynLibs.clear();
     }
 
     template<typename TPluginBaseClass> 
     const typename CPluginManager<TPluginBaseClass>::TPluginMap& CPluginManager<TPluginBaseClass>::GetPluginMap() const
     {
-      return m_lsPluginMap;
+      return m_mPlugins;
     }
 
     template<typename TPluginBaseClass> 
     typename CPluginManager<TPluginBaseClass>::TPluginIterator CPluginManager<TPluginBaseClass>::PluginBegin()
     {
-      return m_lsPluginMap.begin();
+      return m_mPlugins.begin();
     }
 
     template<typename TPluginBaseClass> 
     typename CPluginManager<TPluginBaseClass>::TPluginIterator CPluginManager<TPluginBaseClass>::PluginEnd()
     {
-      return m_lsPluginMap.end();
+      return m_mPlugins.end();
     }
 
     template<typename TPluginBaseClass> 
     typename CPluginManager<TPluginBaseClass>::TPluginConstIterator CPluginManager<TPluginBaseClass>::PluginBegin() const
     {
-      return m_lsPluginMap.begin();
+      return m_mPlugins.begin();
     }
 
     template<typename TPluginBaseClass> 
     typename CPluginManager<TPluginBaseClass>::TPluginConstIterator CPluginManager<TPluginBaseClass>::PluginEnd() const
     {
-      return m_lsPluginMap.end();
+      return m_mPlugins.end();
     }
 
   } // namespace plugin

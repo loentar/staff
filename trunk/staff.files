@@ -261,9 +261,12 @@ staff/core/utils/src/Base64Binary.cpp
 staff/core/utils/src/Base64Binary.h
 staff/core/utils/src/ByteArray.cpp
 staff/core/utils/src/ByteArray.h
+staff/core/utils/src/fromcstring.h
 staff/core/utils/src/HexBinary.cpp
 staff/core/utils/src/HexBinary.h
 staff/core/utils/src/staffutilsexport.h
+staff/core/utils/src/tocstring.h
+staff/core/utils/src/tostring.h
 staff/modules/axis2services/mod_axis2services.c
 staff/samples/binarydata/client/src/KeyGenerator.h
 staff/samples/binarydata/client/src/main.cpp

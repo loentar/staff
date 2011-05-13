@@ -47,13 +47,13 @@ namespace staff
     CComponentConfig& GetComponentConfig(const std::string& sComponent, const std::string& sConfig = "config.xml", 
       bool bCreate = false);
   
-  protected:
+  private:
     CComponentConfigManager();
-    
     ~CComponentConfigManager();
+    CComponentConfigManager(const CComponentConfigManager&);
+    CComponentConfigManager& operator=(const CComponentConfigManager&);
 
   private:
-    static CComponentConfigManager* m_pInst;
     class CComponentConfigManagerImpl;
     CComponentConfigManagerImpl* m_pImpl;
   };

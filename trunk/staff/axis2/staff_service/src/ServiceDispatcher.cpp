@@ -31,6 +31,7 @@
 #include <staff/common/Exception.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
+#include <staff/component/SessionManager.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include <staff/security/tools.h>
 #include "ServiceDispatcher.h"
@@ -63,14 +64,14 @@ rise::LogEntry();
       }
 
       for (TStringList::const_iterator itDir = lsComponentDirs.begin();
-                itDir != lsComponentDirs.end(); ++itDir )
+                itDir != lsComponentDirs.end(); ++itDir)
       {
         // finding libraries with components
         TStringList lsComponents;
         std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
         rise::CFileFind::Find(sComponentDir, lsComponents, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
         for (TStringList::const_iterator itComponent = lsComponents.begin();
-                itComponent != lsComponents.end(); ++itComponent )
+                itComponent != lsComponents.end(); ++itComponent)
         {
           try
           {
@@ -92,6 +93,8 @@ rise::LogEntry();
         }
       }
 
+      staff::CSessionManager::Inst().Start();
+
       LoadServices();
 
       const TServiceWrapperMap& rServices = rSharedContext.GetServices();
@@ -100,13 +103,15 @@ rise::LogEntry();
         for (TServiceWrapperMap::const_iterator itService = rServices.begin();
                  itService != rServices.end(); ++itService)
         {
-          m_stEvents.pOnConnect(itService->first, itService->second);
+          m_stEvents.pOnConnect(itService->second);
         }
       }
     }
 
     void Deinit()
     {
+      staff::CSessionManager::Inst().Stop();
+
       CSharedContext& rSharedContext = CSharedContext::Inst();
       if (m_stEvents.pOnDisconnect != NULL)
       {
@@ -120,7 +125,7 @@ rise::LogEntry();
 
       rSharedContext.Clear();
       CServiceInstanceManager::Inst().FreeAllSessions();
-      m_lsComponents.UnloadAll();
+      // do not unload component libraries here
     }
 
 
@@ -242,7 +247,7 @@ rise::LogEntry();
       for (TStringList::const_iterator itService = lsServicesLoadOrder.begin();
           itService != lsServicesLoadOrder.end(); ++itService)
       {
-        rise::LogDebug() << "loading service [" << *itService << "]";
+        rise::LogDebug() << "loading service [" << *itService << "] marked as loadAtStartup";
         rInstanceManager.CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, *itService, "");
       }
     }
@@ -253,7 +258,7 @@ rise::LogEntry();
 
 //////////////////////////////////////////////////////////////////////////
 // SEvents
-  CServiceDispatcher::SEvents::SEvents( void (*pOnConnectInit)(const std::string&, const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&) ) :
+  CServiceDispatcher::SEvents::SEvents(void (*pOnConnectInit)(const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&)) :
     pOnConnect(pOnConnectInit), pOnDisconnect(pOnDisconnectInit)
   {
   }
@@ -263,7 +268,7 @@ rise::LogEntry();
   {
   }
 
-  CServiceDispatcher::SEvents& CServiceDispatcher::SEvents::operator=( const SEvents& rEvents )
+  CServiceDispatcher::SEvents& CServiceDispatcher::SEvents::operator=(const SEvents& rEvents)
   {
     pOnConnect = rEvents.pOnConnect;
     pOnDisconnect = rEvents.pOnDisconnect;
@@ -273,24 +278,11 @@ rise::LogEntry();
 
   CServiceDispatcher& CServiceDispatcher::Inst()
   {
-    if (m_pInst == NULL)
-    {
-      m_pInst = new CServiceDispatcher;
-    }
-
-    return *m_pInst;
+    static CServiceDispatcher tInst;
+    return tInst;
   }
 
-  void CServiceDispatcher::FreeInst()
-  {
-    if (m_pInst != NULL)
-    {
-      delete m_pInst;
-      m_pInst = NULL;
-    }
-  }
-
-  void CServiceDispatcher::Init( const SEvents& stEvents )
+  void CServiceDispatcher::Init(const SEvents& stEvents)
   {
     m_pImpl->m_stEvents = stEvents;
     m_pImpl->Init();
@@ -301,7 +293,7 @@ rise::LogEntry();
     m_pImpl->Deinit();
   }
 
-  void CServiceDispatcher::InvokeSelf( COperation& rOperation )
+  void CServiceDispatcher::InvokeSelf(COperation& rOperation)
   {
     staff::CDataObject& rResult = rOperation.Result();
 
@@ -346,5 +338,4 @@ rise::LogEntry();
     }
   }
 
-  CServiceDispatcher* CServiceDispatcher::m_pInst = NULL;
 }

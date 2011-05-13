@@ -29,8 +29,6 @@ namespace rise
   namespace xml
   {
 
-    static CString sWhitespace = " \t\n\r";
-
     class CMetaChar
     {
     private:
@@ -223,6 +221,7 @@ namespace rise
 
     void CXMLIStream::SkipWhitespace()
     {
+      static const CString sWhitespace = " \t\n\r";
       TChar chWhitespace = '\0';
 
       while(PeekChar(chWhitespace) && (sWhitespace.find(chWhitespace) != CString::npos))

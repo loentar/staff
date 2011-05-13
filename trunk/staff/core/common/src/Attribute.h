@@ -26,6 +26,7 @@
 #include <string>
 
 typedef struct axiom_attribute axiom_attribute_t;
+typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
@@ -71,6 +72,9 @@ namespace staff
         \param  tValue - attribute value
         */
     CAttribute(const std::string& sLocalNameInit, const CValue& tValue);
+
+    //!         destructor
+    ~CAttribute();
 
     //!         get local name
     /*! \return local name
@@ -144,6 +148,7 @@ namespace staff
     bool m_bOwner; //!<  ownership flag
     CDataObject* m_pDataObject; //!<  owner dataobject
     axiom_attribute_t* m_pAxiomAttribute; //!<  axiom attribute
+    static axutil_env_t* m_pEnv; //!<  Axis2/C environment
   };
 
 } // namespace staff

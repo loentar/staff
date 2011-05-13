@@ -36,21 +36,8 @@ namespace staff
   {
     CObjects& CObjects::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CObjects;
-      }
-
-      return *m_pInst;
-    }
-
-    void CObjects::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
+      static CObjects tInst;
+      return tInst;
     }
 
     void CObjects::GetById(int nId, SObject& rstObject)
@@ -405,6 +392,5 @@ namespace staff
     {
     }
 
-    CObjects* CObjects::m_pInst = NULL;
   }
 }

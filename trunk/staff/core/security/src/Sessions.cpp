@@ -38,23 +38,9 @@ namespace staff
   {
     CSessions& CSessions::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CSessions;
-      }
-
-      return *m_pInst;
+      static CSessions tInst;
+      return tInst;
     }
-
-    void CSessions::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
-    }
-
 
     void CSessions::GetById(int nId, SSession& rstSession)
     {
@@ -611,6 +597,5 @@ namespace staff
     }
 
     const std::string CSessions::sNobodySessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
-    CSessions* CSessions::m_pInst = NULL;
   }
 }

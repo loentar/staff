@@ -114,6 +114,11 @@ namespace das
   DataSourceFactory::DataSourceFactory()
   {
     m_pImpl = new DataSourceFactoryImpl;
+    try
+    {
+      m_pImpl->Init();
+    }
+    RISE_CATCH_ALL
   }
 
   DataSourceFactory::~DataSourceFactory()
@@ -123,18 +128,8 @@ namespace das
 
   DataSourceFactory& DataSourceFactory::Inst()
   {
-    if (!m_pInst)
-    {
-      m_pInst = new DataSourceFactory;
-      m_pInst->m_pImpl->Init();
-    }
-
-    return *m_pInst;
-  }
-
-  void DataSourceFactory::FreeInst()
-  {
-    delete m_pInst;
+    static DataSourceFactory tInst;
+    return tInst;
   }
 
   const DataSource& DataSourceFactory::GetDataSource(const std::string& sName) const
@@ -188,8 +183,6 @@ namespace das
       }
     }
   }
-
-  DataSourceFactory* DataSourceFactory::m_pInst = NULL;
 
 }
 }

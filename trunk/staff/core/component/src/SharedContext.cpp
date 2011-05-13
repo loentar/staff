@@ -37,10 +37,8 @@ namespace staff
 
   CSharedContext& CSharedContext::Inst()
   {
-    if (m_pInst == NULL)
-      m_pInst = new CSharedContext;
-
-    return *m_pInst;
+    static CSharedContext tInst;
+    return tInst;
   }
 
   void CSharedContext::AddComponent( CComponent* pComponent )
@@ -132,8 +130,8 @@ namespace staff
   void CSharedContext::Clear()
   {
     m_mComponents.clear();
+    m_mServiceWrappers.clear();
   }
 
-  CSharedContext* CSharedContext::m_pInst = NULL;
 }
 

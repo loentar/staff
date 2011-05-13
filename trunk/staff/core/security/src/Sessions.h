@@ -53,9 +53,6 @@ namespace staff
         */
       static CSessions& Inst();
 
-      //! free sessions instance
-      static void FreeInst();
-
       //! get session by id
       /*! \param nId - id
           \param rstSession - resulting session
@@ -156,9 +153,10 @@ namespace staff
     private:
       CSessions();
       ~CSessions();
+      CSessions(const CSessions&);
+      CSessions& operator=(const CSessions&);
 
     private:
-      static CSessions* m_pInst;
       int m_nSessionExpiration; //!< session expiration
     };
   }

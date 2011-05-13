@@ -57,12 +57,8 @@ namespace staff
 
   CServiceFactory& CServiceFactory::Inst()
   {
-    if (m_pInst == NULL)
-    {
-      m_pInst = new CServiceFactory;
-    }
-
-    return *m_pInst;
+    static CServiceFactory tInst;
+    return tInst;
   }
 
   void CServiceFactory::RegisterProxyAllocator(const std::string& sProxyTypeId, IProxyAllocator& rProxyAllocator)
@@ -80,6 +76,5 @@ namespace staff
     delete m_pImpl;
   }
 
-  CServiceFactory* CServiceFactory::m_pInst = NULL;
 }
 

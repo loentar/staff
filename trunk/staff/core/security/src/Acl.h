@@ -47,9 +47,6 @@ namespace staff
         */
       static CAcl& Inst();
 
-      //! free acl instance
-      static void FreeInst();
-      
       //! set access to object for all users
       /*! \param nObjectId - object id
           \param eAccess - access
@@ -108,9 +105,8 @@ namespace staff
     private:
       CAcl();
       ~CAcl();
-
-    private:
-      static CAcl* m_pInst;
+      CAcl(const CAcl&);
+      CAcl& operator=(const CAcl&);
     };
   }
 }

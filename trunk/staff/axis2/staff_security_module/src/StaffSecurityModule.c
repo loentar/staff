@@ -88,8 +88,6 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
     GetSessionAndInstanceId(pMsgCtx, pEnv, &szSessionId, &szInstanceId);
     if (szSessionId == NULL)
     {
-      dprintf("Session ID is not set, identifying as guest\n");
-
       szSessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
     }
 

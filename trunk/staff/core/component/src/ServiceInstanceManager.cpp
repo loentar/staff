@@ -101,21 +101,8 @@ namespace staff
 
   CServiceInstanceManager& CServiceInstanceManager::Inst()
   {
-    if (!m_pInst)
-    {
-      m_pInst = new CServiceInstanceManager;
-    }
-
-    return *m_pInst;
-  }
-
-  void CServiceInstanceManager::FreeInst()
-  {
-    if (m_pInst)
-    {
-      delete m_pInst;
-      m_pInst = NULL;
-    }
+    static CServiceInstanceManager tInst;
+    return tInst;
   }
 
   CServiceInstanceManager::CServiceInstanceManager()
@@ -244,5 +231,4 @@ namespace staff
     return ServiceInstance(pService->GetSessionId(), sServiceName, pService->GetInstanceId());
   }
 
-  CServiceInstanceManager* CServiceInstanceManager::m_pInst = NULL;
 }

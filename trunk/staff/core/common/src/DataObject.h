@@ -35,6 +35,10 @@ typedef struct axutil_env axutil_env_t;
 // namespace
 namespace staff
 {
+  // wsdl compat
+  typedef char byte;
+  typedef unsigned char unsignedByte;
+
   class CQName;
   class CNamespace;
   class CAttribute;
@@ -66,9 +70,49 @@ namespace staff
     CDataObject(const CDataObject& rDataObject);
 
     //!         initializing constructor
+    /*! \param  szLocalName - local name for creating node (C-string)
+    */
+    explicit CDataObject(const char* szLocalName);
+
+    //!         initializing constructor
     /*! \param  sLocalName - local name for creating node
     */
-    CDataObject(const std::string& sLocalName);
+    explicit CDataObject(const std::string& sLocalName);
+
+    // optimized constructors
+    CDataObject(const char* szLocalName, bool bValue);
+    CDataObject(const char* szLocalName, byte btValue);
+    CDataObject(const char* szLocalName, int nValue);
+    CDataObject(const char* szLocalName, short shValue);
+    CDataObject(const char* szLocalName, long lValue);
+    CDataObject(const char* szLocalName, long long llValue);
+    CDataObject(const char* szLocalName, unsignedByte ubtValue);
+    CDataObject(const char* szLocalName, unsigned int unValue);
+    CDataObject(const char* szLocalName, unsigned short ushValue);
+    CDataObject(const char* szLocalName, unsigned long ulValue);
+    CDataObject(const char* szLocalName, unsigned long long ullValue);
+    CDataObject(const char* szLocalName, float fValue);
+    CDataObject(const char* szLocalName, double dValue);
+
+    CDataObject(const std::string& sLocalName, bool bValue);
+    CDataObject(const std::string& sLocalName, byte btValue);
+    CDataObject(const std::string& sLocalName, int nValue);
+    CDataObject(const std::string& sLocalName, short shValue);
+    CDataObject(const std::string& sLocalName, long lValue);
+    CDataObject(const std::string& sLocalName, long long llValue);
+    CDataObject(const std::string& sLocalName, unsignedByte ubtValue);
+    CDataObject(const std::string& sLocalName, unsigned int unValue);
+    CDataObject(const std::string& sLocalName, unsigned short ushValue);
+    CDataObject(const std::string& sLocalName, unsigned long ulValue);
+    CDataObject(const std::string& sLocalName, unsigned long long ullValue);
+    CDataObject(const std::string& sLocalName, float fValue);
+    CDataObject(const std::string& sLocalName, double dValue);
+
+    //!         initializing constructor
+    /*! \param  szLocalName - local name for creating node(C-string)
+        \param  szText - node value(C-string)
+    */
+    explicit CDataObject(const char* szLocalName, const char* szText);
 
     //!         initializing constructor
     /*! \param  sLocalName - local name for creating node
@@ -77,10 +121,22 @@ namespace staff
     explicit CDataObject(const std::string& sLocalName, const char* szText);
 
     //!         initializing constructor
+    /*! \param  szLocalName - local name for creating node(C-string)
+        \param  sText - node value
+    */
+    explicit CDataObject(const char* szLocalName, const std::string& sText);
+
+    //!         initializing constructor
     /*! \param  sLocalName - local name for creating node
         \param  sText - node value(string)
     */
     explicit CDataObject(const std::string& sLocalName, const std::string& sText);
+
+    //!         initializing constructor
+    /*! \param  szLocalName - local name for creating node(C-string)
+        \param  rValue - node value
+    */
+    CDataObject(const char* szLocalName, const CValue& rValue);
 
     //!         initializing constructor
     /*! \param  sLocalName - local name for creating node
@@ -89,9 +145,9 @@ namespace staff
     CDataObject(const std::string& sLocalName, const CValue& rValue);
 
     //!         initializing constructor
-    /*! \param  stQName - node qname
+    /*! \param  rQName - node qname
     */
-    CDataObject(const CQName& stQName);
+    CDataObject(const CQName& rQName);
 
     //!        destructor
     ~CDataObject();
@@ -113,7 +169,7 @@ namespace staff
     //!         get ownership flag
     /*! \return true - if ownership flag set
         */
-    bool IsOwner();
+    bool IsOwner() const;
 
     //!         set ownership flag
     /*! \param  bOwner - ownership flag
@@ -149,19 +205,34 @@ namespace staff
     CQName GetQName();
     
     //!         set QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         */
-    void SetQName(const CQName& stQName) const;
+    void SetQName(const CQName& rQName) const;
 
     //!         get local name
     /*! \return local name
     */
     std::string GetLocalName() const;
-    
+
+    //!         get local name
+    /*! \param  sLocalName - resulting local name
+    */
+    void GetLocalName(std::string& sLocalName) const;
+
+    //!         set local name
+    /*! \param  szLocalName - local name(C-string)
+        */
+    void SetLocalName(const char* szLocalName) const;
+
     //!         set local name
     /*! \param  sLocalName - local name
         */
     void SetLocalName(const std::string& sLocalName) const;
+
+    //!         get prefix
+    /*! \param  sPrefix - prefix
+    */
+    void GetPrefix(std::string& sPrefix) const;
 
     //!         get prefix
     /*! \return prefix
@@ -169,17 +240,32 @@ namespace staff
     std::string GetPrefix() const;
     
     //!         set prefix
+    /*! \param  szPrefix - prefix(C-string)
+        */
+    void SetPrefix(const char* szPrefix);
+
+    //!         set prefix
     /*! \param  sPrefix - prefix
         */
-    void SetPrefix(const std::string& sPrefix) const;
+    void SetPrefix(const std::string& sPrefix);
+
+    //!         get default namespace URI
+    /*! \param sNamespaceUri - resulting namespace URI
+    */
+    void GetNamespaceUri(std::string& sNamespaceUri) const;
 
     //!         get default namespace URI
     /*! \return namespace URI
     */
     std::string GetNamespaceUri() const;
-    
+
     //!         set namespace URI
-    /*! \param  sUri - set namespace URI
+    /*! \param  szUri - namespace URI(C-string)
+        */
+    void SetNamespaceUri(const char* szUri) const;
+
+    //!         set namespace URI
+    /*! \param  sUri - namespace URI
         */
     void SetNamespaceUri(const std::string& sUri) const;
 
@@ -190,20 +276,66 @@ namespace staff
     void Create();
 
     //!         create named node and set ownership flag
+    /*! \param  szLocalName - node name(C-string)
+        */
+    void Create(const char* szLocalName);
+
+    //!         create named node and set ownership flag
     /*! \param  sLocalName - node name
         */
     void Create(const std::string& sLocalName);
 
     //!         create node with QName and set ownership flag
-    /*! \param  rstQName - QName
+    /*! \param  rQName - QName
         */
-    void Create(const CQName& rstQName);
+    void Create(const CQName& rQName);
+
+    // optimized create functions
+    void Create(const char* szLocalName, bool bValue);
+    void Create(const char* szLocalName, byte btValue);
+    void Create(const char* szLocalName, int nValue);
+    void Create(const char* szLocalName, short shValue);
+    void Create(const char* szLocalName, long lValue);
+    void Create(const char* szLocalName, long long llValue);
+    void Create(const char* szLocalName, unsignedByte ubtValue);
+    void Create(const char* szLocalName, unsigned int unValue);
+    void Create(const char* szLocalName, unsigned short ushValue);
+    void Create(const char* szLocalName, unsigned long ulValue);
+    void Create(const char* szLocalName, unsigned long long ullValue);
+    void Create(const char* szLocalName, float fValue);
+    void Create(const char* szLocalName, double dValue);
+
+    void Create(const std::string& sLocalName, bool bValue);
+    void Create(const std::string& sLocalName, byte btValue);
+    void Create(const std::string& sLocalName, int nValue);
+    void Create(const std::string& sLocalName, short shValue);
+    void Create(const std::string& sLocalName, long lValue);
+    void Create(const std::string& sLocalName, long long llValue);
+    void Create(const std::string& sLocalName, unsignedByte ubtValue);
+    void Create(const std::string& sLocalName, unsigned int unValue);
+    void Create(const std::string& sLocalName, unsigned short ushValue);
+    void Create(const std::string& sLocalName, unsigned long ulValue);
+    void Create(const std::string& sLocalName, unsigned long long ullValue);
+    void Create(const std::string& sLocalName, float fValue);
+    void Create(const std::string& sLocalName, double dValue);
+
+    //!         create named node, set ownership flag, set node value(string)
+    /*! \param  sLocalName - node name
+        \param  szText - node value(C-string)
+    */
+    void Create(const char* szLocalName, const char* szText);
 
     //!         create named node, set ownership flag, set node value(string)
     /*! \param  sLocalName - node name
         \param  szText - node value(C-string)
     */
     void Create(const std::string& sLocalName, const char* szText);
+
+    //!         create named node, set ownership flag, set node value(string)
+    /*! \param  sLocalName - node name
+        \param  sText - node value(string)
+    */
+    void Create(const char* szLocalName, const std::string& sText);
 
     //!         create named node, set ownership flag, set node value(string)
     /*! \param  sLocalName - node name
@@ -229,14 +361,14 @@ namespace staff
     //!         replace current node with given    
     CDataObject& ReplaceNode(CDataObject& rNewNode);
 
-    //!         create tree node copy from given
+    //!         create deep copy of the axiom tree
     /*! sets ownership flag for newly created tree
         \param  rDataObject - source DataObject
         \return reference to current node
         */
     CDataObject& Clone(const CDataObject& rDataObject);
 
-    //!         create tree node copy from given
+    //!         create deep copy of the axiom tree
     /*! sets ownership flag for newly created tree
         \return cloned DataObject
         */
@@ -256,6 +388,14 @@ namespace staff
     /*! \return previous sibling element
       */
     CDataObject PreviousSibling();
+
+    //!         move to the next sibling element
+    /*! to check for DataObject for validaty please use IsInit() */
+    void SetNextSibling();
+
+    //!         move to the previous sibling element
+    /*! to check for DataObject for validaty please use IsInit() */
+    void SetPreviousSibling();
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -287,10 +427,16 @@ namespace staff
     CDataObject CreateChild();
 
     //!         create child node with QName
-    /*! \param  rstQName - QName
+    /*! \param  rQName - QName
         \return created child
         */
-    CDataObject CreateChild(const CQName& rstQName);
+    CDataObject CreateChild(const CQName& rQName);
+
+    //!         create child node with local name
+    /*! \param  szLocalName - child's local name(C-string)
+        \return created child
+        */
+    CDataObject CreateChild(const char* szLocalName);
 
     //!         create child node with local name
     /*! \param  sLocalName - child's local name
@@ -298,19 +444,69 @@ namespace staff
         */
     CDataObject CreateChild(const std::string& sLocalName);
 
+    // optimized create child functions
+    CDataObject CreateChild(const char* szLocalName, bool bValue);
+    CDataObject CreateChild(const char* szLocalName, byte btValue);
+    CDataObject CreateChild(const char* szLocalName, int nValue);
+    CDataObject CreateChild(const char* szLocalName, short shValue);
+    CDataObject CreateChild(const char* szLocalName, long lValue);
+    CDataObject CreateChild(const char* szLocalName, long long llValue);
+    CDataObject CreateChild(const char* szLocalName, unsignedByte ubtValue);
+    CDataObject CreateChild(const char* szLocalName, unsigned int unValue);
+    CDataObject CreateChild(const char* szLocalName, unsigned short ushValue);
+    CDataObject CreateChild(const char* szLocalName, unsigned long ulValue);
+    CDataObject CreateChild(const char* szLocalName, unsigned long long ullValue);
+    CDataObject CreateChild(const char* szLocalName, float fValue);
+    CDataObject CreateChild(const char* szLocalName, double dValue);
+
+    CDataObject CreateChild(const std::string& sLocalName, bool bValue);
+    CDataObject CreateChild(const std::string& sLocalName, byte btValue);
+    CDataObject CreateChild(const std::string& sLocalName, int nValue);
+    CDataObject CreateChild(const std::string& sLocalName, short shValue);
+    CDataObject CreateChild(const std::string& sLocalName, long lValue);
+    CDataObject CreateChild(const std::string& sLocalName, long long llValue);
+    CDataObject CreateChild(const std::string& sLocalName, unsignedByte ubtValue);
+    CDataObject CreateChild(const std::string& sLocalName, unsigned int unValue);
+    CDataObject CreateChild(const std::string& sLocalName, unsigned short ushValue);
+    CDataObject CreateChild(const std::string& sLocalName, unsigned long ulValue);
+    CDataObject CreateChild(const std::string& sLocalName, unsigned long long ullValue);
+    CDataObject CreateChild(const std::string& sLocalName, float fValue);
+    CDataObject CreateChild(const std::string& sLocalName, double dValue);
+
     //!         create child node with local name and value
-    /*! \param  sLocalName - child's local name
-        \param  sValue - child's text value(C-string)
+    /*! \param  szLocalName - child's local name(C-string)
+        \param  szText - child's text value(C-string)
         \return created child
         */
-    CDataObject CreateChild(const std::string& sLocalName, const char* szValue);
+    CDataObject CreateChild(const char* szLocalName, const char* szText);
 
     //!         create child node with local name and value
     /*! \param  sLocalName - child's local name
-        \param  szValue - child's text value(string)
+        \param  szText - child's text value(C-string)
         \return created child
         */
-    CDataObject CreateChild(const std::string& sLocalName, const std::string& sValue);
+    CDataObject CreateChild(const std::string& sLocalName, const char* szText);
+
+    //!         create child node with local name and value
+    /*! \param  szLocalName - child's local name(C-string)
+        \param  sText - child's text value(string)
+        \return created child
+        */
+    CDataObject CreateChild(const char* szLocalName, const std::string& sText);
+
+    //!         create child node with local name and value
+    /*! \param  sLocalName - child's local name
+        \param  sText - child's text value(string)
+        \return created child
+        */
+    CDataObject CreateChild(const std::string& sLocalName, const std::string& sText);
+
+    //!         create child node with local name and value
+    /*! \param  szLocalName - child's local name(C-string)
+        \param  sValue - child's value
+        \return created child
+        */
+    CDataObject CreateChild(const char* szLocalName, const CValue& rValue);
 
     //!         create child node with local name and value
     /*! \param  sLocalName - child's local name
@@ -318,6 +514,12 @@ namespace staff
         \return created child
         */
     CDataObject CreateChild(const std::string& sLocalName, const CValue& rValue);
+
+    //!         create child with given local name if no child nodes with given name exists
+    /*! \param  sLocalName - child's local name
+        \return created or already existing child
+        */
+    CDataObject CreateChildOnce(const char* szLocalName);
 
     //!         create child with given local name if no child nodes with given name exists
     /*! \param  sLocalName - child's local name
@@ -359,30 +561,55 @@ namespace staff
     void RemoveAllChildren();
 
     //!         find child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return iterator to found child node or End()
         */
-    Iterator FindChildByQName(const CQName& stQName);
+    Iterator FindChildByQName(const CQName& rQName);
 
     //!         find child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return iterator to found child node or End()
         */
-    ConstIterator FindChildByQName(const CQName& stQName) const;
+    ConstIterator FindChildByQName(const CQName& rQName) const;
 
     //!         find child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
-    Iterator FindChildByQName(const CQName& stQName, const Iterator& itStart);
+    Iterator FindChildByQName(const CQName& rQName, const Iterator& itStart);
 
     //!         find child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
-    ConstIterator FindChildByQName(const CQName& stQName, const ConstIterator& itStart) const;
+    ConstIterator FindChildByQName(const CQName& rQName, const ConstIterator& itStart) const;
+
+    //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \param  ppNode - resulting pointer to node
+        \param  ppElement - resulting pointer to element
+        \return true if node is found
+        */
+    bool FindChildByLocalName(const char* szLocalName,
+                              axiom_node_t** ppNode, axiom_element_t** ppElement = NULL) const;
+
+    //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \param  pNodeStart - node to search from
+        \param  ppNode - resulting pointer to node
+        \param  ppElement - optional resulting pointer to element
+        \return true if node is found
+        */
+    bool FindChildByLocalName(const char* szLocalName, axiom_node_t* pNodeStart,
+                              axiom_node_t** ppNode, axiom_element_t** ppElement = NULL) const;
+
+    //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \return iterator to found child node or End()
+        */
+    Iterator FindChildByLocalName(const char* szLocalName);
 
     //!         find child node by local name
     /*! \param  sLocalName - local name
@@ -391,10 +618,23 @@ namespace staff
     Iterator FindChildByLocalName(const std::string& sLocalName);
 
     //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \return iterator to found child node or End()
+        */
+    ConstIterator FindChildByLocalName(const char* szLocalName) const;
+
+    //!         find child node by local name
     /*! \param  sLocalName - local name
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const std::string& sLocalName) const;
+
+    //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
+        */
+    Iterator FindChildByLocalName(const char* szLocalName, const Iterator& itStart);
 
     //!         find child node by local name
     /*! \param  sLocalName - local name
@@ -404,6 +644,13 @@ namespace staff
     Iterator FindChildByLocalName(const std::string& sLocalName, const Iterator& itStart);
 
     //!         find child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \param  itStart - child's iterator to start with
+        \return iterator to found child node or End()
+        */
+    ConstIterator FindChildByLocalName(const char* szLocalName, const ConstIterator& itStart) const;
+
+    //!         find child node by local name
     /*! \param  sLocalName - local name
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
@@ -411,22 +658,34 @@ namespace staff
     ConstIterator FindChildByLocalName(const std::string& sLocalName, const ConstIterator& itStart) const;
 
     //!         get child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return child node
         */
-    CDataObject GetChildByQName(const CQName& stQName);
+    CDataObject GetChildByQName(const CQName& rQName);
 
     //!         get child node by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return child node
         */
-    const CDataObject GetChildByQName(const CQName& stQName) const;
+    const CDataObject GetChildByQName(const CQName& rQName) const;
+
+    //!         get child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \return child node
+        */
+    CDataObject GetChildByLocalName(const char* szLocalName);
 
     //!         get child node by local name
     /*! \param  sLocalName - local name
         \return child node
         */
     CDataObject GetChildByLocalName(const std::string& sLocalName);
+
+    //!         get child node by local name
+    /*! \param  szLocalName - local name(C-string)
+        \return child node
+        */
+    const CDataObject GetChildByLocalName(const char* szLocalName) const;
 
     //!         get child node by local name
     /*! \param  sLocalName - local name
@@ -437,11 +696,51 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // data manipulation
 
+    // optimized set value functions
+    void SetValue(bool bValue);
+    void SetValue(byte btValue);
+    void SetValue(int nValue);
+    void SetValue(short shValue);
+    void SetValue(long lValue);
+    void SetValue(long long llValue);
+    void SetValue(unsignedByte ubtValue);
+    void SetValue(unsigned int unValue);
+    void SetValue(unsigned short ushValue);
+    void SetValue(unsigned long ulValue);
+    void SetValue(unsigned long long ullValue);
+    void SetValue(float fValue);
+    void SetValue(double dValue);
+    void SetValue(const char* szText);
+    void SetValue(const std::string& sText);
+
+
+    // optimized get value functions
+    // returns true, if conversion to type was successed
+    bool GetValue(bool& rbValue) const;
+    bool GetValue(byte& rbtValue) const;
+    bool GetValue(int& rnValue) const;
+    bool GetValue(short& rshValue) const;
+    bool GetValue(long& rlValue) const;
+    bool GetValue(long long& rllValue) const;
+    bool GetValue(unsignedByte& rubtValue) const;
+    bool GetValue(unsigned int& runValue) const;
+    bool GetValue(unsigned short& rushValue) const;
+    bool GetValue(unsigned long& rulValue) const;
+    bool GetValue(unsigned long long& rullValue) const;
+    bool GetValue(float& rfValue) const;
+    bool GetValue(double& rdValue) const;
+    void GetValue(std::string& sValue) const;
+
     //!         get/set node value
-    /*! example: 
+    /*! example:
         int nValue = tDataObject.Value(); // reading
         tDataObject.Value() = 2.3; // writing
 
+        please note: this function is not efficient and not completely safe
+        please use GetValue(param)/SetValue(param) instead if possible
+
+        \sa GetValue
+        \sa SetValue
         \return node value
     */
     CValue Value();
@@ -461,29 +760,26 @@ namespace staff
     */
     std::string GetText() const;
     
+    //!         get node value(string)
+    /*! alias for GetValue(std::string)
+        \sa GetValue
+        \param sText - resulting node value(string)
+    */
+    void GetText(std::string& sText) const;
+
     //!         set node value(string)
-    /*! \param  sText - node value(string)
+    /*! alias for SetValue(char*)
+        \sa SetValue
+        \param  sText - node value(string)
+        */
+    void SetText(const char* szText);
+
+    //!         set node value(string)
+    /*! alias for SetValue(std::string)
+        \sa SetValue
+        \param  sText - node value(string)
         */
     void SetText(const std::string& sText);
-
-    //!         get/set child's node value
-    /*! example: 
-        int nValue = tDataObject["Param1"]; // reading
-        tDataObject["Param1"] = 2.3; // writing
-
-        \param  sName - child's local name
-        \return child's node value
-    */
-    CValue operator[](const std::string& sName);
-
-    //!         get child's node value
-    /*! example: 
-        int nValue = tDataObject["Param1"]; // reading
-    
-        \param  sName - child's local name
-        \return child's node value
-    */
-    const CValue operator[](const std::string& sName) const;
 
     //////////////////////////////////////////////////////////////////////////
     // namespace management
@@ -550,6 +846,42 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // attribute management
 
+    //!         create and add attribute
+    /*! \param  szAttrName - attribute name (C-string)
+        \param  szAttrText - attribute text (C-string)
+        */
+    void CreateAttribute(const char* szAttrName, const char* szAttrText);
+
+    //!         create and add attribute
+    /*! \param  sAttrName - attribute name
+        \param  szAttrText - attribute text (C-string)
+        */
+    void CreateAttribute(const std::string& sAttrName, const char* szAttrText);
+
+    //!         create and add attribute
+    /*! \param  szAttrName - attribute name (C-string)
+        \param  sAttrText - attribute text
+        */
+    void CreateAttribute(const char* szAttrName, const std::string& sAttrText);
+
+    //!         create and add attribute
+    /*! \param  sAttrName - attribute name
+        \param  sAttrText - attribute text
+        */
+    void CreateAttribute(const std::string& sAttrName, const std::string& sAttrText);
+
+    //!         create and add attribute
+    /*! \param  szAttrName - attribute name (C-string)
+        \param  rValue - attribute value
+        */
+    void CreateAttribute(const char* szAttrName, const CValue& rValue);
+
+    //!         create and add attribute
+    /*! \param  sAttrName - attribute name
+        \param  rValue - attribute value
+        */
+    void CreateAttribute(const std::string& sAttrName, const CValue& rValue);
+
     //!         add attribute
     /*! resets rAttribute's owner flag
         \param  rAttribute - attribute
@@ -565,17 +897,17 @@ namespace staff
     void RemoveAllAttributes();
 
     //!         find attribute by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return iterator to found attribute or AttributeEnd()
         */
-    AttributeIterator FindAttributeByQName(const CQName& stQName);
+    AttributeIterator FindAttributeByQName(const CQName& rQName);
 
     //!         find attribute by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \param  itStart - iterator to attribute to start with
         \return iterator to found attribute or AttributeEnd()
         */
-    AttributeIterator FindAttributeByQName(const CQName& stQName, const AttributeIterator& itStart);
+    AttributeIterator FindAttributeByQName(const CQName& rQName, const AttributeIterator& itStart);
 
     //!         find attribute by local name
     /*! \param  sLocalName - attribute's local name
@@ -584,17 +916,17 @@ namespace staff
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName);
 
     //!         find attribute by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \return iterator to found attribute or AttributeEnd()
         */
-    ConstAttributeIterator FindAttributeByQName(const CQName& stQName) const;
+    ConstAttributeIterator FindAttributeByQName(const CQName& rQName) const;
 
     //!         find attribute by QName
-    /*! \param  stQName - QName
+    /*! \param  rQName - QName
         \param  itStart - iterator to attribute to start with
         \return iterator to found attribute or AttributeEnd()
         */
-    ConstAttributeIterator FindAttributeByQName(const CQName& stQName, const ConstAttributeIterator& itStart) const;
+    ConstAttributeIterator FindAttributeByQName(const CQName& rQName, const ConstAttributeIterator& itStart) const;
 
     //!         find attribute by local name
     /*! \param  sLocalName - attribute's local name
@@ -603,28 +935,46 @@ namespace staff
     ConstAttributeIterator FindAttributeByLocalName(const std::string& sLocalName) const;
 
     //!         get attribute by QName
-    /*! \param  stQName - attribute's QName
+    /*! \param  rQName - attribute's QName
         \return attribute
         */
-    CAttribute GetAttributeByQName(const CQName& stQName);
+    CAttribute GetAttributeByQName(const CQName& rQName);
 
     //!         get attribute by QName
-    /*! \param  stQName - attribute's QName
+    /*! \param  rQName - attribute's QName
         \return attribute
         */
-    const CAttribute GetAttributeByQName(const CQName& stQName) const;
+    const CAttribute GetAttributeByQName(const CQName& rQName) const;
+
+    //!         get attribute value by name
+    /*! \param  szLocalName - attribute's local name(C-string)
+        \return attribute's value
+        */
+    CValue GetAttributeValueByName(const char* szLocalName) const;
 
     //!         get attribute value by name
     /*! \param  sLocalName - attribute's local name
-        \return attribute
+        \return attribute's value
         */
     CValue GetAttributeValueByName(const std::string& sLocalName) const;
 
     //!         get attribute text by name
     /*! \param  sLocalName - attribute's local name
-        \return attribute
+        \return attribute's text
         */
     std::string GetAttributeTextByName(const std::string& sLocalName) const;
+
+    //!         get attribute text by name
+    /*! \param  sLocalName - attribute's local name
+        \param  sText - resulting attribute's text
+        */
+    void GetAttributeTextByName(const std::string& sLocalName, std::string& sText) const;
+
+    //!         get attribute text by name
+    /*! \param  szLocalName - attribute's local name(C-string)
+        \param  sText - resulting attribute's text
+        */
+    void GetAttributeTextByName(const char* szLocalName, std::string& sText) const;
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -725,6 +1075,24 @@ namespace staff
     */
     std::string ToString() const;
 
+    //!         get DataObject representation in XML
+    /*! \param  sResult - resulting DataObject representation in XML
+    */
+    void ToString(std::string& sResult) const;
+
+    //!         create DataObject from an XML
+    /*! \param  szXml - XML-string (C-string)
+        \return reference to current DataObject
+        */
+    CDataObject& FromString(const char* szXml);
+
+    //!         create DataObject from an XML
+    /*! \param  szXml - XML-string (C-string)
+        \param  nSize - XML-string size
+        \return reference to current DataObject
+        */
+    CDataObject& FromString(const char* szXml, int nSize);
+
     //!         create DataObject from an XML
     /*! \param  sXml - XML-string
         \return reference to current DataObject
@@ -803,6 +1171,20 @@ namespace staff
     */
     STAFF_DEPRECATED(GetValue) const CValue Value() const;
 
+    //!         deprecated function
+    /*! \sa SetValue
+        \sa CreateChildOnce
+        please use tDataObject.CreateChildOnce("Param1").SetValue(nValue); instead
+    */
+    CValue operator[](const std::string& sName);
+
+    //!         deprecated function
+    /*! \sa GetChildByLocalName
+        \sa GetValue
+        please use tDataObject.GetChildByLocalName("Param1").GetValue(nValue) instead
+    */
+    const CValue operator[](const std::string& sName) const;
+
 #endif
 
   private:
@@ -813,12 +1195,15 @@ namespace staff
         */
     axiom_node_t* Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent);
 
+    //! internal constructor for childs
+    CDataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement);
+
   private:
     axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node
     axiom_element_t* m_pAxiomElement;   //!<  DataObject's AxiOM node element
-    static axutil_env_t* m_pEnv;        //!<  Axis2/C environment
     bool m_bOwner;                      //!<  ownership flag
-    
+    static axutil_env_t* m_pEnv;        //!<  Axis2/C environment
+
     friend class Iterator;
     friend class ConstIterator;
     friend class NamespaceIterator;
@@ -1253,14 +1638,14 @@ namespace staff
       \param  rValue - value
       \return DataObject
       */
-  STAFF_COMMON_EXPORT CDataObject& operator<<(CDataObject& rDataObject, const CValue& rValue);
+  STAFF_DEPRECATED(DataObject.SetValue) STAFF_COMMON_EXPORT CDataObject& operator<<(CDataObject& rDataObject, const CValue& rValue);
 
   //!         get value from DataObject
   /*! \param  rDataObject - DataObject
       \param  rValue - value
       \return DataObject
       */
-  STAFF_COMMON_EXPORT const CDataObject& operator>>(const CDataObject& rDataObject, CValue& rValue);
+  STAFF_DEPRECATED(DataObject.GetValue) STAFF_COMMON_EXPORT const CDataObject& operator>>(const CDataObject& rDataObject, CValue& rValue);
 }
 
 #endif // _DATAOBJECT_H_

@@ -26,6 +26,7 @@
 #include <string>
 
 typedef struct axutil_qname axutil_qname_t;
+typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
@@ -172,6 +173,7 @@ namespace staff
   private:
     bool m_bOwner;                   //!<  ownership flag
     axutil_qname_t* m_pAxutilQName;  //!<  AxiOM qname
+    static axutil_env_t* m_pEnv;     //!<  Axis2/C environment
   };
 
 } // namespace staff

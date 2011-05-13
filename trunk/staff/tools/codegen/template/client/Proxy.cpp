@@ -337,20 +337,22 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
 #ifneq($(Member.Return.Name),void)      // !!void!!
 
-  return const_cast<const staff::COperation&>(tOperation).ResultValue();
+  $(Member.Return) tResult = 0;
+  tOperation.Result().GetValue(tResult);
+  return tResult;
 #ifeqend
 #else
 #ifeq($(Member.Return.Type),string)    // !!string!!
 
-  return const_cast<const staff::COperation&>(tOperation).ResultValue().AsString();
+  return tOperation.Result().GetText();
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 
-  return tOperation.Result();
+  return tOperation.Result().FirstChild();
 #else
 #ifeq($(Member.Return.Type),struct||typedef||template)
 
-  $(Member.Return.NsName) tReturn;
+  $(Member.Return) tReturn;
   tOperation.Result() >> tReturn;
   return tReturn;
 #else

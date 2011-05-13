@@ -35,11 +35,11 @@ namespace staff
   public:
     struct SEvents
     {
-      void (*pOnConnect)(const std::string& sService, const CServiceWrapper* pService);
+      void (*pOnConnect)(const CServiceWrapper* pService);
       void (*pOnDisconnect)(const std::string& sServiceName);
 
       SEvents();
-      SEvents(void (*pOnConnectInit)(const std::string&, const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&));
+      SEvents(void (*pOnConnectInit)(const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&));
       SEvents& operator=(const SEvents& rEvents);
     };
 
@@ -48,9 +48,6 @@ namespace staff
     /*! \return reference to dispatcher instance
     */
     static CServiceDispatcher& Inst();
-
-    //!         free instance
-    static void FreeInst();
 
     //!         initialize dispatcher
     /*! \param  stEvents - events struct
@@ -68,11 +65,12 @@ namespace staff
   private:
     CServiceDispatcher();
     ~CServiceDispatcher();
+    CServiceDispatcher(const CServiceDispatcher&);
+    CServiceDispatcher& operator=(const CServiceDispatcher&);
   
   private:
     class CServiceDispatcherImpl;
     CServiceDispatcherImpl* m_pImpl;
-    static CServiceDispatcher* m_pInst;
   };
 }
 

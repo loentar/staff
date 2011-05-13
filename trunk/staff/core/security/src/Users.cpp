@@ -36,21 +36,8 @@ namespace staff
   {
     CUsers& CUsers::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CUsers;
-      }
-
-      return *m_pInst;
-    }
-
-    void CUsers::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
+      static CUsers tInst;
+      return tInst;
     }
 
     void CUsers::GetById(int nId, SUser& rstUser)
@@ -306,6 +293,5 @@ namespace staff
     {
     }
 
-    CUsers* CUsers::m_pInst = NULL;
   }
 }

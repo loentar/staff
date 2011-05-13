@@ -36,7 +36,7 @@
 
 namespace rise
 {
-  static class CTimeCatcher
+  class CTimeCatcher
 #ifndef WIN32
     : public CSignalHandler
 #endif
@@ -68,7 +68,6 @@ namespace rise
       dword      m_dwLastDelTimerta;
 #endif
 
-    public:
       CTimeCatcher():
         m_wLastId(0)
 #ifndef WIN32
@@ -97,6 +96,13 @@ namespace rise
           UnRegisterSignal(SIGALRM);
 #endif
         }
+      }
+
+    public:
+      static CTimeCatcher& Inst()
+      {
+        static CTimeCatcher tInst;
+        return tInst;
       }
   
 #ifdef WIN32
@@ -270,12 +276,12 @@ namespace rise
           KillTimer();
       }
 #endif
-  } timeCatcher;
+  };
 
 #ifdef WIN32
   void CALLBACK CTimeCatcher::TimerProc( HWND, UINT, UINT nIDEvent, DWORD)
   {
-    timeCatcher.OnTimer(static_cast<CTimerHandler::TTimerID>(nIDEvent));
+    CTimeCatcher::Inst().OnTimer(static_cast<CTimerHandler::TTimerID>(nIDEvent));
   }
 #endif
 
@@ -285,22 +291,22 @@ namespace rise
 
   CTimerHandler::~CTimerHandler()
   {
-    timeCatcher.DelAllTimers(this);
+    CTimeCatcher::Inst().DelAllTimers(this);
   }
 
   CTimerHandler::TTimerID CTimerHandler::AddTimer( dword dwMSec, dword dwRepeat /*= EINFINITE*/ )
   {
-    return timeCatcher.AddTimer(dwMSec, dwRepeat, this);
+    return CTimeCatcher::Inst().AddTimer(dwMSec, dwRepeat, this);
   }
 
   void CTimerHandler::DelTimer( TTimerID wID )
   {
-    timeCatcher.DelTimer(wID, this);
+    CTimeCatcher::Inst().DelTimer(wID, this);
   }
 
   void CTimerHandler::DeleteAllTimers()
   {
-    timeCatcher.DelAllTimers(this);
+    CTimeCatcher::Inst().DelAllTimers(this);
   }
 
 } // namespace rise

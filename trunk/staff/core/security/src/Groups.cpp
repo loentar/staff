@@ -36,21 +36,8 @@ namespace staff
   {
     CGroups& CGroups::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CGroups;
-      }
-
-      return *m_pInst;
-    }
-
-    void CGroups::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
+      static CGroups tInst;
+      return tInst;
     }
 
     void CGroups::GetById(int nId, SGroup& rstGroup)
@@ -246,6 +233,5 @@ namespace staff
     {
     }
 
-    CGroups* CGroups::m_pInst = NULL;
   }
 }

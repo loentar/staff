@@ -94,20 +94,8 @@ namespace rise
 
     static CThreadInfoLoader& Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CThreadInfoLoader;
-      }
-      return *m_pInst;
-    }
-
-    static void FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
+      static CThreadInfoLoader tInst;
+      return tInst;
     }
 
   private:
@@ -132,10 +120,7 @@ namespace rise
   private:
     HMODULE m_hModule;
     pfnNtQueryInformationThread m_pNtQueryInformationThread;
-    static CThreadInfoLoader* m_pInst;
   };
-
-  CThreadInfoLoader* CThreadInfoLoader::m_pInst = NULL;
 
 #define rise_GetThreadId CThreadInfoLoader::Inst().GetThreadId
 #else

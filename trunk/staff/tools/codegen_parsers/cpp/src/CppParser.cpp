@@ -1335,14 +1335,13 @@ namespace codegen
 
     void ParsePreprocessorBlock()
     {
-      char chData = '\0';
       std::string sTmp;
       m_tFile.ignore();
       ReadStr(sTmp, false);
       if (sTmp == "include")
       {
         SkipWs();
-        chData = m_tFile.peek();
+        char chData = m_tFile.peek();
         if (chData == '\"')
         {
           std::stringbuf sbTmp;
@@ -1765,7 +1764,7 @@ namespace codegen
 
         rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
 
-        throw rParseException;
+        throw;
       }
 
       return m_stInterface;

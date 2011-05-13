@@ -53,7 +53,8 @@ namespace codegen
   class CTemplateParser
   {
   public:
-    CTemplateParser()
+    CTemplateParser():
+      m_nLine(0), m_nIndent(0), m_bNeedIndent(false), m_bHasConfig(false)
     {
       m_tmVariables.push(StringMap());
     }
@@ -214,11 +215,8 @@ namespace codegen
         pNode = &ExecuteFunction(sVariable, *pNode);
         while (!sVariable.empty()) // .!trimleft/:/.!dot
         {
-          if (sVariable.substr(0, 2) != ".!")
-          {
-            throw std::string("Junk [") + sVariable +  "] in variable: [" + sVariableName
-                + "] at pos " + rise::ToStr(sVariableName.size() - sVariable.size());
-          }
+          RISE_ASSERTS(sVariable.substr(0, 2) == ".!", "Junk [" + sVariable +  "] in variable: ["
+              + sVariableName + "] at pos " + rise::ToStr(sVariableName.size() - sVariable.size()));
           sVariable.erase(0, 2);
           pNode = &ExecuteFunction(sVariable, *pNode);
         }
@@ -247,10 +245,7 @@ namespace codegen
       // slash demasking
       for (;;)
       {
-        if (nPos == std::string::npos)
-        {
-          throw std::string("Can't get param");
-        }
+        RISE_ASSERTS(nPos != std::string::npos, "Can't get param");
 
         char chFound = sParamBegin[nPos];
         if (chFound == '\\')
@@ -512,20 +507,15 @@ namespace codegen
 
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
-          double dOp1 = 0;
-          double dOp2 = 0;
-          rise::FromStr(sResult, dOp1);
-          rise::FromStr(sWhat, dOp2);
-          rise::ToStr(dOp1 + dOp2, sResult);
-          sFunction.erase(0, nPosWhat + 1);
-        }
-        else
-        {
-          throw std::string("Can't get operand for add");
-        }
+        RISE_ASSERTS(nPosWhat != std::string::npos, "Can't get operand for add");
+
+        const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
+        double dOp1 = 0;
+        double dOp2 = 0;
+        rise::FromStr(sResult, dOp1);
+        rise::FromStr(sWhat, dOp2);
+        rise::ToStr(dOp1 + dOp2, sResult);
+        sFunction.erase(0, nPosWhat + 1);
       }
       else
       if (sFunction.substr(0, 4) == "sub/")
@@ -534,24 +524,18 @@ namespace codegen
 
         sResult = rNode.NodeContent().AsString();
 
-        if (nPosWhat != std::string::npos)
-        {
-          const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
-          double dOp1 = 0;
-          double dOp2 = 0;
-          rise::FromStr(sResult, dOp1);
-          rise::FromStr(sWhat, dOp2);
-          rise::ToStr(dOp1 - dOp2, sResult);
-          sFunction.erase(0, nPosWhat + 1);
-        }
-        else
-        {
-          throw std::string("Can't get operand for sub");
-        }
+        RISE_ASSERTS(nPosWhat != std::string::npos, "Can't get operand for sub");
+        const std::string& sWhat = sFunction.substr(4, nPosWhat - 4);
+        double dOp1 = 0;
+        double dOp2 = 0;
+        rise::FromStr(sResult, dOp1);
+        rise::FromStr(sWhat, dOp2);
+        rise::ToStr(dOp1 - dOp2, sResult);
+        sFunction.erase(0, nPosWhat + 1);
       }
       else
       {
-        throw std::string("function " + sFunction + " is undefined");
+        RISE_THROWS(rise::CLogicNoItemException, "function " + sFunction + " is undefined");
       }
 
       return tResult;
@@ -693,7 +677,7 @@ namespace codegen
       std::list<std::string> tFileList;
 
       rise::CFileFind::Find(sInDir, tFileList, "codegen.config", rise::CFileFind::EFA_FILE);
-      m_bHasConfig = tFileList.size() != 0;
+      m_bHasConfig = !tFileList.empty();
       if (!m_bHasConfig)
       {
         rise::CFileFind::Find(sInDir, tFileList, "*.*", rise::CFileFind::EFA_FILE);
@@ -722,10 +706,7 @@ namespace codegen
         std::ifstream fsIn;
 
         fsIn.open(sIn.c_str());
-        if (!fsIn.good())
-        {
-          throw std::string("can't open input file: " + sIn);
-        }
+        RISE_ASSERTS(fsIn.good(), "can't open input file: " + sIn);
 
         m_nIndent = 0;
         m_nLine = 0;
@@ -1049,10 +1030,7 @@ namespace codegen
       std::ifstream fsIncFile;
       fsIncFile.open(sIncludeFileName.c_str());
 
-      if (!fsIncFile.good())
-      {
-        throw std::string("can't include file: " + sIncludeFileName);
-      }
+      RISE_ASSERTS(fsIncFile.good(), "can't include file: " + sIncludeFileName);
 
       std::string sCurrInDir = m_sInDir;
       m_sInDir = sIncludeFileName.substr(0, sIncludeFileName.find_last_of("/\\") + 1);
@@ -1157,10 +1135,7 @@ namespace codegen
             ReplaceToValue(sValue, rNode);
           }
 
-          if (sVariable.size() == 0)
-          {
-            throw "invalid var declaration: " + sLine;
-          }
+          RISE_ASSERTS(!sVariable.empty(), "invalid var declaration: " + sLine);
 
           m_tmVariables.top()[sVariable] = sValue;
         }
@@ -1191,18 +1166,13 @@ namespace codegen
           ReplaceToValue(sFileName, rNode);
           rise::StrTrim(sFileName);
 
-          if (sFileName.empty())
-          {
-            throw std::string("#fileopen: Filename is empty");
-          }
+          RISE_ASSERTS(!sFileName.empty(), "#fileopen: Filename is empty");
 
           sFileName = m_sOutDir + sFileName;
 
           std::ofstream ofsFile(sFileName.c_str());
-          if (!ofsFile.good())
-          {
-            throw std::string("can't open output file: " + sFileName);
-          }
+          RISE_ASSERTS(ofsFile.good(), "can't open output file: " + sFileName);
+
           std::cout << "Generating " << sFileName << std::endl;
           m_nIndent = 0;
           Process(fsIn, ofsFile, rNode);
@@ -1230,14 +1200,12 @@ namespace codegen
             {
               int nRes =
 #ifndef WIN32
-                mkdir(sCurrDir.c_str(), 0755);
+              mkdir(sCurrDir.c_str(), 0755);
 #else
-                _mkdir(sCurrDir.c_str());
+              _mkdir(sCurrDir.c_str());
 #endif
-              if (nRes == -1 && errno != EEXIST)
-              {
-                throw std::string("Failed to create dir [" + sCurrDir + "]: " + strerror(errno));
-              }
+              RISE_ASSERTS(nRes != -1 || errno == EEXIST, "Failed to create dir ["
+                           + sCurrDir + "]: " + strerror(errno));
             }
           }
         }
@@ -1259,7 +1227,7 @@ namespace codegen
         if (sLine.substr(0, 9) == "#cgerror ")
         {
           ReplaceToValue(sLine, rNode);
-          throw sLine.substr(9);
+          RISE_THROWS(rise::CInternalAssertException, sLine.substr(9));
         }
         else
         if (sLine.substr(0, 8) == "#indent ")
@@ -1362,14 +1330,13 @@ namespace codegen
         std::ofstream fsOut;
 
         fsIn.open(sIn.c_str());
-        if (!fsIn.good())
-          throw std::string("can't open input file: " + sIn);
+        RISE_ASSERTS(fsIn.good(), "can't open input file: " + sIn);
 
         fsOut.open(sOut.c_str());
         if (!fsOut.good())
         {
           fsIn.close();
-          throw std::string("can't open output file: " + sOut);
+          RISE_THROWS(rise::CInternalAssertException, "can't open output file: " + sOut);
         }
 
         std::cout << "Generating " << sOut << std::endl;

@@ -38,12 +38,8 @@ namespace staff
 
   CComponentConfigManager& CComponentConfigManager::Inst()
   {
-    if (m_pInst == NULL)
-    {
-      m_pInst = new CComponentConfigManager;
-    }
-
-    return *m_pInst;
+    static CComponentConfigManager tInst;
+    return tInst;
   }
 
   CComponentConfigManager::CComponentConfigManager()
@@ -69,7 +65,7 @@ namespace staff
       rpComponentConfig = new CComponentConfig;
       rpComponentConfig->Init(sComponent, sConfig, bCreate);
     }
-    return *rpComponentConfig;  }
+    return *rpComponentConfig;
+  }
 
-  CComponentConfigManager* CComponentConfigManager::m_pInst = NULL;
 }

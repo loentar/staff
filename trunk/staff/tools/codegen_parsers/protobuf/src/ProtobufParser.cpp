@@ -1359,7 +1359,6 @@ namespace codegen
             itThisStruct != rlsStructs.end();)
         {
           // check is
-          bool bFound = false;
           std::list<SStruct>::iterator itOtherStruct = itThisStruct;
           ++itOtherStruct;
           for (; itOtherStruct != rlsStructs.end(); ++itOtherStruct)
@@ -1371,7 +1370,6 @@ namespace codegen
               rlsStructs.splice(itThisStruct++, rlsStructs, itOtherStruct);
               // now itThisStruct points to new pos of the itThisStruct
               bWasChanged = true;
-              bFound = true;
               break;
             }
           }
@@ -1542,7 +1540,7 @@ namespace codegen
 
         rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
 
-        throw rParseException;
+        throw;
       }
 
       return m_stInterface;

@@ -83,7 +83,7 @@ namespace staff
 
   bool CQName::operator==( const CQName& rQName ) const
   {
-    return axutil_qname_equals(m_pAxutilQName, CRuntime::Inst().GetAxis2Env(), rQName.m_pAxutilQName) != 0;
+    return axutil_qname_equals(m_pAxutilQName, m_pEnv, rQName.m_pAxutilQName) != 0;
   }
 
   bool CQName::operator!=( const CQName& rstQName ) const
@@ -93,7 +93,7 @@ namespace staff
 
   bool CQName::operator==(axutil_qname_t* pQName) const
   {
-    return axutil_qname_equals(m_pAxutilQName, CRuntime::Inst().GetAxis2Env(), pQName) != 0;
+    return axutil_qname_equals(m_pAxutilQName, m_pEnv, pQName) != 0;
   }
 
   bool CQName::operator!=(axutil_qname_t* pQName) const
@@ -115,28 +115,28 @@ namespace staff
 
   std::string CQName::GetLocalPart() const
   {
-    axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
+    axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, m_pEnv);
     RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get local part");
     return szResult;
   }
 
   std::string CQName::GetNamespaceUri() const
   {
-    axis2_char_t* szResult = axutil_qname_get_uri(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
+    axis2_char_t* szResult = axutil_qname_get_uri(m_pAxutilQName, m_pEnv);
     RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get Uri");
     return szResult;
   }
 
   std::string CQName::GetPrefix() const
   {
-    axis2_char_t* szResult = axutil_qname_get_prefix(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
+    axis2_char_t* szResult = axutil_qname_get_prefix(m_pAxutilQName, m_pEnv);
     RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get prefix");
     return szResult;
   }
 
   CQName& CQName::Create( const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix /*= ""*/ )
   {
-    axutil_qname_t* pAxutilQName = axutil_qname_create(CRuntime::Inst().GetAxis2Env(), 
+    axutil_qname_t* pAxutilQName = axutil_qname_create(m_pEnv,
         sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
     RISE_ASSERTES(pAxutilQName != NULL, CDomFormatException, "Can\'t create AxiOM qname");
 
@@ -147,7 +147,7 @@ namespace staff
 
   void CQName::Free()
   {
-    axutil_qname_free(m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
+    axutil_qname_free(m_pAxutilQName, m_pEnv);
     m_pAxutilQName = NULL;
     m_bOwner = false;
   }
@@ -176,14 +176,14 @@ namespace staff
 
   CQName& CQName::Clone( const CQName& rQName )
   {
-    m_pAxutilQName = axutil_qname_clone(rQName.m_pAxutilQName, CRuntime::Inst().GetAxis2Env());
+    m_pAxutilQName = axutil_qname_clone(rQName.m_pAxutilQName, m_pEnv);
     m_bOwner = true;
     return *this;
   }
 
   CQName CQName::Clone()
   {
-    CQName tqClone(axutil_qname_clone(m_pAxutilQName, CRuntime::Inst().GetAxis2Env()));
+    CQName tqClone(axutil_qname_clone(m_pAxutilQName, m_pEnv));
     return tqClone;
   }
 
@@ -196,6 +196,8 @@ namespace staff
   {
     return m_pAxutilQName;
   }
+
+  axutil_env_t* CQName::m_pEnv = CRuntime::Inst().GetAxis2Env();
 
 } // namespace staff
 
