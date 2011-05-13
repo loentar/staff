@@ -55,22 +55,31 @@ namespace staff
       m_bOwner(true),
       m_pDataObject(NULL)
   {
-    m_pAxiomAttribute = axiom_attribute_create(CRuntime::Inst().GetAxis2Env(), sLocalName.c_str(), szValue, NULL);
+    m_pAxiomAttribute = axiom_attribute_create(m_pEnv, sLocalName.c_str(), szValue, NULL);
   }
 
   CAttribute::CAttribute(const std::string& sLocalName, const std::string& sValue):
       m_bOwner(true),
       m_pDataObject(NULL)
   {
-    m_pAxiomAttribute = axiom_attribute_create(CRuntime::Inst().GetAxis2Env(), sLocalName.c_str(), sValue.c_str(), NULL);
+    m_pAxiomAttribute = axiom_attribute_create(m_pEnv, sLocalName.c_str(), sValue.c_str(), NULL);
   }
 
   CAttribute::CAttribute( const std::string& sLocalName, const CValue& tValue):
     m_bOwner(true),
     m_pDataObject(NULL)
   {
-    m_pAxiomAttribute = axiom_attribute_create(CRuntime::Inst().GetAxis2Env(), sLocalName.c_str(), tValue.AsString().c_str(), NULL);
+    m_pAxiomAttribute = axiom_attribute_create(m_pEnv, sLocalName.c_str(), tValue.AsString().c_str(), NULL);
   }
+
+  CAttribute::~CAttribute()
+  {
+    if (m_bOwner && m_pAxiomAttribute != NULL)
+    {
+      axiom_attribute_free(m_pAxiomAttribute, m_pEnv);
+    }
+  }
+
 
   std::string CAttribute::GetLocalName() const
   {
@@ -78,7 +87,7 @@ namespace staff
       "Not Initialized");
 
     axis2_char_t* szLocalName = axiom_attribute_get_localname(m_pAxiomAttribute, 
-      CRuntime::Inst().GetAxis2Env());
+      m_pEnv);
     RISE_ASSERTES(szLocalName != NULL, CDomNoItemException, "Can\'t get attribute name");
     
     return szLocalName;
@@ -89,7 +98,7 @@ namespace staff
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL, CDomNoItemException,
       "Not Initialized");
 
-    axiom_attribute_set_localname(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env(),
+    axiom_attribute_set_localname(m_pAxiomAttribute, m_pEnv,
                                    reinterpret_cast<const axis2_char_t*>(sLocalName.c_str()));
   }
 
@@ -99,7 +108,7 @@ namespace staff
       CDomNoItemException, "Not Initialized");
 
     axis2_char_t* szText = axiom_attribute_get_value(m_pAxiomAttribute,
-      CRuntime::Inst().GetAxis2Env());
+      m_pEnv);
     RISE_ASSERTES(szText != NULL, CDomNoItemException, "Can\'t get attribute text");
 
     return szText;
@@ -110,7 +119,7 @@ namespace staff
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
       CDomNoItemException, "Not Initialized");
 
-    axiom_attribute_set_value(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env(),
+    axiom_attribute_set_value(m_pAxiomAttribute, m_pEnv,
                               reinterpret_cast<const axis2_char_t*>(sText.c_str()));
   }
 
@@ -120,7 +129,7 @@ namespace staff
       CDomNoItemException, "Not Initialized");
 
     axis2_char_t* szValue = axiom_attribute_get_value(m_pAxiomAttribute, 
-      CRuntime::Inst().GetAxis2Env());
+      m_pEnv);
     RISE_ASSERTES(szValue != NULL, CDomNoItemException, "Can\'t get attribute text");
 
     return szValue;
@@ -131,7 +140,7 @@ namespace staff
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
       CDomNoItemException, "Not Initialized");
 
-    axiom_attribute_set_value(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env(),
+    axiom_attribute_set_value(m_pAxiomAttribute, m_pEnv,
                               reinterpret_cast<const axis2_char_t*>(rValue.AsString().c_str()));
   }
 
@@ -140,7 +149,7 @@ namespace staff
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
       CDomNoItemException, "Not Initialized");
 
-    axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env());
+    axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, m_pEnv);
     RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Can\'t get attribute\'s QName");
     
     CQName tqName(pqName);
@@ -154,7 +163,7 @@ namespace staff
     RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
       CDomNoItemException, "Not Initialized");
 
-    axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, CRuntime::Inst().GetAxis2Env());
+    axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, m_pEnv);
     RISE_ASSERTES(pqName != NULL, CDomNoItemException, "Can\'t get attribute\'s QName");
 
     CQName tqName(pqName);
@@ -200,6 +209,8 @@ namespace staff
   {
     return this;
   }
+
+  axutil_env_t* CAttribute::m_pEnv = CRuntime::Inst().GetAxis2Env();
 
 } // namespace staff
 

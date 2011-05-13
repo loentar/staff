@@ -92,6 +92,11 @@ namespace das
   ProviderFactory::ProviderFactory()
   {
     m_pImpl = new ProviderFactoryImpl;
+    try
+    {
+      m_pImpl->Init();
+    }
+    RISE_CATCH_ALL
   }
 
   ProviderFactory::~ProviderFactory()
@@ -101,22 +106,8 @@ namespace das
 
   ProviderFactory& ProviderFactory::Inst()
   {
-    if (!m_pInst)
-    {
-      m_pInst = new ProviderFactory;
-      m_pInst->m_pImpl->Init();
-    }
-
-    return *m_pInst;
-  }
-
-  void ProviderFactory::FreeInst()
-  {
-    if (m_pInst)
-    {
-      delete m_pInst;
-      m_pInst = NULL;
-    }
+    static ProviderFactory tInst;
+    return tInst;
   }
 
   void ProviderFactory::GetProviders(StringList& rlsProviders)
@@ -136,7 +127,5 @@ namespace das
     return itProvider->second->Allocate(sProvider);
   }
 
-
-  ProviderFactory* ProviderFactory::m_pInst = NULL;
 }
 }

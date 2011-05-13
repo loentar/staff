@@ -166,6 +166,7 @@ namespace das
 
   SqliteProvider::~SqliteProvider()
   {
+    Deinit();
     delete m_pImpl;
   }
 
@@ -233,7 +234,10 @@ namespace das
 
       // close db
       int nResult = sqlite3_close(m_pImpl->m_pConn);
-      RISE_ASSERTES(nResult == SQLITE_OK, rise::CFileCloseException, "Failed to close database");
+      if (nResult != SQLITE_OK)
+      {
+        rise::LogWarning() << "Failed to close database";
+      }
       m_pImpl->m_pConn = NULL;
     }
   }

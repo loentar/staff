@@ -50,9 +50,6 @@ namespace staff
         */
       static CObjects& Inst();
 
-      //! free objects instance
-      static void FreeInst();
-
       //! get object by id
       /*! \param  nId - object id
           \param  rstObject - resulting object
@@ -122,9 +119,8 @@ namespace staff
     private:
       CObjects();
       ~CObjects();
-
-    private:
-      static CObjects* m_pInst;
+      CObjects(const CObjects&);
+      CObjects& operator=(const CObjects&);
     };
   }
 }

@@ -39,10 +39,9 @@ namespace staff
     rise::xml::CXMLDocument m_tConfig;
   };
 
-  CConfig::CConfig()
+  CConfig::CConfig():
+    m_pImpl(new CConfigImpl)
   {
-    m_pImpl = new CConfigImpl;
-
     try
     {
       m_pImpl->m_tConfig.LoadFromFile(CRuntime::Inst().GetStaffHome() + "/staff.xml");
@@ -52,11 +51,8 @@ namespace staff
 
   CConfig::~CConfig()
   {
-    if (m_pImpl != NULL)
-    {
-      delete m_pImpl;
-      m_pImpl = NULL;
-    }
+rise::LogNotice() << "*";
+    delete m_pImpl;
   }
 
   rise::xml::CXMLNode& CConfig::GetModuleConfig( const std::string& sModuleName )
@@ -66,10 +62,8 @@ namespace staff
 
   CConfig& CConfig::Inst()
   {
-    if (m_pInst == NULL)
-      m_pInst = new CConfig;
-    return *m_pInst;
+    static CConfig tInst;
+    return tInst;
   }
 
-  CConfig* CConfig::m_pInst = NULL;
 }

@@ -24,51 +24,60 @@ namespace staff
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0) // do not serialize extern type
 
-// $(Typedef.NsName)  Typedef.DataType.Type $(Typedef.DataType.Type) $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
+#ifeq($(Typedef.DataType.IsTemplate),1)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
-#ifneq($(Typedef.Options.*elementName),)
-#var ElementName $(Typedef.Options.*elementName)
-#else
-#var ElementName Item
-#ifeqend
-    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
+#var ElementName $(Typedef.Options.*elementName||"Item")
 #ifeq($(Typedef.DataType.NsName),std::map)
-    CDataObject tdoKey = tdoItem.CreateChild("Key");
-    CDataObject tdoValue = tdoItem.CreateChild("Value");
-    tdoKey << it->first;
-    tdoValue << it->second;
+\
+    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
+
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+    tdoItem.CreateChild("Key", it->first);
 #else
+    CDataObject tdoKey = tdoItem.CreateChild("Key");
+    tdoKey << it->first;
+#ifeqend
+
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic||string)
+    tdoItem.CreateChild("Value", it->second);
+#else
+    CDataObject tdoValue = tdoItem.CreateChild("Value");
+    tdoValue << it->second;
+#ifeqend
+\
+#else
+\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+    rdoParam.CreateChild("$($ElementName)", *it);
+#else
+    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
     tdoItem << *it;
+#ifeqend
+\
 #ifeqend
   }
 
   return rdoParam;
 }
 #else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
+#ifneq($(Typedef.DataType.Type),struct)
 CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
-#ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
+#ifeq($(Typedef.DataType.Type),generic||string)
   rdoParam.SetValue(rtType);
   return rdoParam;
 #else
-#ifeq($(Typedef.DataType.Type),string)    // !!string!!
-  rdoParam.SetText(rtType);
-  return rdoParam;
-#else
-#ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
+#ifeq($(Typedef.DataType.Type),dataobject)
   rdoParam.AppendChild(rtType);
   return rdoParam;
 #else
-#ifeq($(Typedef.DataType.Type),typedef||template)    // !!typedef||template!!
+#ifeq($(Typedef.DataType.Type),typedef||template)
   return rdoParam << rtType;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
-#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -83,122 +92,85 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef deserializators
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0) // do not serialize extern type
-#ifeq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have deserializator // !!list<struct>!!
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.Extern),0)
+#ifneq($(Typedef.DataType.Type),struct)
 const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
-  for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
-  {
-    $(Typedef.DataType.NsName) tItem;
-    *it >> tItem;
-    rtType.push_back(tItem);
-  }
+#ifeq($(Typedef.DataType.Type),generic||string)
+  rdoParam.GetValue(rtType);
   return rdoParam;
-}
-#ifeqend
-#else                 // !!not_a_struct!!
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
-{
-#ifeq($(Typedef.DataType.IsTemplate),1)
-// container :: $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.Type),typedef)
-  $(Typedef.DataType.NsName) tItem;
-#ifeqend
-  for (CDataObject::ConstIterator it = rdoParam.Begin(); it != rdoParam.End(); ++it)
-  {
-#ifneq($(Typedef.DataType.Type),typedef)
-#ifeq($(Typedef.DataType.Type),template)
-#ifeq($(Typedef.DataType.NsName),std::map)
-    $(Typedef.DataType.TemplateParams.TemplateParam1) tKey;
-    $(Typedef.DataType.TemplateParams.TemplateParam2) tValue;
 #else
-    $(Typedef.DataType.TemplateParams.TemplateParam1) tItem;
-#ifeqend
-#ifeqend
-#ifeqend
-
-#ifeq($(Typedef.DataType.Type),generic)
-    rtType.push_back(it->GetValue());
-#else
-#ifeq($(Typedef.DataType.Type),string)
-    rtType.push_back(it->GetText());
-#else
+\
+\
 #ifeq($(Typedef.DataType.Type),dataobject)
-    rtType.push_back(it->FirstChild());
-#else
-#ifeq($(Typedef.DataType.Type),typedef)
-    *it >> tItem;
-    rtType.push_back(tItem);
-#else
-#ifeq($(Typedef.DataType.Type),template)
-#ifeq($(Typedef.DataType.NsName),std::map)
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
-    tKey = it->GetChildByLocalName("Key").GetText();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-    tKey = it->GetChildByLocalName("Key").GetValue();
-#else
-    it->GetChildByLocalName("Key") >> tKey;
-#ifeqend
-#ifeqend
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string)
-    tValue = it->GetChildByLocalName("Value").GetText();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)    // !!generic!!
-    tValue = it->GetChildByLocalName("Value").GetValue();
-#else
-    it->GetChildByLocalName("Value") >> tValue;
-#ifeqend
-#ifeqend
-    rtType[tKey] = tValue;
-#else // ----------------------- list, vector, etc.
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)    // !!string!!
-    tItem = it->GetText();
-#else
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)    // !!generic!!
-    tItem = it->GetValue();
-#else
-    *it >> tItem;
-#ifeqend
-#ifeqend
-    rtType.push_back(tItem);
-#ifeqend
-#else
-#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-  }
-  return rdoParam;
-#else // !!DataType.IsTemplate!!
-// not container :: $(Typedef.DataType.Name)
-#ifeq($(Typedef.DataType.Type),generic)    // !!generic!!
-  rtType = rdoParam.GetValue();
-  return rdoParam;
-#else
-#ifeq($(Typedef.DataType.Type),string)    // !!string!!
-  rtType = rdoParam.GetText();
-  return rdoParam;
-#else
-#ifeq($(Typedef.DataType.Type),dataobject) // !!dataobject!! 
   rtType = rdoParam.FirstChild();
   return rdoParam;
 #else
-#ifeq($(Typedef.DataType.Type),typedef||template)    // !!typedef||template!!
+\
+\
+#ifeq($(Typedef.DataType.Type),typedef)
   return rdoParam << rtType;
+#else
+\
+\
+#ifeq($(Typedef.DataType.Type),template)
+#ifeq($(Typedef.DataType.NsName),std::map)
+\
+  $(Typedef.DataType.TemplateParams.TemplateParam1) tKey\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+ = 0\
+#ifeqend
+;
+  $(Typedef.DataType.TemplateParams.TemplateParam2) tValue\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)
+ = 0\
+#ifeqend
+;
+\
+#else
+\
+  $(Typedef.DataType.TemplateParams.TemplateParam1) tItem\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+ = 0\
+#ifeqend
+;
+#ifeqend
+  for (CDataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+  {
+#ifeq($(Typedef.DataType.NsName),std::map)
+\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string||generic)
+    tdoItem.GetChildByLocalName("Key").GetValue(tKey);
+#else
+    tdoItem.GetChildByLocalName("Key") >> tKey;
+#ifeqend
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string||generic)
+    tdoItem.GetChildByLocalName("Value").GetValue(tValue);
+#else
+    tdoItem.GetChildByLocalName("Value") >> tValue;
+#ifeqend
+    rtType[tKey] = tValue;
+#else
+\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+    tdoItem.GetValue(tItem);
+#else
+    tdoItem >> tItem;
+#ifeqend
+    rtType.push_back(tItem);
+\
+#ifeqend
+  }
+  return rdoParam;
 #else
 #cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 }
 
-#ifeqend
+#ifeqend // not struct
 #ifeqend // ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end
 }

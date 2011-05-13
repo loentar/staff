@@ -49,7 +49,7 @@ namespace rise
 
 
     //!         encode byte buffer to base64 string
-    /*
+    /*!
         \param  pBuffIn - source buffer
         \param  tBufferSize - buffer size in bytes
         \param  sOut - resulting base64 string
@@ -63,10 +63,6 @@ namespace rise
         \param  tBufferSize - (i/o)buffer size in bytes
       */
     static void Decode(const CStringA& sIn, PBuffer pBuffOut, TSize& tBufferSize); // throw
-  
-  private:
-    static const char m_sEncodeTable[65];             //!< encoding table
-    static const byte m_baDecodeTable['z' - '+' + 1]; //!< decoding table
   };
 }
 

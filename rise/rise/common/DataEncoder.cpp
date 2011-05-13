@@ -34,6 +34,9 @@ namespace rise
 
   void CBase64Encoder::Encode( PCBuffer pBuffIn, TSize tBufferSize, CStringA& sOut, int nRowWidth /*= 0*/ )
   {
+    static const char sEncodeTable[65] =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
     RISE_ASSERTP(pBuffIn);
 
     TSize stRest = tBufferSize % 3;
@@ -53,19 +56,19 @@ namespace rise
         ++iterOut;
       }
 
-      *iterOut = m_sEncodeTable[ pBuffIn[stInPos] >> 2 ];
-      *(++iterOut) = m_sEncodeTable[ ((pBuffIn[stInPos] & 0x03) << 4) | ((pBuffIn[stInPos + 1] & 0xf0) >> 4) ];
-      *(++iterOut) = m_sEncodeTable[ ((pBuffIn[stInPos + 1] & 0x0f) << 2) | ((pBuffIn[stInPos + 2] & 0xc0) >> 6) ];
-      *(++iterOut) = m_sEncodeTable[ pBuffIn[stInPos + 2] & 0x3f ];
+      *iterOut = sEncodeTable[ pBuffIn[stInPos] >> 2 ];
+      *(++iterOut) = sEncodeTable[ ((pBuffIn[stInPos] & 0x03) << 4) | ((pBuffIn[stInPos + 1] & 0xf0) >> 4) ];
+      *(++iterOut) = sEncodeTable[ ((pBuffIn[stInPos + 1] & 0x0f) << 2) | ((pBuffIn[stInPos + 2] & 0xc0) >> 6) ];
+      *(++iterOut) = sEncodeTable[ pBuffIn[stInPos + 2] & 0x3f ];
       ++iterOut;
     }
 
     if (stRest > 0)
     {
-      *iterOut = m_sEncodeTable[ pBuffIn[stInPos] >> 2 ];
-      *(++iterOut) = m_sEncodeTable[ ((pBuffIn[stInPos] & 0x03) << 4) | (stRest > 1 ? ((pBuffIn[stInPos + 1] & 0xf0) >> 4) : 0) ];
-      *(++iterOut) = stRest > 1 ? m_sEncodeTable[ ((pBuffIn[stInPos + 1] & 0x0f) << 2) | (stRest > 2 ? ((pBuffIn[stInPos + 2] & 0xc0) >> 6) : 0) ] : '=';
-      *(++iterOut) = stRest > 2 ? m_sEncodeTable[ pBuffIn[stInPos + 2] & 0x3f ] : '=';
+      *iterOut = sEncodeTable[ pBuffIn[stInPos] >> 2 ];
+      *(++iterOut) = sEncodeTable[ ((pBuffIn[stInPos] & 0x03) << 4) | (stRest > 1 ? ((pBuffIn[stInPos + 1] & 0xf0) >> 4) : 0) ];
+      *(++iterOut) = stRest > 1 ? sEncodeTable[ ((pBuffIn[stInPos + 1] & 0x0f) << 2) | (stRest > 2 ? ((pBuffIn[stInPos + 2] & 0xc0) >> 6) : 0) ] : '=';
+      *(++iterOut) = stRest > 2 ? sEncodeTable[ pBuffIn[stInPos + 2] & 0x3f ] : '=';
     }
 
     if(iterOut != sOut.end())
@@ -86,6 +89,16 @@ namespace rise
 
   void CBase64Encoder::Decode( const CStringA& sIn, PBuffer pBuffOut, TSize& tBufferSize )
   {
+    static const byte baDecodeTable[] =
+    {
+      63, 0, 0, 0, 64, // +    /
+      53, 54, 55, 56, 57, 58, 59, 60, 61, 62, // digits
+      0, 0, 0, 0, 0, 0, 0,  // garbage
+      1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26, // UPPER
+      0, 0, 0, 0, 0, 0, // garbage
+      27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52 // lower
+    };
+
     RISE_ASSERTP(pBuffOut);
     PBuffer pOut = pBuffOut;
     PBuffer pBuffEnd = pBuffOut + tBufferSize;
@@ -105,9 +118,9 @@ namespace rise
           ++pOut;
           bPos = 0;
         }
-        if ( m_baDecodeTable[*iterIn - '+'] != 0 )
+        if ( baDecodeTable[*iterIn - '+'] != 0 )
         {
-          baTmp[bPos] = m_baDecodeTable[*iterIn - '+'] - 1;
+          baTmp[bPos] = baDecodeTable[*iterIn - '+'] - 1;
           ++bPos;
         }
       }
@@ -133,17 +146,6 @@ namespace rise
     tBufferSize = static_cast<TSize>(pOut - pBuffOut);
   }
 
-  const char CBase64Encoder::m_sEncodeTable[65] = 
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-  const byte CBase64Encoder::m_baDecodeTable[] = 
-  {
-    63, 0, 0, 0, 64, // +    /
-    53, 54, 55, 56, 57, 58, 59, 60, 61, 62, // digits
-    0, 0, 0, 0, 0, 0, 0,  // garbage
-    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26, // UPPER
-    0, 0, 0, 0, 0, 0, // garbage
-    27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52 // lower
-  };
 
 } // namespace rise

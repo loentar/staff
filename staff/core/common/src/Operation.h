@@ -149,12 +149,15 @@ namespace staff
     void SetResponse(axiom_node_t* pResponse);
 
     //!         get/set result value
-    /*! \return value
+    /*! please note: this function is not efficient and not completely safe
+        please use Result().GetValue(param)/Result().SetValue(param) instead if possible
+        \return value
     */
     CValue ResultValue();
 
-    //!         get result value
-    /*! \return value
+    //!         get result value(copy)
+    /*! alias for Result().GetValue()
+        \return value
     */
     CValue ResultValue() const;
 

@@ -352,10 +352,8 @@ namespace codegen
 
   CXMLNode& operator<<(CXMLNode& rNodeEnums, const SEnum& rEnum)
   {
-    if (rEnum.bForward && !rEnum.bExtern)
-    {
-      throw "Enum \"" + rEnum.sName + "\" is not fully declared";
-    }
+    RISE_ASSERTS(!rEnum.bForward || rEnum.bExtern,
+                "Enum \"" + rEnum.sName + "\" is not fully declared");
 
     CXMLNode& rNodeEnum = rNodeEnums.AddSubNode("Enum");
 
@@ -399,10 +397,8 @@ namespace codegen
 
   CXMLNode& operator<<(CXMLNode& rNodeStructs, const SStruct& rStruct)
   {
-    if (rStruct.bForward && !rStruct.bExtern)
-    {
-      throw "Struct \"" + rStruct.sName + "\" is not fully declared";
-    }
+    RISE_ASSERTS(!rStruct.bForward || rStruct.bExtern,
+                "Struct \"" + rStruct.sName + "\" is not fully declared");
 
     CXMLNode& rNodeStruct = rNodeStructs.AddSubNode("Struct");
 

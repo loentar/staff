@@ -25,6 +25,7 @@
 #include <rise/plugin/PluginExport.h>
 #include <staff/codegen/tools.h>
 #include <staff/common/DataObject.h>
+#include <staff/common/Exception.h>
 #include "DataAccessService.h"
 #include <staff/client/ServiceFactory.h>
 #include "DasParser.h"
@@ -52,41 +53,48 @@ namespace codegen
 
   void CDasParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
   {
-    std::string sRootNs = "::";
-    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
-    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+    try
     {
-      sRootNs = "::" + itRootNs->second + "::";
-      rise::StrReplace(sRootNs, ".", "::", true);
+      std::string sRootNs = "::";
+      TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+      if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
+      {
+        sRootNs = "::" + itRootNs->second + "::";
+        rise::StrReplace(sRootNs, ".", "::", true);
+      }
+
+      TStringMap::const_iterator itServiceUri = rParseSettings.mEnv.find("serviceuri");
+
+      std::string sServiceUri;
+      if (itServiceUri != rParseSettings.mEnv.end())
+      {
+        sServiceUri = itServiceUri->second;
+      }
+
+      for (TStringList::const_iterator itDataSourceName = rParseSettings.lsFiles.begin();
+            itDataSourceName != rParseSettings.lsFiles.end(); ++itDataSourceName)
+      {
+        std::string sDataSource = *itDataSourceName;
+        SInterface stInterface;
+
+        std::cout << "Processing DAS: " << *itDataSourceName << std::endl;
+
+        std::auto_ptr<das::DataAccessService> pDataAccessService
+            (CServiceFactory::Inst().GetService<das::DataAccessService>(sServiceUri));
+
+        pDataAccessService->SetDataSource(sDataSource);
+        const CDataObject& rdoInterface = pDataAccessService->GetInterface();
+        Parse(rdoInterface, stInterface, rProject, sRootNs);
+        rProject.sNamespace = stInterface.sNamespace;
+
+        pDataAccessService->FreeDataSource();
+
+        rProject.lsInterfaces.push_back(stInterface);
+      }
     }
-
-    TStringMap::const_iterator itServiceUri = rParseSettings.mEnv.find("serviceuri");
-
-    std::string sServiceUri;
-    if (itServiceUri != rParseSettings.mEnv.end())
+    catch (const staff::CRemoteException& rEx)
     {
-      sServiceUri = itServiceUri->second;
-    }
-
-    for (TStringList::const_iterator itDataSourceName = rParseSettings.lsFiles.begin();
-          itDataSourceName != rParseSettings.lsFiles.end(); ++itDataSourceName)
-    {
-      std::string sDataSource = *itDataSourceName;
-      SInterface stInterface;
-
-      std::cout << "Processing DAS: " << *itDataSourceName << std::endl;
-
-      std::auto_ptr<das::DataAccessService> pDataAccessService
-          (CServiceFactory::Inst().GetService<das::DataAccessService>(sServiceUri));
-
-      pDataAccessService->SetDataSource(sDataSource);
-      const CDataObject& rdoInterface = pDataAccessService->GetInterface().FirstChild();
-      Parse(rdoInterface, stInterface, rProject, sRootNs);
-      rProject.sNamespace = stInterface.sNamespace;
-
-      pDataAccessService->FreeDataSource();
-
-      rProject.lsInterfaces.push_back(stInterface);
+      RISE_THROWS(rise::CInternalAssertException, rEx.GetString());
     }
   }
 

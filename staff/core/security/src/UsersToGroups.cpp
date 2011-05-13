@@ -36,21 +36,8 @@ namespace staff
   {
     CUsersToGroups& CUsersToGroups::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CUsersToGroups;
-      }
-
-      return *m_pInst;
-    }
-
-    void CUsersToGroups::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
+      static CUsersToGroups tInst;
+      return tInst;
     }
 
     void CUsersToGroups::GetUserGroups(int nUserId, TIntList& rlsGroups)
@@ -206,8 +193,6 @@ namespace staff
     CUsersToGroups::~CUsersToGroups()
     {
     }
-
-    CUsersToGroups* CUsersToGroups::m_pInst = NULL;
 
   }
 }

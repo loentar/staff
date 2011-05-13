@@ -78,30 +78,34 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
       rOperation.SetResultName("$(Member.Options.*resultElement)");
 #ifeqend
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct||typedef||template||generic)
+#ifneq($(Param.DataType.Name),staff::COperation||COperation)
       $(Param.DataType.NsName) $(Param.Name);
+#ifeqend
 #ifeqend
 #end
 \
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template)
       rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
+#else
+#ifeq($(Param.DataType.Type),generic)
+#ifneq($(Param.DataType.Name),staff::COperation||COperation)
+      rRequest.GetChildByLocalName("$(Param.Name)").GetValue($(Param.Name));
+#ifeqend
+#ifeqend
 #ifeqend
 #end
       \
+#ifneq($(Member.Return.Name),void)      // !!not_void!!
 #ifeq($(Member.Return.Type),struct||typedef||template)
 $(Member.Return.NsName) tResult = \
 #else
-#ifeq($(Member.Return.Type),generic)    // !!generic!!
-#ifneq($(Member.Return.Name),void)      // !!not_void!!
-rOperation.ResultValue() = \
-#ifeqend
-#else
-#ifeq($(Member.Return.Type),string)    // !!string!!
-rOperation.ResultValue() = \
+#ifeq($(Member.Return.Type),generic||string)    // !!generic!!
+rOperation.Result().SetValue(\
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-staff::CDataObject tResultDO = \
+rOperation.Result().AppendChild(
 #ifeqend
 #ifeqend
 #ifeqend
@@ -118,16 +122,13 @@ rOperation.GetMessageContext()\
 #ifeq($(Param.DataType.Name),staff::COperation||COperation)
 rOperation\
 #else
-#ifeq($(Param.DataType.Type),generic)    // !!generic!!
-rRequest.GetChildByLocalName("$(Param.Name)").GetValue()\
-#else
 #ifeq($(Param.DataType.Type),string)    // !!string!!
 rRequest.GetChildByLocalName("$(Param.Name)").GetText()\
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
 rRequest.GetChildByLocalName("$(Param.Name)").FirstChild()\
 #else
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct||typedef||template||generic)
 $(Param.Name)\
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
@@ -136,12 +137,15 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
-#ifeqend
 #end // end of function param list
+\
+#ifneq($(Member.Return.Name),void)
+#ifeq($(Member.Return.Type),generic||string||dataobject)
+)\
+#ifeqend
+#ifeqend
 );
-#ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
-      rOperation.Result().AppendChild(tResultDO);
-#ifeqend // end of function invokation
+\
 #ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
       staff::CDataObject& rdoResult = rOperation.Result();
       rdoResult << tResult;
@@ -207,24 +211,8 @@ staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
   {// Operation: $(Member.Return.NsName) $(Member.Name)($(Member.Params))$(Member.Const)
     staff::CDataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
     tOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
-    tOp$(Member.Name).CreateChild("IsConst", $(Member.IsConst));
     tOp$(Member.Name).CreateChild("RestMethod", "$(Member.Options.*restMethod)");
     tOp$(Member.Name).CreateChild("RestLocation", "$(Member.Options.*restLocation)");
-
-    staff::CDataObject tOpReturn$(Member.Name) = tOp$(Member.Name).CreateChild("Return");
-    tOpReturn$(Member.Name).CreateChild("Type", "$(Member.Return.Name)");
-    tOpReturn$(Member.Name).CreateChild("IsConst", $(Member.Return.IsConst));
-
-    staff::CDataObject tOp$(Member.Name)Params = tOp$(Member.Name).CreateChild("Parameters");
-#foreach $(Member.Params)
-    {
-      staff::CDataObject tOpParam$(Param.Name) = tOp$(Member.Name)Params.CreateChild("Param");
-      tOpParam$(Param.Name).CreateChild("Name", "$(Param.Name)");
-      tOpParam$(Param.Name).CreateChild("Type", "$(Param.DataType.Name)");
-      tOpParam$(Param.Name).CreateChild("IsConst", $(Param.DataType.IsConst));
-      tOpParam$(Param.Name).CreateChild("IsRef", $(Param.DataType.IsRef));
-    }
-#end
   }
 #end
 

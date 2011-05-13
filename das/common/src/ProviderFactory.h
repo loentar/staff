@@ -36,8 +36,6 @@ namespace das
   public:
     static ProviderFactory& Inst();
 
-    void FreeInst();
-
     void GetProviders(StringList& rlsProviders);
 
     PProvider Allocate(const std::string& sProvider);
@@ -45,9 +43,10 @@ namespace das
   private:
     ProviderFactory();
     ~ProviderFactory();
+    ProviderFactory(const ProviderFactory&);
+    ProviderFactory& operator=(const ProviderFactory&);
 
   private:
-    static ProviderFactory* m_pInst;
     class ProviderFactoryImpl;
     ProviderFactoryImpl* m_pImpl;
   };

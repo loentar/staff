@@ -146,21 +146,8 @@ namespace staff
 
   CSessionManager& CSessionManager::Inst()
   {
-    if (!m_pInst)
-    {
-      m_pInst = new CSessionManager;
-    }
-
-    return *m_pInst;
-  }
-
-  void CSessionManager::FreeInst()
-  {
-    if (m_pInst)
-    {
-      delete m_pInst;
-      m_pInst = NULL;
-    }
+    static CSessionManager tInst;
+    return tInst;
   }
 
   void CSessionManager::Start()
@@ -170,6 +157,7 @@ namespace staff
 
   void CSessionManager::Stop()
   {
+rise::LogEntry();
     m_pImpl->Stop();
   }
 
@@ -270,5 +258,4 @@ namespace staff
     }
   }
 
-  CSessionManager* CSessionManager::m_pInst = NULL;
 }

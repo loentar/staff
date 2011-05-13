@@ -60,44 +60,10 @@ namespace das
     CDataObject tdoResult("Operations");
 
     const OperationsList& rlsOperations = m_pDataSource->GetOperations();
-    for (OperationsList::const_iterator itOperation = rlsOperations .begin();
+    for (OperationsList::const_iterator itOperation = rlsOperations.begin();
         itOperation != rlsOperations.end(); ++itOperation)
     {
-      const Operation& rOperation = *itOperation;
-      CDataObject tdoOperation = tdoResult.CreateChild("Operation");
-
-      tdoOperation.CreateChild("Name").SetText(rOperation.sName);
-      tdoOperation.CreateChild("IsConst", 0);
-
-      CDataObject tdoParams = tdoOperation.CreateChild("Parameters");
-
-      for (TypesList::const_iterator itParam = rOperation.lsParams.begin();
-            itParam != rOperation.lsParams.end(); ++itParam)
-      {
-        const Type& rParam = *itParam;
-
-        CDataObject tdoParam = tdoParams.CreateChild("Parameter");
-
-        tdoParam.CreateChild("Name").SetText(rParam.sName);
-        tdoParam.CreateChild("Type").SetText(rParam.sType);
-        tdoParam.CreateChild("IsConst", 0);
-        tdoParam.CreateChild("IsRef", 0);
-      }
-
-      std::string sReturnType;
-
-      if (rOperation.stReturn.eType == Type::List || rOperation.stReturn.eType == Type::Struct)
-      {
-        sReturnType = rOperation.stReturn.sName; // using "<struct name>", not "struct"
-      }
-      else
-      {
-        sReturnType = rOperation.stReturn.sType;
-      }
-
-      CDataObject tdoReturn = tdoOperation.CreateChild("Return");
-      tdoReturn.CreateChild("Type").SetText(sReturnType);
-      tdoReturn.CreateChild("IsConst", 0);
+      tdoResult.CreateChild("Operation").CreateChild("Name").SetText(itOperation->sName);
     }
 
     return tdoResult;

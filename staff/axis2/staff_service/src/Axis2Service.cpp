@@ -45,8 +45,6 @@
 #include <staff/common/MessageContext.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
-#include <staff/component/SessionManager.h>
-#include <staff/security/Sessions.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 
@@ -84,13 +82,15 @@ public:
     return AXIS2_SUCCESS;
   }
 
-  static int	AXIS2_CALL Axis2Service_init_with_conf(
+  static int AXIS2_CALL Axis2Service_init_with_conf(
     axis2_svc_skeleton_t * /*pSvcSkeleton*/,
     const axutil_env_t * pEnv, 
-    axis2_conf * pConf)
+    axis2_conf* pConf)
   {
-    const axis2_char_t* service_name = "StaffService";
-    m_pAxis2Svc = axis2_conf_get_svc(pConf, pEnv, service_name);
+    m_pPrevSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
+
+    const axis2_char_t* szServiceName = "StaffService";
+    m_pAxis2Svc = axis2_conf_get_svc(pConf, pEnv, szServiceName);
 
     // check for staff module is engaged
     axutil_qname_t* pQName = axutil_qname_create(pEnv, "staff", NULL, NULL);
@@ -118,23 +118,37 @@ public:
     m_pEnv = pEnv;
     m_pConf = pConf;
 
-    staff::CServiceDispatcher::Inst().Init(staff::CServiceDispatcher::SEvents(CAxis2Service::OnConnect, CAxis2Service::OnDisconnect));
+    try
+    {
+      staff::CServiceDispatcher::Inst().Init(staff::CServiceDispatcher::SEvents(CAxis2Service::OnConnect, CAxis2Service::OnDisconnect));
+#if defined DEBUG || defined _DEBUG
+      rise::LogInfo() << "StaffService started";
+#endif
 
-    return AXIS2_SUCCESS;
+      return AXIS2_SUCCESS;
+    }
+    RISE_CATCH_ALL_DESCR("Failed to start StaffService dispatcher")
+
+    return AXIS2_FAILURE;
   }
 
-  static int AXIS2_CALL Axis2Service_free(axis2_svc_skeleton_t *svc_skeleton, const axutil_env_t *pEnv)
+  static int AXIS2_CALL Axis2Service_free(axis2_svc_skeleton_t *pSvcSkeleton, const axutil_env_t *pEnv)
   {
 rise::LogEntry();
+#if defined DEBUG || defined _DEBUG
+    rise::LogDebug() << "stopping StaffService";
+#endif
+
     m_bShuttingDown = true;
     staff::CServiceDispatcher::Inst().Deinit();
-    staff::CServiceDispatcher::FreeInst();
 
-    if(svc_skeleton)
+    if (pSvcSkeleton)
     {
-      AXIS2_FREE((pEnv)->allocator, svc_skeleton);
-      svc_skeleton = NULL;
+      AXIS2_FREE((pEnv)->allocator, pSvcSkeleton);
+      pSvcSkeleton = NULL;
     }
+
+    signal(SIGSEGV, CAxis2Service::m_pPrevSigSegvHandler);
 
     return AXIS2_SUCCESS; 
   }
@@ -220,9 +234,9 @@ rise::LogEntry();
     staff::COperation tOperation;
     staff::CMessageContext tMessageContext(pEnv, pMsgCtx);
 
-    std::string sServiceName = szServiceName;
-    std::string sSessionId = szSessionId;
-    std::string sInstanceId = szInstanceId;
+    std::string sServiceName(szServiceName);
+    std::string sSessionId(szSessionId);
+    std::string sInstanceId(szInstanceId);
 
     try
     {
@@ -277,28 +291,24 @@ rise::LogEntry();
     }
 
     tOperation.PrepareResult();
-    tOperation.GetResponse().SetOwner(false);
+    staff::CDataObject& rResponse = tOperation.GetResponse();
+    rResponse.SetOwner(false);
 
 #ifdef _DEBUG
-    rise::LogDebug2() << "Sending Response: \n" <<  rise::ColorInkBlue << tOperation.GetResponse().ToString() << "\n" << rise::ColorDefault;
+    rise::LogDebug2() << "Sending Response: \n" <<  rise::ColorInkBlue << rResponse.ToString() << "\n" << rise::ColorDefault;
 #endif
 
-    return tOperation.GetResponse();
+    return rResponse;
   }
 
-  static void OnConnect(const std::string& sServiceName, const staff::CServiceWrapper* pServiceWrapper)
+  static void OnConnect(const staff::CServiceWrapper* pServiceWrapper)
   {
-    void* pSvcClass = axis2_svc_get_impl_class(m_pAxis2Svc, m_pEnv);
-
-    Axis2UtilsCreateVirtualService(sServiceName, pServiceWrapper, pSvcClass, m_pEnv, m_pConf);
+    Axis2UtilsCreateVirtualService(pServiceWrapper, m_pEnv, m_pConf);
   }
 
   static void OnDisconnect(const std::string& sServiceName)
   {
-    if (!m_bShuttingDown) // double free prevent
-    {
-      Axis2UtilsRemoveVirtualService(sServiceName, m_pEnv, m_pConf);
-    }
+    Axis2UtilsRemoveVirtualService(sServiceName, m_pEnv, m_pConf, m_bShuttingDown);
   }
 
   static axiom_node_t * AXIS2_CALL Axis2Service_on_fault(
@@ -322,19 +332,6 @@ rise::LogEntry();
           << ".\nTraced stack:\n" << sTracedStack;
       exit(1);
     }
-  }
-
-  static void Init()
-  {
-    m_pPrevSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
-    staff::CSessionManager::Inst().Start();
-  }
-
-  static void Deinit()
-  {
-    staff::CSessionManager::Inst().Stop();
-    staff::CSessionManager::FreeInst();
-    signal(SIGSEGV, CAxis2Service::m_pPrevSigSegvHandler);
   }
 
 private:
@@ -370,35 +367,15 @@ sighandler_t CAxis2Service::m_pPrevSigSegvHandler = NULL;
 
 extern "C" AXIS2_EXPORT int axis2_get_instance(axis2_svc_skeleton** ppSvcSkeleton, axutil_env_t* pAxEnv)
 {
-rise::LogEntry();
-
-#ifdef WIN32
-// cp 20866
-  setlocale(LC_ALL, "Russian_Russia.20866");
-#endif // WIN32
-
   *ppSvcSkeleton = CAxis2Service::axis2_Axis2Service_create(pAxEnv);
   if(!(*ppSvcSkeleton))
     return AXIS2_FAILURE;
-
-#if defined DEBUG || defined _DEBUG
-  rise::LogInfo() << "StaffService started";
-#endif
-
-  CAxis2Service::Init();
 
   return AXIS2_SUCCESS;
 }
 
 extern "C" AXIS2_EXPORT int axis2_remove_instance(axis2_svc_skeleton_t* pSvcSkeleton, axutil_env_t* pAxEnv)
 {
-rise::LogEntry();
-#if defined DEBUG || defined _DEBUG
-  rise::LogDebug() << "stopping StaffService";
-#endif
-
-  CAxis2Service::Deinit();
-
   axis2_status_t tStatus = AXIS2_FAILURE;
   if (pSvcSkeleton)
     tStatus = AXIS2_SVC_SKELETON_FREE(pSvcSkeleton, pAxEnv);

@@ -39,6 +39,12 @@ namespace staff
   {
   }
 
+  ByteArray::~ByteArray()
+  {
+    Release();
+  }
+
+
   void ByteArray::Set(unsigned long ulDataSize)
   {
     Release();

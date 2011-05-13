@@ -46,9 +46,7 @@ namespace codegen
     axutil_url_t* pUrl = NULL;
     axis2_http_header_t* pHeader = NULL;
     axis2_http_simple_response_t* pResponse = NULL;
-    int nStatus = 0;
     char* szBody = NULL;
-    axis2_ssize_t nBodySize = 0;
 
     // axutil_url_parse_string strips get parameters
     std::string sPath;
@@ -85,13 +83,14 @@ namespace codegen
       // don't check return code here, because client returns AXIS2_SUCCESS only if some body was sent
       // we have'nt body, and client returns AXIS2_FAILURE
       axis2_http_client_send(pClient, pEnv, pRequest, NULL);
-      nStatus = axis2_http_client_recieve_header(pClient, pEnv);
+      int nStatus = axis2_http_client_recieve_header(pClient, pEnv);
       rise::LogDebug3() << "Status code: " << nStatus;
       if (nStatus == 200) // HTTP 200 OK
       {
         pResponse = axis2_http_client_get_response(pClient, pEnv);
         if (pResponse)
         {
+          axis2_ssize_t nBodySize = 0;
 #ifdef _DEBUG
           rise::LogDebug2() << "Content Type: " << axis2_http_simple_response_get_content_type(pResponse, pEnv);
           rise::LogDebug2() << "Content Length: " << axis2_http_simple_response_get_content_length(pResponse, pEnv);

@@ -36,9 +36,6 @@ namespace staff
     */
     static CSessionManager& Inst();
 
-    //!         free session manager instance
-    static void FreeInst();
-
     //!         start sessions watching
     void Start();
 
@@ -83,11 +80,12 @@ namespace staff
   private:
     CSessionManager();
     ~CSessionManager();
+    CSessionManager(const CSessionManager&);
+    CSessionManager& operator=(const CSessionManager&);
 
   private:
     class CSessionManagerImpl;
     CSessionManagerImpl* m_pImpl;
-    static CSessionManager* m_pInst;
   };
 }
 

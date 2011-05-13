@@ -25,6 +25,7 @@
 #include <map>
 #include <rise/os/osdllexport.h>
 #include <rise/string/String.h>
+#include <rise/common/MutablePtr.h>
 #include "DynamicLibrary.h"
 
 namespace rise
@@ -92,12 +93,15 @@ namespace rise
       TPluginConstIterator PluginEnd() const;
 
     private:
+      //! counted pointer to dynamic lib
+      typedef rise::CMutablePtr<CDynamicLibrary> PDynamicLibrary;
+
       //! dynamic library map type
-      typedef std::map<CString, CDynamicLibrary*> TDynLibMap;
+      typedef std::map<CString, PDynamicLibrary> TDynLibMap;
 
     private:
-      TPluginMap m_lsPluginMap;  //!< plugin map
-      TDynLibMap m_lsDynLibMap;  //!< dynamic library map
+      TPluginMap m_mPlugins;  //!< plugin map
+      TDynLibMap m_mDynLibs;  //!< dynamic library map
     };
   } // namespace plugin
 } // namespace rise

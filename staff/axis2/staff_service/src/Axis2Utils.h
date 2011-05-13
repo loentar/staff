@@ -22,22 +22,19 @@
 #ifndef _AXIS2UTILS_H_
 #define _AXIS2UTILS_H_
 
-#include <string>
-
 namespace staff
 {
   class CServiceWrapper;
 }
 
-bool Axis2UtilsCreateVirtualService(const std::string& sServiceName, 
-                                    const staff::CServiceWrapper* pService, 
-                                    void* pSvcClass, 
-                                    const struct axutil_env* pEnv, 
+bool Axis2UtilsCreateVirtualService(const staff::CServiceWrapper* pService,
+                                    const struct axutil_env* pEnv,
                                     struct axis2_conf* pConf);
 
 bool Axis2UtilsRemoveVirtualService(const std::string& sServiceName, 
                                     const struct axutil_env* pEnv, 
-                                    struct axis2_conf* pConf);
+                                    struct axis2_conf* pConf,
+                                    bool bIsShutDown);
 
 #endif // _AXIS2UTILS_H_
 

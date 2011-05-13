@@ -38,9 +38,6 @@ namespace staff
     //!         get instance of service factory
     static CServiceFactory& Inst();
 
-    //!         free instance of service factory
-    static void FreeInst();
-
     //!         allocate new object for work with service
     /*! examples:
         std::auto_ptr<CCalculator> pCalculator(staff::CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator"));
@@ -87,6 +84,8 @@ namespace staff
   private:
     CServiceFactory();
     ~CServiceFactory();
+    CServiceFactory(const CServiceFactory&);
+    CServiceFactory& operator=(const CServiceFactory&);
 
     staff::IService* AllocateClient(const std::string& sClientType, const std::string& sServiceUri,
                                     const std::string& sSessionId, const std::string& sInstanceId);
@@ -100,7 +99,6 @@ namespace staff
                                           const std::string& sInstanceId);
 
   private:
-    static CServiceFactory* m_pInst;  //!< instance
     class CServiceFactoryImpl;
     CServiceFactoryImpl* m_pImpl;
   };

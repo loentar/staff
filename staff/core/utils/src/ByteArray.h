@@ -48,6 +48,9 @@ namespace staff
       */
     ByteArray(byte* pBinaryData, unsigned long ulDataSize, bool bOwner = true);
 
+    //! destructor
+    ~ByteArray();
+
     //! allocate new buffer
     /*! \param ulDataSize - size of new buffer
       */

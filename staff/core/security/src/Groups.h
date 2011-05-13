@@ -49,9 +49,6 @@ namespace staff
         */
       static CGroups& Inst();
 
-      //! free groups instance
-      static void FreeInst();
-
       //! get group by id
       /*! \param nId - group id
           \param rstGroup - resulting group info
@@ -91,9 +88,8 @@ namespace staff
     private:
       CGroups();
       ~CGroups();
-
-    private:
-      static CGroups* m_pInst;
+      CGroups(const CGroups&);
+      CGroups& operator=(const CGroups&);
     };
   }
 }

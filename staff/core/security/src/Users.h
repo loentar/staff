@@ -49,9 +49,6 @@ namespace staff
         */
       static CUsers& Inst();
 
-      //! free users instance
-      static void FreeInst();
-
       //! get user by id
       /*! \param nId - user id
           \param rstUser - resulting user
@@ -103,9 +100,8 @@ namespace staff
     private:
       CUsers();
       ~CUsers();
-
-    private:
-      static CUsers* m_pInst;
+      CUsers(const CUsers&);
+      CUsers& operator=(const CUsers&);
     };
   }
 }

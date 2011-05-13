@@ -88,9 +88,8 @@ namespace rise
     public:
       static CBfdLoader& Inst()
       {
-        if (m_pInst == NULL)
-          m_pInst = new CBfdLoader;
-        return *m_pInst;
+        static CBfdLoader tInst;
+        return tInst;
       }
 
     protected:
@@ -115,10 +114,8 @@ namespace rise
 
     private:
       void* m_hBfdLib;
-      static CBfdLoader* m_pInst;
     };
 
-    CBfdLoader* CBfdLoader::m_pInst = NULL;
 
     class CBfdReader::CBfdReaderImpl
     {

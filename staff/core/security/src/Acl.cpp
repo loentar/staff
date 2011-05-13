@@ -39,23 +39,9 @@ namespace staff
 
     CAcl& CAcl::Inst()
     {
-      if (!m_pInst)
-      {
-        m_pInst = new CAcl;
-      }
-
-      return *m_pInst;
+      static CAcl tInst;
+      return tInst;
     }
-
-    void CAcl::FreeInst()
-    {
-      if (m_pInst)
-      {
-        delete m_pInst;
-        m_pInst = NULL;
-      }
-    }
-
 
     void CAcl::SetUserAccess(int nObjectId, EAccess eAccess)
     {
@@ -487,6 +473,5 @@ namespace staff
     {
     }
 
-    CAcl* CAcl::m_pInst = NULL;
   }
 }

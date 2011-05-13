@@ -23,8 +23,12 @@
 #include <axiom.h>
 #include <axiom_node.h>
 #include <axiom_element.h>
+#include <axiom_attribute.h>
+#include <axiom_namespace.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
+#include <staff/utils/tocstring.h>
+#include <staff/utils/fromcstring.h>
 #include "Exception.h"
 #include "Runtime.h"
 #include "QName.h"
@@ -35,15 +39,25 @@
 
 namespace staff
 {
+  enum { NUM_TO_STR_BUFF_SIZE = 32 };
+
   CDataObject::CDataObject(axiom_node_t* pAxiomNode /*= NULL*/):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
     m_bOwner(false)
   {
-    if (pAxiomNode != NULL)
+    if (pAxiomNode)
     {
       Attach(pAxiomNode);
     }
+  }
+
+  CDataObject::CDataObject(const char* szLocalName):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(szLocalName);
   }
 
   CDataObject::CDataObject(const std::string& sLocalName):
@@ -51,7 +65,7 @@ namespace staff
     m_pAxiomElement(NULL),
     m_bOwner(false)
   {
-    Create(sLocalName);
+    Create(sLocalName.c_str());
   }
 
   CDataObject::CDataObject(const CQName& stQName):
@@ -63,35 +77,327 @@ namespace staff
   }
 
   CDataObject::CDataObject(const CDataObject& rDataObject):
-    m_pAxiomNode(NULL),
-    m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pAxiomNode(const_cast<CDataObject&>(rDataObject).m_pAxiomNode),
+    m_pAxiomElement(const_cast<CDataObject&>(rDataObject).m_pAxiomElement),
+    m_bOwner(rDataObject.m_bOwner)
   {
-    operator=(const_cast<CDataObject&>(rDataObject));
+    const_cast<CDataObject&>(rDataObject).m_bOwner = false;
   }
 
-  CDataObject::CDataObject( const std::string& sLocalName, const char* szText ):
+  CDataObject::CDataObject(const char* szLocalName, bool bValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
     m_bOwner(false)
   {
-    Create(sLocalName, szText != NULL ? szText : "");
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
   }
 
-  CDataObject::CDataObject( const std::string& sLocalName, const std::string& sText ):
+  CDataObject::CDataObject(const char* szLocalName, byte btValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
     m_bOwner(false)
   {
-    Create(sLocalName, sText);
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
   }
 
-  CDataObject::CDataObject( const std::string& sLocalName, const CValue& rValue ):
+  CDataObject::CDataObject(const char* szLocalName, int nValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
     m_bOwner(false)
   {
-    Create(sLocalName, rValue);
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, short shValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, long lValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, long long llValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, unsignedByte ubtValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, unsigned int unValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, unsigned short ushValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, unsigned long ulValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, unsigned long long ullValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, float fValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, double dValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+
+  CDataObject::CDataObject(const std::string& sLocalName, bool bValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, byte btValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, int nValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, short shValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, long lValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, long long llValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, unsignedByte ubtValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, unsigned int unValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, unsigned short ushValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, unsigned long ulValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, unsigned long long ullValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, float fValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, double dValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, const char* szText):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(szLocalName, szText);
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, const char* szText):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(sLocalName.c_str(), szText);
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, const std::string& sText):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(szLocalName, sText.c_str());
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, const std::string& sText):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(sLocalName.c_str(), sText.c_str());
+  }
+
+  CDataObject::CDataObject(const char* szLocalName, const CValue& rValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(szLocalName, rValue.AsString().c_str());
+  }
+
+  CDataObject::CDataObject(const std::string& sLocalName, const CValue& rValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    Create(sLocalName.c_str(), rValue.AsString().c_str());
+  }
+
+  CDataObject::CDataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement):
+    m_pAxiomNode(pAxiomNode),
+    m_pAxiomElement(pAxiomElement),
+    m_bOwner(false)
+  {
   }
 
   CDataObject::~CDataObject()
@@ -99,8 +405,10 @@ namespace staff
     Detach();
   }
 
-  void CDataObject::Attach( axiom_node_t* pAxiomNode, bool bOwner /*= false*/ )
+  void CDataObject::Attach(axiom_node_t* pAxiomNode, bool bOwner /*= false*/)
   {
+    Detach();
+
     RISE_ASSERTP(pAxiomNode);
     RISE_ASSERTES(axiom_node_get_node_type(pAxiomNode, m_pEnv) == AXIOM_ELEMENT, 
       CDomTypeException, "Given node is not a element");
@@ -109,7 +417,6 @@ namespace staff
       reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pAxiomNode, m_pEnv));
     RISE_ASSERTES(pAxiomElement != NULL, CDomNoItemException, "Can\'t get data element");
 
-    Detach();
     m_pAxiomNode = pAxiomNode;
     m_pAxiomElement = pAxiomElement;
     m_bOwner = bOwner;
@@ -129,7 +436,7 @@ namespace staff
     }
   }
 
-  bool CDataObject::IsOwner()
+  bool CDataObject::IsOwner() const
   {
     return m_bOwner;
   }
@@ -164,21 +471,18 @@ namespace staff
 
   CQName CDataObject::GetQName()
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
-    axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
-      m_pAxiomNode);
+    axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
     CQName tqName(pqName);
     return tqName;
   }
 
-  void CDataObject::SetQName( const CQName& stQName ) const
+  void CDataObject::SetQName(const CQName& stQName) const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_element_set_localname(m_pAxiomElement, m_pEnv, stQName.GetLocalPart().c_str());
 
@@ -189,9 +493,20 @@ namespace staff
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
 
+  void CDataObject::GetLocalName(std::string& sLocalName) const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    const axis2_char_t* szLocalName = axiom_element_get_localname(m_pAxiomElement, m_pEnv);
+
+    RISE_ASSERTES(szLocalName != NULL, CDomFormatException, "Can\'t get local name");
+
+    sLocalName = szLocalName;
+  }
+
   std::string CDataObject::GetLocalName() const
   {
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     const axis2_char_t* szLocalName = axiom_element_get_localname(m_pAxiomElement, m_pEnv);
 
@@ -200,20 +515,38 @@ namespace staff
     return szLocalName;
   }
 
-  void CDataObject::SetLocalName( const std::string& sLocalName ) const
+  void CDataObject::SetLocalName(const char* szLocalName) const
   {
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
-    axiom_element_set_localname(m_pAxiomElement, m_pEnv, sLocalName.c_str());
+    axis2_status_t nResult =
+        axiom_element_set_localname(m_pAxiomElement, m_pEnv, szLocalName);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Can't set local name")
+  }
+
+  void CDataObject::SetLocalName(const std::string& sLocalName) const
+  {
+    SetLocalName(sLocalName.c_str());
+  }
+
+  void CDataObject::GetPrefix(std::string& sPrefix) const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axutil_qname_t* pqName =
+        axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
+
+    const axis2_char_t* szPrefix = axutil_qname_get_prefix(pqName, m_pEnv);
+
+    sPrefix = szPrefix ? szPrefix : "";
   }
 
   std::string CDataObject::GetPrefix() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
-    axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
-      m_pAxiomNode);
+    axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
     const axis2_char_t* szPrefix = axutil_qname_get_prefix(pqName, m_pEnv);
@@ -221,14 +554,13 @@ namespace staff
     return szPrefix == NULL ? "" : szPrefix;
   }
 
-  void CDataObject::SetPrefix( const std::string& sPrefix ) const
+  void CDataObject::SetPrefix(const char* szPrefix)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_namespace_t* pNewNamespace = NULL;
-    axiom_namespace_t* pOldNamespace = axiom_element_get_namespace(m_pAxiomElement, m_pEnv, 
-      m_pAxiomNode);
+    axiom_namespace_t* pOldNamespace =
+        axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     const char* szUri = NULL;
 
     if (pOldNamespace != NULL)
@@ -236,19 +568,36 @@ namespace staff
       szUri = axiom_namespace_get_uri(pOldNamespace, m_pEnv);
     }
 
-    pNewNamespace = axiom_namespace_create(m_pEnv, szUri != NULL ? szUri : "", sPrefix.c_str());
+    pNewNamespace = axiom_namespace_create(m_pEnv, szUri != NULL ? szUri : "", szPrefix);
     RISE_ASSERTES(pNewNamespace != NULL, CDomFormatException, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
 
+  void CDataObject::SetPrefix(const std::string& sPrefix)
+  {
+    SetPrefix(sPrefix.c_str());
+  }
+
+  void CDataObject::GetNamespaceUri(std::string& sNamespaceUri) const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axutil_qname_t* pqName =
+        axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
+
+    const axis2_char_t* szUri = axutil_qname_get_uri(pqName, m_pEnv);
+
+    sNamespaceUri = szUri ? szUri : "";
+  }
+
   std::string CDataObject::GetNamespaceUri() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
-    axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, 
-      m_pAxiomNode);
+    axutil_qname_t* pqName =
+        axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     RISE_ASSERTES(pqName != NULL, CDomFormatException, "Can\'t get node's QName");
 
     const axis2_char_t* szUri = axutil_qname_get_uri(pqName, m_pEnv);
@@ -256,21 +605,21 @@ namespace staff
     return szUri != NULL ? szUri : "";
   }
 
-  void CDataObject::SetNamespaceUri( const std::string& sUri ) const
+
+  void CDataObject::SetNamespaceUri(const char* szUri) const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_namespace_t* pNamespace = axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     if (!pNamespace)
     {
-      pNamespace = axiom_namespace_create(m_pEnv, sUri.c_str(), "");
+      pNamespace = axiom_namespace_create(m_pEnv, szUri, "");
       RISE_ASSERTES(pNamespace, CDomInternalException, "Can't create axiom namespace");
       axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNamespace, m_pAxiomNode);
     }
     else
     {
-      axutil_string_t* pStrUri = axutil_string_create(m_pEnv, sUri.c_str());
+      axutil_string_t* pStrUri = axutil_string_create(m_pEnv, szUri);
       RISE_ASSERTES(pStrUri, CDomInternalException, "Can't create axuil_string");
 
       axis2_status_t nResult = axiom_namespace_set_uri_str(pNamespace, m_pEnv, pStrUri);
@@ -284,6 +633,11 @@ namespace staff
     }
   }
 
+  void CDataObject::SetNamespaceUri(const std::string& sUri) const
+  {
+    SetNamespaceUri(sUri.c_str());
+  }
+
   //////////////////////////////////////////////////////////////////////////
   // node management
 
@@ -291,116 +645,287 @@ namespace staff
   {
     Detach();
 
-    axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    RISE_ASSERTS(pAxiomNode, "Failed to create axiom node");
-
-    axiom_element_t* pAxiomElement =
-      axiom_element_create(m_pEnv, NULL, "", NULL, &pAxiomNode);
-    if (!pAxiomElement)
+    m_pAxiomElement = axiom_element_create(m_pEnv, NULL, "", NULL, &m_pAxiomNode);
+    if (!m_pAxiomElement)
     {
-      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      m_pAxiomNode = NULL;
       RISE_THROWS(CDomInternalException, "Failed to create axiom element");
     }
 
-    m_pAxiomElement = pAxiomElement;
-    m_pAxiomNode = pAxiomNode;
     m_bOwner = true;
   }
 
-  void CDataObject::Create( const std::string& sLocalName )
+  void CDataObject::Create(const char* szLocalName)
   {
     Detach();
 
-    axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    RISE_ASSERTS(pAxiomNode, "Failed to create axiom node");
-
-    axiom_element_t* pAxiomElement =
-      axiom_element_create(m_pEnv, NULL, sLocalName.c_str(), NULL, &pAxiomNode);
-    if (!pAxiomElement)
+    m_pAxiomElement = axiom_element_create(m_pEnv, NULL, szLocalName, NULL, &m_pAxiomNode);
+    if (!m_pAxiomElement)
     {
-      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      m_pAxiomNode = NULL;
       RISE_THROWS(CDomInternalException, "Failed to create axiom element");
     }
 
-    m_pAxiomElement = pAxiomElement;
-    m_pAxiomNode = pAxiomNode;
     m_bOwner = true;
   }
 
-  void CDataObject::Create( const CQName& rQName )
+  void CDataObject::Create(const std::string& sLocalName)
+  {
+    Create(sLocalName.c_str());
+  }
+
+  void CDataObject::Create(const CQName& rQName)
   {
     Detach();
 
-    axiom_namespace_t* pAxiomNamespace = axiom_namespace_create(m_pEnv,
-      rQName.GetNamespaceUri().c_str(), rQName.GetPrefix().c_str());
-
-    RISE_ASSERTS(pAxiomNamespace, "Failed to create namespace");
-
-    axiom_node_t* pAxiomNode = axiom_node_create(m_pEnv);
-    if (!pAxiomNode)
+    m_pAxiomElement = axiom_element_create_with_qname(m_pEnv, NULL, rQName, &m_pAxiomNode);
+    if (!m_pAxiomElement)
     {
-      axiom_namespace_free(pAxiomNamespace, m_pEnv);
-      RISE_THROWS(CDomInternalException, "Failed to create axiom node");
-    }
-
-    axiom_element_t* pAxiomElement =
-        axiom_element_create(m_pEnv, NULL, rQName.GetLocalPart().c_str(), pAxiomNamespace, &pAxiomNode);
-    if (!pAxiomElement)
-    {
-      axiom_namespace_free(pAxiomNamespace, m_pEnv);
-      axiom_node_free_tree(pAxiomNode, m_pEnv);
+      m_pAxiomNode = NULL;
       RISE_THROWS(CDomInternalException, "Failed to create axiom element");
     }
+
+    m_bOwner = true;
+  }
+
+
+  void CDataObject::Create(const char* szLocalName, bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+  void CDataObject::Create(const char* szLocalName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
+
+  void CDataObject::Create(const std::string& sLocalName, bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+
+  void CDataObject::Create(const char* szLocalName, const char* szText)
+  {
+    Detach();
+
+    m_pAxiomElement = axiom_element_create(m_pEnv, NULL, szLocalName, NULL, &m_pAxiomNode);
+    if (!m_pAxiomElement)
+    {
+      m_pAxiomNode = NULL;
+      RISE_THROWS(CDomInternalException, "Failed to create axiom element");
+    }
+
+    m_bOwner = true;
 
     axis2_status_t nResult =
-        axiom_element_set_namespace(pAxiomElement, m_pEnv, pAxiomNamespace, pAxiomNode);
-    if (nResult != AXIS2_SUCCESS)
-    {
-      axiom_namespace_free(pAxiomNamespace, m_pEnv);
-      axiom_node_free_tree(pAxiomNode, m_pEnv); // element will be deleted too
-      RISE_THROWS(CDomInternalException, "Failed to set axiom namespace");
-    }
-
-    m_pAxiomElement = pAxiomElement;
-    m_pAxiomNode = pAxiomNode;
-    m_bOwner = true;
+        axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
-  void CDataObject::Create( const std::string& sLocalName, const char* szText )
+  void CDataObject::Create(const std::string& sLocalName, const char* szText)
   {
-    Create(sLocalName);
-    if (szText != NULL)
-    {
-      SetText(szText);
-    }
+    Create(sLocalName.c_str(), szText);
   }
 
-  void CDataObject::Create( const std::string& sLocalName, const std::string& sText )
+  void CDataObject::Create(const char* szLocalName, const std::string& sText)
   {
-    Create(sLocalName);
-    SetText(sText);
+    Create(szLocalName, sText.c_str());
   }
 
-  void CDataObject::Create( const std::string& sLocalName, const CValue& rValue )
+  void CDataObject::Create(const std::string& sLocalName, const std::string& sText)
   {
-    Create(sLocalName);
-    SetValue(rValue);
+    Create(sLocalName.c_str(), sText.c_str());
+  }
+
+  void CDataObject::Create(const std::string& sLocalName, const CValue& rValue)
+  {
+    Create(sLocalName.c_str(), rValue.AsString().c_str());
   }
 
   void CDataObject::Free()
   {
-    if(m_pAxiomNode != NULL)
+    if (m_pAxiomNode != NULL)
     {
       axiom_node_free_tree(m_pAxiomNode, m_pEnv);
+      m_pAxiomNode = NULL;
+      m_pAxiomElement = NULL;
     }
-
-    m_pAxiomNode = NULL;
-    m_pAxiomElement = NULL;
   }
 
   CDataObject& CDataObject::DetachNode()
   {
-    RISE_ASSERTES(axiom_node_detach(m_pAxiomNode, m_pEnv), CDomNoItemException, 
+    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
+
+    RISE_ASSERTES(axiom_node_detach(m_pAxiomNode, m_pEnv), CDomNoItemException,
       "Error while node detaching");
     m_bOwner = true;
     return *this;
@@ -408,17 +933,19 @@ namespace staff
 
   CDataObject& CDataObject::ReplaceNode(CDataObject& rNewNode)
   {
+    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
     axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
 
     DetachNode();
     Free();
+
+    Attach(rNewNode);
 
     if (pParentNode != NULL)
     {
       axiom_node_add_child(pParentNode, m_pEnv, rNewNode.m_pAxiomNode);
     }
 
-    Attach(rNewNode);
     return *this;
   }
 
@@ -582,8 +1109,10 @@ namespace staff
     return pNodeOut;
   }
 
-  CDataObject& CDataObject::Clone( const CDataObject& rDataObject )
+  CDataObject& CDataObject::Clone(const CDataObject& rDataObject)
   {
+    RISE_ASSERTS(rDataObject.m_pAxiomNode != NULL && rDataObject.m_pAxiomElement != NULL, "Not initialized");
+
     axiom_node_t* pNode = Clone(const_cast<CDataObject&>(rDataObject).m_pAxiomNode, NULL);
     Attach(pNode);
     return *this;
@@ -597,6 +1126,7 @@ namespace staff
 
   CDataObject CDataObject::Parent()
   {
+    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
     return axiom_node_get_parent(m_pAxiomNode, m_pEnv);
   }
 
@@ -614,6 +1144,26 @@ namespace staff
     while ((pNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
            axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT);
     return pNode;
+  }
+
+  void CDataObject::SetNextSibling()
+  {
+    while ((m_pAxiomNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
+           axiom_node_get_node_type(m_pAxiomNode, m_pEnv) != AXIOM_ELEMENT);
+
+    m_pAxiomElement = m_pAxiomNode ?
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(m_pAxiomNode, m_pEnv)) :
+          NULL;
+  }
+
+  void CDataObject::SetPreviousSibling()
+  {
+    while ((m_pAxiomNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
+           axiom_node_get_node_type(m_pAxiomNode, m_pEnv) != AXIOM_ELEMENT);
+
+    m_pAxiomElement = m_pAxiomNode ?
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(m_pAxiomNode, m_pEnv)) :
+          NULL;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -665,57 +1215,282 @@ namespace staff
 
   CDataObject CDataObject::CreateChild()
   {
-    CDataObject tdoChild;
+    axiom_node_t* pAxiomNode = NULL;
+    axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, NULL, "", NULL, &pAxiomNode);
+    RISE_ASSERTES(pAxiomElement, CDomInternalException, "Failed to create axiom element");
+
+    axiom_node_add_child(m_pAxiomNode, m_pEnv, pAxiomNode);
+
+    return CDataObject(pAxiomNode, pAxiomElement);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName)
+  {
+    axiom_node_t* pAxiomNode = NULL;
+    axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, m_pAxiomNode, szLocalName, NULL, &pAxiomNode);
+    RISE_ASSERTES(pAxiomElement, CDomInternalException, "Failed to create axiom element");
+
+    return CDataObject(pAxiomNode, pAxiomElement);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName)
+  {
+    return CreateChild(sLocalName.c_str());
+  }
+
+  CDataObject CDataObject::CreateChild(const CQName& rQName)
+  {
+    CDataObject tdoChild(rQName);
     return AppendChild(tdoChild);
   }
 
-  CDataObject CDataObject::CreateChild( const std::string& sLocalName )
+  CDataObject CDataObject::CreateChild(const char* szLocalName, bool bValue)
   {
-    CDataObject tdoChild(sLocalName);
-    return AppendChild(tdoChild);
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
   }
 
-  CDataObject CDataObject::CreateChild( const CQName& rstQName )
+  CDataObject CDataObject::CreateChild(const char* szLocalName, byte btValue)
   {
-    CDataObject tdoChild(rstQName);
-    return AppendChild(tdoChild);
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
   }
 
-  CDataObject CDataObject::CreateChild( const std::string& sLocalName, const char* szValue )
+  CDataObject CDataObject::CreateChild(const char* szLocalName, int nValue)
   {
-    CDataObject tdoChild(sLocalName);
-    if (szValue != NULL)
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, const char* szText)
+  {
+    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+
+    axiom_node_t* pAxiomNode = NULL;
+    axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, m_pAxiomNode, szLocalName, NULL, &pAxiomNode);
+    RISE_ASSERTES(pAxiomElement, CDomInternalException, "Failed to create axiom element");
+
+    axis2_status_t nResult =
+        axiom_element_set_text(pAxiomElement, m_pEnv, szText, pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+
+    return CDataObject(pAxiomNode, pAxiomElement);
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, const char* szText)
+  {
+    return CreateChild(sLocalName.c_str(), szText);
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, const std::string& sText)
+  {
+    return CreateChild(szLocalName, sText.c_str());
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, const std::string& sText)
+  {
+    return CreateChild(sLocalName.c_str(), sText.c_str());
+  }
+
+  CDataObject CDataObject::CreateChild(const char* szLocalName, const CValue& rValue)
+  {
+    return CreateChild(szLocalName, rValue.AsString().c_str());
+  }
+
+  CDataObject CDataObject::CreateChild(const std::string& sLocalName, const CValue& rValue)
+  {
+    return CreateChild(sLocalName.c_str(), rValue.AsString().c_str());
+  }
+
+  CDataObject CDataObject::CreateChildOnce(const char* szLocalName)
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElem = NULL;
+
+    if (FindChildByLocalName(szLocalName, &pNode, &pElem))
     {
-      tdoChild.SetText(szValue);
+      return CDataObject(pNode, pElem);
     }
-    return AppendChild(tdoChild);
+
+    return CreateChild(szLocalName);
   }
 
-  CDataObject CDataObject::CreateChild( const std::string& sLocalName, const std::string& sValue )
+  CDataObject CDataObject::CreateChildOnce(const std::string& sLocalName)
   {
-    CDataObject tdoChild(sLocalName, sValue);
-    return AppendChild(tdoChild);
+    return CreateChildOnce(sLocalName.c_str());
   }
 
-  CDataObject CDataObject::CreateChild( const std::string& sLocalName, const CValue& rValue )
+  CDataObject CDataObject::AppendChild(CDataObject& rDataObject)
   {
-    CDataObject tdoChild(sLocalName, rValue);
-    return AppendChild(tdoChild);
-  }
-
-  CDataObject CDataObject::CreateChildOnce( const std::string& sLocalName )
-  {
-    Iterator itFind = FindChildByLocalName(sLocalName);
-    if (itFind != End())
-      return *itFind;
-
-    CDataObject tdoChild(sLocalName);
-    return AppendChild(tdoChild);
-  }
-
-  CDataObject CDataObject::AppendChild( CDataObject& rDataObject )
-  {
-    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+    RISE_ASSERTS(rDataObject.m_pAxiomNode, "Child is not initialized");
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, rDataObject.m_pAxiomNode);
     rDataObject.m_bOwner = false;
@@ -723,16 +1498,18 @@ namespace staff
     return rDataObject;
   }
 
-  CDataObject CDataObject::AppendChild( const CDataObject& rDataObject )
+  CDataObject CDataObject::AppendChild(const CDataObject& rDataObject)
   {
-    RISE_ASSERT(m_pAxiomNode);
+    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+    RISE_ASSERTS(rDataObject.m_pAxiomNode, "Child is not initialized");
 
-    axiom_node_add_child(m_pAxiomNode, m_pEnv, rDataObject.Clone().m_pAxiomNode);
-    
+    axiom_node_add_child(m_pAxiomNode, m_pEnv, const_cast<CDataObject&>(rDataObject).m_pAxiomNode);
+    const_cast<CDataObject&>(rDataObject).m_bOwner = false;
+
     return rDataObject;
   }
 
-  staff::CDataObject CDataObject::DetachChild( Iterator& itChild )
+  CDataObject CDataObject::DetachChild(Iterator& itChild)
   {
     RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
       CDomNoItemException, "Iterator is not bound to current dataobject");
@@ -741,8 +1518,7 @@ namespace staff
     return CDataObject(axiom_node_detach(itChild.m_pAxiomNode, m_pEnv));
   }
 
-
-  void CDataObject::RemoveChild( Iterator& itChild )
+  void CDataObject::RemoveChild(Iterator& itChild)
   {
     RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
       CDomNoItemException, "Iterator is not bound to current dataobject");
@@ -764,7 +1540,7 @@ namespace staff
     }
   }
 
-  CDataObject::Iterator CDataObject::FindChildByQName( const CQName& rQName )
+  CDataObject::Iterator CDataObject::FindChildByQName(const CQName& rQName)
   {
     axiom_element_t* pElem = NULL;
     axutil_qname_t* pqName = NULL;
@@ -776,9 +1552,9 @@ namespace staff
     const std::string& sPrefix = rQName.GetPrefix();
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
-    for ( axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+    for (axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
       pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+      pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
     {
       if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
       {
@@ -813,7 +1589,7 @@ namespace staff
     return End();
   }
 
-  CDataObject::ConstIterator CDataObject::FindChildByQName( const CQName& rQName ) const
+  CDataObject::ConstIterator CDataObject::FindChildByQName(const CQName& rQName) const
   {
     axiom_element_t* pElem = NULL;
     axutil_qname_t* pqName = NULL;
@@ -825,9 +1601,9 @@ namespace staff
     const std::string& sPrefix = rQName.GetPrefix();
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
-    for ( axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+    for (axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
       pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+      pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
     {
       if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
       {
@@ -862,7 +1638,7 @@ namespace staff
     return End();
   }
 
-  CDataObject::Iterator CDataObject::FindChildByQName( const CQName& rQName, const Iterator& itStart )
+  CDataObject::Iterator CDataObject::FindChildByQName(const CQName& rQName, const Iterator& itStart)
   {
     axiom_element_t* pElem = NULL;
     axutil_qname_t* pqName = NULL;
@@ -877,9 +1653,9 @@ namespace staff
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
       CDomNoItemException, "Iterator is not bound to current dataobject");
 
-    for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
+    for (axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+      pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
     {
       if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
       {
@@ -914,7 +1690,7 @@ namespace staff
     return End();
   }
 
-  CDataObject::ConstIterator CDataObject::FindChildByQName( const CQName& rQName, const ConstIterator& itStart ) const
+  CDataObject::ConstIterator CDataObject::FindChildByQName(const CQName& rQName, const ConstIterator& itStart) const
   {
     axiom_element_t* pElem = NULL;
     axutil_qname_t* pqName = NULL;
@@ -929,9 +1705,9 @@ namespace staff
     RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
       CDomNoItemException, "Iterator is not bound to current dataobject");
 
-    for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
+    for (axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+      pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
     {
       if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
       {
@@ -966,122 +1742,128 @@ namespace staff
     return End();
   }
 
-  CDataObject::Iterator CDataObject::FindChildByLocalName( const std::string& sLocalName )
+  bool CDataObject::FindChildByLocalName(const char* szLocalName, axiom_node_t** ppNode, axiom_element_t** ppElement) const
   {
-    axiom_element_t* pElem = NULL;
-    const axis2_char_t* szLocalName = NULL;
+    RISE_ASSERTP(ppNode != NULL);
 
-    for ( axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
-      pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+    axiom_element_t* pElem = NULL;
+    const axis2_char_t* szCurrentLocalName = NULL;
+
+    for (axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+      pNode; pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
     {
       if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
       {
         pElem = reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNode, m_pEnv));
-        if (pElem == NULL)
-          continue;
-
-        szLocalName = axiom_element_get_localname(pElem, m_pEnv);
-        if (szLocalName == NULL)
-          continue;
-        
-        if (axutil_strcmp(szLocalName, sLocalName.c_str()) == 0)
+        if (pElem)
         {
-          return Iterator(this, pNode);
+          szCurrentLocalName = axiom_element_get_localname(pElem, m_pEnv);
+          if (szCurrentLocalName)
+          {
+            if (!axutil_strcmp(szCurrentLocalName, szLocalName))
+            {
+              *ppNode = pNode;
+              if (ppElement)
+              {
+                *ppElement = pElem;
+              }
+              return true;
+            }
+          }
         }
       }
     }
-    return End();
+
+    return false;
   }
 
-  CDataObject::ConstIterator CDataObject::FindChildByLocalName( const std::string& sLocalName ) const
+  bool CDataObject::FindChildByLocalName(const char* szLocalName, axiom_node_t* pNodeStart,
+                                         axiom_node_t** ppNode, axiom_element_t** ppElement) const
   {
-    axiom_element_t* pElem = NULL;
-    const axis2_char_t* szLocalName = NULL;
+    RISE_ASSERTP(ppNode != NULL);
 
-    for ( axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
-      pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
+    if (pNodeStart)
     {
-      if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
+      axiom_element_t* pElem = NULL;
+      const axis2_char_t* szCurrentLocalName = NULL;
+
+      while ((pNodeStart = axiom_node_get_next_sibling(pNodeStart, m_pEnv)))
       {
-        pElem = reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNode, m_pEnv));
-        if (pElem == NULL)
-          continue;
-
-        szLocalName = axiom_element_get_localname(pElem, m_pEnv);
-        if (szLocalName == NULL)
-          continue;
-
-        if (axutil_strcmp(szLocalName, sLocalName.c_str()) == 0)
+        if (axiom_node_get_node_type(pNodeStart, m_pEnv) == AXIOM_ELEMENT)
         {
-          return ConstIterator(this, pNode);
+          pElem = reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNodeStart, m_pEnv));
+          if (pElem)
+          {
+            szCurrentLocalName = axiom_element_get_localname(pElem, m_pEnv);
+            if (szCurrentLocalName)
+            {
+              if (!axutil_strcmp(szCurrentLocalName, szLocalName))
+              {
+                *ppNode = pNodeStart;
+                if (ppElement)
+                {
+                  *ppElement = pElem;
+                }
+                return true;
+              }
+            }
+          }
         }
       }
     }
-    return End();
+
+    return false;
   }
 
-  CDataObject::Iterator CDataObject::FindChildByLocalName( const std::string& sLocalName, const Iterator& itStart )
+  CDataObject::Iterator CDataObject::FindChildByLocalName(const char* szLocalName)
   {
-    axiom_element_t* pElem = NULL;
-    const axis2_char_t* szLocalName = NULL;
+    axiom_node_t* pNode = NULL;
+    FindChildByLocalName(szLocalName, &pNode);
+    return Iterator(this, pNode);
+  }
 
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
+  CDataObject::Iterator CDataObject::FindChildByLocalName(const std::string& sLocalName)
+  {
+    return FindChildByLocalName(sLocalName.c_str());
+  }
+
+  CDataObject::ConstIterator CDataObject::FindChildByLocalName(const char* szLocalName) const
+  {
+    axiom_node_t* pNode = NULL;
+    FindChildByLocalName(szLocalName, &pNode);
+    return ConstIterator(this, pNode);
+  }
+
+  CDataObject::ConstIterator CDataObject::FindChildByLocalName(const std::string& sLocalName) const
+  {
+    return FindChildByLocalName(sLocalName.c_str());
+  }
+
+  CDataObject::Iterator CDataObject::FindChildByLocalName(const char* szLocalName, const Iterator& itStart)
+  {
+    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
       CDomNoItemException, "Iterator is not bound to current dataobject");
 
-    for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
-      pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
-    {
-      if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
-      {
-        pElem = reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNode, m_pEnv));
-        if (pElem == NULL)
-          continue;
-
-        szLocalName = axiom_element_get_localname(pElem, m_pEnv);
-        if (szLocalName == NULL)
-          continue;
-
-        if (axutil_strcmp(szLocalName, sLocalName.c_str()) == 0)
-        {
-          return Iterator(this, pNode);
-        }
-      }
-    }
-    return End();
+    axiom_node_t* pNode = NULL;
+    FindChildByLocalName(szLocalName, itStart.m_pAxiomNode, &pNode);
+    return Iterator(this, pNode);
   }
 
-  CDataObject::ConstIterator CDataObject::FindChildByLocalName( const std::string& sLocalName, const ConstIterator& itStart ) const
+  CDataObject::Iterator CDataObject::FindChildByLocalName(const std::string& sLocalName, const Iterator& itStart)
   {
-    axiom_element_t* pElem = NULL;
-    const axis2_char_t* szLocalName = NULL;
+    return FindChildByLocalName(sLocalName.c_str(), itStart);
+  }
 
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      CDomNoItemException, "Iterator is not bound to current dataobject");
+  CDataObject::ConstIterator CDataObject::FindChildByLocalName(const char* szLocalName,
+                                                               const ConstIterator& itStart) const
+  {
+    return FindChildByLocalName(szLocalName, itStart);
+  }
 
-    for ( axiom_node_t* pNode = itStart.m_pAxiomNode;
-      pNode != NULL;
-      pNode = axiom_node_get_next_sibling(pNode, m_pEnv) )
-    {
-      if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_ELEMENT)
-      {
-        pElem = reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pNode, m_pEnv));
-        if (pElem == NULL)
-          continue;
-
-        szLocalName = axiom_element_get_localname(pElem, m_pEnv);
-        if (szLocalName == NULL)
-          continue;
-
-        if (axutil_strcmp(szLocalName, sLocalName.c_str()) == 0)
-        {
-          return ConstIterator(this, pNode);
-        }
-      }
-    }
-    return End();
+  CDataObject::ConstIterator CDataObject::FindChildByLocalName(const std::string& sLocalName,
+                                                               const ConstIterator& itStart) const
+  {
+    return FindChildByLocalName(sLocalName.c_str(), itStart);
   }
 
   CDataObject CDataObject::GetChildByQName(const CQName& stQName)
@@ -1098,34 +1880,258 @@ namespace staff
     return CDataObject(pNode);
   }
 
+  CDataObject CDataObject::GetChildByLocalName(const char* szLocalName)
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    RISE_ASSERTES(FindChildByLocalName(szLocalName, &pNode, &pElement), CDomNoItemException,
+                  "Child item \"" + std::string(szLocalName) + "\" is not found");
+    return CDataObject(pNode, pElement);
+  }
+
   CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName)
   {
-    axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + sLocalName + "\" is not found");
-    return CDataObject(pNode);
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    RISE_ASSERTES(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement), CDomNoItemException,
+                  "Child item \"" + sLocalName + "\" is not found");
+    return CDataObject(pNode, pElement);
+  }
+
+  const CDataObject CDataObject::GetChildByLocalName(const char* szLocalName) const
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    RISE_ASSERTES(FindChildByLocalName(szLocalName, &pNode, &pElement), CDomNoItemException,
+                  "Child item \"" + std::string(szLocalName) + "\" is not found");
+    return CDataObject(pNode, pElement);
   }
 
   const CDataObject CDataObject::GetChildByLocalName(const std::string& sLocalName) const
   {
-    axiom_node_t* pNode = FindChildByLocalName(sLocalName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, CDomNoItemException, "Child item \"" + sLocalName + "\" is not found");
-    return CDataObject(pNode);
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    RISE_ASSERTES(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement), CDomNoItemException,
+                  "Child item \"" + sLocalName + "\" is not found");
+    return CDataObject(pNode, pElement);
   }
 
   //////////////////////////////////////////////////////////////////////////
   // data manipulation
 
+  // optimized set value functions
+  void CDataObject::SetValue(bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void CDataObject::SetValue(const char* szText)
+  {
+    axis2_status_t nResult =
+        axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set node value");
+  }
+
+  void CDataObject::SetValue(const std::string& sText)
+  {
+    SetValue(sText.c_str());
+  }
+
+
+  // optimized get value functions
+  bool CDataObject::GetValue(bool& rbValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rbValue);
+  }
+
+  bool CDataObject::GetValue(byte& rbtValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rbtValue);
+  }
+
+  bool CDataObject::GetValue(int& rnValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rnValue);
+  }
+
+  bool CDataObject::GetValue(short& rshValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rshValue);
+  }
+
+  bool CDataObject::GetValue(long& rlValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rlValue);
+  }
+
+  bool CDataObject::GetValue(long long& rllValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rllValue);
+  }
+
+  bool CDataObject::GetValue(unsignedByte& rubtValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rubtValue);
+  }
+
+  bool CDataObject::GetValue(unsigned int& runValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, runValue);
+  }
+
+  bool CDataObject::GetValue(unsigned short& rushValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rushValue);
+  }
+
+  bool CDataObject::GetValue(unsigned long& rulValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rulValue);
+  }
+
+  bool CDataObject::GetValue(unsigned long long& rullValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rullValue);
+  }
+
+  bool CDataObject::GetValue(float& rfValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rfValue);
+  }
+
+  bool CDataObject::GetValue(double& rdValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    return FromCString(szText, rdValue);
+  }
+
+  void CDataObject::GetValue(std::string& sValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    RISE_ASSERTS(szText, "node value is NULL");
+    sValue = szText;
+  }
+
   CValue CDataObject::Value()
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     return CValue(this);
   }
 
   const CValue CDataObject::Value() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     return CValue(const_cast<CDataObject*>(this));
   }
 
@@ -1134,35 +2140,37 @@ namespace staff
     return GetText();
   }
 
-  void CDataObject::SetValue( const CValue& rValue )
+  void CDataObject::SetValue(const CValue& rValue)
   {
-    SetText(rValue.AsString());
+    SetText(rValue.AsString().c_str());
   }
 
   std::string CDataObject::GetText() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
     axis2_char_t* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
 
-    return szText != NULL ? szText : "";
+    return szText ? szText : "";
   }
 
-  void CDataObject::SetText( const std::string& sText )
+  void CDataObject::GetText(std::string& sText) const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
+    axis2_char_t* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+
+    sText = szText ? szText : "";
   }
 
-  CValue CDataObject::operator[]( const std::string& sName )
+  void CDataObject::SetText(const char* szText)
   {
-    return GetChildByLocalName(sName).GetValue();
+    axis2_status_t nResult =
+        axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
-  const CValue CDataObject::operator[]( const std::string& sName ) const
+  void CDataObject::SetText(const std::string& sText)
   {
-    return GetChildByLocalName(sName).GetValue();
+    axis2_status_t nResult =
+        axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -1170,8 +2178,7 @@ namespace staff
 
   CNamespace CDataObject::GetDefaultNamespace() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     CNamespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
     return tNs;
   }
@@ -1184,64 +2191,56 @@ namespace staff
 
   CNamespace CDataObject::GetNamespace() const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     CNamespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
     return tNs;
   }
 
   void CDataObject::DeclareNamespace(CNamespace& rNamespace)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, rNamespace);
     rNamespace.SetDataObject(this);
   }
 
   void CDataObject::SetNamespace(CNamespace& rNamespace)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
     rNamespace.SetDataObject(this);
   }
 
-  CNamespace CDataObject::FindNamespace( const std::string& sUri )
+  CNamespace CDataObject::FindNamespace(const std::string& sUri)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL));
     return tNs;
   }
 
   CNamespace CDataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     CNamespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str()));
     return tNs;
   }
 
   CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomElement, "Not initialized");
     CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL));
     return tNs;
   }
 
   CNamespace CDataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomElement, "Not initialized");
     CNamespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str()));
     return tNs;
   }
 
   CNamespace CDataObject::FindNamespaceUri(const std::string& sPrefix) const
   {
-    RISE_ASSERT(m_pAxiomNode);
-    RISE_ASSERT(m_pAxiomElement);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     CNamespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv,
       const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
     return tNs;
@@ -1250,33 +2249,75 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // attribute management
 
-  void CDataObject::AppendAttribute( CAttribute& rAttribute )
+  void CDataObject::CreateAttribute(const char* szAttrName, const char* szAttrText)
   {
-    axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axiom_attribute_t* pAxiomAttribute =
+        axiom_attribute_create(m_pEnv, szAttrName, szAttrText, NULL);
+    RISE_ASSERTS(pAxiomAttribute, "Failed to create axiom attribute");
+
+    axis2_status_t nResult =
+        axiom_element_add_attribute(m_pAxiomElement, m_pEnv, pAxiomAttribute, m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
   }
 
-  void CDataObject::RemoveAttribute( AttributeIterator& itAttribute )
+  void CDataObject::CreateAttribute(const std::string& sAttrName, const char* szAttrText)
   {
+    CreateAttribute(sAttrName.c_str(), szAttrText);
+  }
+
+  void CDataObject::CreateAttribute(const char* szAttrName, const std::string& sAttrText)
+  {
+    CreateAttribute(szAttrName, sAttrText.c_str());
+  }
+
+  void CDataObject::CreateAttribute(const std::string& sAttrName, const std::string& sAttrText)
+  {
+    CreateAttribute(sAttrName.c_str(), sAttrText.c_str());
+  }
+
+  void CDataObject::CreateAttribute(const char* szAttrName, const CValue& rValue)
+  {
+    CreateAttribute(szAttrName, rValue.AsString().c_str());
+  }
+
+  void CDataObject::CreateAttribute(const std::string& sAttrName, const CValue& rValue)
+  {
+    CreateAttribute(sAttrName.c_str(), rValue.AsString().c_str());
+  }
+
+  void CDataObject::AppendAttribute(CAttribute& rAttribute)
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axis2_status_t nResult =
+        axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
+    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
+  }
+
+  void CDataObject::RemoveAttribute(AttributeIterator& itAttribute)
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
   }
 
   void CDataObject::RemoveAllAttributes()
   {
     axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
-    if (pAttrHash == NULL)
+    if (pAttrHash)
     {
-      return;
-    }
-
-    for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
-      pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
-    {
-      void* pHashValue = NULL;
-
-      axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
-      if (pHashValue != NULL)
+      for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+        pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
       {
-        axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, reinterpret_cast<axiom_attribute_t*>(pHashValue));
+        void* pHashValue = NULL;
+
+        axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+        if (pHashValue != NULL)
+        {
+          axiom_element_remove_attribute(m_pAxiomElement, m_pEnv,
+                                         reinterpret_cast<axiom_attribute_t*>(pHashValue));
+        }
       }
     }
   }
@@ -1308,7 +2349,8 @@ namespace staff
     return AttributeIterator(this, NULL);
   }
 
-  CDataObject::AttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName, const AttributeIterator& itStart)
+  CDataObject::AttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName,
+                                                                   const AttributeIterator& itStart)
   {
     for (axutil_hash_index_t* pIndex = itStart.m_pAttributeIndex;
       pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
@@ -1383,7 +2425,8 @@ namespace staff
     return ConstAttributeIterator(this, NULL);
   }
 
-  CDataObject::ConstAttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName, const ConstAttributeIterator& itStart) const
+  CDataObject::ConstAttributeIterator CDataObject::FindAttributeByQName(const CQName& stQName,
+                                                                        const ConstAttributeIterator& itStart) const
   {
     for (axutil_hash_index_t* pIndex = itStart.m_pAttributeIndex;
       pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
@@ -1439,22 +2482,41 @@ namespace staff
 
   const CAttribute CDataObject::GetAttributeByQName(const CQName& stQName) const
   {
-    CAttribute tAttr(const_cast<CDataObject*>(this), axiom_element_get_attribute(m_pAxiomElement, m_pEnv, stQName));
+    CAttribute tAttr(const_cast<CDataObject*>(this), axiom_element_get_attribute(m_pAxiomElement,
+                                                                                 m_pEnv, stQName));
     return tAttr;
+  }
+
+  CValue CDataObject::GetAttributeValueByName(const char* szLocalName) const
+  {
+    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                                    const_cast<char*>(szLocalName));
+    return CValue(szValue ? szValue : "");
   }
 
   CValue CDataObject::GetAttributeValueByName(const std::string& sLocalName) const
   {
-    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv, const_cast<char*>(sLocalName.c_str()));
-    return CValue(szValue ? szValue : "");
+    return GetAttributeValueByName(sLocalName.c_str());
   }
 
   std::string CDataObject::GetAttributeTextByName(const std::string& sLocalName) const
   {
-    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv, const_cast<char*>(sLocalName.c_str()));
-    return szValue ? std::string(szValue) : "";
+    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                                    const_cast<char*>(sLocalName.c_str()));
+    return szValue ? szValue : "";
   }
 
+  void CDataObject::GetAttributeTextByName(const std::string& sLocalName, std::string& sText) const
+  {
+    GetAttributeTextByName(sLocalName.c_str(), sText);
+  }
+
+  void CDataObject::GetAttributeTextByName(const char* szLocalName, std::string& sText) const
+  {
+    const char* szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                                    const_cast<char*>(szLocalName));
+    sText = szValue ? szValue : "";
+  }
 
   //////////////////////////////////////////////////////////////////////////
   // iteration
@@ -1577,36 +2639,46 @@ namespace staff
     return *this;
   }
 
-  CDataObject& CDataObject::operator=( const CDataObject& rDataObject )
+  CDataObject& CDataObject::operator=(const CDataObject& rDataObject)
   {
-    m_bOwner = rDataObject.m_bOwner;
-    const_cast<CDataObject&>(rDataObject).m_bOwner = false;
-    m_pAxiomNode = const_cast<CDataObject&>(rDataObject).m_pAxiomNode;
-    m_pAxiomElement = const_cast<CDataObject&>(rDataObject).m_pAxiomElement;
+    if (m_pAxiomNode != rDataObject.m_pAxiomNode)
+    {
+      Detach();
+      m_bOwner = rDataObject.m_bOwner;
+      const_cast<CDataObject&>(rDataObject).m_bOwner = false;
+      m_pAxiomNode = const_cast<CDataObject&>(rDataObject).m_pAxiomNode;
+      m_pAxiomElement = const_cast<CDataObject&>(rDataObject).m_pAxiomElement;
+    }
     return *this;
   }
 
-  bool CDataObject::operator==( const CDataObject& rDataObject ) const
+  bool CDataObject::operator==(const CDataObject& rDataObject) const
   {
     return m_pAxiomNode == rDataObject.m_pAxiomNode &&
       m_pAxiomElement == rDataObject.m_pAxiomElement;
   }
 
-  bool CDataObject::operator!=( const CDataObject& rDataObject ) const
+  bool CDataObject::operator!=(const CDataObject& rDataObject) const
   {
     return !operator==(rDataObject);
   }
 
-  CDataObject& CDataObject::FromString( const std::string& sXml )
+  CDataObject& CDataObject::FromString(const char* szXml)
+  {
+    RISE_ASSERTS(szXml, "szXml is NULL");
+    return FromString(szXml, strlen(szXml));
+  }
+
+  CDataObject& CDataObject::FromString(const char* szXml, int nSize)
   {
     axiom_xml_reader_t* pAxiomXmlReader = NULL;
     axiom_stax_builder_t* pStaxBuilder = NULL;
     axiom_node_t* pAxiomNode = NULL;
 
     pAxiomXmlReader = axiom_xml_reader_create_for_memory(
-      m_pEnv, 
-      const_cast<char*>(sXml.c_str()),  // TODO: const cast!
-      static_cast<int>(sXml.size()),
+      m_pEnv,
+      const_cast<char*>(szXml),
+      nSize,
       static_cast<const axis2_char_t*>("UTF-8"),
       AXIS2_XML_PARSER_TYPE_BUFFER);
     RISE_ASSERTES(pAxiomXmlReader != NULL, CDomInternalException, "No Axis XML Reader");
@@ -1651,14 +2723,24 @@ namespace staff
     return *this;
   }
 
+  CDataObject& CDataObject::FromString(const std::string& sXml)
+  {
+    return FromString(sXml.c_str(), static_cast<int>(sXml.size()));
+  }
+
   std::string CDataObject::ToString() const
   {
     std::string sXml;
+    ToString(sXml);
+    return sXml;
+  }
+
+  void CDataObject::ToString(std::string& sResult) const
+  {
     char* szXml = axiom_node_to_string(m_pAxiomNode, m_pEnv);
     RISE_ASSERTES(szXml != NULL, CDomFormatException, "cannot convert DataObject to string");
-    sXml = szXml;
+    sResult = szXml;
     AXIS2_FREE(m_pEnv->allocator, szXml);
-    return sXml;
   }
 
   CDataObject* CDataObject::operator->()
@@ -1674,34 +2756,34 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // deprecated functions
 
-  CDataObject CDataObject::GetOrAdd( const std::string& sName )
+  CDataObject CDataObject::GetOrAdd(const std::string& sName)
   {
     return CreateChildOnce(sName);
   }
 
-  void CDataObject::RemoveChildByLocalName( const std::string& sName )
+  void CDataObject::RemoveChildByLocalName(const std::string& sName)
   {
     Iterator itFind = FindChildByLocalName(sName);
     if (itFind != End())
       RemoveChild(itFind);
   }
 
-  CDataObject::Iterator CDataObject::Find( const std::string& sLocalName )
+  CDataObject::Iterator CDataObject::Find(const std::string& sLocalName)
   {
     return FindChildByLocalName(sLocalName);
   }
 
-  CDataObject::ConstIterator CDataObject::Find( const std::string& sLocalName ) const
+  CDataObject::ConstIterator CDataObject::Find(const std::string& sLocalName) const
   {
     return FindChildByLocalName(sLocalName);
   }
 
-  const CDataObject CDataObject::operator()( const std::string& sLocalName ) const
+  const CDataObject CDataObject::operator()(const std::string& sLocalName) const
   {
     return const_cast<CDataObject*>(this)->GetChildByLocalName(sLocalName);
   }
 
-  CDataObject CDataObject::operator()( const std::string& sLocalName )
+  CDataObject CDataObject::operator()(const std::string& sLocalName)
   {
     return GetChildByLocalName(sLocalName);
   }
@@ -1716,25 +2798,37 @@ namespace staff
     return GetLocalName();
   }
 
-  void CDataObject::SetName( const std::string& sName )
+  void CDataObject::SetName(const std::string& sName)
   {
     SetLocalName(sName);
   }
 
-  CDataObject CDataObject::Add( const std::string& sName )
+  CDataObject CDataObject::Add(const std::string& sName)
   {
     return CreateChild(sName);
   }
 
-  CDataObject CDataObject::Add( const std::string& sName, const CValue& rValue )
+  CDataObject CDataObject::Add(const std::string& sName, const CValue& rValue)
   {
     return CreateChild(sName, rValue);
   }
 
-  CDataObject CDataObject::Add( CDataObject rDataObject )
+  CDataObject CDataObject::Add(CDataObject rDataObject)
   {
     return AppendChild(rDataObject);
   }
+
+  CValue CDataObject::operator[](const std::string& sName)
+  {
+    return GetChildByLocalName(sName).GetValue();
+  }
+
+  const CValue CDataObject::operator[](const std::string& sName) const
+  {
+    return GetChildByLocalName(sName).GetValue();
+  }
+
+
 
   axutil_env_t* CDataObject::m_pEnv = CRuntime::Inst().GetAxis2Env();
 
@@ -2325,15 +3419,15 @@ namespace staff
     return tAttr;
   }
 
-  CDataObject& operator<<( CDataObject& rDataObject, const CValue& rValue )
+  CDataObject& operator<<(CDataObject& rDataObject, const CValue& rValue)
   {
-    rDataObject.SetValue(rValue);
+    rDataObject.SetText(rValue.AsString().c_str());
     return rDataObject;
   }
 
-  const CDataObject& operator>>( const CDataObject& rDataObject, CValue& rValue )
+  const CDataObject& operator>>(const CDataObject& rDataObject, CValue& rValue)
   {
-    rValue = rDataObject.Value();
+    rDataObject.GetText(rValue);
     return rDataObject;
   }
 }

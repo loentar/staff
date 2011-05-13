@@ -135,8 +135,9 @@ namespace rise
         */
     static CString Convert(const CString& sFrom, const CString& sFromName, const CString& sToName,
                            bool bInsertMagicBytes = false);
+
   private:
-    static TEncMap  m_mEncMap; //!<  encoding map
+    static TEncMap& EncMap();
   };
 }
 

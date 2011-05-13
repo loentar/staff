@@ -50,14 +50,15 @@ namespace staff
         */
     rise::xml::CXMLNode& GetModuleConfig(const std::string& sModuleName);
 
-  protected:
+  private:
     CConfig();
     ~CConfig();
+    CConfig(const CConfig&);
+    CConfig& operator=(const CConfig&);
 
   private:
     class CConfigImpl;
     CConfigImpl* m_pImpl;
-    static CConfig* m_pInst;
   };
 }
 

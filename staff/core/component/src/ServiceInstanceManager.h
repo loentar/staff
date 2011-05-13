@@ -46,9 +46,6 @@ namespace staff
         */
     static CServiceInstanceManager& Inst();
 
-    //! free manager instance
-    static void FreeInst();
-
     //! create session
     /*! \param sSessionId - session id
       */
@@ -102,12 +99,13 @@ namespace staff
         */
     PIService& ServiceInstance(const IService* pService, const std::string& sServiceName);
 
-  protected:
+  private:
     CServiceInstanceManager();
     ~CServiceInstanceManager();
+    CServiceInstanceManager(const CServiceInstanceManager&);
+    CServiceInstanceManager& operator=(const CServiceInstanceManager&);
 
   private:
-    static CServiceInstanceManager* m_pInst;
     class CServiceInstanceManagerImpl;
     CServiceInstanceManagerImpl* m_pImpl;
   };

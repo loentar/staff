@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 Utkin Dmitry
+ *  Copyright 2011 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,40 +19,36 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _DATASOURCEFACTORY_H_
-#define _DATASOURCEFACTORY_H_
+
+#ifndef _STAFF_UTILS_TOSTRING_H_
+#define _STAFF_UTILS_TOSTRING_H_
 
 #include <string>
-#include <list>
-#include "staffdascommonexport.h"
+#include "tocstring.h"
 
 namespace staff
 {
-namespace das
-{
-  class DataSource;
 
-  typedef std::list<std::string> StringList;
-
-  class STAFF_DAS_COMMON_EXPORT DataSourceFactory
+  template<typename Type>
+  std::string ToString(Type tValue)
   {
-  public:
-    static DataSourceFactory& Inst();
+    char szBuffer[32];
+    ToCString(tValue, &szBuffer, sizeof(szBuffer));
+    return szBuffer;
+  }
 
-    const DataSource& GetDataSource(const std::string& sName) const;
-    void GetDataSources(StringList& rlsSources) const;
+  template<typename Type>
+  bool ToString(Type tValue, std::string& sResult)
+  {
+    char szBuffer[32];
+    bool bResult = ToCString(tValue, &szBuffer, sizeof(szBuffer));
+    if (bResult)
+    {
+      sResult = szBuffer;
+    }
+    return bResult;
+  }
 
-  private:
-    DataSourceFactory();
-    ~DataSourceFactory();
-    DataSourceFactory(const DataSourceFactory&);
-    DataSourceFactory& operator=(const DataSourceFactory&);
-
-  private:
-    class DataSourceFactoryImpl;
-    DataSourceFactoryImpl* m_pImpl;
-  };
 }
-}
 
-#endif // _DATASOURCEFACTORY_H_
+#endif // _STAFF_UTILS_TOSTRING_H_

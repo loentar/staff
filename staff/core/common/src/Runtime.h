@@ -39,16 +39,21 @@ namespace staff
     */
     static CRuntime& Inst();
 
+    //!         get Axis2/C env for staff component
+    /*! \return Axis2/C env
+    */
+    axutil_env_t* GetAxis2Env();
+
     //!         get Axis2/C env for given component
     /*! \param  sEnvComponent - environment component(service, client, etc)
         \return Axis2/C env
     */
-    axutil_env_t* GetAxis2Env(const std::string& sEnvComponent = "staff");
+    axutil_env_t* GetAxis2Env(const std::string& sEnvComponent);
 
     //!         free Axis2/C env for given component
     /*! \param  sEnvComponent - environment component(service, client, etc)
     */
-    void FreeAxis2Env(const std::string& sEnvComponent = "staff");
+    void FreeAxis2Env(const std::string& sEnvComponent);
 
     //!         get Axis2/C home dir
     /*! \return Axis2/C home dir
@@ -79,16 +84,14 @@ namespace staff
     std::string GetEnv(const std::string& sVariable) const;
 
   private:
-    //!        protected constructor
     CRuntime();
-
-    //!        destructor
-    virtual ~CRuntime();
+    ~CRuntime();
+    CRuntime(const CRuntime&);
+    CRuntime& operator=(const CRuntime&);
 
   private:
     class CRuntimeImpl;
     CRuntimeImpl* m_pImpl;
-    static CRuntime* m_pInst;
   };
 }
 

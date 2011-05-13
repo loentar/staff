@@ -41,9 +41,6 @@ namespace staff
         */
       static CUsersToGroups& Inst();
 
-      //! free users to groups instance
-      static void FreeInst();
-
       //! get user groups
       /*! \param nUserId - user id
           \param rlsGroups - resulting user groups
@@ -78,9 +75,8 @@ namespace staff
     private:
       CUsersToGroups();
       ~CUsersToGroups();
-
-    private:
-      static CUsersToGroups* m_pInst;
+      CUsersToGroups(const CUsersToGroups&);
+      CUsersToGroups& operator=(const CUsersToGroups&);
     };
   }
 }

@@ -90,14 +90,15 @@ namespace staff
     //!         clear component list
     void Clear();
 
-  protected:
+  private:
     CSharedContext();
-    virtual ~CSharedContext();
+    ~CSharedContext();
+    CSharedContext(const CSharedContext&);
+    CSharedContext& operator=(const CSharedContext&);
 
   private:
     TCompositeComponentMap m_mComponents;
     TServiceWrapperMap m_mServiceWrappers;
-    static CSharedContext* m_pInst;
   };
 }
 

@@ -32,7 +32,8 @@ namespace staff
   class CRuntime::CRuntimeImpl
   {
   public:
-    CRuntimeImpl()
+    CRuntimeImpl():
+      m_pEnv(axutil_env_create_all("staff.log", AXIS2_LOG_LEVEL_TRACE))
     {
     }
 
@@ -42,13 +43,14 @@ namespace staff
       {
         for (TAxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
         {
-          if (itEnv->second.pEnv != NULL)
+          if (itEnv->second.pEnv)
           {
             axutil_env_free(itEnv->second.pEnv);
           }
         }
         m_mEnv.clear();
       }
+      axutil_env_free(m_pEnv);
     }
     
   public:
@@ -67,6 +69,7 @@ namespace staff
 
   public:
     TAxutilEnvMap m_mEnv;
+    axutil_env_t* m_pEnv;
   };
 
 
@@ -77,25 +80,27 @@ namespace staff
 
   CRuntime::~CRuntime()
   {
-    if (m_pImpl != NULL)
-    {
-      delete m_pImpl;
-      m_pImpl = NULL;
-    }
+    delete m_pImpl;
   }
 
   CRuntime& CRuntime::Inst()
   {
-    if (m_pInst == NULL)
-    {
-      m_pInst = new CRuntime;
-    }
-
-    return *m_pInst;
+    static CRuntime tInst;
+    return tInst;
   }
 
-  axutil_env_t* CRuntime::GetAxis2Env(const std::string& sEnvComponent /*= "staff"*/)
+  axutil_env_t* CRuntime::GetAxis2Env()
   {
+    return m_pImpl->m_pEnv;
+  }
+
+  axutil_env_t* CRuntime::GetAxis2Env(const std::string& sEnvComponent)
+  {
+    if (sEnvComponent == "staff")
+    {
+      return m_pImpl->m_pEnv;
+    }
+
     CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv == m_pImpl->m_mEnv.end())
     {
@@ -108,7 +113,7 @@ namespace staff
     return itEnv->second.pEnv;
   }
 
-  void CRuntime::FreeAxis2Env(const std::string& sEnvComponent /*= "staff"*/)
+  void CRuntime::FreeAxis2Env(const std::string& sEnvComponent)
   {
     CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv != m_pImpl->m_mEnv.end())
@@ -149,5 +154,4 @@ namespace staff
     return GetComponentsHome() + RISE_PATH_SEPARATOR + sComponent;
   }
  
-  CRuntime* CRuntime::m_pInst = NULL;
 }

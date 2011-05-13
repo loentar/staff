@@ -35,14 +35,8 @@ namespace rise
 
     CDynamicLibrary::~CDynamicLibrary()
     {
-      try 
-      {
-        if ( m_hDynLib )
-        {
-          LogDebug2() << "Unloading library";
-          UnloadLibrary();
-        }
-      } catch (...) {}
+      // do not unload library here to avoid random crashes
+      // caused by inconsistent order of symbols destruction
     }
 
     void CDynamicLibrary::Load( const CString& sLibName, bool bRawName /*= false*/ )
