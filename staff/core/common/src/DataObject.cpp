@@ -1857,7 +1857,12 @@ namespace staff
   CDataObject::ConstIterator CDataObject::FindChildByLocalName(const char* szLocalName,
                                                                const ConstIterator& itStart) const
   {
-    return FindChildByLocalName(szLocalName, itStart);
+    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
+      CDomNoItemException, "Iterator is not bound to current dataobject");
+
+    axiom_node_t* pNode = NULL;
+    FindChildByLocalName(szLocalName, itStart.m_pAxiomNode, &pNode);
+    return ConstIterator(this, pNode);
   }
 
   CDataObject::ConstIterator CDataObject::FindChildByLocalName(const std::string& sLocalName,

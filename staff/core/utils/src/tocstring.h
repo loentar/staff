@@ -25,6 +25,12 @@
 
 #include <stdio.h>
 
+#if defined WIN32 && !defined __MINGW32__
+#define staff_snprintf _snprintf
+#else
+#define staff_snprintf snprintf
+#endif
+
 namespace staff
 {
   // wsdl compat
@@ -34,70 +40,70 @@ namespace staff
 
   inline bool ToCString(bool bValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%s", bValue ? "true" : "false") < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%s", bValue ? "true" : "false") < nBufferSize;
   }
 
 
   inline bool ToCString(byte btValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%d", static_cast<signed char>(btValue)) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%d", static_cast<signed char>(btValue)) < nBufferSize;
   }
 
   inline bool ToCString(int nValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%d", nValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%d", nValue) < nBufferSize;
   }
 
   inline bool ToCString(short shValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%d", shValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%d", shValue) < nBufferSize;
   }
 
   inline bool ToCString(long lValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%ld", lValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%ld", lValue) < nBufferSize;
   }
 
   inline bool ToCString(long long llValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%lld", llValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%lld", llValue) < nBufferSize;
   }
 
 
   inline bool ToCString(unsignedByte ubtValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%d", ubtValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%d", ubtValue) < nBufferSize;
   }
 
   inline bool ToCString(unsigned int unValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%u", unValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%u", unValue) < nBufferSize;
   }
 
   inline bool ToCString(unsigned short ushValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%u", ushValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%u", ushValue) < nBufferSize;
   }
 
   inline bool ToCString(unsigned long ulValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%lu", ulValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%lu", ulValue) < nBufferSize;
   }
 
   inline bool ToCString(unsigned long long ullValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%llu", ullValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%llu", ullValue) < nBufferSize;
   }
 
 
   inline bool ToCString(float fValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%f", fValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%f", fValue) < nBufferSize;
   }
 
   inline bool ToCString(double dValue, char* szBuffer, int nBufferSize)
   {
-    return snprintf(szBuffer, nBufferSize, "%f", dValue) < nBufferSize;
+    return staff_snprintf(szBuffer, nBufferSize, "%f", dValue) < nBufferSize;
   }
 
 }

@@ -48,6 +48,11 @@ namespace staff
       */
     ByteArray(byte* pBinaryData, unsigned long ulDataSize, bool bOwner = true);
 
+    //! owner pass constructor
+    /*! \param rByteArray - other byte array
+      */
+    ByteArray(ByteArray& rByteArray);
+
     //! destructor
     ~ByteArray();
 
