@@ -23,7 +23,17 @@
 #ifndef _STAFF_UTILS_FROMCSTRING_H_
 #define _STAFF_UTILS_FROMCSTRING_H_
 
-#include <stdio.h>
+#include <stdlib.h>
+
+#if defined WIN32 && !defined __MINGW32__
+#define staff_strtoll _strtoi64
+#define staff_strtoull _strtoui64
+#define staff_strtof(str, end) static_cast<float>(strtod(str, end))
+#else
+#define staff_strtoll strtoll
+#define staff_strtoull strtoull
+#define staff_strtof strtof
+#endif
 
 namespace staff
 {
@@ -80,7 +90,7 @@ namespace staff
   inline bool FromCString(const char* szString, long long& rllValue)
   {
     char* szEndPtr = NULL;
-    rllValue = strtoll(szString, &szEndPtr, 10);
+    rllValue = staff_strtoll(szString, &szEndPtr, 10);
     return !szEndPtr || *szEndPtr == '\0';
   }
 
@@ -116,7 +126,7 @@ namespace staff
   inline bool FromCString(const char* szString, unsigned long long& rullValue)
   {
     char* szEndPtr = NULL;
-    rullValue = strtoull(szString, &szEndPtr, 10);
+    rullValue = staff_strtoull(szString, &szEndPtr, 10);
     return !szEndPtr || *szEndPtr == '\0';
   }
 
@@ -124,7 +134,7 @@ namespace staff
   inline bool FromCString(const char* szString, float& rfValue)
   {
     char* szEndPtr = NULL;
-    rfValue = strtof(szString, &szEndPtr);
+    rfValue = staff_strtof(szString, &szEndPtr);
     return !szEndPtr || *szEndPtr == '\0';
   }
 

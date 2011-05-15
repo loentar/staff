@@ -39,6 +39,14 @@ namespace staff
   {
   }
 
+  ByteArray::ByteArray(ByteArray& rByteArray):
+    m_pBinaryData(rByteArray.m_pBinaryData),
+    m_ulDataSize(rByteArray.m_ulDataSize),
+    m_bOwner(rByteArray.m_bOwner)
+  {
+    rByteArray.m_bOwner = false;
+  }
+
   ByteArray::~ByteArray()
   {
     Release();

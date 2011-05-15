@@ -196,8 +196,8 @@ int main(int nArgs, const char* szArgs[])
 
         if (sWhat.empty() || sWhat.find('p') != std::string::npos)
         {
-          const int nPluginPrefixSize = sPluginPrefix.size();
-          const int nPluginExtSize = strlen(RISE_LIBRARY_EXT);
+          const std::string::size_type nPluginPrefixSize = sPluginPrefix.size();
+          const std::string::size_type nPluginExtSize = strlen(RISE_LIBRARY_EXT);
           staff::codegen::TStringList lsPlugins;
           rise::CFileFind::Find(sPluginsDir, lsPlugins, sPluginPrefix + "*" RISE_LIBRARY_EXT,
                                 rise::CFileFind::EFA_FILE);

@@ -74,6 +74,18 @@ public:
     return svc_skeleton;
   }
 
+#if defined WIN32
+  static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
+  {
+    if (dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_C_EVENT)
+    {
+      m_bShuttingDown = true;
+      staff::CServiceDispatcher::Inst().Deinit();
+    }
+    return FALSE; // pass SIGINT to axis2/c
+  }
+#endif
+
   static int AXIS2_CALL Axis2Service_init(axis2_svc_skeleton_t* /*svc_skeleton*/, const axutil_env_t* /*pEnv*/)
   {
     // This method never seems to be called - an old Axis2C artifact?
@@ -88,6 +100,10 @@ public:
     axis2_conf* pConf)
   {
     m_pPrevSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
+#if defined WIN32
+    // installing handler to process Staff deinitialization before dlls are unloaded
+    SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+#endif
 
     const axis2_char_t* szServiceName = "StaffService";
     m_pAxis2Svc = axis2_conf_get_svc(pConf, pEnv, szServiceName);
@@ -139,12 +155,14 @@ rise::LogEntry();
     rise::LogDebug() << "stopping StaffService";
 #endif
 
+#if !defined WIN32
     m_bShuttingDown = true;
     staff::CServiceDispatcher::Inst().Deinit();
+#endif
 
     if (pSvcSkeleton)
     {
-      AXIS2_FREE((pEnv)->allocator, pSvcSkeleton);
+      AXIS2_FREE(pEnv->allocator, pSvcSkeleton);
       pSvcSkeleton = NULL;
     }
 
@@ -376,6 +394,7 @@ extern "C" AXIS2_EXPORT int axis2_get_instance(axis2_svc_skeleton** ppSvcSkeleto
 
 extern "C" AXIS2_EXPORT int axis2_remove_instance(axis2_svc_skeleton_t* pSvcSkeleton, axutil_env_t* pAxEnv)
 {
+rise::LogNotice() << "*";
   axis2_status_t tStatus = AXIS2_FAILURE;
   if (pSvcSkeleton)
     tStatus = AXIS2_SVC_SKELETON_FREE(pSvcSkeleton, pAxEnv);
