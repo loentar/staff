@@ -389,6 +389,16 @@ EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout 
       tvAbsTimeout.tv_nsec -= 1000000000;
     }
 
+#if defined OS_Darwin || defined OS_FreeBSD
+    while ((nResult = sem_trywait(pThreadEvent) == -1) && (errno == EINTR || errno == EAGAIN) && (ulTimeout != 0))
+    {
+      usleep(1000 * ulTimeout);
+      --ulTimeout;
+    }
+    eResult = (nResult == 0) ?
+                  EEventWaitSignaled :
+                  (!ulTimeout ? EEventWaitTimeout : EEventWaitError);
+#else
     // Wait for the event be signaled
     while ((nResult = sem_timedwait(pThreadEvent, &tvAbsTimeout)) == -1 && errno == EINTR);
 
@@ -401,7 +411,8 @@ EEventWaitResult osThreadEventWait(PEvent pThreadEvent, unsigned long ulTimeout 
     eResult = (nResult == 0) ? 
                   EEventWaitSignaled : 
                   ((errno == ETIMEDOUT) ? EEventWaitTimeout : EEventWaitError);
-#endif
+#endif // ptherad version
+#endif // Darwin || FreeBSD
   }
   else
   { // wait infinite
