@@ -35,7 +35,7 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
-	ls -d ./template/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/gm" | xargs rm -Rf
+	ls -d ./template/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/g" | xargs rm -Rf
 	cp -Rf template $(INSTALLDIR)$(BINDIR)
 	find $(INSTALLDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
 

@@ -53,6 +53,11 @@ namespace staff
       */
     ByteArray(ByteArray& rByteArray);
 
+    //! shallow copy constructor (compatability gcc <= 4.0.1)
+    /*! \param rByteArray - other byte array
+      */
+    ByteArray(const ByteArray& rByteArray);
+
     //! destructor
     ~ByteArray();
 

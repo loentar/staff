@@ -24,6 +24,8 @@
 #ifdef OS_FreeBSD
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#elif defined OS_Darwin
+#include <mach-o/dyld.h>
 #endif
 #include "osprocess.h"
 
@@ -215,8 +217,8 @@ namespace rise
 
     if(GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
 #else
-#ifdef OS_FreeBSD
     TChar szPath[PATH_MAX];
+#ifdef OS_FreeBSD
     size_t nPathSize = PATH_MAX;
     int mib[4];
     mib[0] = CTL_KERN;
@@ -231,15 +233,13 @@ namespace rise
     } else
 #else
 #ifdef OS_Darwin
-    TChar szPath[PATH_MAX];
-    size_t nPathSize = PATH_MAX;
-    _NSGetExecutablePath(path, &nPathSize);
+    uint32_t nPathSize = PATH_MAX;
+    _NSGetExecutablePath(szPath, &nPathSize);
     if(nPathSize > 0)
     {
       szPath[nPathSize] = '\0';
     } else
 #else
-    TChar szPath[PATH_MAX];
     int nReaded = readlink("/proc/self/exe", szPath, PATH_MAX);
 
     if(nReaded > 0)

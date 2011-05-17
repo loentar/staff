@@ -47,6 +47,13 @@ namespace staff
     rByteArray.m_bOwner = false;
   }
 
+  ByteArray::ByteArray(const ByteArray& rByteArray):
+    m_pBinaryData(rByteArray.m_pBinaryData),
+    m_ulDataSize(rByteArray.m_ulDataSize),
+    m_bOwner(false)
+  {
+  }
+
   ByteArray::~ByteArray()
   {
     Release();
