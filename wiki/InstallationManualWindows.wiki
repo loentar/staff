@@ -29,9 +29,11 @@ After setting these variables, You must re-login or reboot windows.
 
 == 1. Compile and install dependencies ==
 
+  ||_Please note: Axis2/C team delivers only 32-bit version of Axis2/C. <br/>If You need 64-bit version, please obtain it from our [http://code.google.com/p/staff/downloads/list?q=ws-win64 Download section]._||
+
 You need axis2/c-1.5.0 or greater to be installed. Please, refer to http://ws.apache.org/axis2/c/download.cgi.
 
-Unpack directory contents axis2c-bin-1.5.0-win32 into c:\ws\axis2c
+Unpack directory contents `axis2c-bin-1.5.0-win32` into c:\ws\axis2c
 
 Make sure that Axis2/С starts:
 {{{
@@ -42,7 +44,7 @@ It must be console window with text:
 {{{
 Started Simple Axis2 HTTP Server ...
 }}}
-If You encounter some errors, please refer to Axis2/C site or get `ws-win32-bin*.7z` from our download section.
+If You encounter some errors, please refer to Axis2/C site or get `ws-win<ARCH>-bin*.7z` from our download section.
 
 Make sure, that Axis2/C is working properly, take a look at:
 http://localhost:9090/axis2/services/
@@ -68,12 +70,14 @@ Open command prompt from staff directory and start:
   build <TARGET>
 }}}
 
-where `<TARGET>` is version to build: Debug or Release (case sensitive).
+where `<TARGET>` is version to build: `Debug`, `Release`, `"Release|Win32"`, `"Debug|Win32"`, `"Release|x64"`, `"Debug|x64"` (case sensitive, including quotation marks).
 
 When build successes, start:
 {{{
-  install
+  install <ARCH>
 }}}
+
+Where `<ARCH>` is an architecture configuration: Win32 or x64.
 
 === 3.2 Compiling from Visual Studio ===
 
@@ -86,8 +90,10 @@ Open staff.sln from the directory staff, then build the solution (menu Build->Bu
 
 To install open command prompt from staff directory and start:
 {{{
-  install
+  install <ARCH>
 }}}
+
+Where `<ARCH>` is an architecture configuration: Win32 or x64.
 
 == 4. Starting ==
 
