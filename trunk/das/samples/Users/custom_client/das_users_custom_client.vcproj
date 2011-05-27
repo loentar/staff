@@ -31,7 +31,7 @@
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine="codegen.cmd $(PlatformName)"
 				ExecutionBucket="2"
 			/>
 			<Tool
@@ -125,7 +125,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine="codegen.cmd $(PlatformName)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

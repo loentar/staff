@@ -24,7 +24,7 @@
 
 #ifdef WIN32
   #ifndef __MINGW32__
-    #pragma warning(disable: 4786 4251)
+    #pragma warning(disable: 4786 4251 4521)
   #endif
 
   #ifdef STAFF_UTILS_DLL_EXPORTS

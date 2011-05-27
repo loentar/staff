@@ -7,17 +7,25 @@ set build=%2%
 set cwd=%cd%
 set buildlog=%cwd%\build.log
 
-if "%target%" == "" (
+if '%target%' == '' (
   echo.
   echo Error: Target is not set.
   goto errhelp
 )
 
-if not "%target%" == "Release" (
-if not "%target%" == "Debug" (
+if not '%target%' == 'Release' (
+if not '%target%' == 'Debug' (
+if not '%target%' == '"Release|Win32"' (
+if not '%target%' == '"Debug|Win32"' (
+if not '%target%' == '"Release|x64"' (
+if not '%target%' == '"Debug|x64"' (
   echo.
   echo Error: Invalid target set.
   goto errhelp
+)
+)
+)
+)
 )
 )
 
@@ -33,13 +41,13 @@ if not "%VS80COMNTOOLS%" == "" (
 
 if not "%VS90COMNTOOLS%" == "" (
   set VSVERSION=2008
-  set VSVARS="%VS90COMNTOOLS%\vcvarsall.bat"
+  set VSVARS="%VS90COMNTOOLS%..\..\VC\vcvarsall.bat"
   goto vsdetected
 )
 
 if not "%VS100COMNTOOLS%" == "" (
   set VSVERSION=2010
-  set VSVARS="%VS100COMNTOOLS%\vcvarsall.bat"
+  set VSVARS="%VS100COMNTOOLS%..\..\VC\vcvarsall.bat"
   goto vsdetected
 )
 
@@ -176,10 +184,19 @@ if "%build%" == "build" goto buildok
 
 goto exit
 :buildok
+
+set arch=Win32
+if '%target%' == '"Release|x64"' (
+set arch=x64
+)
+if '%target%' == '"Debug|x64"' (
+set arch=x64
+)
+
 echo.
 echo.
 echo Project successfuly built.
-echo Start install.cmd to install project.
+echo Start `install %arch%` to install project.
 echo.
 goto exit
 
@@ -187,8 +204,8 @@ goto exit
 echo.
 echo Start this script as
 echo  %0% TARGET BUILD
-echo where TARGET is "Release" or "Debug"
-echo and BUILD is "build", "rebuild", "clean" or empty ^(defaults is rebuild^)
+echo where TARGET is one of `Release`, `Debug`, `"Release|Win32"`, `"Debug|Win32"`, `"Release|x64"`, `"Debug|x64"`
+echo and BUILD is `build`, `rebuild`, `clean` or empty ^(defaults is rebuild^)
 goto errexit
 
 :errexit

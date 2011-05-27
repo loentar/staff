@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../deploy/win_$(PROCESSOR_ARCHITECTURE)/include&quot;"
+				AdditionalIncludeDirectories="&quot;../../deploy/win_$(PlatformName)/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,7 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../deploy/win_$(PROCESSOR_ARCHITECTURE)/lib"
+				AdditionalLibraryDirectories="../../deploy/win_$(PlatformName)/lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

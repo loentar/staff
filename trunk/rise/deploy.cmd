@@ -8,9 +8,16 @@ if "%target%" == "" (
   exit 1
 )
 
+set arch=%2%
+if "%arch%" == "" (
+  echo.
+  echo Error: Arch is not set.
+  exit 1
+)
+
 echo deploying rise...
 
-set platform=win_%PROCESSOR_ARCHITECTURE%
+set platform=win_%arch%
 set pwd=%cd%
 set deploydir=%pwd%\deploy\%platform%
 set deployincdir=%deploydir%\include\rise

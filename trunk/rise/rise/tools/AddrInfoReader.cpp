@@ -137,14 +137,22 @@ namespace rise
         IMAGEHLP_SYMBOL* pSymbol = GetSymbol();
 
         HANDLE hProc = GetCurrentProcess();
+#if defined _WIN64
+        DWORD64 dwAddr = reinterpret_cast<DWORD64>(pAddr);
+        DWORD64 symDisp1 = 0;
+#elif defined WIN32
         DWORD dwAddr = reinterpret_cast<DWORD>(pAddr);
-        DWORD symDisp = 0;
+        DWORD symDisp1 = 0;
+#else
+#error unsupported arch
+#endif
+        DWORD symDisp2 = 0;
         char szAddrHex[11];
         IMAGEHLP_LINE stLine;
         IMAGEHLP_MODULE stModule;
 
         // Decode the closest routine symbol name
-        if ( SymGetSymFromAddr( hProc, dwAddr, &symDisp, pSymbol ) ) 
+        if ( SymGetSymFromAddr( hProc, dwAddr, &symDisp1, pSymbol ) ) 
           rAddrInfo.sFunctionName = pSymbol->Name;
         else
           rAddrInfo.sFunctionName = "??";
@@ -153,8 +161,7 @@ namespace rise
         stLine.SizeOfStruct = sizeof(IMAGEHLP_LINE);
         stLine.Address = dwAddr;
 
-        symDisp = 0;
-        if(SymGetLineFromAddr(hProc, dwAddr, &symDisp, &stLine))
+        if (SymGetLineFromAddr(hProc, dwAddr, &symDisp2, &stLine))
         {
           rAddrInfo.unLine = stLine.LineNumber;
           rAddrInfo.sFileName = stLine.FileName;
@@ -173,7 +180,13 @@ namespace rise
         else
           rAddrInfo.sContext = "??";
 
+#if defined _WIN64
+        _snprintf(szAddrHex, sizeof(szAddrHex), "0x%016x", reinterpret_cast<DWORD64>(pAddr));
+#elif defined WIN32
         _snprintf(szAddrHex, sizeof(szAddrHex), "0x%08x", pAddr);
+#else
+#error unsupported arch
+#endif
         rAddrInfo.sAddrHex = szAddrHex;
 
         return true;

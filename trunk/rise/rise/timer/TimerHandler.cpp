@@ -105,8 +105,12 @@ namespace rise
         return tInst;
       }
   
-#ifdef WIN32
-      static void CALLBACK TimerProc( HWND, UINT, UINT nIDEvent, DWORD);
+#if defined _WIN64
+      static void CALLBACK TimerProc( HWND, UINT, UINT_PTR, DWORD);
+#elif defined WIN32
+      static void CALLBACK TimerProc( HWND, UINT, UINT, DWORD);
+#else
+#error unsupported arch
 #endif
 
       CTimerHandler::TTimerID AddTimer(dword dwMSec, dword dwRepeat, CTimerHandler* pTimer)
@@ -279,7 +283,11 @@ namespace rise
   };
 
 #ifdef WIN32
+#if defined _WIN64
+  void CALLBACK CTimeCatcher::TimerProc( HWND, UINT, UINT_PTR nIDEvent, DWORD)
+#else
   void CALLBACK CTimeCatcher::TimerProc( HWND, UINT, UINT nIDEvent, DWORD)
+#endif
   {
     CTimeCatcher::Inst().OnTimer(static_cast<CTimerHandler::TTimerID>(nIDEvent));
   }
