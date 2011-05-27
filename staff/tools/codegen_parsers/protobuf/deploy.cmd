@@ -7,7 +7,14 @@ if "%target%" == "" (
   exit 1
 )
 
-set deploydir=%cd%\..\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%
+set arch=%2%
+if "%arch%" == "" (
+  echo.
+  echo Error: Arch is not set.
+  exit 1
+)
+
+set deploydir=%cd%\..\..\..\deploy\win_%arch%
 set libdir=%deploydir%\staff\lib\codegen\parsers
 if not EXIST %libdir% mkdir %libdir%
 xcopy /Y /S %target%\*.dll %libdir%

@@ -1,6 +1,12 @@
 setlocal
-SET STAFF_HOME=%cd%\..\..\deploy\win_%PROCESSOR_ARCHITECTURE%\staff
-set PATH=..\..\..\..\rise\deploy\win_%PROCESSOR_ARCHITECTURE%\lib;%STAFF_HOME%\bin;%STAFF_HOME%\lib;%PATH%
+set arch=%1%
+if "%arch%" == "" (
+  echo.
+  echo Error: Arch is not set.
+  exit 1
+)
+SET STAFF_HOME=%cd%\..\..\deploy\win_%arch%\staff
+set PATH=..\..\..\..\rise\deploy\win_%arch%\lib;%STAFF_HOME%\bin;%STAFF_HOME%\lib;%PATH%
 cd src
 staff_codegen -u -tcomponent Wsdl.h
 staff_codegen -u -twsdl Wsdl.h

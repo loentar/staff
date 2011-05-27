@@ -1,6 +1,25 @@
 @echo off
 rem start this file to install project into %STAFF_HOME%
 
+set arch=%1%
+
+if '%arch%' == '' (
+  echo.
+  echo Arch is not set. To install please enter
+  echo  %0% ARCH
+  echo Where ARCH is either of `Win32` or `x64`.
+  echo.
+  goto errexit
+)
+
+if not '%arch%' == 'Win32' (
+if not '%arch%' == 'x64' (
+  echo.
+  echo Error: Invalid arch set: [%arch%]. Supported architectures are: Win32, x64
+  goto errhelp
+)
+)
+
 if "%STAFF_HOME%" == "" (
   echo Error: STAFF_HOME is not set
   goto errexit
@@ -11,9 +30,9 @@ if "%AXIS2C_HOME%" == "" (
   goto errexit
 )
 
-set risedeploydir=%cd%\rise\deploy\win_%PROCESSOR_ARCHITECTURE%
-set staffdeploydir=%cd%\staff\deploy\win_%PROCESSOR_ARCHITECTURE%
-set dasdeploydir=%cd%\das\deploy\win_%PROCESSOR_ARCHITECTURE%
+set risedeploydir=%cd%\rise\deploy\win_%arch%
+set staffdeploydir=%cd%\staff\deploy\win_%arch%
+set dasdeploydir=%cd%\das\deploy\win_%arch%
 
 if not exist %STAFF_HOME% mkdir %STAFF_HOME%
 

@@ -11,6 +11,9 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -24,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine="codegen.cmd $(PlatformName)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -43,7 +46,7 @@
 				UseUnicodeResponseFiles="false"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,7 +70,7 @@
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -95,7 +98,91 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(ConfigurationName)"
+				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd $(PlatformName)"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="false"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -108,7 +195,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd"
+				CommandLine="codegen.cmd $(PlatformName)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -124,7 +211,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\include&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -144,8 +231,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PROCESSOR_ARCHITECTURE)\lib&quot;;&quot;..\..\..\deploy\win_$(PROCESSOR_ARCHITECTURE)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -175,7 +263,89 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(ConfigurationName)"
+				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd $(PlatformName)"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				GenerateDebugInformation="false"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
 			/>
 		</Configuration>
 	</Configurations>

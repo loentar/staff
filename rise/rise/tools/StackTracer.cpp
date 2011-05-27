@@ -138,6 +138,33 @@ namespace rise
 
     void CStackTracer::StackTrace( TAddrInfoList& rTraceResult, int nSkip /*= 0*/  )
     {
+#if defined _WIN64
+       typedef USHORT (WINAPI *PCaptureStackBackTrace)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
+       PCaptureStackBackTrace pCaptureStackBackTrace = 
+         (PCaptureStackBackTrace)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+
+      if (pCaptureStackBackTrace)
+      {
+        SAddrInfo rAddr;
+        const int nMaxStackSize = 62; 
+
+        void* pStack[nMaxStackSize];
+        int nCount = pCaptureStackBackTrace(0, nMaxStackSize, pStack, NULL);
+        for (int i = 0; i < nCount; i++)
+        {
+         if(nSkip >= 0)
+         {
+           --nSkip;
+         }
+         else
+         {
+           CAddrInfoReader::LookupAddr(reinterpret_cast<void*>(pStack[i]), rAddr);
+           rTraceResult.push_back(rAddr);
+         }
+       }
+     }
+
+#elif defined WIN32
       HANDLE hProc, hThread;
       CONTEXT* pContext = 0;
       STACKFRAME tStackFrame;
@@ -204,6 +231,9 @@ namespace rise
 
       if (pContext != NULL)
         free (pContext);
+#else
+#error unsupported arch
+#endif
 
       rise::LogDebug3() << "done tracing stack(list)";
     }
