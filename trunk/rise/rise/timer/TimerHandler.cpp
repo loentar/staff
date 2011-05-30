@@ -109,8 +109,6 @@ namespace rise
       static void CALLBACK TimerProc( HWND, UINT, UINT_PTR, DWORD);
 #elif defined WIN32
       static void CALLBACK TimerProc( HWND, UINT, UINT, DWORD);
-#else
-#error unsupported arch
 #endif
 
       CTimerHandler::TTimerID AddTimer(dword dwMSec, dword dwRepeat, CTimerHandler* pTimer)
