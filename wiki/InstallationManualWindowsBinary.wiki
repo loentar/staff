@@ -7,10 +7,9 @@ Two versions of binary distribution are available: built in MSVC and GCC.
 == 1. Set environment variables ==
 While starting Axis2/C server or any client/service application, these environment variables, must be set:
 {{{
-WS_HOME=c:\ws
-AXIS2C_HOME=%WS_HOME%\axis2c
-STAFF_HOME=%WS_HOME%\staff
-PATH=%WS_HOME%\lib;%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin;%PATH%
+AXIS2C_HOME=c:\ws\axis2c
+STAFF_HOME=c:\ws\staff
+PATH=c:\ws\lib;%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin
 }}}
 
 You can set these variables in system properties. After setting these variables, You must relogin or reboot Windows.
