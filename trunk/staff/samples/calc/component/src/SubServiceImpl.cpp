@@ -31,7 +31,7 @@ namespace samples
   namespace calc
   {
 
-    int CSubServiceImpl::Sub(int nA, int nB) const
+    int SubServiceImpl::Sub(int nA, int nB) const
     {
       return nA - nB;
     }

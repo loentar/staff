@@ -28,7 +28,7 @@
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
 namespace das
 {
@@ -41,7 +41,7 @@ namespace das
     ProviderService();
     virtual void OnCreate();
     virtual void OnDestroy();
-    virtual CDataObject Invoke(const CDataObject& rdoOperation);
+    virtual DataObject Invoke(const DataObject& rdoOperation);
 
   private:
     PProvider& GetProvider();

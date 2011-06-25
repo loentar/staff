@@ -28,26 +28,26 @@
 
 namespace staff
 {
-  class CComponentConfigManager::CComponentConfigManagerImpl
+  class ComponentConfigManager::ComponentConfigManagerImpl
   {
   public:
-    typedef rise::CMutablePtr<CComponentConfig> PComponentConfig;
-    typedef std::map<std::string, PComponentConfig> TComponentConfigMap;
-    TComponentConfigMap m_mConfigs;
+    typedef rise::CMutablePtr<ComponentConfig> PComponentConfig;
+    typedef std::map<std::string, PComponentConfig> ComponentConfigMap;
+    ComponentConfigMap m_mConfigs;
   };
 
-  CComponentConfigManager& CComponentConfigManager::Inst()
+  ComponentConfigManager& ComponentConfigManager::Inst()
   {
-    static CComponentConfigManager tInst;
+    static ComponentConfigManager tInst;
     return tInst;
   }
 
-  CComponentConfigManager::CComponentConfigManager()
+  ComponentConfigManager::ComponentConfigManager()
   {
-    m_pImpl = new CComponentConfigManagerImpl;
+    m_pImpl = new ComponentConfigManagerImpl;
   }
 
-  CComponentConfigManager::~CComponentConfigManager()
+  ComponentConfigManager::~ComponentConfigManager()
   {
     if(m_pImpl != NULL)
     {
@@ -56,13 +56,13 @@ namespace staff
     }
   }
 
-  CComponentConfig& CComponentConfigManager::GetComponentConfig( const std::string& sComponent, const std::string& sConfig /*= "config.xml"*/, bool bCreate /*= false*/ )
+  ComponentConfig& ComponentConfigManager::GetComponentConfig( const std::string& sComponent, const std::string& sConfig /*= "config.xml"*/, bool bCreate /*= false*/ )
   {
-    CComponentConfigManagerImpl::PComponentConfig& rpComponentConfig = m_pImpl->m_mConfigs[sComponent];
+    ComponentConfigManagerImpl::PComponentConfig& rpComponentConfig = m_pImpl->m_mConfigs[sComponent];
 
     if (rpComponentConfig.Get() == NULL)
     {
-      rpComponentConfig = new CComponentConfig;
+      rpComponentConfig = new ComponentConfig;
       rpComponentConfig->Init(sComponent, sConfig, bCreate);
     }
     return *rpComponentConfig;

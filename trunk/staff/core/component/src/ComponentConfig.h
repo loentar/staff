@@ -37,11 +37,11 @@ namespace rise
 namespace staff
 {
   //!  Component config
-  class STAFF_COMPONENT_EXPORT CComponentConfig
+  class STAFF_COMPONENT_EXPORT ComponentConfig
   {
   public:
     //!         destructor
-    ~CComponentConfig();
+    ~ComponentConfig();
 
     //!         get component name
     /*! \return component name
@@ -74,19 +74,24 @@ namespace staff
 
   protected:
     //!         protected constructor
-    CComponentConfig();
+    ComponentConfig();
 
     //!         internal initialization
     void Init(const std::string& sComponent, const std::string& sConfig, bool bCreate);
 
   private:
-    CComponentConfig& operator=(const CComponentConfig&);
-    CComponentConfig(const CComponentConfig&);
+    ComponentConfig& operator=(const ComponentConfig&);
+    ComponentConfig(const ComponentConfig&);
 
-    class CComponentConfigImpl;
-    CComponentConfigImpl* m_pImpl;
-    friend class CComponentConfigManager;
+    class ComponentConfigImpl;
+    ComponentConfigImpl* m_pImpl;
+    friend class ComponentConfigManager;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef ComponentConfig CComponentConfig STAFF_DEPRECATED(ComponentConfig);
+#endif
+
 }
 
 

@@ -19,130 +19,118 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/string/String.h>
-#include "DataObject.h"
+#include <staff/utils/tostring.h>
+#include <staff/utils/fromstring.h>
 #include "Value.h"
 
 namespace staff
 {
-  CValue::CValue():
-    m_eType(ET_NOTINIT), m_ePrevType(ET_NOTINIT), m_bChanged(false), m_pDataObject(NULL)
+  Value::Value():
+    m_eType(ET_NOTINIT), m_ePrevType(ET_NOTINIT), m_bChanged(false)
   {
   }
 
-  CValue::CValue(const std::string& sValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(const std::string& sValue):
+    m_bChanged(false)
   {
     operator=(sValue);
   }
 
-  CValue::CValue(const char* szValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(const char* szValue):
+    m_bChanged(false)
   {
     operator=(szValue);
   }
 
-  CValue::CValue(float fValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(float fValue):
+    m_bChanged(false)
   {
     operator=(fValue);
   }
 
-  CValue::CValue(double dValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(double dValue):
+    m_bChanged(false)
   {
     operator=(dValue);
   }
 
-  CValue::CValue(byte btValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(byte btValue):
+    m_bChanged(false)
   {
     operator=(btValue);
   }
 
-  CValue::CValue(int nValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(int nValue):
+    m_bChanged(false)
   {
     operator=(nValue);
   }
 
-  CValue::CValue(short shValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(short shValue):
+    m_bChanged(false)
   {
     operator=(shValue);
   }
 
-  CValue::CValue(long lValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(long lValue):
+    m_bChanged(false)
   {
     operator=(lValue);
   }
 
-  CValue::CValue(long long llValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(long long llValue):
+    m_bChanged(false)
   {
     operator=(llValue);
   }
 
-  CValue::CValue(unsignedByte btValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(unsignedByte btValue):
+    m_bChanged(false)
   {
     operator=(btValue);
   }
 
-  CValue::CValue(unsigned int unValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(unsigned int unValue):
+    m_bChanged(false)
   {
     operator=(unValue);
   }
 
-  CValue::CValue(unsigned short ushValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(unsigned short ushValue):
+    m_bChanged(false)
   {
     operator=(ushValue);
   }
 
-  CValue::CValue(unsigned long ulValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(unsigned long ulValue):
+    m_bChanged(false)
   {
     operator=(ulValue);
   }
 
-  CValue::CValue(unsigned long long ullValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(unsigned long long ullValue):
+    m_bChanged(false)
   {
     operator=(ullValue);
   }
 
-  CValue::CValue(bool bValue):
-    m_bChanged(false), m_pDataObject(NULL)
+  Value::Value(bool bValue):
+    m_bChanged(false)
   {
     operator=(bValue);
   }
 
-  CValue::CValue( CDataObject* pDataObject ):
-    m_bChanged(false), m_pDataObject(pDataObject)
-  {
-    if(m_pDataObject)
-    {
-      m_eType = ET_TEXT;
-      m_ePrevType = m_eType;
-      m_sValue = m_pDataObject->GetText();
-    }
-  }
 
-
-  CValue& CValue::operator=( const std::string& sValue )
+  Value& Value::operator=(const std::string& sValue)
   {
     m_bChanged = true;
     m_eType = ET_TEXT;
     m_ePrevType = m_eType;
     m_sValue = sValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( const char* szValue )
+  Value& Value::operator=(const char* szValue)
   {
     m_bChanged = true;
     m_eType = ET_TEXT;
@@ -151,146 +139,130 @@ namespace staff
       m_sValue = "";
     else
       m_sValue = szValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( float fValue )
+  Value& Value::operator=(float fValue)
   {
     m_bChanged = true;
     m_eType = ET_FLOAT;
     m_ePrevType = m_eType;
     m_uValue.fValue = fValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( double dValue )
+  Value& Value::operator=(double dValue)
   {
     m_bChanged = true;
     m_eType = ET_DOUBLE;
     m_ePrevType = m_eType;
     m_uValue.dValue = dValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( byte btValue )
+  Value& Value::operator=(byte btValue)
   {
     m_bChanged = true;
     m_eType = ET_BYTE;
     m_ePrevType = m_eType;
     m_uValue.btValue = btValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( int nValue )
+  Value& Value::operator=(int nValue)
   {
     m_bChanged = true;
     m_eType = ET_INT;
     m_ePrevType = m_eType;
     m_uValue.nValue = nValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( short shValue )
+  Value& Value::operator=(short shValue)
   {
     m_bChanged = true;
     m_eType = ET_SHORT;
     m_ePrevType = m_eType;
     m_uValue.shValue = shValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( long lValue )
+  Value& Value::operator=(long lValue)
   {
     m_bChanged = true;
     m_eType = ET_LONG;
     m_ePrevType = m_eType;
     m_uValue.lValue = lValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( long long llValue )
+  Value& Value::operator=(long long llValue)
   {
     m_bChanged = true;
     m_eType = ET_LONGLONG;
     m_ePrevType = m_eType;
     m_uValue.llValue = llValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( unsignedByte ubtValue )
+  Value& Value::operator=(unsignedByte ubtValue)
   {
     m_bChanged = true;
     m_eType = ET_UBYTE;
     m_ePrevType = m_eType;
     m_uValue.ubtValue = ubtValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( unsigned int unValue )
+  Value& Value::operator=(unsigned int unValue)
   {
     m_bChanged = true;
     m_eType = ET_UINT;
     m_ePrevType = m_eType;
     m_uValue.unValue = unValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( unsigned short ushValue )
+  Value& Value::operator=(unsigned short ushValue)
   {
     m_bChanged = true;
     m_eType = ET_USHORT;
     m_ePrevType = m_eType;
     m_uValue.ushValue = ushValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( unsigned long ulValue )
+  Value& Value::operator=(unsigned long ulValue)
   {
     m_bChanged = true;
     m_eType = ET_ULONG;
     m_ePrevType = m_eType;
     m_uValue.ulValue = ulValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( unsigned long long ullValue )
+  Value& Value::operator=(unsigned long long ullValue)
   {
     m_bChanged = true;
     m_eType = ET_ULONGLONG;
     m_ePrevType = m_eType;
     m_uValue.ullValue = ullValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( bool bValue )
+  Value& Value::operator=(bool bValue)
   {
     m_bChanged = true;
     m_eType = ET_BOOL;
     m_ePrevType = m_eType;
     m_uValue.bValue = bValue;
-    Flush();
     return *this;
   }
 
-  CValue& CValue::operator=( const CValue& rValue )
+  Value& Value::operator=(const Value& rValue)
   {
     m_eType = rValue.m_eType;
     m_ePrevType = rValue.m_ePrevType;
-    if(rValue.m_pDataObject != NULL)
-      m_pDataObject = rValue.m_pDataObject;
     m_bChanged = rValue.m_bChanged;
     if (m_eType == ET_TEXT)
     {
@@ -304,98 +276,98 @@ namespace staff
   }
 
 
-  CValue::operator std::string&()
+  Value::operator std::string&()
   {
     m_bChanged = true;
     SyncTo(ET_TEXT);
     return m_sValue;
   }
 
-  CValue::operator float&()
+  Value::operator float&()
   {
     m_bChanged = true;
     SyncTo(ET_FLOAT);
     return m_uValue.fValue;
   }
 
-  CValue::operator double&()
+  Value::operator double&()
   {
     m_bChanged = true;
     SyncTo(ET_DOUBLE);
     return m_uValue.dValue;
   }
 
-  CValue::operator byte&()
+  Value::operator byte&()
   {
     m_bChanged = true;
     SyncTo(ET_BYTE);
     return m_uValue.btValue;
   }
 
-  CValue::operator int&()
+  Value::operator int&()
   {
     m_bChanged = true;
     SyncTo(ET_INT);
     return m_uValue.nValue;
   }
 
-  CValue::operator short&()
+  Value::operator short&()
   {
     m_bChanged = true;
     SyncTo(ET_SHORT);
     return m_uValue.shValue;
   }
 
-  CValue::operator long&()
+  Value::operator long&()
   {
     m_bChanged = true;
     SyncTo(ET_LONG);
     return m_uValue.lValue;
   }
 
-  CValue::operator long long&()
+  Value::operator long long&()
   {
     m_bChanged = true;
     SyncTo(ET_LONGLONG);
     return m_uValue.llValue;
   }
 
-  CValue::operator unsignedByte&()
+  Value::operator unsignedByte&()
   {
     m_bChanged = true;
     SyncTo(ET_UBYTE);
     return m_uValue.ubtValue;
   }
 
-  CValue::operator unsigned int&()
+  Value::operator unsigned int&()
   {
     m_bChanged = true;
     SyncTo(ET_UINT);
     return m_uValue.unValue;
   }
 
-  CValue::operator unsigned short&()
+  Value::operator unsigned short&()
   {
     m_bChanged = true;
     SyncTo(ET_USHORT);
     return m_uValue.ushValue;
   }
 
-  CValue::operator unsigned long&()
+  Value::operator unsigned long&()
   {
     m_bChanged = true;
     SyncTo(ET_ULONG);
     return m_uValue.ulValue;
   }
 
-  CValue::operator unsigned long long&()
+  Value::operator unsigned long long&()
   {
     m_bChanged = true;
     SyncTo(ET_ULONGLONG);
     return m_uValue.ullValue;
   }
 
-  CValue::operator bool&()
+  Value::operator bool&()
   {
     m_bChanged = true;
     SyncTo(ET_BOOL);
@@ -403,92 +375,92 @@ namespace staff
   }
 
 
-  CValue::operator const std::string&() const
+  Value::operator const std::string&() const
   {
     SyncTo(ET_TEXT);
     return m_sValue;
   }
 
-  CValue::operator float() const
+  Value::operator float() const
   {
     SyncTo(ET_FLOAT);
     return m_uValue.fValue;
   }
 
-  CValue::operator double() const
+  Value::operator double() const
   {
     SyncTo(ET_DOUBLE);
     return m_uValue.dValue;
   }
 
-  CValue::operator byte() const
+  Value::operator byte() const
   {
     SyncTo(ET_BYTE);
     return m_uValue.btValue;
   }
 
-  CValue::operator int() const
+  Value::operator int() const
   {
     SyncTo(ET_INT);
     return m_uValue.nValue;
   }
 
-  CValue::operator short() const
+  Value::operator short() const
   {
     SyncTo(ET_SHORT);
     return m_uValue.shValue;
   }
 
-  CValue::operator long() const
+  Value::operator long() const
   {
     SyncTo(ET_LONG);
     return m_uValue.lValue;
   }
 
-  CValue::operator long long() const
+  Value::operator long long() const
   {
     SyncTo(ET_LONGLONG);
     return m_uValue.llValue;
   }
 
-  CValue::operator unsignedByte() const
+  Value::operator unsignedByte() const
   {
     SyncTo(ET_UBYTE);
     return m_uValue.ubtValue;
   }
 
-  CValue::operator unsigned int() const
+  Value::operator unsigned int() const
   {
     SyncTo(ET_UINT);
     return m_uValue.unValue;
   }
 
-  CValue::operator unsigned short() const
+  Value::operator unsigned short() const
   {
     SyncTo(ET_USHORT);
     return m_uValue.ushValue;
   }
 
-  CValue::operator unsigned long() const
+  Value::operator unsigned long() const
   {
     SyncTo(ET_ULONG);
     return m_uValue.ulValue;
   }
 
-  CValue::operator unsigned long long() const
+  Value::operator unsigned long long() const
   {
     SyncTo(ET_ULONGLONG);
     return m_uValue.ullValue;
   }
 
-  CValue::operator bool() const
+  Value::operator bool() const
   {
     SyncTo(ET_BOOL);
     return m_uValue.bValue;
   }
 
 
-  void CValue::Sync( EType eTypeFrom, EType eTypeTo ) const
+  void Value::Sync(EType eTypeFrom, EType eTypeTo) const
   {
     switch(eTypeTo)
     {
@@ -498,40 +470,40 @@ namespace staff
         case ET_TEXT:
           break;
         case ET_FLOAT:
-          rise::ToStr(m_uValue.fValue, m_sValue); 
+          ToString(m_uValue.fValue, m_sValue);
           break;
         case ET_DOUBLE:
-          rise::ToStr(m_uValue.dValue, m_sValue); 
+          ToString(m_uValue.dValue, m_sValue);
           break;
         case ET_BYTE:
-          rise::ToStr(m_uValue.btValue, m_sValue); 
+          ToString(m_uValue.btValue, m_sValue);
           break;
         case ET_INT:
-          rise::ToStr(m_uValue.nValue, m_sValue); 
+          ToString(m_uValue.nValue, m_sValue);
           break;
         case ET_SHORT:
-          rise::ToStr(m_uValue.shValue, m_sValue); 
+          ToString(m_uValue.shValue, m_sValue);
           break;
         case ET_LONG:
-          rise::ToStr(m_uValue.lValue, m_sValue); 
+          ToString(m_uValue.lValue, m_sValue);
           break;
         case ET_LONGLONG:
-          rise::ToStr(m_uValue.llValue, m_sValue); 
+          ToString(m_uValue.llValue, m_sValue);
           break;
         case ET_UBYTE:
-          rise::ToStr(m_uValue.ubtValue, m_sValue); 
+          ToString(m_uValue.ubtValue, m_sValue);
           break;
         case ET_UINT:
-          rise::ToStr(m_uValue.unValue, m_sValue); 
+          ToString(m_uValue.unValue, m_sValue);
           break;
         case ET_USHORT:
-          rise::ToStr(m_uValue.ushValue, m_sValue); 
+          ToString(m_uValue.ushValue, m_sValue);
           break;
         case ET_ULONG:
-          rise::ToStr(m_uValue.ulValue, m_sValue); 
+          ToString(m_uValue.ulValue, m_sValue);
           break;
         case ET_ULONGLONG:
-          rise::ToStr(m_uValue.ullValue, m_sValue); 
+          ToString(m_uValue.ullValue, m_sValue);
           break;
         case ET_BOOL:
           m_sValue = m_uValue.bValue ? "true" : "false"; 
@@ -546,7 +518,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.fValue); 
+        FromString(m_sValue, m_uValue.fValue);
         break;
       case ET_FLOAT:
         break;
@@ -596,7 +568,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.dValue); 
+        FromString(m_sValue, m_uValue.dValue);
         break;
       case ET_FLOAT:
         m_uValue.dValue = static_cast<double>(m_uValue.fValue);
@@ -696,7 +668,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.nValue); 
+        FromString(m_sValue, m_uValue.nValue);
         break;
       case ET_FLOAT:
         m_uValue.nValue = static_cast<int>(m_uValue.fValue);
@@ -746,7 +718,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.shValue); 
+        FromString(m_sValue, m_uValue.shValue);
         break;
       case ET_FLOAT:
         m_uValue.shValue = static_cast<short>(m_uValue.fValue);
@@ -796,7 +768,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.lValue); 
+        FromString(m_sValue, m_uValue.lValue);
         break;
       case ET_FLOAT:
         m_uValue.lValue = static_cast<long>(m_uValue.fValue);
@@ -846,7 +818,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.llValue); 
+        FromString(m_sValue, m_uValue.llValue);
         break;
       case ET_FLOAT:
         m_uValue.llValue = static_cast<long long>(m_uValue.fValue);
@@ -947,7 +919,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.unValue); 
+        FromString(m_sValue, m_uValue.unValue);
         break;
       case ET_FLOAT:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.fValue);
@@ -997,7 +969,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.ushValue); 
+        FromString(m_sValue, m_uValue.ushValue);
         break;
       case ET_FLOAT:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.fValue);
@@ -1047,7 +1019,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.ulValue); 
+        FromString(m_sValue, m_uValue.ulValue);
         break;
       case ET_FLOAT:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.fValue);
@@ -1097,7 +1069,7 @@ namespace staff
       switch(eTypeFrom)
       {
       case ET_TEXT:
-        rise::FromStr(m_sValue, m_uValue.ullValue); 
+        FromString(m_sValue, m_uValue.ullValue);
         break;
       case ET_FLOAT:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.fValue);
@@ -1199,48 +1171,40 @@ namespace staff
     }
   }
 
-  void CValue::Sync() const
+  void Value::SyncTo(EType eTypeTo) const
   {
-    if (m_ePrevType == m_eType)
-      return;
-
-    Sync(m_ePrevType, m_eType);
-    m_ePrevType = m_eType;
-  }
-
-  void CValue::SyncTo( EType eTypeTo ) const
-  {
-    Sync();
     Sync(m_eType, eTypeTo);
     m_ePrevType = eTypeTo;
   }
 
-  CValue::EType CValue::GetType() const
+  Value::EType Value::GetType() const
   {
     return m_eType;
   }
 
-  const std::string& CValue::AsString() const
+  const std::string& Value::AsString() const
   {
-    return operator const std::string&();
+    SyncTo(ET_TEXT);
+    return m_sValue;
   }
 
-  std::string& CValue::AsString()
+  std::string& Value::AsString()
   {
-    return operator std::string&();
+    SyncTo(ET_TEXT);
+    return m_sValue;
   }
 
-  bool CValue::IsNumber() const
+  bool Value::IsNumber() const
   {
     return IsNumber(m_eType);
   }
 
-  bool CValue::IsNumber( EType eType ) const
+  bool Value::IsNumber(EType eType) const
   {
     return eType >= ET_FLOAT && eType <= ET_BOOL;
   }
 
-  bool CValue::operator==( const CValue& rValue ) const
+  bool Value::operator==(const Value& rValue) const
   {
     if(m_eType != rValue.m_eType)
       return false;
@@ -1312,63 +1276,7 @@ namespace staff
     return false;
   }
 
-  CValue::~CValue()
+  Value::~Value()
   {
-    Flush();
-  }
-
-  void CValue::Flush()
-  {
-    if (m_bChanged && m_pDataObject != NULL)
-    {
-      switch(m_eType)
-      {
-      case ET_TEXT:
-        break;
-      case ET_FLOAT:
-        rise::ToStr(m_uValue.fValue, m_sValue); 
-        break;
-      case ET_DOUBLE:
-        rise::ToStr(m_uValue.dValue, m_sValue); 
-        break;
-      case ET_BYTE:
-        rise::ToStr(static_cast<short>(m_uValue.btValue), m_sValue); 
-        break;
-      case ET_INT:
-        rise::ToStr(m_uValue.nValue, m_sValue); 
-        break;
-      case ET_SHORT:
-        rise::ToStr(m_uValue.shValue, m_sValue); 
-        break;
-      case ET_LONG:
-        rise::ToStr(m_uValue.lValue, m_sValue); 
-        break;
-      case ET_LONGLONG:
-        rise::ToStr(m_uValue.llValue, m_sValue); 
-        break;
-      case ET_UBYTE:
-        rise::ToStr(static_cast<unsigned short>(m_uValue.ubtValue), m_sValue); 
-        break;
-      case ET_UINT:
-        rise::ToStr(m_uValue.unValue, m_sValue); 
-        break;
-      case ET_USHORT:
-        rise::ToStr(m_uValue.ushValue, m_sValue); 
-        break;
-      case ET_ULONG:
-        rise::ToStr(m_uValue.ulValue, m_sValue); 
-        break;
-      case ET_ULONGLONG:
-        rise::ToStr(m_uValue.ullValue, m_sValue); 
-        break;
-      case ET_BOOL:
-        m_sValue = m_uValue.bValue ? "true" : "false"; 
-        break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
-        break;
-      }
-      m_pDataObject->SetText(m_sValue);
-    }
   }
 }

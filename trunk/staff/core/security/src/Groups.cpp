@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -34,15 +34,15 @@ namespace staff
 {
   namespace security
   {
-    CGroups& CGroups::Inst()
+    Groups& Groups::Inst()
     {
-      static CGroups tInst;
+      static Groups tInst;
       return tInst;
     }
 
-    void CGroups::GetById(int nId, SGroup& rstGroup)
+    void Groups::GetById(int nId, Group& rstGroup)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM groups WHERE id=?", -1, &pVm, NULL);
@@ -73,9 +73,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CGroups::GetByName(const std::string& sGroupName, SGroup& rstGroup)
+    void Groups::GetByName(const std::string& sGroupName, Group& rstGroup)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM groups WHERE name=?", -1, &pVm, NULL);
@@ -106,9 +106,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CGroups::GetList(TGroupsList& rlsGroups)
+    void Groups::GetList(GroupsList& rlsGroups)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM groups", -1, &pVm, NULL);
@@ -121,7 +121,7 @@ namespace staff
         // get data
         while (sqlite3_step(pVm) == SQLITE_ROW)
         {
-          SGroup stGroup;
+          Group stGroup;
           stGroup.nId = sqlite3_column_int(pVm, 0);
           const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
           RISE_ASSERTS(szTmp, "Failed to get group name");
@@ -141,9 +141,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CGroups::Add(const std::string& sName, const std::string& sDescription, int& nId)
+    void Groups::Add(const std::string& sName, const std::string& sDescription, int& nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // add group
@@ -172,9 +172,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CGroups::Remove(int nId)
+    void Groups::Remove(int nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // remove group
@@ -197,9 +197,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CGroups::SetDescription(int nId, const std::string& sDescription)
+    void Groups::SetDescription(int nId, const std::string& sDescription)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // set group password
@@ -225,11 +225,11 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    CGroups::CGroups()
+    Groups::Groups()
     {
     }
 
-    CGroups::~CGroups()
+    Groups::~Groups()
     {
     }
 

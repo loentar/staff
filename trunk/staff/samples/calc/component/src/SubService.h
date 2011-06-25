@@ -29,7 +29,7 @@ namespace samples
   namespace calc
   {
     //!  sample component service, implementing substract operation
-    class CSubService: public staff::IService
+    class SubService: public staff::IService
     {
     public:
       //! substract nA and nB.

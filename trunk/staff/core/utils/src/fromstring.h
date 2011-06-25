@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Utkin Dmitry
+ *  Copyright 2011 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-/* 
+
+/*
  *  This file is part of the WSF Staff project.
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include "ServiceWrapper.h"
+#include <string>
+#include "fromcstring.h"
+
+#ifndef _STAFF_UTILS_FROMSTRING_H_
+#define _STAFF_UTILS_FROMSTRING_H_
 
 namespace staff
 {
-  ServiceWrapper::~ServiceWrapper()
+
+  template<typename Type>
+  Type& FromString(const std::string& rString, Type& rValue)
   {
+    FromCString(rString.c_str(), rValue);
+    return rValue;
   }
+
+  template<typename Type>
+  Type& FromString(const std::string& rString, Type& rValue, bool* pbIsOk)
+  {
+    bool bIsOk = FromCString(rString.c_str(), rValue);
+    if (pbIsOk)
+    {
+      *pbIsOk = bIsOk;
+    }
+    return rValue;
+  }
+
 }
+
+#endif // _STAFF_UTILS_FROMSTRING_H_

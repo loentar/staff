@@ -29,7 +29,7 @@ namespace staff
   namespace security
   {
     //! security time
-    class STAFF_SECURITY_EXPORT CTime
+    class STAFF_SECURITY_EXPORT Time
     {
     public:
       //! get current datetime
@@ -37,6 +37,10 @@ namespace staff
         */
       static int Get();
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef Time CTime STAFF_DEPRECATED(Time);
+#endif
   }
 }
 

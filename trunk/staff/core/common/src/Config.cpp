@@ -27,42 +27,42 @@
 #include "Runtime.h"
 #include "Config.h"
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable:4996)
 #endif
 
 namespace staff
 {
-  class CConfig::CConfigImpl
+  class Config::ConfigImpl
   {
   public:
     rise::xml::CXMLDocument m_tConfig;
   };
 
-  CConfig::CConfig():
-    m_pImpl(new CConfigImpl)
+  Config::Config():
+    m_pImpl(new ConfigImpl)
   {
     try
     {
-      m_pImpl->m_tConfig.LoadFromFile(CRuntime::Inst().GetStaffHome() + "/staff.xml");
+      m_pImpl->m_tConfig.LoadFromFile(Runtime::Inst().GetStaffHome() + "/staff.xml");
     }
     RISE_CATCH_ALL
   }
 
-  CConfig::~CConfig()
+  Config::~Config()
   {
 rise::LogNotice() << "*";
     delete m_pImpl;
   }
 
-  rise::xml::CXMLNode& CConfig::GetModuleConfig( const std::string& sModuleName )
+  rise::xml::CXMLNode& Config::GetModuleConfig(const std::string& sModuleName)
   {
     return m_pImpl->m_tConfig.GetRoot().Subnode(sModuleName);
   }
 
-  CConfig& CConfig::Inst()
+  Config& Config::Inst()
   {
-    static CConfig tInst;
+    static Config tInst;
     return tInst;
   }
 

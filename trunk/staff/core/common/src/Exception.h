@@ -48,16 +48,16 @@ namespace staff
   };
 
   //! basic exception for DOM exceptions
-  class STAFF_COMMON_EXPORT CDomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
+  class STAFF_COMMON_EXPORT DomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
   {
   public:
-    virtual ~CDomException() throw();
+    virtual ~DomException() throw();
   };
 
 
   //! template DOM exception 
   template<EXCODE CODE>
-  class CDomExceptionTemplate: public CDomException
+  class DomExceptionTemplate: public DomException
   {
   public:
     //!         get exception code
@@ -68,16 +68,16 @@ namespace staff
 
 
   //! basic exception for remote exceptions
-  class STAFF_COMMON_EXPORT CRemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
+  class STAFF_COMMON_EXPORT RemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
   {
   public:
-    virtual ~CRemoteExceptionBase() throw();
+    virtual ~RemoteExceptionBase() throw();
   };
 
 
   //! template remote exception
   template<EXCODE CODE>
-  class CRemoteExceptionTemplate: public CRemoteExceptionBase
+  class RemoteExceptionTemplate: public RemoteExceptionBase
   {
   public:
     //!         get exception code
@@ -87,20 +87,31 @@ namespace staff
   };
 
   //! invalid param
-  typedef CDomExceptionTemplate<EXPARAM> CDomParamException;
+  typedef DomExceptionTemplate<EXPARAM> DomParamException;
   //! invalid type
-  typedef CDomExceptionTemplate<EXTYPE> CDomTypeException;
+  typedef DomExceptionTemplate<EXTYPE> DomTypeException;
   //! item is not found
-  typedef CDomExceptionTemplate<EXNOITEM> CDomNoItemException;
+  typedef DomExceptionTemplate<EXNOITEM> DomNoItemException;
   //! invalid format
-  typedef CDomExceptionTemplate<EXFORMAT> CDomFormatException;
+  typedef DomExceptionTemplate<EXFORMAT> DomFormatException;
   //! internal
-  typedef CDomExceptionTemplate<EXINTERNAL> CDomInternalException;
+  typedef DomExceptionTemplate<EXINTERNAL> DomInternalException;
 
   //! DOM exception
-  typedef CRemoteExceptionTemplate<EXINTERNAL> CRemoteException;
+  typedef RemoteExceptionTemplate<EXINTERNAL> RemoteException;
   //! remote exception
-  typedef CRemoteExceptionTemplate<EXINTERNAL> CRemoteInternalException;
+  typedef RemoteExceptionTemplate<EXINTERNAL> RemoteInternalException;
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef DomParamException CDomParamException STAFF_DEPRECATED(DomParamException);
+  typedef DomTypeException CDomTypeException STAFF_DEPRECATED(DomTypeException);
+  typedef DomNoItemException CDomNoItemException STAFF_DEPRECATED(DomNoItemException);
+  typedef DomFormatException CDomFormatException STAFF_DEPRECATED(DomFormatException);
+  typedef DomInternalException CDomInternalException STAFF_DEPRECATED(DomInternalException);
+  typedef RemoteException CRemoteException STAFF_DEPRECATED(RemoteException);
+  typedef RemoteInternalException CRemoteInternalException STAFF_DEPRECATED(RemoteInternalException);
+#endif
+
 }
 
 #endif // _STAFF_EXCEPTION_H_

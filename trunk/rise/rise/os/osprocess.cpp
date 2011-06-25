@@ -55,7 +55,7 @@ namespace rise
   {
   #ifdef WIN32
     #pragma message ( "WIN32 osSetSignalHandler not realized!" ) 
-    #ifndef __MINGW32__ // warning: statement has no effect
+    #ifdef _MSC_VER // warning: statement has no effect
       pSignalProc;
       nSignal;
     #endif

@@ -38,7 +38,7 @@ namespace staff
 namespace codegen
 {
   //!  Code generator
-  class CCodeGen
+  class CodeGen
   {
   public:
     //!         start code generation
@@ -47,7 +47,7 @@ namespace codegen
         \param  rRootNode - root node, describing project
         \param  bUpdateOnly - true: update files if needed, false: always update files
         */
-    void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv);
+    void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const StringMap& rmEnv);
   };
 }
 }

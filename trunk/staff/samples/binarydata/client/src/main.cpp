@@ -42,7 +42,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< ::samples::binarydata::KeyGenerator > pKeyGenerator(::staff::CServiceFactory::Inst().GetService< ::samples::binarydata::KeyGenerator >());
+    std::auto_ptr< ::samples::binarydata::KeyGenerator > pKeyGenerator(::staff::ServiceFactory::Inst().GetService< ::samples::binarydata::KeyGenerator >());
 
     RISE_ASSERTS(pKeyGenerator.get(), "Cannot get client for service samples.binarydata.KeyGenerator!");
 

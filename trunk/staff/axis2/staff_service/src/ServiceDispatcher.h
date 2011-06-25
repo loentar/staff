@@ -26,33 +26,33 @@
 
 namespace staff
 {
-  class CServiceWrapper;
-  class COperation;
+  class ServiceWrapper;
+  class Operation;
 
   //!  Service dispatcher
-  class CServiceDispatcher
+  class ServiceDispatcher
   {
   public:
-    struct SEvents
+    struct Events
     {
-      void (*pOnConnect)(const CServiceWrapper* pService);
+      void (*pOnConnect)(const ServiceWrapper* pService);
       void (*pOnDisconnect)(const std::string& sServiceName);
 
-      SEvents();
-      SEvents(void (*pOnConnectInit)(const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&));
-      SEvents& operator=(const SEvents& rEvents);
+      Events();
+      Events(void (*pOnConnectInit)(const ServiceWrapper*), void (*pOnDisconnectInit)(const std::string&));
+      Events& operator=(const Events& rEvents);
     };
 
   public:
     //!         get reference to dispatcher instance
     /*! \return reference to dispatcher instance
     */
-    static CServiceDispatcher& Inst();
+    static ServiceDispatcher& Inst();
 
     //!         initialize dispatcher
     /*! \param  stEvents - events struct
         */
-    void Init(const SEvents& stEvents);
+    void Init(const Events& stEvents);
 
     //!         deinitialize dispatcher
     void Deinit();
@@ -60,17 +60,17 @@ namespace staff
     //!         invoke dispatcher's function
     /*! \param  rOperation - operation
         */
-    void InvokeSelf(COperation& rOperation);
+    void InvokeSelf(Operation& rOperation);
 
   private:
-    CServiceDispatcher();
-    ~CServiceDispatcher();
-    CServiceDispatcher(const CServiceDispatcher&);
-    CServiceDispatcher& operator=(const CServiceDispatcher&);
+    ServiceDispatcher();
+    ~ServiceDispatcher();
+    ServiceDispatcher(const ServiceDispatcher&);
+    ServiceDispatcher& operator=(const ServiceDispatcher&);
   
   private:
-    class CServiceDispatcherImpl;
-    CServiceDispatcherImpl* m_pImpl;
+    class ServiceDispatcherImpl;
+    ServiceDispatcherImpl* m_pImpl;
   };
 }
 

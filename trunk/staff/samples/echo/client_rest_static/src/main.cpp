@@ -15,7 +15,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< Echo > pEcho(::staff::CServiceFactory::Inst().GetService< Echo >());
+    std::auto_ptr< Echo > pEcho(::staff::ServiceFactory::Inst().GetService< Echo >());
 
     RISE_ASSERTS(pEcho.get(), "Cannot get client for service samples.Echo!");
 

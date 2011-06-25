@@ -32,18 +32,18 @@ namespace rise
 
 namespace staff
 {
-  class CDataObject;
-  class COperation;
-  class CComponent;
+  class DataObject;
+  class Operation;
+  class Component;
   class IService;
   typedef rise::CSharedPtr<IService> PIService;
 
   //!  base class for service wrappers
-  class STAFF_COMPONENT_EXPORT CServiceWrapper
+  class STAFF_COMPONENT_EXPORT ServiceWrapper
   {
   public:
     //!        destructor
-    virtual ~CServiceWrapper();
+    virtual ~ServiceWrapper();
 
     //!         get service name
     /*! \return service name
@@ -58,24 +58,24 @@ namespace staff
     //!         get service operations
     /*! \return service operations
     */
-    virtual CDataObject GetOperations() const = 0;
+    virtual DataObject GetOperations() const = 0;
 
     //!         invoke service operation
     /*! \param  rOperation - operation
         \param  sSessionId - service session id
         \param  sInstanceId - service instance id
         */
-    virtual void Invoke(COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId) = 0;
+    virtual void Invoke(Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId) = 0;
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual const CComponent* GetComponent() const = 0;
+    virtual const Component* GetComponent() const = 0;
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual CComponent* GetComponent() = 0;
+    virtual Component* GetComponent() = 0;
 
     //!         get pointer to service implementation
     /*! \param  sSessionId - service session id
@@ -99,6 +99,11 @@ namespace staff
       */
     virtual std::string GetDependencies() const = 0;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef ServiceWrapper CServiceWrapper STAFF_DEPRECATED(ServiceWrapper);
+  class CDataObject;
+#endif
 }
 
 #endif // _SERVICEWRAPPER_H_

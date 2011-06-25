@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -34,15 +34,15 @@ namespace staff
 {
   namespace security
   {
-    CUsersToGroups& CUsersToGroups::Inst()
+    UsersToGroups& UsersToGroups::Inst()
     {
-      static CUsersToGroups tInst;
+      static UsersToGroups tInst;
       return tInst;
     }
 
-    void CUsersToGroups::GetUserGroups(int nUserId, TIntList& rlsGroups)
+    void UsersToGroups::GetUserGroups(int nUserId, IntList& rlsGroups)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT groupid FROM users_to_groups WHERE userid=?", -1, &pVm, NULL);
@@ -70,9 +70,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsersToGroups::GetGroupUsers(int nGroupId, TIntList& rlsUsers)
+    void UsersToGroups::GetGroupUsers(int nGroupId, IntList& rlsUsers)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT userid FROM users_to_groups WHERE groupid=?", -1, &pVm, NULL);
@@ -100,9 +100,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsersToGroups::AddUserToGroup(int nUserId, int nGroupId)
+    void UsersToGroups::AddUserToGroup(int nUserId, int nGroupId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "INSERT INTO users_to_groups(userid, groupid) VALUES(?, ?)", -1, &pVm, NULL);
@@ -127,9 +127,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsersToGroups::RemoveUserFromGroup(int nUserId, int nGroupId)
+    void UsersToGroups::RemoveUserFromGroup(int nUserId, int nGroupId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM users_to_groups WHERE userid=? AND groupid=?", -1, &pVm, NULL);
@@ -154,9 +154,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    bool CUsersToGroups::IsUserMemberOfGroup(int nUserId, int nGroupId)
+    bool UsersToGroups::IsUserMemberOfGroup(int nUserId, int nGroupId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
       bool bResult = false;
 
@@ -186,11 +186,11 @@ namespace staff
       return bResult;
     }
 
-    CUsersToGroups::CUsersToGroups()
+    UsersToGroups::UsersToGroups()
     {
     }
 
-    CUsersToGroups::~CUsersToGroups()
+    UsersToGroups::~UsersToGroups()
     {
     }
 

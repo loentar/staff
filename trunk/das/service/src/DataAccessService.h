@@ -28,7 +28,7 @@
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
   namespace das
   {
@@ -62,13 +62,13 @@ namespace staff
       //! get interface definition
       /*! \return interface
         */
-      virtual CDataObject GetInterface() const = 0;
+      virtual DataObject GetInterface() const = 0;
 
       //! invoke the operation
       /*! \param  rdoOperation - operation name and params
           \return operation result
           */
-      virtual CDataObject Invoke(const CDataObject& rdoOperation) = 0;
+      virtual DataObject Invoke(const DataObject& rdoOperation) = 0;
 
     };
   }

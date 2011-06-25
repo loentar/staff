@@ -32,7 +32,7 @@ namespace rise
 
 namespace staff
 {
-  class CServiceClient;
+  class ServiceClient;
 
   //! base class for services
   class STAFF_COMMON_EXPORT IService
@@ -71,7 +71,7 @@ namespace staff
     /*! client side function, in server side always returns NULL
         \return pointer to service client
       */
-    virtual CServiceClient* GetClient();
+    virtual ServiceClient* GetClient();
 
     //! internal function
     void Init(const std::string& sServiceName, const std::string& sSessionId, const std::string& sInstanceId);

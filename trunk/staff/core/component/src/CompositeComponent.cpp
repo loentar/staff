@@ -27,20 +27,20 @@
 
 namespace staff
 {
-  CCompositeComponent::CCompositeComponent()
+  CompositeComponent::CompositeComponent()
   {
   }
 
-  CCompositeComponent::~CCompositeComponent()
+  CompositeComponent::~CompositeComponent()
   {
   }
 
-  const std::string& CCompositeComponent::GetName() const
+  const std::string& CompositeComponent::GetName() const
   {
     return m_sName;
   }
 
-  void CCompositeComponent::Compose( CComponent* pComponent )
+  void CompositeComponent::Compose( Component* pComponent )
   {
     RISE_ASSERTP(pComponent);
 
@@ -49,11 +49,11 @@ namespace staff
     else
       RISE_ASSERTP(m_sName == pComponent->GetName());
 
-    const TServiceWrapperMap& rmComponentServices = pComponent->GetServices();
-    for (TServiceWrapperMap::const_iterator itService = rmComponentServices.begin();
+    const ServiceWrapperMap& rmComponentServices = pComponent->GetServices();
+    for (ServiceWrapperMap::const_iterator itService = rmComponentServices.begin();
       itService != rmComponentServices.end(); ++itService)
     {
-      const std::pair<TServiceWrapperMap::iterator, bool>& tInsertResult = 
+      const std::pair<ServiceWrapperMap::iterator, bool>& tInsertResult = 
         m_mServices.insert(*itService);
 
       if (!tInsertResult.second)
@@ -62,28 +62,28 @@ namespace staff
     }
   }
 
-  const CServiceWrapper* CCompositeComponent::GetService( const std::string& sName ) const
+  const ServiceWrapper* CompositeComponent::GetService( const std::string& sName ) const
   {
-    TServiceWrapperMap::const_iterator itService = m_mServices.find(sName);
+    ServiceWrapperMap::const_iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;
     return itService->second;
   }
 
-  CServiceWrapper* CCompositeComponent::GetService( const std::string& sName )
+  ServiceWrapper* CompositeComponent::GetService( const std::string& sName )
   {
-    TServiceWrapperMap::iterator itService = m_mServices.find(sName);
+    ServiceWrapperMap::iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
       return NULL;
     return itService->second;
   }
 
-  const TServiceWrapperMap& CCompositeComponent::GetServices() const
+  const ServiceWrapperMap& CompositeComponent::GetServices() const
   {
     return m_mServices;
   }
 
-  void CCompositeComponent::AddService( CServiceWrapper* pService )
+  void CompositeComponent::AddService( ServiceWrapper* pService )
   {
     if (pService == NULL)
       return;
@@ -91,7 +91,7 @@ namespace staff
     m_mServices[pService->GetName()] = pService;
   }
 
-  void CCompositeComponent::RemoveService( const std::string& sName )
+  void CompositeComponent::RemoveService( const std::string& sName )
   {
     m_mServices.erase(sName);
   }

@@ -176,7 +176,7 @@ namespace rise
       DWORD tebp = 0;
       DWORD tesp = 0;
 
-#ifndef __MINGW32__
+#ifdef _MSC_VER
       _asm mov tesp, esp
       _asm mov tebp, ebp
 #else

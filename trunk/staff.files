@@ -163,11 +163,11 @@ staff/axis2/staff_security_module/src/StaffSecurityModule.c
 staff/axis2/staff_security_module/src/StaffSecurityUtils.c
 staff/axis2/staff_security_module/src/StaffSecurityUtils.h
 staff/axis2/staff_service/config/services.xml
-staff/axis2/staff_service/src/Axis2Service.cpp
 staff/axis2/staff_service/src/Axis2Utils.cpp
 staff/axis2/staff_service/src/Axis2Utils.h
 staff/axis2/staff_service/src/ServiceDispatcher.cpp
 staff/axis2/staff_service/src/ServiceDispatcher.h
+staff/axis2/staff_service/src/StaffService.cpp
 staff/bindings/javascript/client/staff.js
 staff/components/admin/AccountAdmin/src/AccountAdmin.h
 staff/components/admin/AccountAdmin/src/AccountAdminImpl.cpp
@@ -262,6 +262,7 @@ staff/core/utils/src/Base64Binary.h
 staff/core/utils/src/ByteArray.cpp
 staff/core/utils/src/ByteArray.h
 staff/core/utils/src/fromcstring.h
+staff/core/utils/src/fromstring.h
 staff/core/utils/src/HexBinary.cpp
 staff/core/utils/src/HexBinary.h
 staff/core/utils/src/staffutilsexport.h

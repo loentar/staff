@@ -28,10 +28,8 @@
 
 namespace staff
 {
-  class CDataObject;
-
   //! Value
-  class STAFF_COMMON_EXPORT CValue
+  class STAFF_COMMON_EXPORT Value
   {
   public:
     enum EType      //!  value type
@@ -60,171 +58,165 @@ namespace staff
 
   public:
     //!         default constructor
-    CValue();
+    Value();
 
-    //!         initializing constructor
-    /*! initialization from DataObject's value
-        \param  pDataObject - DataObject
-        */
-    CValue(CDataObject* pDataObject);
-    
     //!         initializing constructor
     /*! \param  sValue - value
         */
-    CValue(const std::string& sValue);
+    Value(const std::string& sValue);
 
     //!         initializing constructor
     /*! \param  szValue - value
     */
-    CValue(const char* szValue);
+    Value(const char* szValue);
 
     //!         initializing constructor
     /*! \param  fValue - value
     */
-    CValue(float fValue);
+    Value(float fValue);
 
     //!         initializing constructor
     /*! \param  dValue - value
         */
-    CValue(double dValue);
+    Value(double dValue);
 
     //!         initializing constructor
     /*! \param  btValue - value
     */
-    CValue(byte btValue);
+    Value(byte btValue);
 
     //!         initializing constructor
     /*! \param  nValue - value
         */
-    CValue(int nValue);
+    Value(int nValue);
     
     //!         initializing constructor
     /*! \param  shValue - value
     */
-    CValue(short shValue);
+    Value(short shValue);
 
     //!         initializing constructor
     /*! \param  lValue - value
         */
-    CValue(long lValue);
+    Value(long lValue);
     
     //!         initializing constructor
     /*! \param  llValue - value
     */
-    CValue(long long llValue);
+    Value(long long llValue);
 
     //!         initializing constructor
     /*! \param  ubtValue - value
     */
-    CValue(unsignedByte ubtValue);
+    Value(unsignedByte ubtValue);
 
     //!         initializing constructor
     /*! \param  unValue - value
     */
-    CValue(unsigned int unValue);
+    Value(unsigned int unValue);
 
     //!         initializing constructor
     /*! \param  ushValue - value
     */
-    CValue(unsigned short ushValue);
+    Value(unsigned short ushValue);
 
     //!         initializing constructor
     /*! \param  ulValue - value
     */
-    CValue(unsigned long ulValue);
+    Value(unsigned long ulValue);
 
     //!         initializing constructor
     /*! \param  ullValue - value
     */
-    CValue(unsigned long long ullValue);
+    Value(unsigned long long ullValue);
 
     //!         initializing constructor
     /*! \param  bValue - value
         */
-    CValue(bool bValue);
+    Value(bool bValue);
 
     //!         destructor
-    ~CValue();
+    ~Value();
 
     //!         copy operator
     /*! \param  rValue - value
         */
-    CValue& operator=(const CValue& rValue);
+    Value& operator=(const Value& rValue);
 
     //!         copy operator
     /*! \param  sValue - value
         */
-    CValue& operator=(const std::string& sValue);
+    Value& operator=(const std::string& sValue);
 
     //!         copy operator
     /*! \param  szValue - value
         */
-    CValue& operator=(const char* szValue);
+    Value& operator=(const char* szValue);
 
     //!         copy operator
     /*! \param  fValue - value
         */
-    CValue& operator=(float fValue);
+    Value& operator=(float fValue);
 
     //!         copy operator
     /*! \param  dValue - value
         */
-    CValue& operator=(double dValue);
+    Value& operator=(double dValue);
 
     //!         copy operator
     /*! \param  btValue - value
     */
-    CValue& operator=(byte btValue);
+    Value& operator=(byte btValue);
 
     //!         copy operator
     /*! \param  nValue - value
     */
-    CValue& operator=(int nValue);
+    Value& operator=(int nValue);
 
     //!         copy operator
     /*! \param  shValue - value
     */
-    CValue& operator=(short shValue);
+    Value& operator=(short shValue);
 
     //!         copy operator
     /*! \param  lValue - value
     */
-    CValue& operator=(long lValue);
+    Value& operator=(long lValue);
 
     //!         copy operator
     /*! \param  llValue - value
     */
-    CValue& operator=(long long llValue);
+    Value& operator=(long long llValue);
 
     //!         copy operator
     /*! \param  ubtValue - value
         */
-    CValue& operator=(unsignedByte ubtValue);
+    Value& operator=(unsignedByte ubtValue);
 
     //!         copy operator
     /*! \param  unValue - value
         */
-    CValue& operator=(unsigned int unValue);
+    Value& operator=(unsigned int unValue);
 
     //!         copy operator
     /*! \param  ushValue - value
         */
-    CValue& operator=(unsigned short ushValue);
+    Value& operator=(unsigned short ushValue);
 
     //!         copy operator
     /*! \param  ulValue - value
         */
-    CValue& operator=(unsigned long ulValue);
+    Value& operator=(unsigned long ulValue);
 
     //!         copy operator
     /*! \param  ulValue - value
     */
-    CValue& operator=(unsigned long long ulValue);
+    Value& operator=(unsigned long long ulValue);
 
     //!         copy operator
     /*! \param  bValue - value
         */
-    CValue& operator=(bool bValue);
+    Value& operator=(bool bValue);
 
 
     //!         const value cast operator
@@ -398,10 +390,7 @@ namespace staff
     /*! \param  rValue - other value
         \return true, if values are equals
         */
-    bool operator==(const CValue& rValue) const;
-
-    //!         force type conversion
-    void Flush();
+    bool operator==(const Value& rValue) const;
 
   private:
     union UValue //!  value storing union
@@ -429,15 +418,12 @@ namespace staff
     /*! \param  eTypeFrom - source type
         \param  eTypeTo - destination type
         */
-    void Sync( EType eTypeFrom, EType eTypeTo ) const;
+    void Sync(EType eTypeFrom, EType eTypeTo) const;
 
-    //!         synchronize types
-    void Sync() const;
-    
     //!         synchronize type to
     /*! \param  eTypeTo - convert to type
         */
-    void SyncTo( EType eTypeTo ) const;
+    void SyncTo(EType eTypeTo) const;
 
   private:
     mutable EType m_eType;                //!<  current type
@@ -446,8 +432,12 @@ namespace staff
     mutable std::string m_sValue;         //!<  string value
     mutable UValue m_uValue;              //!<  numeral value
     bool m_bChanged;                      //!<  is value was changed
-    mutable CDataObject* m_pDataObject;   //!<  bound DataObject
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Value CValue STAFF_DEPRECATED(Value);
+#endif
+
 }
 
 #endif // _VALUE_H_

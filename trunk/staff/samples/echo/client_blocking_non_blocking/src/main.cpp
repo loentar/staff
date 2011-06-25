@@ -22,7 +22,7 @@ public:
     rise::LogInfo() << "EchoString(asynch) result: " << tResult;
   }
 
-  void OnFault(const staff::CDataObject& rFault)
+  void OnFault(const staff::DataObject& rFault)
   {
     // process error here
     rise::LogError() << rFault.ToString();
@@ -35,8 +35,8 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< Echo > pEcho1(::staff::CServiceFactory::Inst().GetService< Echo >());
-    std::auto_ptr< Echo > pEcho2(::staff::CServiceFactory::Inst().GetService< Echo >());
+    std::auto_ptr< Echo > pEcho1(::staff::ServiceFactory::Inst().GetService< Echo >());
+    std::auto_ptr< Echo > pEcho2(::staff::ServiceFactory::Inst().GetService< Echo >());
 
     RISE_ASSERTS(pEcho1.get(), "Cannot get client for service echo!");
     RISE_ASSERTS(pEcho2.get(), "Cannot get client for service echo!");

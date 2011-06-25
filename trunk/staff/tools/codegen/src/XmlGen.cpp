@@ -33,35 +33,35 @@ namespace codegen
 {
   using rise::xml::CXMLNode;
 
-  std::ostream& operator<<( std::ostream& rStream, const SDataType::EDataType eDataType )
+  std::ostream& operator<<( std::ostream& rStream, const DataType::Type eDataType )
   {
     switch (eDataType)
     {
-    case SDataType::EGeneric:
+    case DataType::TypeGeneric:
       rStream << "generic";
       break;
 
-    case SDataType::EString:
+    case DataType::TypeString:
       rStream << "string";
       break;
 
-    case SDataType::EDataObject:
+    case DataType::TypeDataObject:
       rStream << "dataobject";
       break;
 
-    case SDataType::EEnum:
+    case DataType::TypeEnum:
       rStream << "enum";
       break;
 
-    case SDataType::EStruct:
+    case DataType::TypeStruct:
       rStream << "struct";
       break;
 
-    case SDataType::ETypedef:
+    case DataType::TypeTypedef:
       rStream << "typedef";
       break;
 
-    case SDataType::ETemplate:
+    case DataType::TypeTemplate:
       rStream << "template";
       break;
 
@@ -73,15 +73,15 @@ namespace codegen
   }
 
 
-  template<typename TType>
-  CXMLNode& operator<<(CXMLNode& rStream, const std::list<TType>& rList)
+  template<typename Type>
+  CXMLNode& operator<<(CXMLNode& rStream, const std::list<Type>& rList)
   {
-    for(typename std::list<TType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+    for(typename std::list<Type>::const_iterator it = rList.begin(); it != rList.end(); ++it)
       rStream << *it;
     return rStream;
   }
 
-  bool GetDataType(std::string& sOut, const SDataType& rDataType, bool bAsUsed = false)
+  bool GetDataType(std::string& sOut, const DataType& rDataType, bool bAsUsed = false)
   {
     if (rDataType.bIsConst)
     {
@@ -105,7 +105,7 @@ namespace codegen
     }
 
     sOut += "< ";
-    for(std::list<SDataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it)
+    for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it)
     {
       if (it != rDataType.lsParams.begin())
         sOut += ", ";
@@ -119,7 +119,7 @@ namespace codegen
     return true;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const SDataType& rDataType)
+  CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const DataType& rDataType)
   {
     std::string sUsedTypedef;
     GetDataType(sUsedTypedef, rDataType, true);
@@ -142,13 +142,13 @@ namespace codegen
     rNodeDataTypes["Type"] = rDataType.eType;
 
     std::string sNativeName;
-    if (rDataType.eType == SDataType::ETypedef)
+    if (rDataType.eType == DataType::TypeTypedef)
     {
       sNativeName = ((rDataType.sName[0] == 'T') &&
          (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
     }
     else
-    if (rDataType.eType == SDataType::EStruct)
+    if (rDataType.eType == DataType::TypeStruct)
     {
       sNativeName = ((rDataType.sName[0] == 'S') &&
          (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
@@ -174,10 +174,10 @@ namespace codegen
     rNodeDataTypes.AddSubNode(" Template params ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeTemplateParams = rNodeDataTypes.AddSubNode("TemplateParams");
     int nNum = 1;
-    for(std::list<SDataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it, ++nNum)
+    for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it, ++nNum)
       rNodeTemplateParams.AddSubNode("TemplateParam" + rise::ToStr(nNum)) << *it;
 
-    if (rDataType.eType == SDataType::EUnknown)
+    if (rDataType.eType == DataType::TypeUnknown)
     {
       rise::LogWarning() << "Unknown datatype: " << (rDataType.sNamespace + rDataType.sName);
     }
@@ -185,7 +185,7 @@ namespace codegen
     return rNodeDataTypes;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeParams, const SParam& rParam)
+  CXMLNode& operator<<(CXMLNode& rNodeParams, const Param& rParam)
   {
     if (rParam.sName.size() != 0 && rParam.stDataType.sName != "void")
     {
@@ -201,7 +201,7 @@ namespace codegen
       rNodeParam.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
       CXMLNode& rNodeOptions = rNodeParam.AddSubNode("Options");
 
-      for (TStringMap::const_iterator itOption = rParam.mOptions.begin();
+      for (StringMap::const_iterator itOption = rParam.mOptions.begin();
           itOption != rParam.mOptions.end(); ++itOption)
       {
         rNodeOptions[itOption->first] = itOption->second;
@@ -219,7 +219,7 @@ namespace codegen
     return rNodeParams;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeMembers, const SMember& rMember)
+  CXMLNode& operator<<(CXMLNode& rNodeMembers, const Member& rMember)
   {
     rNodeMembers.AddSubNode(" Operation ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeMember = rNodeMembers.AddSubNode("Member");
@@ -240,7 +240,7 @@ namespace codegen
     rNodeMembers.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeMember.AddSubNode("Options");
 
-    for (TStringMap::const_iterator itOption = rMember.mOptions.begin();
+    for (StringMap::const_iterator itOption = rMember.mOptions.begin();
         itOption != rMember.mOptions.end(); ++itOption)
     {
       rNodeOptions[itOption->first] = itOption->second;
@@ -258,7 +258,7 @@ namespace codegen
   }
 
 
-  CXMLNode& operator<<(CXMLNode& rNodeEnumMembers, const SEnum::SEnumMember& rEnumMember)
+  CXMLNode& operator<<(CXMLNode& rNodeEnumMembers, const Enum::EnumMember& rEnumMember)
   {
     rNodeEnumMembers.AddSubNode(" Enum members ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeMember = rNodeEnumMembers.AddSubNode("Member");
@@ -294,7 +294,7 @@ namespace codegen
     rNode["EndingNs"] = sEndingNs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeClasses, const SClass& rClass)
+  CXMLNode& operator<<(CXMLNode& rNodeClasses, const Class& rClass)
   {
     CXMLNode& rNodeClass = rNodeClasses.AddSubNode("Class");
     std::string sServiceName =
@@ -327,7 +327,7 @@ namespace codegen
     rNodeClass.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeClass.AddSubNode("Options");
 
-    for (TStringMap::const_iterator itOption = rClass.mOptions.begin();
+    for (StringMap::const_iterator itOption = rClass.mOptions.begin();
         itOption != rClass.mOptions.end(); ++itOption)
     {
       rNodeOptions[itOption->first] = itOption->second;
@@ -336,7 +336,7 @@ namespace codegen
     rNodeClass.AddSubNode(" Axis2/c modules to engage ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeModules = rNodeClass.AddSubNode("Modules");
 
-    for (TStringList::const_iterator itModule = rClass.lsModules.begin();
+    for (StringList::const_iterator itModule = rClass.lsModules.begin();
         itModule != rClass.lsModules.end(); ++itModule)
     {
       rNodeModules["Module"] = *itModule;
@@ -350,7 +350,7 @@ namespace codegen
     return rNodeClasses;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeEnums, const SEnum& rEnum)
+  CXMLNode& operator<<(CXMLNode& rNodeEnums, const Enum& rEnum)
   {
     RISE_ASSERTS(!rEnum.bForward || rEnum.bExtern,
                 "Enum \"" + rEnum.sName + "\" is not fully declared");
@@ -386,7 +386,7 @@ namespace codegen
     rNodeEnum.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeEnum.AddSubNode("Options");
 
-    for (TStringMap::const_iterator itOption = rEnum.mOptions.begin();
+    for (StringMap::const_iterator itOption = rEnum.mOptions.begin();
         itOption != rEnum.mOptions.end(); ++itOption)
     {
       rNodeOptions[itOption->first] = itOption->second;
@@ -395,7 +395,7 @@ namespace codegen
     return rNodeEnums;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeStructs, const SStruct& rStruct)
+  CXMLNode& operator<<(CXMLNode& rNodeStructs, const Struct& rStruct)
   {
     RISE_ASSERTS(!rStruct.bForward || rStruct.bExtern,
                 "Struct \"" + rStruct.sName + "\" is not fully declared");
@@ -446,7 +446,7 @@ namespace codegen
     rNodeStruct.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeStruct.AddSubNode("Options");
 
-    for (TStringMap::const_iterator itOption = rStruct.mOptions.begin();
+    for (StringMap::const_iterator itOption = rStruct.mOptions.begin();
         itOption != rStruct.mOptions.end(); ++itOption)
     {
       rNodeOptions[itOption->first] = itOption->second;
@@ -461,7 +461,7 @@ namespace codegen
     return rNodeStructs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const STypedef& rTypedef)
+  CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const Typedef& rTypedef)
   {
     CXMLNode& rNodeTypedef = rNodeTypedefs.AddSubNode("Typedef");
 
@@ -491,7 +491,7 @@ namespace codegen
     rNodeTypedef.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeOptions = rNodeTypedef.AddSubNode("Options");
 
-    for (TStringMap::const_iterator itOption = rTypedef.mOptions.begin();
+    for (StringMap::const_iterator itOption = rTypedef.mOptions.begin();
         itOption != rTypedef.mOptions.end(); ++itOption)
     {
       rNodeOptions[itOption->first] = itOption->second;
@@ -500,7 +500,7 @@ namespace codegen
     return rNodeTypedefs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeInterfaces, const SInterface& rInterface)
+  CXMLNode& operator<<(CXMLNode& rNodeInterfaces, const Interface& rInterface)
   {
     CXMLNode& rNodeInterface = rNodeInterfaces.AddSubNode("Interface");
 
@@ -526,7 +526,7 @@ namespace codegen
     rNodeInterface.AddSubNode(" Included files ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeIncludes = rNodeInterface.AddSubNode("Includes");
 
-    for (std::list<SInclude>::const_iterator itInclude = rInterface.lsIncludes.begin();
+    for (std::list<Include>::const_iterator itInclude = rInterface.lsIncludes.begin();
         itInclude != rInterface.lsIncludes.end(); ++itInclude)
     {
       std::string sNamespace = itInclude->sNamespace.substr(0, 2) == "::" ?
@@ -563,7 +563,7 @@ namespace codegen
     return rNodeInterfaces;
   }
 
-  CXMLNode& operator<<(CXMLNode& rRootNode, const SProject& rProject)
+  CXMLNode& operator<<(CXMLNode& rRootNode, const Project& rProject)
   {
     rRootNode.NodeName() = "Project";
     rRootNode["Name"] = rProject.sName;

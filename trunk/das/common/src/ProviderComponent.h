@@ -30,12 +30,12 @@ namespace staff
 {
 namespace das
 {
-  class STAFF_DAS_COMMON_EXPORT ProviderComponent: public CComponent
+  class STAFF_DAS_COMMON_EXPORT ProviderComponent: public Component
   {
   public:
     ProviderComponent(const std::string& sName);
 
-    void AddServiceWrapper(const std::string& sServiceName, CServiceWrapper* pServiceWrapper);
+    void AddServiceWrapper(const std::string& sServiceName, ServiceWrapper* pServiceWrapper);
 
     //!         get component name
     /*! \return component name

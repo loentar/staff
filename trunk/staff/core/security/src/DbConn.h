@@ -32,7 +32,7 @@ namespace staff
   namespace security
   {
     //! database connection
-    class STAFF_SECURITY_EXPORT CDbConn
+    class STAFF_SECURITY_EXPORT DbConn
     {
     public:
       //! open db
@@ -59,6 +59,10 @@ namespace staff
       static sqlite3* m_pDb; //!< pointer to db object
       static int m_nCounter; //!< Open/Close counter
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef DbConn CDbConn STAFF_DEPRECATED(DbConn);
+#endif
   }
 }
 

@@ -32,33 +32,33 @@
 namespace staff
 {
 
-  void CDataObjectHelper::XmlToDataObject( const rise::xml::CXMLNode& rXmlNode, CDataObject& rDataObject )
+  void DataObjectHelper::XmlToDataObject(const rise::xml::CXMLNode& rXmlNode, DataObject& rDataObject)
   {
     rise::COStringStream ssOut;
     ssOut << rXmlNode;
     rDataObject.FromString(ssOut.str());
   }
 
-  void CDataObjectHelper::DataObjectToXml( const CDataObject& rDataObject, rise::xml::CXMLNode& rXmlNode )
+  void DataObjectHelper::DataObjectToXml(const DataObject& rDataObject, rise::xml::CXMLNode& rXmlNode)
   {
     rise::CIStringStream tStream(rDataObject.ToString());
     tStream >> rXmlNode;
   }
 
 #if defined _DEBUG || defined DEBUG
-  void CDataObjectHelper::Dump( const CDataObject& rDataObject )
+  void DataObjectHelper::Dump(const DataObject& rDataObject)
   {
     std::cout << rDataObject.ToString();
   }
 #endif
 
-  rise::CStreamBuffer& operator<<( rise::CStreamBuffer& rBuffer, const CDataObject& rDataObject )
+  rise::CStreamBuffer& operator<<(rise::CStreamBuffer& rBuffer, const DataObject& rDataObject)
   {
     rBuffer << rDataObject.ToString();
     return rBuffer;
   }
 
-  rise::CStreamBuffer& operator>>( rise::CStreamBuffer& rBuffer, CDataObject& rDataObject )
+  rise::CStreamBuffer& operator>>(rise::CStreamBuffer& rBuffer, DataObject& rDataObject)
   {
     std::string sTmpData;
     rBuffer >> sTmpData;

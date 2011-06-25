@@ -30,28 +30,28 @@ namespace staff
 {
   namespace security
   {
-    typedef std::list<int> TIntList; //!< int list
+    typedef std::list<int> IntList; //!< int list
 
     //! users to groups relation
-    class STAFF_SECURITY_EXPORT CUsersToGroups
+    class STAFF_SECURITY_EXPORT UsersToGroups
     {
     public:
       //! get users to groups instance
       /*! return users to groups instance
         */
-      static CUsersToGroups& Inst();
+      static UsersToGroups& Inst();
 
       //! get user groups
       /*! \param nUserId - user id
           \param rlsGroups - resulting user groups
           */
-      void GetUserGroups(int nUserId, TIntList& rlsGroups);
+      void GetUserGroups(int nUserId, IntList& rlsGroups);
 
       //! get users in group
       /*! \param nGroupId - group id
           \param rlsUsers - resulting users
           */
-      void GetGroupUsers(int nGroupId, TIntList& rlsUsers);
+      void GetGroupUsers(int nGroupId, IntList& rlsUsers);
 
       //! add user to group
       /*! \param nUserId - user id
@@ -73,11 +73,17 @@ namespace staff
       bool IsUserMemberOfGroup(int nUserId, int nGroupId);
 
     private:
-      CUsersToGroups();
-      ~CUsersToGroups();
-      CUsersToGroups(const CUsersToGroups&);
-      CUsersToGroups& operator=(const CUsersToGroups&);
+      UsersToGroups();
+      ~UsersToGroups();
+      UsersToGroups(const UsersToGroups&);
+      UsersToGroups& operator=(const UsersToGroups&);
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef IntList TIntList STAFF_DEPRECATED(IntList);
+    typedef UsersToGroups CUsersToGroups STAFF_DEPRECATED(UsersToGroups);
+#endif
+
   }
 }
 

@@ -28,19 +28,16 @@
 namespace staff
 {
   //!  Login service
-  class CLogin: public IService
+  class Login: public IService
   {
   public:
-    //!        destructor
-    virtual ~CLogin() {}
-
     //!         login user and create session, get existing session if user alredy logged in
     /*! this operation must be called from guest session
         \param  sUserName - username
         \param  sPassword - password
         \return created/existing session id
         */
-    virtual std::string Login(const std::string& sUserName, const std::string& sPassword) = 0;
+    virtual std::string LoginUser(const std::string& sUserName, const std::string& sPassword) = 0;
 
     //!         login and create session
     /*! this operation must be called from guest session

@@ -98,13 +98,13 @@ int main(int nArgs, const char* paszArgs[])
 
   try
   {
-    staff::CServiceClient tClient;
+    staff::ServiceClient tClient;
 
     // initialize client
     tClient.Init();
 
     // client options
-    staff::COptions& rOptions = tClient.GetOptions();
+    staff::Options& rOptions = tClient.GetOptions();
 
 
     // testing auth is needed or not
@@ -182,7 +182,7 @@ int main(int nArgs, const char* paszArgs[])
     rOptions.SetAction("http://ws.apache.org/axis2/c/samples/echoString");
 
     // create payload
-    staff::CDataObject tdoPayload("echoString");
+    staff::DataObject tdoPayload("echoString");
     // create and set request
     tdoPayload.CreateChild("text").SetText("Hello World!");
 
@@ -190,7 +190,7 @@ int main(int nArgs, const char* paszArgs[])
     std::cout << "Request: \n-------\n" << tdoPayload.ToString() << "\n------\n";
 
     // invoke service synchronously
-    staff::CDataObject tdoResult = tClient.Invoke(tdoPayload);
+    staff::DataObject tdoResult = tClient.Invoke(tdoPayload);
 
     // output result
     std::cout << "Result: \n-------\n" << tdoResult.ToString() << "\n------\n";

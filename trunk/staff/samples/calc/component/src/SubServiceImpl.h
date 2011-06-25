@@ -31,7 +31,7 @@ namespace samples
 {
   namespace calc
   {
-    class CSubServiceImpl: public CSubService
+    class SubServiceImpl: public SubService
     {
     public:
       virtual int Sub(int nA, int nB) const;

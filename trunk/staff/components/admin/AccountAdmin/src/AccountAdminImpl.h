@@ -32,23 +32,23 @@ namespace staff
 namespace admin
 {
 
-  class CAccountAdminImpl: public CAccountAdmin
+  class AccountAdminImpl: public AccountAdmin
   {
   public:
-    CAccountAdminImpl();
-    virtual ~CAccountAdminImpl();
-    virtual ::staff::admin::TUserList GetUsers();
-    virtual ::staff::admin::TGroupList GetGroups();
-    virtual ::staff::admin::TIdList GetUserGroups(int nUserId);
+    AccountAdminImpl();
+    virtual ~AccountAdminImpl();
+    virtual ::staff::admin::UserList GetUsers();
+    virtual ::staff::admin::GroupList GetGroups();
+    virtual ::staff::admin::IdList GetUserGroups(int nUserId);
     virtual int AddUser(const std::string& sUserName, const std::string& sDescription);
     virtual void RemoveUser(int nUserId);
     virtual void SetUserPassword(int nUserId, const std::string& sPass);
     virtual int AddGroup(const std::string& sGroupName, const std::string& sDescription);
     virtual void RemoveGroup(int nGroupId);
     virtual void AddUserToGroup(int nUserId, int nGroupId);
-    virtual void AddUserToGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds);
+    virtual void AddUserToGroups(int nUserId, const ::staff::admin::IdList& rlsGroupIds);
     virtual void RemoveUserFromGroup(int nUserId, int nGroupId);
-    virtual void RemoveUserFromGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds);
+    virtual void RemoveUserFromGroups(int nUserId, const ::staff::admin::IdList& rlsGroupIds);
   };
 }
 }

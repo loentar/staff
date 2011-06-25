@@ -23,7 +23,7 @@
 #define _STAFFCODEGENPARSEREXPORT_H_
 
 #ifdef WIN32
-  #ifndef __MINGW32__
+  #ifdef _MSC_VER
     #pragma warning(disable: 4786 4251)
   #endif
 
@@ -37,7 +37,7 @@
 #endif
 
 #ifndef STAFF_DEPRECATED
-  #if defined WIN32 && !defined __MINGW32__
+  #ifdef _MSC_VER
     #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
   #elif __GNUC__ >= 3
     #define STAFF_DEPRECATED(Replacement) __attribute__ ((deprecated))

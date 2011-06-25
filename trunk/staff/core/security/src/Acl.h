@@ -39,13 +39,13 @@ namespace staff
     };
 
     //! access control list
-    class STAFF_SECURITY_EXPORT CAcl
+    class STAFF_SECURITY_EXPORT Acl
     {
     public:
       //! get acl instance
       /*! \return acl instance
         */
-      static CAcl& Inst();
+      static Acl& Inst();
 
       //! set access to object for all users
       /*! \param nObjectId - object id
@@ -103,11 +103,16 @@ namespace staff
       bool CalculateUserAccess(const std::string& sObjectPath, int nUserId);
 
     private:
-      CAcl();
-      ~CAcl();
-      CAcl(const CAcl&);
-      CAcl& operator=(const CAcl&);
+      Acl();
+      ~Acl();
+      Acl(const Acl&);
+      Acl& operator=(const Acl&);
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef Acl CAcl STAFF_DEPRECATED(Acl);
+#endif
+
   }
 }
 

@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -33,7 +33,7 @@ namespace staff
 {
   namespace security
   {
-    void CDbConn::Open()
+    void DbConn::Open()
     {
       ++m_nCounter;
       if (m_nCounter > 1)
@@ -45,7 +45,7 @@ namespace staff
       sqlite3_enable_shared_cache(1);
 
       // open db
-      int nResult = sqlite3_open((CRuntime::Inst().GetStaffHome() + "/db/staff.db").c_str(), &m_pDb);
+      int nResult = sqlite3_open((Runtime::Inst().GetStaffHome() + "/db/staff.db").c_str(), &m_pDb);
       RISE_ASSERTES(nResult == SQLITE_OK, rise::CFileOpenException, "Failed to open staff database");
 
       sqlite3_stmt* pVm = NULL;
@@ -67,7 +67,7 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
-    void CDbConn::Close()
+    void DbConn::Close()
     {
       if (m_nCounter > 1)
       {
@@ -92,7 +92,7 @@ namespace staff
       --m_nCounter;
     }
 
-    void CDbConn::BeginTransaction()
+    void DbConn::BeginTransaction()
     {
       sqlite3_stmt* pVm = NULL;
 
@@ -113,7 +113,7 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
-    void CDbConn::EndTransaction()
+    void DbConn::EndTransaction()
     {
       sqlite3_stmt* pVm = NULL;
 
@@ -134,7 +134,7 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
-    void CDbConn::RollbackTransaction()
+    void DbConn::RollbackTransaction()
     {
       sqlite3_stmt* pVm = NULL;
 
@@ -155,12 +155,12 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
-    sqlite3* CDbConn::GetDb()
+    sqlite3* DbConn::GetDb()
     {
       return m_pDb;
     }
 
-    sqlite3* CDbConn::m_pDb = NULL;
-    int CDbConn::m_nCounter = 0;
+    sqlite3* DbConn::m_pDb = NULL;
+    int DbConn::m_nCounter = 0;
   }
 }

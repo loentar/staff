@@ -24,25 +24,24 @@
 
 #include "staffcomponentexport.h"
 #include <string>
-#include <staff/common/DataObject.h>
 #include "Component.h"
 
 namespace staff
 {
   //!  Composite component
-  class STAFF_COMPONENT_EXPORT CCompositeComponent: public CComponent
+  class STAFF_COMPONENT_EXPORT CompositeComponent: public Component
   {
   public:
     //!        constructor
-    CCompositeComponent();
+    CompositeComponent();
 
     //!        destructor
-    virtual ~CCompositeComponent();
+    virtual ~CompositeComponent();
 
     //!         compose component(add partial component to composite)
     /*! \param  pComponent - component
         */
-    void Compose(CComponent* pComponent);
+    void Compose(Component* pComponent);
 
     //!         get component name
     /*! \return component name
@@ -53,18 +52,18 @@ namespace staff
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    const CServiceWrapper* GetService(const std::string& sName) const;
+    const ServiceWrapper* GetService(const std::string& sName) const;
 
     //!         get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
-    CServiceWrapper* GetService(const std::string& sName);
+    ServiceWrapper* GetService(const std::string& sName);
 
     //!         add service into component
     /*! \param  pService - service
         */
-    void AddService(CServiceWrapper* pService);
+    void AddService(ServiceWrapper* pService);
 
     //!         remove service from component
     /*! \param  sName - service name
@@ -74,12 +73,17 @@ namespace staff
     //!         get services map
     /*! \return services map
     */
-    const TServiceWrapperMap& GetServices() const;
+    const ServiceWrapperMap& GetServices() const;
 
   private:
     std::string m_sName;        //!<  component name
-    TServiceWrapperMap m_mServices;      //!<  services map
+    ServiceWrapperMap m_mServices;      //!<  services map
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef CompositeComponent CCompositeComponent STAFF_DEPRECATED(CompositeComponent);
+#endif
+
 }
 
 #endif // _COMPOSITECOMPONENT_H_

@@ -31,40 +31,40 @@ namespace staff
   namespace security
   {
     //! user
-    struct STAFF_SECURITY_EXPORT SUser
+    struct STAFF_SECURITY_EXPORT User
     {
       int nId;                  //!< user id
       std::string sName;        //!< user name
       std::string sDescription; //!< user description
     };
 
-    typedef std::list<SUser> TUsersList; //!< users list
+    typedef std::list<User> UsersList; //!< users list
 
     //! users
-    class STAFF_SECURITY_EXPORT CUsers
+    class STAFF_SECURITY_EXPORT Users
     {
     public:
       //! get users instance
       /*! \return users instance
         */
-      static CUsers& Inst();
+      static Users& Inst();
 
       //! get user by id
       /*! \param nId - user id
           \param rstUser - resulting user
           */
-      void GetById(int nId, SUser& rstUser);
+      void GetById(int nId, User& rstUser);
 
       //! get user by name
       /*! \param sUserName - user name
           \param rstUser - resulting user
           */
-      void GetByName(const std::string& sUserName, SUser& rstUser);
+      void GetByName(const std::string& sUserName, User& rstUser);
 
       //! get user list
       /*! \param rlsUsers - resulting users list
         */
-      void GetList(TUsersList& rlsUsers);
+      void GetList(UsersList& rlsUsers);
 
       //! create new user
       /*! \param sName - user name
@@ -98,11 +98,17 @@ namespace staff
       void SetDescription(int nId, const std::string& sDescription);
 
     private:
-      CUsers();
-      ~CUsers();
-      CUsers(const CUsers&);
-      CUsers& operator=(const CUsers&);
+      Users();
+      ~Users();
+      Users(const Users&);
+      Users& operator=(const Users&);
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef UsersList TUsersList STAFF_DEPRECATED(UsersList);
+    typedef User SUser STAFF_DEPRECATED(User);
+    typedef Users CUsers STAFF_DEPRECATED(Users);
+#endif
   }
 }
 

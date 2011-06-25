@@ -42,19 +42,19 @@ namespace staff
 //////////////////////////////////////////////////////////////////////////
 // Local Impl
 
-  class CServiceDispatcher::CServiceDispatcherImpl
+  class ServiceDispatcher::ServiceDispatcherImpl
   {
   public:
-    typedef std::list<std::string> TStringList;
-    typedef std::map<std::string, TStringList> TDepsMap;
+    typedef std::list<std::string> StringList;
+    typedef std::map<std::string, StringList> DepsMap;
 
   public:
     void Init()
     {
 rise::LogEntry();
-      const std::string sComponentsDir = CRuntime::Inst().GetComponentsHome();
-      CSharedContext& rSharedContext = CSharedContext::Inst();
-      TStringList lsComponentDirs;
+      const std::string sComponentsDir = Runtime::Inst().GetComponentsHome();
+      SharedContext& rSharedContext = SharedContext::Inst();
+      StringList lsComponentDirs;
       
       // find directories with components
       rise::CFileFind::Find(sComponentsDir, lsComponentDirs, "*", rise::CFileFind::EFA_DIR);
@@ -63,21 +63,21 @@ rise::LogEntry();
         rise::LogDebug() << "components is not found";
       }
 
-      for (TStringList::const_iterator itDir = lsComponentDirs.begin();
+      for (StringList::const_iterator itDir = lsComponentDirs.begin();
                 itDir != lsComponentDirs.end(); ++itDir)
       {
         // finding libraries with components
-        TStringList lsComponents;
+        StringList lsComponents;
         std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
         rise::CFileFind::Find(sComponentDir, lsComponents, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
-        for (TStringList::const_iterator itComponent = lsComponents.begin();
+        for (StringList::const_iterator itComponent = lsComponents.begin();
                 itComponent != lsComponents.end(); ++itComponent)
         {
           try
           {
             // loading component
             rise::LogDebug() << "Loading component: " << (sComponentDir + *itComponent);
-            CComponent* pComponent = m_lsComponents.LoadPlugin(sComponentDir + *itComponent, true);
+            Component* pComponent = m_lsComponents.LoadPlugin(sComponentDir + *itComponent, true);
             rSharedContext.AddComponent(pComponent);
           }
           catch(const rise::CException& rEx)
@@ -93,14 +93,14 @@ rise::LogEntry();
         }
       }
 
-      staff::CSessionManager::Inst().Start();
+      staff::SessionManager::Inst().Start();
 
       LoadServices();
 
-      const TServiceWrapperMap& rServices = rSharedContext.GetServices();
+      const ServiceWrapperMap& rServices = rSharedContext.GetServices();
       if (m_stEvents.pOnConnect != NULL)
       {
-        for (TServiceWrapperMap::const_iterator itService = rServices.begin();
+        for (ServiceWrapperMap::const_iterator itService = rServices.begin();
                  itService != rServices.end(); ++itService)
         {
           m_stEvents.pOnConnect(itService->second);
@@ -110,13 +110,13 @@ rise::LogEntry();
 
     void Deinit()
     {
-      staff::CSessionManager::Inst().Stop();
+      staff::SessionManager::Inst().Stop();
 
-      CSharedContext& rSharedContext = CSharedContext::Inst();
+      SharedContext& rSharedContext = SharedContext::Inst();
       if (m_stEvents.pOnDisconnect != NULL)
       {
-        const TServiceWrapperMap& rServices = rSharedContext.GetServices();
-        for (TServiceWrapperMap::const_iterator itService = rServices.begin();
+        const ServiceWrapperMap& rServices = rSharedContext.GetServices();
+        for (ServiceWrapperMap::const_iterator itService = rServices.begin();
                 itService != rServices.end(); ++itService)
         {
           m_stEvents.pOnDisconnect(itService->first);
@@ -124,32 +124,32 @@ rise::LogEntry();
       }
 
       rSharedContext.Clear();
-      CServiceInstanceManager::Inst().FreeAllSessions();
+      ServiceInstanceManager::Inst().FreeAllSessions();
       // do not unload component libraries here
     }
 
 
-    void ResolveDepsOrder(TStringList& rlsLoadOrder, const TDepsMap& rmDeps)
+    void ResolveDepsOrder(StringList& rlsLoadOrder, const DepsMap& rmDeps)
     {
       bool bWasChanged = false;
-      for (TStringList::size_type nRetry = rlsLoadOrder.size(); nRetry; --nRetry)
+      for (StringList::size_type nRetry = rlsLoadOrder.size(); nRetry; --nRetry)
       {
         bWasChanged = false;
-        for (TStringList::iterator itThisDep = rlsLoadOrder.begin();
+        for (StringList::iterator itThisDep = rlsLoadOrder.begin();
             itThisDep != rlsLoadOrder.end();)
         {
-          TDepsMap::const_iterator itThisDeps = rmDeps.find(*itThisDep);
+          DepsMap::const_iterator itThisDeps = rmDeps.find(*itThisDep);
           RISE_ASSERT(itThisDeps != rmDeps.end()); // should not happen
 
-          const TStringList& rlsThisDeps = itThisDeps->second;
+          const StringList& rlsThisDeps = itThisDeps->second;
           if (!rlsThisDeps.empty())
           {
-            TStringList::iterator itOtherDep = itThisDep;
+            StringList::iterator itOtherDep = itThisDep;
             ++itOtherDep;
             for (; itOtherDep != rlsLoadOrder.end(); ++itOtherDep)
             {
               bool bHasDep = false;
-              for (TStringList::const_iterator itFind = rlsThisDeps.begin();
+              for (StringList::const_iterator itFind = rlsThisDeps.begin();
                    itFind != rlsThisDeps.end(); ++itFind)
               {
                 if (*itFind == *itOtherDep)
@@ -190,12 +190,12 @@ rise::LogEntry();
     {
       // build dependencies
 
-      const TServiceWrapperMap& rmServices = CSharedContext::Inst().GetServices();
+      const ServiceWrapperMap& rmServices = SharedContext::Inst().GetServices();
 
-      TStringList lsServicesLoadOrder;
-      TDepsMap mDependencies;
+      StringList lsServicesLoadOrder;
+      DepsMap mDependencies;
 
-      for (TServiceWrapperMap::const_iterator itService = rmServices.begin();
+      for (ServiceWrapperMap::const_iterator itService = rmServices.begin();
            itService != rmServices.end(); ++itService)
       {
         if (itService->second->IsLoadAtStartup())
@@ -203,7 +203,7 @@ rise::LogEntry();
           lsServicesLoadOrder.push_back(itService->first);
 
           // fill in dependencies
-          TStringList& rlsDeps = mDependencies[itService->first];
+          StringList& rlsDeps = mDependencies[itService->first];
           const std::string& sDeps = itService->second->GetDependencies();
           if (!sDeps.empty())
           {
@@ -225,10 +225,10 @@ rise::LogEntry();
       }
 
       // check dependencies
-      for (TDepsMap::const_iterator itService = mDependencies.begin();
+      for (DepsMap::const_iterator itService = mDependencies.begin();
            itService != mDependencies.end(); ++itService)
       {
-        for (TStringList::const_iterator itDependOn = itService->second.begin();
+        for (StringList::const_iterator itDependOn = itService->second.begin();
             itDependOn != itService->second.end(); ++itDependOn)
         {
           if (!mDependencies.count(*itDependOn))
@@ -243,8 +243,8 @@ rise::LogEntry();
       ResolveDepsOrder(lsServicesLoadOrder, mDependencies);
 
       // load services in order
-      staff::CServiceInstanceManager& rInstanceManager = staff::CServiceInstanceManager::Inst();
-      for (TStringList::const_iterator itService = lsServicesLoadOrder.begin();
+      staff::ServiceInstanceManager& rInstanceManager = staff::ServiceInstanceManager::Inst();
+      for (StringList::const_iterator itService = lsServicesLoadOrder.begin();
           itService != lsServicesLoadOrder.end(); ++itService)
       {
         rise::LogDebug() << "loading service [" << *itService << "] marked as loadAtStartup";
@@ -252,23 +252,23 @@ rise::LogEntry();
       }
     }
 
-    CServiceDispatcher::SEvents m_stEvents;
-    rise::plugin::CPluginManager<CComponent> m_lsComponents;
+    ServiceDispatcher::Events m_stEvents;
+    rise::plugin::CPluginManager<Component> m_lsComponents;
   };
 
 //////////////////////////////////////////////////////////////////////////
-// SEvents
-  CServiceDispatcher::SEvents::SEvents(void (*pOnConnectInit)(const CServiceWrapper*), void (*pOnDisconnectInit)(const std::string&)) :
+// Events
+  ServiceDispatcher::Events::Events(void (*pOnConnectInit)(const ServiceWrapper*), void (*pOnDisconnectInit)(const std::string&)) :
     pOnConnect(pOnConnectInit), pOnDisconnect(pOnDisconnectInit)
   {
   }
 
-  CServiceDispatcher::SEvents::SEvents():
+  ServiceDispatcher::Events::Events():
     pOnConnect(NULL), pOnDisconnect(NULL)
   {
   }
 
-  CServiceDispatcher::SEvents& CServiceDispatcher::SEvents::operator=(const SEvents& rEvents)
+  ServiceDispatcher::Events& ServiceDispatcher::Events::operator=(const Events& rEvents)
   {
     pOnConnect = rEvents.pOnConnect;
     pOnDisconnect = rEvents.pOnDisconnect;
@@ -276,33 +276,33 @@ rise::LogEntry();
   }
 
 
-  CServiceDispatcher& CServiceDispatcher::Inst()
+  ServiceDispatcher& ServiceDispatcher::Inst()
   {
-    static CServiceDispatcher tInst;
+    static ServiceDispatcher tInst;
     return tInst;
   }
 
-  void CServiceDispatcher::Init(const SEvents& stEvents)
+  void ServiceDispatcher::Init(const Events& stEvents)
   {
     m_pImpl->m_stEvents = stEvents;
     m_pImpl->Init();
   }
 
-  void CServiceDispatcher::Deinit()
+  void ServiceDispatcher::Deinit()
   {
     m_pImpl->Deinit();
   }
 
-  void CServiceDispatcher::InvokeSelf(COperation& rOperation)
+  void ServiceDispatcher::InvokeSelf(Operation& rOperation)
   {
-    staff::CDataObject& rResult = rOperation.Result();
+    staff::DataObject& rResult = rOperation.Result();
 
-    CSharedContext& rSharedContext = CSharedContext::Inst();
+    SharedContext& rSharedContext = SharedContext::Inst();
     const std::string& sOpName = rOperation.GetName();
     if (sOpName == "GetServices")
     {
-      const TServiceWrapperMap& rServices = rSharedContext.GetServices();
-      for (TServiceWrapperMap::const_iterator itService = rServices.begin();
+      const ServiceWrapperMap& rServices = rSharedContext.GetServices();
+      for (ServiceWrapperMap::const_iterator itService = rServices.begin();
             itService != rServices.end(); ++itService)
       {
         rResult.CreateChild("Service", itService->second->GetName());
@@ -311,25 +311,25 @@ rise::LogEntry();
     else
     if (sOpName == "GetOperations")
     {
-      const staff::CDataObject& rRequest = rOperation.Request();
+      const staff::DataObject& rRequest = rOperation.Request();
       const std::string& sServiceName = rRequest.GetChildByLocalName("sServiceName").GetText();
-      const CServiceWrapper* pService = rSharedContext.GetService(sServiceName);
-      RISE_ASSERTES(pService, CRemoteInternalException, "Service [" + sServiceName + "] is not registered");
+      const ServiceWrapper* pService = rSharedContext.GetService(sServiceName);
+      RISE_ASSERTES(pService, RemoteInternalException, "Service [" + sServiceName + "] is not registered");
 
       rResult = pService->GetOperations();
     }
     else
     {
-      RISE_THROWS(CRemoteInternalException, "Operation not found: " + sOpName);
+      RISE_THROWS(RemoteInternalException, "Operation not found: " + sOpName);
     }
   }
 
-  CServiceDispatcher::CServiceDispatcher()
+  ServiceDispatcher::ServiceDispatcher()
   {
-    m_pImpl = new CServiceDispatcherImpl;
+    m_pImpl = new ServiceDispatcherImpl;
   }
 
-  CServiceDispatcher::~CServiceDispatcher()
+  ServiceDispatcher::~ServiceDispatcher()
   {
     if (m_pImpl)
     {

@@ -33,16 +33,16 @@
 #include <staff/codegen/tools.h>
 #include "CppParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CCppParser)
+RISE_DECLARE_PLUGIN(staff::codegen::CppParser)
 
 namespace staff
 {
 namespace codegen
 {
-  class CCppHeaderParser
+  class CppHeaderParser
   {
   public:
-    CCppHeaderParser(const std::string& sRootNs):
+    CppHeaderParser(const std::string& sRootNs):
       m_sRootNamespace(sRootNs), m_sCurrentNamespace(sRootNs), m_nLine(1), m_pProject(NULL)
     {
     }
@@ -297,10 +297,10 @@ namespace codegen
       return !sComment.empty();
     }
 
-    template<typename TStructType>
-    bool ParseCompositeDataType(const std::list<TStructType>& rList, SDataType& rDataType)
+    template<typename StructType>
+    bool ParseCompositeDataType(const std::list<StructType>& rList, DataType& rDataType)
     {
-      for (typename std::list<TStructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+      for (typename std::list<StructType>::const_iterator it = rList.begin(); it != rList.end(); ++it)
       {
         if (it->sName == rDataType.sName)
         {
@@ -338,7 +338,7 @@ namespace codegen
       return false;
     }
 
-    void GetDataType(const std::string& sDataTypeName, SDataType& rDataType)
+    void GetDataType(const std::string& sDataTypeName, DataType& rDataType)
     {
       std::string::size_type nPos = sDataTypeName.find_last_of("::");
       if (nPos != std::string::npos)
@@ -353,17 +353,20 @@ namespace codegen
         rDataType.sNamespace = ""; //"::";
       }
 
-      if (sDataTypeName == "staff::CDataObject" ||
-          (sDataTypeName == "CDataObject" && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
+      if (sDataTypeName == "staff::CDataObject" || sDataTypeName == "staff::DataObject" ||
+          ((sDataTypeName == "CDataObject" || sDataTypeName == "DataObject")
+            && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
       {
-        rDataType.eType = SDataType::EDataObject;
+        rDataType.eType = DataType::TypeDataObject;
       }
       else
       if (sDataTypeName == "staff::CMessageContext" || sDataTypeName == "staff::COperation" ||
-          ((sDataTypeName == "CMessageContext" || sDataTypeName == "COperation")
+          sDataTypeName == "staff::MessageContext" || sDataTypeName == "staff::Operation" ||
+          ((sDataTypeName == "CMessageContext" || sDataTypeName == "COperation" ||
+            sDataTypeName == "MessageContext" || sDataTypeName == "Operation")
               && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
       {
-        rDataType.eType = SDataType::EGeneric; // supress unknown datatype warning
+        rDataType.eType = DataType::TypeGeneric; // supress unknown datatype warning
       }
       else
       if (
@@ -407,7 +410,7 @@ namespace codegen
           sDataTypeName == "staff::positiveInteger"
         )
       {
-        rDataType.eType = SDataType::EGeneric;
+        rDataType.eType = DataType::TypeGeneric;
       }
       else
       if (
@@ -449,12 +452,12 @@ namespace codegen
         sDataTypeName == "staff::anySimpleType"
       )
       {
-        rDataType.eType = SDataType::EString;
+        rDataType.eType = DataType::TypeString;
       }
       else
       if(ParseCompositeDataType(m_stInterface.lsTypedefs, rDataType))
       {
-        rDataType.eType = SDataType::ETypedef;
+        rDataType.eType = DataType::TypeTypedef;
       }
       else
       {
@@ -538,7 +541,7 @@ namespace codegen
 
           rDataType.sName = sDataTypeName;
         }
-        rDataType.eType = bGeneric ? SDataType::EGeneric : SDataType::EUnknown;
+        rDataType.eType = bGeneric ? DataType::TypeGeneric : DataType::TypeUnknown;
       }
     }
 
@@ -580,7 +583,7 @@ namespace codegen
       }
     }
 
-    std::string::size_type ParseTemplate(const std::string& sTemplate, SDataType& rDataType, const SStruct* pstParent)
+    std::string::size_type ParseTemplate(const std::string& sTemplate, DataType& rDataType, const Struct* pstParent)
     {
       std::string::size_type nResult = 0;
       std::string sToken;
@@ -625,7 +628,7 @@ namespace codegen
         rise::StrTrim(sToken);
         if (!sToken.empty())
         {
-          SDataType stTemplParam;
+          DataType stTemplParam;
           ParseDataType(sToken, stTemplParam, pstParent);
           rDataType.lsParams.push_back(stTemplParam);
         }
@@ -640,7 +643,7 @@ namespace codegen
     }
 
     // datatype
-    void ParseDataType( const std::string& sDataType, SDataType& rDataType, const SStruct* pstParent = NULL )
+    void ParseDataType( const std::string& sDataType, DataType& rDataType, const Struct* pstParent = NULL )
     {
       std::string sTmp;
 
@@ -648,7 +651,7 @@ namespace codegen
 
       rDataType.bIsConst = false;
       rDataType.bIsRef = false;
-      rDataType.eType = SDataType::EUnknown;
+      rDataType.eType = DataType::TypeUnknown;
       rDataType.sUsedName.erase();
       rDataType.lsParams.clear();
       rDataType.sNodeName.erase();
@@ -696,7 +699,7 @@ namespace codegen
               rDataType.sNamespace.erase();
             }
 
-            rDataType.eType = SDataType::ETemplate;
+            rDataType.eType = DataType::TypeTemplate;
 
             ++nEnd;
 
@@ -744,20 +747,20 @@ namespace codegen
         rDataType.bIsRef = bIsRef;
       }
 
-      if (rDataType.eType == SDataType::EUnknown)
+      if (rDataType.eType == DataType::TypeUnknown)
       {
         GetDataType(sTypeName, rDataType);
       }
 
-      if (rDataType.eType == SDataType::EUnknown)
+      if (rDataType.eType == DataType::TypeUnknown)
       {
-        const SBaseType* pstType = GetBaseType(sTypeName, m_stInterface, SBaseType::EAny, pstParent);
+        const BaseType* pstType = GetBaseType(sTypeName, m_stInterface, BaseType::TypeAny, pstParent);
         if (pstType)
         {
-          rDataType.eType = pstType->eType == SBaseType::EStruct ? SDataType::EStruct : SDataType::EEnum;
+          rDataType.eType = pstType->eType == BaseType::TypeStruct ? DataType::TypeStruct : DataType::TypeEnum;
           rDataType.sNamespace = pstType->sNamespace;
           rDataType.sName = pstType->sName;
-          if ((pstType->eType == SBaseType::EStruct || SBaseType::EEnum) &&
+          if ((pstType->eType == BaseType::TypeStruct || BaseType::TypeEnum) &&
               !pstType->sOwnerName.empty())
           {
             rDataType.sName = pstType->sOwnerName + "::" + rDataType.sName;
@@ -773,7 +776,7 @@ namespace codegen
     }
 
     // parameter
-    void ParseParam( SParam& rParameter )
+    void ParseParam( Param& rParameter )
     {
       rParameter.sDescr.erase();
 
@@ -794,9 +797,9 @@ namespace codegen
     }
 
     // member
-    void ParseMember( SMember& rMember )
+    void ParseMember( Member& rMember )
     {
-      SParam stParam;
+      Param stParam;
       char chData;
       std::string sTmp;
 
@@ -855,7 +858,7 @@ namespace codegen
           }
           else
           if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst &&
-              stParam.stDataType.sName != "COperation")
+              stParam.stDataType.sName != "COperation" && stParam.stDataType.sName != "Operation")
           {
             rise::LogWarning() << "Non-const reference to " << stParam.stDataType.sName
                 << " in member: " << rMember.sName
@@ -901,7 +904,7 @@ namespace codegen
     }
 
     // class
-    void ParseClass( SClass& rClass )
+    void ParseClass( Class& rClass )
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -916,7 +919,7 @@ namespace codegen
       // parsing members
       while (m_tFile.good() && !m_tFile.eof())
       {
-        SMember stMember;
+        Member stMember;
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
@@ -1015,7 +1018,7 @@ namespace codegen
       }
     }
 
-    void ParseStruct( SStruct& rStruct )
+    void ParseStruct( Struct& rStruct )
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -1068,7 +1071,7 @@ namespace codegen
 
       while (m_tFile.good() && !m_tFile.eof())
       {
-        SParam stParamTmp;
+        Param stParamTmp;
 
         SkipWsOnly();
         while (ReadComment(sTmp))
@@ -1109,7 +1112,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SEnum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
+          Enum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseEnum(rstEnum);
           if (!rstEnum.bForward)
@@ -1127,7 +1130,7 @@ namespace codegen
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
 
-          SStruct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
+          Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
           ParseStruct(rstStruct);
           if (!rstStruct.bForward)
@@ -1207,7 +1210,7 @@ namespace codegen
       SkipSingleLineComment();
     }
 
-    void ParseEnum( SEnum& rEnum )
+    void ParseEnum( Enum& rEnum )
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -1237,7 +1240,7 @@ namespace codegen
 
       while (m_tFile.good() && !m_tFile.eof())
       {
-        SEnum::SEnumMember stMember;
+        Enum::EnumMember stMember;
 
         SkipWsOnly();
         while (ReadComment(sTmp))
@@ -1285,7 +1288,7 @@ namespace codegen
       SkipSingleLineComment();
     }
 
-    void ParseTypedef( STypedef& rTypedef )
+    void ParseTypedef( Typedef& rTypedef )
     {
       std::string sTmp;
       ReadBefore(sTmp, ";");
@@ -1304,9 +1307,9 @@ namespace codegen
       rTypedef.sNamespace = m_sCurrentNamespace;
     }
 
-    void ImportEnums(const std::list<SEnum>& rlsSrc, std::list<SEnum>& rlsDst)
+    void ImportEnums(const std::list<Enum>& rlsSrc, std::list<Enum>& rlsDst)
     {
-      for (std::list<SEnum>::const_iterator itEnum = rlsSrc.begin();
+      for (std::list<Enum>::const_iterator itEnum = rlsSrc.begin();
           itEnum != rlsSrc.end(); ++itEnum)
       {
         rlsDst.push_back(*itEnum);
@@ -1314,13 +1317,13 @@ namespace codegen
       }
     }
 
-    void ImportStruct(const std::list<SStruct>& rlsSrc, std::list<SStruct>& rlsDst)
+    void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst)
     {
-      for (std::list<SStruct>::const_iterator itStruct = rlsSrc.begin();
+      for (std::list<Struct>::const_iterator itStruct = rlsSrc.begin();
           itStruct != rlsSrc.end(); ++itStruct)
       {
-        rlsDst.push_back(SStruct());
-        SStruct& rstStruct = rlsDst.back();
+        rlsDst.push_back(Struct());
+        Struct& rstStruct = rlsDst.back();
         rstStruct.sName = itStruct->sName;
         rstStruct.sNamespace = itStruct->sNamespace;
         rstStruct.sParentName = itStruct->sParentName;
@@ -1348,8 +1351,8 @@ namespace codegen
           m_tFile.ignore();
           m_tFile.get(sbTmp, chData);
 
-          CCppHeaderParser tCppHeaderParser(m_sRootNamespace);
-          const SInterface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
+          CppHeaderParser tCppHeaderParser(m_sRootNamespace);
+          const Interface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
 
           // import extern enums
           ImportEnums(rInterface.lsEnums, m_stInterface.lsEnums);
@@ -1358,10 +1361,10 @@ namespace codegen
           ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
 
           // use extern typedefs
-          for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
+          for (std::list<Typedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
               itTypedef != rInterface.lsTypedefs.end(); ++itTypedef)
           {
-            STypedef stTypedef = *itTypedef;
+            Typedef stTypedef = *itTypedef;
             stTypedef.sName = itTypedef->sName;
             stTypedef.sNamespace = itTypedef->sNamespace;
             stTypedef.sDescr = itTypedef->sDescr;
@@ -1369,7 +1372,7 @@ namespace codegen
             m_stInterface.lsTypedefs.push_back(stTypedef);
           }
 
-          SInclude stInclude;
+          Include stInclude;
           stInclude.sInterfaceName = rInterface.sName;
           stInclude.sNamespace = rInterface.sNamespace;
           stInclude.sFileName = rInterface.sFileName;
@@ -1383,14 +1386,14 @@ namespace codegen
       ++m_nLine;
     }
 
-    void ParseHeaderBlock( SInterface& rInterface )
+    void ParseHeaderBlock( Interface& rInterface )
     {
       char chData = 0;
       std::string sDescr;
       std::string sDetail;
       std::string sTmp;
-      TStringMap mOptions;
-      TStringList lsModules;
+      StringMap mOptions;
+      StringList lsModules;
 
       SkipWsOnly();
       while (ReadComment(sTmp))
@@ -1464,7 +1467,7 @@ namespace codegen
 
       if (sTmp == "class")
       {
-        SClass stClass;
+        Class stClass;
 
         SkipWs();
 
@@ -1531,7 +1534,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t;{}");
 
-        SEnum& rstEnum = TypeInList(rInterface.lsEnums, sName, m_sCurrentNamespace);
+        Enum& rstEnum = TypeInList(rInterface.lsEnums, sName, m_sCurrentNamespace);
 
         ParseEnum(rstEnum);
         if (!rstEnum.bForward)
@@ -1550,7 +1553,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sName, " \r\n\t:;{}");
 
-        SStruct& rstStruct = TypeInList(rInterface.lsStructs, sName, m_sCurrentNamespace);
+        Struct& rstStruct = TypeInList(rInterface.lsStructs, sName, m_sCurrentNamespace);
 
         ParseStruct(rstStruct);
         if (!rstStruct.bForward)
@@ -1565,7 +1568,7 @@ namespace codegen
       } else
       if (sTmp == "typedef")
       {
-        STypedef stTypedef;
+        Typedef stTypedef;
         ParseTypedef(stTypedef);
 
         SkipWs();
@@ -1609,7 +1612,7 @@ namespace codegen
       }
     }
 
-    void ParseBracketedBlock( SInterface& rInterface )
+    void ParseBracketedBlock( Interface& rInterface )
     {
       char chData = 0;
 
@@ -1647,7 +1650,7 @@ namespace codegen
       CSP_THROW("ParseBracketedBlock: EOF found!", m_stInterface.sFileName, m_nLine);
     }
 
-    void ParseHeader( SInterface& rInterface )
+    void ParseHeader( Interface& rInterface )
     {
       char chData = 0;
 
@@ -1673,7 +1676,7 @@ namespace codegen
     }
 
     // Interface
-    const SInterface& Parse( const std::string& sInDir, const std::string& sFileName, SProject& rProject )
+    const Interface& Parse( const std::string& sInDir, const std::string& sFileName, Project& rProject )
     {
       m_pProject = &rProject;
       m_sInDir = sInDir;
@@ -1684,7 +1687,7 @@ namespace codegen
       const std::string& sInterfaceFilePath = (nPos != std::string::npos) ?
                                               sFileName.substr(0, nPos + 1) : "";
 
-      for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+      for (std::list<Interface>::const_iterator itInterface = rProject.lsInterfaces.begin();
         itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
         if (itInterface->sFileName == sInterfaceFileName &&
@@ -1695,7 +1698,7 @@ namespace codegen
       }
 
       rProject.lsInterfaces.push_back(m_stInterface);
-      SInterface& rProjectThisInterface = rProject.lsInterfaces.back();
+      Interface& rProjectThisInterface = rProject.lsInterfaces.back();
 
       m_stInterface.sFileName = sInterfaceFileName;
       m_stInterface.sFilePath = sInterfaceFilePath;
@@ -1715,7 +1718,7 @@ namespace codegen
         // detect interface main namespace
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SClass>::const_iterator itClass = m_stInterface.lsClasses.begin();
+          for (std::list<Class>::const_iterator itClass = m_stInterface.lsClasses.begin();
               itClass != m_stInterface.lsClasses.end(); ++itClass)
           {
             if (!itClass->sNamespace.empty())
@@ -1728,7 +1731,7 @@ namespace codegen
 
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<SStruct>::const_iterator itStruct = m_stInterface.lsStructs.begin();
+          for (std::list<Struct>::const_iterator itStruct = m_stInterface.lsStructs.begin();
               itStruct != m_stInterface.lsStructs.end(); ++itStruct)
           {
             if (!itStruct->sNamespace.empty())
@@ -1741,7 +1744,7 @@ namespace codegen
 
         if (m_stInterface.sNamespace.empty())
         {
-          for (std::list<STypedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
+          for (std::list<Typedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
               itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
           {
             if (!itTypedef->sNamespace.empty())
@@ -1755,7 +1758,7 @@ namespace codegen
         rProjectThisInterface = m_stInterface;
         m_tFile.close();
       }
-      catch (CParseException& rParseException)
+      catch (ParseException& rParseException)
       {
         std::stringbuf sbData;
         m_tFile.get(sbData, '\n');
@@ -1773,7 +1776,7 @@ namespace codegen
     void CorrectStuctParentNs()
     {
       // correct structs parent namespaces
-      for (std::list<SStruct>::iterator itStruct = m_stInterface.lsStructs.begin();
+      for (std::list<Struct>::iterator itStruct = m_stInterface.lsStructs.begin();
           itStruct != m_stInterface.lsStructs.end(); ++itStruct)
       {
         std::string& sNsParent = itStruct->sParentName;
@@ -1783,7 +1786,7 @@ namespace codegen
           continue;
         }
 
-        const SStruct* pstParent = GetStruct(sNsParent, m_stInterface);
+        const Struct* pstParent = GetStruct(sNsParent, m_stInterface);
         if (pstParent)
         {
           itStruct->sParentName = pstParent->sName;
@@ -1797,37 +1800,37 @@ namespace codegen
     std::string m_sCurrentNamespace;
     std::ifstream m_tFile;
     int m_nLine;
-    SInterface m_stInterface;
-    SProject* m_pProject;
+    Interface m_stInterface;
+    Project* m_pProject;
   };
 
 
-  const std::string& CCppParser::GetId()
+  const std::string& CppParser::GetId()
   {
     return m_sId;
   }
 
-  void CCppParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
+  void CppParser::Process(const ParseSettings& rParseSettings, Project& rProject)
   {
     unsigned uServicesCount = 0;
 
     std::string sRootNs = "::";
-    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    StringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
       rise::StrReplace(sRootNs, ".", "::", true);
     }
 
-    for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
+    for (StringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      CCppHeaderParser tCppHeaderParser(sRootNs);
-      const SInterface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir, *itFile, rProject);
+      CppHeaderParser tCppHeaderParser(sRootNs);
+      const Interface& rInterface = tCppHeaderParser.Parse(rParseSettings.sInDir, *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
     }
 
-    TStringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
+    StringMap::const_iterator itComponentNs = rParseSettings.mEnv.find("componentns");
     if (itComponentNs != rParseSettings.mEnv.end())
     {
       rProject.sNamespace = "::" + itComponentNs->second + "::";
@@ -1835,10 +1838,10 @@ namespace codegen
     }
     else
     { // autodetect: take first defined namespace
-      for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+      for (std::list<Interface>::const_iterator itInterface = rProject.lsInterfaces.begin();
         itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
-        for (std::list<SClass>::const_iterator itClass = itInterface->lsClasses.begin();
+        for (std::list<Class>::const_iterator itClass = itInterface->lsClasses.begin();
             itClass != itInterface->lsClasses.end(); ++itClass)
         {
           if (!itClass->sNamespace.empty())
@@ -1862,6 +1865,6 @@ namespace codegen
                 "", 0);
   }
 
-  const std::string CCppParser::m_sId = "cpp";
+  const std::string CppParser::m_sId = "cpp";
 }
 }

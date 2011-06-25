@@ -31,7 +31,7 @@ namespace staff
   namespace security
   {
     //! session
-    struct STAFF_SECURITY_EXPORT SSession
+    struct STAFF_SECURITY_EXPORT Session
     {
       int nId;                //!< id
       std::string sSessionId; //!< session id
@@ -39,10 +39,10 @@ namespace staff
       int nExpires;           //!< datetime of session expiration (unix datetime)
     };
 
-    typedef std::list<SSession> TSessionsList; //!< list of sessions
+    typedef std::list<Session> SessionsList; //!< list of sessions
 
     //! sessions
-    class STAFF_SECURITY_EXPORT CSessions
+    class STAFF_SECURITY_EXPORT Sessions
     {
     public:
       static const std::string sNobodySessionId;  //!< default session id
@@ -51,24 +51,24 @@ namespace staff
       //! get sessions instance
       /*! \return session instance
         */
-      static CSessions& Inst();
+      static Sessions& Inst();
 
       //! get session by id
       /*! \param nId - id
           \param rstSession - resulting session
         */
-      void GetById(int nId, SSession& rstSession);
+      void GetById(int nId, Session& rstSession);
 
       //! get session by session id
       /*! \param sSessionId - session id
           \param rstSession - resulting session
         */
-      void GetBySessionId(const std::string& sSessionId, SSession& rstSession);
+      void GetBySessionId(const std::string& sSessionId, Session& rstSession);
 
       //! get sessions list
       /*! \param rlsSessions - resulting sessions list
         */
-      void GetList(TSessionsList& rlsSessions);
+      void GetList(SessionsList& rlsSessions);
 
       //! auth user and create new session
       /*! \param sUserName - user name
@@ -151,14 +151,21 @@ namespace staff
       void CloseExpiredSessions();
 
     private:
-      CSessions();
-      ~CSessions();
-      CSessions(const CSessions&);
-      CSessions& operator=(const CSessions&);
+      Sessions();
+      ~Sessions();
+      Sessions(const Sessions&);
+      Sessions& operator=(const Sessions&);
 
     private:
       int m_nSessionExpiration; //!< session expiration
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef SessionsList TSessionsList STAFF_DEPRECATED(SessionsList);
+    typedef Session SSession STAFF_DEPRECATED(Session);
+    typedef Sessions CSessions STAFF_DEPRECATED(Sessions);
+#endif
+
   }
 }
 

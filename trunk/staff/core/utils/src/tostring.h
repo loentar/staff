@@ -33,20 +33,41 @@ namespace staff
   std::string ToString(Type tValue)
   {
     char szBuffer[32];
-    ToCString(tValue, &szBuffer, sizeof(szBuffer));
+    ToCString(tValue, szBuffer, sizeof(szBuffer));
     return szBuffer;
   }
 
   template<typename Type>
-  bool ToString(Type tValue, std::string& sResult)
+  std::string& ToString(Type tValue, std::string& sResult)
   {
     char szBuffer[32];
-    bool bResult = ToCString(tValue, &szBuffer, sizeof(szBuffer));
-    if (bResult)
+    ToCString(tValue, szBuffer, sizeof(szBuffer));
+    return sResult;
+  }
+
+  template<typename Type>
+  std::string ToString(Type tValue, bool* pbIsOk)
+  {
+    char szBuffer[32];
+    bool bIsOk = ToCString(tValue, szBuffer, sizeof(szBuffer));
+    if (pbIsOk)
+    {
+      *pbIsOk = bIsOk;
+    }
+    return szBuffer;
+  }
+
+  template<typename Type>
+  std::string& ToString(Type tValue, std::string& sResult, bool* pbIsOk)
+  {
+    char szBuffer[32];
+    bool bIsOk = ToCString(tValue, szBuffer, sizeof(szBuffer));
+    if (bIsOk)
     {
       sResult = szBuffer;
+      pbIsOk = bIsOk;
     }
-    return bResult;
+    return sResult;
   }
 
 }

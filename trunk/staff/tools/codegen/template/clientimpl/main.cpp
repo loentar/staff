@@ -51,7 +51,7 @@ $(Param.DataType.TemplateParams.TemplateParam1) tResult\
     // rise::LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
   }
 
-  void OnFault(const staff::CDataObject& rFault)
+  void OnFault(const staff::DataObject& rFault)
   {
     // process error here
     rise::LogError() << rFault.ToString();
@@ -74,7 +74,7 @@ int main(int nArgs, const char* paszArgs[])
 #foreach $(Project.Interfaces)
 #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)
-    std::auto_ptr< $(Class.NsName) > p$(Class.ServiceName)(::staff::CServiceFactory::Inst().GetService< $(Class.NsName) >());
+    std::auto_ptr< $(Class.NsName) > p$(Class.ServiceName)(::staff::ServiceFactory::Inst().GetService< $(Class.NsName) >());
 
     RISE_ASSERTS(p$(Class.ServiceName).get(), "Cannot get client for service $(Class.ServiceNsName)!");
 

@@ -82,7 +82,7 @@ namespace das
     }
   }
 
-  CDataObject ProviderService::Invoke(const CDataObject& rdoOperation)
+  DataObject ProviderService::Invoke(const DataObject& rdoOperation)
   {
     RISE_ASSERTS(m_pDataSource, "Can't get datasource");
 

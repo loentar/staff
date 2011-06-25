@@ -10,14 +10,14 @@
 
 $(Project.OpeningNs)
   //!  Component implementation
-  class CComponentImpl: public staff::CComponent
+  class ComponentImpl: public staff::Component
   {
   public:
     //!        default constructor
-    CComponentImpl();
+    ComponentImpl();
 
     //!        destructor
-    virtual ~CComponentImpl();
+    virtual ~ComponentImpl();
 
     //!         get component name
     /*! \return component name

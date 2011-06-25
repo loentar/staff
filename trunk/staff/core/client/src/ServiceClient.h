@@ -33,21 +33,21 @@ typedef struct axis2_options axis2_options_t;
 
 namespace staff
 {
-  class CDataObject;
-  class COptions;
+  class DataObject;
+  class Options;
 
   template <typename> class ICallback; //!< client callback
-  typedef std::auto_ptr< ICallback<const CDataObject&> > PICallback;
+  typedef std::auto_ptr< ICallback<const DataObject&> > PICallback;
 
   //! service client
-  class STAFF_CLIENT_EXPORT CServiceClient
+  class STAFF_CLIENT_EXPORT ServiceClient
   {
   public:
     //! constructor
-    CServiceClient();
+    ServiceClient();
 
     //! destructor
-    ~CServiceClient();
+    ~ServiceClient();
 
     //! initialize client with default options
     /*! default options are:
@@ -60,7 +60,7 @@ namespace staff
     //! initialize client with given options
     /*! \param  rOptions - options
         */
-    void Init(COptions& rOptions);
+    void Init(Options& rOptions);
 
     //! deinitialize client
     void Deinit();
@@ -73,12 +73,12 @@ namespace staff
     //! set client options
     /*! \param  rOptions - client options
       */
-    void SetOptions(COptions& rOptions);
+    void SetOptions(Options& rOptions);
 
     //! get client options
     /*! \return client options
       */
-    COptions& GetOptions();
+    Options& GetOptions();
 
     //! engage axis2/c module
     /*! \param sModuleName
@@ -93,7 +93,7 @@ namespace staff
     //! add SOAP header for next request
     /*! \param rdoHeader - SOAP header
         */
-    void AddHeader(CDataObject& rdoHeader);
+    void AddHeader(DataObject& rdoHeader);
 
     //! remove all added SOAP headers
     void RemoveAllHeaders();
@@ -117,7 +117,7 @@ namespace staff
     /*! \return true, if proxy auth is required
         to invoke auth test call TestAuthRequired before this function
         \sa TestAuthRequired
-        \sa COptions::SetTestProxyAuth
+        \sa Options::SetTestProxyAuth
         */
     bool GetProxyAuthRequired();
 
@@ -125,7 +125,7 @@ namespace staff
     /*! \return true, if http auth is required
         to invoke auth test call TestAuthRequired before this function
         \sa TestAuthRequired
-        \sa COptions::SetTestHttpAuth
+        \sa Options::SetTestHttpAuth
         */
     bool GetHttpAuthRequired();
 
@@ -142,14 +142,14 @@ namespace staff
         \param  rdoPayload - request to service
         \return service response
         */
-    CDataObject Invoke(CDataObject& rdoPayload);
+    DataObject Invoke(DataObject& rdoPayload);
 
     //! invoke service asynchronously
     /*! MEP: In-Out
         \param  rdoPayload - request to service
         \param  rCallback - result callback
         */
-    void Invoke(CDataObject& rdoPayload, ICallback<const CDataObject&>& rCallback);
+    void Invoke(DataObject& rdoPayload, ICallback<const DataObject&>& rCallback);
 
     //! invoke service asynchronously with dynamicaly allocated callback
     /*! MEP: In-Out
@@ -157,19 +157,19 @@ namespace staff
         \param  rdoPayload - request to service
         \param  rpCallback - result callback
         */
-    void Invoke(CDataObject& rdoPayload, PICallback& rpCallback);
+    void Invoke(DataObject& rdoPayload, PICallback& rpCallback);
 
     //! send payload and check result, returned by server
     /*! MEP: Robust Out-Only
         \param  rdoPayload - request to service
         */
-    void SendRobust(CDataObject& rdoPayload);
+    void SendRobust(DataObject& rdoPayload);
 
     //! send payload without checking result
     /*! MEP: In-Only
         \param  rdoPayload - request to service
         */
-    void Send(CDataObject& rdoPayload);
+    void Send(DataObject& rdoPayload);
 
     //! get last response has fault or not
     /*! \return true if last response has fault
@@ -179,7 +179,7 @@ namespace staff
     //! get last response or last soap:Fault
     /*! \return last response or last fault
       */
-    CDataObject GetLastResponse();
+    DataObject GetLastResponse();
 
     //! get last axis2/c service client error string
     /*! \return error string
@@ -190,15 +190,19 @@ namespace staff
     operator axis2_svc_client_t*();
 
   private:
-    void PrepareToSend(CDataObject& rdoPayload);
+    void PrepareToSend(DataObject& rdoPayload);
 
   private:
     axis2_svc_client_t* m_pSvcClient;
     axutil_env_t* m_pEnv;
-    COptions* m_pOptions;
+    Options* m_pOptions;
     bool m_bOptOwner;
     bool m_bInit;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef ServiceClient CServiceClient STAFF_DEPRECATED(ServiceClient);
+#endif
 }
 
 #endif // _SERVICECLIENT_H_

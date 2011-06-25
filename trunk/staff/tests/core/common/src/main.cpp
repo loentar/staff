@@ -60,7 +60,7 @@ int main()
 
   try
   {
-    staff::CDataObject tdoTest;
+    staff::DataObject tdoTest;
 
     TestEx("KNOWN BUG in axiom/libxml: DataObject.FromString fails when xml size < 45 bytes", tdoTest.FromString("<test>test test test test test test..</test>"));
 
@@ -68,7 +68,7 @@ int main()
       // test --DataObject.End() when childs exists
       TestEx("Load xml from string", tdoTest.FromString("<root><sub1>text1</sub1><sub2>text2</sub2><sub3>text3</sub3></root>"));
 
-      staff::CDataObject::Iterator itItem = tdoTest.End();
+      staff::DataObject::Iterator itItem = tdoTest.End();
 
       Test("DataObject.End() == DataObject.End() if childs exists", itItem == tdoTest.End());
       Test("DataObject.End() != DataObject.End() if childs exists", itItem != tdoTest.Begin());
@@ -92,12 +92,12 @@ int main()
     }
 
     { // const iterator
-      const staff::CDataObject& rdoTest = tdoTest;
+      const staff::DataObject& rdoTest = tdoTest;
 
       // test --DataObject.End() when childs exists
       TestEx("Load xml from string", tdoTest.FromString("<root><sub1>text1</sub1><sub2>text2</sub2><sub3>text3</sub3></root>"));
 
-      staff::CDataObject::ConstIterator itItem = rdoTest.End();
+      staff::DataObject::ConstIterator itItem = rdoTest.End();
 
       Test("DataObject.End() == DataObject.End() if childs exists", itItem == rdoTest.End());
       Test("DataObject.End() != DataObject.End() if childs exists", itItem != rdoTest.Begin());

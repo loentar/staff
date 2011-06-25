@@ -31,10 +31,10 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
-  class STAFF_COMMON_EXPORT CMessageContext
+  class STAFF_COMMON_EXPORT MessageContext
   {
   public:
-    CMessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx);
+    MessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx);
 
     operator axis2_msg_ctx_t*();
 
@@ -89,6 +89,10 @@ namespace staff
     const axutil_env_t* m_pEnv;
     mutable axis2_msg_ctx_t* m_pMsgCtx;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef MessageContext CMessageContext STAFF_DEPRECATED(MessageContext);
+#endif
 
 } // namespace staff
 

@@ -27,7 +27,7 @@
 
 namespace staff
 {
-  class COperation;
+  class Operation;
 
 namespace wsdl
 {
@@ -42,7 +42,7 @@ namespace wsdl
         */
     // *restMethod: GET
     // *restLocation: get/{sComponent}/{sFileName}
-    virtual void Get(const std::string& sComponent, const std::string& sFileName, COperation& rOperation) = 0;
+    virtual void Get(const std::string& sComponent, const std::string& sFileName, Operation& rOperation) = 0;
   };
 }
 }

@@ -33,18 +33,18 @@ namespace rise
 namespace staff
 {
   class IService;
-  class CServiceWrapper;
+  class ServiceWrapper;
 
   typedef rise::CSharedPtr<IService> PIService; //!< thread-safe counted pointer to service
 
   //! service instance manager
-  class STAFF_COMPONENT_EXPORT CServiceInstanceManager
+  class STAFF_COMPONENT_EXPORT ServiceInstanceManager
   {
   public:
     //! get manager instance
     /*! \return manager instance
         */
-    static CServiceInstanceManager& Inst();
+    static ServiceInstanceManager& Inst();
 
     //! create session
     /*! \param sSessionId - session id
@@ -100,15 +100,20 @@ namespace staff
     PIService& ServiceInstance(const IService* pService, const std::string& sServiceName);
 
   private:
-    CServiceInstanceManager();
-    ~CServiceInstanceManager();
-    CServiceInstanceManager(const CServiceInstanceManager&);
-    CServiceInstanceManager& operator=(const CServiceInstanceManager&);
+    ServiceInstanceManager();
+    ~ServiceInstanceManager();
+    ServiceInstanceManager(const ServiceInstanceManager&);
+    ServiceInstanceManager& operator=(const ServiceInstanceManager&);
 
   private:
-    class CServiceInstanceManagerImpl;
-    CServiceInstanceManagerImpl* m_pImpl;
+    class ServiceInstanceManagerImpl;
+    ServiceInstanceManagerImpl* m_pImpl;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef ServiceInstanceManager CServiceInstanceManager STAFF_DEPRECATED(ServiceInstanceManager);
+#endif
+
 }
 
 #endif // SERVICEINSTANCEMANAGER_H

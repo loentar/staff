@@ -34,9 +34,9 @@ namespace das
 {
   struct Var
   {
-    Type tType;
+    DataType tType;
     std::string sValue;
-    staff::CDataObject tdoValue;
+    staff::DataObject tdoValue;
   };
 
 
@@ -60,19 +60,19 @@ namespace das
       return m_tpExec;
     }
 
-    CDataObject ProcessOperation(const CDataObject& rdoOperation)
+    DataObject ProcessOperation(const DataObject& rdoOperation)
     {
       const Operation* pOperation = &m_rDataSource.GetOperation(rdoOperation.GetLocalName());
 
-      CDataObject tdoResult(pOperation->sName + "Result");
+      DataObject tdoResult(pOperation->sName + "Result");
 
       ProcessSequence(rdoOperation, pOperation->tScript, pOperation->stReturn, tdoResult);
 
       return tdoResult;
     }
 
-    void ProcessSequence(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                                         const Type& rReturnType, CDataObject& rdoResult)
+    void ProcessSequence(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                                         const DataType& rReturnType, DataObject& rdoResult)
     {
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperator = rScript.NodeBegin();
           itOperator != rScript.NodeEnd(); ++itOperator)
@@ -125,8 +125,8 @@ namespace das
       }
     }
 
-    void ProcessExecute(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                         const Type& rReturnType, CDataObject& rdoResult)
+    void ProcessExecute(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                         const DataType& rReturnType, DataObject& rdoResult)
     {
       std::string sExecute = rScript.NodeContent().AsString();
       rise::LogDebug1() << "Query is [" + sExecute + "]";
@@ -139,7 +139,7 @@ namespace das
 
       StringList lsResult;
 
-      if (rReturnType.eType == Type::Generic)
+      if (rReturnType.eType == DataType::Generic)
       {
         if (rpExec->GetNextResult(lsResult))
         {
@@ -149,7 +149,7 @@ namespace das
         }
       }
       else
-      if (rReturnType.eType == Type::Struct)
+      if (rReturnType.eType == DataType::Struct)
       {
         if (rpExec->GetNextResult(lsResult))
         {
@@ -157,7 +157,7 @@ namespace das
               rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
 
           StringList::const_iterator itResult = lsResult.begin();
-          for (TypesList::const_iterator itType = rReturnType.lsChilds.begin();
+          for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
               itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
           {
             rdoResult.CreateChild(itType->sName).SetText(*itResult);
@@ -165,14 +165,14 @@ namespace das
         }
       }
       else
-      if (rReturnType.eType == Type::DataObject ||
-          (rReturnType.eType == Type::List && rReturnType.lsChilds.front().eType == Type::DataObject))
+      if (rReturnType.eType == DataType::DataObject ||
+          (rReturnType.eType == DataType::List && rReturnType.lsChilds.front().eType == DataType::DataObject))
       {
         StringList lsFieldsNames;
         rpExec->GetFieldsNames(lsFieldsNames);
         while (rpExec->GetNextResult(lsResult))
         {
-          staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
+          staff::DataObject tdoItem = rdoResult.CreateChild("Item");
 
           for (StringList::const_iterator itResult = lsResult.begin(), itName = lsFieldsNames.begin();
                itResult != lsResult.end(); ++itResult, ++itName)
@@ -182,10 +182,10 @@ namespace das
         }
       }
       else
-      if (rReturnType.eType == Type::List) // ---------------- list ----------------------------
+      if (rReturnType.eType == DataType::List) // ---------------- list ----------------------------
       {
-        const Type& rItemType = rReturnType.lsChilds.front();
-        if (rItemType.eType == Type::Generic) // list of generics
+        const DataType& rItemType = rReturnType.lsChilds.front();
+        if (rItemType.eType == DataType::Generic) // list of generics
         {
           if (rpExec->GetNextResult(lsResult))
           {
@@ -199,7 +199,7 @@ namespace das
           }
         }
         else
-        if (rItemType.eType == Type::Struct) // list of structs
+        if (rItemType.eType == DataType::Struct) // list of structs
         {
           if (rpExec->GetNextResult(lsResult))
           {
@@ -207,10 +207,10 @@ namespace das
                          rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
             do
             {
-              staff::CDataObject tdoItem = rdoResult.CreateChild("Item");
+              staff::DataObject tdoItem = rdoResult.CreateChild("Item");
 
               StringList::const_iterator itResult = lsResult.begin();
-              for (TypesList::const_iterator itType = rItemType.lsChilds.begin();
+              for (DataTypesList::const_iterator itType = rItemType.lsChilds.begin();
                   itType != rItemType.lsChilds.end(); ++itType, ++itResult)
               {
                 tdoItem.CreateChild(itType->sName).SetText(*itResult);
@@ -225,14 +225,14 @@ namespace das
         }
       }
       else
-      if (rReturnType.eType != Type::Void)
+      if (rReturnType.eType != DataType::Void)
       {
         RISE_THROWS(rise::CLogicNoItemException, "Unsupported return type: " + rReturnType.sType);
       }
 
     }
 
-    void ProcessVar(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    void ProcessVar(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
     {
       const std::string& sVarName = rScript.Attribute("name").AsString();
 
@@ -244,7 +244,7 @@ namespace das
       {
         const std::string& sType = itAttrType->sAttrValue.AsString();
 
-        const Type* pType = m_rDataSource.FindType(sType);
+        const DataType* pType = m_rDataSource.FindType(sType);
 
         if (pType != NULL)
         { // datasource's type
@@ -255,12 +255,12 @@ namespace das
           rVar.tType.sType = sType;
           if (sType == "DataObject")
           {
-            rVar.tType.eType = Type::DataObject;
+            rVar.tType.eType = DataType::DataObject;
             rVar.tdoValue.Create(sVarName);
           }
           else
           { // accept as generic
-            rVar.tType.eType = Type::Generic;
+            rVar.tType.eType = DataType::Generic;
           }
         }
       }
@@ -270,20 +270,20 @@ namespace das
       if (itAttrValue != rScript.AttrEnd())
       {
         rVar.sValue = Eval(rdoContext, itAttrValue->sAttrValue.AsString());
-        if (rVar.tType.eType == Type::Void)
+        if (rVar.tType.eType == DataType::Void)
         {
-          rVar.tType.eType = Type::Generic;
+          rVar.tType.eType = DataType::Generic;
         }
       }
       else
       {
         rVar.tdoValue.Create(sVarName);
-        if (rVar.tType.eType == Type::Void)
+        if (rVar.tType.eType == DataType::Void)
         {
-          rVar.tType.eType = Type::DataObject;
+          rVar.tType.eType = DataType::DataObject;
         }
         ProcessSequence(rdoContext, rScript, rVar.tType, rVar.tdoValue);
-        if (rVar.tType.eType == Type::Generic)
+        if (rVar.tType.eType == DataType::Generic)
         {
           rVar.sValue = rVar.tdoValue.GetText();
           rVar.tdoValue.Detach();
@@ -292,10 +292,10 @@ namespace das
     }
 
 
-    void ProcessForeach(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                         const Type& rReturnType, CDataObject& rdoResult)
+    void ProcessForeach(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                         const DataType& rReturnType, DataObject& rdoResult)
     {
-      CDataObject tdoElement = rdoContext;
+      DataObject tdoElement = rdoContext;
 
       rise::xml::CXMLNode::TXMLAttrConstIterator itAttrElementName = rScript.FindAttribute("element");
       if (itAttrElementName != rScript.AttrEnd())
@@ -303,14 +303,14 @@ namespace das
         GetChild(tdoElement, itAttrElementName->sAttrValue.AsString(), tdoElement);
       }
 
-      for (CDataObject::Iterator itChild = tdoElement.Begin(); itChild != tdoElement.End(); ++itChild)
+      for (DataObject::Iterator itChild = tdoElement.Begin(); itChild != tdoElement.End(); ++itChild)
       {
         ProcessSequence(*itChild, rScript, rReturnType, rdoResult);
       }
     }
 
-    void ProcessIfeq(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                     const Type& rReturnType, CDataObject& rdoResult, bool bEqual)
+    void ProcessIfeq(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                     const DataType& rReturnType, DataObject& rdoResult, bool bEqual)
     {
       if ((Eval(rdoContext, rScript.Attribute("expr1").AsString()) ==
            Eval(rdoContext, rScript.Attribute("expr2").AsString())) == bEqual)
@@ -320,7 +320,7 @@ namespace das
     }
 
 
-    void ProcessReturn(const rise::xml::CXMLNode& rScript, const Type& rReturnType, CDataObject& rdoResult)
+    void ProcessReturn(const rise::xml::CXMLNode& rScript, const DataType& rReturnType, DataObject& rdoResult)
     {
       const std::string& sVarName = rScript.Attribute("var").AsString();
       VarMap::const_iterator itVar = m_mVars.find(sVarName);
@@ -328,7 +328,7 @@ namespace das
       const Var& rVar = itVar->second;
       RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
 
-      if (rReturnType.eType == Type::Generic)
+      if (rReturnType.eType == DataType::Generic)
       {
         rdoResult.SetText(rVar.sValue);
       }
@@ -338,7 +338,7 @@ namespace das
       }
     }
 
-    std::string Eval(const CDataObject& rdoContext, const std::string& sExpr)
+    std::string Eval(const DataObject& rdoContext, const std::string& sExpr)
     {
       std::string sResult = sExpr;
       std::string::size_type nBegin = 0;
@@ -390,7 +390,7 @@ namespace das
         std::string sValue;
         if (bIsRequest)
         { // request
-          CDataObject tdoResult;
+          DataObject tdoResult;
           GetChild(rdoContext, sPath, tdoResult);
           RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
           sValue = tdoResult.GetText();
@@ -426,10 +426,10 @@ namespace das
             RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
 
             const Var& rVar = itVar->second;
-            RISE_ASSERTS(rVar.tType.eType != Type::Void, "found void type variable [" + sVarName
+            RISE_ASSERTS(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
                          + "] while evaluating expression [" + sExpr + "]");
 
-            if (rVar.tType.eType == Type::Generic)
+            if (rVar.tType.eType == DataType::Generic)
             {
               sValue = rVar.sValue;
             }
@@ -437,7 +437,7 @@ namespace das
             { // dataobject, list, struct
               if (nPos != std::string::npos)
               {
-                CDataObject tdoResult;
+                DataObject tdoResult;
                 GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
                 RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
                 sValue = tdoResult.GetText();
@@ -457,12 +457,12 @@ namespace das
       return sResult;
     }
 
-    void ProcessLog(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    void ProcessLog(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
     {
       rise::LogInfo() << m_rDataSource.GetName() << ": " << Eval(rdoContext, rScript.NodeContent());
     }
 
-    void GetChild(const CDataObject& rdoContext, const std::string& sChildPath, CDataObject& rdoResult)
+    void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult)
     {
       rdoResult = rdoContext;
 
@@ -524,21 +524,21 @@ namespace das
     delete m_pImpl;
   }
 
-  CDataObject ScriptExecuter::Process(const CDataObject& rdoOperation)
+  DataObject ScriptExecuter::Process(const DataObject& rdoOperation)
   {
     return m_pImpl->ProcessOperation(rdoOperation);
   }
 
-  void ScriptExecuter::Process(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                               const Type& rReturnType, CDataObject& rdoResult)
+  void ScriptExecuter::Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                               const DataType& rReturnType, DataObject& rdoResult)
   {
     return m_pImpl->ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
   }
 
   void ScriptExecuter::Process(const rise::xml::CXMLNode& rScript)
   {
-    staff::CDataObject doResult;
-    return m_pImpl->ProcessSequence(staff::CDataObject(), rScript, Type(), doResult);
+    staff::DataObject doResult;
+    return m_pImpl->ProcessSequence(staff::DataObject(), rScript, DataType(), doResult);
   }
 
 

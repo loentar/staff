@@ -23,7 +23,7 @@
 #define _STAFFCLIENTEXPORT_H_
 
 #ifdef WIN32
-  #ifndef __MINGW32__
+  #ifdef _MSC_VER
     #pragma warning(disable: 4786 4251)
   #endif
 
@@ -35,6 +35,16 @@
 
 #else
   #define STAFF_CLIENT_EXPORT 
+#endif
+
+#ifndef STAFF_DEPRECATED
+  #ifdef _MSC_VER
+    #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+  #elif __GNUC__ >= 3
+    #define STAFF_DEPRECATED(Replacement) __attribute__ ((deprecated))
+  #else
+    #define STAFF_DEPRECATED(Replacement)
+  #endif
 #endif
 
 #endif // _STAFFCLIENTEXPORT_H_

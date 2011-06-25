@@ -33,21 +33,21 @@ namespace rise
 
 namespace staff
 {
-  class CServiceWrapper;
+  class ServiceWrapper;
 
   //! Pointer to service wrapper
-  typedef rise::CMutablePtr<CServiceWrapper> PServiceWrapper;
+  typedef rise::CMutablePtr<ServiceWrapper> PServiceWrapper;
 
   //! Service wrappers map
-  typedef std::map<std::string, PServiceWrapper> TServiceWrapperMap;
+  typedef std::map<std::string, PServiceWrapper> ServiceWrapperMap;
 
 
   //!  Component
-  class STAFF_COMPONENT_EXPORT CComponent
+  class STAFF_COMPONENT_EXPORT Component
   {
   public:
     //!        destructor
-    virtual ~CComponent();
+    virtual ~Component();
 
     //!         get component name
     /*! \return component name
@@ -58,29 +58,34 @@ namespace staff
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    const CServiceWrapper* GetService(const std::string& sService) const;
+    const ServiceWrapper* GetService(const std::string& sService) const;
 
     //!         get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
-    CServiceWrapper* GetService(const std::string& sService);
+    ServiceWrapper* GetService(const std::string& sService);
 
     //!         get component's services map
     /*! \return component's services map
         */
-    const TServiceWrapperMap& GetServices() const;
+    const ServiceWrapperMap& GetServices() const;
 
   protected:
     //!         register new service in component
     /*! \param  sService - full service name
         \param  pWrapper - service wrapper
         */
-    void RegisterService(const std::string& sService, CServiceWrapper* pWrapper);
+    void RegisterService(const std::string& sService, ServiceWrapper* pWrapper);
 
   private:
-    TServiceWrapperMap m_mServices;
+    ServiceWrapperMap m_mServices;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Component CComponent STAFF_DEPRECATED(Component);
+#endif
+
 }
 
 #endif // _COMPONENT_H_

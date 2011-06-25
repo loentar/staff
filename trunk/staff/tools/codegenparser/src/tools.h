@@ -38,9 +38,9 @@ namespace codegen
       \return found structure, NULL if not found
     */
   STAFF_CODEGENPARSER_EXPORT
-  const SBaseType* GetBaseType(const std::string& sNsName, const SInterface& rstInterface,
-                               const int eBaseType = SBaseType::EAny,
-                               const SStruct* pstParent = NULL);
+  const BaseType* GetBaseType(const std::string& sNsName, const Interface& rstInterface,
+                               const int eBaseType = BaseType::TypeAny,
+                               const Struct* pstParent = NULL);
 
   //! get structure by full or partial name in current context
   /*! \param  sNsName - structure's name in form [[[[some::]namespace::]Struct::]SubStruct::]SubSubstruct
@@ -49,8 +49,8 @@ namespace codegen
       \return found structure, NULL if not found
     */
   STAFF_CODEGENPARSER_EXPORT
-  const SStruct* GetStruct(const std::string& sNsName, const SInterface& rstInterface,
-                           const SStruct* pstParent = NULL);
+  const Struct* GetStruct(const std::string& sNsName, const Interface& rstInterface,
+                           const Struct* pstParent = NULL);
 
 
   //! optimize C++ namespace

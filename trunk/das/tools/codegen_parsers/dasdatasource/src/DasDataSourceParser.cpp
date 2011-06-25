@@ -27,38 +27,38 @@
 #include <staff/codegen/tools.h>
 #include "DasDataSourceParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CDasDataSourceParser)
+RISE_DECLARE_PLUGIN(staff::codegen::DasDataSourceParser)
 
 namespace staff
 {
 namespace codegen
 {
 
-  CDasDataSourceParser::CDasDataSourceParser()
+  DasDataSourceParser::DasDataSourceParser()
   {
   }
 
-  CDasDataSourceParser::~CDasDataSourceParser()
+  DasDataSourceParser::~DasDataSourceParser()
   {
   }
 
 
-  const std::string& CDasDataSourceParser::GetId()
+  const std::string& DasDataSourceParser::GetId()
   {
     return m_sId;
   }
 
-  void CDasDataSourceParser::Process(const SParseSettings& rParseSettings, SProject& rProject)
+  void DasDataSourceParser::Process(const ParseSettings& rParseSettings, Project& rProject)
   {
     std::string sRootNs = "::";
-    TStringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    StringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
       rise::StrReplace(sRootNs, ".", "::", true);
     }
 
-    for (TStringList::const_iterator itFile = rParseSettings.lsFiles.begin();
+    for (StringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
       const std::string& sFileName = rParseSettings.sInDir + *itFile;
@@ -72,7 +72,7 @@ namespace codegen
 
       if (rNodeDataSources.NodeName() == "types")
       {
-        SInterface stInterface;
+        Interface stInterface;
 
         std::string::size_type nPos = sFileName.find_last_of("/\\");
         stInterface.sFileName = (nPos != std::string::npos) ?
@@ -121,8 +121,8 @@ namespace codegen
     }
   }
 
-  void CDasDataSourceParser::ParseTypes(const rise::xml::CXMLNode& rNodeTypes, SProject& rProject,
-                                        SInterface& rInterface, const std::string& sNamespace)
+  void DasDataSourceParser::ParseTypes(const rise::xml::CXMLNode& rNodeTypes, Project& rProject,
+                                        Interface& rInterface, const std::string& sNamespace)
   {
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNodeTypes.NodeBegin();
           itType != rNodeTypes.NodeEnd(); ++itType)
@@ -142,13 +142,13 @@ namespace codegen
 
         bool bFound = false;
 
-        for (std::list<SInterface>::const_iterator itInterface = rProject.lsInterfaces.begin();
+        for (std::list<Interface>::const_iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
         {
           if (itInterface->sFileName == sInterfaceFileName &&
               itInterface->sFilePath == sInterfaceFilePath)
           {
-            SInclude stInclude;
+            Include stInclude;
             stInclude.sFileName = itInterface->sFileName;
             stInclude.sFilePath = itInterface->sFilePath;
             stInclude.sNamespace = itInterface->sNamespace;
@@ -161,7 +161,7 @@ namespace codegen
 
         if (!bFound)
         {
-          SInterface stInterface;
+          Interface stInterface;
 
           std::string::size_type nPos = sInterfaceFileName.find_last_of('.');
           if (nPos != std::string::npos)
@@ -184,21 +184,21 @@ namespace codegen
           ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
 
 
-          SInclude stInclude;
+          Include stInclude;
           stInclude.sFileName = sInterfaceFileName;
           stInclude.sFilePath = sInterfaceFilePath;
           stInclude.sNamespace = sNamespace;
           stInclude.sInterfaceName = stInterface.sName;
           rInterface.lsIncludes.push_back(stInclude);
 
-          for (std::list<SStruct>::const_iterator itStruct = stInterface.lsStructs.begin();
+          for (std::list<Struct>::const_iterator itStruct = stInterface.lsStructs.begin();
             itStruct != stInterface.lsStructs.end(); ++itStruct)
           {
             rInterface.lsStructs.push_back(*itStruct);
             rInterface.lsStructs.back().bExtern = true;
           }
 
-          for (std::list<STypedef>::const_iterator itTypedef = stInterface.lsTypedefs.begin();
+          for (std::list<Typedef>::const_iterator itTypedef = stInterface.lsTypedefs.begin();
             itTypedef != stInterface.lsTypedefs.end(); ++itTypedef)
           {
             rInterface.lsTypedefs.push_back(*itTypedef);
@@ -217,7 +217,7 @@ namespace codegen
 
         if (sType == "struct")
         {
-          SStruct stStruct;
+          Struct stStruct;
           stStruct.sName = sName;
           stStruct.sNamespace = sNamespace;
           stStruct.sDescr = sDescr;
@@ -227,7 +227,7 @@ namespace codegen
                 itMember != itType->NodeEnd(); ++itMember)
           {
             const rise::xml::CXMLNode& rMember = *itMember;
-            SParam stMember;
+            Param stMember;
 
             stMember.sName = rMember.NodeName();
             ParseDescr(rMember, stMember.sDescr);
@@ -245,16 +245,16 @@ namespace codegen
         else
         if (sType == "list")
         {
-          STypedef stTypedef;
+          Typedef stTypedef;
           stTypedef.sName = sName;
           stTypedef.sNamespace = sNamespace;
           stTypedef.stDataType.sName = "list";
           stTypedef.stDataType.sNamespace = "std::";
           stTypedef.stDataType.sUsedName = "std::list";
-          stTypedef.stDataType.eType = SDataType::ETemplate;
+          stTypedef.stDataType.eType = DataType::TypeTemplate;
           ParseDescr(rNodeType, stTypedef.sDescr);
 
-          SDataType stItemDataType;
+          DataType stItemDataType;
           stItemDataType.sName = rNodeType.Attribute("itemtype").AsString();
           FixDataType(stItemDataType, rInterface, sNamespace);
           stItemDataType.sUsedName = stItemDataType.sNamespace + stItemDataType.sName;
@@ -266,7 +266,7 @@ namespace codegen
         }
         else
         {
-          STypedef stTypedef;
+          Typedef stTypedef;
           stTypedef.sName = rNodeType.Attribute("type").AsString();
           stTypedef.sNamespace = sNamespace;
           stTypedef.stDataType.sName = sName;
@@ -282,10 +282,10 @@ namespace codegen
   }
 
 
-  void CDasDataSourceParser::ParseProject(const rise::xml::CXMLNode& rDataSourceNode, SProject& rProject,
+  void DasDataSourceParser::ParseProject(const rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
                                           const std::string& sRootNs)
   {
-    SInterface stInterface;
+    Interface stInterface;
 
     stInterface.sName = rDataSourceNode.Attribute("name").AsString();
 
@@ -307,7 +307,7 @@ namespace codegen
 
     // class
 
-    SClass stClass;
+    Class stClass;
     stClass.sName = stInterface.sName;
     stClass.sNamespace = sNamespace;
 
@@ -319,7 +319,7 @@ namespace codegen
           itOperation != rOperations.NodeEnd(); ++itOperation)
     {
       const rise::xml::CXMLNode& rOperation = *itOperation;
-      SMember stMember;
+      Member stMember;
 
       stMember.sName = rOperation.Attribute("name").AsString();
 
@@ -343,7 +343,7 @@ namespace codegen
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itParam = rParams.NodeBegin();
             itParam != rParams.NodeEnd(); ++itParam)
       {
-        SParam stParam;
+        Param stParam;
         stParam.sName = itParam->NodeName();
 
         stParam.stDataType.sName = itParam->Attribute("type").AsString();
@@ -354,9 +354,9 @@ namespace codegen
         OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
         stParam.stDataType.sNodeName = stParam.sName;
 
-        if (stParam.stDataType.eType == SDataType::EString ||
-            stParam.stDataType.eType == SDataType::EStruct ||
-            stParam.stDataType.eType == SDataType::ETypedef)
+        if (stParam.stDataType.eType == DataType::TypeString ||
+            stParam.stDataType.eType == DataType::TypeStruct ||
+            stParam.stDataType.eType == DataType::TypeTypedef)
         {
           stParam.stDataType.bIsConst = true;
           stParam.stDataType.bIsRef = true;
@@ -373,7 +373,7 @@ namespace codegen
     rProject.lsInterfaces.push_back(stInterface);
   }
 
-  void CDasDataSourceParser::ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr)
+  void DasDataSourceParser::ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itDescr = rNode.FindAttribute("descr");
     if (itDescr != rNode.AttrEnd())
@@ -382,12 +382,12 @@ namespace codegen
     }
   }
 
-  bool CDasDataSourceParser::FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace)
+  bool DasDataSourceParser::FixDataType(DataType& rDataType, const Interface& rInterface, const std::string& sNamespace)
   {
     if (rDataType.sName == "string")
     {
       rDataType.sName = "string";
-      rDataType.eType = SDataType::EString;
+      rDataType.eType = DataType::TypeString;
       rDataType.sNamespace = "std::";
       rDataType.sUsedName = "std::string";
 
@@ -396,33 +396,32 @@ namespace codegen
 
     if (rDataType.sName == "DataObject")
     {
-      rDataType.sName = "CDataObject";
-      rDataType.eType = SDataType::EDataObject;
+      rDataType.eType = DataType::TypeDataObject;
       rDataType.sNamespace = "staff::";
-      rDataType.sUsedName = "staff::CDataObject";
+      rDataType.sUsedName = "staff::DataObject";
 
       return true;
     }
 
-    for (std::list<STypedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
+    for (std::list<Typedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
         itTypedef != rInterface.lsTypedefs.end(); ++itTypedef)
     {
-      const STypedef& rTypedef = *itTypedef;
+      const Typedef& rTypedef = *itTypedef;
       if (rTypedef.sName == rDataType.sName)
       {
-        rDataType.eType = SDataType::ETypedef;
+        rDataType.eType = DataType::TypeTypedef;
         rDataType.sNamespace = sNamespace;
         return true;
       }
     }
 
-    for (std::list<SStruct>::const_iterator itStruct = rInterface.lsStructs.begin();
+    for (std::list<Struct>::const_iterator itStruct = rInterface.lsStructs.begin();
         itStruct != rInterface.lsStructs.end(); ++itStruct)
     {
-      const SStruct& rStruct = *itStruct;
+      const Struct& rStruct = *itStruct;
       if (rStruct.sName == rDataType.sName)
       {
-        rDataType.eType = SDataType::EStruct;
+        rDataType.eType = DataType::TypeStruct;
         rDataType.sNamespace = sNamespace;
         return true;
       }
@@ -431,6 +430,6 @@ namespace codegen
     return false;
   }
 
-  const std::string CDasDataSourceParser::m_sId = "dasdatasource";
+  const std::string DasDataSourceParser::m_sId = "dasdatasource";
 }
 }

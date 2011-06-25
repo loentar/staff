@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -34,15 +34,15 @@ namespace staff
 {
   namespace security
   {
-    CUsers& CUsers::Inst()
+    Users& Users::Inst()
     {
-      static CUsers tInst;
+      static Users tInst;
       return tInst;
     }
 
-    void CUsers::GetById(int nId, SUser& rstUser)
+    void Users::GetById(int nId, User& rstUser)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM users WHERE id=?", -1, &pVm, NULL);
@@ -73,9 +73,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::GetByName(const std::string& sUserName, SUser& rstUser)
+    void Users::GetByName(const std::string& sUserName, User& rstUser)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM users WHERE name=?", -1, &pVm, NULL);
@@ -106,9 +106,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::GetList(TUsersList& rlsUsers)
+    void Users::GetList(UsersList& rlsUsers)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM users", -1, &pVm, NULL);
@@ -121,7 +121,7 @@ namespace staff
         // get data
         while (sqlite3_step(pVm) == SQLITE_ROW)
         {
-          SUser stUser;
+          User stUser;
           stUser.nId = sqlite3_column_int(pVm, 0);
           const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
           RISE_ASSERTS(szTmp, "Failed to get user name");
@@ -141,9 +141,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::Add(const std::string& sName, const std::string& sPassword, const std::string& sDescription, int& nId)
+    void Users::Add(const std::string& sName, const std::string& sPassword, const std::string& sDescription, int& nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // add user
@@ -175,9 +175,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::Remove(int nId)
+    void Users::Remove(int nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // remove user
@@ -200,9 +200,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::SetPassword(int nId, const std::string& sPassword)
+    void Users::SetPassword(int nId, const std::string& sPassword)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // set user password
@@ -228,9 +228,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::GetPassword(int nId, std::string& sPassword)
+    void Users::GetPassword(int nId, std::string& sPassword)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // get user password
@@ -257,9 +257,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CUsers::SetDescription(int nId, const std::string& sDescription)
+    void Users::SetDescription(int nId, const std::string& sDescription)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       // set user password
@@ -285,11 +285,11 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    CUsers::CUsers()
+    Users::Users()
     {
     }
 
-    CUsers::~CUsers()
+    Users::~Users()
     {
     }
 

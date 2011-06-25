@@ -37,11 +37,11 @@ namespace xml
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
 namespace das
 {
-  struct Type;
+  struct DataType;
   class DataSource;
   class IProvider;
   typedef rise::CMutablePtr<IProvider> PProvider;
@@ -70,7 +70,7 @@ namespace das
     /*! \param rdoOperation - operation request data object
         \return operation result
       */
-    CDataObject Process(const CDataObject& rdoOperation);
+    DataObject Process(const DataObject& rdoOperation);
 
     //! process script
     /*! \param rdoContext - current context
@@ -78,8 +78,8 @@ namespace das
         \param rReturnType - return type
         \param rdoResult - result
       */
-    void Process(const CDataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                 const Type& rReturnType, CDataObject& rdoResult);
+    void Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                 const DataType& rReturnType, DataObject& rdoResult);
 
     //! process script
     /*! \param rScript - script to execute

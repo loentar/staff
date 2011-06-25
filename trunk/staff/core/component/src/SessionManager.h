@@ -28,13 +28,13 @@
 namespace staff
 {
   //! session manager
-  class STAFF_COMPONENT_EXPORT CSessionManager
+  class STAFF_COMPONENT_EXPORT SessionManager
   {
   public:
     //!         get session manager instance
     /*! \return session manager instance
     */
-    static CSessionManager& Inst();
+    static SessionManager& Inst();
 
     //!         start sessions watching
     void Start();
@@ -78,15 +78,20 @@ namespace staff
     void Keepalive(const std::string& sSessionId);
 
   private:
-    CSessionManager();
-    ~CSessionManager();
-    CSessionManager(const CSessionManager&);
-    CSessionManager& operator=(const CSessionManager&);
+    SessionManager();
+    ~SessionManager();
+    SessionManager(const SessionManager&);
+    SessionManager& operator=(const SessionManager&);
 
   private:
-    class CSessionManagerImpl;
-    CSessionManagerImpl* m_pImpl;
+    class SessionManagerImpl;
+    SessionManagerImpl* m_pImpl;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef SessionManager CSessionManager STAFF_DEPRECATED(SessionManager);
+#endif
+
 }
 
 #endif // _SESSIONMANAGER_H_

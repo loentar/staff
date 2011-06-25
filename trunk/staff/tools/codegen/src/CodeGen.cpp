@@ -50,10 +50,10 @@ namespace codegen
 {
   using rise::xml::CXMLNode;
 
-  class CTemplateParser
+  class TemplateParser
   {
   public:
-    CTemplateParser():
+    TemplateParser():
       m_nLine(0), m_nIndent(0), m_bNeedIndent(false), m_bHasConfig(false)
     {
       m_tmVariables.push(StringMap());
@@ -1351,7 +1351,7 @@ namespace codegen
       }
     }
 
-    void SetEnv(const TStringMap& rmEnv)
+    void SetEnv(const StringMap& rmEnv)
     {
       m_tmVariables.top() = rmEnv;
     }
@@ -1370,9 +1370,9 @@ namespace codegen
   };
 
 
-  void CCodeGen::Start( const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const TStringMap& rmEnv )
+  void CodeGen::Start( const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const StringMap& rmEnv )
   {
-    CTemplateParser tTemplateParser;
+    TemplateParser tTemplateParser;
 
     tTemplateParser.Init(sTemplateDir);
     tTemplateParser.SetEnv(rmEnv);

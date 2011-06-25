@@ -23,9 +23,10 @@
 #ifndef _STAFF_UTILS_FROMCSTRING_H_
 #define _STAFF_UTILS_FROMCSTRING_H_
 
+#include <string.h>
 #include <stdlib.h>
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #define staff_strtoll _strtoi64
 #define staff_strtoull _strtoui64
 #define staff_strtof(str, end) static_cast<float>(strtod(str, end))

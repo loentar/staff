@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -37,15 +37,15 @@ namespace staff
   namespace security
   {
 
-    CAcl& CAcl::Inst()
+    Acl& Acl::Inst()
     {
-      static CAcl tInst;
+      static Acl tInst;
       return tInst;
     }
 
-    void CAcl::SetUserAccess(int nObjectId, EAccess eAccess)
+    void Acl::SetUserAccess(int nObjectId, EAccess eAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       if (eAccess == EAccessInherited)
@@ -96,9 +96,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CAcl::SetUserAccess(int nObjectId, int nUserId, EAccess eAccess)
+    void Acl::SetUserAccess(int nObjectId, int nUserId, EAccess eAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       if (eAccess == EAccessInherited)
@@ -155,9 +155,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CAcl::GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess)
+    void Acl::GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       RISE_ASSERTP(nObjectId >= 0);
@@ -200,9 +200,9 @@ namespace staff
 
 
 
-    void CAcl::SetGroupAccess(int nObjectId, EAccess eAccess)
+    void Acl::SetGroupAccess(int nObjectId, EAccess eAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       if (eAccess == EAccessInherited)
@@ -253,9 +253,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CAcl::SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess)
+    void Acl::SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       if (eAccess == EAccessInherited)
@@ -312,9 +312,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CAcl::GetGroupAccess(int nObjectId, int nGroupId, EAccess &reAccess)
+    void Acl::GetGroupAccess(int nObjectId, int nGroupId, EAccess &reAccess)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       reAccess = EAccessInherited;
@@ -353,7 +353,7 @@ namespace staff
     }
 
 
-    bool CAcl::CalculateUserAccess(int nObjectId, int nUserId)
+    bool Acl::CalculateUserAccess(int nObjectId, int nUserId)
     {
       // TODO: optimize - rewrite to SQL, stored procedures
       // 1. check user access to object
@@ -362,7 +362,7 @@ namespace staff
 
       int nCurrentObjectId = nObjectId;
       EAccess eAccess = EAccessInherited;
-      TIntList lsGroupIds;
+      IntList lsGroupIds;
       bool bGroupsGet = false;
 
       for (;;)
@@ -383,11 +383,11 @@ namespace staff
 
         if (!bGroupsGet)
         {
-          CUsersToGroups::Inst().GetUserGroups(nUserId, lsGroupIds);
+          UsersToGroups::Inst().GetUserGroups(nUserId, lsGroupIds);
           bGroupsGet = true;
         }
 
-        for (TIntList::const_iterator itGroupId = lsGroupIds.begin(); itGroupId != lsGroupIds.end(); ++itGroupId)
+        for (IntList::const_iterator itGroupId = lsGroupIds.begin(); itGroupId != lsGroupIds.end(); ++itGroupId)
         {
           GetGroupAccess(nCurrentObjectId, *itGroupId, eAccess);
 
@@ -411,7 +411,7 @@ namespace staff
           break;
         }
 
-        CObjects::Inst().GetParentId(nCurrentObjectId, nCurrentObjectId);
+        Objects::Inst().GetParentId(nCurrentObjectId, nCurrentObjectId);
       }
 
       // rule is not found -- using false by default
@@ -420,7 +420,7 @@ namespace staff
       return false;
     }
 
-    bool CAcl::CalculateUserAccess(const std::string& sObjectPath, int nUserId)
+    bool Acl::CalculateUserAccess(const std::string& sObjectPath, int nUserId)
     {
       // TODO: optimize - rewrite to SQL, stored procedures
 
@@ -431,7 +431,7 @@ namespace staff
       rise::LogDebug2() << "Calculating access to [" << sObjectPath << "] for user id=" << nUserId;
 #endif
 
-      CObjects& rObjects = CObjects::Inst();
+      Objects& rObjects = Objects::Inst();
 
       int nObjectId = 0;
 
@@ -465,11 +465,11 @@ namespace staff
     }
 
 
-    CAcl::CAcl()
+    Acl::Acl()
     {
     }
 
-    CAcl::~CAcl()
+    Acl::~Acl()
     {
     }
 

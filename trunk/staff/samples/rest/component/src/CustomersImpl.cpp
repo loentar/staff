@@ -44,7 +44,7 @@ void CustomersImpl::Delete(int nId)
     }
   }
 
-  RISE_THROWS(staff::CRemoteException, "Customer with given id does not exists");
+  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
 }
 
 void CustomersImpl::Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear)
@@ -61,7 +61,7 @@ void CustomersImpl::Update(int nId, const std::string& sFirstName, const std::st
     }
   }
 
-  RISE_THROWS(staff::CRemoteException, "Customer with given id does not exists");
+  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
 }
 
 CustomersList CustomersImpl::List()
@@ -80,7 +80,7 @@ Customer CustomersImpl::Get(int nId)
     }
   }
 
-  RISE_THROWS(staff::CRemoteException, "Customer with given id does not exists");
+  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
 }
 
 

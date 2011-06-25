@@ -30,27 +30,27 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
-  class CDataObject;
-  class CValue;
-  class CQName;
+  class DataObject;
+  class Value;
+  class QName;
 
   //! Attribute
-  class STAFF_COMMON_EXPORT CAttribute
+  class STAFF_COMMON_EXPORT Attribute
   {
   public:
     //!         constructor
-    CAttribute();
+    Attribute();
 
     //!         initializing constructor
     /*! \param  pDataObject - owner dataobject
         \param  pAxiomAttribute - axiom attribute
         */
-    CAttribute(CDataObject* pDataObject, axiom_attribute_t* pAxiomAttribute);
+    Attribute(DataObject* pDataObject, axiom_attribute_t* pAxiomAttribute);
 
     //!         ownership transfer operator
     /*! \param  rAttribute - attribute
         */
-    CAttribute(CAttribute& rAttribute);
+    Attribute(Attribute& rAttribute);
 
     //!         axiom_attribute_t* cast operator
     operator axiom_attribute_t*();
@@ -59,22 +59,32 @@ namespace staff
     /*! \param  sLocalNameInit - local name
         \param  szValue - attribute value as text
         */
-    explicit CAttribute(const std::string& sLocalNameInit, const char* szValue);
+    explicit Attribute(const std::string& sLocalNameInit, const char* szValue);
 
     //!         initializing constructor
     /*! \param  sLocalNameInit - local name
         \param  sValue - attribute value as text
         */
-    explicit CAttribute(const std::string& sLocalNameInit, const std::string& sValue);
+    explicit Attribute(const std::string& sLocalNameInit, const std::string& sValue);
 
     //!         initializing constructor
     /*! \param  sLocalNameInit - local name
         \param  tValue - attribute value
         */
-    CAttribute(const std::string& sLocalNameInit, const CValue& tValue);
+    Attribute(const std::string& sLocalNameInit, const Value& tValue);
 
     //!         destructor
-    ~CAttribute();
+    ~Attribute();
+
+    //!         get ownership flag
+    /*! \return true - if ownership flag set
+        */
+    bool IsOwner() const;
+
+    //!         set ownership flag
+    /*! \param  bOwner - ownership flag
+        */
+    void SetOwner(bool bOwner);
 
     //!         get local name
     /*! \return local name
@@ -99,58 +109,61 @@ namespace staff
     //!         get attribute value
     /*! \return value
     */
-    CValue GetValue() const;
+    Value GetValue() const;
 
     //!         set attribute value
     /*! \param  tValue - value
     */
-    void SetValue(const CValue& rValue);
+    void SetValue(const Value& rValue);
 
     //!         get qname
     /*! \return qname
     */
-    const CQName GetQName() const;
+    const QName GetQName() const;
 
     //!         get qname
     /*! \return qname
     */
-    CQName GetQName();
+    QName GetQName();
 
     //!         ownership transfer operation
     /*! \param  rAttribute - source attribute
         \return *this
         */
-    CAttribute& operator=(CAttribute& rAttribute);
+    Attribute& operator=(Attribute& rAttribute);
 
     //!         tests a target attribute for equality with a specified attribute
     /*! \param  rAttribute - attribute
         \return true if the attributes are equal
         */
-    bool operator==(const CAttribute& rAttribute) const;
+    bool operator==(const Attribute& rAttribute) const;
 
     //!         tests a target attribute for inequality with a specified attribute
     /*! \param  rAttribute - attribute
         \return true if the attributes are different
         */
-    bool operator!=(const CAttribute& rAttribute) const;
+    bool operator!=(const Attribute& rAttribute) const;
 
     //!         member access operator
     /*! \return this
     */
-    CAttribute* operator->();
+    Attribute* operator->();
     
     //!         member access operator
     /*! \return this
     */
-    const CAttribute* operator->() const;
+    const Attribute* operator->() const;
 
   private:
     bool m_bOwner; //!<  ownership flag
-    CDataObject* m_pDataObject; //!<  owner dataobject
+    DataObject* m_pDataObject; //!<  owner dataobject
     axiom_attribute_t* m_pAxiomAttribute; //!<  axiom attribute
     static axutil_env_t* m_pEnv; //!<  Axis2/C environment
   };
 
+#ifndef STAFF_NO_DEPRECATED
+  typedef Attribute CAttribute STAFF_DEPRECATED(Attribute);
+#endif
 } // namespace staff
 
 #endif // _ATTRIBUTE_H_

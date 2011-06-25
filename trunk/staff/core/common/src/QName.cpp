@@ -26,37 +26,37 @@
 
 namespace staff
 {
-  CQName::CQName():
+  QName::QName():
     m_bOwner(false),
     m_pAxutilQName(NULL)
   {
   }
 
-  CQName::CQName( CQName& rQName )
+  QName::QName(QName& rQName)
   {
     operator=(rQName);
   }
 
-  CQName::CQName( const std::string& sLocalPart, const std::string& sNamespaceUri):
+  QName::QName(const std::string& sLocalPart, const std::string& sNamespaceUri):
     m_bOwner(false),
     m_pAxutilQName(NULL)
   {
     Create(sLocalPart, sNamespaceUri);
   }
 
-  CQName::CQName( const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix ):
+  QName::QName(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix):
     m_bOwner(false),
     m_pAxutilQName(NULL)
   {
     Create(sLocalPart, sNamespaceUri, sPrefix);
   }
 
-  CQName::CQName( axutil_qname_t* pQName )
+  QName::QName(axutil_qname_t* pQName)
   {
     Attach(pQName);
   }
 
-  CQName::~CQName()
+  QName::~QName()
   {
     if (m_bOwner)
     {
@@ -64,7 +64,7 @@ namespace staff
     }
   }
 
-  CQName& CQName::operator=( CQName& rstQName )
+  QName& QName::operator=(QName& rstQName)
   {
     Detach();
     m_bOwner = rstQName.m_bOwner;
@@ -72,7 +72,7 @@ namespace staff
     return *this;
   }
 
-  CQName& CQName::operator=( axutil_qname_t* pQName )
+  QName& QName::operator=(axutil_qname_t* pQName)
   {
     Detach();
     m_bOwner = false;
@@ -81,78 +81,78 @@ namespace staff
   }
 
 
-  bool CQName::operator==( const CQName& rQName ) const
+  bool QName::operator==(const QName& rQName) const
   {
     return axutil_qname_equals(m_pAxutilQName, m_pEnv, rQName.m_pAxutilQName) != 0;
   }
 
-  bool CQName::operator!=( const CQName& rstQName ) const
+  bool QName::operator!=(const QName& rstQName) const
   {
     return !(operator==(rstQName));
   }
 
-  bool CQName::operator==(axutil_qname_t* pQName) const
+  bool QName::operator==(axutil_qname_t* pQName) const
   {
     return axutil_qname_equals(m_pAxutilQName, m_pEnv, pQName) != 0;
   }
 
-  bool CQName::operator!=(axutil_qname_t* pQName) const
+  bool QName::operator!=(axutil_qname_t* pQName) const
   {
     return !(operator==(pQName));
   }
 
-  CQName::operator std::string() const
+  QName::operator std::string() const
   {
     const std::string& sPrefix = GetPrefix();
     return sPrefix != "" ? sPrefix + ":" + GetLocalPart() : GetLocalPart();
   }
 
-  std::string CQName::ToString() const
+  std::string QName::ToString() const
   {
     const std::string& sPrefix = GetPrefix();
     return sPrefix != "" ? sPrefix + ":" + GetLocalPart() : GetLocalPart();
   }
 
-  std::string CQName::GetLocalPart() const
+  std::string QName::GetLocalPart() const
   {
     axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get local part");
+    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get local part");
     return szResult;
   }
 
-  std::string CQName::GetNamespaceUri() const
+  std::string QName::GetNamespaceUri() const
   {
     axis2_char_t* szResult = axutil_qname_get_uri(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get Uri");
+    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get Uri");
     return szResult;
   }
 
-  std::string CQName::GetPrefix() const
+  std::string QName::GetPrefix() const
   {
     axis2_char_t* szResult = axutil_qname_get_prefix(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, CDomFormatException, "Can\'t get prefix");
+    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get prefix");
     return szResult;
   }
 
-  CQName& CQName::Create( const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix /*= ""*/ )
+  QName& QName::Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix /*= ""*/)
   {
     axutil_qname_t* pAxutilQName = axutil_qname_create(m_pEnv,
         sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
-    RISE_ASSERTES(pAxutilQName != NULL, CDomFormatException, "Can\'t create AxiOM qname");
+    RISE_ASSERTES(pAxutilQName != NULL, DomFormatException, "Can\'t create AxiOM qname");
 
     m_pAxutilQName = pAxutilQName;
     m_bOwner = true;
     return *this;
   }
 
-  void CQName::Free()
+  void QName::Free()
   {
     axutil_qname_free(m_pAxutilQName, m_pEnv);
     m_pAxutilQName = NULL;
     m_bOwner = false;
   }
 
-  CQName& CQName::Attach( axutil_qname_t* pQName )
+  QName& QName::Attach(axutil_qname_t* pQName)
   {
     Detach();
     m_pAxutilQName = pQName;
@@ -160,7 +160,7 @@ namespace staff
     return *this;
   }
 
-  void CQName::Detach()
+  void QName::Detach()
   {
     if (m_pAxutilQName != NULL)
     {
@@ -174,30 +174,30 @@ namespace staff
     }
   }
 
-  CQName& CQName::Clone( const CQName& rQName )
+  QName& QName::Clone(const QName& rQName)
   {
     m_pAxutilQName = axutil_qname_clone(rQName.m_pAxutilQName, m_pEnv);
     m_bOwner = true;
     return *this;
   }
 
-  CQName CQName::Clone()
+  QName QName::Clone()
   {
-    CQName tqClone(axutil_qname_clone(m_pAxutilQName, m_pEnv));
+    QName tqClone(axutil_qname_clone(m_pAxutilQName, m_pEnv));
     return tqClone;
   }
 
-  CQName::operator axutil_qname_t*() const
+  QName::operator axutil_qname_t*() const
   {
     return m_pAxutilQName;
   }
 
-  CQName::operator axutil_qname_t*()
+  QName::operator axutil_qname_t*()
   {
     return m_pAxutilQName;
   }
 
-  axutil_env_t* CQName::m_pEnv = CRuntime::Inst().GetAxis2Env();
+  axutil_env_t* QName::m_pEnv = Runtime::Inst().GetAxis2Env();
 
 } // namespace staff
 

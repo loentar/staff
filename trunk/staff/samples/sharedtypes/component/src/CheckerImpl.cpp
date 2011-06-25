@@ -32,7 +32,7 @@ bool CheckerImpl::Check(const ticket::Ticket& stTicket) const
 {
   bool tResult = false;
   rise::CSharedPtr<Issuer> pIssuer =
-    staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
+    staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
   RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
 
@@ -53,7 +53,7 @@ IssuedTicketList CheckerImpl::GetAllTickets() const
   IssuedTicketList lsResult;
 
   rise::CSharedPtr<Issuer> pIssuer =
-    staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
+    staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
   RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
 
