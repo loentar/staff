@@ -44,7 +44,7 @@ namespace staff
   typedef class HexBinary hexBinary;
   typedef class Base64Binary base64Binary;
   typedef string anyURI;
-  typedef string QName;
+  class QName;
   typedef string NOTATION;
 
   /* derived types */

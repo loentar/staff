@@ -23,11 +23,11 @@
 
 namespace staff
 {
-  CDomException::~CDomException() throw()
+  DomException::~DomException() throw()
   {
   }
 
-  CRemoteExceptionBase::~CRemoteExceptionBase() throw()
+  RemoteExceptionBase::~RemoteExceptionBase() throw()
   {
   }
 }

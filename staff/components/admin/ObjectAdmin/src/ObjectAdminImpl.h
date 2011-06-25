@@ -12,15 +12,15 @@ namespace staff
 namespace admin
 {
 
-  class CObjectAdminImpl: public CObjectAdmin
+  class ObjectAdminImpl: public ObjectAdmin
   {
   public:
-    CObjectAdminImpl();
-    virtual ~CObjectAdminImpl();
-    virtual ::staff::admin::SObject GetById(int nId);
-    virtual ::staff::admin::SObject GetByPathName(const std::string& sPathName);
-    virtual ::staff::admin::TObjectList GetChilds(int nId);
-    virtual int Add(const ::staff::admin::SObject& rstObject);
+    ObjectAdminImpl();
+    virtual ~ObjectAdminImpl();
+    virtual ::staff::admin::Object GetById(int nId);
+    virtual ::staff::admin::Object GetByPathName(const std::string& sPathName);
+    virtual ::staff::admin::ObjecstList GetChilds(int nId);
+    virtual int Add(const ::staff::admin::Object& rstObject);
     virtual void Remove(int nObjectId);
     virtual void SetDescription(int nObjectId, const std::string& sDescription);
   };

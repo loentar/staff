@@ -20,7 +20,7 @@ int main(int nArgs, const char* paszArgs[])
   {
     {
       rise::CSharedPtr< ::staff::das::DataAccessService > pDataAccessService = 
-        ::staff::CServiceFactory::Inst().GetService< ::staff::das::DataAccessService >();
+        ::staff::ServiceFactory::Inst().GetService< ::staff::das::DataAccessService >();
 
       RISE_ASSERTES(pDataAccessService, rise::CLogicNoItemException, "Cannot get client for service staff.das.DataAccessService!");
 
@@ -43,19 +43,19 @@ int main(int nArgs, const char* paszArgs[])
       }
 
       pDataAccessService->SetDataSource("staff.das.samples.Users");
-      staff::CDataObject tdoInterface = pDataAccessService->GetInterface();
+      staff::DataObject tdoInterface = pDataAccessService->GetInterface();
 
       std::cout << "\n\n----------------------\n" << tdoInterface.ToString() << "\n------------------------\n\n";
 
-      staff::CDataObject tdoRequest("GetAllUsers");
-      staff::CDataObject tdoResult = pDataAccessService->Invoke(tdoRequest);
+      staff::DataObject tdoRequest("GetAllUsers");
+      staff::DataObject tdoResult = pDataAccessService->Invoke(tdoRequest);
 
       std::cout << "\nRESULT:\n----------------------\n" << tdoResult.ToString() << "\n------------------------\n\n";
 
       pDataAccessService->FreeDataSource();
     }
   }
-  catch(const staff::CRemoteException& rEx)
+  catch(const staff::RemoteException& rEx)
   {
     rise::LogError() << rEx.GetDescr();
   }

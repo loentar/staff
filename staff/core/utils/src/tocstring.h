@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #define staff_snprintf _snprintf
 #else
 #define staff_snprintf snprintf

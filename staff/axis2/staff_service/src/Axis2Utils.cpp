@@ -30,7 +30,7 @@
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/Component.h>
 
-bool Axis2UtilsCreateVirtualService(const staff::CServiceWrapper* pServiceWrapper,
+bool Axis2UtilsCreateVirtualService(const staff::ServiceWrapper* pServiceWrapper,
                                     const struct axutil_env* pEnv, struct axis2_conf* pConf)
 {  
   if (!pServiceWrapper)
@@ -45,7 +45,7 @@ bool Axis2UtilsCreateVirtualService(const staff::CServiceWrapper* pServiceWrappe
 
   std::string sServiceUri = "http://staff.tempui.org:9090/axis2/services/";
   sServiceUri += sServiceName.c_str();
-  std::string sWsdlPath = staff::CRuntime::Inst().GetComponentHome(pServiceWrapper->GetComponent()->GetName())
+  std::string sWsdlPath = staff::Runtime::Inst().GetComponentHome(pServiceWrapper->GetComponent()->GetName())
       + RISE_PATH_SEPARATOR + pServiceWrapper->GetName() + ".wsdl";
 
   axutil_qname_t* pQName = axutil_qname_create(pEnv, sServiceName.c_str(), sServiceUri.c_str(), NULL);
@@ -91,8 +91,8 @@ bool Axis2UtilsCreateVirtualService(const staff::CServiceWrapper* pServiceWrappe
   }
 
   { // adding operations
-    const staff::CDataObject& rdoOperations = pServiceWrapper->GetOperations();
-    for (staff::CDataObject tdoOperation = rdoOperations.FirstChild();
+    const staff::DataObject& rdoOperations = pServiceWrapper->GetOperations();
+    for (staff::DataObject tdoOperation = rdoOperations.FirstChild();
         !tdoOperation.IsNull(); tdoOperation.SetNextSibling())
     {
       const std::string& sOpName = tdoOperation.GetChildByLocalName("Name").GetText();
@@ -120,8 +120,8 @@ bool Axis2UtilsCreateVirtualService(const staff::CServiceWrapper* pServiceWrappe
       std::string sRestLocation;
 
       {
-        const staff::CDataObject& rdoOperationConst = tdoOperation;
-        staff::CDataObject::ConstIterator itRestTmp = rdoOperationConst.FindChildByLocalName("RestMethod");
+        const staff::DataObject& rdoOperationConst = tdoOperation;
+        staff::DataObject::ConstIterator itRestTmp = rdoOperationConst.FindChildByLocalName("RestMethod");
         if (itRestTmp != rdoOperationConst.End())
         {
           sRestMethod = itRestTmp->GetText();

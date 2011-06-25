@@ -22,12 +22,12 @@ public:
   virtual ~$(Class.Name)Proxy();
   void Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId);
   void Deinit();
-  virtual staff::CServiceClient* GetClient();
+  virtual staff::ServiceClient* GetClient();
 #foreach $(Class.Members)
   $(Member.Return) $(Member.Name)($(Member.Params))$(Member.Const);
 #end
 private:
-  mutable staff::CServiceClient m_tClient;
+  mutable staff::ServiceClient m_tClient;
 };
 
 $(Class.EndingNs)

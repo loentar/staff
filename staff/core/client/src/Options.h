@@ -32,7 +32,7 @@ typedef struct axis2_options axis2_options_t;
 namespace staff
 {
   //! service client options
-  class STAFF_CLIENT_EXPORT COptions
+  class STAFF_CLIENT_EXPORT Options
   {
   public:
     //! soap version
@@ -47,18 +47,18 @@ namespace staff
     //! constructor
     /*! sets owner flag to true
       */
-    COptions();
+    Options();
 
     //! constructor
     /*! sets owner flag to false
         \param pOptions - axis2 options
       */
-    COptions(axis2_options_t* pOptions);
+    Options(axis2_options_t* pOptions);
 
     //! destructor
     /*! axis2 options will be destroyed only if owner flag is set
       */
-    ~COptions();
+    ~Options();
 
     //! get is current object is owner or not
     /*! \return true if current object is owner
@@ -260,7 +260,7 @@ namespace staff
     /*! sets owner flag to false
         \param pOptions - axis2/c options
       */
-    COptions& operator=(axis2_options_t* pOptions);
+    Options& operator=(axis2_options_t* pOptions);
 
     //! axis2 options cast operator
     operator axis2_options_t*();
@@ -274,6 +274,11 @@ namespace staff
     std::string m_sDefaultNsUri;
     std::string m_sDefaultNsPrefix;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Options COptions STAFF_DEPRECATED(Options);
+#endif
+
 }
 
 #endif // _OPTIONS_H_

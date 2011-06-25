@@ -33,7 +33,7 @@
 
 $(Class.OpeningNs)
 
-$(Class.Name)Wrapper::$(Class.Name)Wrapper(staff::CComponent* pComponent):
+$(Class.Name)Wrapper::$(Class.Name)Wrapper(staff::Component* pComponent):
   m_pComponent(pComponent)
 {
 }
@@ -42,9 +42,9 @@ $(Class.Name)Wrapper::~$(Class.Name)Wrapper()
 {
 }
 
-void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
+void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
 {
-  const staff::CDataObject& rRequest = rOperation.Request();
+  const staff::DataObject& rRequest = rOperation.Request();
   const std::string& sOperationName = rOperation.GetName();
 
   if (sOperationName == "GetServiceDescription")
@@ -53,12 +53,12 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
   } else
   if (sOperationName == "CreateInstance")
   {
-    staff::CServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName,
+    staff::ServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName,
                                                                  rRequest.GetChildByLocalName("sInstanceId").GetText());
   } else
   if (sOperationName == "FreeInstance")
   {
-    staff::CServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
+    staff::ServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
                                                                rRequest.GetChildByLocalName("sInstanceId").GetText());
   } else
   {
@@ -79,7 +79,7 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic)
-#ifneq($(Param.DataType.Name),staff::COperation||COperation)
+#ifneq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
       $(Param.DataType.NsName) $(Param.Name);
 #ifeqend
 #ifeqend
@@ -90,7 +90,7 @@ void $(Class.Name)Wrapper::Invoke(staff::COperation& rOperation, const std::stri
       rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),generic)
-#ifneq($(Param.DataType.Name),staff::COperation||COperation)
+#ifneq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
       rRequest.GetChildByLocalName("$(Param.Name)").GetValue($(Param.Name));
 #ifeqend
 #ifeqend
@@ -116,10 +116,10 @@ tpServiceImpl->$(Member.Name)(\
 #ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
-#ifeq($(Param.DataType.Name),staff::CMessageContext||CMessageContext)
+#ifeq($(Param.DataType.Name),staff::CMessageContext||CMessageContext||staff::MessageContext||MessageContext)
 rOperation.GetMessageContext()\
 #else
-#ifeq($(Param.DataType.Name),staff::COperation||COperation)
+#ifeq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
 rOperation\
 #else
 #ifeq($(Param.DataType.Type),string)    // !!string!!
@@ -147,13 +147,13 @@ $(Param.Name)\
 );
 \
 #ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
-      staff::CDataObject& rdoResult = rOperation.Result();
+      staff::DataObject& rdoResult = rOperation.Result();
       rdoResult << tResult;
 #ifeqend
     } else
 #end
     {
-      RISE_THROWS(staff::CRemoteException, "Unknown Operation: " + rOperation.GetName());
+      RISE_THROWS(staff::RemoteException, "Unknown Operation: " + rOperation.GetName());
     }
   }
 }
@@ -168,19 +168,19 @@ const std::string& $(Class.Name)Wrapper::GetDescr() const
   return m_sDescr;
 }
 
-const staff::CComponent* $(Class.Name)Wrapper::GetComponent() const
+const staff::Component* $(Class.Name)Wrapper::GetComponent() const
 {
   return m_pComponent;
 }
 
-staff::CComponent* $(Class.Name)Wrapper::GetComponent()
+staff::Component* $(Class.Name)Wrapper::GetComponent()
 {
   return m_pComponent;
 }
 
 staff::PIService& $(Class.Name)Wrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
 {
-  return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
+  return staff::ServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
 }
 
 staff::PIService $(Class.Name)Wrapper::NewImpl()
@@ -203,13 +203,13 @@ std::string $(Class.Name)Wrapper::GetDependencies() const
   return "$(Class.Options.*dependencies)";
 }
 
-staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
+staff::DataObject $(Class.Name)Wrapper::GetOperations() const
 {
-  staff::CDataObject tOperations("Operations");
+  staff::DataObject tOperations("Operations");
 
 #foreach $(Class.Members)
   {// Operation: $(Member.Return.NsName) $(Member.Name)($(Member.Params))$(Member.Const)
-    staff::CDataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
+    staff::DataObject tOp$(Member.Name) = tOperations.CreateChild("Operation");
     tOp$(Member.Name).CreateChild("Name", "$(Member.Name)");
     tOp$(Member.Name).CreateChild("RestMethod", "$(Member.Options.*restMethod)");
     tOp$(Member.Name).CreateChild("RestLocation", "$(Member.Options.*restLocation)");
@@ -219,9 +219,9 @@ staff::CDataObject $(Class.Name)Wrapper::GetOperations() const
   return tOperations;
 }
 
-staff::CDataObject $(Class.Name)Wrapper::GetServiceDescription() const
+staff::DataObject $(Class.Name)Wrapper::GetServiceDescription() const
 {
-  staff::CDataObject tServiceDescription;
+  staff::DataObject tServiceDescription;
 
   tServiceDescription.Create("ServiceDescription");
   tServiceDescription.DeclareDefaultNamespace("http://tempui.org/staff/service-description");

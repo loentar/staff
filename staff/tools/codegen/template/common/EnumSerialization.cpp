@@ -1,5 +1,5 @@
 
-CDataObject& operator<<(CDataObject& rdoParam, const $(Enum.NsName) eEnumValue)
+DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 {
 #ifeq($(Enum.Options.*baseType),string)
   std::string sResult;
@@ -21,7 +21,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Enum.NsName) eEnumValue)
   return rdoParam;
 }
 
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Enum.NsName)& reEnumValue)
+const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)
 {
 #ifeq($(Enum.Options.*baseType),string)
   const std::string& sValue = rdoParam.GetText();

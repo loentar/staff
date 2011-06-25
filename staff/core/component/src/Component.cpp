@@ -26,13 +26,13 @@
 namespace staff
 {
 
-  CComponent::~CComponent()
+  Component::~Component()
   {
   }
 
-  const CServiceWrapper* CComponent::GetService( const std::string& sService ) const
+  const ServiceWrapper* Component::GetService( const std::string& sService ) const
   {
-    staff::TServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
+    staff::ServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
     {
       return NULL;
@@ -41,9 +41,9 @@ namespace staff
     return itService->second;
   }
 
-  CServiceWrapper* CComponent::GetService( const std::string& sService )
+  ServiceWrapper* Component::GetService( const std::string& sService )
   {
-    staff::TServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
+    staff::ServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
     {
       return NULL;
@@ -52,12 +52,12 @@ namespace staff
     return itService->second;
   }
 
-  const TServiceWrapperMap& CComponent::GetServices() const
+  const ServiceWrapperMap& Component::GetServices() const
   {
     return m_mServices;
   }
 
-  void CComponent::RegisterService(const std::string& sService, CServiceWrapper* pWrapper)
+  void Component::RegisterService(const std::string& sService, ServiceWrapper* pWrapper)
   {
     m_mServices[sService] = pWrapper;
   }

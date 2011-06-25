@@ -26,11 +26,11 @@
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
   //! asynchronous client callback
   template <typename ReturnType>
-  class ICallback: public CAxis2Callback
+  class ICallback: public Axis2Callback
   {
   public:
     //! virtual destructor
@@ -40,12 +40,12 @@ namespace staff
     virtual void OnComplete(ReturnType tResult) = 0;
 
     //! on fault handler
-    virtual void OnFault(const staff::CDataObject& rFault) = 0;
+    virtual void OnFault(const staff::DataObject& rFault) = 0;
   };
 
   //! asynchronous client callback with void type
   template <>
-  class ICallback<void>: public CAxis2Callback
+  class ICallback<void>: public Axis2Callback
   {
   public:
     //! virtual destructor
@@ -55,7 +55,7 @@ namespace staff
     virtual void OnComplete(void) = 0;
 
     //! on fault handler
-    virtual void OnFault(const staff::CDataObject& rFault) = 0;
+    virtual void OnFault(const staff::DataObject& rFault) = 0;
   };
 }
 

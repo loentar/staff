@@ -31,7 +31,7 @@ namespace staff
   namespace admin
   {
     //! object description
-    struct SObject
+    struct Object
     {
       int nId;                   //!<  object id
       std::string sName;         //!<  name
@@ -39,38 +39,38 @@ namespace staff
       int nParentId;             //!<  parent object id
     };
 
-    typedef std::list<SObject> TObjectList; //!<  list of objects
+    typedef std::list<Object> ObjecstList; //!<  list of objects
 
     //!  object-admin service
-    class CObjectAdmin: public staff::IService
+    class ObjectAdmin: public staff::IService
     {
     public:
-      virtual ~CObjectAdmin() {}
+      virtual ~ObjectAdmin() {}
 
       //!         get object by id
       /*! \param  nId - object id
           \return object
           */
-      virtual SObject GetById(int nId) = 0;
+      virtual Object GetById(int nId) = 0;
 
       //!         get object by name
       /*! \param  sPathName - full object name (for example: components.samples.calc.Calculator.Add)
           \return object
           */
-      virtual SObject GetByPathName(const std::string& sPathName) = 0;
+      virtual Object GetByPathName(const std::string& sPathName) = 0;
 
       //!         get childs list
       /*! \param  nId - object id
           \return objectid list
       */
-      virtual TObjectList GetChilds(int nId) = 0;
+      virtual ObjecstList GetChilds(int nId) = 0;
 
       //!         add new object
-      /*! SObject::nObjectId is ignored
+      /*! Object::nObjectId is ignored
           \param  pstObject - new object
           \return added object id
           */
-      virtual int Add(const SObject& rstObject) = 0;
+      virtual int Add(const Object& rstObject) = 0;
 
       //!         remove object by id
       /*! \param  nObjectId - object id

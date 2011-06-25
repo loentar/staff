@@ -31,163 +31,163 @@ namespace staff
 {
 namespace codegen
 {
-  typedef std::list<std::string> TStringList; //!< string list
-  typedef std::map<std::string, std::string> TStringMap; //!< string map
+  typedef std::list<std::string> StringList; //!< string list
+  typedef std::map<std::string, std::string> StringMap; //!< string map
 
   //! data type
-  struct STAFF_CODEGENPARSER_EXPORT SDataType
+  struct STAFF_CODEGENPARSER_EXPORT DataType
   {
-    enum EDataType  //! data type enum
+    enum Type  //! data type enum
     {
-      EUnknown,     //!<  unknown
-      EGeneric,     //!<  generic(supported by staff)
-      EString,      //!<  string type
-      EDataObject,  //!<  DataObject
-      EEnum,        //!<  enum
-      EStruct,      //!<  struct
-      ETypedef,     //!<  typedef
-      ETemplate     //!<  template container (list, map, etc)
+      TypeUnknown,    //!<  unknown
+      TypeGeneric,    //!<  generic(supported by staff)
+      TypeString,     //!<  string type
+      TypeDataObject, //!<  DataObject
+      TypeEnum,       //!<  enum
+      TypeStruct,     //!<  struct
+      TypeTypedef,    //!<  typedef
+      TypeTemplate    //!<  template container (list, map, etc)
     };
 
-    bool                    bIsConst;    //!<  const type
-    bool                    bIsRef;      //!<  reference type
-    EDataType               eType;       //!<  data type enum
-    std::string             sNodeName;   //!<  SOAP node name
-    std::string             sUsedName;   //!<  name as used
-    std::string             sName;       //!<  type name (int, string, etc.)
-    std::string             sNamespace;  //!<  namespace
-    std::list<SDataType>    lsParams;    //!<  template parameters
+    bool                 bIsConst;    //!<  const type
+    bool                 bIsRef;      //!<  reference type
+    Type                 eType;       //!<  data type enum
+    std::string          sNodeName;   //!<  SOAP node name
+    std::string          sUsedName;   //!<  name as used
+    std::string          sName;       //!<  type name (int, string, etc.)
+    std::string          sNamespace;  //!<  namespace
+    std::list<DataType>  lsParams;    //!<  template parameters
 
     //! default constructor
     /*! non-const, not a ref, Generic datatype */
-    SDataType();
+    DataType();
   };
 
   //!  parameter
-  struct STAFF_CODEGENPARSER_EXPORT SParam
+  struct STAFF_CODEGENPARSER_EXPORT Param
   {
-    SDataType    stDataType;  //!<  param data type
+    DataType     stDataType;  //!<  param data type
     std::string  sName;       //!<  param name
     std::string  sDescr;      //!<  param description
     std::string  sDetail;     //!<  detailed description
-    TStringMap   mOptions;    //!<  param metacomments options
+    StringMap    mOptions;    //!<  param metacomments options
   };
 
   //!  service operation
-  struct STAFF_CODEGENPARSER_EXPORT SMember
+  struct STAFF_CODEGENPARSER_EXPORT Member
   {
-    SParam             stReturn;       //!<  return type
-    std::string        sName;          //!<  operation name
-    std::list<SParam>  lsParams;       //!<  parameters
-    bool               bIsConst;       //!<  operation is const
-    std::string        sDescr;         //!<  operation description
-    std::string        sDetail;        //!<  detailed description
-    bool               bIsAsynch;      //!<  operation is asynchronous(client)
-    TStringMap         mOptions;       //!<  member metacomments options
+    Param             stReturn;   //!<  return type
+    std::string       sName;      //!<  operation name
+    std::list<Param>  lsParams;   //!<  parameters
+    bool              bIsConst;   //!<  operation is const
+    std::string       sDescr;     //!<  operation description
+    std::string       sDetail;    //!<  detailed description
+    bool              bIsAsynch;  //!<  operation is asynchronous(client)
+    StringMap         mOptions;   //!<  member metacomments options
 
-    SMember();
+    Member();
   };
 
 
   //! base type for data types
-  struct STAFF_CODEGENPARSER_EXPORT SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT BaseType
   {
     //!< base type enum
-    enum EType
+    enum Type
     {
-      EUnknown = 0, //!< unknown/unintialized
-      EEnum    = 1, //!< type is enum
-      EStruct  = 2, //!< type is struct
-      ETypedef = 4, //!< type is typedef
-      EAny = EEnum|EStruct|ETypedef //!< any type
+      TypeUnknown = 0, //!< unknown/unintialized
+      TypeEnum    = 1, //!< type is enum
+      TypeStruct  = 2, //!< type is struct
+      TypeTypedef = 4, //!< type is typedef
+      TypeAny = TypeEnum|TypeStruct|TypeTypedef //!< any type
     };
 
-    EType               eType;          //!<  type
-    std::string         sName;          //!<  name
-    std::string         sNamespace;     //!<  namespace
-    std::string         sOwnerName;     //!<  owner struct name in format StructName[::SubType]
-    std::string         sDescr;         //!<  service description
-    std::string         sDetail;        //!<  detailed description
-    bool                bExtern;        //!<  imported from other interface
-    bool                bForward;       //!<  is forward declaration
-    TStringMap          mOptions;       //!<  metacomments options
+    Type          eType;        //!<  type
+    std::string   sName;        //!<  name
+    std::string   sNamespace;   //!<  namespace
+    std::string   sOwnerName;   //!<  owner struct name in format StructName[::SubType]
+    std::string   sDescr;       //!<  service description
+    std::string   sDetail;      //!<  detailed description
+    bool          bExtern;      //!<  imported from other interface
+    bool          bForward;     //!<  is forward declaration
+    StringMap     mOptions;     //!<  metacomments options
 
-    SBaseType();
+    BaseType();
   };
 
   //! enum
-  struct STAFF_CODEGENPARSER_EXPORT SEnum: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT Enum: public BaseType
   {
     //! enum member
-    struct SEnumMember
+    struct EnumMember
     {
       std::string sName;   //!<  enum member name
       std::string sValue;  //!<  enum member value (optional)
     };
 
-    std::list<SEnumMember>  lsMembers;     //!<  members
+    std::list<EnumMember>  lsMembers;     //!<  members
 
-    SEnum();
+    Enum();
   };
 
   //! struct
-  struct STAFF_CODEGENPARSER_EXPORT SStruct: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT Struct: public BaseType
   {
     std::string         sParentName;      //!<  parent struct name (with namespace as used)
     std::string         sParentNamespace; //!<  parent struct namespace (actual)
-    std::list<SParam>   lsMembers;        //!<  struct fields
-    std::list<SStruct>  lsStructs;        //!<  sub struct list
-    std::list<SEnum>    lsEnums;          //!<  sub enum list
+    std::list<Param>    lsMembers;        //!<  struct fields
+    std::list<Struct>   lsStructs;        //!<  sub struct list
+    std::list<Enum>     lsEnums;          //!<  sub enum list
 
-    SStruct();
+    Struct();
   };
 
   //! typedef
-  struct STAFF_CODEGENPARSER_EXPORT STypedef: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT Typedef: public BaseType
   {
-    SDataType           stDataType;     //!<  defined data type
+    DataType   stDataType;     //!<  defined data type
 
-    STypedef();
+    Typedef();
   };
 
   //! service class
-  struct STAFF_CODEGENPARSER_EXPORT SClass: public SBaseType
+  struct STAFF_CODEGENPARSER_EXPORT Class: public BaseType
   {
-    TStringList         lsModules;      //!<  axis2/c modules list to engage
-    std::list<SMember>  lsMembers;      //!<  service operations
+    StringList         lsModules;  //!<  axis2/c modules list to engage
+    std::list<Member>  lsMembers;  //!<  service operations
   };
 
   //! include info
-  struct STAFF_CODEGENPARSER_EXPORT SInclude
+  struct STAFF_CODEGENPARSER_EXPORT Include
   {
-    std::string sInterfaceName;      //!<  interface name
-    std::string sNamespace;          //!<  interface namespace
-    std::string sFileName;           //!<  file name
-    std::string sFilePath;           //!<  file path
-    std::string sTargetNs;           //!<  target namespace
+    std::string  sInterfaceName;    //!<  interface name
+    std::string  sNamespace;        //!<  interface namespace
+    std::string  sFileName;         //!<  file name
+    std::string  sFilePath;         //!<  file path
+    std::string  sTargetNs;         //!<  target namespace
   };
 
   //! service interface
-  struct STAFF_CODEGENPARSER_EXPORT SInterface
+  struct STAFF_CODEGENPARSER_EXPORT Interface
   {
-    std::string           sName;          //!<  interface name, based on input filename
-    std::string           sNamespace;     //!<  interface main namespace
-    std::string           sFileName;      //!<  input file name
-    std::string           sFilePath;      //!<  input file path
-    std::string           sTargetNs;      //!<  target namespace
-    std::list<SInclude>   lsIncludes;     //!<  included files
-    std::list<SEnum>      lsEnums;        //!<  enum list
-    std::list<STypedef>   lsTypedefs;     //!<  typedef list
-    std::list<SStruct>    lsStructs;      //!<  struct list
-    std::list<SClass>     lsClasses;      //!<  service classes list
+    std::string          sName;          //!<  interface name, based on input filename
+    std::string          sNamespace;     //!<  interface main namespace
+    std::string          sFileName;      //!<  input file name
+    std::string          sFilePath;      //!<  input file path
+    std::string          sTargetNs;      //!<  target namespace
+    std::list<Include>   lsIncludes;     //!<  included files
+    std::list<Enum>      lsEnums;        //!<  enum list
+    std::list<Typedef>   lsTypedefs;     //!<  typedef list
+    std::list<Struct>    lsStructs;      //!<  struct list
+    std::list<Class>     lsClasses;      //!<  service classes list
   };
 
   //! project
-  struct STAFF_CODEGENPARSER_EXPORT SProject
+  struct STAFF_CODEGENPARSER_EXPORT Project
   {
-    std::string            sName;         //!<  project name
-    std::string            sNamespace;    //!<  component namespace
-    std::list<SInterface>  lsInterfaces;  //!<  interface list
+    std::string           sName;         //!<  project name
+    std::string           sNamespace;    //!<  component namespace
+    std::list<Interface>  lsInterfaces;  //!<  interface list
   };
 }
 }

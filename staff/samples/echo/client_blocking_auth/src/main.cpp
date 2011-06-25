@@ -85,14 +85,14 @@ int main(int nArgs, const char* paszArgs[])
 
   try
   {
-    std::auto_ptr< Echo > pEcho(::staff::CServiceFactory::Inst().GetService< Echo >(sAddress));
+    std::auto_ptr< Echo > pEcho(::staff::ServiceFactory::Inst().GetService< Echo >(sAddress));
 
     RISE_ASSERTS(pEcho.get(), "Cannot get client for service samples.Echo!");
 
     // get service client to set REST method
-    staff::CServiceClient* pClient = pEcho->GetClient();
+    staff::ServiceClient* pClient = pEcho->GetClient();
     RISE_ASSERTS(pClient, "Cannot get ServiceClient");
-    staff::COptions& rOptions = pClient->GetOptions();
+    staff::Options& rOptions = pClient->GetOptions();
 
 
 

@@ -9,10 +9,10 @@
 #end
 #include "ComponentImpl.h"
 
-RISE_DECLARE_PLUGIN($(Project.Namespace)CComponentImpl)
+RISE_DECLARE_PLUGIN($(Project.Namespace)ComponentImpl)
 
 $(Project.OpeningNs)
-  CComponentImpl::CComponentImpl()
+  ComponentImpl::ComponentImpl()
   {
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
@@ -21,16 +21,16 @@ $(Project.OpeningNs)
 #end
   }
 
-  CComponentImpl::~CComponentImpl()
+  ComponentImpl::~ComponentImpl()
   {
   }
 
-  const std::string& CComponentImpl::GetName() const
+  const std::string& ComponentImpl::GetName() const
   {
     return m_sName;
   }
 
-  const std::string CComponentImpl::m_sName = "$(Project.Namespace.!dot)";
+  const std::string ComponentImpl::m_sName = "$(Project.Namespace.!dot)";
 
 $(Project.EndingNs)
 

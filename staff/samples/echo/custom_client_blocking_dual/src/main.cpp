@@ -30,13 +30,13 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    staff::CServiceClient tClient;
+    staff::ServiceClient tClient;
 
     // initialize client
     tClient.Init();
 
     // client options
-    staff::COptions& rOptions = tClient.GetOptions();
+    staff::Options& rOptions = tClient.GetOptions();
 
     // set namespace for each request
     rOptions.SetDefaultNamespace("http://ws.apache.org/axis2/services/echo", "ns1");
@@ -58,14 +58,14 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     // build payload
-    staff::CDataObject tdoPayload("echoString");
+    staff::DataObject tdoPayload("echoString");
     tdoPayload.CreateChild("text").SetText("Hello World!");
 
     // output request
     std::cout << "Request: \n-------\n" << tdoPayload.ToString() << "\n------\n";
 
     // invoke service synchronously
-    staff::CDataObject tdoResult = tClient.Invoke(tdoPayload);
+    staff::DataObject tdoResult = tClient.Invoke(tdoPayload);
 
     // output result
     std::cout << "Result: \n-------\n" << tdoResult.ToString() << "\n------\n";

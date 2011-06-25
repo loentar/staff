@@ -35,7 +35,7 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #define RISE_PATH_SEPARATOR "\\"
 #define RISE_EXPLICIT_TEMPLATE(RISE_LOCAL_TEMPLATE) RISE_LOCAL_TEMPLATE
 #else
@@ -44,7 +44,7 @@
 #endif
 
 #ifndef RISE_DEPRECATED
-  #if defined WIN32 && !defined __MINGW32__
+  #ifdef _MSC_VER
     #define RISE_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
   #elif __GNUC__ >= 3
     #define RISE_DEPRECATED(Replacement) __attribute__ ((deprecated))

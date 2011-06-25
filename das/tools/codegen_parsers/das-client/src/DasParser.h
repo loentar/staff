@@ -27,25 +27,25 @@
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
 namespace codegen
 {
   //!  DasParser
-  class CDasParser: public ICodegenParser
+  class DasParser: public ICodegenParser
   {
   public:
-    CDasParser();
-    ~CDasParser();
+    DasParser();
+    ~DasParser();
 
     virtual const std::string& GetId();
-    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
+    virtual void Process(const ParseSettings& rParseSettings, Project& rProject);
 
   private:
-    void ParseTypes(const CDataObject& rdoTypes, const std::string& sNamespace, SInterface& rInterface);
-    void Parse(const CDataObject& rdoInterface, SInterface& rInterface, SProject& rProject,
+    void ParseTypes(const DataObject& rdoTypes, const std::string& sNamespace, Interface& rInterface);
+    void Parse(const DataObject& rdoInterface, Interface& rInterface, Project& rProject,
                const std::string& sRootNs);
-    bool FixDataType(SDataType& rDataType, const SInterface& rInterface, const std::string& sNamespace);
+    bool FixDataType(DataType& rDataType, const Interface& rInterface, const std::string& sNamespace);
 
   private:
     static const std::string m_sId;

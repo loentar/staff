@@ -32,79 +32,79 @@
 namespace staff
 {
 
-  CLoginImpl::~CLoginImpl()
+  LoginImpl::~LoginImpl()
   {
   }
 
-  std::string CLoginImpl::Login(const std::string& sUserName, const std::string& sPassword)
+  std::string LoginImpl::LoginUser(const std::string& sUserName, const std::string& sPassword)
   {
     std::string tResult;
 
-    RISE_ASSERTES(IService::GetSessionId() == staff::security::CSessions::sNobodySessionId,
+    RISE_ASSERTES(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
       rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
 
-    staff::CSessionManager::Inst().Login(sUserName, sPassword, tResult);
+    staff::SessionManager::Inst().Login(sUserName, sPassword, tResult);
 
     return tResult;  // result
   }
 
-  std::string CLoginImpl::OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting)
+  std::string LoginImpl::OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting)
   {
     std::string tResult;
 
-    RISE_ASSERTES(IService::GetSessionId() == staff::security::CSessions::sNobodySessionId,
+    RISE_ASSERTES(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
       rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
 
-    staff::CSessionManager::Inst().Open(sUserName, sPassword, bCloseExisting, tResult);
+    staff::SessionManager::Inst().Open(sUserName, sPassword, bCloseExisting, tResult);
 
     return tResult;  // result
   }
 
-  void CLoginImpl::Logout()
+  void LoginImpl::Logout()
   {
-    staff::CSessionManager::Inst().Close(IService::GetSessionId());
+    staff::SessionManager::Inst().Close(IService::GetSessionId());
   }
 
-  void CLoginImpl::KeepAliveSession()
+  void LoginImpl::KeepAliveSession()
   {
-    staff::CSessionManager::Inst().Keepalive(IService::GetSessionId());
+    staff::SessionManager::Inst().Keepalive(IService::GetSessionId());
   }
 
-  int CLoginImpl::GetUserId()
+  int LoginImpl::GetUserId()
   {
     int tResult;
 
-    staff::security::CSessions::Inst().GetUserId(IService::GetSessionId(), tResult);
+    staff::security::Sessions::Inst().GetUserId(IService::GetSessionId(), tResult);
 
     return tResult;  // result
   }
 
-  std::string CLoginImpl::GetUserName()
+  std::string LoginImpl::GetUserName()
   {
     std::string tResult;
 
-    staff::security::CSessions::Inst().GetUserName(IService::GetSessionId(), tResult);
+    staff::security::Sessions::Inst().GetUserName(IService::GetSessionId(), tResult);
 
     return tResult;  // result
   }
 
-  std::string CLoginImpl::GetUserDescription()
+  std::string LoginImpl::GetUserDescription()
   {
     std::string tResult;
 
-    staff::security::CSessions::Inst().GetUserDescription(IService::GetSessionId(), tResult);
+    staff::security::Sessions::Inst().GetUserDescription(IService::GetSessionId(), tResult);
 
     return tResult;  // result
   }
 
-  int CLoginImpl::GetSessionExpiration() const
+  int LoginImpl::GetSessionExpiration() const
   {
-    return staff::security::CSessions::Inst().GetExpiration();
+    return staff::security::Sessions::Inst().GetExpiration();
   }
 
-  bool CLoginImpl::ValidateSession()
+  bool LoginImpl::ValidateSession()
   {
-    return staff::security::CSessions::Inst().Validate(IService::GetSessionId());
+    return staff::security::Sessions::Inst().Validate(IService::GetSessionId());
   }
 
 }

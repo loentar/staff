@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning(disable: 4786)
 #pragma warning(disable: 4091)
 #endif
@@ -60,7 +60,7 @@ typedef void (*sighandler_t)(int);
 #endif
 #endif
 
-class CAxis2Service
+class StaffService
 {
 public:
   static axis2_svc_skeleton_t* axis2_Axis2Service_create(axutil_env_t *pEnv)
@@ -80,7 +80,7 @@ public:
     if (dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_C_EVENT)
     {
       m_bShuttingDown = true;
-      staff::CServiceDispatcher::Inst().Deinit();
+      staff::ServiceDispatcher::Inst().Deinit();
     }
     return FALSE; // pass SIGINT to axis2/c
   }
@@ -99,7 +99,7 @@ public:
     const axutil_env_t * pEnv, 
     axis2_conf* pConf)
   {
-    m_pPrevSigSegvHandler = signal(SIGSEGV, CAxis2Service::OnSignal);
+    m_pPrevSigSegvHandler = signal(SIGSEGV, StaffService::OnSignal);
 #if defined WIN32
     // installing handler to process Staff deinitialization before dlls are unloaded
     SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
@@ -136,7 +136,7 @@ public:
 
     try
     {
-      staff::CServiceDispatcher::Inst().Init(staff::CServiceDispatcher::SEvents(CAxis2Service::OnConnect, CAxis2Service::OnDisconnect));
+      staff::ServiceDispatcher::Inst().Init(staff::ServiceDispatcher::Events(StaffService::OnConnect, StaffService::OnDisconnect));
 #if defined DEBUG || defined _DEBUG
       rise::LogInfo() << "StaffService started";
 #endif
@@ -157,7 +157,7 @@ rise::LogEntry();
 
 #if !defined WIN32
     m_bShuttingDown = true;
-    staff::CServiceDispatcher::Inst().Deinit();
+    staff::ServiceDispatcher::Inst().Deinit();
 #endif
 
     if (pSvcSkeleton)
@@ -166,7 +166,7 @@ rise::LogEntry();
       pSvcSkeleton = NULL;
     }
 
-    signal(SIGSEGV, CAxis2Service::m_pPrevSigSegvHandler);
+    signal(SIGSEGV, StaffService::m_pPrevSigSegvHandler);
 
     return AXIS2_SUCCESS; 
   }
@@ -244,13 +244,13 @@ rise::LogEntry();
       axiom_node_t* panBody = axiom_node_get_parent(pAxiomNode, pEnv);
       axiom_node_t* panEnv = axiom_node_get_parent(panBody, pEnv);
 
-      rise::LogDebug2() << "request SOAP Envelope: \n" << rise::ColorInkBlue << staff::CDataObject(panEnv).ToString() << "\n" << rise::ColorDefault;
+      rise::LogDebug2() << "request SOAP Envelope: \n" << rise::ColorInkBlue << staff::DataObject(panEnv).ToString() << "\n" << rise::ColorDefault;
     }
 #endif
     
 
-    staff::COperation tOperation;
-    staff::CMessageContext tMessageContext(pEnv, pMsgCtx);
+    staff::Operation tOperation;
+    staff::MessageContext tMessageContext(pEnv, pMsgCtx);
 
     std::string sServiceName(szServiceName);
     std::string sSessionId(szSessionId);
@@ -263,16 +263,16 @@ rise::LogEntry();
 
       if (sServiceName == "StaffService")
       {
-        staff::CServiceDispatcher::Inst().InvokeSelf(tOperation);
+        staff::ServiceDispatcher::Inst().InvokeSelf(tOperation);
       }
       else
       {
-        staff::CServiceWrapper* pServiceWrapper = staff::CSharedContext::Inst().GetService(sServiceName);
+        staff::ServiceWrapper* pServiceWrapper = staff::SharedContext::Inst().GetService(sServiceName);
         RISE_ASSERTS(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
         pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
       }
     }
-    catch(const staff::CRemoteException& rEx)
+    catch(const staff::RemoteException& rEx)
     {
       tOperation.SetFault("server", rEx.GetString(), "Failed to invoke service " + sServiceName
                           + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
@@ -309,7 +309,7 @@ rise::LogEntry();
     }
 
     tOperation.PrepareResult();
-    staff::CDataObject& rResponse = tOperation.GetResponse();
+    staff::DataObject& rResponse = tOperation.GetResponse();
     rResponse.SetOwner(false);
 
 #ifdef _DEBUG
@@ -319,7 +319,7 @@ rise::LogEntry();
     return rResponse;
   }
 
-  static void OnConnect(const staff::CServiceWrapper* pServiceWrapper)
+  static void OnConnect(const staff::ServiceWrapper* pServiceWrapper)
   {
     Axis2UtilsCreateVirtualService(pServiceWrapper, m_pEnv, m_pConf);
   }
@@ -363,7 +363,7 @@ private:
 };
 
 
-axis2_svc_skeleton_ops_t CAxis2Service::m_stAxis2SkelOps =
+axis2_svc_skeleton_ops_t StaffService::m_stAxis2SkelOps =
 {
   Axis2Service_init,
   Axis2Service_invoke,
@@ -372,12 +372,12 @@ axis2_svc_skeleton_ops_t CAxis2Service::m_stAxis2SkelOps =
   Axis2Service_init_with_conf
 };
 
-axis2_svc_t* CAxis2Service::m_pAxis2Svc = NULL;
-std::string CAxis2Service::m_sLastFaultDetail;
-const axutil_env_t* CAxis2Service::m_pEnv = NULL; 
-axis2_conf* CAxis2Service::m_pConf = NULL;
-bool CAxis2Service::m_bShuttingDown = false;
-sighandler_t CAxis2Service::m_pPrevSigSegvHandler = NULL;
+axis2_svc_t* StaffService::m_pAxis2Svc = NULL;
+std::string StaffService::m_sLastFaultDetail;
+const axutil_env_t* StaffService::m_pEnv = NULL;
+axis2_conf* StaffService::m_pConf = NULL;
+bool StaffService::m_bShuttingDown = false;
+sighandler_t StaffService::m_pPrevSigSegvHandler = NULL;
 
 /**
  * Following block distinguish the exposed part of the dll.
@@ -385,7 +385,7 @@ sighandler_t CAxis2Service::m_pPrevSigSegvHandler = NULL;
 
 extern "C" AXIS2_EXPORT int axis2_get_instance(axis2_svc_skeleton** ppSvcSkeleton, axutil_env_t* pAxEnv)
 {
-  *ppSvcSkeleton = CAxis2Service::axis2_Axis2Service_create(pAxEnv);
+  *ppSvcSkeleton = StaffService::axis2_Axis2Service_create(pAxEnv);
   if(!(*ppSvcSkeleton))
     return AXIS2_FAILURE;
 

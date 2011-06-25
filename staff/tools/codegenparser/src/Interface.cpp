@@ -26,34 +26,34 @@ namespace staff
 namespace codegen
 {
 
-  SDataType::SDataType():
-    bIsConst(false), bIsRef(false), eType(EGeneric)
+  DataType::DataType():
+    bIsConst(false), bIsRef(false), eType(TypeGeneric)
   {
   }
 
-  SMember::SMember():
+  Member::Member():
     bIsConst(false), bIsAsynch(false)
   {
   }
 
-  SBaseType::SBaseType():
-    eType(EUnknown), bExtern(false), bForward(true)
+  BaseType::BaseType():
+    eType(TypeUnknown), bExtern(false), bForward(true)
   {
   }
 
-  SEnum::SEnum()
+  Enum::Enum()
   {
-    eType = EEnum;
+    eType = TypeEnum;
   }
 
-  SStruct::SStruct()
+  Struct::Struct()
   {
-    eType = EStruct;
+    eType = TypeStruct;
   }
 
-  STypedef::STypedef()
+  Typedef::Typedef()
   {
-    eType = ETypedef;
+    eType = TypeTypedef;
   }
 
 }

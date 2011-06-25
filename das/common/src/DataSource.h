@@ -34,14 +34,14 @@ namespace das
 {
   typedef std::list<std::string> StringList; //!< string list
 
-  struct STAFF_DAS_COMMON_EXPORT Type;
-  typedef std::list<Type> TypesList; //!< data types list
+  struct STAFF_DAS_COMMON_EXPORT DataType;
+  typedef std::list<DataType> DataTypesList; //!< data types list
 
   //! data type
-  struct STAFF_DAS_COMMON_EXPORT Type
+  struct STAFF_DAS_COMMON_EXPORT DataType
   {
-    //! data type
-    enum EType
+    //! data type class
+    enum Type
     {
       Void,
       Generic,
@@ -50,21 +50,21 @@ namespace das
       DataObject
     };
 
-    EType eType;        //!< data type: void, generic, struct, list or dataobject
-    std::string sName;  //!< name
-    std::string sType;  //!< type name: int, string, struct, list, etc.
-    std::string sDescr; //!< description
-    TypesList lsChilds; //!< struct fields
-    bool bExtern;       //!< defined in external file
+    Type eType;              //!< data type: void, generic, struct, list or dataobject
+    std::string sName;       //!< name
+    std::string sType;       //!< type name: int, string, struct, list, etc.
+    std::string sDescr;      //!< description
+    DataTypesList lsChilds;  //!< struct fields
+    bool bExtern;            //!< defined in external file
 
-    Type();
+    DataType();
   };
 
   //! include descriptor
   struct STAFF_DAS_COMMON_EXPORT Include
   {
     std::string sFileName;  //!< filename
-    TypesList lsTypes;      //!< types list
+    DataTypesList lsTypes;  //!< types list
   };
 
   typedef std::list<Include> IncludesList;  //!< includes list
@@ -74,8 +74,8 @@ namespace das
   {
     std::string sName;            //!< operation name
     std::string sDescr;           //!< operation description
-    TypesList lsParams;           //!< operation params
-    Type stReturn;                //!< return type
+    DataTypesList lsParams;       //!< operation params
+    DataType stReturn;            //!< return type
     rise::xml::CXMLNode tScript;  //!< operation script
   };
 
@@ -133,13 +133,13 @@ namespace das
     /*! \param sTypeName - type name
         \return type
       */
-    const Type& GetType(const std::string& sTypeName) const;
+    const DataType& GetType(const std::string& sTypeName) const;
 
     //! find type description
     /*! \param sTypeName - type name
         \return pointer to type, NULL if no type found
       */
-    const Type* FindType(const std::string& sTypeName) const;
+    const DataType* FindType(const std::string& sTypeName) const;
 
     //! get operation description
     /*! \return operation description
@@ -150,7 +150,7 @@ namespace das
     //! get types list
     /*! \return types list
       */
-    const TypesList& GetTypes() const;
+    const DataTypesList& GetTypes() const;
 
     //! get operations map
     /*! \return operations map
@@ -162,7 +162,7 @@ namespace das
     /*! \param rNode - node to parse
         \param rType - parsed type
       */
-    void ParseType(const rise::xml::CXMLNode& rNode, Type& rType);
+    void ParseType(const rise::xml::CXMLNode& rNode, DataType& rType);
 
     //! parse description
     /*! \param rNode - node to parse
@@ -182,8 +182,8 @@ namespace das
     std::string m_sProviderName;                //!< provider name
     std::string m_sFileName;                    //!< datasource file name
     rise::xml::CXMLNode m_tNodeProviderConfig;  //!< provider config
-    TypesList m_lsTypes;                        //!< defined types
-    OperationsList m_lsOperations;                //!< datasource's operations map
+    DataTypesList m_lsTypes;                    //!< defined types
+    OperationsList m_lsOperations;              //!< datasource's operations map
     IncludesList m_lsIncludes;                  //!< included types map
   };
 }

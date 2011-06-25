@@ -29,14 +29,14 @@ namespace staff
 namespace codegen
 {
   //!  WsdlParser
-  class CWsdlParser: public ICodegenParser
+  class WsdlParser: public ICodegenParser
   {
   public:
-    CWsdlParser();
-    ~CWsdlParser();
+    WsdlParser();
+    ~WsdlParser();
 
     virtual const std::string& GetId();
-    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject);
+    virtual void Process(const ParseSettings& rParseSettings, Project& rProject);
 
   private:
     static const std::string m_sId;

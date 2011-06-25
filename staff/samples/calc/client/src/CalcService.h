@@ -30,7 +30,7 @@ namespace samples
   {
     //! sample component service CalcService
     // *loadAtStartup: true
-    class CCalcService: public staff::IService
+    class CalcService: public staff::IService
     {
     public:
       //! add nA and nB.

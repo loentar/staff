@@ -31,13 +31,13 @@ typedef struct axutil_env axutil_env_t;
 namespace staff
 {
   //!  Runtime information
-  class STAFF_COMMON_EXPORT CRuntime
+  class STAFF_COMMON_EXPORT Runtime
   {
   public:
     //!         get instance
     /*! \return ref to instance
     */
-    static CRuntime& Inst();
+    static Runtime& Inst();
 
     //!         get Axis2/C env for staff component
     /*! \return Axis2/C env
@@ -84,15 +84,20 @@ namespace staff
     std::string GetEnv(const std::string& sVariable) const;
 
   private:
-    CRuntime();
-    ~CRuntime();
-    CRuntime(const CRuntime&);
-    CRuntime& operator=(const CRuntime&);
+    Runtime();
+    ~Runtime();
+    Runtime(const Runtime&);
+    Runtime& operator=(const Runtime&);
 
   private:
-    class CRuntimeImpl;
-    CRuntimeImpl* m_pImpl;
+    class RuntimeImpl;
+    RuntimeImpl* m_pImpl;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Runtime CRuntime STAFF_DEPRECATED(Runtime);
+#endif
+
 }
 
 #endif // _RUNTIME_H_

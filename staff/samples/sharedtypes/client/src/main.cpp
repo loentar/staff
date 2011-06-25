@@ -36,11 +36,11 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< ::samples::sharedtypes::Checker > pChecker(::staff::CServiceFactory::Inst().GetService< ::samples::sharedtypes::Checker >());
+    std::auto_ptr< ::samples::sharedtypes::Checker > pChecker(::staff::ServiceFactory::Inst().GetService< ::samples::sharedtypes::Checker >());
 
     RISE_ASSERTS(pChecker.get(), "Cannot get client for service samples.sharedtypes.Checker!");
 
-    std::auto_ptr< ::samples::sharedtypes::Issuer > pIssuer(::staff::CServiceFactory::Inst().GetService< ::samples::sharedtypes::Issuer >());
+    std::auto_ptr< ::samples::sharedtypes::Issuer > pIssuer(::staff::ServiceFactory::Inst().GetService< ::samples::sharedtypes::Issuer >());
 
     RISE_ASSERTS(pIssuer.get(), "Cannot get client for service samples.sharedtypes.Issuer!");
 

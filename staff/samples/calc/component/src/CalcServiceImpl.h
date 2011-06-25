@@ -29,18 +29,18 @@
 
 namespace staff
 {
-  class CComponentConfig;
+  class ComponentConfig;
 }
 
 namespace samples
 {
   namespace calc
   {
-    class CCalcServiceImpl: public CCalcService
+    class CalcServiceImpl: public CalcService
     {
     public:
-      CCalcServiceImpl();
-      virtual ~CCalcServiceImpl();
+      CalcServiceImpl();
+      virtual ~CalcServiceImpl();
       virtual int Add(int nA, int nB) const;
       virtual int Sub(int nA, int nB) const;
       virtual void SetMem(int nMem);
@@ -51,7 +51,7 @@ namespace samples
       virtual void OnDestroy();
 
     private:
-      mutable staff::CComponentConfig* m_pConfig;
+      mutable staff::ComponentConfig* m_pConfig;
     };
   }
 }

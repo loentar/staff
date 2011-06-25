@@ -33,7 +33,7 @@ namespace staff
 {
 namespace das
 {
-  ProviderServiceWrapper::ProviderServiceWrapper(CComponent* pComponent, const DataSource* pDataSource):
+  ProviderServiceWrapper::ProviderServiceWrapper(Component* pComponent, const DataSource* pDataSource):
     m_pComponent(pComponent), m_pDataSource(pDataSource)
   {
     m_sName = m_pDataSource->GetNamespace();
@@ -55,9 +55,9 @@ namespace das
     return m_pDataSource->GetDescr();
   }
 
-  CDataObject ProviderServiceWrapper::GetOperations() const
+  DataObject ProviderServiceWrapper::GetOperations() const
   {
-    CDataObject tdoResult("Operations");
+    DataObject tdoResult("Operations");
 
     const OperationsList& rlsOperations = m_pDataSource->GetOperations();
     for (OperationsList::const_iterator itOperation = rlsOperations.begin();
@@ -69,10 +69,10 @@ namespace das
     return tdoResult;
   }
 
-  void ProviderServiceWrapper::Invoke(COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
+  void ProviderServiceWrapper::Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
   {
-    const staff::CDataObject& rRequest = rOperation.Request();
-    staff::CDataObject& rResult = rOperation.Result();
+    const staff::DataObject& rRequest = rOperation.Request();
+    staff::DataObject& rResult = rOperation.Result();
     const std::string& sOperationName = rOperation.GetName();
 
     if (sOperationName == "GetServiceDescription")
@@ -83,36 +83,36 @@ namespace das
     if (sOperationName == "CreateInstance")
     {
       const std::string& sInstanceId = rRequest.GetChildByLocalName("sInstanceId").GetText();
-      staff::CServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName, sInstanceId);
+      staff::ServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName, sInstanceId);
     }
     else
     if (sOperationName == "FreeInstance")
     {
       const std::string& sInstanceId = rRequest.GetChildByLocalName("sInstanceId").GetText();
-      staff::CServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName, sInstanceId);
+      staff::ServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName, sInstanceId);
     }
     else
     {
       rise::CSharedPtr<ProviderService> tpService = GetImpl(sSessionId, sInstanceId);
       RISE_ASSERT(tpService);
-      CDataObject tdoResponse = tpService->Invoke(rRequest);
+      DataObject tdoResponse = tpService->Invoke(rRequest);
       rOperation.SetResponse(tdoResponse);
     }
   }
 
-  const CComponent* ProviderServiceWrapper::GetComponent() const
+  const Component* ProviderServiceWrapper::GetComponent() const
   {
     return m_pComponent;
   }
 
-  CComponent* ProviderServiceWrapper::GetComponent()
+  Component* ProviderServiceWrapper::GetComponent()
   {
     return m_pComponent;
   }
 
   PIService& ProviderServiceWrapper::GetImpl(const std::string& sSessionId, const std::string& sInstanceId)
   {
-    return staff::CServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
+    return staff::ServiceInstanceManager::Inst().GetServiceInstance(sSessionId, m_sName, sInstanceId);
   }
 
   PIService ProviderServiceWrapper::NewImpl()
@@ -130,9 +130,9 @@ namespace das
     return "";
   }
 
-  CDataObject ProviderServiceWrapper::GetServiceDescription() const
+  DataObject ProviderServiceWrapper::GetServiceDescription() const
   {
-    staff::CDataObject tServiceDescription;
+    staff::DataObject tServiceDescription;
 
     tServiceDescription.Create("ServiceDescription");
     tServiceDescription.DeclareDefaultNamespace("http://tempui.org/staff/service-description");

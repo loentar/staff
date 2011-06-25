@@ -28,7 +28,7 @@ namespace staff
 {
 namespace das
 {
-  Type::Type():
+  DataType::DataType():
     eType(Void), bExtern(false)
   {
   }
@@ -80,7 +80,7 @@ namespace das
         }
         else
         { // type declaration
-          Type stType;
+          DataType stType;
           ParseType(rNodeType, stType);
           m_lsTypes.push_back(stType);
         }
@@ -118,8 +118,8 @@ namespace das
       {
         const rise::xml::CXMLNode& rNodeReturn = *itReturn;
         ParseType(rNodeReturn, stOperation.stReturn);
-        if (stOperation.stReturn.eType == Type::List ||
-            stOperation.stReturn.eType == Type::Struct)
+        if (stOperation.stReturn.eType == DataType::List ||
+            stOperation.stReturn.eType == DataType::Struct)
         {
           stOperation.stReturn = GetType(stOperation.stReturn.sType);
         }
@@ -129,7 +129,7 @@ namespace das
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rParams.NodeBegin();
             itType != rParams.NodeEnd(); ++itType)
       {
-        Type stType;
+        DataType stType;
         ParseType(*itType, stType);
         stOperation.lsParams.push_back(stType);
       }
@@ -143,7 +143,7 @@ namespace das
     return m_lsIncludes;
   }
 
-  void DataSource::ParseType(const rise::xml::CXMLNode& rNode, Type& rType)
+  void DataSource::ParseType(const rise::xml::CXMLNode& rNode, DataType& rType)
   {
     rType.sName = rNode.NodeName();
 
@@ -153,13 +153,13 @@ namespace das
 
     if (sType == "struct")
     {
-      rType.eType = Type::Struct;
+      rType.eType = DataType::Struct;
       rType.sType = sType;
 
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNode.NodeBegin();
             itType != rNode.NodeEnd(); ++itType)
       {
-        Type stType;
+        DataType stType;
         ParseType(*itType, stType);
         rType.lsChilds.push_back(stType);
       }
@@ -167,30 +167,30 @@ namespace das
     else
     if (sType == "list")
     {
-      rType.eType = Type::List;
+      rType.eType = DataType::List;
       rType.sType = rNode.Attribute("itemtype").AsString();
 
       RISE_ASSERTS(rType.sType != "void", "list item cannot be \"void\"");
 
-      const Type* pItemType = FindType(rType.sType);
+      const DataType* pItemType = FindType(rType.sType);
 
       if (pItemType != NULL)
       { // ref
-        RISE_ASSERTS(pItemType->eType != Type::List, "list item cannot be \"list\"");
+        RISE_ASSERTS(pItemType->eType != DataType::List, "list item cannot be \"list\"");
         rType.lsChilds.push_back(*pItemType);
       }
       else
       { // simple
-        Type tItemType;
+        DataType tItemType;
         tItemType.sName = "Item";
         tItemType.sType = rType.sType;
         if (rType.sType == "DataObject" || rType.sType == "staff::DataObject")
         {
-          tItemType.eType = Type::DataObject;
+          tItemType.eType = DataType::DataObject;
         }
         else
         {
-          tItemType.eType = Type::Generic;
+          tItemType.eType = DataType::Generic;
         }
         rType.lsChilds.push_back(tItemType);
       }
@@ -198,18 +198,18 @@ namespace das
     else
     if (sType == "void")
     {
-      rType.eType = Type::Void;
+      rType.eType = DataType::Void;
       rType.sType = sType;
     }
     else
     if (sType == "DataObject" || sType == "staff::DataObject")
     {
-      rType.eType = Type::DataObject;
+      rType.eType = DataType::DataObject;
       rType.sType = sType;
     }
     else
     {
-      const Type* pType = FindType(sType);
+      const DataType* pType = FindType(sType);
 
       if (pType != NULL)
       { // ref
@@ -217,7 +217,7 @@ namespace das
       }
       else
       { // simple
-        rType.eType = Type::Generic;
+        rType.eType = DataType::Generic;
       }
       rType.sType = sType;
     }
@@ -246,7 +246,7 @@ namespace das
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNodeTypes.NodeBegin();
           itType != rNodeTypes.NodeEnd(); ++itType)
     {
-      Type stType;
+      DataType stType;
       ParseType(*itType, stType);
 
       rstInclude.lsTypes.push_back(stType);
@@ -289,16 +289,16 @@ namespace das
     return m_tNodeProviderConfig;
   }
 
-  const Type& DataSource::GetType(const std::string& sTypeName) const
+  const DataType& DataSource::GetType(const std::string& sTypeName) const
   {
-    const Type* pType = FindType(sTypeName);
+    const DataType* pType = FindType(sTypeName);
     RISE_ASSERTS(pType, "Type " + sTypeName + " is not found");
     return *pType;
   }
 
-  const Type* DataSource::FindType(const std::string& sTypeName) const
+  const DataType* DataSource::FindType(const std::string& sTypeName) const
   {
-    TypesList::const_iterator itType = m_lsTypes.begin();
+    DataTypesList::const_iterator itType = m_lsTypes.begin();
     for (; itType != m_lsTypes.end(); ++itType)
     {
       if (itType->sName == sTypeName)
@@ -324,7 +324,7 @@ namespace das
     RISE_THROWS(rise::CLogicNoItemException, "Operation " + sOperationName + " is not found");
   }
 
-  const TypesList& DataSource::GetTypes() const
+  const DataTypesList& DataSource::GetTypes() const
   {
     return m_lsTypes;
   }

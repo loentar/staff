@@ -55,12 +55,12 @@ namespace codegen
     return std::string::npos;
   }
 
-  const SBaseType* GetBaseType(const std::string& sNsName, const SInterface& rstInterface,
-                               const int eBaseType /*= SBaseType::EAny*/,
-                               const SStruct* pstParent /*= NULL*/)
+  const BaseType* GetBaseType(const std::string& sNsName, const Interface& rstInterface,
+                               const int eBaseType /*= BaseType::TypeAny*/,
+                               const Struct* pstParent /*= NULL*/)
   {
-    const SStruct* pstCurr = pstParent;
-    const SBaseType* pstResult = NULL;
+    const Struct* pstCurr = pstParent;
+    const BaseType* pstResult = NULL;
 
     std::string::size_type nNsNameSize = sNsName.size();
 
@@ -68,8 +68,8 @@ namespace codegen
     for(;;)
     { // to avod getting extern type with the same name as in current interface
       // we must search backwards, because firstly goes extern types
-      const std::list<SStruct>& rStructList = !pstCurr ? rstInterface.lsStructs : pstCurr->lsStructs;
-      for (std::list<SStruct>::const_reverse_iterator itStruct = rStructList.rbegin();
+      const std::list<Struct>& rStructList = !pstCurr ? rstInterface.lsStructs : pstCurr->lsStructs;
+      for (std::list<Struct>::const_reverse_iterator itStruct = rStructList.rbegin();
         itStruct != rStructList.rend(); ++itStruct)
       {
 //          if (!itStruct->bForward) // skip forward declarations
@@ -87,7 +87,7 @@ namespace codegen
 
           //  full struct name with namespace
           // find in sub enums
-          if (((eBaseType & SBaseType::EStruct) != 0) && !nSizeDiff && sCurrNsName == sNsName)
+          if (((eBaseType & BaseType::TypeStruct) != 0) && !nSizeDiff && sCurrNsName == sNsName)
           {
             pstResult = &*itStruct;
             break; // return
@@ -97,7 +97,7 @@ namespace codegen
             // empty/partial namespace
             if (nSizeDiff >= 2) // size of "::"
             {
-              if (((eBaseType & SBaseType::EStruct) != 0) &&
+              if (((eBaseType & BaseType::TypeStruct) != 0) &&
                   sCurrNsName.substr(nSizeDiff - 2, 2) == "::" &&
                   sCurrNsName.substr(nSizeDiff) == sNsName)
               {
@@ -117,7 +117,7 @@ namespace codegen
             {
               // go through child structs
               nPos += 2;
-              const SStruct* pstTmp = &*itStruct;
+              const Struct* pstTmp = &*itStruct;
               std::string::size_type nBegin = nPos;
               std::string::size_type nEnd = 0;
               do
@@ -130,9 +130,9 @@ namespace codegen
                 bool bFound = false;
 
                 // find in sub enums
-                if ((eBaseType & SBaseType::EEnum) != 0)
+                if ((eBaseType & BaseType::TypeEnum) != 0)
                 {
-                  for (std::list<SEnum>::const_reverse_iterator itSubEnum = pstTmp->lsEnums.rbegin();
+                  for (std::list<Enum>::const_reverse_iterator itSubEnum = pstTmp->lsEnums.rbegin();
                     itSubEnum != pstTmp->lsEnums.rend(); ++itSubEnum)
                   {
                     if (itSubEnum->sName == sSubName)
@@ -143,7 +143,7 @@ namespace codegen
                 }
 
                 // go into sub struct
-                for (std::list<SStruct>::const_reverse_iterator itSubStruct = pstTmp->lsStructs.rbegin();
+                for (std::list<Struct>::const_reverse_iterator itSubStruct = pstTmp->lsStructs.rbegin();
                   itSubStruct != pstTmp->lsStructs.rend(); ++itSubStruct)
                 {
                   if (itSubStruct->sName == sSubName)
@@ -174,10 +174,10 @@ namespace codegen
       }
 
       // find in sub enums
-      if (!pstResult && ((eBaseType & SBaseType::EEnum) != 0))
+      if (!pstResult && ((eBaseType & BaseType::TypeEnum) != 0))
       {
-        const std::list<SEnum>& rlsEnums = !pstCurr ? rstInterface.lsEnums : pstCurr->lsEnums;
-        for (std::list<SEnum>::const_reverse_iterator itEnum = rlsEnums.rbegin();
+        const std::list<Enum>& rlsEnums = !pstCurr ? rstInterface.lsEnums : pstCurr->lsEnums;
+        for (std::list<Enum>::const_reverse_iterator itEnum = rlsEnums.rbegin();
           itEnum != rlsEnums.rend(); ++itEnum)
         {
           std::string sCurrNsName = itEnum->sNamespace;
@@ -213,10 +213,10 @@ namespace codegen
     return pstResult;
   }
 
-  const SStruct* GetStruct(const std::string& sNsName, const SInterface& rstInterface,
-                           const SStruct* pstParent /*= NULL*/)
+  const Struct* GetStruct(const std::string& sNsName, const Interface& rstInterface,
+                           const Struct* pstParent /*= NULL*/)
   {
-    return static_cast<const SStruct*>(GetBaseType(sNsName, rstInterface, SBaseType::EStruct, pstParent));
+    return static_cast<const Struct*>(GetBaseType(sNsName, rstInterface, BaseType::TypeStruct, pstParent));
   }
 
 

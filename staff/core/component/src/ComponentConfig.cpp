@@ -31,7 +31,7 @@
 
 namespace staff
 {
-  class CComponentConfig::CComponentConfigImpl
+  class ComponentConfig::ComponentConfigImpl
   {
   public:
     std::string m_sComponent;
@@ -40,12 +40,12 @@ namespace staff
     rise::xml::CXMLDocument m_tConfig;
   };
 
-  CComponentConfig::CComponentConfig():
-    m_pImpl(new CComponentConfigImpl)
+  ComponentConfig::ComponentConfig():
+    m_pImpl(new ComponentConfigImpl)
   {
   }
 
-  CComponentConfig::~CComponentConfig()
+  ComponentConfig::~ComponentConfig()
   {
     if (m_pImpl != NULL)
     {
@@ -54,17 +54,17 @@ namespace staff
     }
   }
 
-  const std::string& CComponentConfig::GetComponent() const
+  const std::string& ComponentConfig::GetComponent() const
   {
     return m_pImpl->m_sComponent;
   }
 
-  const std::string& CComponentConfig::GetConfig() const
+  const std::string& ComponentConfig::GetConfig() const
   {
     return m_pImpl->m_sConfig;
   }
 
-  rise::xml::CXMLNode& CComponentConfig::ReloadConfig( bool bCreate /*= false*/ )
+  rise::xml::CXMLNode& ComponentConfig::ReloadConfig( bool bCreate /*= false*/ )
   {
     try
     {
@@ -86,7 +86,7 @@ namespace staff
     return m_pImpl->m_tConfig.GetRoot();
   }
 
-  void CComponentConfig::SaveConfig()
+  void ComponentConfig::SaveConfig()
   {
     if (m_pImpl->m_tConfig.GetRoot().NodeName() == "")
     {
@@ -96,21 +96,21 @@ namespace staff
     m_pImpl->m_tConfig.SaveToFile(m_pImpl->m_sFileName);
   }
 
-  rise::xml::CXMLNode& CComponentConfig::Config()
+  rise::xml::CXMLNode& ComponentConfig::Config()
   {
     return m_pImpl->m_tConfig.GetRoot();
   }
 
-  const rise::xml::CXMLNode& CComponentConfig::Config() const
+  const rise::xml::CXMLNode& ComponentConfig::Config() const
   {
     return m_pImpl->m_tConfig.GetRoot();
   }
 
-  void CComponentConfig::Init( const std::string& sComponent, const std::string& sConfig, bool bCreate )
+  void ComponentConfig::Init( const std::string& sComponent, const std::string& sConfig, bool bCreate )
   {
     m_pImpl->m_sComponent = sComponent;
     m_pImpl->m_sConfig = sConfig;
-    m_pImpl->m_sFileName = CRuntime::Inst().GetComponentHome(sComponent) + "/" + sConfig;
+    m_pImpl->m_sFileName = Runtime::Inst().GetComponentHome(sComponent) + "/" + sConfig;
     ReloadConfig(bCreate);
   }
 

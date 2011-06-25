@@ -190,7 +190,7 @@ namespace das
       nPosEnd = m_pImpl->m_sDataBase.find(')', nPosStart);
       RISE_ASSERTS(nPosEnd != std::string::npos, "Invalid Env var declaration: " + m_pImpl->m_sDataBase);
       const std::string& sVar = m_pImpl->m_sDataBase.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
-      const std::string& sValue = staff::CRuntime::Inst().GetEnv(sVar);
+      const std::string& sValue = staff::Runtime::Inst().GetEnv(sVar);
       m_pImpl->m_sDataBase.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
       nPosEnd = nPosStart + sValue.size();
     }

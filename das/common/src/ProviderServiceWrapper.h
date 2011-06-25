@@ -32,10 +32,10 @@ namespace das
   class DataSource;
 
   //! DAS virtual service wrapper
-  class STAFF_DAS_COMMON_EXPORT ProviderServiceWrapper: public CServiceWrapper
+  class STAFF_DAS_COMMON_EXPORT ProviderServiceWrapper: public ServiceWrapper
   {
   public:
-    ProviderServiceWrapper(CComponent* pComponent, const DataSource* pDataSource);
+    ProviderServiceWrapper(Component* pComponent, const DataSource* pDataSource);
 
     //!         get service name
     /*! \return service name
@@ -50,24 +50,24 @@ namespace das
     //!         get service operations
     /*! \return service operations
     */
-    virtual CDataObject GetOperations() const;
+    virtual DataObject GetOperations() const;
 
     //!         invoke service operation
     /*! \param  rOperation - operation
         \param  sSessionId - service session id
         \param  sInstanceId - service instance id
         */
-    virtual void Invoke(COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
+    virtual void Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual const CComponent* GetComponent() const;
+    virtual const Component* GetComponent() const;
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual CComponent* GetComponent();
+    virtual Component* GetComponent();
 
     //!         get pointer to service implementation
     /*! \param  sSessionId - service session id
@@ -95,10 +95,10 @@ namespace das
     //!         get service description
     /*! \return service description
     */
-    virtual CDataObject GetServiceDescription() const;
+    virtual DataObject GetServiceDescription() const;
 
   private:
-    CComponent* m_pComponent;
+    Component* m_pComponent;
     const DataSource* m_pDataSource;
     std::string m_sName;
   };

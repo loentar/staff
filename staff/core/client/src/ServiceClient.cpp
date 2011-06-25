@@ -42,15 +42,15 @@
 
 namespace staff
 {
-  class CCallbackWrapper
+  class CallbackWrapper
   {
   public:
-    CCallbackWrapper(ICallback<const CDataObject&>* pCallback, bool bOwner):
+    CallbackWrapper(ICallback<const DataObject&>* pCallback, bool bOwner):
       m_pCallback(pCallback), m_bOwner(bOwner)
     {
     }
 
-    ~CCallbackWrapper()
+    ~CallbackWrapper()
     {
       if (m_bOwner)
       {
@@ -58,17 +58,17 @@ namespace staff
       }
     }
 
-    ICallback<const CDataObject&>* Get()
+    ICallback<const DataObject&>* Get()
     {
       return m_pCallback;
     }
 
   private:
-    ICallback<const CDataObject&>* m_pCallback;
+    ICallback<const DataObject&>* m_pCallback;
     bool m_bOwner;
   };
 
-  class CServiceClientTools
+  class ServiceClientTools
   {
   public:
     static axis2_status_t AXIS2_CALL CallbackOnComplete(axis2_callback_t* pAxis2Callback, const axutil_env_t* pEnv)
@@ -79,8 +79,8 @@ namespace staff
         return AXIS2_FAILURE;
       }
 
-      std::auto_ptr<CCallbackWrapper> tpCallbackWrapper(
-          reinterpret_cast<CCallbackWrapper*>(axis2_callback_get_data(pAxis2Callback)));
+      std::auto_ptr<CallbackWrapper> tpCallbackWrapper(
+          reinterpret_cast<CallbackWrapper*>(axis2_callback_get_data(pAxis2Callback)));
 
       if (!tpCallbackWrapper.get())
       {
@@ -90,7 +90,7 @@ namespace staff
 
       axis2_callback_set_data(pAxis2Callback, NULL);  // avoid axis2/c to destroy C++ data
 
-      ICallback<const CDataObject&>* pCallback = tpCallbackWrapper->Get();
+      ICallback<const DataObject&>* pCallback = tpCallbackWrapper->Get();
 
       if (!pCallback)
       {
@@ -128,7 +128,7 @@ namespace staff
 
 #ifdef _DEBUG
       rise::LogDebug2() << "Received Response: \n" << rise::ColorInkBlue
-          << CDataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
+          << DataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
 #endif
 
       axiom_element_t* pAxiomResponseElement =
@@ -179,7 +179,7 @@ namespace staff
         return AXIS2_FAILURE;
       }
 
-      PICallback tpCallback(reinterpret_cast<ICallback<const CDataObject&>*>(axis2_callback_get_data(pCallback)));
+      PICallback tpCallback(reinterpret_cast<ICallback<const DataObject&>*>(axis2_callback_get_data(pCallback)));
       axis2_callback_set_data(pCallback, NULL);  // avoid axis2/c to destroy C++ data
 
       if (!tpCallback.get())
@@ -196,7 +196,7 @@ namespace staff
           pAxiomResponseNode = axiom_soap_envelope_get_base_node(pSoapEnvelope, pEnv);
 #ifdef _DEBUG
       rise::LogDebug2() << "Received Response: \n" << rise::ColorInkBlue
-          << CDataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
+          << DataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
 #endif
         }
       }
@@ -217,37 +217,37 @@ namespace staff
       return AXIS2_SUCCESS;
     }
 
-    static void CreateFault(ICallback<const CDataObject&>& rCallback, const std::string& sFaultCode, const std::string& sFaultError)
+    static void CreateFault(ICallback<const DataObject&>& rCallback, const std::string& sFaultCode, const std::string& sFaultError)
     {
       // generate fault using Operation
-      COperation tFault;
+      Operation tFault;
       tFault.SetFault(sFaultCode, sFaultError);
       rCallback.OnFault(tFault.GetResponse());
     }
   };
 
-  CServiceClient::CServiceClient():
+  ServiceClient::ServiceClient():
     m_pSvcClient(NULL),
     m_pOptions(NULL),
     m_bOptOwner(false),
     m_bInit(false)
   {
-    m_pEnv = CRuntime::Inst().GetAxis2Env("staff_client");
+    m_pEnv = Runtime::Inst().GetAxis2Env("staff_client");
   }
 
-  CServiceClient::~CServiceClient()
+  ServiceClient::~ServiceClient()
   {
     Deinit();
     if (m_bOptOwner && m_pOptions)
     {
       delete m_pOptions;
     }
-    CRuntime::Inst().FreeAxis2Env("staff_client");
+    Runtime::Inst().FreeAxis2Env("staff_client");
   }
 
-  void CServiceClient::Init(const std::string& sServiceUri /*= ""*/)
+  void ServiceClient::Init(const std::string& sServiceUri /*= ""*/)
   {
-    std::auto_ptr<COptions> pOptions(new COptions);
+    std::auto_ptr<Options> pOptions(new Options);
     if (!sServiceUri.empty())
     {
       pOptions->SetToAddress(sServiceUri);
@@ -258,12 +258,12 @@ namespace staff
     pOptions.release();
   }
 
-  void CServiceClient::Init(COptions& rOptions)
+  void ServiceClient::Init(Options& rOptions)
   {
     Deinit();
 
     // Create service client
-    m_pSvcClient = axis2_svc_client_create(m_pEnv, CRuntime::Inst().GetAxis2Home().c_str());
+    m_pSvcClient = axis2_svc_client_create(m_pEnv, Runtime::Inst().GetAxis2Home().c_str());
     RISE_ASSERTS(m_pSvcClient, "Axis2/C client creation failed. error: " + GetLastErrorStr());
 
     // Set service client options
@@ -272,7 +272,7 @@ namespace staff
     m_bInit = true;
   }
 
-  void CServiceClient::Deinit()
+  void ServiceClient::Deinit()
   {
     if (m_pSvcClient != NULL)
     {
@@ -283,12 +283,12 @@ namespace staff
     m_bInit = false;
   }
 
-  bool CServiceClient::IsInit() const
+  bool ServiceClient::IsInit() const
   {
     return m_bInit;
   }
 
-  void CServiceClient::SetOptions(COptions& rOptions)
+  void ServiceClient::SetOptions(Options& rOptions)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -305,14 +305,14 @@ namespace staff
     axis2_svc_client_set_options(m_pSvcClient, m_pEnv, *m_pOptions);
   }
 
-  COptions& CServiceClient::GetOptions()
+  Options& ServiceClient::GetOptions()
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     return *m_pOptions;
   }
 
-  void CServiceClient::EngageModule(const std::string& sModuleName)
+  void ServiceClient::EngageModule(const std::string& sModuleName)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -321,7 +321,7 @@ namespace staff
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to engage module [" + sModuleName + "]: " + GetLastErrorStr());
   }
 
-  void CServiceClient::DisengageModule(const std::string& sModuleName)
+  void ServiceClient::DisengageModule(const std::string& sModuleName)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -331,21 +331,21 @@ namespace staff
   }
 
 
-  void CServiceClient::AddHeader(CDataObject& rdoHeader)
+  void ServiceClient::AddHeader(DataObject& rdoHeader)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
     axis2_svc_client_add_header(m_pSvcClient, m_pEnv, rdoHeader);
   }
 
-  void CServiceClient::RemoveAllHeaders()
+  void ServiceClient::RemoveAllHeaders()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
     axis2_svc_client_remove_all_headers(m_pSvcClient, m_pEnv);
   }
 
-  void CServiceClient::SetProxyWithAuth(const std::string& sProxyHost, const std::string& sProxyPort,
+  void ServiceClient::SetProxyWithAuth(const std::string& sProxyHost, const std::string& sProxyPort,
                                         const std::string& sUserName, const std::string& sPassword)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
@@ -357,28 +357,28 @@ namespace staff
                                          const_cast<axis2_char_t*>(sPassword.c_str()));
   }
 
-  void CServiceClient::TestAuthRequired()
+  void ServiceClient::TestAuthRequired()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
     axis2_svc_client_send_robust(m_pSvcClient, m_pEnv, NULL);
   }
 
-  bool CServiceClient::GetProxyAuthRequired()
+  bool ServiceClient::GetProxyAuthRequired()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
     return axis2_svc_client_get_proxy_auth_required(m_pSvcClient, m_pEnv) == AXIS2_TRUE;
   }
 
-  bool CServiceClient::GetHttpAuthRequired()
+  bool ServiceClient::GetHttpAuthRequired()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
     return axis2_svc_client_get_http_auth_required(m_pSvcClient, m_pEnv) == AXIS2_TRUE;
   }
 
-  std::string CServiceClient::GetAuthType()
+  std::string ServiceClient::GetAuthType()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -388,7 +388,7 @@ namespace staff
   }
 
 
-  CDataObject CServiceClient::Invoke(CDataObject& rdoPayload)
+  DataObject ServiceClient::Invoke(DataObject& rdoPayload)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -404,13 +404,13 @@ namespace staff
 
 #ifdef _DEBUG
       rise::LogDebug2() << "Received Response: \n" << rise::ColorInkBlue
-          << CDataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
+          << DataObject(pAxiomResponseNode).ToString() << rise::ColorDefault;
 #endif
 
     return pAxiomResponseNode;
   }
 
-  void CServiceClient::Invoke(CDataObject& rdoPayload, ICallback<const CDataObject&>& rCallback)
+  void ServiceClient::Invoke(DataObject& rdoPayload, ICallback<const DataObject&>& rCallback)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -423,9 +423,9 @@ namespace staff
     // store Axis2/C callback
     rCallback.Set(pAxis2Callback, m_pEnv);
 
-    axis2_callback_set_on_complete(pAxis2Callback, CServiceClientTools::CallbackOnComplete);
-    axis2_callback_set_on_error(pAxis2Callback, CServiceClientTools::CallbackOnFault);
-    axis2_callback_set_data(pAxis2Callback, new CCallbackWrapper(&rCallback, false));
+    axis2_callback_set_on_complete(pAxis2Callback, ServiceClientTools::CallbackOnComplete);
+    axis2_callback_set_on_error(pAxis2Callback, ServiceClientTools::CallbackOnFault);
+    axis2_callback_set_data(pAxis2Callback, new CallbackWrapper(&rCallback, false));
 
 #ifdef _DEBUG
     rise::LogDebug2() << "Sending: \n" << rise::ColorInkBlue
@@ -435,7 +435,7 @@ namespace staff
     axis2_svc_client_send_receive_non_blocking(m_pSvcClient, m_pEnv, rdoPayload, pAxis2Callback);
   }
 
-  void CServiceClient::Invoke(CDataObject& rdoPayload, PICallback& rpCallback)
+  void ServiceClient::Invoke(DataObject& rdoPayload, PICallback& rpCallback)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -448,9 +448,9 @@ namespace staff
     // store Axis2/C callback
     (rpCallback)->Set(pAxis2Callback, m_pEnv);
 
-    axis2_callback_set_on_complete(pAxis2Callback, CServiceClientTools::CallbackOnComplete);
-    axis2_callback_set_on_error(pAxis2Callback, CServiceClientTools::CallbackOnFault);
-    axis2_callback_set_data(pAxis2Callback, new CCallbackWrapper(rpCallback.release(), true));
+    axis2_callback_set_on_complete(pAxis2Callback, ServiceClientTools::CallbackOnComplete);
+    axis2_callback_set_on_error(pAxis2Callback, ServiceClientTools::CallbackOnFault);
+    axis2_callback_set_data(pAxis2Callback, new CallbackWrapper(rpCallback.release(), true));
 
 #ifdef _DEBUG
     rise::LogDebug2() << "Sending: \n" << rise::ColorInkBlue
@@ -461,7 +461,7 @@ namespace staff
   }
 
 
-  void CServiceClient::SendRobust(CDataObject& rdoPayload)
+  void ServiceClient::SendRobust(DataObject& rdoPayload)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -479,7 +479,7 @@ namespace staff
     RISE_ASSERTS(bIsFault != AXIS2_TRUE, "Axis2/C client send robust fault received.");
   }
 
-  void CServiceClient::Send(CDataObject& rdoPayload)
+  void ServiceClient::Send(DataObject& rdoPayload)
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -493,7 +493,7 @@ namespace staff
     axis2_svc_client_fire_and_forget(m_pSvcClient, m_pEnv, rdoPayload);
   }
 
-  bool CServiceClient::GetLastResponseHasFault()
+  bool ServiceClient::GetLastResponseHasFault()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -501,7 +501,7 @@ namespace staff
   }
 
 
-  CDataObject CServiceClient::GetLastResponse()
+  DataObject ServiceClient::GetLastResponse()
   {
     RISE_ASSERTS(m_pSvcClient, "Service client is not initialized");
 
@@ -516,18 +516,18 @@ namespace staff
   }
 
 
-  std::string CServiceClient::GetLastErrorStr()
+  std::string ServiceClient::GetLastErrorStr()
   {
     const char* szError = reinterpret_cast<const char*>(AXIS2_ERROR_GET_MESSAGE(m_pEnv->error));
     return szError ? szError : "";
   }
 
-  CServiceClient::operator axis2_svc_client_t*()
+  ServiceClient::operator axis2_svc_client_t*()
   {
     return m_pSvcClient;
   }
 
-  void CServiceClient::PrepareToSend(CDataObject& rdoPayload)
+  void ServiceClient::PrepareToSend(DataObject& rdoPayload)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
     rdoPayload.SetOwner(false);

@@ -11,21 +11,21 @@
 
 namespace staff
 {
-  class CServiceFactory::CServiceFactoryImpl
+  class ServiceFactory::ServiceFactoryImpl
   {
   public:
-    typedef std::map<std::string, IProxyAllocator*> TProxyAllocatorMap;
+    typedef std::map<std::string, IProxyAllocator*> ProxyAllocatorMap;
 
   public:
-    TProxyAllocatorMap m_mProxyAllocators;
+    ProxyAllocatorMap m_mProxyAllocators;
   };
 
-  IService* CServiceFactory::AllocateClient(const std::string& sClientType,
+  IService* ServiceFactory::AllocateClient(const std::string& sClientType,
                                             const std::string& sServiceUri,
                                             const std::string& sSessionId,
                                             const std::string& sInstanceId)
   {
-    CServiceFactoryImpl::TProxyAllocatorMap::const_iterator itProxyAllocator =
+    ServiceFactoryImpl::ProxyAllocatorMap::const_iterator itProxyAllocator =
         m_pImpl->m_mProxyAllocators.find(sClientType);
     if (itProxyAllocator == m_pImpl->m_mProxyAllocators.end())
     {
@@ -35,7 +35,7 @@ namespace staff
     return itProxyAllocator->second->AllocateProxy(sServiceUri, sSessionId, sInstanceId);
   }
 
-  IService* CServiceFactory::AllocateClientByHost(const std::string& sClientType,
+  IService* ServiceFactory::AllocateClientByHost(const std::string& sClientType,
                                           const std::string& sHost,
                                           int nPort,
                                           const std::string& sProtocol,
@@ -43,7 +43,7 @@ namespace staff
                                           const std::string& sSessionId,
                                           const std::string& sInstanceId)
   {
-    CServiceFactoryImpl::TProxyAllocatorMap::const_iterator itProxyAllocator =
+    ServiceFactoryImpl::ProxyAllocatorMap::const_iterator itProxyAllocator =
         m_pImpl->m_mProxyAllocators.find(sClientType);
     if (itProxyAllocator == m_pImpl->m_mProxyAllocators.end())
     {
@@ -55,23 +55,23 @@ namespace staff
     return itProxyAllocator->second->AllocateProxy(sBaseUri, sServiceName, sSessionId, sInstanceId);
   }
 
-  CServiceFactory& CServiceFactory::Inst()
+  ServiceFactory& ServiceFactory::Inst()
   {
-    static CServiceFactory tInst;
+    static ServiceFactory tInst;
     return tInst;
   }
 
-  void CServiceFactory::RegisterProxyAllocator(const std::string& sProxyTypeId, IProxyAllocator& rProxyAllocator)
+  void ServiceFactory::RegisterProxyAllocator(const std::string& sProxyTypeId, IProxyAllocator& rProxyAllocator)
   {
     m_pImpl->m_mProxyAllocators[sProxyTypeId] = &rProxyAllocator;
   }
 
-  CServiceFactory::CServiceFactory()
+  ServiceFactory::ServiceFactory()
   {
-    m_pImpl = new CServiceFactoryImpl;
+    m_pImpl = new ServiceFactoryImpl;
   }
 
-  CServiceFactory::~CServiceFactory()
+  ServiceFactory::~ServiceFactory()
   {
     delete m_pImpl;
   }

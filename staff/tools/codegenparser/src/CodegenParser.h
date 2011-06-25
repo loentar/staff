@@ -32,15 +32,15 @@ namespace staff
 namespace codegen
 {
   //! source code parse settings
-  struct STAFF_CODEGENPARSER_EXPORT SParseSettings
+  struct STAFF_CODEGENPARSER_EXPORT ParseSettings
   {
     std::string    sInDir;          //!<  input dir
     std::string    sOutDir;         //!<  output dir
-    TStringList    lsFiles;         //!<  input files
-    TStringMap     mEnv;            //!<  environment - arguments passed through -d option
+    StringList    lsFiles;         //!<  input files
+    StringMap     mEnv;            //!<  environment - arguments passed through -d option
     bool           bNoServiceError; //!<  throw error if no service found
 
-    SParseSettings();
+    ParseSettings();
   };
 
   //! codegen source code parser plugin
@@ -58,14 +58,14 @@ namespace codegen
     /*! \param rParseSettings - parse settings
         \param rProject - resulting project
       */
-    virtual void Process(const SParseSettings& rParseSettings, SProject& rProject) = 0;
+    virtual void Process(const ParseSettings& rParseSettings, Project& rProject) = 0;
   };
 
   //! parse exception
-  class STAFF_CODEGENPARSER_EXPORT CParseException
+  class STAFF_CODEGENPARSER_EXPORT ParseException
   {
   public:
-    CParseException(const std::string& sFile, int nLine, const std::string& sMessage,
+    ParseException(const std::string& sFile, int nLine, const std::string& sMessage,
                     const std::string& sSourceFile, int nSourceLine);
 
     std::ostream& operator<<(std::ostream& rStream) const;
@@ -81,10 +81,10 @@ namespace codegen
   };
 
   STAFF_CODEGENPARSER_EXPORT
-  std::ostream& operator<<(std::ostream& rStream, const CParseException& rParseException);
+  std::ostream& operator<<(std::ostream& rStream, const ParseException& rParseException);
 
 #define CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)\
-  throw ::staff::codegen::CParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_FILE, CSP_LINE)
+  throw ::staff::codegen::ParseException(__FILE__, __LINE__, CSP_MESSAGE, CSP_FILE, CSP_LINE)
 
 #define CSP_ASSERT(CSP_EXPRESSION, CSP_MESSAGE, CSP_FILE, CSP_LINE)\
   if (!(CSP_EXPRESSION)) CSP_THROW(CSP_MESSAGE, CSP_FILE, CSP_LINE)

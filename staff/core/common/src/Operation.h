@@ -31,18 +31,18 @@ typedef struct axiom_node axiom_node_t;
 
 namespace staff
 {
-  class CValue;
-  class CMessageContext;
+  class Value;
+  class MessageContext;
 
   //!  Service Operation
-  class STAFF_COMMON_EXPORT COperation
+  class STAFF_COMMON_EXPORT Operation
   {
   public:
     //!        constructor
-    COperation(const std::string& sName = "", const std::string& sResponseName = "", const std::string& sResultName = "");
+    Operation(const std::string& sName = "", const std::string& sResponseName = "", const std::string& sResultName = "");
 
     //!        destructor
-    virtual ~COperation();
+    virtual ~Operation();
 
     //!         set operation name
     /*! \param  sName - operation name
@@ -88,27 +88,27 @@ namespace staff
     /*! \param  sName - parameter name
         \param  tValue - parameter value
         */
-    void AddParameter(const std::string& sName, const CValue& tValue);
+    void AddParameter(const std::string& sName, const Value& tValue);
     
     //!         add operation parameter as DataObject
     /*! \param  rDataObject - DataObject
         */
-    void AddParameter(CDataObject& rDataObject);
+    void AddParameter(DataObject& rDataObject);
 
     //!         create/get request DataObject
     /*! \return request DataObject
     */
-    const CDataObject& Request() const;
+    const DataObject& Request() const;
 
     //!         create/get request DataObject
     /*! \return request DataObject(mutable)
     */
-    CDataObject& Request();
+    DataObject& Request();
 
     //!         set request DataObject
     /*! \param  rdoRequest - request DataObject
     */
-    void SetRequest(CDataObject& rdoRequest);
+    void SetRequest(DataObject& rdoRequest);
 
     //!         set request DataObject
     /*! \param  pRequest - request
@@ -118,12 +118,12 @@ namespace staff
     //!         get result DataObject
     /*! \return result DataObject
     */
-    const CDataObject& Result() const;
+    const DataObject& Result() const;
 
     //!         get result DataObject
     /*! \return result DataObject(mutable)
     */
-    CDataObject& Result();
+    DataObject& Result();
 
     //!         prepare Operation for sending result
     void PrepareResult();
@@ -131,45 +131,32 @@ namespace staff
     //!         create/get response DataObject
     /*! \return response DataObject
         */
-    CDataObject& GetResponse();
+    DataObject& GetResponse();
 
     //!         create/get response DataObject
     /*! \return response DataObject
         */
-    const CDataObject& GetResponse() const;
+    const DataObject& GetResponse() const;
 
     //!         set response DataObject
     /*! \param  rdoResponse - response DataObject
         */
-    void SetResponse(staff::CDataObject& rdoResponse);
+    void SetResponse(staff::DataObject& rdoResponse);
 
     //!         set response DataObject
     /*! \param  pResponse - response
         */
     void SetResponse(axiom_node_t* pResponse);
 
-    //!         get/set result value
-    /*! please note: this function is not efficient and not completely safe
-        please use Result().GetValue(param)/Result().SetValue(param) instead if possible
-        \return value
-    */
-    CValue ResultValue();
-
-    //!         get result value(copy)
-    /*! alias for Result().GetValue()
-        \return value
-    */
-    CValue ResultValue() const;
-
     //!         set result
     /*! \param  rDataObject - DataObject with results
         */
-    void SetResult(CDataObject& rDataObject);
+    void SetResult(DataObject& rDataObject);
 
     //!         set result value
     /*! \param  rValue - result value
         */
-    void SetResultValue(const CValue& rValue);
+    void SetResultValue(const Value& rValue);
 
     //!         check an operation is fault or not
     /*! \return true - operation is fault
@@ -199,7 +186,7 @@ namespace staff
     //!         get fault DataObject
     /*! \return fault DataObject
         */
-    const CDataObject GetFault() const;
+    const DataObject GetFault() const;
 
     //!         set fault
     /*! \param  sFaultCode - fault code
@@ -214,28 +201,34 @@ namespace staff
     //!         set fault as DataObject
     /*! \param  rDataObjectFault - DataObject with fault description
         */
-    void SetUserFault(CDataObject& rDataObjectFault);
+    void SetUserFault(DataObject& rDataObjectFault);
 
     //!         set message context
     /*! \param  rMessageContext - message context
       */
-    void SetMessageContext(CMessageContext& rMessageContext);
+    void SetMessageContext(MessageContext& rMessageContext);
 
     //!         get message context
     /*! \return message context
       */
-    CMessageContext& GetMessageContext();
+    MessageContext& GetMessageContext();
 
   private:
-    mutable CDataObject m_tdoRequest;  //!<  request DataObject
-    mutable CDataObject m_tdoResponse; //!<  response DataObject
-    mutable CDataObject m_tdoResult;   //!<  result DataObject
+    mutable DataObject m_tdoRequest;  //!<  request DataObject
+    mutable DataObject m_tdoResponse; //!<  response DataObject
+    mutable DataObject m_tdoResult;   //!<  result DataObject
     std::string m_sRequestName;        //!<  request name
     std::string m_sResponseName;       //!<  response name
     std::string m_sResultName;         //!<  result name
     std::string m_sSoapAction;         //!<  SOAP action
-    CMessageContext* m_pMessageContext;//!<  message context
+    MessageContext* m_pMessageContext;//!<  message context
   };
+
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Operation COperation STAFF_DEPRECATED(Operation);
+#endif
+
 }
 
 #endif // _OPERATION_H_

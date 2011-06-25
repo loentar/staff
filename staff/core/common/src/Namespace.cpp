@@ -29,14 +29,14 @@
 
 namespace staff
 {
-  CNamespace::CNamespace():
+  Namespace::Namespace():
     m_bOwner(false),
     m_pDataObject(NULL), 
     m_pAxiomNamespace(NULL)
   {
   }
 
-  CNamespace::CNamespace( CNamespace& rNamespace ):
+  Namespace::Namespace(Namespace& rNamespace):
     m_bOwner(rNamespace.m_bOwner),
     m_pDataObject(rNamespace.m_pDataObject), 
     m_pAxiomNamespace(rNamespace.m_pAxiomNamespace)
@@ -44,7 +44,7 @@ namespace staff
     rNamespace.m_bOwner = false;
   }
 
-  CNamespace::CNamespace( axiom_namespace_t* pAxiomNamespace, CDataObject* pDataObject /*= NULL*/, bool bOwner /*= false*/ ):
+  Namespace::Namespace(axiom_namespace_t* pAxiomNamespace, DataObject* pDataObject /*= NULL*/, bool bOwner /*= false*/):
     m_bOwner(false),
     m_pDataObject(NULL),
     m_pAxiomNamespace(NULL)
@@ -52,14 +52,14 @@ namespace staff
     Attach(pAxiomNamespace, pDataObject, bOwner);
   }
 
-  CNamespace::CNamespace( const std::string& sUri, const std::string& sPrefix ):
+  Namespace::Namespace(const std::string& sUri, const std::string& sPrefix):
     m_bOwner(true),
     m_pDataObject(NULL)
   {
     m_pAxiomNamespace = axiom_namespace_create(m_pEnv, sUri.c_str(), sPrefix.c_str());
   }
 
-  void CNamespace::Attach(axiom_namespace_t* pAxiomNamespace, CDataObject* pDataObject /*= NULL*/, bool bOwner /*= false*/)
+  void Namespace::Attach(axiom_namespace_t* pAxiomNamespace, DataObject* pDataObject /*= NULL*/, bool bOwner /*= false*/)
   {
     Detach();
     m_pAxiomNamespace = pAxiomNamespace;
@@ -67,7 +67,7 @@ namespace staff
     m_bOwner = bOwner;
   }
 
-  void CNamespace::Detach()
+  void Namespace::Detach()
   {
     if (m_bOwner)
     {
@@ -76,7 +76,7 @@ namespace staff
     }
   }
 
-  void CNamespace::Free()
+  void Namespace::Free()
   {
     if(m_pAxiomNamespace != NULL)
     {
@@ -87,63 +87,63 @@ namespace staff
     m_pDataObject = NULL;
   }
 
-  CNamespace CNamespace::Clone() const
+  Namespace Namespace::Clone() const
   {
-    CNamespace tNamespace(axiom_namespace_clone(m_pAxiomNamespace, m_pEnv));
+    Namespace tNamespace(axiom_namespace_clone(m_pAxiomNamespace, m_pEnv));
     return tNamespace;
   }
 
-  const CNamespace& CNamespace::Clone(CNamespace& rNamespace) const
+  const Namespace& Namespace::Clone(Namespace& rNamespace) const
   {
     rNamespace.Attach(axiom_namespace_clone(m_pAxiomNamespace, m_pEnv));
     return *this;
   }
 
-  std::string CNamespace::GetPrefix() const
+  std::string Namespace::GetPrefix() const
   {
-    RISE_ASSERTES(m_pAxiomNamespace != NULL, CDomNoItemException, "Uninitialized namespace");
+    RISE_ASSERTES(m_pAxiomNamespace != NULL, DomNoItemException, "Uninitialized namespace");
 
     axis2_char_t* szPrefix = axiom_namespace_get_prefix(m_pAxiomNamespace, m_pEnv);
     return szPrefix == NULL ? "" : szPrefix;
   }
 
-  std::string CNamespace::GetUri() const
+  std::string Namespace::GetUri() const
   {
-    RISE_ASSERTES(m_pAxiomNamespace != NULL, CDomNoItemException, "Uninitialized namespace");
+    RISE_ASSERTES(m_pAxiomNamespace != NULL, DomNoItemException, "Uninitialized namespace");
 
     axis2_char_t* szUri = axiom_namespace_get_uri(m_pAxiomNamespace, m_pEnv);
-    RISE_ASSERTES(szUri != NULL, CDomNoItemException, "Error while getting namespace URI");
+    RISE_ASSERTES(szUri != NULL, DomNoItemException, "Error while getting namespace URI");
 
     return szUri;
   }
 
-  CDataObject* CNamespace::GetDataObject() const
+  DataObject* Namespace::GetDataObject() const
   {
     return m_pDataObject;
   }
 
-  void CNamespace::SetDataObject(CDataObject* pDataObject)
+  void Namespace::SetDataObject(DataObject* pDataObject)
   {
     m_pDataObject = pDataObject;
     m_bOwner = false;
   }
 
-  bool CNamespace::IsOwner() const
+  bool Namespace::IsOwner() const
   {
     return m_bOwner;
   }
 
-  void CNamespace::SetOwner(bool bOwner)
+  void Namespace::SetOwner(bool bOwner)
   {
     m_bOwner = bOwner;
   }
 
-  bool CNamespace::IsNull()
+  bool Namespace::IsNull()
   {
     return m_pAxiomNamespace == NULL;
   }
 
-  CNamespace& CNamespace::operator=( CNamespace& rNamespace )
+  Namespace& Namespace::operator=(Namespace& rNamespace)
   {
     m_bOwner = rNamespace.m_bOwner;
     m_pDataObject = rNamespace.m_pDataObject;
@@ -152,32 +152,32 @@ namespace staff
     return *this;
   }
 
-  bool CNamespace::operator==( const CNamespace& rNamespace ) const
+  bool Namespace::operator==(const Namespace& rNamespace) const
   {
     return axiom_namespace_equals(m_pAxiomNamespace, m_pEnv, rNamespace.m_pAxiomNamespace) == AXIS2_TRUE;
   }
 
-  bool CNamespace::operator!=( const CNamespace& rNamespace ) const
+  bool Namespace::operator!=(const Namespace& rNamespace) const
   {
     return !(operator==(rNamespace));
   }
 
-  CNamespace::operator axiom_namespace_t*()
+  Namespace::operator axiom_namespace_t*()
   {
     return m_pAxiomNamespace;
   }
 
-  CNamespace* CNamespace::operator->()
+  Namespace* Namespace::operator->()
   {
     return this;
   }
 
-  const CNamespace* CNamespace::operator->() const
+  const Namespace* Namespace::operator->() const
   {
     return this;
   }
 
-  axutil_env_t* CNamespace::m_pEnv = CRuntime::Inst().GetAxis2Env();
+  axutil_env_t* Namespace::m_pEnv = Runtime::Inst().GetAxis2Env();
 
 } // namespace staff
 

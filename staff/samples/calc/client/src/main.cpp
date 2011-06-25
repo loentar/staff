@@ -39,7 +39,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   try
   {
     // use anonymous account and instance "mycalc"
-    std::auto_ptr< ::samples::calc::CCalcService > pCalcService(staff::CServiceFactory::Inst().GetService< ::samples::calc::CCalcService >("", "", "mycalc"));
+    std::auto_ptr< ::samples::calc::CalcService > pCalcService(staff::ServiceFactory::Inst().GetService< ::samples::calc::CalcService >("", "", "mycalc"));
 
     RISE_ASSERTS(pCalcService.get(), "Cannot get client for service calc.CalcService!");
 

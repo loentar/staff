@@ -6,7 +6,7 @@
 #cginclude "EnumSerialization.cpp"
 #end
 
-CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct)
+DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.ParentName),)
   // serialize parent struct
@@ -34,7 +34,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #var doName rdoParam
 #else
 #var doName tdoParam$(Param.Name)
-  CDataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
+  DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend // serialize to parent element?
   $($doName) << rstStruct.$(Param.Name);
 #else
@@ -45,7 +45,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #var doName rdoParam
 #else
 #var doName tdoParam$(Param.Name)
-  CDataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
+  DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend
   for ($(Param.DataType)::const_iterator it = rstStruct.$(Param.Name).begin();
       it != rstStruct.$(Param.Name).end(); ++it)
@@ -56,13 +56,13 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 #var ElementName Item
 #ifeqend
 #ifeq($(Param.DataType.NsName),std::map)
-    CDataObject tdoItem = $($doName).CreateChild("$($ElementName)");
+    DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
 \
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.CreateChild("Key").SetValue(it->first);
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    CDataObject tdoKey = tdoItem.CreateChild("Key");
+    DataObject tdoKey = tdoItem.CreateChild("Key");
     tdoKey << tKey;
 #else
 #cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
@@ -73,7 +73,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
     tdoItem.CreateChild("Value").tdoValue.SetValue(it->second);
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    CDataObject tdoValue = tdoItem.CreateChild("Value");
+    DataObject tdoValue = tdoItem.CreateChild("Value");
     tdoValue << it->second;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -90,7 +90,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
     $($doName).CreateChild("$($ElementName)").SetValue(*it);
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    CDataObject tdoItem = $($doName).CreateChild("$($ElementName)");
+    DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
     tdoItem << *it;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
@@ -108,7 +108,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
 \
 \
 #ifeq($(Param.DataType.Type),dataobject)
-  rdoParam$($SerializeNodeInstruct).AppendChild(const_cast<CDataObject&>(rstStruct.$(Param.Name)));
+  rdoParam$($SerializeNodeInstruct).AppendChild(rstStruct.$(Param.Name));
 #else
 \
 \
@@ -125,7 +125,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Struct.NsName)& rstStruct
   return rdoParam;
 }
 
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rstStruct)
+const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstStruct)
 {
 #ifneq($(Struct.ParentName),)
   // deserialize parent struct
@@ -176,14 +176,14 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
 ;
 \
 #ifeqend
-  for (CDataObject tdoItem = rdoParam$($DeserializeNodeInstruct).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+  for (DataObject tdoItem = rdoParam$($DeserializeNodeInstruct).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
 #ifeq($(Param.DataType.NsName),std::map)
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
     tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    CDataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+    DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
     tdoKey >> tKey;
 #else
 #cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
@@ -194,7 +194,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Struct.NsName)& rst
     tdoItem.GetChildByLocalName("Value").GetValue(tValue);
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    CDataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+    DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
     tdoValue >> tValue;
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)

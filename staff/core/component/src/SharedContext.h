@@ -29,77 +29,82 @@
 
 namespace staff
 {
-  class CServiceWrapper;
-  class CComponent;
+  class ServiceWrapper;
+  class Component;
   
   //! Pointer to componsite component
-  typedef rise::CMutablePtr<CCompositeComponent> PCompositeComponent;
+  typedef rise::CMutablePtr<CompositeComponent> PCompositeComponent;
 
   //! Composite components map
-  typedef std::map<std::string, PCompositeComponent> TCompositeComponentMap;
+  typedef std::map<std::string, PCompositeComponent> CompositeComponentMap;
 
 
   //!  Shared context
-  class STAFF_COMPONENT_EXPORT CSharedContext
+  class STAFF_COMPONENT_EXPORT SharedContext
   {
   public:
     //!         get shared context instance
     /*! \return shared context instance
     */
-    static CSharedContext& Inst();
+    static SharedContext& Inst();
     
     //!         add component
     /*! \param  pComponent - component
         */
-    void AddComponent(CComponent* pComponent);
+    void AddComponent(Component* pComponent);
 
     //!         get composite component by name
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    const CCompositeComponent* GetComponent(const std::string& sName) const;
+    const CompositeComponent* GetComponent(const std::string& sName) const;
     
     //!         get composite component by name
     /*! \param  sName - component name
         \return pointer to composite component, NULL, if no component found
         */
-    CCompositeComponent* GetComponent(const std::string& sName);
+    CompositeComponent* GetComponent(const std::string& sName);
     
     //!         get available composite components map
     /*! \return available composite components map
     */
-    const TCompositeComponentMap& GetComponents() const;
+    const CompositeComponentMap& GetComponents() const;
 
     //!         get service by name
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    const CServiceWrapper* GetService(const std::string& sName) const;
+    const ServiceWrapper* GetService(const std::string& sName) const;
 
     //!         get service by name
     /*! \param  sName - full service name(including component name)
         \return pointer to service, NULL, if no service found
         */
-    CServiceWrapper* GetService(const std::string& sName);
+    ServiceWrapper* GetService(const std::string& sName);
 
     //!         get services list
     /*! \return services list
         */
-    const TServiceWrapperMap& GetServices() const;
+    const ServiceWrapperMap& GetServices() const;
 
     //!         clear component list
     void Clear();
 
   private:
-    CSharedContext();
-    ~CSharedContext();
-    CSharedContext(const CSharedContext&);
-    CSharedContext& operator=(const CSharedContext&);
+    SharedContext();
+    ~SharedContext();
+    SharedContext(const SharedContext&);
+    SharedContext& operator=(const SharedContext&);
 
   private:
-    TCompositeComponentMap m_mComponents;
-    TServiceWrapperMap m_mServiceWrappers;
+    CompositeComponentMap m_mComponents;
+    ServiceWrapperMap m_mServiceWrappers;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef SharedContext CSharedContext STAFF_DEPRECATED(SharedContext);
+#endif
+
 }
 
 #endif // _SHAREDCONTEXT_H_

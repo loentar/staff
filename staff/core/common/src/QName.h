@@ -32,62 +32,62 @@ namespace staff
 {
 
   //! Qualified name
-  class STAFF_COMMON_EXPORT CQName
+  class STAFF_COMMON_EXPORT QName
   {
   public:
     //!         default constructor
-    CQName();
+    QName();
 
     //!         initializing constructor
     /*! \param  pQName - existing AxiOM QName
         */
-    explicit CQName(axutil_qname_t* pQName);
+    explicit QName(axutil_qname_t* pQName);
 
     //!        constructor with ownership transfer
     /*! \param  rstQName - existing QName
         */
-    CQName(CQName& rstQName);
+    QName(QName& rstQName);
 
     //!         initializing constructor
     /*! \param  sLocalPart - local part (may contain prefix)
         \param  sNamespaceUri - namespace URI
         */
-    CQName(const std::string& sLocalPart, const std::string& sNamespaceUri);
+    QName(const std::string& sLocalPart, const std::string& sNamespaceUri);
 
     //!         initializing constructor
     /*! \param  sLocalPart - local part
         \param  sNamespaceUri - namespace URI
         \param  sPrefix - prefix
         */
-    CQName(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix);
+    QName(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix);
 
     //!         destructor
-    ~CQName();
+    ~QName();
 
     //!         ownership transfer operator
     /*! \param  rQName - source QName
         \return reference to current QName
         */
-    CQName& operator=( CQName& rQName );
+    QName& operator=(QName& rQName);
 
     //!         initialization operator
     /*! \param  pQName - AxiOM QName
         \return reference to current QName
         */
-    CQName& operator=( axutil_qname_t* pQName );
+    QName& operator=(axutil_qname_t* pQName);
 
     //!         test target QName for equality with specified QName
     /*! compare only local part and URI
         \param  rstQName - QName
         \return true - QNames are equals
         */
-    bool operator==(const CQName& rstQName) const;
+    bool operator==(const QName& rstQName) const;
 
     //!         test target QName for inequality with specified QName
     /*! \param  rstQName - QName
         \return true - QNames are inequals
         */
-    bool operator!=(const CQName& rstQName) const;
+    bool operator!=(const QName& rstQName) const;
 
     //!         test target QName for equality with specified QName
     /*! \param  pQName - QName
@@ -124,7 +124,7 @@ namespace staff
         \param  sPrefix - prefix
         \return reference to current QName
         */
-    CQName& Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix = "");
+    QName& Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix = "");
 
     //!         free QName (even if ownership flag is not set)
     void Free();
@@ -133,7 +133,7 @@ namespace staff
     /*! \param  pQName - AxiOM qname
         \return reference to current QName
         */
-    CQName& Attach(axutil_qname_t* pQName);
+    QName& Attach(axutil_qname_t* pQName);
 
     //!         detach QName object from AxiOM qname
     /*! if ownership flag is set, QName will be freed */
@@ -143,12 +143,12 @@ namespace staff
     /*! \param  rQName - source object
         \return reference to current QName
         */
-    CQName& Clone(const CQName& rQName);
+    QName& Clone(const QName& rQName);
     
     //!         create QName clone
     /*! \return QName clone
     */
-    CQName Clone();
+    QName Clone();
 
     //!         string cast operator
     /*! \return prefix:localPart
@@ -175,6 +175,10 @@ namespace staff
     axutil_qname_t* m_pAxutilQName;  //!<  AxiOM qname
     static axutil_env_t* m_pEnv;     //!<  Axis2/C environment
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef QName CQName STAFF_DEPRECATED(QName);
+#endif
 
 } // namespace staff
 

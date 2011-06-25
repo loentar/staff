@@ -29,11 +29,11 @@
 
 namespace staff
 {
-  class CLoginImpl: public CLogin
+  class LoginImpl: public Login
   {
   public:
-    virtual ~CLoginImpl();
-    virtual std::string Login(const std::string& sUserName, const std::string& sPassword);
+    virtual ~LoginImpl();
+    virtual std::string LoginUser(const std::string& sUserName, const std::string& sPassword);
     virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting);
     virtual void Logout();
     virtual void KeepAliveSession();

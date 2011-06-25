@@ -25,26 +25,26 @@ namespace staff
 #ifeq($(Typedef.Extern),0) // do not serialize extern type
 
 #ifeq($(Typedef.DataType.IsTemplate),1)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
+DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
 #var ElementName $(Typedef.Options.*elementName||"Item")
 #ifeq($(Typedef.DataType.NsName),std::map)
 \
-    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
+    DataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
 
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.CreateChild("Key", it->first);
 #else
-    CDataObject tdoKey = tdoItem.CreateChild("Key");
+    DataObject tdoKey = tdoItem.CreateChild("Key");
     tdoKey << it->first;
 #ifeqend
 
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic||string)
     tdoItem.CreateChild("Value", it->second);
 #else
-    CDataObject tdoValue = tdoItem.CreateChild("Value");
+    DataObject tdoValue = tdoItem.CreateChild("Value");
     tdoValue << it->second;
 #ifeqend
 \
@@ -53,7 +53,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
     rdoParam.CreateChild("$($ElementName)", *it);
 #else
-    CDataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
+    DataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
     tdoItem << *it;
 #ifeqend
 \
@@ -64,7 +64,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 }
 #else // DataType.IsTemplate
 #ifneq($(Typedef.DataType.Type),struct)
-CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
+DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic||string)
   rdoParam.SetValue(rtType);
@@ -94,7 +94,7 @@ CDataObject& operator<<(CDataObject& rdoParam, const $(Typedef.NsName)& rtType)
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0)
 #ifneq($(Typedef.DataType.Type),struct)
-const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rtType)
+const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic||string)
   rdoParam.GetValue(rtType);
@@ -135,7 +135,7 @@ const CDataObject& operator>>(const CDataObject& rdoParam, $(Typedef.NsName)& rt
 #ifeqend
 ;
 #ifeqend
-  for (CDataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+  for (DataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
 #ifeq($(Typedef.DataType.NsName),std::map)
 \

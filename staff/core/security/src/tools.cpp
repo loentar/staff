@@ -33,7 +33,7 @@ int staff_security_init()
   int nResult = 0;
   try
   {
-    staff::security::CDbConn::Open();
+    staff::security::DbConn::Open();
     nResult = 1;
   }
   RISE_CATCH_ALL;
@@ -43,7 +43,7 @@ int staff_security_init()
 
 void staff_security_free()
 {
-  staff::security::CDbConn::Close();
+  staff::security::DbConn::Close();
 }
 
 int staff_security_calculate_access_by_session_id(const char* szObjectPath, const char* szSessionId, int* pnAccess)
@@ -58,9 +58,9 @@ int staff_security_calculate_access_by_session_id(const char* szObjectPath, cons
   try
   {
     int nUserId = -1;
-    if (staff::security::CSessions::Inst().GetUserId(szSessionId, nUserId))
+    if (staff::security::Sessions::Inst().GetUserId(szSessionId, nUserId))
     {
-      if( staff::security::CAcl::Inst().CalculateUserAccess(szObjectPath, nUserId))
+      if( staff::security::Acl::Inst().CalculateUserAccess(szObjectPath, nUserId))
       {
         *pnAccess = 1;
       }

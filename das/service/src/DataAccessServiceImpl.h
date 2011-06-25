@@ -48,8 +48,8 @@ namespace das
     virtual StringList GetDataSources();
     virtual void SetDataSource(const std::string& sDataSource);
     virtual void FreeDataSource();
-    virtual CDataObject GetInterface() const;
-    virtual CDataObject Invoke(const CDataObject& rdoOperation);
+    virtual DataObject GetInterface() const;
+    virtual DataObject Invoke(const DataObject& rdoOperation);
 
   private:
     PProvider m_tpProvider;

@@ -67,14 +67,14 @@ int main(int nArgs, const char* szArgs[])
     return 1;
   }
 
-  staff::codegen::SParseSettings stParseSettings;
-  staff::codegen::SProject stProject;
+  staff::codegen::ParseSettings stParseSettings;
+  staff::codegen::Project stProject;
 
   std::string sTemplate;
   std::string sPluginName = "cpp";
   bool bGenXml = false;
   bool bUpdateOnly = false;
-  staff::codegen::TStringMap mEnv;
+  staff::codegen::StringMap mEnv;
   int nResult = 0;
 
   const std::string& sTemplatesDir = std::string(szStaffHome) + "/bin/template/";
@@ -178,13 +178,13 @@ int main(int nArgs, const char* szArgs[])
 
         if (sWhat.empty() || sWhat.find('t') != std::string::npos)
         {
-          staff::codegen::TStringList lsTemplates;
+          staff::codegen::StringList lsTemplates;
 
           rise::CFileFind::Find(sTemplatesDir, lsTemplates, "*", rise::CFileFind::EFA_DIR);
           lsTemplates.sort();
 
           std::cout << "Templates:\n";
-          for (staff::codegen::TStringList::const_iterator itTemplate = lsTemplates.begin();
+          for (staff::codegen::StringList::const_iterator itTemplate = lsTemplates.begin();
               itTemplate != lsTemplates.end(); ++itTemplate)
           {
             if (*itTemplate != "common")
@@ -198,14 +198,14 @@ int main(int nArgs, const char* szArgs[])
         {
           const std::string::size_type nPluginPrefixSize = sPluginPrefix.size();
           const std::string::size_type nPluginExtSize = strlen(RISE_LIBRARY_EXT);
-          staff::codegen::TStringList lsPlugins;
+          staff::codegen::StringList lsPlugins;
           rise::CFileFind::Find(sPluginsDir, lsPlugins, sPluginPrefix + "*" RISE_LIBRARY_EXT,
                                 rise::CFileFind::EFA_FILE);
 
           lsPlugins.sort();
 
           std::cout << "\nParsers:\n";
-          for (staff::codegen::TStringList::const_iterator itPlugin = lsPlugins.begin();
+          for (staff::codegen::StringList::const_iterator itPlugin = lsPlugins.begin();
               itPlugin != lsPlugins.end(); ++itPlugin)
           {
             std::cout << "  "
@@ -276,12 +276,12 @@ int main(int nArgs, const char* szArgs[])
     if (!sTemplate.empty())
     {
       rise::LogDebug() << "template: " << sTemplate;
-      staff::codegen::CCodeGen tGen;
+      staff::codegen::CodeGen tGen;
       tGen.Start(sTemplatesDir + sTemplate + RISE_PATH_SEPARATOR, stParseSettings.sOutDir,
                   tDoc.GetRoot(), bUpdateOnly, mEnv);
     }
   }
-  catch (const staff::codegen::CParseException& rException)
+  catch (const staff::codegen::ParseException& rException)
   {
     rise::LogError() << rException;
     nResult = 1;

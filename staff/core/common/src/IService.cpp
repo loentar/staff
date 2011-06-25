@@ -39,7 +39,7 @@ namespace staff
   {
   }
 
-  CServiceClient* IService::GetClient()
+  ServiceClient* IService::GetClient()
   {
     return NULL;
   }

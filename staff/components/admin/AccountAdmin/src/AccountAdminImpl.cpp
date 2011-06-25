@@ -35,25 +35,25 @@ namespace staff
 namespace admin
 {
 
-CAccountAdminImpl::CAccountAdminImpl()
+AccountAdminImpl::AccountAdminImpl()
 {
 }
 
-CAccountAdminImpl::~CAccountAdminImpl()
+AccountAdminImpl::~AccountAdminImpl()
 {
 }
 
-::staff::admin::TUserList CAccountAdminImpl::GetUsers()
+::staff::admin::UserList AccountAdminImpl::GetUsers()
 {
-  ::staff::admin::TUserList tResult;
-  staff::security::TUsersList lsSecUsers;
+  ::staff::admin::UserList tResult;
+  staff::security::UsersList lsSecUsers;
 
-  staff::security::CUsers::Inst().GetList(lsSecUsers);
+  staff::security::Users::Inst().GetList(lsSecUsers);
 
-  for (staff::security::TUsersList::const_iterator itUser = lsSecUsers.begin();
+  for (staff::security::UsersList::const_iterator itUser = lsSecUsers.begin();
       itUser != lsSecUsers.end(); ++itUser)
   {
-    ::staff::admin::SUser tUser;
+    ::staff::admin::User tUser;
     tUser.nId = itUser->nId;
     tUser.sName = itUser->sName;
     tUser.sDescription = itUser->sDescription;
@@ -64,17 +64,17 @@ CAccountAdminImpl::~CAccountAdminImpl()
   return tResult;  // result
 }
 
-::staff::admin::TGroupList CAccountAdminImpl::GetGroups()
+::staff::admin::GroupList AccountAdminImpl::GetGroups()
 {
-  ::staff::admin::TGroupList tResult;
-  staff::security::TGroupsList lsSecGroups;
+  ::staff::admin::GroupList tResult;
+  staff::security::GroupsList lsSecGroups;
 
-  staff::security::CGroups::Inst().GetList(lsSecGroups);
+  staff::security::Groups::Inst().GetList(lsSecGroups);
 
-  for (staff::security::TGroupsList::const_iterator itGroup = lsSecGroups.begin();
+  for (staff::security::GroupsList::const_iterator itGroup = lsSecGroups.begin();
       itGroup != lsSecGroups.end(); ++itGroup)
   {
-    ::staff::admin::SGroup tGroup;
+    ::staff::admin::Group tGroup;
     tGroup.nId = itGroup->nId;
     tGroup.sName = itGroup->sName;
     tGroup.sDescription = itGroup->sDescription;
@@ -85,73 +85,73 @@ CAccountAdminImpl::~CAccountAdminImpl()
   return tResult;  // result
 }
 
-::staff::admin::TIdList CAccountAdminImpl::GetUserGroups(int nUserId)
+::staff::admin::IdList AccountAdminImpl::GetUserGroups(int nUserId)
 {
-  ::staff::admin::TIdList tResult;
+  ::staff::admin::IdList tResult;
 //  staff::security::TIntList lsGroups;
-  staff::security::CUsersToGroups::Inst().GetUserGroups(nUserId, tResult);
+  staff::security::UsersToGroups::Inst().GetUserGroups(nUserId, tResult);
 
   return tResult;  // result
 }
 
-int CAccountAdminImpl::AddUser(const std::string& sUserName, const std::string& sDescription)
+int AccountAdminImpl::AddUser(const std::string& sUserName, const std::string& sDescription)
 {
   int tResult = -1;
 
-  staff::security::CUsers::Inst().Add(sUserName, "", sDescription, tResult);
+  staff::security::Users::Inst().Add(sUserName, "", sDescription, tResult);
 
   return tResult;  // result
 }
 
-void CAccountAdminImpl::RemoveUser(int nUserId)
+void AccountAdminImpl::RemoveUser(int nUserId)
 {
-  staff::security::CUsers::Inst().Remove(nUserId);
+  staff::security::Users::Inst().Remove(nUserId);
 }
 
-void CAccountAdminImpl::SetUserPassword(int nUserId, const std::string& sPass)
+void AccountAdminImpl::SetUserPassword(int nUserId, const std::string& sPass)
 {
-  staff::security::CUsers::Inst().SetPassword(nUserId, sPass);
+  staff::security::Users::Inst().SetPassword(nUserId, sPass);
 }
 
-int CAccountAdminImpl::AddGroup(const std::string& sGroupName, const std::string& sDescription)
+int AccountAdminImpl::AddGroup(const std::string& sGroupName, const std::string& sDescription)
 {
   int tResult = -1;
 
-  staff::security::CGroups::Inst().Add(sGroupName, sDescription, tResult);
+  staff::security::Groups::Inst().Add(sGroupName, sDescription, tResult);
 
   return tResult;  // result
 }
 
-void CAccountAdminImpl::RemoveGroup(int nGroupId)
+void AccountAdminImpl::RemoveGroup(int nGroupId)
 {
-  staff::security::CGroups::Inst().Remove(nGroupId);
+  staff::security::Groups::Inst().Remove(nGroupId);
 }
 
-void CAccountAdminImpl::AddUserToGroup(int nUserId, int nGroupId)
+void AccountAdminImpl::AddUserToGroup(int nUserId, int nGroupId)
 {
-  staff::security::CUsersToGroups::Inst().AddUserToGroup(nUserId, nGroupId);
+  staff::security::UsersToGroups::Inst().AddUserToGroup(nUserId, nGroupId);
 }
 
-void CAccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
+void AccountAdminImpl::AddUserToGroups(int nUserId, const ::staff::admin::IdList& rlsGroupIds)
 {
-  for(::staff::admin::TIdList::const_iterator itGroupId = rlsGroupIds.begin();
+  for(::staff::admin::IdList::const_iterator itGroupId = rlsGroupIds.begin();
       itGroupId != rlsGroupIds.end(); ++itGroupId)
   {
-    staff::security::CUsersToGroups::Inst().AddUserToGroup(nUserId, *itGroupId);
+    staff::security::UsersToGroups::Inst().AddUserToGroup(nUserId, *itGroupId);
   }
 }
 
-void CAccountAdminImpl::RemoveUserFromGroup(int nUserId, int nGroupId)
+void AccountAdminImpl::RemoveUserFromGroup(int nUserId, int nGroupId)
 {
-  staff::security::CUsersToGroups::Inst().RemoveUserFromGroup(nUserId, nGroupId);
+  staff::security::UsersToGroups::Inst().RemoveUserFromGroup(nUserId, nGroupId);
 }
 
-void CAccountAdminImpl::RemoveUserFromGroups(int nUserId, const ::staff::admin::TIdList& rlsGroupIds)
+void AccountAdminImpl::RemoveUserFromGroups(int nUserId, const ::staff::admin::IdList& rlsGroupIds)
 {
-  for(::staff::admin::TIdList::const_iterator itGroupId = rlsGroupIds.begin();
+  for(::staff::admin::IdList::const_iterator itGroupId = rlsGroupIds.begin();
       itGroupId != rlsGroupIds.end(); ++itGroupId)
   {
-    staff::security::CUsersToGroups::Inst().RemoveUserFromGroup(nUserId, *itGroupId);
+    staff::security::UsersToGroups::Inst().RemoveUserFromGroup(nUserId, *itGroupId);
   }
 }
 

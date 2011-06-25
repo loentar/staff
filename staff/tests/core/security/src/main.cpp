@@ -51,7 +51,7 @@ void Header(const std::string& sText)
     << std::endl;
 }*/
 
-std::ostream& operator<<(std::ostream& rStream, const staff::security::SUser& rUser)
+std::ostream& operator<<(std::ostream& rStream, const staff::security::User& rUser)
 {
   return rStream
     << "\n         id: " << rUser.nId
@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& rStream, const staff::security::SUser& rU
     << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& rStream, const staff::security::SGroup& rGroup)
+std::ostream& operator<<(std::ostream& rStream, const staff::security::Group& rGroup)
 {
   return rStream
     << "\n         id: " << rGroup.nId
@@ -69,7 +69,7 @@ std::ostream& operator<<(std::ostream& rStream, const staff::security::SGroup& r
     << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& rStream, const staff::security::SObject& rObject)
+std::ostream& operator<<(std::ostream& rStream, const staff::security::Object& rObject)
 {
   return rStream
     << "\n         id: " << rObject.nId
@@ -114,23 +114,23 @@ int main()
   {
     using namespace staff::security;
 
-    SSession stSession;
+    Session stSession;
 
-    CDbConn::Open();
+    DbConn::Open();
 
     {
-      TSessionsList lsSessions;
+      SessionsList lsSessions;
 
       Header("Sessions");
-      CSessions& rSessions = CSessions::Inst();
+      Sessions& rSessions = Sessions::Inst();
 
 /*      rSessions.GetById(0, stSession);
-      Test("GetById", stSession.sSessionId == CSessions::sNobodySessionId);*/
+      Test("GetById", stSession.sSessionId == Sessions::sNobodySessionId);*/
 
 //      rise::LogDebug3() << stSession;
 
 //      Test("Validate nobody", rSessions.Validate(stSession.sSessionId));
-      Test("Validate nobody", rSessions.Validate(CSessions::sNobodySessionId));
+      Test("Validate nobody", rSessions.Validate(Sessions::sNobodySessionId));
 
 /*      unsigned unSessionsCount = -1;
       rSessions.GetList(lsSessions);
@@ -182,11 +182,11 @@ int main()
       ////////////////////////////////////////////////////////////////
       // users
 
-      CUsers& rUsers = CUsers::Inst();
+      Users& rUsers = Users::Inst();
 
-      SUser stUser;
+      User stUser;
       int nUserId = -1;
-      TUsersList lsUsers;
+      UsersList lsUsers;
 
       rUsers.Add("test", "test", "test user", nUserId);
       Test("Add user", nUserId > 0);
@@ -213,11 +213,11 @@ int main()
       ////////////////////////////////////////////////////////////////
       // groups
 
-      CGroups& rGroups = CGroups::Inst();
+      Groups& rGroups = Groups::Inst();
 
-      SGroup stGroup;
+      Group stGroup;
       int nGroupId = -1;
-      TGroupsList lsGroups;
+      GroupsList lsGroups;
 
       rGroups.Add("test", "test group", nGroupId);
       Test("Add group", nGroupId > 0);
@@ -241,9 +241,9 @@ int main()
       ////////////////////////////////////////////////////////////////
       // users to groups
 
-      TIntList lsTmp;
+      IntList lsTmp;
 
-      CUsersToGroups& rUsersToGroups = CUsersToGroups::Inst();
+      UsersToGroups& rUsersToGroups = UsersToGroups::Inst();
 
       rUsersToGroups.GetUserGroups(nUserId, lsTmp);
       Test("GetUserGroups", lsTmp.size() == 0);
@@ -277,7 +277,7 @@ int main()
 
 
     int nSamplesId = -1;
-    CObjects& rObjects = CObjects::Inst();
+    Objects& rObjects = Objects::Inst();
 
     {
       Header("Objects");
@@ -285,8 +285,8 @@ int main()
       ////////////////////////////////////////////////////////////////
       // objects
 
-      SObject stObject;
-      TObjectList lsObjects;
+      Object stObject;
+      ObjectList lsObjects;
 
       // create test tree
       {
@@ -336,7 +336,7 @@ int main()
       ////////////////////////////////////////////////////////////////
       // acl
 
-      CAcl& rAcl = CAcl::Inst();
+      Acl& rAcl = Acl::Inst();
 
       EAccess eAccess = EAccessInherited;
       bool bAccess = false;
@@ -429,7 +429,7 @@ int main()
     Header("Results");
     rise::LogInfo() << "\n\n\033[1mTests successed: " << nSuccessed << "\nTests failed: " << nFailed << "\033[0m";
 
-    CDbConn::Close();
+    DbConn::Close();
   }
   RISE_CATCH_ALL;
 

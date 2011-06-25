@@ -29,7 +29,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< ::staff::das::samples::Users > pUsers(::staff::CServiceFactory::Inst().GetService< ::staff::das::samples::Users >());
+    std::auto_ptr< ::staff::das::samples::Users > pUsers(::staff::ServiceFactory::Inst().GetService< ::staff::das::samples::Users >());
 
     RISE_ASSERTES(pUsers.get() != NULL, rise::CLogicNoItemException, "Cannot get client for service staff.das.samples.Users!");
 
@@ -110,7 +110,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     rise::LogInfo() << "removing users list";
     pUsers->RemoveList(lsInsertedUsersIds);
   }
-  catch(const staff::CRemoteException& rEx)
+  catch(const staff::RemoteException& rEx)
   {
     rise::LogError() << rEx.GetDescr();
   }

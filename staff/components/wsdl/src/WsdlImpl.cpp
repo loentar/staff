@@ -17,7 +17,7 @@ namespace staff
 namespace wsdl
 {
 
-void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, COperation& rOperation)
+void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, Operation& rOperation)
 {
   const std::string& sHost = rOperation.GetMessageContext().GetPropertyValue("HttpHost");
 
@@ -26,33 +26,33 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, COpe
   RISE_ASSERTS(sComponent.find_first_of("/\\") == std::string::npos, "Invalid component");
 
   // path to file
-  const std::string& sFilePath = staff::CRuntime::Inst().GetComponentHome(sComponent) +
+  const std::string& sFilePath = staff::Runtime::Inst().GetComponentHome(sComponent) +
                                      RISE_PATH_SEPARATOR + sFile;
 
   std::ifstream ifsWsdlFile(sFilePath.c_str());
   RISE_ASSERTS(ifsWsdlFile.good(), "Can't open [" + sFilePath + "]");
 
-  staff::CDataObject tdoWsdl;
+  staff::DataObject tdoWsdl;
 
   std::stringstream ssWsdl;
   ssWsdl << ifsWsdlFile.rdbuf();
   tdoWsdl.FromString(ssWsdl.str());
 
   // finding service url..
-  staff::CDataObject::Iterator itService = tdoWsdl.FindChildByLocalName("service");
+  staff::DataObject::Iterator itService = tdoWsdl.FindChildByLocalName("service");
   if (itService != tdoWsdl.End())
   {
-    staff::CDataObject tdoService = *itService;
-    for (staff::CDataObject::Iterator itPort = tdoService.Begin(); itPort != tdoService.End(); ++itPort)
+    staff::DataObject tdoService = *itService;
+    for (staff::DataObject::Iterator itPort = tdoService.Begin(); itPort != tdoService.End(); ++itPort)
     {
       if (itPort->GetLocalName() == "port")
       {
-        staff::CDataObject tdoPort = *itPort;
-        staff::CDataObject::Iterator itAddress = tdoPort.FindChildByLocalName("address");
+        staff::DataObject tdoPort = *itPort;
+        staff::DataObject::Iterator itAddress = tdoPort.FindChildByLocalName("address");
         if (itAddress != tdoPort.End())
         {
-          staff::CDataObject tdoAddress = *itAddress;
-          staff::CDataObject::AttributeIterator itAttrLocation =
+          staff::DataObject tdoAddress = *itAddress;
+          staff::DataObject::AttributeIterator itAttrLocation =
               tdoAddress.FindAttributeByLocalName("location");
           if (itAttrLocation != tdoAddress.AttributeEnd())
           {

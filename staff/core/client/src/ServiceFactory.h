@@ -32,28 +32,28 @@ namespace staff
   class IProxyAllocator;
 
   //! service factory
-  class STAFF_CLIENT_EXPORT CServiceFactory
+  class STAFF_CLIENT_EXPORT ServiceFactory
   {
   public:
     //!         get instance of service factory
-    static CServiceFactory& Inst();
+    static ServiceFactory& Inst();
 
     //!         allocate new object for work with service
     /*! examples:
-        std::auto_ptr<CCalculator> pCalculator(staff::CServiceFactory::Inst().GetService<CCalculator>("http://localhost:9090/axis2/services/Calculator"));
-        std::auto_ptr<CCalculator> pCalculator(staff::CServiceFactory::Inst().GetService<CCalculator>("", "", "mycalc"));
+        std::auto_ptr<Calculator> pCalculator(staff::ServiceFactory::Inst().GetService<Calculator>("http://localhost:9090/axis2/services/Calculator"));
+        std::auto_ptr<Calculator> pCalculator(staff::ServiceFactory::Inst().GetService<Calculator>("", "", "mycalc"));
 
         \param  sServiceUri - service URI
         \param  sSessionId - session id
         \param  sInstanceId - instance id
         \return pointer to object for work with service
         */
-    template<typename TServiceClientBaseType>
-    TServiceClientBaseType* GetService(const std::string& sServiceUri = "",
+    template<typename ServiceClientBaseType>
+    ServiceClientBaseType* GetService(const std::string& sServiceUri = "",
                                        const std::string& sSessionId = "",
                                        const std::string& sInstanceId = "")
     {
-      return static_cast<TServiceClientBaseType*>(AllocateClient(typeid(TServiceClientBaseType).name(),
+      return static_cast<ServiceClientBaseType*>(AllocateClient(typeid(ServiceClientBaseType).name(),
                                                                       sServiceUri, sSessionId, sInstanceId));
     }
 
@@ -66,15 +66,15 @@ namespace staff
         \param  sInstanceId - instance id
         \return pointer to object for work with service
         */
-    template<typename TServiceClientBaseType>
-    TServiceClientBaseType* GetServiceByHost(const std::string& sHost = "localhost",
+    template<typename ServiceClientBaseType>
+    ServiceClientBaseType* GetServiceByHost(const std::string& sHost = "localhost",
                                              int nPort = 9090,
                                              const std::string& sProtocol = "http",
                                              const std::string& sServiceName = "",
                                              const std::string& sSessionId = "",
                                              const std::string& sInstanceId = "")
     {
-      return static_cast<TServiceClientBaseType*>(AllocateClientByHost(typeid(TServiceClientBaseType).name(),
+      return static_cast<ServiceClientBaseType*>(AllocateClientByHost(typeid(ServiceClientBaseType).name(),
                                                                       sHost, nPort, sProtocol, sServiceName, sSessionId, sInstanceId));
     }
 
@@ -82,26 +82,30 @@ namespace staff
     void RegisterProxyAllocator(const std::string& sProxyTypeId, IProxyAllocator& rProxyAllocator);
 
   private:
-    CServiceFactory();
-    ~CServiceFactory();
-    CServiceFactory(const CServiceFactory&);
-    CServiceFactory& operator=(const CServiceFactory&);
+    ServiceFactory();
+    ~ServiceFactory();
+    ServiceFactory(const ServiceFactory&);
+    ServiceFactory& operator=(const ServiceFactory&);
 
-    staff::IService* AllocateClient(const std::string& sClientType, const std::string& sServiceUri,
-                                    const std::string& sSessionId, const std::string& sInstanceId);
+    IService* AllocateClient(const std::string& sClientType, const std::string& sServiceUri,
+                             const std::string& sSessionId, const std::string& sInstanceId);
 
-    staff::IService* AllocateClientByHost(const std::string& sClientType,
-                                          const std::string& sHost,
-                                          int nPort,
-                                          const std::string& sProtocol,
-                                          const std::string& sServiceName,
-                                          const std::string& sSessionId,
-                                          const std::string& sInstanceId);
+    IService* AllocateClientByHost(const std::string& sClientType,
+                                   const std::string& sHost,
+                                   int nPort,
+                                   const std::string& sProtocol,
+                                   const std::string& sServiceName,
+                                   const std::string& sSessionId,
+                                   const std::string& sInstanceId);
 
   private:
-    class CServiceFactoryImpl;
-    CServiceFactoryImpl* m_pImpl;
+    class ServiceFactoryImpl;
+    ServiceFactoryImpl* m_pImpl;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef ServiceFactory CServiceFactory STAFF_DEPRECATED(ServiceFactory);
+#endif
 }
 
 #endif // _SERVICEFACTORY_H_

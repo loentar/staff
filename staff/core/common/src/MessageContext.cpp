@@ -27,18 +27,18 @@
 
 namespace staff
 {
-  CMessageContext::CMessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx):
+  MessageContext::MessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx):
     m_pEnv(pEnv), m_pMsgCtx(pMsgCtx)
   {
   }
 
-  CMessageContext::operator axis2_msg_ctx_t*()
+  MessageContext::operator axis2_msg_ctx_t*()
   {
     return m_pMsgCtx;
   }
 
 
-  std::string CMessageContext::GetFaultToAddress() const
+  std::string MessageContext::GetFaultToAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(pHeaders, "Can't get Headers");
@@ -49,7 +49,7 @@ namespace staff
     return szAddr;
   }
 
-  std::string CMessageContext::GetFromAddress() const
+  std::string MessageContext::GetFromAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(pHeaders, "Can't get Headers");
@@ -67,7 +67,7 @@ namespace staff
 //    return szAddr;
   }
 
-  std::string CMessageContext::GetToAddress() const
+  std::string MessageContext::GetToAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(pHeaders, "Can't get Headers");
@@ -78,7 +78,7 @@ namespace staff
     return szAddr;
   }
 
-  bool CMessageContext::GetInFaultFlow() const
+  bool MessageContext::GetInFaultFlow() const
   {
     return axis2_msg_ctx_get_in_fault_flow(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
@@ -98,13 +98,13 @@ namespace staff
   //  axis2_msg_ctx_get_fault_soap_envelope
   //}
 
-  std::string CMessageContext::GetMsgId() const
+  std::string MessageContext::GetMsgId() const
   {
     const axis2_char_t* szMsgId = axis2_msg_ctx_get_msg_id(m_pMsgCtx, m_pEnv);
     return szMsgId ? szMsgId : "";
   }
 
-  bool CMessageContext::GetProcessFault() const
+  bool MessageContext::GetProcessFault() const
   {
     return axis2_msg_ctx_get_process_fault(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
@@ -119,47 +119,47 @@ namespace staff
   //  axis2_msg_ctx_get_reply_to()
   //}
 
-  bool CMessageContext::GetServerSide() const
+  bool MessageContext::GetServerSide() const
   {
     return axis2_msg_ctx_get_server_side(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  bool CMessageContext::GetNewThreadRequired() const
+  bool MessageContext::GetNewThreadRequired() const
   {
     return axis2_msg_ctx_get_new_thread_required(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  std::string CMessageContext::GetWsaAction() const
+  std::string MessageContext::GetWsaAction() const
   {
     const axis2_char_t* szMsgId = axis2_msg_ctx_get_wsa_action(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(szMsgId, "Can't get wsa action");
     return szMsgId;
   }
 
-  std::string CMessageContext::GetWsaMessageId() const
+  std::string MessageContext::GetWsaMessageId() const
   {
     const axis2_char_t* szMsgId = axis2_msg_ctx_get_wsa_message_id(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(szMsgId, "Can't get wsa msgid");
     return szMsgId;
   }
 
-//  CMessageContext::GetMsgInfoHeaders() const
+//  MessageContext::GetMsgInfoHeaders() const
 //  {
 //    axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
 //  }
 
-  bool CMessageContext::IsKeepAlive() const
+  bool MessageContext::IsKeepAlive() const
   {
     return axis2_msg_ctx_is_keep_alive(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  std::string CMessageContext::GetRestHttpMethod() const
+  std::string MessageContext::GetRestHttpMethod() const
   {
     const char* szHttpMethod = static_cast<const char*>(axis2_msg_ctx_get_rest_http_method(m_pMsgCtx, m_pEnv));
     return szHttpMethod ? szHttpMethod : "";
   }
 
-  std::string CMessageContext::GetServiceContextId() const
+  std::string MessageContext::GetServiceContextId() const
   {
     const char* szSvcCtxId = static_cast<const char*>(axis2_msg_ctx_get_svc_ctx_id(m_pMsgCtx, m_pEnv));
     return szSvcCtxId ? szSvcCtxId : "";
@@ -190,52 +190,52 @@ namespace staff
   //  axis2_msg_ctx_get_property
   //}
 
-  std::string CMessageContext::GetPropertyValue(const std::string& sName) const
+  std::string MessageContext::GetPropertyValue(const std::string& sName) const
   {
     const axis2_char_t* szValue = reinterpret_cast<const char*>
         (axis2_msg_ctx_get_property_value(m_pMsgCtx, m_pEnv, sName.c_str()));
     return szValue ? szValue : "";
   }
 
-  std::string CMessageContext::GetPausedHandlerName() const
+  std::string MessageContext::GetPausedHandlerName() const
   {
     const axutil_string_t* psName = axis2_msg_ctx_get_paused_handler_name(m_pMsgCtx, m_pEnv);
     return std::string(axutil_string_get_buffer(psName, m_pEnv), axutil_string_get_length(psName, m_pEnv));
   }
 
-  //std::string CMessageContext::GetPausedPhaseName() const
+  //std::string MessageContext::GetPausedPhaseName() const
   //{
   //  const char* szName = static_cast<const char*>(axis2_msg_ctx_get_paused_phase_name(m_pMsgCtx, m_pEnv));
   //  return szName ? szName : "";
   //}
 
-  std::string CMessageContext::GetSoapAction() const
+  std::string MessageContext::GetSoapAction() const
   {
     const axutil_string_t* psAction = axis2_msg_ctx_get_soap_action(m_pMsgCtx, m_pEnv);
     return std::string(axutil_string_get_buffer(psAction, m_pEnv), axutil_string_get_length(psAction, m_pEnv));
   }
 
-  bool CMessageContext::GetDoingMtom() const
+  bool MessageContext::GetDoingMtom() const
   {
     return axis2_msg_ctx_get_doing_mtom(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  bool CMessageContext::GetDoingRest() const
+  bool MessageContext::GetDoingRest() const
   {
     return axis2_msg_ctx_get_doing_rest(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  bool CMessageContext::GetDoRestThroughPost() const
+  bool MessageContext::GetDoRestThroughPost() const
   {
     return axis2_msg_ctx_get_do_rest_through_post(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  bool CMessageContext::GetManageSession() const
+  bool MessageContext::GetManageSession() const
   {
     return axis2_msg_ctx_get_manage_session(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  bool CMessageContext::GetIsSoap11() const
+  bool MessageContext::GetIsSoap11() const
   {
     return axis2_msg_ctx_get_is_soap_11(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
@@ -245,12 +245,12 @@ namespace staff
   //  axis2_msg_ctx_get_options()
   //}
 
-  bool CMessageContext::IsPaused() const
+  bool MessageContext::IsPaused() const
   {
     return axis2_msg_ctx_is_paused(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  int CMessageContext::GetFlow() const
+  int MessageContext::GetFlow() const
   {
     return axis2_msg_ctx_get_flow(m_pMsgCtx, m_pEnv);
   }
@@ -260,13 +260,13 @@ namespace staff
   //  axis2_msg_ctx_get_supported_rest_http_methods
   //}
 
-  std::string CMessageContext::GetCharsetEncoding() const
+  std::string MessageContext::GetCharsetEncoding() const
   {
     const axutil_string_t* psEnc = axis2_msg_ctx_get_charset_encoding(m_pMsgCtx, m_pEnv);
     return std::string(axutil_string_get_buffer(psEnc, m_pEnv), axutil_string_get_length(psEnc, m_pEnv));
   }
 
-  int CMessageContext::GetStatusCode() const
+  int MessageContext::GetStatusCode() const
   {
     return axis2_msg_ctx_get_status_code(m_pMsgCtx, m_pEnv);
   }
@@ -287,7 +287,7 @@ namespace staff
 
   //}
 
-  bool CMessageContext::GetTransportHeaderValue(const std::string& sHeader, std::string& sValue) const
+  bool MessageContext::GetTransportHeaderValue(const std::string& sHeader, std::string& sValue) const
   {
     axutil_hash_t* pHashHeaders = axis2_msg_ctx_get_transport_headers(m_pMsgCtx, m_pEnv);
     RISE_ASSERTS(pHashHeaders, "Can't get transport headers");
@@ -318,13 +318,13 @@ namespace staff
   //  axis2_msg_ctx_extract_transport_headers
   //}
 
-  std::string CMessageContext::GetTransportUrl() const
+  std::string MessageContext::GetTransportUrl() const
   {
     const char* szUrl = static_cast<const char*>(axis2_msg_ctx_get_transport_url(m_pMsgCtx, m_pEnv));
     return szUrl ? szUrl : "";
   }
 
-  bool CMessageContext::GetNoContent() const
+  bool MessageContext::GetNoContent() const
   {
     return axis2_msg_ctx_get_no_content(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }

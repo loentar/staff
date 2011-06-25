@@ -29,41 +29,41 @@ typedef struct axiom_namespace axiom_namespace_t;
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
   //! Namespace
-  class STAFF_COMMON_EXPORT CNamespace
+  class STAFF_COMMON_EXPORT Namespace
   {
   public:
     //!         default constructor
-    CNamespace();
+    Namespace();
 
     //!         owner pass constructor
     /*!         owner flag moved from rNamespace,
                 rNamespace's owner flag will be reset
         \param  rNamespace - existing namespace
         */
-    CNamespace(CNamespace& rNamespace);
+    Namespace(Namespace& rNamespace);
 
     //!         initializing constructor
     /*! \param  pAxiomNamespace - existing axiom namespace
         \param  pDataObject - bound dataobject or NULL
         \param  bOwner - owner flag (if set, namespace will be deleted while object destructs)
         */
-    CNamespace(axiom_namespace_t* pAxiomNamespace, CDataObject* pDataObject = NULL, bool bOwner = false);
+    Namespace(axiom_namespace_t* pAxiomNamespace, DataObject* pDataObject = NULL, bool bOwner = false);
 
     //!         initializing constructor
     /*! \param  sUri - namespace URI
         \param  sPrefix - namespace prefix
         */
-    CNamespace(const std::string& sUri, const std::string& sPrefix = "");
+    Namespace(const std::string& sUri, const std::string& sPrefix = "");
 
     //!         attach existing axiom namespace to object
     /*! \param  pAxiomNamespace - existing axiom namespace
         \param  pDataObject - bound dataobject or NULL
         \param  bOwner - owner flag
         */
-    void Attach(axiom_namespace_t* pAxiomNamespace, CDataObject* pDataObject = NULL, bool bOwner = false);
+    void Attach(axiom_namespace_t* pAxiomNamespace, DataObject* pDataObject = NULL, bool bOwner = false);
 
     //!         detach (and free namespace if owner)
     void Detach();
@@ -74,12 +74,12 @@ namespace staff
     //!         clone namespace
     /*! \return cloned namespace
     */
-    CNamespace Clone() const;
+    Namespace Clone() const;
 
     //!         clone namespace
     /*! \param  rNamespace - cloned namespace
     */
-    const CNamespace& Clone(CNamespace& rNamespace) const;
+    const Namespace& Clone(Namespace& rNamespace) const;
 
     //!         get prefix
     /*! \return namespace prefix
@@ -94,13 +94,13 @@ namespace staff
     //!         get pointer to bound dataobject
     /*! \return get pointer to bound
     */
-    CDataObject* GetDataObject() const;
+    DataObject* GetDataObject() const;
 
     //!         set pointer to bound dataobject
     /*! resets owner flag
         \return set pointer to bound
     */
-    void SetDataObject(CDataObject* pDataObject);
+    void SetDataObject(DataObject* pDataObject);
 
     //!         is owner
     /*! \return true if object is owner
@@ -121,19 +121,19 @@ namespace staff
     /*! \param  rNamespace - source namespace
         \return ref to current namespace
         */
-    CNamespace& operator=(CNamespace& rNamespace);
+    Namespace& operator=(Namespace& rNamespace);
 
     //!         tests a target namespace for equality with a specified namespace
     /*! \param  rNamespace - namespace to check with
         \return true - namespaces are the same
         */
-    bool operator==(const CNamespace& rNamespace) const;
+    bool operator==(const Namespace& rNamespace) const;
 
     //!         tests a target namespace for inequality with a specified namespace
     /*! \param  rNamespace - namespace to check with
         \return true - namespaces are different
         */
-    bool operator!=(const CNamespace& rNamespace) const;
+    bool operator!=(const Namespace& rNamespace) const;
 
     //!         type cast operator
     operator axiom_namespace_t*();
@@ -141,19 +141,23 @@ namespace staff
     //!         member access operator
     /*! \return this
     */
-    CNamespace* operator->();
+    Namespace* operator->();
     
     //!         member access operator
     /*! \return this
     */
-    const CNamespace* operator->() const;
+    const Namespace* operator->() const;
 
   private:
     bool m_bOwner;                        //!<  owner flag
-    CDataObject* m_pDataObject;           //!<  bound DataObject
+    DataObject* m_pDataObject;            //!<  bound DataObject
     axiom_namespace_t* m_pAxiomNamespace; //!<  AxiOM namespace
     static axutil_env_t* m_pEnv;          //!<  Axis2/C environment
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Namespace CNamespace STAFF_DEPRECATED(Namespace);
+#endif
 
 } // namespace staff
 

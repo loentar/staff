@@ -31,40 +31,40 @@ namespace staff
   namespace security
   {
     //! group
-    struct STAFF_SECURITY_EXPORT SGroup
+    struct STAFF_SECURITY_EXPORT Group
     {
       int nId;                  //!< group id
       std::string sName;        //!< group name
       std::string sDescription; //!< group description
     };
 
-    typedef std::list<SGroup> TGroupsList; //!< list of groups
+    typedef std::list<Group> GroupsList; //!< list of groups
 
     //! groups
-    class STAFF_SECURITY_EXPORT CGroups
+    class STAFF_SECURITY_EXPORT Groups
     {
     public:
       //! get groups instance
       /*! \return groups instance
         */
-      static CGroups& Inst();
+      static Groups& Inst();
 
       //! get group by id
       /*! \param nId - group id
           \param rstGroup - resulting group info
           */
-      void GetById(int nId, SGroup& rstGroup);
+      void GetById(int nId, Group& rstGroup);
 
       //! get group by name
       /*! \param sGroupName
           \param rstGroup - resulting group info
           */
-      void GetByName(const std::string& sGroupName, SGroup& rstGroup);
+      void GetByName(const std::string& sGroupName, Group& rstGroup);
 
       //! get groups list
       /*! \param rlsGroups - resulting group list
           */
-      void GetList(TGroupsList& rlsGroups);
+      void GetList(GroupsList& rlsGroups);
 
 
       //! create new group
@@ -86,11 +86,18 @@ namespace staff
       void SetDescription(int nId, const std::string& sDescription);
 
     private:
-      CGroups();
-      ~CGroups();
-      CGroups(const CGroups&);
-      CGroups& operator=(const CGroups&);
+      Groups();
+      ~Groups();
+      Groups(const Groups&);
+      Groups& operator=(const Groups&);
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef GroupsList TGroupsList STAFF_DEPRECATED(GroupsList);
+    typedef Group SGroup STAFF_DEPRECATED(Group);
+    typedef Groups CGroups STAFF_DEPRECATED(Groups);
+#endif
+
   }
 }
 

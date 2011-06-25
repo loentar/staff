@@ -39,7 +39,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::string sSessionId;
     {
-      std::auto_ptr<staff::CLogin> pLogin(staff::CServiceFactory::Inst().GetService<staff::CLogin>());
+      std::auto_ptr<staff::Login> pLogin(staff::ServiceFactory::Inst().GetService<staff::Login>());
 
       RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
 
@@ -49,17 +49,17 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
       std::cout << nEx << ": Success" << std::endl;
 
       std::cout << "User login ";
-      sSessionId = pLogin->Login("user", "user");
+      sSessionId = pLogin->LoginUser("user", "user");
       std::cout << (sSessionId != "" ? ": Success" : ": Error") << std::endl;
 
       // assert second session id = first id
 
-      std::string sSessionId2 = pLogin->Login("user", "user");
+      std::string sSessionId2 = pLogin->LoginUser("user", "user");
       std::cout << "Second login = same sessid" << (sSessionId == sSessionId2 ? ": Success" : ": Error") << std::endl;
     }
 
     {
-      std::auto_ptr<staff::CLogin> pLogin(staff::CServiceFactory::Inst().GetService<staff::CLogin>("", sSessionId));
+      std::auto_ptr<staff::Login> pLogin(staff::ServiceFactory::Inst().GetService<staff::Login>("", sSessionId));
 
       RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
 
@@ -87,13 +87,13 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
         RISE_THROW(rise::CLogicNoItemException);
 //        std::cout << (!bSessionValid ? ": Success" : ": Error") << std::endl;
       }
-      catch(const staff::CRemoteException& /*rEx*/)
+      catch(const staff::RemoteException& /*rEx*/)
       {
         std::cout << ": Success" << std::endl;
       }
     }
   }
-  catch(const staff::CRemoteException& rEx)
+  catch(const staff::RemoteException& rEx)
   {
     std::cout << ": Error" << std::endl;
     rise::LogError() << rEx.GetDescr();

@@ -16,7 +16,7 @@ namespace wsdl
   class WsdlImpl: public Wsdl
   {
   public:
-    virtual void Get(const std::string& sComponent, const std::string& sFileName, COperation& rOperation);
+    virtual void Get(const std::string& sComponent, const std::string& sFileName, Operation& rOperation);
   };
 }
 }

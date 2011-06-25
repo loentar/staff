@@ -83,9 +83,9 @@ namespace das
     m_tpProvider.Release();
   }
 
-  CDataObject& operator<<(CDataObject& rdoTypes, const Type& rType)
+  DataObject& operator<<(DataObject& rdoTypes, const DataType& rType)
   {
-    CDataObject tdoType = rdoTypes.CreateChild("Type");
+    DataObject tdoType = rdoTypes.CreateChild("Type");
 
     tdoType.CreateChild("Name").SetText(rType.sName);
     tdoType.CreateChild("Descr").SetText(rType.sDescr);
@@ -93,27 +93,27 @@ namespace das
 
     switch (rType.eType)
     {
-    case Type::Generic:
-    case Type::DataObject:
+    case DataType::Generic:
+    case DataType::DataObject:
       {
         tdoType.CreateChild("Type").SetText("generic");
         tdoType.CreateChild("DataType").SetText(rType.sType);
         break;
       }
 
-    case Type::Struct:
+    case DataType::Struct:
       {
         tdoType.CreateChild("Type").SetText("struct");
-        CDataObject tdoMembers = tdoType.CreateChild("Members");
+        DataObject tdoMembers = tdoType.CreateChild("Members");
 
-        for (TypesList::const_iterator itChildType = rType.lsChilds.begin();
+        for (DataTypesList::const_iterator itChildType = rType.lsChilds.begin();
             itChildType != rType.lsChilds.end(); ++itChildType)
         {
-          const Type& rChildType = *itChildType;
-          if (rChildType.eType != Type::Generic)
+          const DataType& rChildType = *itChildType;
+          if (rChildType.eType != DataType::Generic)
           {
             // chagne format
-            CDataObject tdoType = tdoMembers.CreateChild("Type");
+            DataObject tdoType = tdoMembers.CreateChild("Type");
 
             tdoType.CreateChild("Name").SetText(rChildType.sName);
             tdoType.CreateChild("Descr").SetText(rChildType.sDescr);
@@ -130,7 +130,7 @@ namespace das
         break;
       }
 
-    case Type::List:
+    case DataType::List:
       {
         tdoType.CreateChild("Type").SetText("list");
         tdoType.CreateChild("ItemType").SetText(rType.sType);
@@ -152,21 +152,21 @@ namespace das
     return rdoTypes;
   }
 
-  CDataObject& operator<<(CDataObject& rdoOperations, const Operation& rOperation)
+  DataObject& operator<<(DataObject& rdoOperations, const Operation& rOperation)
   {
-    CDataObject tdoOperation = rdoOperations.CreateChild("Operation");
+    DataObject tdoOperation = rdoOperations.CreateChild("Operation");
 
     tdoOperation.CreateChild("Name").SetText(rOperation.sName);
     tdoOperation.CreateChild("Descr").SetText(rOperation.sDescr);
 
-    CDataObject tdoParams = tdoOperation.CreateChild("Params");
+    DataObject tdoParams = tdoOperation.CreateChild("Params");
 
-    for (TypesList::const_iterator itParam = rOperation.lsParams.begin();
+    for (DataTypesList::const_iterator itParam = rOperation.lsParams.begin();
           itParam != rOperation.lsParams.end(); ++itParam)
     {
-      const Type& rParam = *itParam;
+      const DataType& rParam = *itParam;
 
-      CDataObject tdoParam = tdoParams.CreateChild("Param");
+      DataObject tdoParam = tdoParams.CreateChild("Param");
 
       tdoParam.CreateChild("Name").SetText(rParam.sName);
       tdoParam.CreateChild("Type").SetText(rParam.sType);
@@ -174,14 +174,14 @@ namespace das
 
     std::string sReturnType;
 
-    if (rOperation.stReturn.eType == Type::Void)
+    if (rOperation.stReturn.eType == DataType::Void)
     {
       sReturnType = "void";
     }
     else
     {
-      if (rOperation.stReturn.eType == Type::List ||
-          rOperation.stReturn.eType == Type::Struct)
+      if (rOperation.stReturn.eType == DataType::List ||
+          rOperation.stReturn.eType == DataType::Struct)
       {
         sReturnType = rOperation.stReturn.sName;
       }
@@ -197,23 +197,23 @@ namespace das
   }
 
   //  get project!
-  CDataObject DataAccessServiceImpl::GetInterface() const
+  DataObject DataAccessServiceImpl::GetInterface() const
   {
     RISE_ASSERTS(m_pDataSource, "Data Source is not set");
 
-    staff::CDataObject tdoInterface("Interface");
+    staff::DataObject tdoInterface("Interface");
     tdoInterface.CreateChild("Name").SetText(m_pDataSource->GetName());
     tdoInterface.CreateChild("Descr").SetText(m_pDataSource->GetDescr());
     tdoInterface.CreateChild("Namespace").SetText(m_pDataSource->GetNamespace());
 
     // includes
-    staff::CDataObject tdoIncludes = tdoInterface.CreateChild("Includes");
+    staff::DataObject tdoIncludes = tdoInterface.CreateChild("Includes");
     const IncludesList& rmIncludes = m_pDataSource->GetIncludes();
 
     for (IncludesList::const_iterator itInclude = rmIncludes.begin();
       itInclude != rmIncludes.end(); ++itInclude)
     {
-      staff::CDataObject tdoInclude = tdoIncludes.CreateChild("Include");
+      staff::DataObject tdoInclude = tdoIncludes.CreateChild("Include");
 
       std::string sName = itInclude->sFileName;
       std::string::size_type nPos = sName.find_last_of('.');
@@ -226,26 +226,26 @@ namespace das
       tdoInclude.CreateChild("FileName").SetText(itInclude->sFileName);
       tdoInclude.CreateChild("Namespace").SetText(m_pDataSource->GetNamespace());
 
-      staff::CDataObject tdoTypes = tdoInclude.CreateChild("Types");
+      staff::DataObject tdoTypes = tdoInclude.CreateChild("Types");
 
-      const TypesList& rlsTypes = itInclude->lsTypes;
-      for (TypesList::const_iterator itType = rlsTypes.begin(); itType != rlsTypes.end(); ++itType)
+      const DataTypesList& rlsTypes = itInclude->lsTypes;
+      for (DataTypesList::const_iterator itType = rlsTypes.begin(); itType != rlsTypes.end(); ++itType)
       {
         tdoTypes << *itType;
       }
     }
 
     // types
-    staff::CDataObject tdoTypes = tdoInterface.CreateChild("Types");
+    staff::DataObject tdoTypes = tdoInterface.CreateChild("Types");
 
-    const TypesList& rlsTypes = m_pDataSource->GetTypes();
-    for (TypesList::const_iterator itType = rlsTypes.begin(); itType != rlsTypes.end(); ++itType)
+    const DataTypesList& rlsTypes = m_pDataSource->GetTypes();
+    for (DataTypesList::const_iterator itType = rlsTypes.begin(); itType != rlsTypes.end(); ++itType)
     {
       tdoTypes << *itType;
     }
 
     // operations
-    staff::CDataObject tdoOperations = tdoInterface.CreateChild("Operations");
+    staff::DataObject tdoOperations = tdoInterface.CreateChild("Operations");
 
     const OperationsList& rmOperations = m_pDataSource->GetOperations();
     for (OperationsList::const_iterator itOperation = rmOperations .begin();
@@ -257,7 +257,7 @@ namespace das
     return tdoInterface;
   }
 
-  CDataObject DataAccessServiceImpl::Invoke(const CDataObject& rdoOperation)
+  DataObject DataAccessServiceImpl::Invoke(const DataObject& rdoOperation)
   {
     RISE_ASSERTS(m_tpProvider.Get() != NULL, "Not initialized");
 

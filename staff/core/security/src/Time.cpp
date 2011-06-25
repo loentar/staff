@@ -26,7 +26,7 @@ namespace staff
 {
   namespace security
   {
-    int CTime::Get()
+    int Time::Get()
     {
       return static_cast<int>(time(NULL));
     }

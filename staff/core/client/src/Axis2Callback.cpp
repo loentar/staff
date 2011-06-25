@@ -25,26 +25,26 @@
 namespace staff
 {
 
-  CAxis2Callback::CAxis2Callback():
+  Axis2Callback::Axis2Callback():
     m_pCallback(NULL), m_pEnv(NULL)
   {
   }
 
-  CAxis2Callback::~CAxis2Callback()
+  Axis2Callback::~Axis2Callback()
   {
   }
 
-  bool CAxis2Callback::IsCompleted() const
+  bool Axis2Callback::IsCompleted() const
   {
     return axis2_callback_get_complete(m_pCallback, m_pEnv) == AXIS2_TRUE;
   }
 
-  axis2_callback_t* CAxis2Callback::Get()
+  axis2_callback_t* Axis2Callback::Get()
   {
     return m_pCallback;
   }
 
-  void CAxis2Callback::Set(axis2_callback_t* pCallback, axutil_env_t* pEnv)
+  void Axis2Callback::Set(axis2_callback_t* pCallback, axutil_env_t* pEnv)
   {
     m_pCallback = pCallback;
     m_pEnv = pEnv;

@@ -28,39 +28,39 @@
 
 namespace staff
 {
-  COptions::COptions():
-    m_pEnv(CRuntime::Inst().GetAxis2Env("staff_client")), m_bOwner(true)
+  Options::Options():
+    m_pEnv(Runtime::Inst().GetAxis2Env("staff_client")), m_bOwner(true)
   {
     m_pOptions = axis2_options_create(m_pEnv);
   }
 
-  COptions::COptions(axis2_options_t* pOptions):
-    m_pOptions(pOptions), m_pEnv(CRuntime::Inst().GetAxis2Env("staff_client")), m_bOwner(false)
+  Options::Options(axis2_options_t* pOptions):
+    m_pOptions(pOptions), m_pEnv(Runtime::Inst().GetAxis2Env("staff_client")), m_bOwner(false)
   {
   }
 
-  COptions::~COptions()
+  Options::~Options()
   {
     if (m_bOwner)
     {
       axis2_options_free(m_pOptions, m_pEnv);
     }
-    CRuntime::Inst().FreeAxis2Env("staff_client");
+    Runtime::Inst().FreeAxis2Env("staff_client");
   }
 
 
-  bool COptions::IsOwner() const
+  bool Options::IsOwner() const
   {
     return m_bOwner;
   }
 
-  void COptions::SetOwner(bool bOwner /*= true*/)
+  void Options::SetOwner(bool bOwner /*= true*/)
   {
     m_bOwner = bOwner;
   }
 
 
-  std::string COptions::GetAction() const
+  std::string Options::GetAction() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -70,7 +70,7 @@ namespace staff
     return reinterpret_cast<const char*>(szAction);
   }
 
-  void COptions::SetAction(const std::string& sAction)
+  void Options::SetAction(const std::string& sAction)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -78,7 +78,7 @@ namespace staff
   }
 
 
-  std::string COptions::GetFromAddress() const
+  std::string Options::GetFromAddress() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -91,7 +91,7 @@ namespace staff
     return reinterpret_cast<const char*>(szAddress);
   }
 
-  void COptions::SetFromAddress(const std::string& sAddress)
+  void Options::SetFromAddress(const std::string& sAddress)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -101,7 +101,7 @@ namespace staff
     axis2_options_set_from(m_pOptions, m_pEnv, pEndpointRef);
   }
 
-  std::string COptions::GetToAddress() const
+  std::string Options::GetToAddress() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -114,7 +114,7 @@ namespace staff
     return reinterpret_cast<const char*>(szAddress);
   }
 
-  void COptions::SetToAddress(const std::string& sAddress)
+  void Options::SetToAddress(const std::string& sAddress)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -124,7 +124,7 @@ namespace staff
     axis2_options_set_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
-  std::string COptions::GetReplyToAddress() const
+  std::string Options::GetReplyToAddress() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -137,7 +137,7 @@ namespace staff
     return reinterpret_cast<const char*>(szAddress);
   }
 
-  void COptions::SetReplyToAddress(const std::string& sAddress)
+  void Options::SetReplyToAddress(const std::string& sAddress)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -147,7 +147,7 @@ namespace staff
     axis2_options_set_reply_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
-  std::string COptions::GetFaultToAddress() const
+  std::string Options::GetFaultToAddress() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -160,7 +160,7 @@ namespace staff
     return reinterpret_cast<const char*>(szAddress);
   }
 
-  void COptions::SetFaultToAddress(const std::string& sAddress)
+  void Options::SetFaultToAddress(const std::string& sAddress)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -170,14 +170,14 @@ namespace staff
     axis2_options_set_fault_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
-  void COptions::UseSeparateListener(bool bUseSeparateListener)
+  void Options::UseSeparateListener(bool bUseSeparateListener)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     axis2_options_set_use_separate_listener(m_pOptions, m_pEnv, bUseSeparateListener ? AXIS2_TRUE : AXIS2_FALSE);
   }
 
-  bool COptions::IsUsingSeparateListener()
+  bool Options::IsUsingSeparateListener()
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -185,7 +185,7 @@ namespace staff
   }
 
 
-  void COptions::SetHttpAuthInfo(const std::string& sUserName, const std::string& sPassword,
+  void Options::SetHttpAuthInfo(const std::string& sUserName, const std::string& sPassword,
                                 const std::string& sAuthType)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
@@ -195,7 +195,7 @@ namespace staff
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup http auth info");
   }
 
-  void COptions::SetTestHttpAuth(bool bAuth)
+  void Options::SetTestHttpAuth(bool bAuth)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -203,7 +203,7 @@ namespace staff
   }
 
 
-  void COptions::SetProxyAuthInfo(const std::string& sUserName, const std::string& sPassword,
+  void Options::SetProxyAuthInfo(const std::string& sUserName, const std::string& sPassword,
                                 const std::string& sAuthType)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
@@ -213,7 +213,7 @@ namespace staff
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup proxy auth info");
   }
 
-  void COptions::SetTestProxyAuth(bool bAuth)
+  void Options::SetTestProxyAuth(bool bAuth)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -221,14 +221,14 @@ namespace staff
   }
 
 
-  void COptions::SetTimeout(long lTimeout)
+  void Options::SetTimeout(long lTimeout)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     axis2_options_set_timeout_in_milli_seconds(m_pOptions, m_pEnv, lTimeout);
   }
 
-  std::string COptions::GetSoapVersionUri() const
+  std::string Options::GetSoapVersionUri() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -238,14 +238,14 @@ namespace staff
     return reinterpret_cast<const char*>(szUri);
   }
 
-  void COptions::SetSoapVersionUri(const std::string& sSoapVersionUri)
+  void Options::SetSoapVersionUri(const std::string& sSoapVersionUri)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     axis2_options_set_soap_version_uri(m_pOptions, m_pEnv, sSoapVersionUri.c_str());
   }
 
-  COptions::SoapVersion COptions::GetSoapVersion() const
+  Options::SoapVersion Options::GetSoapVersion() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -263,7 +263,7 @@ namespace staff
     }
   }
 
-  void COptions::SetSoapVersion(SoapVersion nSoapVersion)
+  void Options::SetSoapVersion(SoapVersion nSoapVersion)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -285,7 +285,7 @@ namespace staff
     axis2_options_set_soap_version(m_pOptions, m_pEnv, nAxiomSoapVersion);
   }
 
-  std::string COptions::GetSoapAction() const
+  std::string Options::GetSoapAction() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -295,7 +295,7 @@ namespace staff
     return reinterpret_cast<const char*>(axutil_string_get_buffer(psAction, m_pEnv));
   }
 
-  void COptions::SetSoapAction(const std::string& sSoapAction)
+  void Options::SetSoapAction(const std::string& sSoapAction)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -305,14 +305,14 @@ namespace staff
   }
 
 
-  void COptions::EnableRest(bool bEnable)
+  void Options::EnableRest(bool bEnable)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     axis2_options_set_enable_rest(m_pOptions, m_pEnv, bEnable ? AXIS2_TRUE : AXIS2_FALSE);
   }
 
-  void COptions::SetHttpMethod(const std::string& sHttpMethod)
+  void Options::SetHttpMethod(const std::string& sHttpMethod)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
@@ -320,21 +320,21 @@ namespace staff
   }
 
 
-  bool COptions::IsMtomEnabled() const
+  bool Options::IsMtomEnabled() const
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     return axis2_options_get_enable_mtom(m_pOptions, m_pEnv) == AXIS2_TRUE;
   }
 
-  void COptions::EnableMtom(bool bEnable)
+  void Options::EnableMtom(bool bEnable)
   {
     RISE_ASSERTS(m_pOptions, "Options is not initialized");
 
     axis2_options_set_enable_mtom(m_pOptions, m_pEnv, bEnable ? AXIS2_TRUE : AXIS2_FALSE);
   }
 
-  COptions& COptions::operator=(axis2_options_t* pOptions)
+  Options& Options::operator=(axis2_options_t* pOptions)
   {
     if (m_bOwner && m_pOptions)
     {
@@ -346,44 +346,44 @@ namespace staff
     return *this;
   }
 
-  COptions::operator axis2_options_t*()
+  Options::operator axis2_options_t*()
   {
     return m_pOptions;
   }
 
 
-  const std::string& COptions::GetSessionId() const
+  const std::string& Options::GetSessionId() const
   {
     return m_sSessionId;
   }
 
-  void COptions::SetSessionId(const std::string& sSessionId)
+  void Options::SetSessionId(const std::string& sSessionId)
   {
     m_sSessionId = sSessionId;
   }
 
-  const std::string& COptions::GetInstanceId() const
+  const std::string& Options::GetInstanceId() const
   {
     return m_sInstanceId;
   }
 
-  void COptions::SetInstanceId(const std::string& sInstanceId)
+  void Options::SetInstanceId(const std::string& sInstanceId)
   {
     m_sInstanceId = sInstanceId;
   }
 
-  void COptions::SetDefaultNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/)
+  void Options::SetDefaultNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/)
   {
     m_sDefaultNsUri = sUri;
     m_sDefaultNsPrefix = sPrefix;
   }
 
-  const std::string& COptions::GetDefaultNamespaceUri() const
+  const std::string& Options::GetDefaultNamespaceUri() const
   {
     return m_sDefaultNsUri;
   }
 
-  const std::string& COptions::GetDefaultNamespacePrefix() const
+  const std::string& Options::GetDefaultNamespacePrefix() const
   {
     return m_sDefaultNsPrefix;
   }

@@ -40,24 +40,24 @@ namespace samples
 {
   namespace calc
   {
-    CCalcServiceImpl::CCalcServiceImpl():
+    CalcServiceImpl::CalcServiceImpl():
       m_pConfig(NULL)
     {
     }
 
-    CCalcServiceImpl::~CCalcServiceImpl()
+    CalcServiceImpl::~CalcServiceImpl()
     {
     }
 
-    int CCalcServiceImpl::Add(int nA, int nB) const
+    int CalcServiceImpl::Add(int nA, int nB) const
     {
       return nA + nB;  // result
     }
 
-    int CCalcServiceImpl::Sub(int nA, int nB) const
+    int CalcServiceImpl::Sub(int nA, int nB) const
     {
-      rise::CSharedPtr<CSubService> rpSubService =
-        staff::CServiceInstanceManager::Inst().ServiceInstance(this, "samples.calc.SubService");
+      rise::CSharedPtr<SubService> rpSubService =
+        staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.calc.SubService");
 
       RISE_ASSERTES(rpSubService, rise::CLogicNoItemException,
           "Cannot get service [samples.calc.SubService]");
@@ -65,23 +65,23 @@ namespace samples
       return rpSubService->Sub(nA, nB);
     }
 
-    void CCalcServiceImpl::SetMem(int nMem)
+    void CalcServiceImpl::SetMem(int nMem)
     {
       m_pConfig->Config()["Mem"] = nMem;
     }
 
-    int CCalcServiceImpl::GetMem() const
+    int CalcServiceImpl::GetMem() const
     {
       return m_pConfig->Config()["Mem"].AsInt();  // result
     }
 
-    void CCalcServiceImpl::OnCreate()
+    void CalcServiceImpl::OnCreate()
     {
-      m_pConfig = &staff::CComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
+      m_pConfig = &staff::ComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
       RISE_ASSERTS(m_pConfig, "Can't get config");
     }
 
-    void CCalcServiceImpl::OnDestroy()
+    void CalcServiceImpl::OnDestroy()
     {
       m_pConfig->SaveConfig();
     }

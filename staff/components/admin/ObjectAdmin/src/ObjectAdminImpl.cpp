@@ -9,52 +9,53 @@ namespace staff
 {
 namespace admin
 {
-  ::staff::admin::SObject& operator<<(::staff::admin::SObject& rstObject, const staff::security::SObject& rstSecObject)
-  {
-    rstObject.nId = rstSecObject.nId;
-    rstObject.nParentId = rstSecObject.nParentId;
-    rstObject.sName = rstSecObject.sName;
-    rstObject.sDescription = rstSecObject.sDescription;
 
-    return rstObject;
-  }
+::staff::admin::Object& operator<<(::staff::admin::Object& rstObject, const staff::security::Object& rstSecObject)
+{
+  rstObject.nId = rstSecObject.nId;
+  rstObject.nParentId = rstSecObject.nParentId;
+  rstObject.sName = rstSecObject.sName;
+  rstObject.sDescription = rstSecObject.sDescription;
 
-CObjectAdminImpl::CObjectAdminImpl()
+  return rstObject;
+}
+
+ObjectAdminImpl::ObjectAdminImpl()
 {
 }
 
-CObjectAdminImpl::~CObjectAdminImpl()
+ObjectAdminImpl::~ObjectAdminImpl()
 {
 }
 
-::staff::admin::SObject CObjectAdminImpl::GetById(int nId)
+::staff::admin::Object ObjectAdminImpl::GetById(int nId)
 {
-  ::staff::admin::SObject tResult;
-  staff::security::SObject stObject;
-  staff::security::CObjects::Inst().GetById(nId, stObject);
+  ::staff::admin::Object tResult;
+  staff::security::Object stObject;
+  staff::security::Objects::Inst().GetById(nId, stObject);
 
   return tResult << stObject;  // result
 }
 
-::staff::admin::SObject CObjectAdminImpl::GetByPathName(const std::string& sPathName)
+::staff::admin::Object ObjectAdminImpl::GetByPathName(const std::string& sPathName)
 {
-  ::staff::admin::SObject tResult;
-  staff::security::SObject stObject;
-  staff::security::CObjects::Inst().GetByPathName(sPathName, stObject);
+  ::staff::admin::Object tResult;
+  staff::security::Object stObject;
+  staff::security::Objects::Inst().GetByPathName(sPathName, stObject);
 
   return tResult << stObject;  // result
 }
 
-::staff::admin::TObjectList CObjectAdminImpl::GetChilds(int nId)
+::staff::admin::ObjecstList ObjectAdminImpl::GetChilds(int nId)
 {
-  ::staff::admin::TObjectList tResult;
+  ::staff::admin::ObjecstList tResult;
 
-  ::staff::admin::SObject tObjTmp;
+  ::staff::admin::Object tObjTmp;
 
-  staff::security::TObjectList lsObjects;
-  staff::security::CObjects::Inst().GetChilds(nId, lsObjects);
+  staff::security::ObjectsList lsObjects;
+  staff::security::Objects::Inst().GetChilds(nId, lsObjects);
 
-  for (staff::security::TObjectList::const_iterator itObject = lsObjects.begin();
+  for (staff::security::ObjectsList::const_iterator itObject = lsObjects.begin();
        itObject != lsObjects.end(); ++itObject)
   {
     tObjTmp << *itObject;
@@ -64,23 +65,23 @@ CObjectAdminImpl::~CObjectAdminImpl()
   return tResult;  // result
 }
 
-int CObjectAdminImpl::Add(const ::staff::admin::SObject& rstObject)
+int ObjectAdminImpl::Add(const ::staff::admin::Object& rstObject)
 {
   int tResult = -1;
 
-  staff::security::CObjects::Inst().Add(rstObject.sName, rstObject.sDescription, rstObject.nParentId, tResult);
+  staff::security::Objects::Inst().Add(rstObject.sName, rstObject.sDescription, rstObject.nParentId, tResult);
 
   return tResult;  // result
 }
 
-void CObjectAdminImpl::Remove(int nObjectId)
+void ObjectAdminImpl::Remove(int nObjectId)
 {
-  staff::security::CObjects::Inst().Remove(nObjectId);
+  staff::security::Objects::Inst().Remove(nObjectId);
 }
 
-void CObjectAdminImpl::SetDescription(int nObjectId, const std::string& sDescription)
+void ObjectAdminImpl::SetDescription(int nObjectId, const std::string& sDescription)
 {
-  staff::security::CObjects::Inst().SetDescription(nObjectId, sDescription);
+  staff::security::Objects::Inst().SetDescription(nObjectId, sDescription);
 }
 
 

@@ -29,19 +29,19 @@
 
 namespace staff
 {
-  class CRuntime::CRuntimeImpl
+  class Runtime::RuntimeImpl
   {
   public:
-    CRuntimeImpl():
+    RuntimeImpl():
       m_pEnv(axutil_env_create_all("staff.log", AXIS2_LOG_LEVEL_TRACE))
     {
     }
 
-    ~CRuntimeImpl()
+    ~RuntimeImpl()
     {
       if (m_mEnv.size() != 0)
       {
-        for (TAxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
+        for (AxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
         {
           if (itEnv->second.pEnv)
           {
@@ -54,54 +54,54 @@ namespace staff
     }
     
   public:
-    struct SAxutilEnvCounted
+    struct AxutilEnvCounted
     {
       int nCounter;
       axutil_env_t* pEnv;
 
-      SAxutilEnvCounted():
+      AxutilEnvCounted():
         nCounter(1), pEnv(NULL)
       {
       }
     };
 
-    typedef std::map<std::string, SAxutilEnvCounted> TAxutilEnvMap;
+    typedef std::map<std::string, AxutilEnvCounted> AxutilEnvMap;
 
   public:
-    TAxutilEnvMap m_mEnv;
+    AxutilEnvMap m_mEnv;
     axutil_env_t* m_pEnv;
   };
 
 
-  CRuntime::CRuntime():
-    m_pImpl(new CRuntimeImpl)
+  Runtime::Runtime():
+    m_pImpl(new RuntimeImpl)
   {
   }
 
-  CRuntime::~CRuntime()
+  Runtime::~Runtime()
   {
     delete m_pImpl;
   }
 
-  CRuntime& CRuntime::Inst()
+  Runtime& Runtime::Inst()
   {
-    static CRuntime tInst;
+    static Runtime tInst;
     return tInst;
   }
 
-  axutil_env_t* CRuntime::GetAxis2Env()
+  axutil_env_t* Runtime::GetAxis2Env()
   {
     return m_pImpl->m_pEnv;
   }
 
-  axutil_env_t* CRuntime::GetAxis2Env(const std::string& sEnvComponent)
+  axutil_env_t* Runtime::GetAxis2Env(const std::string& sEnvComponent)
   {
     if (sEnvComponent == "staff")
     {
       return m_pImpl->m_pEnv;
     }
 
-    CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
+    RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv == m_pImpl->m_mEnv.end())
     {
       axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), AXIS2_LOG_LEVEL_TRACE);
@@ -113,9 +113,9 @@ namespace staff
     return itEnv->second.pEnv;
   }
 
-  void CRuntime::FreeAxis2Env(const std::string& sEnvComponent)
+  void Runtime::FreeAxis2Env(const std::string& sEnvComponent)
   {
-    CRuntimeImpl::TAxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
+    RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv != m_pImpl->m_mEnv.end())
     {
       --itEnv->second.nCounter;
@@ -127,29 +127,30 @@ namespace staff
     }
   }
 
-  std::string CRuntime::GetEnv( const std::string& rEnvVariable ) const
+  std::string Runtime::GetEnv(const std::string& rEnvVariable) const
   {
-    const rise::TChar* szEnv = getenv(rEnvVariable.c_str());
-    RISE_ASSERTES(szEnv != NULL, rise::CLogicNoItemException, "Environment variable " + rEnvVariable + " not found");
+    const char* szEnv = getenv(rEnvVariable.c_str());
+    RISE_ASSERTES(szEnv, rise::CLogicNoItemException,
+                  "Environment variable " + rEnvVariable + " not found");
     return szEnv;
   }
 
-  std::string CRuntime::GetAxis2Home() const
+  std::string Runtime::GetAxis2Home() const
   {
     return GetEnv("AXIS2C_HOME");
   }
 
-  std::string CRuntime::GetStaffHome() const
+  std::string Runtime::GetStaffHome() const
   {
     return GetEnv("STAFF_HOME");
   }
 
-  std::string CRuntime::GetComponentsHome() const
+  std::string Runtime::GetComponentsHome() const
   {
     return GetStaffHome() + RISE_PATH_SEPARATOR + std::string("components");
   }
 
-  std::string CRuntime::GetComponentHome( const std::string& sComponent ) const
+  std::string Runtime::GetComponentHome(const std::string& sComponent) const
   {
     return GetComponentsHome() + RISE_PATH_SEPARATOR + sComponent;
   }

@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#if defined WIN32 && !defined __MINGW32__
+#ifdef _MSC_VER
 #pragma warning (disable : 4267)
 #endif
 
@@ -34,15 +34,15 @@ namespace staff
 {
   namespace security
   {
-    CObjects& CObjects::Inst()
+    Objects& Objects::Inst()
     {
-      static CObjects tInst;
+      static Objects tInst;
       return tInst;
     }
 
-    void CObjects::GetById(int nId, SObject& rstObject)
+    void Objects::GetById(int nId, Object& rstObject)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description, parentid FROM objects WHERE id=?", -1, &pVm, NULL);
@@ -73,9 +73,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CObjects::GetByPathName(const std::string& sName, SObject& rstObject)
+    void Objects::GetByPathName(const std::string& sName, Object& rstObject)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       std::string sRequest = "0";
@@ -117,9 +117,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    bool CObjects::GetIdByPathName(const std::string& sName, int& nId)
+    bool Objects::GetIdByPathName(const std::string& sName, int& nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       std::string sRequest = "0";
@@ -160,9 +160,9 @@ namespace staff
       return bFound;
     }
 
-    void CObjects::Add(const std::string& sName, const std::string& sDescription, int nParentId, int& nId)
+    void Objects::Add(const std::string& sName, const std::string& sDescription, int nParentId, int& nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "INSERT INTO objects(name, description, parentid) VALUES(?, ?, ?)", -1, &pVm, NULL);
@@ -194,9 +194,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CObjects::Remove(int nId)
+    void Objects::Remove(int nId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM objects WHERE id=?", -1, &pVm, NULL);
@@ -222,9 +222,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CObjects::SetDescription(int nId, const std::string& sDescription)
+    void Objects::SetDescription(int nId, const std::string& sDescription)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "UPDATE objects SET description = ? WHERE id=?", -1, &pVm, NULL);
@@ -250,9 +250,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CObjects::GetChilds(int nId, TObjectList& rlsChilds)
+    void Objects::GetChilds(int nId, ObjectsList& rlsChilds)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description, parentid FROM objects WHERE parentid=?", -1, &pVm, NULL);
@@ -268,7 +268,7 @@ namespace staff
         // get data
         while (sqlite3_step(pVm) == SQLITE_ROW)
         {
-          SObject stObject;
+          Object stObject;
           stObject.nId = sqlite3_column_int(pVm, 0);
           const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
           RISE_ASSERTS(szTmp, "Failed to get object name");
@@ -288,9 +288,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    bool CObjects::GetChildId(int nId, const std::string& sChildName, int& nChildId)
+    bool Objects::GetChildId(int nId, const std::string& sChildName, int& nChildId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
       bool bResult = false;
 
@@ -323,9 +323,9 @@ namespace staff
       return bResult;
     }
 
-    void CObjects::GetParent(int nId, SObject& rstParent)
+    void Objects::GetParent(int nId, Object& rstParent)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description, parentid FROM objects WHERE id="
@@ -357,9 +357,9 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void CObjects::GetParentId(int nId, int& nParentId)
+    void Objects::GetParentId(int nId, int& nParentId)
     {
-      sqlite3* pDb = CDbConn::GetDb();
+      sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(pDb, "SELECT parentid FROM objects WHERE id=?", -1, &pVm, NULL);
@@ -384,11 +384,11 @@ namespace staff
       RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    CObjects::CObjects()
+    Objects::Objects()
     {
     }
 
-    CObjects::~CObjects()
+    Objects::~Objects()
     {
     }
 

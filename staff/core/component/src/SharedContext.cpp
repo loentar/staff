@@ -27,27 +27,27 @@
 
 namespace staff
 {
-  CSharedContext::CSharedContext()
+  SharedContext::SharedContext()
   {
   }
 
-  CSharedContext::~CSharedContext()
+  SharedContext::~SharedContext()
   {
   }
 
-  CSharedContext& CSharedContext::Inst()
+  SharedContext& SharedContext::Inst()
   {
-    static CSharedContext tInst;
+    static SharedContext tInst;
     return tInst;
   }
 
-  void CSharedContext::AddComponent( CComponent* pComponent )
+  void SharedContext::AddComponent( Component* pComponent )
   {
-    TCompositeComponentMap::iterator itFind = m_mComponents.find(pComponent->GetName());
+    CompositeComponentMap::iterator itFind = m_mComponents.find(pComponent->GetName());
     if (itFind == m_mComponents.end())
     {
-      const std::pair<TCompositeComponentMap::iterator, bool>& tInsertResult = 
-        m_mComponents.insert(TCompositeComponentMap::value_type(pComponent->GetName(), PCompositeComponent(new CCompositeComponent)));
+      const std::pair<CompositeComponentMap::iterator, bool>& tInsertResult = 
+        m_mComponents.insert(CompositeComponentMap::value_type(pComponent->GetName(), PCompositeComponent(new CompositeComponent)));
       tInsertResult.first->second->Compose(pComponent);
     } else
     {
@@ -55,9 +55,9 @@ namespace staff
     }
 
 
-    TServiceWrapperMap::const_iterator itExistingWrapper;
-    const TServiceWrapperMap& rmWrappers = pComponent->GetServices();
-    for (TServiceWrapperMap::const_iterator itWrapper = rmWrappers.begin();
+    ServiceWrapperMap::const_iterator itExistingWrapper;
+    const ServiceWrapperMap& rmWrappers = pComponent->GetServices();
+    for (ServiceWrapperMap::const_iterator itWrapper = rmWrappers.begin();
          itWrapper != rmWrappers.end(); ++itWrapper)
     {
       itExistingWrapper = m_mServiceWrappers.find(itWrapper->first);
@@ -75,30 +75,30 @@ namespace staff
     }
   }
 
-  CCompositeComponent* CSharedContext::GetComponent( const std::string& sName )
+  CompositeComponent* SharedContext::GetComponent( const std::string& sName )
   {
-    TCompositeComponentMap::iterator itFind = m_mComponents.find(sName);
+    CompositeComponentMap::iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
       return NULL;
     return itFind->second;
   }
 
-  const CCompositeComponent* CSharedContext::GetComponent( const std::string& sName ) const
+  const CompositeComponent* SharedContext::GetComponent( const std::string& sName ) const
   {
-    TCompositeComponentMap::const_iterator itFind = m_mComponents.find(sName);
+    CompositeComponentMap::const_iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
       return NULL;
     return itFind->second;
   }
 
-  const TCompositeComponentMap& CSharedContext::GetComponents() const
+  const CompositeComponentMap& SharedContext::GetComponents() const
   {
     return m_mComponents;
   }
 
-  const CServiceWrapper* CSharedContext::GetService( const std::string& sName ) const
+  const ServiceWrapper* SharedContext::GetService( const std::string& sName ) const
   {
-    TServiceWrapperMap::const_iterator itExistingWrapper =
+    ServiceWrapperMap::const_iterator itExistingWrapper =
         m_mServiceWrappers.find(sName);
 
     if (itExistingWrapper != m_mServiceWrappers.end())
@@ -109,9 +109,9 @@ namespace staff
     return NULL;
   }
 
-  CServiceWrapper* CSharedContext::GetService( const std::string& sName )
+  ServiceWrapper* SharedContext::GetService( const std::string& sName )
   {
-    TServiceWrapperMap::const_iterator itExistingWrapper =
+    ServiceWrapperMap::const_iterator itExistingWrapper =
         m_mServiceWrappers.find(sName);
 
     if (itExistingWrapper != m_mServiceWrappers.end())
@@ -122,12 +122,12 @@ namespace staff
     return NULL;
   }
 
-  const TServiceWrapperMap& CSharedContext::GetServices() const
+  const ServiceWrapperMap& SharedContext::GetServices() const
   {
     return m_mServiceWrappers;
   }
 
-  void CSharedContext::Clear()
+  void SharedContext::Clear()
   {
     m_mComponents.clear();
     m_mServiceWrappers.clear();

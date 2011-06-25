@@ -12,7 +12,7 @@
 
 namespace staff
 {
-  class CComponent;
+  class Component;
 }
 
 #foreach $(Interface.Classes)
@@ -20,13 +20,13 @@ $(Class.OpeningNs)
   class $(Class.Name)Impl;
 
   //! $(Class.ServiceName) service wrapper
-  class $(Class.Name)Wrapper: public staff::CServiceWrapper
+  class $(Class.Name)Wrapper: public staff::ServiceWrapper
   {
   public:
     //!         initializing constructor
     /*! \param  pComponent - service's component
     */
-    $(Class.Name)Wrapper(staff::CComponent* pComponent);
+    $(Class.Name)Wrapper(staff::Component* pComponent);
 
     //!         destructor
     virtual ~$(Class.Name)Wrapper();
@@ -44,28 +44,28 @@ $(Class.OpeningNs)
     //!         get service operations
     /*! \return service operations DataObject
     */
-    virtual staff::CDataObject GetOperations() const;
+    virtual staff::DataObject GetOperations() const;
 
     //!         get service description
     /*! \return service description
     */
-    virtual staff::CDataObject GetServiceDescription() const;
+    virtual staff::DataObject GetServiceDescription() const;
 
     //!         invoke service operation
     /*! \param  rOperation - service operation
         \param  sID - service session id
         */
-    virtual void Invoke(staff::COperation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
+    virtual void Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual const staff::CComponent* GetComponent() const;
+    virtual const staff::Component* GetComponent() const;
 
     //!         get service's component
     /*! \return service's component
     */
-    virtual staff::CComponent* GetComponent();
+    virtual staff::Component* GetComponent();
 
     //!         get pointer to service implementation
     /*! \param  sSessionId - service session id
@@ -90,7 +90,7 @@ $(Class.OpeningNs)
     virtual std::string GetDependencies() const;
 
   private:
-    staff::CComponent* m_pComponent;   //!< parent component
+    staff::Component* m_pComponent;   //!< parent component
     static const std::string m_sName;  //!< service name
     static const std::string m_sDescr; //!< service description
   };

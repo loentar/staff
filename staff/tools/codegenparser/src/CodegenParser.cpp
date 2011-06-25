@@ -26,7 +26,7 @@ namespace staff
 {
 namespace codegen
 {
-  SParseSettings::SParseSettings():
+  ParseSettings::ParseSettings():
     bNoServiceError(true)
   {
   }
@@ -35,26 +35,26 @@ namespace codegen
   {
   }
 
-  CParseException::CParseException(const std::string& sFile, int nLine, const std::string& sMessage,
+  ParseException::ParseException(const std::string& sFile, int nLine, const std::string& sMessage,
                     const std::string& sSourceFile, int nSourceLine):
     m_sFile(sFile), m_nLine(nLine), m_sMessage(sMessage),
     m_sSourceFile(sSourceFile), m_nSourceLine(nSourceLine)
   {
   }
 
-  std::ostream& CParseException::operator<<(std::ostream& rStream) const
+  std::ostream& ParseException::operator<<(std::ostream& rStream) const
   {
     return rStream << m_sFile << "[" << m_nLine << "]: " << m_sMessage
             << "\n While parsing " << m_sSourceFile << "[" << m_nSourceLine << "]\n";
   }
 
-  std::string& CParseException::Message()
+  std::string& ParseException::Message()
   {
     return m_sMessage;
   }
 
 
-  std::ostream& operator<<(std::ostream& rStream, const CParseException& rParseException)
+  std::ostream& operator<<(std::ostream& rStream, const ParseException& rParseException)
   {
     return rParseException.operator<<(rStream);
   }

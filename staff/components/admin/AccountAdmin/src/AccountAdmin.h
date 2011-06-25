@@ -31,10 +31,10 @@ namespace staff
   namespace admin
   {
     //! list of identifiers
-    typedef std::list<int> TIdList;
+    typedef std::list<int> IdList;
 
     //! user
-    struct SUser
+    struct User
     {
       int nId; //!<  user id
       std::string sName; //!<  user name
@@ -42,10 +42,10 @@ namespace staff
     };
     
     //! list of users
-    typedef std::list<SUser> TUserList;
+    typedef std::list<User> UserList;
 
     //! group
-    struct SGroup
+    struct Group
     {
       int nId; //!<  group id
       std::string sName;  //!<  group name
@@ -53,31 +53,31 @@ namespace staff
     };
 
     //! list of groups
-    typedef std::list<SGroup> TGroupList;
+    typedef std::list<Group> GroupList;
 
     //!  Account admin
-    class CAccountAdmin: public staff::IService
+    class AccountAdmin: public staff::IService
     {
     public:
       //!        destructor
-      virtual ~CAccountAdmin() {}
+      virtual ~AccountAdmin() {}
 
 
 
       //!         get user list
       /*! \return user list
       */
-      virtual TUserList GetUsers() = 0;
+      virtual UserList GetUsers() = 0;
 
       //!         get group list
       /*! \return group list
       */
-      virtual TGroupList GetGroups() = 0;
+      virtual GroupList GetGroups() = 0;
 
       //!         get user groups
       /*! \return user groups
       */
-      virtual TIdList GetUserGroups(int nUserId) = 0;
+      virtual IdList GetUserGroups(int nUserId) = 0;
 
 
       
@@ -123,7 +123,7 @@ namespace staff
       /*! \param  nUserId - user id
           \param  rlsGroupIds - list of groups
           */
-      virtual void AddUserToGroups(int nUserId, const TIdList& rlsGroupIds) = 0;
+      virtual void AddUserToGroups(int nUserId, const IdList& rlsGroupIds) = 0;
 
       //!         exclude user from group
       /*! \param  nUserId - user id
@@ -135,7 +135,7 @@ namespace staff
       /*! \param  nUserId - user id
           \param  rlsGroupIds - list of groups
           */
-      virtual void RemoveUserFromGroups(int nUserId, const TIdList& rlsGroupIds) = 0;
+      virtual void RemoveUserFromGroups(int nUserId, const IdList& rlsGroupIds) = 0;
     };
   }
 }

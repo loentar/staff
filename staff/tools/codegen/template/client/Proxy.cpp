@@ -43,7 +43,7 @@ public:
   {
     try
     {
-      staff::CServiceFactory::Inst().RegisterProxyAllocator(typeid($(Class.Name)).name(), *this);
+      staff::ServiceFactory::Inst().RegisterProxyAllocator(typeid($(Class.Name)).name(), *this);
     }
     catch(...)
     {
@@ -81,7 +81,7 @@ $(Class.Name)ProxyAllocator t$(Class.Name)ProxyAllocatorInitializer;
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Name),ICallback)
 // asynch proxy for $(Class.Name)::$(Member.Name)
-class $(Class.Name)$(Member.Name)AsynchCallProxy: public staff::ICallback<const staff::CDataObject&>
+class $(Class.Name)$(Member.Name)AsynchCallProxy: public staff::ICallback<const staff::DataObject&>
 {
 public:
   $(Class.Name)$(Member.Name)AsynchCallProxy($(Param.DataType) rCallback):
@@ -89,7 +89,7 @@ public:
   {
   }
 
-  virtual void OnComplete(const staff::CDataObject& rdoResponse)
+  virtual void OnComplete(const staff::DataObject& rdoResponse)
   {
 #var sResultName rdoResponse
 #ifneq($(Member.Options.*resultElement),)
@@ -124,7 +124,7 @@ public:
 #ifeqend // generic
   }
 
-  virtual void OnFault(const staff::CDataObject& rFault)
+  virtual void OnFault(const staff::DataObject& rFault)
   {
     m_rCallback.OnFault(rFault);
   }
@@ -170,12 +170,12 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 #foreach $(Class.Modules)
   m_tClient.EngageModule("$(Module)");
 #end
-  staff::COptions& rOptions = m_tClient.GetOptions();
+  staff::Options& rOptions = m_tClient.GetOptions();
 #ifneq($(Class.Options.*targetNamespace),)
   rOptions.SetDefaultNamespace("$(Class.Options.*targetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
 #ifeqend
 #ifneq($(Class.Options.*soapVersion),)
-  rOptions.SetSoapVersion(staff::COptions::Soap$(Class.Options.*soapVersion.!replace/.//));
+  rOptions.SetSoapVersion(staff::Options::Soap$(Class.Options.*soapVersion.!replace/.//));
 #ifeqend
 #ifneq($(Class.Options.*soapVersionUri),)
   rOptions.SetSoapVersionUri("$(Interface.Options.*soapVersionUri)");
@@ -185,13 +185,13 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
 
   if (!sInstanceId.empty())
   {
-    staff::COperation tOperation("CreateInstance");
+    staff::Operation tOperation("CreateInstance");
     tOperation.Request().CreateChild("sInstanceId").SetText(sInstanceId);
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
-      RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+      RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
+      RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
     }
     rOptions.SetInstanceId(sInstanceId);
   }
@@ -201,18 +201,18 @@ void $(Class.Name)Proxy::Deinit()
 {
   if (!staff::IService::GetInstanceId().empty())
   {
-    staff::COperation tOperation("FreeInstance");
+    staff::Operation tOperation("FreeInstance");
     tOperation.Request().CreateChild("sInstanceId").SetText(staff::IService::GetInstanceId());
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
-      RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+      RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
+      RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
     }
   }
 }
 
-staff::CServiceClient* $(Class.Name)Proxy::GetClient()
+staff::ServiceClient* $(Class.Name)Proxy::GetClient()
 {
   return &m_tClient;
 }
@@ -228,7 +228,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #end
 #ifneq($($PutOptions),0)
-  staff::COptions& rOptions = m_tClient.GetOptions();
+  staff::Options& rOptions = m_tClient.GetOptions();
 #ifeqend
 #ifneq($(Member.Options.*soapAction),)
   rOptions.SetSoapAction("$(Member.Options.*soapAction)");
@@ -287,7 +287,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 
 #var tCallbackParamName
-  staff::COperation tOperation(\
+  staff::Operation tOperation(\
 #ifneq($(Member.Options.*requestElement),)
 "$(Member.Options.*requestElement)"\
 #else
@@ -298,7 +298,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
 #ifneq($(Param.DataType.Name),ICallback)
-  staff::CDataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
+  staff::DataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
 #ifeq($(Param.DataType.Type),generic)    // !!generic!!
   tdoParam$(Param.Name).SetValue($(Param.Name));
 #else
@@ -330,8 +330,8 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
   if (m_tClient.GetLastResponseHasFault())
   {
-    RISE_ASSERTES(!tOperation.IsFault(), staff::CRemoteException, tOperation.GetFaultString()); // soap fault
-    RISE_THROW3(staff::CRemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+    RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
+    RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
   }
 \
 #ifeq($(Member.Return.Type),generic)    // !!generic!!

@@ -31,7 +31,7 @@ namespace staff
   namespace security
   {
     //! security object
-    struct STAFF_SECURITY_EXPORT SObject
+    struct STAFF_SECURITY_EXPORT Object
     {
       int nId;                  //!< object id
       std::string sName;        //!< object name
@@ -39,30 +39,30 @@ namespace staff
       int nParentId;            //!< parent object id
     };
 
-    typedef std::list<SObject> TObjectList; //!< list of objects
+    typedef std::list<Object> ObjectsList; //!< list of objects
 
     //! security objects
-    class STAFF_SECURITY_EXPORT CObjects
+    class STAFF_SECURITY_EXPORT Objects
     {
     public:
       //! get objects instance
       /*! \return objects instance
         */
-      static CObjects& Inst();
+      static Objects& Inst();
 
       //! get object by id
       /*! \param  nId - object id
           \param  rstObject - resulting object
           \sa GetIdByPathName
         */
-      void GetById(int nId, SObject& rstObject);
+      void GetById(int nId, Object& rstObject);
 
       //! get object by path name
       /*! \param  sName - object name path (for example: "components.samples.calc.Calculator")
           \param  rstObject - resulting object
           \sa GetIdByPathName
         */
-      void GetByPathName(const std::string& sName, SObject& rstObject);
+      void GetByPathName(const std::string& sName, Object& rstObject);
 
       //! get object id by path name
       /*! \param  sName - object name path (for example: "components.samples.calc.Calculator")
@@ -95,7 +95,7 @@ namespace staff
       /*! \param nId - object id
           \param rlsChilds - result: list of object childrens
           */
-      void GetChilds(int nId, TObjectList& rlsChilds);
+      void GetChilds(int nId, ObjectsList& rlsChilds);
 
       //! get object's child id
       /*! \param nId - object id
@@ -108,7 +108,7 @@ namespace staff
       /*! \param nId - object id
           \param rstParent - parent object
           */
-      void GetParent(int nId, SObject& rstParent);
+      void GetParent(int nId, Object& rstParent);
 
       //! get parent object id
       /*! \param nId - object id
@@ -117,11 +117,17 @@ namespace staff
       void GetParentId(int nId, int& nParentId);
 
     private:
-      CObjects();
-      ~CObjects();
-      CObjects(const CObjects&);
-      CObjects& operator=(const CObjects&);
+      Objects();
+      ~Objects();
+      Objects(const Objects&);
+      Objects& operator=(const Objects&);
     };
+
+#ifndef STAFF_NO_DEPRECATED
+    typedef ObjectsList TObjectList STAFF_DEPRECATED(ObjectsList);
+    typedef Object SObject STAFF_DEPRECATED(Object);
+    typedef Objects CObjects STAFF_DEPRECATED(Objects);
+#endif
   }
 }
 

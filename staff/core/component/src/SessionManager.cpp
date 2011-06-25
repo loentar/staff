@@ -31,29 +31,29 @@
 
 namespace staff
 {
-  class CSessionManager::CSessionManagerImpl: public rise::threading::CThread
+  class SessionManager::SessionManagerImpl: public rise::threading::CThread
   {
   public:
-    typedef std::map<std::string, staff::security::SSession> TSessionMap;
+    typedef std::map<std::string, staff::security::Session> SessionMap;
 
-    CSessionManagerImpl():
+    SessionManagerImpl():
       m_nSleepTime(1)
     {
     }
 
     void Start()
     {
-      staff::security::CSessions& rSessions = staff::security::CSessions::Inst();
-      staff::security::TSessionsList lsSessions;
+      staff::security::Sessions& rSessions = staff::security::Sessions::Inst();
+      staff::security::SessionsList lsSessions;
 
       rSessions.CloseExpiredSessions();
       rSessions.GetList(lsSessions);
 
-      for (staff::security::TSessionsList::const_iterator itSession = lsSessions.begin();
+      for (staff::security::SessionsList::const_iterator itSession = lsSessions.begin();
             itSession != lsSessions.end(); ++itSession)
       {
         m_mSessions[itSession->sSessionId] = *itSession;
-        CServiceInstanceManager::Inst().CreateSession(itSession->sSessionId);
+        ServiceInstanceManager::Inst().CreateSession(itSession->sSessionId);
       }
 
       CThread::Start();
@@ -72,11 +72,11 @@ namespace staff
         }
 
         // get current time
-        int nCurrentTime = staff::security::CTime::Get();
+        int nCurrentTime = staff::security::Time::Get();
         int nMinExpires = INT_MAX;
 
         // find expired sessions and calculate next expired session time
-        for (TSessionMap::iterator itSession = m_mSessions.begin();
+        for (SessionMap::iterator itSession = m_mSessions.begin();
               itSession != m_mSessions.end();)
         {
           if (itSession->second.nExpires <= nCurrentTime)
@@ -92,11 +92,11 @@ namespace staff
               rise::LogDebug1() << "Removing expired session: [" << itSession->first
                   << "]: " << itSession->second.nExpires << " <= " << nCurrentTime;
 
-              staff::security::CSessions::Inst().Close(itSession->first);
+              staff::security::Sessions::Inst().Close(itSession->first);
             }
 
             //! TODO: service activity check is needed
-            CServiceInstanceManager::Inst().FreeSession(itSession->first);
+            ServiceInstanceManager::Inst().FreeSession(itSession->first);
 
             m_mSessions.erase(itSession++); // safe remove
             continue;
@@ -131,84 +131,84 @@ namespace staff
 
     void OpenSession(const std::string& sSessionId)
     {
-      staff::security::CSessions& rSessions = staff::security::CSessions::Inst();
+      staff::security::Sessions& rSessions = staff::security::Sessions::Inst();
 
-      staff::security::SSession stSession;
+      staff::security::Session stSession;
       rSessions.GetBySessionId(sSessionId, stSession);
 
-      CServiceInstanceManager::Inst().CreateSession(sSessionId);
+      ServiceInstanceManager::Inst().CreateSession(sSessionId);
       m_mSessions[sSessionId] = stSession;
     }
 
-    TSessionMap m_mSessions;
+    SessionMap m_mSessions;
     int m_nSleepTime;
   };
 
-  CSessionManager& CSessionManager::Inst()
+  SessionManager& SessionManager::Inst()
   {
-    static CSessionManager tInst;
+    static SessionManager tInst;
     return tInst;
   }
 
-  void CSessionManager::Start()
+  void SessionManager::Start()
   {
     m_pImpl->Start();
   }
 
-  void CSessionManager::Stop()
+  void SessionManager::Stop()
   {
 rise::LogEntry();
     m_pImpl->Stop();
   }
 
-  void CSessionManager::Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
+  void SessionManager::Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
   {
     std::string sOldSessionId;
 
-    if (staff::security::CSessions::Inst().GetSessionIdByUserNameAndPassword(sUserName, sPassword, sOldSessionId))
+    if (staff::security::Sessions::Inst().GetSessionIdByUserNameAndPassword(sUserName, sPassword, sOldSessionId))
     {
       sSessionId = sOldSessionId;
       return;
     }
 
-    staff::security::CSessions::Inst().Open(sUserName, sPassword, false, sSessionId);
+    staff::security::Sessions::Inst().Open(sUserName, sPassword, false, sSessionId);
 
     m_pImpl->OpenSession(sSessionId);
   }
 
-  void CSessionManager::Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId)
+  void SessionManager::Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId)
   {
     std::string sOldSessionId;
     bool bOldSessionExists = false;
 
     if (bCloseExisting)
     {
-      bOldSessionExists = staff::security::CSessions::Inst().GetSessionIdByUserName(sUserName, sOldSessionId);
+      bOldSessionExists = staff::security::Sessions::Inst().GetSessionIdByUserName(sUserName, sOldSessionId);
     }
 
-    staff::security::CSessions::Inst().Open(sUserName, sPassword, bCloseExisting, sSessionId);
+    staff::security::Sessions::Inst().Open(sUserName, sPassword, bCloseExisting, sSessionId);
 
     if (bOldSessionExists)
     {
       rise::LogDebug2() << "Freeing old session: " << sOldSessionId;
-      CServiceInstanceManager::Inst().FreeSession(sOldSessionId);
+      ServiceInstanceManager::Inst().FreeSession(sOldSessionId);
       m_pImpl->m_mSessions.erase(sOldSessionId);
     }
 
     m_pImpl->OpenSession(sSessionId);
   }
 
-  void CSessionManager::Close(const std::string& sSessionId)
+  void SessionManager::Close(const std::string& sSessionId)
   {
     rise::LogDebug2() << "Closing session [" << sSessionId << "]";
 
-    staff::security::CSessions::Inst().Close(sSessionId);
+    staff::security::Sessions::Inst().Close(sSessionId);
 
     // don't remove all service instances bound to this session
     // only decrease expires time to next second,
     // because this function may be called from service,
     // what may cause self-destruction of service
-    CSessionManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    SessionManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     if (itSession == m_pImpl->m_mSessions.end())
     {
       rise::LogWarning() << "Attempt to close non-existing session";
@@ -216,40 +216,40 @@ rise::LogEntry();
     else
     {
       // deletes session after 1 sec
-      itSession->second.nExpires = staff::security::CTime::Get() + 1;
+      itSession->second.nExpires = staff::security::Time::Get() + 1;
       // mark session as delayed for close
       itSession->second.nId = -1;
       m_pImpl->m_nSleepTime = 0;
     }
   }
 
-  bool CSessionManager::IsOpened(const std::string& sSessionId)
+  bool SessionManager::IsOpened(const std::string& sSessionId)
   {
     return m_pImpl->m_mSessions.find(sSessionId) != m_pImpl->m_mSessions.end();
   }
 
-  bool CSessionManager::Validate(const std::string& sSessionId)
+  bool SessionManager::Validate(const std::string& sSessionId)
   {
-    return staff::security::CSessions::Inst().Validate(sSessionId);
+    return staff::security::Sessions::Inst().Validate(sSessionId);
   }
 
-  void CSessionManager::Keepalive(const std::string& sSessionId)
+  void SessionManager::Keepalive(const std::string& sSessionId)
   {
-    staff::security::CSessions& rSessions = staff::security::CSessions::Inst();
+    staff::security::Sessions& rSessions = staff::security::Sessions::Inst();
     rSessions.Keepalive(sSessionId);
 
-    CSessionManagerImpl::TSessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    SessionManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     RISE_ASSERT(itSession != m_pImpl->m_mSessions.end());
 
     itSession->second.nExpires = rSessions.GetExpiresById(itSession->second.nId);
   }
 
-  CSessionManager::CSessionManager()
+  SessionManager::SessionManager()
   {
-    m_pImpl = new CSessionManagerImpl;
+    m_pImpl = new SessionManagerImpl;
   }
 
-  CSessionManager::~CSessionManager()
+  SessionManager::~SessionManager()
   {
     if (m_pImpl)
     {

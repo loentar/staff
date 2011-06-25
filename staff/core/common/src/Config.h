@@ -36,13 +36,13 @@ namespace rise
 namespace staff
 {
   //! Config class
-  class STAFF_COMMON_EXPORT CConfig
+  class STAFF_COMMON_EXPORT Config
   {
   public:
     //!         get config instance
     /*! \return config instance
     */
-    static CConfig& Inst();
+    static Config& Inst();
 
     //!         get module config
     /*! \param  sModuleName - module name
@@ -51,15 +51,20 @@ namespace staff
     rise::xml::CXMLNode& GetModuleConfig(const std::string& sModuleName);
 
   private:
-    CConfig();
-    ~CConfig();
-    CConfig(const CConfig&);
-    CConfig& operator=(const CConfig&);
+    Config();
+    ~Config();
+    Config(const Config&);
+    Config& operator=(const Config&);
 
   private:
-    class CConfigImpl;
-    CConfigImpl* m_pImpl;
+    class ConfigImpl;
+    ConfigImpl* m_pImpl;
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Config CConfig STAFF_DEPRECATED(Config);
+#endif
+
 }
 
 #endif // _CONFIG_H_

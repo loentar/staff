@@ -37,29 +37,29 @@ namespace rise
 
 namespace staff
 {
-  class CDataObject;
+  class DataObject;
 
   //!  DataObject Helper
-  class STAFF_COMMON_EXPORT CDataObjectHelper
+  class STAFF_COMMON_EXPORT DataObjectHelper
   {
   public:
     //!         convert rise xml to DataObject
     /*! \param  rXmlNode - rise xml node
         \param  rDataObject - resulting DataObject
         */
-    static void XmlToDataObject(const rise::xml::CXMLNode& rXmlNode, CDataObject& rDataObject);
+    static void XmlToDataObject(const rise::xml::CXMLNode& rXmlNode, DataObject& rDataObject);
 
     //!         convert DataObject to rise xml
     /*! \param  rDataObject - DataObject
         \param  rXmlNode - resulting rise xml
         */
-    static void DataObjectToXml(const CDataObject& rDataObject, rise::xml::CXMLNode& rXmlNode);
+    static void DataObjectToXml(const DataObject& rDataObject, rise::xml::CXMLNode& rXmlNode);
 
 #if defined _DEBUG || defined DEBUG
     //!         dump DataObject
     /*! \param  rDataObject - DataObject
         */
-    static void Dump(const CDataObject& rDataObject);
+    static void Dump(const DataObject& rDataObject);
 #endif
   };  
 
@@ -68,14 +68,19 @@ namespace staff
       \param  rDataObject - DataObject
       \return serialization buffer
       */
-  STAFF_COMMON_EXPORT rise::CStreamBuffer& operator<<(rise::CStreamBuffer& rBuffer, const CDataObject& rDataObject);
+  STAFF_COMMON_EXPORT rise::CStreamBuffer& operator<<(rise::CStreamBuffer& rBuffer, const DataObject& rDataObject);
 
   //!         deserialize DataObject from buffer
   /*! \param  rBuffer - deserialization buffer
       \param  rDataObject - DataObject
       \return deserialization buffer
       */
-  STAFF_COMMON_EXPORT rise::CStreamBuffer& operator>>(rise::CStreamBuffer& rBuffer, CDataObject& rDataObject);
+  STAFF_COMMON_EXPORT rise::CStreamBuffer& operator>>(rise::CStreamBuffer& rBuffer, DataObject& rDataObject);
+
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef DataObjectHelper DataObjectHelper STAFF_DEPRECATED(DataObjectHelper);
+#endif
 }
 
 #endif // _DATAOBJECTHELPER_H_

@@ -31,14 +31,14 @@ typedef struct axutil_env axutil_env_t;
 namespace staff
 {
   //! Axis2/C callback
-  class STAFF_CLIENT_EXPORT CAxis2Callback
+  class STAFF_CLIENT_EXPORT Axis2Callback
   {
   public:
     //! constructor
-    CAxis2Callback();
+    Axis2Callback();
 
     //! destructor
-    virtual ~CAxis2Callback();
+    virtual ~Axis2Callback();
 
     //! is operation completed
     /*! \return true - operation completed
@@ -60,6 +60,10 @@ namespace staff
     axis2_callback_t* m_pCallback; //!< Axis2/C callback handle
     axutil_env_t* m_pEnv; //!< Axis2/C env
   };
+
+#ifndef STAFF_NO_DEPRECATED
+  typedef Axis2Callback CAxis2Callback STAFF_DEPRECATED(Axis2Callback);
+#endif
 }
 
 #endif // _AXIS2CALLBACK_H_

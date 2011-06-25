@@ -476,7 +476,7 @@ namespace rise
   COStream& _PaletteSet(COStream& rStream, short nPaletteIndex, short nR, short nG, short nB)
   {
 #ifdef WIN32
-#ifndef __MINGW32__ // warning: statement has no effect
+#ifdef _MSC_VER // warning: statement has no effect
     nPaletteIndex; nR; nG; nB;
 #endif
     return rStream;
@@ -503,7 +503,7 @@ namespace rise
   COStream& _ConsoleSwitchTo(COStream& rStream, short nValue)
   {
 #ifdef WIN32
-#ifndef __MINGW32__ // warning: statement has no effect
+#ifdef _MSC_VER // warning: statement has no effect
     nValue;
 #endif
     return rStream;
@@ -550,7 +550,7 @@ namespace rise
   COStream& _ConsoleSetIcon(COStream& rStream, const CString& sText)
   {
 #ifdef WIN32
-#ifndef __MINGW32__ // warning: statement has no effect
+#ifdef _MSC_VER // warning: statement has no effect
     sText;
 #endif
     return rStream;

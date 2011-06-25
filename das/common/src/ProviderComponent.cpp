@@ -32,7 +32,7 @@ namespace das
   {
   }
 
-  void ProviderComponent::AddServiceWrapper(const std::string& sServiceName, CServiceWrapper* pServiceWrapper)
+  void ProviderComponent::AddServiceWrapper(const std::string& sServiceName, ServiceWrapper* pServiceWrapper)
   {
     RegisterService(sServiceName, pServiceWrapper);
   }

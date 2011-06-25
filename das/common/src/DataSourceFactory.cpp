@@ -45,7 +45,7 @@ namespace das
   public:
     void Init()
     {
-      const std::string& sDataSourcesDir = staff::CRuntime::Inst().GetComponentHome("staff.das") + 
+      const std::string& sDataSourcesDir = staff::Runtime::Inst().GetComponentHome("staff.das") + 
         RISE_PATH_SEPARATOR "datasources" RISE_PATH_SEPARATOR;
 
       StringList lsDataSourcesDirs;
@@ -101,7 +101,7 @@ namespace das
           tpComponent->AddServiceWrapper(sName, new ProviderServiceWrapper(tpComponent, &itDataSource->second));
         }
 
-        CSharedContext::Inst().AddComponent(tpComponent);
+        SharedContext::Inst().AddComponent(tpComponent);
       }
 
     }
