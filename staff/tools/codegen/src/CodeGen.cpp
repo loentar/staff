@@ -1357,7 +1357,6 @@ namespace codegen
     }
 
   private:
-    typedef std::map<std::string, std::string> StringMap;
     std::list<std::string> m_tTemplateFileList;
     std::list<std::string> m_tConstFileList;
     mutable std::stack<StringMap> m_tmVariables;
