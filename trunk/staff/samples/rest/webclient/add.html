@@ -2,22 +2,24 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Add customer</title>
+    <script src="jquery.js" type="text/javascript"></script>
+    <script src="http-form-hook.js" type="text/javascript"></script>
   </head>
   <body>
-    <form action="http://localhost:9090/axis2/services/samples.rest.Customers/Add" method="GET">
+    <form action="http://localhost/axis2/services/samples.rest.Customers/Add/" method="PUT">
       <table border="1px black">
         <tbody>
           <tr>
             <td>First name</td>
-            <td><input type="text" name="sFirstName" /></td>
+            <td><input type="text" name="firstname" /></td>
           </tr>
           <tr>
             <td>Last name</td>
-            <td><input type="text" name="sLastName" /></td>
+            <td><input type="text" name="lastname" /></td>
           </tr>
           <tr>
             <td>Year of birth</td>
-            <td><input type="text" name="nYear" /></td>
+            <td><input type="text" name="year" /></td>
           </tr>
         </tbody>
       </table>

@@ -68,7 +68,9 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-//#define _DEBUG
+#define _DEBUG
+
+static struct sockaddr_in g_saServer;
 
 #define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
 #define ASSERT1(EXPRESSION, TEXT, PARAM1) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); return 1; }
@@ -143,42 +145,28 @@ void CloseSocket(int nSockId)
 
 int CreateSocket()
 {
+  static const int nNoDelay = 1;
+  static const struct linger stLinger = {1, 5};
+  static const struct timeval tv = {60, 0};
+
   int nRet = 0;
   int nSockId = 0;
-  struct sockaddr_in saServer;
-  struct timeval tv;
 
   nSockId = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
   if(nSockId == -1)
     return -2;
 
-  saServer.sin_family = AF_INET;
-  saServer.sin_port = htons(9090);
-  saServer.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-  nRet = connect(nSockId, &saServer, sizeof(saServer));
+  nRet = connect(nSockId, &g_saServer, sizeof(g_saServer));
   if(nRet == -1)
   {
     CloseSocket(nSockId);
     return -3;
   }
 
-  {
-    int nNoDelay = 1;
-    setsockopt(nSockId, IPPROTO_TCP, TCP_NODELAY, (const char*)&nNoDelay, sizeof(nNoDelay));
-  }
-
-  {
-    struct linger stLinger;
-    stLinger.l_onoff = 1;
-    stLinger.l_linger = 5;
-    setsockopt(nSockId, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
-  }
-
-  tv.tv_sec = 60;
-  tv.tv_usec = 0;
-  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+  setsockopt(nSockId, IPPROTO_TCP, TCP_NODELAY, (const char*)&nNoDelay, sizeof(nNoDelay));
+  setsockopt(nSockId, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
+  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(struct timeval));
   
   return nSockId;
 }
@@ -635,8 +623,7 @@ static int axis2services_handler(request_rec* pReq)
     return DECLINED;
   }
 
-  if (!pReq->header_only &&
-      (pReq->method_number == M_POST || pReq->method_number == M_GET))
+  if (!pReq->header_only)
   {
     int nRet = OK;
     int nHttpStatus = OK;
@@ -656,14 +643,19 @@ LOGLABEL;
     CloseSocket(nSockId);
 LOGLABEL;
 
-    return nRet != OK ? 500 : OK;
+    return nRet != OK ? 500 : (nHttpStatus != 200 ? nHttpStatus : OK);
   }
 
   return OK;
 }
 
-static void axis2services_register_hooks(apr_pool_t *p)
+static void axis2services_register_hooks(apr_pool_t* pPool)
 {
+  (void)(pPool);
+  g_saServer.sin_family = AF_INET;
+  g_saServer.sin_port = htons(9090);
+  g_saServer.sin_addr.s_addr = inet_addr("127.0.0.1");
+
   ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
 #ifdef _DEBUG
 pLog = fopen("/tmp/apm.log", "wt");
