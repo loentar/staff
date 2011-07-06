@@ -330,12 +330,15 @@ staff/samples/loadorder/component/src/DepSvc4Impl.cpp
 staff/samples/loadorder/component/src/DepSvc4Impl.h
 staff/samples/login/client/src/Login.h
 staff/samples/login/client/src/main.cpp
+staff/samples/rest/client/src/Customers.h
+staff/samples/rest/client/src/main.cpp
 staff/samples/rest/component/src/Customers.h
 staff/samples/rest/component/src/CustomersImpl.cpp
 staff/samples/rest/component/src/CustomersImpl.h
 staff/samples/rest/webclient/add.html
 staff/samples/rest/webclient/delete.html
 staff/samples/rest/webclient/get.html
+staff/samples/rest/webclient/http-form-hook.js
 staff/samples/rest/webclient/index.html
 staff/samples/rest/webclient/list.html
 staff/samples/rest/webclient/update.html

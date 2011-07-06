@@ -5,6 +5,7 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
 #include <rise/common/MutablePtr.h>
+#include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/Operation.h>
@@ -160,13 +161,14 @@ $(Class.Name)Proxy::~$(Class.Name)Proxy()
 void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId)
 {
   staff::IService::Init("$(Class.ServiceNsName)", sSessionId, sInstanceId);
-  m_tClient.Init(!sServiceUri.empty() ? sServiceUri : \
+  m_sServiceUri = !sServiceUri.empty() ? sServiceUri : \
 #ifeq($(Class.Options.*serviceUri),)
 "http://localhost:9090/axis2/services/$(Class.ServiceNsName)"\
 #else
 "$(Class.Options.*serviceUri)"\
 #ifeqend
-);
+;
+  m_tClient.Init(m_sServiceUri);
 #foreach $(Class.Modules)
   m_tClient.EngageModule("$(Module)");
 #end
@@ -221,6 +223,8 @@ staff::ServiceClient* $(Class.Name)Proxy::GetClient()
 
 $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Const)
 {
+#var bRestEnable 0
+#var bGenerateBody 1
 #var PutOptions 0
 #foreach $(Member.Options) // check supported options to avoid cpp warning
 #ifeq($($ThisNodeName),soapAction||restEnable||restMethod||wsaAction||wsaTo||wsaFrom||wsaFaultTo||wsaUseSeparateListener||timeout)
@@ -233,11 +237,36 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Options.*soapAction),)
   rOptions.SetSoapAction("$(Member.Options.*soapAction)");
 #ifeqend
-#ifneq($(Member.Options.*restEnable),)
+#ifeq($(Member.Options.*restEnable),true||yes||1)
+#var bRestEnable 1
   rOptions.EnableRest($(Member.Options.*restEnable));
+#ifneq($(Member.Options.*restLocation),)
+#var sRestLocation "/$(Member.Options.*restLocation)"
+#foreach $(Member.Params)
+#ifeq($(Param.DataType.Type),string)
+#var sRestLocation $($sRestLocation.!replace/{$(Param.Name)}/" + $(Param.Name) + "/)
+#else
+#ifeq($(Param.DataType.Type),generic)
+#var sRestLocation $($sRestLocation.!replace/{$(Param.Name)}/" + staff::ToString($(Param.Name)) + "/)
+#else
+#cgerror cannot generate REST parameter for [$(Param.Name)] type [$(Param.DataType.Type)]
+#ifeqend
+#ifeqend
+#end
+#var sRestLocation $($sRestLocation.!replace/ + ""//)
+  rOptions.SetToAddress(m_sServiceUri + $($sRestLocation));
+#else
+  rOptions.SetToAddress(m_sServiceUri);
+#ifeqend
 #ifeqend
 #ifneq($(Member.Options.*restMethod),)
+#var sRestMethod $(Member.Options.*restMethod)
   rOptions.SetHttpMethod("$(Member.Options.*restMethod)");
+#ifeq($($bRestEnable),1)
+#ifeq($(Member.Options.*restMethod),GET)
+#var bGenerateBody 0
+#ifeqend // method=GET
+#ifeqend // rest enable
 #ifeqend
 #ifneq($(Member.Options.*wsaAction),)
   rOptions.SetAction("$(Member.Options.*wsaAction)");
@@ -295,6 +324,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 , "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
 
+#ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
 #ifneq($(Param.DataType.Name),ICallback)
@@ -322,9 +352,10 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #var tCallbackParamName $(Param.Name)
 #ifeqend
-#end
+#end // member.params
 
-#ifeqend
+#ifeqend // Member.Params.$Count != 0
+#ifeqend // bGenerateBody
 #ifeq($($tCallbackParamName),)
   // synchronous call
   tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
