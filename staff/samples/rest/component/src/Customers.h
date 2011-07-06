@@ -54,17 +54,19 @@ namespace samples
           \param nYear - year of birth
           \return added customer id
         */
-      // really there must be PUT
-      // *restMethod: GET
-      // *restLocation: Add?sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
+      // *restEnable: true
+      // *restMethod: PUT
+      // *restLocation: Add/firstname={sFirstName}&lastname={sLastName}&year={nYear}
       virtual int Add(const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
       //! delete customer
       /*! \param nId - customer id to delete
+          THIS OPERATION MAY NOT WORK DUE TO AXIS2/C PROBLEM:
+          https://issues.apache.org/jira/browse/AXIS2C-1418?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel
         */
-      // really there must be DELETE
-      // *restMethod: GET
-      // *restLocation: Delete?nId={nId}
+      // *restEnable: true
+      // *restMethod: DELETE
+      // *restLocation: Delete/id={nId}
       virtual void Delete(int nId) = 0;
 
       //! update customer
@@ -73,14 +75,15 @@ namespace samples
           \param sLastName - last name
           \param nYear - year of birth
         */
-      // really there must be POST
-      // *restMethod: GET
-      // *restLocation: Update?nId={nId}&sFirstName={sFirstName}&sLastName={sLastName}&nYear={nYear}
+      // *restEnable: true
+      // *restMethod: POST
+      // *restLocation: Update/id={nId}&firstname={sFirstName}&lastname={sLastName}&year={nYear}
       virtual void Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
       //! get all customers
       /*! \return all customers
         */
+      // *restEnable: true
       // *responseElement: Customers
       // *restMethod: GET
       // *restLocation: List
@@ -89,9 +92,10 @@ namespace samples
       //! get customer with given id
       /*! \return customer with given id
         */
+      // *restEnable: true
       // *responseElement: Customer
       // *restMethod: GET
-      // *restLocation: Get?nId={nId}
+      // *restLocation: Get/id={nId}
       virtual Customer Get(int nId) = 0;
 
     };
