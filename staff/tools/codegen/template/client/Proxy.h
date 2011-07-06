@@ -28,6 +28,7 @@ public:
 #end
 private:
   mutable staff::ServiceClient m_tClient;
+  std::string m_sServiceUri;
 };
 
 $(Class.EndingNs)
