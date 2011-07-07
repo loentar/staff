@@ -271,7 +271,7 @@
       _this._sHttpMethod = sHttpMethod;
     }
 
-    _this.invoke = function(oRequestElement, fnCallback)
+    _this.invoke = function(oRequestElement, fnCallback, fnError)
     {
       function getBodyElement(oData)
       {
@@ -346,6 +346,16 @@
       }
 
       var oData = jQuery.ajax(oRequestSettings);
+      if (fnError)
+      {
+        oData.error(fnError);
+      }
+      else
+      {
+        oData.error(function(oError){
+          throw oError;
+        });
+      }
 
       if (!fnCallback)
       {

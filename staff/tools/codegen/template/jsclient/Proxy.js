@@ -70,7 +70,7 @@ $(Class.ServiceNsName) = function(sAddress, sSessionId, sInstanceId)
 #foreach $(Member.Params)
 $(Param.Name), \
 #end
-fnCallback)
+fnResult, fnError)
   {
     var oRequestElem = new staff.Element("$(Member.Options.*requestElement||Member.Name)", _this._sTnsPrefix, _this._sTns);
 
@@ -150,17 +150,17 @@ staff.getElementValue(oResultElement).toLowerCase() == "true";
 #ifneq($(Member.Options.*timeout),)
     _this._oClient.setTimeout($(Member.Options.*timeout));
 #ifeqend
-    if (typeof(fnCallback) != "function")
+    if (typeof(fnResult) != "function")
     { // synchronous call
-      return parseResponse(_this._oClient.invoke(oRequestElem));
+      return parseResponse(_this._oClient.invoke(oRequestElem, null, fnError));
     }
 
     // asynchronous call
     _this._oClient.invoke(oRequestElem,
       function(oData)
       {
-        fnCallback(parseResponse(oData));
-      });
+        fnResult(parseResponse(oData));
+      }, fnError);
   }
 
 #end // foreach Class.Members
