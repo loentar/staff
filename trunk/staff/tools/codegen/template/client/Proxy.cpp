@@ -243,6 +243,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Options.*restLocation),)
 #var sRestLocation "/$(Member.Options.*restLocation)"
 #foreach $(Member.Params)
+#ifeq($($sRestLocation.!match/{$(Param.Name)}/),true) // replace param in url only if it exists
 #ifeq($(Param.DataType.Type),string)
 #var sRestLocation $($sRestLocation.!replace/{$(Param.Name)}/" + $(Param.Name) + "/)
 #else
@@ -250,6 +251,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var sRestLocation $($sRestLocation.!replace/{$(Param.Name)}/" + staff::ToString($(Param.Name)) + "/)
 #else
 #cgerror cannot generate REST parameter for [$(Param.Name)] type [$(Param.DataType.Type)]
+#ifeqend
 #ifeqend
 #ifeqend
 #end
