@@ -2197,7 +2197,7 @@ namespace staff
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 #ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
-    Namespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode), this);
+    Namespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
 #else
     // just return current namespace
     Namespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
