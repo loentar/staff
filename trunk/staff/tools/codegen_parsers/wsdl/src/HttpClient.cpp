@@ -23,9 +23,15 @@
 #include <axis2_http_client.h>
 #include <axis2_http_simple_request.h>
 #include <axis2_http_simple_response.h>
+#include <axis2_const.h>
 #include <string>
 #include <rise/common/ExceptionTemplate.h>
 #include "HttpClient.h"
+
+// detect below axis2c-1.7.0
+#ifndef AXIS2_SVC_CLIENT_CLOSED
+#define axis2_http_client_receive_header axis2_http_client_recieve_header
+#endif
 
 namespace staff
 {
@@ -83,7 +89,7 @@ namespace codegen
       // don't check return code here, because client returns AXIS2_SUCCESS only if some body was sent
       // we have'nt body, and client returns AXIS2_FAILURE
       axis2_http_client_send(pClient, pEnv, pRequest, NULL);
-      int nStatus = axis2_http_client_recieve_header(pClient, pEnv);
+      int nStatus = axis2_http_client_receive_header(pClient, pEnv);
       rise::LogDebug3() << "Status code: " << nStatus;
       if (nStatus == 200) // HTTP 200 OK
       {

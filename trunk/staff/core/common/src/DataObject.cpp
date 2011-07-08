@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <axis2_const.h>
 #include <axutil_utils.h>
 #include <axiom.h>
 #include <axiom_node.h>
@@ -36,6 +37,11 @@
 #include "Attribute.h"
 #include "Value.h"
 #include "DataObject.h"
+
+// detect axis2c-1.7.0 and above
+#ifdef AXIS2_SVC_CLIENT_CLOSED
+#define AXIS2_VERSION_1_7_0_AND_ABOVE
+#endif
 
 namespace staff
 {
@@ -2190,14 +2196,30 @@ namespace staff
   Namespace DataObject::GetDefaultNamespace() const
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
-    Namespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
+    Namespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode), this);
+#else
+    // just return current namespace
+    Namespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+#endif
     return tNs;
+  }
+
+  void DataObject::DeclareDefaultNamespace(const char* szUri)
+  {
+    RISE_ASSERT(m_pAxiomElement);
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
+    axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(szUri));
+#else
+    axiom_namespace_t* pAxiomNamespace = axiom_namespace_create(m_pEnv, szUri, "");
+    RISE_ASSERTS(pAxiomNamespace, "Failed to create axiom_namespace");
+    axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, pAxiomNamespace);
+#endif
   }
 
   void DataObject::DeclareDefaultNamespace(const std::string& sUri)
   {
-    RISE_ASSERT(m_pAxiomElement);
-    axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(sUri.c_str()));
+    DeclareDefaultNamespace(sUri.c_str());
   }
 
   Namespace DataObject::GetNamespace() const
@@ -2252,9 +2274,14 @@ namespace staff
   Namespace DataObject::FindNamespaceUri(const std::string& sPrefix) const
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     Namespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv,
       const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
     return tNs;
+#else
+    RISE_THROWS(rise::CInternalNotImplementedException,
+                "This function is not implemented in Axis2/C-1.7.0 and greater");
+#endif
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -2310,12 +2337,18 @@ namespace staff
 
   void DataObject::RemoveAttribute(AttributeIterator& itAttribute)
   {
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
+#else
+    RISE_THROWS(rise::CInternalNotImplementedException,
+                "This function is not implemented in Axis2/C-1.7.0 and greater");
+#endif
   }
 
   void DataObject::RemoveAllAttributes()
   {
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
     if (pAttrHash)
     {
@@ -2332,6 +2365,10 @@ namespace staff
         }
       }
     }
+#else
+    RISE_THROWS(rise::CInternalNotImplementedException,
+                "This function is not implemented in Axis2/C-1.7.0 and greater");
+#endif
   }
 
   DataObject::AttributeIterator DataObject::FindAttributeByQName(const QName& stQName)
