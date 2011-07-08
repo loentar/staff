@@ -203,6 +203,7 @@ namespace staff
     /*! \return QName
     */
     QName GetQName();
+
     
     //!         set QName
     /*! \param  rQName - QName
@@ -781,6 +782,11 @@ namespace staff
     Namespace GetDefaultNamespace() const;
 
     //!         declare default namespace for element
+    /*! \param  szUri - default namespace(C-string)
+        */
+    void DeclareDefaultNamespace(const char* szUri);
+
+    //!         declare default namespace for element
     /*! \param  sUri - default namespace
         */
     void DeclareDefaultNamespace(const std::string& sUri);
@@ -813,6 +819,7 @@ namespace staff
         \return found namespace.
         */
     Namespace FindNamespace(const std::string& sUri, const std::string& sPrefix);
+
     
     //!         finds a namespace in current element's scope, by uri
     /*! \param  sUri - namespace URI
@@ -832,7 +839,6 @@ namespace staff
         \return found namespace
         */
     Namespace FindNamespaceUri(const std::string& sPrefix) const;
-
 
     //////////////////////////////////////////////////////////////////////////
     // attribute management
@@ -878,6 +884,7 @@ namespace staff
         \param  rAttribute - attribute
         */
     void AppendAttribute(Attribute& rAttribute);
+
     
     //!         remove attribute
     /*! \param  itAttribute - attribute's iterator

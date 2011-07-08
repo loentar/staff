@@ -157,8 +157,10 @@ namespace staff
 
   void SessionManager::Stop()
   {
-rise::LogEntry();
-    m_pImpl->Stop();
+    if (m_pImpl->IsWorking())
+    {
+      m_pImpl->Stop();
+    }
   }
 
   void SessionManager::Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
