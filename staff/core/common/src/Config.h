@@ -62,7 +62,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Config CConfig STAFF_DEPRECATED(Config);
+  STAFF_DEPRECATED(Config) typedef Config CConfig;
 #endif
 
 }

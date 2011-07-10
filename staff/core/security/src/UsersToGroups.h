@@ -80,8 +80,8 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef IntList TIntList STAFF_DEPRECATED(IntList);
-    typedef UsersToGroups CUsersToGroups STAFF_DEPRECATED(UsersToGroups);
+    STAFF_DEPRECATED(IntList) typedef IntList TIntList;
+    STAFF_DEPRECATED(UsersToGroups) typedef UsersToGroups CUsersToGroups;
 #endif
 
   }

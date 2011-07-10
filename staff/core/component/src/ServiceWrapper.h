@@ -22,8 +22,8 @@
 #ifndef _SERVICEWRAPPER_H_
 #define _SERVICEWRAPPER_H_
 
-#include <string>
 #include "staffcomponentexport.h"
+#include <string>
 
 namespace rise
 {
@@ -101,7 +101,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef ServiceWrapper CServiceWrapper STAFF_DEPRECATED(ServiceWrapper);
+  STAFF_DEPRECATED(ServiceWrapper) typedef ServiceWrapper CServiceWrapper;
   class CDataObject;
 #endif
 }

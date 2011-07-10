@@ -38,7 +38,11 @@
 
 #ifndef STAFF_DEPRECATED
   #ifdef _MSC_VER
-    #define STAFF_DEPRECATED(Replacement) _CRT_INSECURE_DEPRECATE(Replacement)
+    #if _MSC_FULL_VER >= 140050320
+      #define STAFF_DEPRECATED(Replacement) __declspec(deprecated("You are using deprecated API. Consider using " #Replacement " instead."))
+    #else
+      #define STAFF_DEPRECATED(Replacement) __declspec(deprecated)
+    #endif
   #elif __GNUC__ >= 3
     #define STAFF_DEPRECATED(Replacement) __attribute__ ((deprecated))
   #else

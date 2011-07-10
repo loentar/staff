@@ -39,7 +39,7 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef Time CTime STAFF_DEPRECATED(Time);
+    STAFF_DEPRECATED(Time) typedef Time CTime;
 #endif
   }
 }

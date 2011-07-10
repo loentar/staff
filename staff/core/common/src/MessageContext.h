@@ -91,7 +91,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef MessageContext CMessageContext STAFF_DEPRECATED(MessageContext);
+  STAFF_DEPRECATED(MessageContext) typedef MessageContext CMessageContext;
 #endif
 
 } // namespace staff

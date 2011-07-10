@@ -111,7 +111,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef ServiceInstanceManager CServiceInstanceManager STAFF_DEPRECATED(ServiceInstanceManager);
+  STAFF_DEPRECATED(ServiceInstanceManager) typedef ServiceInstanceManager CServiceInstanceManager;
 #endif
 
 }

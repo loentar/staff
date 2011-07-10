@@ -83,7 +83,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Component CComponent STAFF_DEPRECATED(Component);
+  STAFF_DEPRECATED(Component) typedef Component CComponent;
 #endif
 
 }

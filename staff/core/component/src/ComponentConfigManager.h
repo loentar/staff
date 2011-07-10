@@ -59,7 +59,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef ComponentConfigManager CComponentConfigManager STAFF_DEPRECATED(ComponentConfigManager);
+  STAFF_DEPRECATED(ComponentConfigManager) typedef ComponentConfigManager CComponentConfigManager;
 #endif
 
 }

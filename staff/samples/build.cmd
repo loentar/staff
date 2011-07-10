@@ -1,5 +1,5 @@
-@rem start this file to compile project
-::@echo off
+@rem start this file to compile samples
+@echo off
 
 setlocal
 set target=%1%

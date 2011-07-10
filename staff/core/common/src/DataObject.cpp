@@ -2279,7 +2279,7 @@ namespace staff
       const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
     return tNs;
 #else
-    RISE_THROWS(rise::CInternalNotImplementedException,
+    RISE_THROWS(DomInternalException,
                 "This function is not implemented in Axis2/C-1.7.0 and greater");
 #endif
   }
@@ -2341,7 +2341,7 @@ namespace staff
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
 #else
-    RISE_THROWS(rise::CInternalNotImplementedException,
+    RISE_THROWS(DomInternalException,
                 "This function is not implemented in Axis2/C-1.7.0 and greater");
 #endif
   }
@@ -2366,7 +2366,7 @@ namespace staff
       }
     }
 #else
-    RISE_THROWS(rise::CInternalNotImplementedException,
+    RISE_THROWS(DomInternalException,
                 "This function is not implemented in Axis2/C-1.7.0 and greater");
 #endif
   }

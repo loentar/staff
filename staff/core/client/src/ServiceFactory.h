@@ -104,7 +104,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef ServiceFactory CServiceFactory STAFF_DEPRECATED(ServiceFactory);
+  STAFF_DEPRECATED(ServiceFactory) typedef ServiceFactory CServiceFactory;
 #endif
 }
 

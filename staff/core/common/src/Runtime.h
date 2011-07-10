@@ -95,7 +95,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Runtime CRuntime STAFF_DEPRECATED(Runtime);
+  STAFF_DEPRECATED(Runtime) typedef Runtime CRuntime;
 #endif
 
 }

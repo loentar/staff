@@ -79,7 +79,7 @@ namespace staff
 
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef DataObjectHelper DataObjectHelper STAFF_DEPRECATED(DataObjectHelper);
+  STAFF_DEPRECATED(DataObjectHelper) typedef DataObjectHelper DataObjectHelper;
 #endif
 }
 
