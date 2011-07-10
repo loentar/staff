@@ -110,7 +110,7 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef Acl CAcl STAFF_DEPRECATED(Acl);
+    STAFF_DEPRECATED(Acl) typedef Acl CAcl;
 #endif
 
   }

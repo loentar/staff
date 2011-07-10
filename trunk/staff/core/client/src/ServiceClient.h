@@ -201,7 +201,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef ServiceClient CServiceClient STAFF_DEPRECATED(ServiceClient);
+  STAFF_DEPRECATED(ServiceClient) typedef ServiceClient CServiceClient;
 #endif
 }
 

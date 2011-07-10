@@ -89,7 +89,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef SessionManager CSessionManager STAFF_DEPRECATED(SessionManager);
+  STAFF_DEPRECATED(SessionManager) typedef SessionManager CSessionManager;
 #endif
 
 }

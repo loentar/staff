@@ -124,9 +124,9 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef ObjectsList TObjectList STAFF_DEPRECATED(ObjectsList);
-    typedef Object SObject STAFF_DEPRECATED(Object);
-    typedef Objects CObjects STAFF_DEPRECATED(Objects);
+    STAFF_DEPRECATED(ObjectsList) typedef ObjectsList TObjectList;
+    STAFF_DEPRECATED(Object) typedef Object SObject;
+    STAFF_DEPRECATED(Objects) typedef Objects CObjects;
 #endif
   }
 }

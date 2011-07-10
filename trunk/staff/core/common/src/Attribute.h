@@ -162,7 +162,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Attribute CAttribute STAFF_DEPRECATED(Attribute);
+  STAFF_DEPRECATED(Attribute) typedef Attribute CAttribute;
 #endif
 } // namespace staff
 

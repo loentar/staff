@@ -354,15 +354,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Axis2Service.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Axis2Utils.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\ServiceDispatcher.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\StaffService.cpp"
 				>
 			</File>
 		</Filter>

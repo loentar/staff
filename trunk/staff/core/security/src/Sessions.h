@@ -161,9 +161,9 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef SessionsList TSessionsList STAFF_DEPRECATED(SessionsList);
-    typedef Session SSession STAFF_DEPRECATED(Session);
-    typedef Sessions CSessions STAFF_DEPRECATED(Sessions);
+    STAFF_DEPRECATED(SessionsList) typedef SessionsList TSessionsList;
+    STAFF_DEPRECATED(Session) typedef Session SSession;
+    STAFF_DEPRECATED(Sessions) typedef Sessions CSessions;
 #endif
 
   }

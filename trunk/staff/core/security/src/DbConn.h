@@ -61,7 +61,7 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef DbConn CDbConn STAFF_DEPRECATED(DbConn);
+    STAFF_DEPRECATED(DbConn) typedef DbConn CDbConn;
 #endif
   }
 }

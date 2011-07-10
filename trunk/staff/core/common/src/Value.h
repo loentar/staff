@@ -435,7 +435,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Value CValue STAFF_DEPRECATED(Value);
+  STAFF_DEPRECATED(Value) typedef Value CValue;
 #endif
 
 }

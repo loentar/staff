@@ -103,13 +103,13 @@ namespace staff
   typedef RemoteExceptionTemplate<EXINTERNAL> RemoteInternalException;
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef DomParamException CDomParamException STAFF_DEPRECATED(DomParamException);
-  typedef DomTypeException CDomTypeException STAFF_DEPRECATED(DomTypeException);
-  typedef DomNoItemException CDomNoItemException STAFF_DEPRECATED(DomNoItemException);
-  typedef DomFormatException CDomFormatException STAFF_DEPRECATED(DomFormatException);
-  typedef DomInternalException CDomInternalException STAFF_DEPRECATED(DomInternalException);
-  typedef RemoteException CRemoteException STAFF_DEPRECATED(RemoteException);
-  typedef RemoteInternalException CRemoteInternalException STAFF_DEPRECATED(RemoteInternalException);
+  STAFF_DEPRECATED(DomParamException) typedef DomParamException CDomParamException;
+  STAFF_DEPRECATED(DomTypeException) typedef DomTypeException CDomTypeException;
+  STAFF_DEPRECATED(DomNoItemException) typedef DomNoItemException CDomNoItemException;
+  STAFF_DEPRECATED(DomFormatException) typedef DomFormatException CDomFormatException;
+  STAFF_DEPRECATED(DomInternalException) typedef DomInternalException CDomInternalException;
+  STAFF_DEPRECATED(RemoteException) typedef RemoteException CRemoteException;
+  STAFF_DEPRECATED(RemoteInternalException) typedef RemoteInternalException CRemoteInternalException;
 #endif
 
 }

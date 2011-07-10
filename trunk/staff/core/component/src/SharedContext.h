@@ -102,7 +102,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef SharedContext CSharedContext STAFF_DEPRECATED(SharedContext);
+  STAFF_DEPRECATED(SharedContext) typedef SharedContext CSharedContext;
 #endif
 
 }

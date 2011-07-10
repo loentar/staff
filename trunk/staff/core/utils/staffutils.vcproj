@@ -378,11 +378,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\fromcstring.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\fromstring.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\HexBinary.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\staffutilsexport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tocstring.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tostring.h"
 				>
 			</File>
 		</Filter>

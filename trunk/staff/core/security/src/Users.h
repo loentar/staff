@@ -105,9 +105,9 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef UsersList TUsersList STAFF_DEPRECATED(UsersList);
-    typedef User SUser STAFF_DEPRECATED(User);
-    typedef Users CUsers STAFF_DEPRECATED(Users);
+    STAFF_DEPRECATED(UsersList) typedef UsersList TUsersList;
+    STAFF_DEPRECATED(User) typedef User SUser;
+    STAFF_DEPRECATED(Users) typedef Users CUsers;
 #endif
   }
 }

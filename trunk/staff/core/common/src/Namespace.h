@@ -156,7 +156,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Namespace CNamespace STAFF_DEPRECATED(Namespace);
+  STAFF_DEPRECATED(Namespace) typedef Namespace CNamespace;
 #endif
 
 } // namespace staff

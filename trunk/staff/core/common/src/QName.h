@@ -177,7 +177,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef QName CQName STAFF_DEPRECATED(QName);
+  STAFF_DEPRECATED(QName) typedef QName CQName;
 #endif
 
 } // namespace staff

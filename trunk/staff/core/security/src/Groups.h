@@ -93,9 +93,9 @@ namespace staff
     };
 
 #ifndef STAFF_NO_DEPRECATED
-    typedef GroupsList TGroupsList STAFF_DEPRECATED(GroupsList);
-    typedef Group SGroup STAFF_DEPRECATED(Group);
-    typedef Groups CGroups STAFF_DEPRECATED(Groups);
+    STAFF_DEPRECATED(GroupsList) typedef GroupsList TGroupsList;
+    STAFF_DEPRECATED(Group) typedef Group SGroup;
+    STAFF_DEPRECATED(Groups) typedef Groups CGroups;
 #endif
 
   }

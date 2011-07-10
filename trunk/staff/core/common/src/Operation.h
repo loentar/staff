@@ -214,19 +214,19 @@ namespace staff
     MessageContext& GetMessageContext();
 
   private:
-    mutable DataObject m_tdoRequest;  //!<  request DataObject
-    mutable DataObject m_tdoResponse; //!<  response DataObject
-    mutable DataObject m_tdoResult;   //!<  result DataObject
+    mutable DataObject m_tdoRequest;   //!<  request DataObject
+    mutable DataObject m_tdoResponse;  //!<  response DataObject
+    mutable DataObject m_tdoResult;    //!<  result DataObject
     std::string m_sRequestName;        //!<  request name
     std::string m_sResponseName;       //!<  response name
     std::string m_sResultName;         //!<  result name
     std::string m_sSoapAction;         //!<  SOAP action
-    MessageContext* m_pMessageContext;//!<  message context
+    MessageContext* m_pMessageContext; //!<  message context
   };
 
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Operation COperation STAFF_DEPRECATED(Operation);
+  STAFF_DEPRECATED(Operation) typedef Operation COperation;
 #endif
 
 }

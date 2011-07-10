@@ -62,7 +62,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Axis2Callback CAxis2Callback STAFF_DEPRECATED(Axis2Callback);
+  STAFF_DEPRECATED(Axis2Callback) typedef Axis2Callback CAxis2Callback;
 #endif
 }
 

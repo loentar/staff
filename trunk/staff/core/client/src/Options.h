@@ -276,7 +276,7 @@ namespace staff
   };
 
 #ifndef STAFF_NO_DEPRECATED
-  typedef Options COptions STAFF_DEPRECATED(Options);
+  STAFF_DEPRECATED(Options) typedef Options COptions;
 #endif
 
 }
