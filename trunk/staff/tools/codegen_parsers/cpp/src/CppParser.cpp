@@ -1214,7 +1214,6 @@ namespace codegen
     {
       char chTmp = '\0';
       std::string sTmp;
-      std::string sDescr;
 
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
                  m_stInterface.sFileName, m_nLine);
