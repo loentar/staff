@@ -113,13 +113,13 @@ public:
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject) // dataobject
     m_rCallback.OnComplete($($sResultName));
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||template)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||template||enum)
     $(Param.DataType.TemplateParams.TemplateParam1.NsName) tReturn;
     $($sResultName) >> tReturn;
     m_rCallback.OnComplete(tReturn);
 #else
 #cgerror "Callback result type = $(Param.DataType.TemplateParams.TemplateParam1.Type);"
-#ifeqend // struct||typedef||template
+#ifeqend // struct||typedef||template||enum
 #ifeqend // dataobject
 #ifeqend // string
 #ifeqend // generic
@@ -340,7 +340,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
   tdoParam$(Param.Name).AppendChild($(Param.Name));
 #else
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct||typedef||template||enum)
   tdoParam$(Param.Name) << $(Param.Name);
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
@@ -383,7 +383,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
   return tOperation.Result().FirstChild();
 #else
-#ifeq($(Member.Return.Type),struct||typedef||template)
+#ifeq($(Member.Return.Type),struct||typedef||template||enum)
 
   $(Member.Return) tReturn;
   tOperation.Result() >> tReturn;

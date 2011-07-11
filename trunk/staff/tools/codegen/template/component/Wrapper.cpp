@@ -78,7 +78,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
       rOperation.SetResultName("$(Member.Options.*resultElement)");
 #ifeqend
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),struct||typedef||template||generic)
+#ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 #ifneq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
       $(Param.DataType.NsName) $(Param.Name);
 #ifeqend
@@ -86,7 +86,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #end
 \
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),struct||typedef||template)
+#ifeq($(Param.DataType.Type),struct||typedef||template||enum)
       rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),generic)
@@ -98,7 +98,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #end
       \
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
-#ifeq($(Member.Return.Type),struct||typedef||template)
+#ifeq($(Member.Return.Type),struct||typedef||template||enum)
 $(Member.Return.NsName) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic||string)    // !!generic!!
@@ -128,7 +128,7 @@ rRequest.GetChildByLocalName("$(Param.Name)").GetText()\
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
 rRequest.GetChildByLocalName("$(Param.Name)").FirstChild()\
 #else
-#ifeq($(Param.DataType.Type),struct||typedef||template||generic)
+#ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 $(Param.Name)\
 #else
 #cgerror "Param.DataType.Type = $(Param.DataType.Type);"
@@ -146,7 +146,7 @@ $(Param.Name)\
 #ifeqend
 );
 \
-#ifeq($(Member.Return.Type),struct||typedef||template) // result for structs and types
+#ifeq($(Member.Return.Type),struct||typedef||template||enum) // result for structs and types
       staff::DataObject& rdoResult = rOperation.Result();
       rdoResult << tResult;
 #ifeqend
