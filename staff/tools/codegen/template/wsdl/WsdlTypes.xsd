@@ -24,7 +24,7 @@
         <annotation><documentation>$(Typedef.Description)</documentation></annotation>
 #ifeqend
         <sequence>
-#ifeq($(Typedef.DataType.NsName),staff::Array||std::list||std::vector)  // -- list ------------------
+#ifeq($(Typedef.DataType.Name),Array||list||vector)  // -- list ------------------
 #ifneq($(Typedef.Options.*elementName),)
 #var ElementName $(Typedef.Options.*elementName)
 #else
@@ -46,7 +46,7 @@
 " nillable="true" />
 #ifeqend
 #else // bool
-#ifeq($(Typedef.DataType.NsName),std::map||std::multimap) // -- map -------------------------
+#ifeq($(Typedef.DataType.NsName),map||multimap) // -- map -------------------------
           <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" nillable="true">
             <complexType>
               <sequence>

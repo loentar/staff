@@ -81,9 +81,9 @@ namespace codegen
     return rStream;
   }
 
-  bool GetDataType(std::string& sOut, const DataType& rDataType, bool bAsUsed = false)
+  bool GetDataType(std::string& sOut, const DataType& rDataType, bool bAsUsed = false, bool bNoModifiers = false)
   {
-    if (rDataType.bIsConst)
+    if (!bNoModifiers && rDataType.bIsConst)
     {
       sOut += "const ";
     }
@@ -100,7 +100,10 @@ namespace codegen
     bool bIsTemplate = rDataType.lsParams.size() != 0;
     if (!bIsTemplate)
     {
-      sOut += (rDataType.bIsRef ? "&" : "");
+      if (!bNoModifiers)
+      {
+        sOut += (rDataType.bIsRef ? "&" : "");
+      }
       return false;
     }
 
@@ -115,7 +118,10 @@ namespace codegen
       sOut += ' ';
     sOut += " >";
 
-    sOut += (rDataType.bIsRef ? "&" : "");
+    if (!bNoModifiers)
+    {
+      sOut += (rDataType.bIsRef ? "&" : "");
+    }
     return true;
   }
 
@@ -123,6 +129,9 @@ namespace codegen
   {
     std::string sUsedTypedef;
     GetDataType(sUsedTypedef, rDataType, true);
+
+    std::string sNsName;
+    GetDataType(sNsName, rDataType, false, true);
 
     rNodeDataTypes.AddSubNode(" Is const ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["IsConst"] = rDataType.bIsConst;
@@ -133,7 +142,7 @@ namespace codegen
     rNodeDataTypes.AddSubNode(" Type name ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Name"] = rDataType.sName;
     rNodeDataTypes.AddSubNode(" Type ns name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["NsName"] = (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
+    rNodeDataTypes["NsName"] = sNsName;
     rNodeDataTypes.AddSubNode(" Type namespace ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Namespace"] = rDataType.sNamespace;
     rNodeDataTypes.AddSubNode(" Node name ", CXMLNode::ENTCOMMENT);
