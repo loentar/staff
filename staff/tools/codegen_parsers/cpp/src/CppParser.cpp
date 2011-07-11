@@ -1242,43 +1242,32 @@ namespace codegen
       {
         Enum::EnumMember stMember;
 
-        SkipWsOnly();
-        while (ReadComment(sTmp))
-        {
-          rise::StrTrim(sTmp);
-          if (sTmp.size() != 0)
-          {
-            if (sTmp[0] == '!') // doxygen metacomment
-            {
-              sDescr = sTmp.substr(1);
-              rise::StrTrim(sDescr);
-            }
-          }
-          SkipWsOnly();
-        }
-
-        ReadBefore(stMember.sName, "=,}");
-        rise::StrTrim(stMember.sName);
+        SkipWs();
+        ReadBefore(stMember.sName);
+        SkipWs();
 
         chTmp = m_tFile.peek();
         if (chTmp == '=')
         { // read value
           m_tFile.ignore();
-          ReadBefore(stMember.sValue, ",}");
-          rise::StrTrim(stMember.sValue);
+          SkipWs();
+          ReadBefore(stMember.sValue);
+          SkipWs();
           chTmp = m_tFile.peek();
         }
 
         rEnum.lsMembers.push_back(stMember);
 
-        m_tFile.ignore(); // '}' or ','
-
         if (chTmp == '}')
         {
+          m_tFile.ignore();
           break;
         }
 
-        sDescr.erase();
+        CSP_ASSERT(chTmp == ',', "Expected \",\" or \"}\" after enum member but \"" +
+                   std::string(1, chTmp) + "\" found.", m_stInterface.sFileName, m_nLine);
+
+        m_tFile.ignore();
       }
 
       SkipWsInLine();
