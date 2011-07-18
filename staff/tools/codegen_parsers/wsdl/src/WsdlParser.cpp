@@ -1451,7 +1451,20 @@ namespace codegen
           tWsdlDoc.LoadFromFile(sFileUri);
         }
 
-        m_stInterface.sTargetNs = rDefs.Attribute("targetNamespace").AsString();
+        rise::xml::CXMLNode::TXMLAttrConstIterator itTns = rDefs.FindAttribute("targetNamespace");
+        if (itTns != rDefs.AttrEnd())
+        {
+          m_stInterface.sTargetNs = itTns->sAttrValue.AsString();
+        }
+        else
+        {
+          m_stInterface.sTargetNs = sFileUri;
+          if (!m_stInterface.sTargetNs.find(':'))
+          {
+            m_stInterface.sTargetNs = "http://tempui.org/" + m_stInterface.sTargetNs;
+          }
+          rise::LogWarning() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
+        }
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
@@ -2426,7 +2439,17 @@ namespace codegen
 
   void WsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface)
   {
-    const std::string& sImportNs = rNodeImport.Attribute("namespace");
+    std::string sImportNs;
+    rise::xml::CXMLNode::TXMLAttrConstIterator itNamespace = rNodeImport.FindAttribute("namespace");
+    if (itNamespace != rNodeImport.AttrEnd())
+    {
+      sImportNs = itNamespace->sAttrValue.AsString();
+    }
+    else
+    { // import into default namespace
+      sImportNs = FindNamespaceUri(rNodeImport, rNodeImport.Namespace());
+    }
+
     std::string sSchemaLocation;
     rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = rNodeImport.FindAttribute("location");
     if (itLocation != rNodeImport.AttrEnd())

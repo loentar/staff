@@ -95,7 +95,7 @@ namespace rise
         if (itAttr->sAttrName == sName)
           return itAttr->sAttrValue;
 
-      RISE_THROW(CLogicNoItemException);
+      RISE_THROWS(CLogicNoItemException, "Attribute [" + sName + "] is not found");
     }
 
     CXMLValue& CXMLNode::Attribute(const CString& sName)
@@ -104,7 +104,7 @@ namespace rise
         if (itAttr->sAttrName == sName)
           return itAttr->sAttrValue;
 
-      RISE_THROW(CLogicNoItemException);
+      RISE_THROWS(CLogicNoItemException, "Attribute [" + sName + "] is not found");
     }
 
     CXMLNode::TXMLAttrConstIterator CXMLNode::FindAttribute(const CString& sName) const
