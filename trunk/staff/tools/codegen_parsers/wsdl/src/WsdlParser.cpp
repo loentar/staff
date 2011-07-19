@@ -169,7 +169,13 @@ namespace codegen
       }
     }
 
-    rise::LogWarning() << "Can't find prefix declaration [" << sPrefix << "]";
+    if (sPrefix.empty())
+    {
+      return "http://www.w3.org/2001/XMLSchema";
+    }
+
+    rise::LogWarning() << "Can't find prefix declaration [" << sPrefix
+                       << "] for node [" << rNode.GetNodeNsName() << "]";
     return "";
   }
 
@@ -1464,6 +1470,7 @@ namespace codegen
             m_stInterface.sTargetNs = "http://tempui.org/" + m_stInterface.sTargetNs;
           }
           rise::LogWarning() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
+          rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
         }
 
         // fill in interface name
