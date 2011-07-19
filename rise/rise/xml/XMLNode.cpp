@@ -60,9 +60,17 @@ namespace rise
       m_sNamespace = rNode.m_sNamespace;
       m_sContent = rNode.m_sContent;
       m_tAttr = rNode.m_tAttr;
-      m_tSubNodes = rNode.m_tSubNodes;
+
+      m_tSubNodes.clear();
+      for (TXMLNodeList::const_iterator itNode = rNode.m_tSubNodes.begin();
+           itNode != rNode.m_tSubNodes.end(); ++itNode)
+      {
+        CXMLNode& rChild = *m_tSubNodes.insert(NodeEnd(), CXMLNode());
+        rChild = *itNode;
+        rChild.m_pNodeParent = this;
+      }
+
       m_eNodeType = rNode.m_eNodeType;
-      m_pNodeParent = rNode.m_pNodeParent;
 
       return *this;
     }
@@ -349,12 +357,16 @@ namespace rise
 
     CXMLNode& CXMLNode::AddSubNode(const CString& sNodeText, CXMLNode::ENodeType eNodeType/* = ENTGENERIC*/)
     {
-      return *m_tSubNodes.insert(NodeEnd(), CXMLNode(sNodeText, this, eNodeType));
+      CXMLNode& rChild = *m_tSubNodes.insert(NodeEnd(), CXMLNode(sNodeText, this, eNodeType));
+      rChild.m_pNodeParent = this;
+      return rChild;
     }
 
     CXMLNode& CXMLNode::AddSubNode(const CString& sNodeText, TXMLNodeIterator itNode, ENodeType eNodeType/* = ENTGENERIC*/)
     {
-      return *m_tSubNodes.insert(itNode, CXMLNode(sNodeText, this, eNodeType));
+      CXMLNode& rChild = *m_tSubNodes.insert(itNode, CXMLNode(sNodeText, this, eNodeType));
+      rChild.m_pNodeParent = this;
+      return rChild;
     }
 
     void CXMLNode::DelSubNode(CXMLNode::TXMLNodeIterator itNode)
