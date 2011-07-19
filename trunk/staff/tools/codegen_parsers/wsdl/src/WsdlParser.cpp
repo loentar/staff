@@ -228,8 +228,9 @@ namespace codegen
       }
     }
 
-    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
-                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
+//    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
+//                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
+    sPrefix.erase();
   }
 
   const std::string& GetTns(const rise::xml::CXMLNode& rNode)
@@ -293,6 +294,33 @@ namespace codegen
 
       nPosEnd = nPosBegin;
     }
+  }
+
+  bool FixId(std::string& sId)
+  {
+    static const char* szIdChars = "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    bool bChanged = false;
+    if (sId.empty())
+    {
+      return false;
+    }
+
+    std::string::size_type nPos = 0;
+    while ((nPos = sId.find_first_not_of(szIdChars)) != std::string::npos)
+    {
+      sId[nPos] = '_';
+      bChanged = true;
+    }
+
+    const char chFirst = sId[0];
+    if (chFirst >= '0' && chFirst <= '9')
+    {
+      sId.insert(0, "_", 1);
+      bChanged = true;
+    }
+
+    return bChanged;
   }
 
   void ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
@@ -766,7 +794,9 @@ namespace codegen
     void ParseSchema(const rise::xml::CXMLNode& rSchema);
     void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst);
     void Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface);
+    void IncludeAll(rise::xml::CXMLNode& rNode);
     void ImportAll(rise::xml::CXMLNode& rNode, Project& rProject, Interface& rInterface);
+    void IncludeSchema(rise::xml::CXMLNode &rNodeParent, rise::xml::CXMLNode::TXMLNodeIterator &itNodeInclude);
   };
 
 
@@ -1465,11 +1495,11 @@ namespace codegen
         else
         {
           m_stInterface.sTargetNs = sFileUri;
-          if (!m_stInterface.sTargetNs.find(':'))
+          if (m_stInterface.sTargetNs.find(':') == std::string::npos)
           {
             m_stInterface.sTargetNs = "http://tempui.org/" + m_stInterface.sTargetNs;
           }
-          rise::LogWarning() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
+          rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
           rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
         }
 
@@ -1578,7 +1608,12 @@ namespace codegen
             itValue != rSimpleType.lsEnumValues.end(); ++itValue)
           {
             stEnum.lsMembers.push_back(Enum::EnumMember());
-            stEnum.lsMembers.back().sName = *itValue;
+            std::string& rsName = stEnum.lsMembers.back().sName;
+            rsName = *itValue;
+            if (FixId(rsName))
+            {
+              rise::LogWarning() << "enum member renamed [" << *itValue << "] => [" << rsName << "]";
+            }
           }
 
           std::string::size_type nPos = stEnum.sName.rfind("::");
@@ -2444,6 +2479,67 @@ namespace codegen
     }
   }
 
+  void WsdlTypes::IncludeSchema(rise::xml::CXMLNode& rNodeParent,
+                                rise::xml::CXMLNode::TXMLNodeIterator& itNodeInclude)
+  {
+    std::string sSchemaLocation;
+    rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = itNodeInclude->FindAttribute("location");
+    if (itLocation != itNodeInclude->AttrEnd())
+    {
+      sSchemaLocation = itLocation->sAttrValue.AsString();
+    }
+    else
+    {
+      itLocation = itNodeInclude->FindAttribute("schemaLocation");
+      if (itLocation == itNodeInclude->AttrEnd())
+      {
+        rise::LogWarning() << "schemaLocation is not in include instruction";
+        return;
+      }
+      sSchemaLocation = itLocation->sAttrValue.AsString();
+    }
+
+    rise::xml::CXMLDocument tWsdlDoc;
+    rise::xml::CXMLNode& rDefs = tWsdlDoc.GetRoot();
+
+    bool bRemote = sSchemaLocation.find("://") != std::string::npos;
+    if (bRemote)
+    {
+      std::string sFileData;
+      rise::LogDebug() << "Downloading the " << sSchemaLocation;
+      if (!HttpClient::Get(sSchemaLocation, sFileData))
+      {
+        rise::LogError() << "Can't download file " << sSchemaLocation;
+      }
+      std::istringstream issData(sFileData);
+      tWsdlDoc.LoadFromStream(issData);
+    }
+    else
+    {
+      tWsdlDoc.LoadFromFile(sSchemaLocation);
+    }
+
+    IncludeAll(rDefs); // recursive include all
+
+    // replace <include schemaLocation="..." /> to included content
+    if (rDefs.NodeName() != "schema")
+    {
+      rise::LogWarning() << "Invalid root node name for XSD: expected: \"schema\" found \""
+                         << rDefs.NodeName() << "\"";
+    }
+
+    rise::xml::CXMLNode::TXMLNodeConstIterator itNodeSchema = rDefs.NodeBegin();
+    if (itNodeSchema != rDefs.NodeEnd())
+    {
+      *itNodeInclude = *itNodeSchema;
+      ++itNodeSchema;
+    }
+    for (; itNodeSchema != rDefs.NodeEnd(); ++itNodeSchema)
+    {
+      rNodeParent.AddSubNode("", itNodeInclude) = *itNodeSchema;
+    }
+  }
+
   void WsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface)
   {
     std::string sImportNs;
@@ -2616,8 +2712,19 @@ namespace codegen
     }
   }
 
+  void WsdlTypes::IncludeAll(rise::xml::CXMLNode& rNode)
+  {
+    for(rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNode.FindSubnode("include");
+      itNodeChild != rNode.NodeEnd(); itNodeChild = rNode.FindSubnode("include", ++itNodeChild))
+    {
+      IncludeSchema(rNode, itNodeChild);
+    }
+  }
+
+
   void WsdlTypes::ImportAll(rise::xml::CXMLNode& rNode, Project& rProject, Interface& rInterface)
   {
+    IncludeAll(rNode);
     for(rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNode.FindSubnode("import");
       itNodeChild != rNode.NodeEnd(); itNodeChild = rNode.FindSubnode("import", ++itNodeChild))
     {
