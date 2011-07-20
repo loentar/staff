@@ -47,10 +47,15 @@ namespace staff
         */
     Attribute(DataObject* pDataObject, axiom_attribute_t* pAxiomAttribute);
 
-    //!         ownership transfer operator
+    //!         ownership transfer constructor
     /*! \param  rAttribute - attribute
         */
     Attribute(Attribute& rAttribute);
+
+    //!         ownership transfer constructor
+    /*! \param  rAttribute - attribute
+        */
+    Attribute(const Attribute& rAttribute);
 
     //!         axiom_attribute_t* cast operator
     operator axiom_attribute_t*();
@@ -131,6 +136,12 @@ namespace staff
         \return *this
         */
     Attribute& operator=(Attribute& rAttribute);
+
+    //!         ownership transfer operation
+    /*! \param  rAttribute - source attribute
+        \return *this
+        */
+    Attribute& operator=(const Attribute& rAttribute);
 
     //!         tests a target attribute for equality with a specified attribute
     /*! \param  rAttribute - attribute

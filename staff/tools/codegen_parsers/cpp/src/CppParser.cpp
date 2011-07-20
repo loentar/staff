@@ -407,7 +407,8 @@ namespace codegen
           sDataTypeName == "staff::unsignedInt" ||
           sDataTypeName == "staff::unsignedShort" ||
           sDataTypeName == "staff::unsignedByte" ||
-          sDataTypeName == "staff::positiveInteger"
+          sDataTypeName == "staff::positiveInteger" ||
+          sDataTypeName == "staff::anyAttribute"
         )
       {
         rDataType.eType = DataType::TypeGeneric;
