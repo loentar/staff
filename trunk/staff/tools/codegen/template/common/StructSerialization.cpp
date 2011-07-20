@@ -113,7 +113,15 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 \
 \
 #ifeq($(Param.DataType.Type),generic||string)
+#ifeq($(Param.DataType.Name),anyAttribute)
+  for (anyAttribute::const_iterator itAttr = rstStruct.$(Param.Name).begin(),
+       itAttrEnd = rstStruct.$(Param.Name).end(); itAttr != itAttrEnd; ++itAttr)
+  {
+    rdoParam.AppendAttribute(const_cast<Attribute&>(*itAttr));
+  }
+#else
   rdoParam$($SerializeNodeInstruct).SetValue(rstStruct.$(Param.Name));
+#ifeqend
 #else
 #cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Struct.NsName)::$(Param.DataType.Name)
 #ifeqend
@@ -231,7 +239,15 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
   rstStruct.$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)").FirstChild();
 #else
 #ifeq($(Param.DataType.Type),generic||string)
+#ifeq($(Param.DataType.Name),anyAttribute)
+  for (DataObject::ConstAttributeIterator itAttr = rdoParam.AttributeBegin(),
+       itAttrEnd = rdoParam.AttributeEnd(); itAttr != itAttrEnd; ++itAttr)
+  {
+    rstStruct.$(Param.Name).push_back(*itAttr);
+  }
+#else
   rdoParam$($DeserializeNodeInstruct).GetValue(rstStruct.$(Param.Name));
+#ifeqend
 #else
 #cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Param.Name)::$(Param.DataType.Name)
 #ifeqend

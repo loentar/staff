@@ -141,6 +141,7 @@ namespace codegen
     bool bIsExtern;
     bool bIsMessagePart;
     bool bIsSimpleContent;
+    bool bHasAnyAttribute;
 
     ComplexType();
 
@@ -568,7 +569,8 @@ namespace codegen
 
   //////////////////////////////////////////////////////////////////////////
   ComplexType::ComplexType():
-    bIsChoice(false), bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false)
+    bIsChoice(false), bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
+    bHasAnyAttribute(false)
   {
   }
 
@@ -625,6 +627,11 @@ namespace codegen
         {
           lsAttributes.push_back(Attribute());
           lsAttributes.back().Parse(*itChild);
+        }
+        else
+        if (sNodeName == "anyAttribute")
+        {
+          bHasAnyAttribute = true;
         }
         else
         if (sNodeName != "annotation" && sNodeName != "documentation") // already parsed
@@ -898,7 +905,7 @@ namespace codegen
                 }
                 stParam.stDataType.sNodeName = rChildElement.sName;
 
-                if (!rComplexType.lsAttributes.empty())
+                if (!rComplexType.lsAttributes.empty() || rComplexType.bHasAnyAttribute)
                 {
                   // create structure-wrapper for element with attributes
                   Struct stStruct;
@@ -937,6 +944,17 @@ namespace codegen
                     stStruct.lsMembers.push_back(stMember);
                   }
 
+                  if (rComplexType.bHasAnyAttribute)
+                  {
+                    Param stMember;
+                    stMember.sName = "lsAnyAttributes";
+                    stMember.stDataType.sName = "anyAttribute";
+                    stMember.stDataType.sNamespace = "staff::";
+                    stMember.stDataType.sUsedName = "staff::anyAttribute";
+                    stMember.stDataType.eType = DataType::TypeGeneric;
+                    stStruct.lsMembers.push_back(stMember);
+                  }
+
                   m_stInterface.lsStructs.push_back(stStruct);
 
                   stParam.stDataType.eType = DataType::TypeStruct;
@@ -944,7 +962,6 @@ namespace codegen
                   stParam.stDataType.sNamespace = stStruct.sNamespace;
                   stParam.stDataType.sUsedName = stStruct.sNamespace + stParam.stDataType.sName;
                   stParam.stDataType.lsParams.clear();
-                  OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
                 }
 
                 OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
@@ -1952,6 +1969,17 @@ namespace codegen
 
             pstStruct->lsMembers.push_back(stMember);
           }
+        }
+
+        if (rComplexType.bHasAnyAttribute)
+        {
+          Param stMember;
+          stMember.sName = "lsAnyAttributes";
+          stMember.stDataType.sName = "anyAttribute";
+          stMember.stDataType.sNamespace = "staff::";
+          stMember.stDataType.sUsedName = "staff::anyAttribute";
+          stMember.stDataType.eType = DataType::TypeGeneric;
+          pstStruct->lsMembers.push_back(stMember);
         }
 
         for (std::list<Attribute>::const_iterator itAttr = rComplexType.lsAttributes.begin();

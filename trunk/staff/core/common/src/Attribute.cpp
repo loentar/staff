@@ -44,6 +44,14 @@ namespace staff
     rAttribute.m_bOwner = false;
   }
 
+  Attribute::Attribute(const Attribute& rAttribute):
+    m_bOwner(rAttribute.m_bOwner),
+    m_pDataObject(rAttribute.m_pDataObject),
+    m_pAxiomAttribute(rAttribute.m_pAxiomAttribute)
+  {
+    const_cast<Attribute&>(rAttribute).m_bOwner = false;
+  }
+
   Attribute::Attribute(DataObject* pDataObject, axiom_attribute_t* pAxiomAttribute):
     m_bOwner(false),
     m_pDataObject(pDataObject), 
@@ -186,6 +194,15 @@ namespace staff
     m_pDataObject = rAttribute.m_pDataObject;
     m_pAxiomAttribute = rAttribute.m_pAxiomAttribute;
     rAttribute.m_bOwner = false;
+    return *this;
+  }
+
+  Attribute& Attribute::operator=(const Attribute& rAttribute)
+  {
+    m_bOwner = rAttribute.m_bOwner;
+    m_pDataObject = rAttribute.m_pDataObject;
+    m_pAxiomAttribute = rAttribute.m_pAxiomAttribute;
+    const_cast<Attribute&>(rAttribute).m_bOwner = false;
     return *this;
   }
 

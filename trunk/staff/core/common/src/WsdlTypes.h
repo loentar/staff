@@ -23,6 +23,7 @@
 #define _WSDLTYPES_H_
 
 #include <string>
+#include <list>
 
 namespace staff
 {
@@ -80,6 +81,9 @@ namespace staff
   struct anyType
   {
   };
+
+  class Attribute;
+  typedef std::list<Attribute> anyAttribute;
 
 }
 
