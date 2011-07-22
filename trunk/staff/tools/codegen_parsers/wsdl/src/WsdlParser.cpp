@@ -152,6 +152,7 @@ namespace codegen
   private:
     void ParseSequence(const rise::xml::CXMLNode& rNodeSequence);
 
+    void ParseComplexAttr(const rise::xml::CXMLNode& rNodeAttr);
     void ParseComplexContent(const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple);
   };
 
@@ -726,6 +727,53 @@ namespace codegen
     }
   }
 
+
+  void ComplexType::ParseComplexAttr(const rise::xml::CXMLNode& rNodeAttr)
+  {
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRef = rNodeAttr.FindAttribute("ref");
+    if (itAttrRef != rNodeAttr.AttrEnd())
+    {
+      std::string sRef = StripPrefix(itAttrRef->sAttrValue.AsString());
+
+      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRefType = rNodeAttr.AttrBegin();
+      for (; itAttrRefType != rNodeAttr.AttrEnd();
+          ++itAttrRefType)
+      {
+        std::string sAttrName = StripPrefix(itAttrRefType->sAttrName);
+
+        if (sAttrName == sRef)
+        {
+          break;
+        }
+      }
+
+      if (itAttrRefType != rNodeAttr.AttrEnd())
+      {
+        std::string sType = itAttrRefType->sAttrValue.AsString();
+
+        if (sType.size() != 0)
+        {
+          Element stElemType;
+          stElemType.bIsArray = (sType.substr(sType.size() - 2) == "[]");
+          if (stElemType.bIsArray)
+          {
+            sType.erase(sType.size() - 2);
+          }
+
+          stElemType.stType.sName = sType;
+          stElemType.sName = "elem" + stElemType.stType.sName;
+          GetTns(rNodeAttr, stElemType.sNamespace, stElemType.sPrefix);
+
+          lsElements.push_back(stElemType);
+        }
+      }
+    }
+    else
+    {
+      lsAttributes.insert(lsAttributes.end(), Attribute())->Parse(rNodeAttr);
+    }
+  }
+
   void ComplexType::ParseComplexContent( const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple )
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeExtension = rNodeComplexContent.FindSubnode("extension");
@@ -747,6 +795,11 @@ namespace codegen
           {
             ParseSequence(*itChild);
           }
+          else
+          if (sNodeName == "attribute")
+          {
+            ParseComplexAttr(*itChild);
+          }
         }
       }
     }
@@ -762,44 +815,7 @@ namespace codegen
             itNodeAttr != itNodeRestriction->NodeEnd();
             itNodeAttr = itNodeRestriction->FindSubnode("attribute", ++itNodeAttr))
         {
-          rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRef = itNodeAttr->FindAttribute("ref");
-          if (itAttrRef != itNodeAttr->AttrEnd())
-          {
-            std::string sRef = StripPrefix(itAttrRef->sAttrValue.AsString());
-
-            rise::xml::CXMLNode::TXMLAttrConstIterator itAttrRefType = itNodeAttr->AttrBegin();
-            for (; itAttrRefType != itNodeAttr->AttrEnd();
-                ++itAttrRefType)
-            {
-              std::string sAttrName = StripPrefix(itAttrRefType->sAttrName);
-
-              if (sAttrName == sRef)
-              {
-                break;
-              }
-            }
-
-            if (itAttrRefType != itNodeAttr->AttrEnd())
-            {
-              std::string sType = itAttrRefType->sAttrValue.AsString();
-
-              if (sType.size() != 0)
-              {
-                Element stElemType;
-                stElemType.bIsArray = (sType.substr(sType.size() - 2) == "[]");
-                if (stElemType.bIsArray)
-                {
-                  sType.erase(sType.size() - 2);
-                }
-
-                stElemType.stType.sName = sType;
-                stElemType.sName = "elem" + stElemType.stType.sName;
-                GetTns(*itNodeAttr, stElemType.sNamespace, stElemType.sPrefix);
-
-                lsElements.push_back(stElemType);
-              }
-            }
-          }
+          ParseComplexAttr(*itNodeAttr);
         }
       }
     }
