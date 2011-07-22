@@ -1173,24 +1173,12 @@ namespace staff
 
   DataObject DataObject::FirstChild()
   {
-    axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
-    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
-    {
-      pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv);
-    }
-
-    return pNode;
+    return axiom_node_get_first_element(m_pAxiomNode, m_pEnv);
   }
 
   const DataObject DataObject::FirstChild() const
   {
-    axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
-    while (pNode != NULL && axiom_node_get_node_type(pNode, m_pEnv) != AXIOM_ELEMENT)
-    {
-      pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv);
-    }
-
-    return pNode;
+    return axiom_node_get_first_element(m_pAxiomNode, m_pEnv);
   }
 
   DataObject DataObject::LastChild()
@@ -1934,6 +1922,38 @@ namespace staff
     axiom_element_t* pElement = NULL;
     RISE_ASSERTES(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement), DomNoItemException,
                   "Child item \"" + sLocalName + "\" is not found");
+    return DataObject(pNode, pElement);
+  }
+
+  DataObject DataObject::GetChildByLocalNameOpt(const char* szLocalName)
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    FindChildByLocalName(szLocalName, &pNode, &pElement);
+    return DataObject(pNode, pElement);
+  }
+
+  DataObject DataObject::GetChildByLocalNameOpt(const std::string& sLocalName)
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement);
+    return DataObject(pNode, pElement);
+  }
+
+  const DataObject DataObject::GetChildByLocalNameOpt(const char* szLocalName) const
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    FindChildByLocalName(szLocalName, &pNode, &pElement);
+    return DataObject(pNode, pElement);
+  }
+
+  const DataObject DataObject::GetChildByLocalNameOpt(const std::string& sLocalName) const
+  {
+    axiom_node_t* pNode = NULL;
+    axiom_element_t* pElement = NULL;
+    FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement);
     return DataObject(pNode, pElement);
   }
 

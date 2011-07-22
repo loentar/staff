@@ -115,6 +115,16 @@ namespace staff
     */
     void SetRequest(axiom_node_t* pRequest);
 
+    //!         get result DataObject optional
+    /*! \return result DataObject optional
+    */
+    const DataObject& ResultOpt() const;
+
+    //!         get result DataObject optional
+    /*! \return result DataObject(mutable)
+    */
+    DataObject& ResultOpt();
+
     //!         get result DataObject
     /*! \return result DataObject
     */

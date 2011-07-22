@@ -38,6 +38,8 @@
 
       <!-- requests, responses of service $(Class.NsName.!dot) -->
 #foreach $(Class.Members)
+
+      <!-- $(Member.Return.UsedName) $(Member.Name)($(Member.Params)) -->
 #ifneq($(Member.Options.*inlineRequestElement),)
 #ifeq($(Member.Params.$Count),0)
 #cgerror inlineRequestElement is set, but operation has no parameters
@@ -48,14 +50,21 @@
 #contextend
 "/>
 #else           //  not inline 
-
       <element name="$(Member.Options.*requestElement||Member.Name)">
 #ifneq($(Member.Params.$Count),0)
         <complexType>
           <sequence>
 #foreach $(Member.Params)
-#ifeq($(Param.DataType.Type),dataobject)   // dataobject
-            <element name="$(Param.Name)">
+            <element name="$(Param.Name)"\
+#ifeq($(Param.DataType.Name),Optional)
+ minOccurs="0"\
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#else
+#var sContext Param.DataType
+#ifeqend      // optional
+#context $($sContext)
+#ifeq($(.Type),dataobject)   // dataobject
+>
               <complexType>
                 <sequence>
                   <any/>
@@ -63,12 +72,23 @@
               </complexType>
             </element>
 #else                                     // not dataobject
-            <element name="$(Param.Name)" type="\
-#context $(Param.DataType)
+#ifeq($(.Type),template)
+>
+              <complexType>
+                <sequence>
+                  <element name="Item" type="\
 #cginclude "WsdlDataType.xsd"
-#contextend
 "/>
-#ifeqend                                  // if dataobject
+                </sequence>
+              </complexType>
+            </element>
+#else // simple type
+ type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+#ifeqend      // template
+#ifeqend      // dataobject
+#contextend   // optional
 #end  // foreach member.params
           </sequence>
         </complexType>
@@ -119,13 +139,22 @@
 #ifeqend              // response name is not defined
 \
 \
-#ifeq($(Member.Return.Name),void)
-      <element name="$($sResult)">
+      <element name="$($sResult)"\
+#ifeq($(Member.Return.Name),Optional)
+ nillable="true"\
+#var sContext Member.Return.TemplateParams.TemplateParam1
+#else
+#var sContext Member.Return
+#ifeqend      // optional
+#context $($sContext)
+\
+#ifeq($(.Name),void)
+>
         <complexType/>
       </element>
 #else
-#ifeq($(Member.Return.Type),dataobject)
-      <element name="$($sResult)">
+#ifeq($(.Type),dataobject)
+>
         <complexType>
           <sequence>
             <any/>
@@ -133,13 +162,24 @@
         </complexType>
       </element>
 #else
-      <element name="$($sResult)" type="\
-#context $(Member.Return)
+#ifeq($(.Type),template)
+>
+        <complexType>
+          <sequence>
+            <element name="Item" type="\
 #cginclude "WsdlDataType.xsd"
-#contextend
 "/>
-#ifeqend
-#ifeqend
+          </sequence>
+        </complexType>
+      </element>
+#else // simple type
+ type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+#ifeqend // template
+#ifeqend // dataobject
+#ifeqend // void
+#contextend // optional
 #ifeqend // #ifneq($($sResult),) // result element name is defined
 #end // #foreach $(Class.Members)
 #end // foreach Interface.Classes

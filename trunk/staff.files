@@ -211,6 +211,7 @@ staff/core/common/src/Namespace.cpp
 staff/core/common/src/Namespace.h
 staff/core/common/src/Operation.cpp
 staff/core/common/src/Operation.h
+staff/core/common/src/Optional.h
 staff/core/common/src/QName.cpp
 staff/core/common/src/QName.h
 staff/core/common/src/Runtime.cpp
@@ -284,6 +285,8 @@ staff/samples/calc/component/src/SubServiceImpl.cpp
 staff/samples/calc/component/src/SubServiceImpl.h
 staff/samples/calc/j2meclient/CalcClient/src/CalcClient.java
 staff/samples/calc/j2meclient/CalcClient/src/samples/calc/CalcService.java
+staff/samples/calc/webclient/calc.js
+staff/samples/calc/webclient/index.html
 staff/samples/echo/client_blocking_addr/src/Echo.h
 staff/samples/echo/client_blocking_addr/src/main.cpp
 staff/samples/echo/client_blocking_auth/src/Echo.h
@@ -330,6 +333,11 @@ staff/samples/loadorder/component/src/DepSvc4Impl.cpp
 staff/samples/loadorder/component/src/DepSvc4Impl.h
 staff/samples/login/client/src/Login.h
 staff/samples/login/client/src/main.cpp
+staff/samples/optional/client/src/main.cpp
+staff/samples/optional/client/src/Tasks.h
+staff/samples/optional/component/src/Tasks.h
+staff/samples/optional/component/src/TasksImpl.cpp
+staff/samples/optional/component/src/TasksImpl.h
 staff/samples/rest/client/src/Customers.h
 staff/samples/rest/client/src/main.cpp
 staff/samples/rest/component/src/Customers.h
@@ -353,6 +361,11 @@ staff/samples/sharedtypes/component/src/Issuer.h
 staff/samples/sharedtypes/component/src/IssuerImpl.cpp
 staff/samples/sharedtypes/component/src/IssuerImpl.h
 staff/samples/sharedtypes/component/src/Ticket.h
+staff/samples/simple/client/src/Echo.h
+staff/samples/simple/client/src/main.cpp
+staff/samples/simple/component/src/Echo.h
+staff/samples/simple/component/src/EchoImpl.cpp
+staff/samples/simple/component/src/EchoImpl.h
 staff/tests/core/common/src/main.cpp
 staff/tests/core/security/src/main.cpp
 staff/tools/codegen_parsers/cpp/src/CppParser.cpp

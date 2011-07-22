@@ -86,6 +86,11 @@ namespace codegen
 
       if (nPos != std::string::npos)
       {
+        if (sVariableName.size() == 1)
+        { // reference to current node
+          return rNode;
+        }
+
         if (!nPos)
         {
           sVariable = sVariableName.substr(1);
@@ -956,7 +961,7 @@ namespace codegen
       RISE_ASSERTS(nPosStart != std::string::npos, "context expression is invalid!");
       nPosEnd = sLine.find(')', nPosStart);
       RISE_ASSERTS(nPosEnd != std::string::npos, "context expression is invalid!");
-      sContextExpr = sLine.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
+      sContextExpr = sLine.substr(nPosStart, nPosEnd - nPosStart + 1);
 
       while (!fsIn.eof() && fsIn.good())
       {
@@ -991,6 +996,16 @@ namespace codegen
       }
 
       RISE_ASSERTS(nRecursion == 0, "Unexpected EOF while parsing: \n---------\n" + sLines + "\n------------\n");
+
+      if (sContextExpr[2] == '$') // variable
+      {
+        ReplaceToValue(sContextExpr, rNode);
+      }
+      else
+      {
+        sContextExpr.erase(0, 2);
+        sContextExpr.erase(sContextExpr.size() - 1);
+      }
 
       const CXMLNode& rSubNode = GetNode(sContextExpr, rNode);
 

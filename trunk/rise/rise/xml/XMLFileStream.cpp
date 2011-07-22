@@ -265,6 +265,21 @@ namespace rise
       }
     }
 
+    void CXMLIStream::ReadRawStringUntil( CString& sString, const CString& sMarker /*= ""*/ )
+    {
+      sString = "";
+      if (sMarker == "")
+      {
+        TChar chTmp;
+        while ( ReadChar(chTmp) )
+          sString += chTmp;
+      } else
+      {
+        while (!Test(sMarker))
+          sString += ReadChar();
+      }
+    }
+
     void CXMLIStream::ReadId( CString& sId )
     {
       bool bisNameSpace = false;
