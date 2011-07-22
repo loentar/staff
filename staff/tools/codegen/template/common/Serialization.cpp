@@ -114,50 +114,50 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtTy
 \
 \
 #ifeq($(Typedef.DataType.Type),template)
-#ifeq($(Typedef.DataType.NsName),std::map)
-\
-  $(Typedef.DataType.TemplateParams.TemplateParam1) tKey\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-  $(Typedef.DataType.TemplateParams.TemplateParam2) tValue\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#else
-\
-  $(Typedef.DataType.TemplateParams.TemplateParam1) tItem\
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-#ifeqend
   for (DataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
 #ifeq($(Typedef.DataType.NsName),std::map)
 \
+    $(Typedef.DataType.TemplateParams.TemplateParam1) tKey\
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+ = 0\
+#ifeqend
+;
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string||generic)
     tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
     tdoItem.GetChildByLocalName("Key") >> tKey;
 #ifeqend
+
+    $((Typedef.DataType.TemplateParams.TemplateParam2)& rValue = rtType[tKey];
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string||generic)
-    tdoItem.GetChildByLocalName("Value").GetValue(tValue);
+    tdoItem.GetChildByLocalName("Value").GetValue(rValue);
 #else
-    tdoItem.GetChildByLocalName("Value") >> tValue;
+    tdoItem.GetChildByLocalName("Value") >> rValue;
 #ifeqend
-    rtType[tKey] = tValue;
-#else
+#else  //  ----- list -----
 \
-#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
+    $(Typedef.DataType.TemplateParams.TemplateParam1) tItem = 0;
     tdoItem.GetValue(tItem);
-#else
-    tdoItem >> tItem;
-#ifeqend
     rtType.push_back(tItem);
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
+    rtType.push_back(tdoItem.GetText());
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+    $(Typedef.DataType.TemplateParams.TemplateParam1)& rItem = *rtType\
+.insert(rtType.end(), $(Typedef.DataType.TemplateParams.TemplateParam1)());
+    tdoItem >> rItem;
+#else
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+    rtType.push_back(tdoItem);
+#else
+#cgerror item element type $(Typedef.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend
 \
 #ifeqend
   }

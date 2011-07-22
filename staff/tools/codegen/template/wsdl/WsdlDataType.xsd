@@ -7,8 +7,13 @@ tns_$(.Namespace.!mangle):$(.NativeName.!dot)\
 #ifeq($(.Type),template)
 #context $(.TemplateParams.TemplateParam1)
 #cginclude "WsdlDataType.xsd"
+#ifneq($(.Type),template)
+" minOccurs="0\
+#ifeqend
 #contextend
-" minOccurs="0" maxOccurs="unbounded\
+#ifneq($(.Name),Optional)
+" maxOccurs="unbounded\
+#ifeqend
 #else
 #ifeq($(.Type),generic||string)
 $(.Name)\

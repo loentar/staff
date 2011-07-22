@@ -47,6 +47,7 @@ namespace rise
       void SkipWhitespace();
       int ReadString(CString& sData, const CString& sDelimiters = " \t\n\r");
       void ReadStringUntil(CString& sString, const CString& sMarker = "");
+      void ReadRawStringUntil(CString& sString, const CString& sMarker = "");
       void ReadId(CString& sId);
       bool Test(const CString& sValue);
       const CString& GetFileName() const;

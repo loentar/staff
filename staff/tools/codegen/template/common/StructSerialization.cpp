@@ -15,11 +15,22 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #ifeqend
 \
 #foreach $(Struct.Members)
-#ifeq($(Param.Options.*isAttribute),true||1) // serialize to attribute
-#ifeq($(Param.DataType.Type),generic||string)
-  rdoParam.CreateAttribute("$(Param.Name)", rstStruct.$(Param.Name));
+#ifeq($(Param.DataType.Name),Optional)
+  if (!rstStruct.$(Param.Name).IsNull())
+  {
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#var sOptMod *
+#indent +
 #else
-#cgerror Cannot serialize type $(Param.DataType.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
+#var sContext Param.DataType
+#var sOptMod
+#ifeqend
+#context $($sContext)
+#ifeq($(Param.Options.*isAttribute),true||1) // serialize to attribute
+#ifeq($(.Type),generic||string)
+  rdoParam.CreateAttribute("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
+#else
+#cgerror Cannot serialize type $(.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
 #ifeqend
 #else // serialize to subnode
 #ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
@@ -29,74 +40,74 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #ifeqend
 \
 \
-#ifeq($(Param.DataType.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||typedef||enum)
 #ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
 #var doName rdoParam
 #else
 #var doName tdoParam$(Param.Name)
   DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend // serialize to parent element?
-  $($doName) << rstStruct.$(Param.Name);
+  $($doName) << $($sOptMod)rstStruct.$(Param.Name);
 #else
 \
 \
-#ifeq($(Param.DataType.Type),template)
+#ifeq($(.Type),template)
 #ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
 #var doName rdoParam
 #else
 #var doName tdoParam$(Param.Name)
   DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend
-  for ($(Param.DataType)::const_iterator it = rstStruct.$(Param.Name).begin();
-      it != rstStruct.$(Param.Name).end(); ++it)
+  for ($(.NsName)::const_iterator it = ($($sOptMod)rstStruct).$(Param.Name).begin();
+      it != ($($sOptMod)rstStruct.$(Param.Name)).end(); ++it)
   {
 #ifneq($(Param.Options.*elementName),)
 #var ElementName $(Param.Options.*elementName)
 #else
 #var ElementName Item
 #ifeqend
-#ifeq($(Param.DataType.NsName),std::map)
+#ifeq($(.NsName),std::map)
     DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
 \
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.CreateChild("Key").SetValue(it->first);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoKey = tdoItem.CreateChild("Key");
     tdoKey << tKey;
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 \
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.CreateChild("Value").tdoValue.SetValue(it->second);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoValue = tdoItem.CreateChild("Value");
     tdoValue << it->second;
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     tdoItem.CreateChild("Value").AppendChild(it->second);
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
 
 #else
 \
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     $($doName).CreateChild("$($ElementName)").SetValue(*it);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
     tdoItem << *it;
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     $($doName).CreateChild("$($ElementName)").AppendChild(*it);
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
@@ -107,28 +118,35 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #else
 \
 \
-#ifeq($(Param.DataType.Type),dataobject)
-  rdoParam$($SerializeNodeInstruct).AppendChild(rstStruct.$(Param.Name));
+#ifeq($(.Type),dataobject)
+  rdoParam$($SerializeNodeInstruct).AppendChild($($sOptMod)rstStruct.$(Param.Name));
 #else
 \
 \
-#ifeq($(Param.DataType.Type),generic||string)
-#ifeq($(Param.DataType.Name),anyAttribute)
-  for (anyAttribute::const_iterator itAttr = rstStruct.$(Param.Name).begin(),
-       itAttrEnd = rstStruct.$(Param.Name).end(); itAttr != itAttrEnd; ++itAttr)
+#ifeq($(.Type),generic||string)
+#ifeq($(.Name),anyAttribute)
+  for (anyAttribute::const_iterator itAttr = ($($sOptMod)rstStruct.$(Param.Name)).begin(),
+       itAttrEnd = ($($sOptMod)rstStruct.$(Param.Name)).end(); itAttr != itAttrEnd; ++itAttr)
   {
     rdoParam.AppendAttribute(const_cast<Attribute&>(*itAttr));
   }
 #else
-  rdoParam$($SerializeNodeInstruct).SetValue(rstStruct.$(Param.Name));
+  rdoParam$($SerializeNodeInstruct).SetValue($($sOptMod)rstStruct.$(Param.Name));
 #ifeqend
 #else
-#cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Struct.NsName)::$(Param.DataType.Name)
+#cgerror unknown type($(.Type)) of Param.Name: $(Struct.NsName)::$(.Name)
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend // if attribute
+\
+#ifeq($(Param.DataType.Name),Optional)
+#indent -
+  }
+#ifeqend
+#contextend
+\
 #end
   return rdoParam;
 }
@@ -141,14 +159,28 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 
 #ifeqend
 #foreach $(Struct.Members)
+#ifeq($(Param.DataType.Name),Optional)
+  staff::DataObject tdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
+  if (!tdoParam$(Param.Name).IsNull())
+  {
+#var sParamNode tdoParam$(Param.Name)
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#var sOptMod *
+#indent +
+#else
+#var sParamNode rRequest.GetChildByLocalName("$(Param.Name)")
+#var sContext Param.DataType
+#var sOptMod
+#ifeqend
+#context $($sContext)
 #ifeq($(Param.Options.*isAttribute),true||1) // deserialize from attribute
-#ifeq($(Param.DataType.Type),string)
-  rdoParam.GetAttributeTextByName("$(Param.Name)", rstStruct.$(Param.Name));
+#ifeq($(.Type),string)
+  rdoParam.GetAttributeTextByName("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
 #else
-#ifeq($(Param.DataType.Type),generic)
-  rstStruct.$(Param.Name) = rdoParam.GetAttributeValueByName("$(Param.Name)");
+#ifeq($(.Type),generic)
+  $($sOptMod)rstStruct.$(Param.Name) = rdoParam.GetAttributeValueByName("$(Param.Name)");
 #else
-#cgerror Cannot deserialize type $(Param.DataType.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
+#cgerror Cannot deserialize type $(.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
 #ifeqend
 #ifeqend
 #else // deserialize from subnode node
@@ -157,104 +189,101 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #else
 #var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
 #ifeqend
-#ifeq($(Param.DataType.Type),struct||typedef||enum)
-  rdoParam$($DeserializeNodeInstruct) >> rstStruct.$(Param.Name);
+#ifeq($(.Type),struct||typedef||enum)
+  rdoParam$($DeserializeNodeInstruct) >> $($sOptMod)rstStruct.$(Param.Name);
 #else
-#ifeq($(Param.DataType.Type),template)
+#ifeq($(.Type),template)
 
-#ifeq($(Param.DataType.NsName),std::map)
-\
-  $(Param.DataType.TemplateParams.TemplateParam1) tKey\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-  $(Param.DataType.TemplateParams.TemplateParam2) tValue\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam2.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#else
-\
-  $(Param.DataType.TemplateParams.TemplateParam1) tItem\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#ifeqend
   for (DataObject tdoItem = rdoParam$($DeserializeNodeInstruct).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
-#ifeq($(Param.DataType.NsName),std::map)
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
+#ifeq($(.NsName),std::map)  // -------- map ----------
+    $(.TemplateParams.TemplateParam1) tKey\
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
+ = 0\
+#ifeqend
+;
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
     tdoKey >> tKey;
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
-    tdoItem.GetChildByLocalName("Value").GetValue(tValue);
+    $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)rstStruct.$(Param.Name))[tKey];
+#ifeq($(.TemplateParams.TemplateParam2.Type),generic||string)
+    tdoItem.GetChildByLocalName("Value").GetValue(rValue);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
     DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
-    tdoValue >> tValue;
+    tdoValue >> rValue;
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-    tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
+#ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
+    rValue = tdoItem.GetChildByLocalName("Value").FirstChild();
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam2.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
-    rstStruct.$(Param.Name)[tKey] = tValue;
 
-#else
+#else // -------- list ----------
 \
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
+    $(.TemplateParams.TemplateParam1) tItem = 0;
     tdoItem.GetValue(tItem);
+    ($($sOptMod)rstStruct.$(Param.Name)).push_back(tItem);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    tdoItem >> tItem;
+#ifeq($(.TemplateParams.TemplateParam1.Type),string)
+    ($($sOptMod)rstStruct.$(Param.Name)).push_back(tdoItem.GetText());
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-    tItem = tdoItem;
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+    $(.TemplateParams.TemplateParam1)& rItem = *($($sOptMod)rstStruct.$(Param.Name))\
+.insert(($($sOptMod)rstStruct.$(Param.Name)).end(), $(.TemplateParams.TemplateParam1)());
+    tdoItem >> rItem;
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
+    ($($sOptMod)rstStruct.$(Param.Name)).push_back(tdoItem);
+#else
+#cgerror item element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 \
-    rstStruct.$(Param.Name).push_back(tItem);
 #ifeqend
   }
 
 #else
-#ifeq($(Param.DataType.Type),dataobject)
-  rstStruct.$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)").FirstChild();
+#ifeq($(.Type),dataobject)
+  $($sOptMod)rstStruct.$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)").FirstChild();
 #else
-#ifeq($(Param.DataType.Type),generic||string)
-#ifeq($(Param.DataType.Name),anyAttribute)
+#ifeq($(.Type),generic||string)
+#ifeq($(.Name),anyAttribute)
   for (DataObject::ConstAttributeIterator itAttr = rdoParam.AttributeBegin(),
        itAttrEnd = rdoParam.AttributeEnd(); itAttr != itAttrEnd; ++itAttr)
   {
-    rstStruct.$(Param.Name).push_back(*itAttr);
+    ($($sOptMod)rstStruct.$(Param.Name)).push_back(*itAttr);
   }
 #else
-  rdoParam$($DeserializeNodeInstruct).GetValue(rstStruct.$(Param.Name));
+  rdoParam$($DeserializeNodeInstruct).GetValue($($sOptMod)rstStruct.$(Param.Name));
 #ifeqend
 #else
-#cgerror unknown type($(Param.DataType.Type)) of Param.Name: $(Param.Name)::$(Param.DataType.Name)
+#cgerror unknown type($(.Type)) of Param.Name: $(Param.Name)::$(.Name)
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend // if attribute
+\
+#ifeq($(Param.DataType.Name),Optional)
+#indent -
+  }
+#ifeqend
+#contextend
+\
 #end
   return rdoParam;
 }

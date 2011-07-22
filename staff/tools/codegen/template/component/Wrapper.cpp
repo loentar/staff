@@ -79,97 +79,111 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
-#ifneq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
+#ifneq($(Param.DataType.Name),COperation||Operation)
       $(Param.DataType.NsName) $(Param.Name);
 #ifeqend
 #ifeqend
 #end
 \
 #foreach $(Member.Params)  // ------------------- params ------------------------
-#ifeq($(Param.DataType.Type),struct||typedef||enum)
-      rRequest.GetChildByLocalName("$(Param.Name)") >> $(Param.Name);
-#else
-#ifeq($(Param.DataType.Type),generic)
-#ifneq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
-      rRequest.GetChildByLocalName("$(Param.Name)").GetValue($(Param.Name));
-#ifeqend
-#else
-#ifeq($(Param.DataType.Type),template)
-
-#ifeq($(Param.DataType.NsName),std::map)
 \
-      $(Param.DataType.TemplateParams.TemplateParam1) tKey\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-     $(Param.DataType.TemplateParams.TemplateParam2) tValue\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam2.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#else
-\
-      $(Param.DataType.TemplateParams.TemplateParam1) tItem\
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#ifeqend
-      for (::staff::DataObject tdoItem = rRequest.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+#ifeq($(Param.DataType.Name),Optional)
+      staff::DataObject tdoParam$(Param.Name) = rRequest.GetChildByLocalNameOpt("$(Param.Name)");
+      if (!tdoParam$(Param.Name).IsNull())
       {
-#ifeq($(Param.DataType.NsName),std::map)
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
-       tdoItem.GetChildByLocalName("Key").GetValue(tKey);
+#var sParamNode tdoParam$(Param.Name)
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#var sOptMod *
+#indent +
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-      DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
-      tdoKey >> tKey;
-#else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#var sParamNode rRequest.GetChildByLocalName("$(Param.Name)")
+#var sContext Param.DataType
+#var sOptMod
 #ifeqend
-#ifeqend
-
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
-       tdoItem.GetChildByLocalName("Value").GetValue(tValue);
-#else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-       DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
-       tdoValue >> tValue;
-#else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-       tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
-#else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-        $(Param.Name)[tKey] = tValue;
-
-#else
+#context $($sContext)
 \
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic||string)
+\
+#ifeq($(.Type),struct||typedef||enum)
+      $($sParamNode) >> $($sOptMod)$(Param.Name);
+#else
+#ifeq($(.Type),generic)
+#ifneq($(.Name),COperation||Operation)
+      $($sParamNode).GetValue($($sOptMod)$(Param.Name));
+#ifeqend
+#else
+#ifeq($(.Type),template)
+\
+      for (::staff::DataObject tdoItem = $($sParamNode).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+      {
+#ifeq($(.NsName),std::map)  // -------- map ----------
+        $(.TemplateParams.TemplateParam1) tKey\
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
+ = 0\
+#ifeqend
+;
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
+        tdoItem.GetChildByLocalName("Key").GetValue(tKey);
+#else
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+        DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+        tdoKey >> tKey;
+#else
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#ifeqend
+#ifeqend
+
+        $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)$(Param.Name))[tKey];
+#ifeq($(.TemplateParams.TemplateParam2.Type),generic||string)
+        tdoItem.GetChildByLocalName("Value").GetValue(rValue);
+#else
+#ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
+        DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+        tdoValue >> rValue;
+#else
+#ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
+        rValue = tdoItem.GetChildByLocalName("Value").FirstChild();
+#else
+#cgerror key element type $(.TemplateParams.TemplateParam2.Type) is not supported
+#ifeqend
+#ifeqend
+#ifeqend
+
+#else // -------- list ----------
+\
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
+        $(.TemplateParams.TemplateParam1) tItem = 0;
         tdoItem.GetValue(tItem);
+        ($($sOptMod)$(Param.Name)).push_back(tItem);
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-        tdoItem >> tItem;
+#ifeq($(.TemplateParams.TemplateParam1.Type),string)
+        ($($sOptMod)$(Param.Name)).push_back(tdoItem.GetText());
 #else
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),dataobject)
-        tItem = tdoItem;
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+        $(.TemplateParams.TemplateParam1)& rItem = *($($sOptMod)$(Param.Name))\
+.insert(($($sOptMod)$(Param.Name)).end(), $(.TemplateParams.TemplateParam1)());
+        tdoItem >> rItem;
 #else
-#cgerror key element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
+        ($($sOptMod)$(Param.Name)).push_back(tdoItem);
+#else
+#cgerror item element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 \
-        $(Param.Name).push_back(tItem);
 #ifeqend
       }
 #ifeqend // template
 #ifeqend
 #ifeqend
+\
+#ifeq($(Param.DataType.Name),Optional)
+#indent -
+      }
+#ifeqend
+#contextend
+\
 #end       // ----------------- return -------------------
       \
 #ifneq($(Member.Return.Name),void)      // !!not_void!!
@@ -177,7 +191,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 $(Member.Return.NsName) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic||string)    // !!generic!!
+#ifeq($(Member.Return.Name),Optional)
+$(Member.Return.NsName) tResult = \
+#else
 rOperation.Result().SetValue(\
+#ifeqend
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
 rOperation.Result().AppendChild(
@@ -191,17 +209,17 @@ tpServiceImpl->$(Member.Name)(\
 #ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
-#ifeq($(Param.DataType.Name),staff::CMessageContext||CMessageContext||staff::MessageContext||MessageContext)
+#ifeq($(Param.DataType.Name),CMessageContext||MessageContext)
 rOperation.GetMessageContext()\
 #else
-#ifeq($(Param.DataType.Name),staff::COperation||COperation||staff::Operation||Operation)
+#ifeq($(Param.DataType.Name),COperation||Operation)
 rOperation\
 #else
 #ifeq($(Param.DataType.Type),string)    // !!string!!
-rRequest.GetChildByLocalName("$(Param.Name)").GetText()\
+$($sParamNode).GetText()\
 #else
 #ifeq($(Param.DataType.Type),dataobject) // !!dataobject!! 
-rRequest.GetChildByLocalName("$(Param.Name)").FirstChild()\
+$($sParamNode).FirstChild()\
 #else
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 $(Param.Name)\
@@ -216,61 +234,76 @@ $(Param.Name)\
 \
 #ifneq($(Member.Return.Name),void)
 #ifeq($(Member.Return.Type),generic||string||dataobject)
+#ifneq($(Member.Return.Name),Optional)
 )\
+#ifeqend
 #ifeqend
 #ifeqend
 );
 \
-#ifeq($(Member.Return.Type),struct||typedef||enum) // result for structs and types
-      staff::DataObject& rdoResult = rOperation.Result();
-      rdoResult << tResult;
-#else
-#ifeq($(Member.Return.Type),template)
-      staff::DataObject& rdoResult = rOperation.Result();
-      for ($(Member.Return.NsName)::const_iterator it = tResult.begin(); it != tResult.end(); ++it)
+\
+#ifeq($(Member.Return.Name),Optional)
+      if (!tResult.IsNull())
       {
-#ifeq($(Member.Return.NsName),std::map)
+#indent +
+#var sContext Member.Return.TemplateParams.TemplateParam1
+#var sOptMod *
+#else
+#var sContext Member.Return
+#var sOptMod
+#ifeqend
+#context $($sContext)
+\
+#ifeq($(.Type),struct||typedef||enum) // result for structs and types
+      staff::DataObject& rdoResult = rOperation.Result();
+      rdoResult << $($sOptMod)tResult;
+#else
+#ifeq($(.Type),template)
+      staff::DataObject& rdoResult = rOperation.Result();
+      for ($(.NsName)::const_iterator it = ($($sOptMod)tResult).begin(); it != ($($sOptMod)tResult).end(); ++it)
+      {
+#ifeq($(.NsName),std::map)
         DataObject tdoItem = rdoResult.CreateChild("Item");
 \
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
         tdoItem.CreateChild("Key").SetValue(it->first);
 #else
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoKey = tdoItem.CreateChild("Key");
         tdoKey << tKey;
 #else
-#cgerror key element type $(Member.Return.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 \
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
         tdoItem.CreateChild("Value").tdoValue.SetValue(it->second);
 #else
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoValue = tdoItem.CreateChild("Value");
         tdoValue << it->second;
 #else
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),dataobject)
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
         tdoItem.CreateChild("Value").AppendChild(it->second);
 #else
-#cgerror key element type $(Member.Return.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
 
 #else
 \
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
         rdoResult.CreateChild("Item").SetValue(*it);
 #else
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoItem = rdoResult.CreateChild("Item");
         tdoItem << *it;
 #else
-#ifeq($(Member.Return.TemplateParams.TemplateParam1.Type),dataobject)
+#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
         rdoResult.CreateChild("Item").AppendChild(*it);
 #else
-#cgerror key element type $(Member.Return.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
@@ -279,6 +312,13 @@ $(Param.Name)\
       }
 #ifeqend // template
 #ifeqend // struct, typedef, enum
+\
+#ifeq($(Member.Return.Name),Optional)
+#indent -
+      }
+#ifeqend
+\
+#contextend
     } else
 #end
     {

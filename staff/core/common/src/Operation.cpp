@@ -121,6 +121,34 @@ namespace staff
     m_tdoRequest = pRequest;
   }
 
+  const DataObject& Operation::ResultOpt() const
+  {
+    if (m_sResultName.empty())
+    {
+      return m_tdoResponse;
+    }
+
+    if (m_tdoResult.IsNull() && m_tdoResponse.IsInit())
+    {
+      m_tdoResult = m_tdoResponse.GetChildByLocalNameOpt(m_sResultName);
+    }
+    return m_tdoResult;
+  }
+
+  DataObject& Operation::ResultOpt()
+  {
+    if (m_sResultName.empty())
+    {
+      return m_tdoResponse;
+    }
+
+    if (m_tdoResult.IsNull() && m_tdoResponse.IsInit())
+    {
+      m_tdoResult = m_tdoResponse.GetChildByLocalNameOpt(m_sResultName);
+    }
+    return m_tdoResult;
+  }
+
   const DataObject& Operation::Result() const
   {
     if (m_tdoResult.IsNull())

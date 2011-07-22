@@ -97,7 +97,7 @@ namespace codegen
       sOut += (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
     }
 
-    bool bIsTemplate = rDataType.lsParams.size() != 0;
+    bool bIsTemplate = !rDataType.lsParams.empty();
     if (!bIsTemplate)
     {
       if (!bNoModifiers)
@@ -107,16 +107,34 @@ namespace codegen
       return false;
     }
 
-    sOut += "< ";
-    for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it)
+    sOut += "<";
+    std::string::size_type nBeginTemplatePos = sOut.size();
+    bool bSpace = !rDataType.lsParams.back().lsParams.empty();
+    bool bFirst = true;
+
+    for (std::list<DataType>::const_iterator it = rDataType.lsParams.begin();
+         it != rDataType.lsParams.end(); ++it)
     {
-      if (it != rDataType.lsParams.begin())
+      if (!bFirst)
+      {
         sOut += ", ";
+      }
       bIsTemplate = GetDataType(sOut, *it, bAsUsed);
+      if (bFirst)
+      {
+        if (sOut.substr(nBeginTemplatePos, 2) == "::")
+        {
+          bSpace = true;
+        }
+        bFirst = false;
+      }
     }
-    if(bIsTemplate)
+    if (bSpace) // first parameter begins with :: or last parameter was template: insert spaces
+    {
+      sOut.insert(nBeginTemplatePos, " ");
       sOut += ' ';
-    sOut += " >";
+    }
+    sOut += ">";
 
     if (!bNoModifiers)
     {

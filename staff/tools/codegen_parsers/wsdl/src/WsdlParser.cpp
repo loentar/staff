@@ -104,6 +104,8 @@ namespace codegen
     bool bIsArray;
     bool bIsExtern;
     bool bIsRef;
+    bool bIsOptional;
+    bool bIsNillable;
     std::string sDefault;
 
     std::list<SimpleType> lsSimpleTypes;
@@ -379,6 +381,21 @@ namespace codegen
   }
 
 
+  void MakeOptional(DataType& rDataType)
+  {
+    if (rDataType.sName == "Optional")
+    {
+      rise::LogWarning() << "Type " << rDataType.sNamespace
+                         << rDataType.sName << " already marked as optional";
+      return;
+    }
+    rDataType.lsParams.push_front(rDataType);
+    rDataType.lsParams.resize(1);
+    rDataType.sName = "Optional";
+    rDataType.sNamespace = "staff::";
+    rDataType.eType = DataType::TypeTemplate;
+    rDataType.sUsedName.erase();
+  }
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -442,7 +459,7 @@ namespace codegen
 
   //////////////////////////////////////////////////////////////////////////
   Element::Element():
-    bIsArray(false), bIsExtern(false), bIsRef(false)
+    bIsArray(false), bIsExtern(false), bIsRef(false), bIsOptional(false), bIsNillable(false)
   {
   }
 
@@ -469,8 +486,17 @@ namespace codegen
       sDefault = itNodeAttr->sAttrValue.AsString();
     }
 
+    itAttr = rNodeElement.FindAttribute("nillable");
+    bIsNillable = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "true");
+
     itAttr = rNodeElement.FindAttribute("maxOccurs");
     bIsArray = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
+
+    if (!bIsArray)
+    {
+      itAttr = rNodeElement.FindAttribute("minOccurs");
+      bIsOptional = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "0");
+    }
 
     //  if type exists, element is simple
     itAttr = rNodeElement.FindAttribute("type");
@@ -875,12 +901,9 @@ namespace codegen
               itParamElement != rComplexType.lsElements.end(); ++itParamElement)
             {
               const Element& rChildElement = *itParamElement;
-
               if (!rChildElement.stType.sName.empty()) // type is set: processing elem as struct
               {
                 Param stParam;
-
-                stParam.sName = rChildElement.sName;
 
                 DataType stDataType;
 
@@ -892,6 +915,7 @@ namespace codegen
                 }
                 if (rChildElement.bIsArray)
                 {
+                  stParam.sName = rElement.sName;
                   stParam.stDataType.lsParams.push_back(stDataType);
                   stParam.stDataType.eType = DataType::TypeTemplate;
                   stParam.stDataType.sName = "list";
@@ -899,6 +923,7 @@ namespace codegen
                 }
                 else
                 {
+                  stParam.sName = rChildElement.sName;
                   stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
                   OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
                   stParam.stDataType = stDataType;
@@ -968,27 +993,45 @@ namespace codegen
 
                 if (!bIsResponse)
                 { // request
+                  if (rElement.bIsOptional || rChildElement.bIsOptional)
+                  {
+                    MakeOptional(stParam.stDataType);
+                  }
+
                   FixParamDataType(stParam.stDataType);
+
                   rMember.lsParams.push_back(stParam);
                   if (nRecursionLevel == 0 && rElement.sName != rMember.sName)
                   {
                     rMember.mOptions["requestElement"] = rElement.sName;
                   }
+
                 }
                 else
                 { // response
                   if (nRecursionLevel == 0)
                   {
-                    rMember.mOptions["responseElement"] = rElement.sName;
-                    if (!rChildElement.sName.empty())
+                    if (rElement.sName != (rMember.sName + "Result"))
+                    {
+                      rMember.mOptions["responseElement"] = rElement.sName;
+                    }
+                    if (!rChildElement.sName.empty() && !rChildElement.bIsArray)
                     {
                       rMember.mOptions["resultElement"] = rChildElement.sName;
+                    }
+                    if (rElement.bIsNillable)
+                    {
+                      MakeOptional(stParam.stDataType);
                     }
                   }
                   else
                   if (nRecursionLevel == 1)
                   {
                     rMember.mOptions["resultElement"] = rElement.sName;
+                    if (rChildElement.bIsOptional)
+                    {
+                      MakeOptional(stParam.stDataType);
+                    }
                   }
                   stParam.stDataType.sNodeName = rElement.sName;
                   rMember.stReturn = stParam;
@@ -1000,7 +1043,10 @@ namespace codegen
                 {
                   if (bIsResponse)
                   {
-                    rMember.mOptions["responseElement"] = rElement.sName;
+                    if (rElement.sName != (rMember.sName + "Result"))
+                    {
+                      rMember.mOptions["responseElement"] = rElement.sName;
+                    }
                   }
                   else
                   {
@@ -1094,12 +1140,19 @@ namespace codegen
 
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
         OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+
         if (!bIsResponse)
         {  // set node name for request
           stParam.stDataType.sNodeName = rElement.sName;
+
+          if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
+          {
+            MakeOptional(stParam.stDataType);
+          }
+
           FixParamDataType(stParam.stDataType);
 
-          if (nRecursionLevel == 0 && rElement.sName != rMember.sName)
+          if (!nRecursionLevel && rElement.sName != rMember.sName)
           {
             rMember.mOptions["requestElement"] = rElement.sName;
           }
@@ -1110,14 +1163,21 @@ namespace codegen
         }
         else
         {
-          if (nRecursionLevel == 0)
+          if (!nRecursionLevel && rElement.sName != (rMember.sName + "Result"))
           {
             rMember.mOptions["responseElement"] = rElement.sName;
           }
+
+          if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
+          {
+            MakeOptional(stParam.stDataType);
+          }
+
           rMember.stReturn = stParam;
           rMember.stReturn.stDataType.sNodeName = rElement.sName;
         }
       }
+
     }
 
     // part is an params list or result
@@ -2128,6 +2188,11 @@ namespace codegen
           rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
           OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
         }
+      }
+
+      if (pElement->bIsOptional)
+      {
+        MakeOptional(rDataType);
       }
     }
 

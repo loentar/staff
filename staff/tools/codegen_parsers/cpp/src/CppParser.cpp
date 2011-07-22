@@ -362,8 +362,10 @@ namespace codegen
       else
       if (sDataTypeName == "staff::CMessageContext" || sDataTypeName == "staff::COperation" ||
           sDataTypeName == "staff::MessageContext" || sDataTypeName == "staff::Operation" ||
+          sDataTypeName == "staff::Optional" ||
           ((sDataTypeName == "CMessageContext" || sDataTypeName == "COperation" ||
-            sDataTypeName == "MessageContext" || sDataTypeName == "Operation")
+            sDataTypeName == "MessageContext" || sDataTypeName == "Operation" ||
+            sDataTypeName == "Optional")
               && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
       {
         rDataType.eType = DataType::TypeGeneric; // supress unknown datatype warning

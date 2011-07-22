@@ -699,6 +699,38 @@ namespace staff
         */
     const DataObject GetChildByLocalName(const std::string& sLocalName) const;
 
+    //!         get child node by local name
+    /*! does not throws an exception if child does not exists
+        to check is returned dataobject is valid please use !DataObject.IsNull()
+        \param  szLocalName - local name(C-string)
+        \return child node
+        */
+    DataObject GetChildByLocalNameOpt(const char* szLocalName);
+
+    //!         get child node by local name
+    /*! does not throws an exception if child does not exists
+        to check is returned dataobject is valid please use !DataObject.IsNull()
+        \param  sLocalName - local name
+        \return child node
+        */
+    DataObject GetChildByLocalNameOpt(const std::string& sLocalName);
+
+    //!         get child node by local name
+    /*! does not throws an exception if child does not exists
+        to check is returned dataobject is valid please use !DataObject.IsNull()
+        \param  szLocalName - local name(C-string)
+        \return child node
+        */
+    const DataObject GetChildByLocalNameOpt(const char* szLocalName) const;
+
+    //!         get child node by local name
+    /*! does not throws an exception if child does not exists
+        to check is returned dataobject is valid please use !DataObject.IsNull()
+        \param  sLocalName - local name
+        \return child node
+        */
+    const DataObject GetChildByLocalNameOpt(const std::string& sLocalName) const;
+
     //////////////////////////////////////////////////////////////////////////
     // data manipulation
 

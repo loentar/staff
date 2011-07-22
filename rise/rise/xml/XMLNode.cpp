@@ -526,7 +526,7 @@ namespace rise
           } else
           if (rStream.Test("--"))
           {
-            rStream.ReadStringUntil(sTmp, "-->");
+            rStream.ReadRawStringUntil(sTmp, "-->");
             rXMLNode.AddSubNode(sTmp, CXMLNode::ENTCOMMENT);
           } else
             THROWXML(CXMLFormatException, "Invalid Special id ", , rStream.GetFileName(), rStream.GetLine());
@@ -601,7 +601,7 @@ namespace rise
         {
           if(rStream.Test("--")) // comment
           {
-            rStream.ReadStringUntil(sTmp, "-->");
+            rStream.ReadRawStringUntil(sTmp, "-->");
           }
           else
           {
