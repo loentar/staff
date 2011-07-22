@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="calc_client"
-	ProjectGUID="{27474278-6bb9-4dbc-9a3a-227d5dd56e7f}"
+	ProjectGUID="{27474278-6BB9-4DBC-9A3A-227D5DD56E7F}"
 	RootNamespace="simple_client"
 	Keyword="Win32Proj"
 	>

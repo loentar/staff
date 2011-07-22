@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="optional_client"
-	ProjectGUID="{2fc86b95-d609-47f1-918f-6bdb3ca5da97}"
+	ProjectGUID="{2FC86B95-D609-47F1-918F-6BDB3CA5DA97}"
 	RootNamespace="simple_client"
 	Keyword="Win32Proj"
 	>
@@ -376,11 +376,11 @@
 			UniqueIdentifier="{cc450ca4-e9ec-4834-b6a6-6856d1ac84cb}"
 			>
 			<File
-				RelativePath=".\src\TasksProxy.cpp"
+				RelativePath=".\src\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\main.cpp"
+				RelativePath=".\src\TasksProxy.cpp"
 				>
 			</File>
 		</Filter>
