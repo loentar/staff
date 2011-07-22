@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="samples.optional.Tasks"
-	ProjectGUID="{855d2ce7-035e-48a6-8322-5936abc72473}"
+	ProjectGUID="{855D2CE7-035E-48A6-8322-5936ABC72473}"
 	RootNamespace="optional_component"
 	Keyword="Win32Proj"
 	>
@@ -362,15 +362,15 @@
 			UniqueIdentifier="{07e54607-d4c9-45df-a42e-9d86aa91a246}"
 			>
 			<File
+				RelativePath=".\src\ComponentImpl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\TasksImpl.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\TasksWrapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ComponentImpl.cpp"
 				>
 			</File>
 		</Filter>
@@ -379,6 +379,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{75dcc6d4-5642-4561-b387-18c430bd544b}"
 			>
+			<File
+				RelativePath=".\src\ComponentImpl.h"
+				>
+			</File>
 			<File
 				RelativePath=".\src\Tasks.h"
 				>
@@ -389,10 +393,6 @@
 			</File>
 			<File
 				RelativePath=".\src\TasksWrapper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ComponentImpl.h"
 				>
 			</File>
 		</Filter>

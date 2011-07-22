@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="samples.calc.CalcService"
-	ProjectGUID="{13ff167a-98dc-46e6-affd-ff070e10d5b3}"
+	ProjectGUID="{13FF167A-98DC-46E6-AFFD-FF070E10D5B3}"
 	RootNamespace="simple_component"
 	Keyword="Win32Proj"
 	>
@@ -362,15 +362,15 @@
 			UniqueIdentifier="{22b29e0d-f2b7-4f8d-a195-b15bdbb7fe42}"
 			>
 			<File
+				RelativePath=".\src\ComponentImpl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\EchoImpl.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\EchoWrapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ComponentImpl.cpp"
 				>
 			</File>
 		</Filter>
@@ -379,6 +379,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{dbdec67a-b42b-4477-98e5-131c54662d8f}"
 			>
+			<File
+				RelativePath=".\src\ComponentImpl.h"
+				>
+			</File>
 			<File
 				RelativePath=".\src\Echo.h"
 				>
@@ -389,10 +393,6 @@
 			</File>
 			<File
 				RelativePath=".\src\EchoWrapper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ComponentImpl.h"
 				>
 			</File>
 		</Filter>
