@@ -103,45 +103,36 @@
 #var sResponse $(Member.Options.*responseElement)
 #var sResult $(Member.Options.*resultElement)
 \
+#ifeq($($sResponse),)
+#ifeq($($sResult),)
+#var sResponse $(Member.Name)Result
+#else
+#var sResponse $(Member.Name)Response
+#ifeqend
+#ifeqend
 \
-#ifneq($($sResult),) // result element name is defined
-
-      <element name="$($sResponse||Member.Name.!append/Response/)">
+#ifneq($($sResult),)
+      <element name="$($sResponse)"\
+#ifeq($(Member.Return.Name),Optional)
+ nillable="true"\
+#ifeqend      // optional
+>
         <complexType>
           <sequence>
-#ifeq($(Member.Return.Type),dataobject)
-            <element name="$($sResult)">
-              <complexType>
-                <sequence>
-                  <any/>
-                </sequence>
-              </complexType>
-            </element>
-#else            // not dataobject
-            <element name="$($sResult)" type="\
-#context $(Member.Return)
-#cginclude "WsdlDataType.xsd"
-#contextend
-"/>
-#ifeqend         // is dataobject
-          </sequence>
-        </complexType>
-      </element>
-
-\
-#else //  result element name is not defined
-\
-\
-#ifeq($($sResponse),) // response name is not defined, generating result
-#var sResult $(Member.Name)Result
+#indent +3
+#var bEndElem 1
 #else
 #var sResult $($sResponse)
-#ifeqend              // response name is not defined
-\
+#var bEndElem
+#ifeqend
 \
       <element name="$($sResult)"\
 #ifeq($(Member.Return.Name),Optional)
+#ifeq($($bEndElem),)
  nillable="true"\
+#else
+ minOccurs="0"\
+#ifeqend
 #var sContext Member.Return.TemplateParams.TemplateParam1
 #else
 #var sContext Member.Return
@@ -179,8 +170,16 @@
 #ifeqend // template
 #ifeqend // dataobject
 #ifeqend // void
+\
+#ifneq($($bEndElem),)
+#indent -3
+          </sequence>
+        </complexType>
+      </element>
+#ifeqend
+\
+\
 #contextend // optional
-#ifeqend // #ifneq($($sResult),) // result element name is defined
 #end // #foreach $(Class.Members)
 #end // foreach Interface.Classes
     </schema>

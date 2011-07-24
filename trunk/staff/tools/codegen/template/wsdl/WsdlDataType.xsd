@@ -16,6 +16,9 @@ tns_$(.Namespace.!mangle):$(.NativeName.!dot)\
 #ifeqend
 #else
 #ifeq($(.Type),generic||string)
+#ifeq($(.Name),void)
+#cgwarning void type in wsdl
+#ifeqend
 $(.Name)\
 #else
 #cgerror $(.Type) is not supported
