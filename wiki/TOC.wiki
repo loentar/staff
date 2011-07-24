@@ -20,6 +20,8 @@
     * Creating J2ME client
       * [ExampleCalculatorJ2meClientInEclipse J2ME client in Eclipse]
       * [ExampleCalculatorJ2meClient J2ME client]
+    * Creating a J2EE client
+      * [ExampleCalculartorJ2EEClientInEclipse J2EE client in Eclipse]
     * REST
       * [ExampleCalculatorRestfulClient RESTful C++ client]
       * [ExampleCalculatorRestfulService RESTful service]
