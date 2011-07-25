@@ -21,9 +21,16 @@ $($sNewOpeningNs)
 #ifneq($(Member.$Num),0)
 ,
 #ifeqend
+#ifneq($(Member.Value),)
+#ifeq($(Enum.Options.*baseType),string)
+    // *value: $(Member.Value)
+#ifeqend
+#ifeqend
     $(Member.Name)\
 #ifneq($(Member.Value),)
+#ifneq($(Enum.Options.*baseType),string)
  = $(Member.Value)\
+#ifeqend
 #ifeqend
 #end
 

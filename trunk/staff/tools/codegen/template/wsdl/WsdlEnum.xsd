@@ -7,7 +7,7 @@ $(Enum.Owner.!dot).\
 $(Enum.Name.!dot)">
         <restriction base="string">
 #foreach $(Enum.Members)
-          <enumeration value="$(Member.Name)"/>
+          <enumeration value="$(Member.Value||Member.Name)"/>
 #end
         </restriction>
       </simpleType>

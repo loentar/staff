@@ -27,7 +27,7 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #ifeqend
 #context $($sContext)
 #ifeq($(Param.Options.*isAttribute),true||1) // serialize to attribute
-#ifeq($(.Type),generic||string)
+#ifeq($(.Type),generic||string||typedef)
   rdoParam.CreateAttribute("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
 #else
 #cgerror Cannot serialize type $(.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
@@ -58,7 +58,7 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #var doName tdoParam$(Param.Name)
   DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend
-  for ($(.NsName)::const_iterator it = ($($sOptMod)rstStruct).$(Param.Name).begin();
+  for ($(.NsName)::const_iterator it = ($($sOptMod)rstStruct.$(Param.Name)).begin();
       it != ($($sOptMod)rstStruct.$(Param.Name)).end(); ++it)
   {
 #ifneq($(Param.Options.*elementName),)
@@ -174,14 +174,10 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeqend
 #context $($sContext)
 #ifeq($(Param.Options.*isAttribute),true||1) // deserialize from attribute
-#ifeq($(.Type),string)
-  rdoParam.GetAttributeTextByName("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
-#else
-#ifeq($(.Type),generic)
-  $($sOptMod)rstStruct.$(Param.Name) = rdoParam.GetAttributeValueByName("$(Param.Name)");
+#ifeq($(.Type),generic||string||typedef)
+  rdoParam.GetAttributeValueByName("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
 #else
 #cgerror Cannot deserialize type $(.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
-#ifeqend
 #ifeqend
 #else // deserialize from subnode node
 #ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?

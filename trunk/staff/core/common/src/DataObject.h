@@ -1007,6 +1007,39 @@ namespace staff
     void GetAttributeTextByName(const char* szLocalName, std::string& sText) const;
 
 
+    // optimized get value functions
+    // returns true, if conversion to type was successed
+    bool GetAttributeValueByName(const char *szLocalName, bool& rbValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, byte& rbtValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, int& rnValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, short& rshValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, long& rlValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, long long& rllValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, unsignedByte& rubtValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, unsigned int& runValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, unsigned short& rushValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, unsigned long& rulValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, unsigned long long& rullValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, float& rfValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, double& rdValue) const;
+    void GetAttributeValueByName(const char *szLocalName, std::string& sValue) const;
+
+    bool GetAttributeValueByName(const std::string& sLocalName, bool& rbValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, byte& rbtValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, int& rnValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, short& rshValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, long& rlValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, long long& rllValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, unsignedByte& rubtValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, unsigned int& runValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, unsigned short& rushValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, unsigned long& rulValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, unsigned long long& rullValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, float& rfValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, double& rdValue) const;
+    void GetAttributeValueByName(const std::string& sLocalName, std::string& sValue) const;
+
+
     //////////////////////////////////////////////////////////////////////////
     // iteration
 

@@ -6,8 +6,8 @@ DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
   switch (eEnumValue)
   {
 #foreach $(Enum.Members)
-  case $(Member.Name):
-    sResult = "$(Member.Name)";
+  case $(Enum.Namespace)$(Member.Name):
+    sResult = "$(Member.Value||Member.Name)";
     break;
 #end
   default:
@@ -26,7 +26,7 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumV
 #ifeq($(Enum.Options.*baseType),string)
   const std::string& sValue = rdoParam.GetText();
 #foreach $(Enum.Members)
-  if (sValue == "$(Member.Name)")
+  if (sValue == "$(Member.Value||Member.Name)")
   {
     reEnumValue = $(Enum.Namespace)$(Member.Name);
   }

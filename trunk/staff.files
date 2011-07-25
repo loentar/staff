@@ -403,6 +403,9 @@ staff/tools/codegen/template/component/ComponentImpl.h
 staff/tools/codegen/template/component/Wrapper.cpp
 staff/tools/codegen/template/component/Wrapper.h
 staff/tools/codegen/template/interface/codegen.config
+staff/tools/codegen/template/interface/DetectIncludes.h
+staff/tools/codegen/template/interface/DetectStructInclude.h
+staff/tools/codegen/template/interface/DetectTypeInclude.h
 staff/tools/codegen/template/interfacegen/codegen.config
 staff/tools/codegen/template/interfacegen/Interface.h
 staff/tools/codegen/template/interface/InterfaceEnum.h

@@ -85,13 +85,10 @@ namespace codegen
   struct Attribute: public QName
   {
     QName stType;
-    std::string sValue;
     std::string sDefault;
     bool bIsRef;
 
     Attribute();
-    Attribute(const std::string& sNameIn, const std::string& sPrefixIn, const std::string& sNamespaceIn,
-           const std::string& sValueIn, const std::string& sDefaultIn, const std::string& sDescrIn = "");
 
     Attribute& Parse(const rise::xml::CXMLNode& rNodeAttr);
     void FromType(const rise::xml::CXMLNode& rNodeElement, const std::string& sAttrType);
@@ -107,6 +104,7 @@ namespace codegen
     bool bIsOptional;
     bool bIsNillable;
     std::string sDefault;
+    std::string sChoiceId;
 
     std::list<SimpleType> lsSimpleTypes;
     std::list<ComplexType> lsComplexTypes;
@@ -123,9 +121,12 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   struct SimpleType: public QName
   {
+    typedef std::pair<std::string, std::string> StringPair;
+
     bool bIsExtern;
     QName stBaseType;
     StringList lsEnumValues;
+    std::list< StringPair > lsRestrictions;
 
     SimpleType();
     SimpleType& Parse(const rise::xml::CXMLNode& rNodeSimpleType);
@@ -139,7 +140,6 @@ namespace codegen
     std::list<Attribute> lsAttributes;
     std::string sParentName;
     std::string sParentNs;
-    bool bIsChoice;
     bool bIsExtern;
     bool bIsMessagePart;
     bool bIsSimpleContent;
@@ -150,12 +150,13 @@ namespace codegen
     ComplexType& Parse(const rise::xml::CXMLNode& rNodeComplexType);
 
   private:
-    void ParseSequence(const rise::xml::CXMLNode& rNodeSequence);
+    unsigned nLastChoiceId;
+
+    void ParseSequence(const rise::xml::CXMLNode& rNodeSequence, const std::string& sChoiceId = "");
 
     void ParseComplexAttr(const rise::xml::CXMLNode& rNodeAttr);
     void ParseComplexContent(const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple);
   };
-
 
   //////////////////////////////////////////////////////////////////////////
   std::string FindNamespaceUri( const rise::xml::CXMLNode& rNode, const std::string& sPrefix )
@@ -386,8 +387,10 @@ namespace codegen
   {
     if (rDataType.sName == "Optional")
     {
-      rise::LogWarning() << "Type " << rDataType.sNamespace
-                         << rDataType.sName << " already marked as optional";
+      std::string sType = rDataType.lsParams.empty()
+          ? "<unknown>"
+          : rDataType.lsParams.front().sNamespace + rDataType.lsParams.front().sName;
+      rise::LogWarning() << "Type " << sType << " already marked as optional";
       return;
     }
     rDataType.lsParams.push_front(rDataType);
@@ -402,13 +405,6 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   Attribute::Attribute():
      bIsRef(false)
-  {
-  }
-
-  Attribute::Attribute(const std::string& sNameIn, const std::string& sPrefixIn, const std::string& sNamespaceIn,
-         const std::string& sValueIn, const std::string& sDefaultIn, const std::string& sDescrIn /*= ""*/):
-    QName(sNameIn, sPrefixIn, sNamespaceIn, sDescrIn),
-    sValue(sValueIn), sDefault(sDefaultIn), bIsRef(false)
   {
   }
 
@@ -572,20 +568,23 @@ namespace codegen
           stBaseType.sName = StripPrefix(sBaseType);
           stBaseType.sNamespace = FindNamespaceUri(rNodeSimpleType, stBaseType.sPrefix);
 
-          // process enumeration
+          // process restriction
           for (rise::xml::CXMLNode::TXMLNodeConstIterator itSubChild = itChild->NodeBegin();
             itSubChild != itChild->NodeEnd(); ++itSubChild)
           {
             if (itSubChild->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
             {
-              const std::string& sSubNodeName = itSubChild->NodeName();
-              if (sSubNodeName == "enumeration")
+              if (itSubChild->NodeName() == "enumeration")
               {
                 lsEnumValues.push_back(itSubChild->Attribute("value").AsString());
               }
+              else
+              {
+                lsRestrictions.push_back(StringPair(itSubChild->NodeName(),
+                                                  itSubChild->Attribute("value").AsString()));
+              }
             }
           }
-
         }
       }
     }
@@ -596,8 +595,8 @@ namespace codegen
 
   //////////////////////////////////////////////////////////////////////////
   ComplexType::ComplexType():
-    bIsChoice(false), bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
-    bHasAnyAttribute(false)
+    bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
+    bHasAnyAttribute(false), nLastChoiceId(0)
   {
   }
 
@@ -641,8 +640,7 @@ namespace codegen
         else
         if (sNodeName == "choice")
         {
-          bIsChoice = true;
-          ParseSequence(*itChild);
+          ParseSequence(*itChild, rise::ToStr(nLastChoiceId++));
         }
         else
         if (sNodeName == "group")
@@ -671,7 +669,7 @@ namespace codegen
     return *this;
   }
 
-  void ComplexType::ParseSequence( const rise::xml::CXMLNode& rNodeSequence )
+  void ComplexType::ParseSequence(const rise::xml::CXMLNode& rNodeSequence, const std::string& sChoiceId /*= ""*/)
   {
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeSequence.NodeBegin();
       itChild != rNodeSequence.NodeEnd(); ++itChild)
@@ -681,42 +679,41 @@ namespace codegen
         const std::string& sNodeName = itChild->NodeName();
         if (sNodeName == "element")
         {
-          Element stElement;
-          stElement.Parse(*itChild);
-          if (stElement.stType.sName == "anyType")
+          Element& rElement = *lsElements.insert(lsElements.end(), Element());
+          rElement.Parse(*itChild);
+          rElement.sChoiceId = sChoiceId;
+          if (rElement.stType.sName == "anyType")
           {
-            stElement.stType.sName = "DataObject";
+            rElement.stType.sName = "DataObject";
           }
-          lsElements.push_back(stElement);
         }
         else
         if (sNodeName == "any")
         {
-          Element stElement;
+          Element& rElement = *lsElements.insert(lsElements.end(), Element());
           rise::xml::CXMLNode::TXMLAttrConstIterator itAttrNs = itChild->FindAttribute("namespace");
-          stElement.Parse(*itChild);
-          stElement.stType.sName = "DataObject";
+          rElement.Parse(*itChild);
+          rElement.stType.sName = "DataObject";
+          rElement.sChoiceId = sChoiceId;
           if (itAttrNs != itChild->AttrEnd())
           {
-            stElement.stType.sNamespace = itAttrNs->sAttrValue.AsString();
+            rElement.stType.sNamespace = itAttrNs->sAttrValue.AsString();
           }
-          lsElements.push_back(stElement);
         }
         else
         if (sNodeName == "sequence")
         {
-          ParseSequence(*itChild);
+          ParseSequence(*itChild, sChoiceId);
         }
         else
         if (sNodeName == "choice")
         {
-          bIsChoice = true;
-          ParseSequence(*itChild);
+          ParseSequence(*itChild, rise::ToStr(nLastChoiceId++));
         }
         else
         if (sNodeName == "group")
         {
-          ParseSequence(GetGroupDeclaration(*itChild));
+          ParseSequence(GetGroupDeclaration(*itChild), sChoiceId);
         }
         else
         if (sNodeName != "annotation" && sNodeName != "documentation") // already parsed
@@ -969,7 +966,7 @@ namespace codegen
                       stMember.mOptions["defaultValue"] = itAttr->sDefault;
                     }
                     stMember.sName = itAttr->sName;
-                    if (itAttr->sValue.empty()) // use string as default attribute value type
+                    if (itAttr->stType.sName.empty()) // use string as default attribute value type
                     {
                       stMember.stDataType.sName = "string";
                       stMember.stDataType.sNamespace = "std::";
@@ -978,7 +975,7 @@ namespace codegen
                     }
                     else
                     {
-                      GetCppType(itAttr->sValue, itAttr->sNamespace, stMember.stDataType);
+                      GetCppType(itAttr->stType, stMember.stDataType);
                       stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
                       OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
                     }
@@ -1682,6 +1679,11 @@ namespace codegen
         Enum stEnum;
 
         stEnum.sName = rSimpleType.sName;
+        if (stEnum.sName.empty())
+        {
+          static int nUnnamedEnumId = 0;
+          stEnum.sName = "UnnamedEnum" + rise::ToStr(nUnnamedEnumId++);
+        }
         stEnum.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
         rise::StrReplace(stEnum.sName, ".", "::", true);
 
@@ -1701,11 +1703,11 @@ namespace codegen
             itValue != rSimpleType.lsEnumValues.end(); ++itValue)
           {
             stEnum.lsMembers.push_back(Enum::EnumMember());
-            std::string& rsName = stEnum.lsMembers.back().sName;
-            rsName = *itValue;
-            if (FixId(rsName))
+            Enum::EnumMember& rMember = stEnum.lsMembers.back();
+            rMember.sName = *itValue;
+            if (FixId(rMember.sName))
             {
-              rise::LogWarning() << "enum member renamed [" << *itValue << "] => [" << rsName << "]";
+              rMember.sValue = *itValue;
             }
           }
 
@@ -1789,6 +1791,15 @@ namespace codegen
           stDataType.eType = DataType::TypeTypedef;
           stDataType.sName = rstTypedef.sName;
           stDataType.sNamespace = rstTypedef.sNamespace;
+
+          if (!rSimpleType.lsRestrictions.empty())
+          {
+            for (std::list< SimpleType::StringPair >::const_iterator itRestr = rSimpleType.lsRestrictions.begin();
+                 itRestr != rSimpleType.lsRestrictions.end(); ++itRestr)
+            {
+              rstTypedef.mOptions["restriction-" + itRestr->first] = itRestr->second;
+            }
+          }
         }
         else
         {
@@ -1912,20 +1923,6 @@ namespace codegen
             }
           }
 
-          // class name getter
-          if (rComplexType.bIsChoice)
-          {
-            rise::LogWarning() << "choice is not fully implemented yet: [" << rComplexType.sName << "]";
-
-            Param stClassNameGetter;
-            stClassNameGetter.sName = "sClassName";
-            stClassNameGetter.stDataType.sName = "string";
-            stClassNameGetter.stDataType.sNamespace = "std::";
-            stClassNameGetter.stDataType.sUsedName = "std::string";
-            stClassNameGetter.stDataType.eType = DataType::TypeString;
-            stStruct.lsMembers.push_back(stClassNameGetter);
-          }
-
           stDataType.eType = DataType::TypeStruct;
 
           std::string::size_type nPos = stStruct.sName.rfind("::");
@@ -1962,6 +1959,7 @@ namespace codegen
         for (std::list<Element>::const_iterator itElement = rComplexType.lsElements.begin();
           itElement != rComplexType.lsElements.end(); ++itElement)
         {
+          const std::string& sChoiceId = itElement->sChoiceId;
           const Element* pElement = &*itElement;
           while (pElement->bIsRef)
           {
@@ -1976,75 +1974,71 @@ namespace codegen
           stMember.sName = StripPrefix(pElement->sName);
           stMember.sDescr = pElement->sDescr;
           stMember.sDetail = pElement->sDetail;
-          if (rComplexType.bIsChoice)
+
+          ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
+
+          if (stMember.sName.empty())
           {
-            ElementToData(*pElement, stMember.stDataType, rWsdlTypes,
-                          pstStruct->sName, pstStruct->sNamespace);
+            stMember.sName = "tUnnamed" + rise::ToStr(nUnnamedElemNo++);
+            stMember.mOptions["useParentElement"] = "true";
+          }
+
+          // optimize template argument type
+          if (stMember.stDataType.eType == DataType::TypeTemplate)
+          {
+            const std::string& sOwnerName =
+                pstStruct->sNamespace +
+                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+                pstStruct->sName + "::";
+
+            RISE_ASSERTS(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
+                        " is template, but no template arg is defined");
+            DataType& rDataType = stMember.stDataType.lsParams.front();
+
+            if (rDataType.eType == DataType::TypeStruct ||
+                rDataType.eType == DataType::TypeTypedef ||
+                rDataType.eType == DataType::TypeEnum)
+            {
+              rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+              OptimizeCppNs(rDataType.sUsedName, sOwnerName);
+            }
           }
           else
+          if (stMember.stDataType.eType == DataType::TypeStruct ||
+              stMember.stDataType.eType == DataType::TypeTypedef ||
+              stMember.stDataType.eType == DataType::TypeEnum)
           {
-            ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
+            // do not optimize namespace if member name equals data type name
+            bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
+            if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
+            {
+              stMember.stDataType.sNamespace = "::";
+            }
+
+            const std::string& sOwnerName =
+                pstStruct->sNamespace +
+                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+                pstStruct->sName + "::";
+            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+
+            if (!bDoNotOptimizeNs)
+            {
+              OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
+            }
           }
-//          if (!rComplexType.bIsChoice)
+
+          if (!pElement->sDefault.empty())
           {
-            if (stMember.sName.empty())
-            {
-              stMember.sName = "tUnnamed" + rise::ToStr(nUnnamedElemNo++);
-              stMember.mOptions["useParentElement"] = "true";
-            }
-
-            // optimize template argument type
-            if (stMember.stDataType.eType == DataType::TypeTemplate)
-            {
-              const std::string& sOwnerName =
-                  pstStruct->sNamespace +
-                  (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-                  pstStruct->sName + "::";
-
-              RISE_ASSERTS(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
-                          " is template, but no template arg is defined");
-              DataType& rDataType = stMember.stDataType.lsParams.front();
-
-              if (rDataType.eType == DataType::TypeStruct ||
-                  rDataType.eType == DataType::TypeTypedef ||
-                  rDataType.eType == DataType::TypeEnum)
-              {
-                rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
-              }
-            }
-            else
-            if (stMember.stDataType.eType == DataType::TypeStruct ||
-                stMember.stDataType.eType == DataType::TypeTypedef ||
-                stMember.stDataType.eType == DataType::TypeEnum)
-            {
-              // do not optimize namespace if member name equals data type name
-              bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
-              if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
-              {
-                stMember.stDataType.sNamespace = "::";
-              }
-
-              const std::string& sOwnerName =
-                  pstStruct->sNamespace +
-                  (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-                  pstStruct->sName + "::";
-              stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-
-              if (!bDoNotOptimizeNs)
-              {
-                OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
-              }
-            }
-
-
-            if (!pElement->sDefault.empty())
-            {
-              stMember.mOptions["defaultValue"] = pElement->sDefault;
-            }
-
-            pstStruct->lsMembers.push_back(stMember);
+            stMember.mOptions["defaultValue"] = pElement->sDefault;
           }
+
+          if (!sChoiceId.empty())
+          {
+            stMember.mOptions["choiceId"] = sChoiceId;
+            MakeOptional(stMember.stDataType);
+          }
+
+          pstStruct->lsMembers.push_back(stMember);
         }
 
         if (rComplexType.bHasAnyAttribute)
@@ -2074,7 +2068,7 @@ namespace codegen
           Param stMember;
           stMember.mOptions["isAttribute"] = "true";
           stMember.sName = pAttr->sName;
-          if (pAttr->sValue.empty()) // use string as default attribute value type
+          if (pAttr->stType.sName.empty()) // use string as default attribute value type
           {
             stMember.stDataType.sName = "string";
             stMember.stDataType.sNamespace = "std::";
@@ -2083,7 +2077,7 @@ namespace codegen
           }
           else
           {
-            GetCppType(pAttr->sValue, pAttr->sNamespace, stMember.stDataType);
+            GetCppType(pAttr->stType, stMember.stDataType);
             stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
             OptimizeCppNs(stMember.stDataType.sUsedName, pstStruct->sNamespace);
           }
