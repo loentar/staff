@@ -16,14 +16,37 @@
 #ifeqend
 #ifneq($(Struct.Members.$Count),0)
         <sequence>
+#var sChoiceId
+#var bChoiceClosed
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Type),dataobject)
-#ifeq($(Param.Options.*isAttribute),true||1)
-#cgerror cannot serialize DataObject as attribute
+#ifneq($(Param.Options.*isAttribute),true||1)
+#ifneq($(Param.Options.*choiceId),$($sChoiceId))
+#ifneq($($sChoiceId),)
+#var bChoiceClosed 1
+#indent -
+          </choice>
 #ifeqend
-          <element name="$(Param.Name)">
+#ifneq($(Param.Options.*choiceId),)
+#var bChoiceClosed 0
+          <choice>
+#indent +
+#ifeqend
+#var sChoiceId $(Param.Options.*choiceId)
+#ifeqend
+          <element name="$(Param.Name)"\
+#ifeq($(Param.DataType.Name),Optional)
+#ifeq($($sChoiceId),)
+ minOccurs="0"\
+#ifeqend
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#else
+#var sContext Param.DataType
+#ifeqend      // optional
+#context $($sContext)
+#ifeq($(.Type),dataobject)
+>
             <complexType>
-#ifneq($(Param.Description),)
+#ifneq($(.Description),)
               <annotation><documentation>$(Param.Description)</documentation></annotation>
 #ifeqend
               <sequence>
@@ -32,25 +55,42 @@
             </complexType>
           </element>
 #else
-#ifneq($(Param.Options.*isAttribute),true||1)
-          <element name="$(Param.Name)" type="\
-#context $(Param.DataType)
-#cginclude "WsdlDataType.xsd"
-#contextend
+#ifeq($(.Type),template)
+>
+            <complexType>
 #ifneq($(Param.Description),)
+              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+              <sequence>
+                <element name="Item" type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+              </sequence>
+            </complexType>
+          </element>
+#else // simple type
+ type="\
+#cginclude "WsdlDataType.xsd"
 "\
 #ifneq($(Param.Options.*defaultValue),)
  default="$(Param.Options.*defaultValue)"\
 #ifeqend
+#ifneq($(Param.Description),)
 >
             <annotation><documentation>$(Param.Description)</documentation></annotation>
           </element>
 #else
-"/>
+/>
 #ifeqend
-#ifeqend // attribute
+#ifeqend // template
 #ifeqend
+#contextend   // optional
+#ifeqend // not attribute
 #end // #foreach $(Struct.Members) -- elements
+#ifeq($($bChoiceClosed),0)
+#indent -
+          </choice>
+#ifeqend
         </sequence>
 #foreach $(Struct.Members)
 #ifeq($(Param.Options.*isAttribute),true||1)
@@ -64,8 +104,8 @@
  default="$(Param.Options.*defaultValue)"\
 #ifeqend
 >
-            <annotation><documentation>$(Param.Description)</documentation></annotation>
-          </attribute>
+          <annotation><documentation>$(Param.Description)</documentation></annotation>
+        </attribute>
 #else
 "/>
 #ifeqend // attribute

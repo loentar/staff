@@ -594,14 +594,28 @@ namespace codegen
     {
       if (sName[0] == '$')
       {
-        if (sName == "$ThisNodeName")
+        if (sName.substr(0, 13) == "$ThisNodeName")
         {
           sValue = rNode.NodeName();
+          if (sName.size() == 13)
+          {
+            return;
+          }
+          rise::xml::CXMLNode tVarNode(sValue);
+          tVarNode.NodeContent() = sValue;
+          sValue = GetValue(sValue + sName.substr(13), tVarNode);
         }
         else
-        if (sName == "$ThisNodeValue")
+        if (sName.substr(0, 14) == "$ThisNodeValue")
         {
           sValue = rNode.NodeContent().AsString();
+          if (sName.size() == 14)
+          {
+            return;
+          }
+          rise::xml::CXMLNode tVarNode(sValue);
+          tVarNode.NodeContent() = sValue;
+          sValue = GetValue(sValue + sName.substr(14), tVarNode);
         }
         else
         {

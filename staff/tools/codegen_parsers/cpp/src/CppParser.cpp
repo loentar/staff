@@ -1244,7 +1244,30 @@ namespace codegen
       {
         Enum::EnumMember stMember;
 
-        SkipWs();
+        SkipWsOnly();
+        while (ReadComment(sTmp))
+        {
+          rise::StrTrim(sTmp);
+          if (sTmp.size() != 0)
+          {
+            if (sTmp[0] == '*') // codegen metacomment
+            {
+              std::string::size_type nPos = sTmp.find(':', 1);
+              if (nPos != std::string::npos)
+              {
+                std::string sName = sTmp.substr(1, nPos - 1);
+                rise::StrTrim(sName);
+                if (sName == "value")
+                {
+                  stMember.sValue = sTmp.substr(nPos + 1);
+                  rise::StrTrim(stMember.sValue);
+                }
+              }
+            }
+          }
+          SkipWsOnly();
+        }
+
         ReadBefore(stMember.sName);
         SkipWs();
 

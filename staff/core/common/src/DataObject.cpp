@@ -2587,6 +2587,191 @@ namespace staff
     sText = szValue ? szValue : "";
   }
 
+  // optimized get value functions
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, bool& rbValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rbValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, byte& rbtValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rbtValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, int& rnValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rnValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, short& rshValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rshValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, long& rlValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rlValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, long long& rllValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rllValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, unsignedByte& rubtValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rubtValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, unsigned int& runValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, runValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, unsigned short& rushValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rushValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, unsigned long& rulValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rulValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, unsigned long long& rullValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rullValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, float& rfValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rfValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, double& rdValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rdValue);
+  }
+
+  void DataObject::GetAttributeValueByName(const char* szLocalName, std::string& sValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+
+    sValue = szText ? szText : "";
+  }
+
+  // optimized get value functions
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, bool& rbValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rbValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, byte& rbtValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rbtValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, int& rnValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rnValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, short& rshValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rshValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, long& rlValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rlValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, long long& rllValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rllValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, unsignedByte& rubtValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rubtValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, unsigned int& runValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), runValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, unsigned short& rushValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rushValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, unsigned long& rulValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rulValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, unsigned long long& rullValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rullValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, float& rfValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rfValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, double& rdValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rdValue);
+  }
+
+  void DataObject::GetAttributeValueByName(const std::string& sLocalName, std::string& sValue) const
+  {
+    GetAttributeValueByName(sLocalName.c_str(), sValue);
+  }
+
+
   //////////////////////////////////////////////////////////////////////////
   // iteration
 
