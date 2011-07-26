@@ -2307,6 +2307,189 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // attribute management
 
+  void DataObject::CreateAttribute(const char* szAttrName, bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, bool bValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, byte btValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, int nValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, short shValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, long lValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, long long llValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, unsignedByte ubtValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, unsigned int unValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, unsigned short ushValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, unsigned long ulValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, unsigned long long ullValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, float fValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, double dValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
   void DataObject::CreateAttribute(const char* szAttrName, const char* szAttrText)
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
@@ -2554,6 +2737,79 @@ namespace staff
     Attribute tAttr(const_cast<DataObject*>(this), axiom_element_get_attribute(m_pAxiomElement,
                                                                                  m_pEnv, stQName));
     return tAttr;
+  }
+
+  Attribute DataObject::GetAttributeByLocalName(const char* szLocalName)
+  {
+    axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(szLocalName);
+    RISE_ASSERTS(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
+    return Attribute(this, pAttr);
+  }
+
+  Attribute DataObject::GetAttributeByLocalName(const std::string& sLocalName)
+  {
+    axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(sLocalName.c_str());
+    RISE_ASSERTS(pAttr, "Attribute [" + sLocalName + "] is not found");
+    return Attribute(this, pAttr);
+  }
+
+  const Attribute DataObject::GetAttributeByLocalName(const char* szLocalName) const
+  {
+    axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(szLocalName);
+    RISE_ASSERTS(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
+    return Attribute(const_cast<DataObject*>(this), pAttr);
+  }
+
+  const Attribute DataObject::GetAttributeByLocalName(const std::string& sLocalName) const
+  {
+    axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(sLocalName.c_str());
+    RISE_ASSERTS(pAttr, "Attribute [" + sLocalName + "] is not found");
+    return Attribute(const_cast<DataObject*>(this), pAttr);
+  }
+
+  Attribute DataObject::GetAttributeByLocalNameOpt(const char* szLocalName)
+  {
+    return Attribute(this, GetAxiomAttributeByLocalName(szLocalName));
+  }
+
+  Attribute DataObject::GetAttributeByLocalNameOpt(const std::string& sLocalName)
+  {
+    return Attribute(this, GetAxiomAttributeByLocalName(sLocalName.c_str()));
+  }
+
+  const Attribute DataObject::GetAttributeByLocalNameOpt(const char* szLocalName) const
+  {
+    return Attribute(const_cast<DataObject*>(this), GetAxiomAttributeByLocalName(szLocalName));
+  }
+
+  const Attribute DataObject::GetAttributeByLocalNameOpt(const std::string& sLocalName) const
+  {
+    return Attribute(const_cast<DataObject*>(this), GetAxiomAttributeByLocalName(sLocalName.c_str()));
+  }
+
+  axiom_attribute_t* DataObject::GetAxiomAttributeByLocalName(const char *szLocalName) const
+  {
+    axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
+    if (pAttrHash)
+    {
+      for (axutil_hash_index_t* pIndex = axutil_hash_first(pAttrHash, m_pEnv);
+        pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+      {
+        void* pHashValue = NULL;
+
+        axutil_hash_this(pIndex, NULL, NULL, &pHashValue);
+        if (pHashValue != NULL)
+        {
+          axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
+          if (!axutil_strcmp(szLocalName, axiom_attribute_get_localname(pAttr, m_pEnv)))
+          {
+            return pAttr;
+          }
+        }
+      }
+    }
+
+    return NULL;
   }
 
   Value DataObject::GetAttributeValueByName(const char* szLocalName) const

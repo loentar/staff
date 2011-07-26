@@ -23,6 +23,7 @@ namespace optional
   {
     staff::Optional<int> nId;
     std::string sDescr;
+    // *isAttribute: true
     staff::Optional<int> tnOwnerId;
     staff::Optional<AttachInfo> tstAttachInfo;
   };

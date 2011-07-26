@@ -160,10 +160,15 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Name),Optional)
-  staff::DataObject tdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
-  if (!tdoParam$(Param.Name).IsNull())
+#ifeq($(Param.Options.*isAttribute),true||1)
+  const staff::Attribute& rAttr$(Param.Name) = rdoParam.GetAttributeByLocalNameOpt("$(Param.Name)");
+  if (!rAttr$(Param.Name).IsNull())
+#else
+  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
+  if (!rdoParam$(Param.Name).IsNull())
+#ifeqend
   {
-#var sParamNode tdoParam$(Param.Name)
+#var sParamNode rdoParam$(Param.Name)
 #var sContext Param.DataType.TemplateParams.TemplateParam1
 #var sOptMod *
 #indent +
@@ -175,7 +180,11 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #context $($sContext)
 #ifeq($(Param.Options.*isAttribute),true||1) // deserialize from attribute
 #ifeq($(.Type),generic||string||typedef)
+#ifeq($(Param.DataType.Name),Optional)
+  rAttr$(Param.Name).GetValue($($sOptMod)rstStruct.$(Param.Name));
+#else
   rdoParam.GetAttributeValueByName("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
+#ifeqend
 #else
 #cgerror Cannot deserialize type $(.Type) to attribute value. Struct: $(Struct.Name)::$(Param.Name)
 #ifeqend

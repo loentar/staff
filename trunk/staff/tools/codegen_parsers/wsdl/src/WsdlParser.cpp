@@ -89,9 +89,9 @@ namespace codegen
     QName stType;
     std::string sDefault;
     bool bIsRef;
+    bool bIsOptional;
 
     Attribute();
-
     Attribute& Parse(const rise::xml::CXMLNode& rNodeAttr);
   };
 
@@ -121,7 +121,6 @@ namespace codegen
     std::list<ComplexType> lsComplexTypes;
 
     Element();
-
     Element& Parse(const rise::xml::CXMLNode& rNodeElement);
 
   private:
@@ -157,7 +156,6 @@ namespace codegen
     bool bHasAnyAttribute;
 
     ComplexType();
-
     ComplexType& Parse(const rise::xml::CXMLNode& rNodeComplexType);
 
   private:
@@ -426,7 +424,7 @@ namespace codegen
 
   //////////////////////////////////////////////////////////////////////////
   Attribute::Attribute():
-     bIsRef(false)
+    bIsRef(false), bIsOptional(true)
   {
   }
 
@@ -438,6 +436,25 @@ namespace codegen
     if (itAttr != rNodeAttr.AttrEnd())
     {
       sName = itAttr->sAttrValue.AsString();
+    }
+
+    itAttr = rNodeAttr.FindAttribute("use");
+    if (itAttr != rNodeAttr.AttrEnd())
+    {
+      const std::string& sUse = itAttr->sAttrValue.AsString();
+      if (sUse == "required")
+      {
+        bIsOptional = false;
+      }
+      else
+      if (sUse == "optional")
+      {
+        bIsOptional = true;
+      }
+      else
+      {
+        rise::LogWarning() << "attribute use [" << sUse << "] not supported";
+      }
     }
 
     itAttr = rNodeAttr.FindAttribute("default");
@@ -1040,6 +1057,10 @@ namespace codegen
                       GetCppType(itAttr->stType, stMember.stDataType);
                       stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
                       OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+                    }
+                    if (itAttr->bIsOptional)
+                    {
+                      MakeOptional(stMember.stDataType);
                     }
                     stMember.sDescr = itAttr->sDescr;
                     stMember.sDetail = itAttr->sDetail;
@@ -1912,6 +1933,10 @@ namespace codegen
         if (!pAttr->sDefault.empty())
         {
           stMember.mOptions["defaultValue"] = pAttr->sDefault;
+        }
+        if (pAttr->bIsOptional)
+        {
+          MakeOptional(stMember.stDataType);
         }
         stMember.sDescr = itAttr->sDescr;
         stMember.sDetail = itAttr->sDetail;
