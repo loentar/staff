@@ -92,25 +92,49 @@
           </choice>
 #ifeqend
         </sequence>
+#var sAttrGroupName
+#var bAttrGroupClosed
 #foreach $(Struct.Members)
 #ifeq($(Param.Options.*isAttribute),true||1)
-        <attribute name="$(Param.Name)" type="\
+\
+#ifneq($(Param.Options.*attributeGroupName),$($sAttrGroupName))
+#ifneq($($sAttrGroupName),)
+#var bAttrGroupClosed 1
+#indent -
+        </attributeGroup>
+#ifeqend
+#ifneq($(Param.Options.*attributeGroupName),)
+#var bAttrGroupClosed 0
+        <attributeGroup name="$(Param.Options.*attributeGroupName)">
+#indent +
+#ifeqend
+#var sAttrGroupName $(Param.Options.*attributeGroupName)
+#ifeqend
+\
+        <attribute name="$(Param.Name)"\
+ type="\
 #context $(Param.DataType)
 #cginclude "WsdlDataType.xsd"
 #contextend
-#ifneq($(Param.Description),)
 "\
 #ifneq($(Param.Options.*defaultValue),)
  default="$(Param.Options.*defaultValue)"\
 #ifeqend
+#ifneq($(Param.Description),)
 >
           <annotation><documentation>$(Param.Description)</documentation></annotation>
         </attribute>
 #else
-"/>
+/>
 #ifeqend // attribute
 #ifeqend
 #end // #foreach $(Struct.Members) -- attributes
+\
+#ifeq($($bAttrGroupClosed),0)
+#indent -
+        </attributeGroup>
+#ifeqend
+\
 #ifeqend // $(Struct.Members.$Count),0
 #ifneq($(Struct.ParentName),)
 #ifneq($(Struct.Members.$Count),0)

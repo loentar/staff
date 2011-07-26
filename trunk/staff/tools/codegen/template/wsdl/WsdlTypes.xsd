@@ -91,6 +91,9 @@
       </complexType>
 #else
       <simpleType name="$(Typedef.NativeName)">
+#ifneq($(Typedef.Description),)
+        <annotation><documentation>$(Typedef.Description)</documentation></annotation>
+#ifeqend
 #ifeq($(Typedef.DataType.Type),dataobject)
         <complexType>
           <sequence>

@@ -814,6 +814,7 @@ namespace codegen
       // read return type and operation name
       std::string sOperationAndType;
       ReadBefore(sOperationAndType, "(");
+      rise::StrTrim(sOperationAndType);
       std::string::size_type nPos = sOperationAndType.find_last_of(" \n\r\t");
       CSP_ASSERT(nPos != std::string::npos, "Can't get operation name: [" + sOperationAndType + "]",
                  m_stInterface.sFileName, m_nLine);
