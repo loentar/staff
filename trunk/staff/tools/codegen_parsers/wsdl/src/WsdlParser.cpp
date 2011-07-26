@@ -414,6 +414,26 @@ namespace codegen
     rDataType.sUsedName.erase();
   }
 
+  bool IsStringType(const std::string& sType)
+  {
+    return sType == "string" ||
+      sType == "anyURI" ||
+      sType == "NOTATION" ||
+      sType == "normalizedString" ||
+      sType == "token" ||
+      sType == "language" ||
+      sType == "IDREFS" ||
+      sType == "ENTITIES" ||
+      sType == "NMTOKEN" ||
+      sType == "NMTOKENS" ||
+      sType == "Name" ||
+      sType == "NCName" ||
+      sType == "ID" ||
+      sType == "IDREF" ||
+      sType == "ENTITY" ||
+      sType == "anySimpleType";
+  }
+
   //////////////////////////////////////////////////////////////////////////
   void QName::FromType(const rise::xml::CXMLNode& rElement, const std::string& sType)
   {
@@ -1759,7 +1779,7 @@ namespace codegen
       DataType stDataType;
 
       // write enum
-      if (!rSimpleType.lsEnumValues.empty() && rSimpleType.stBaseType.sName == "string")
+      if (!rSimpleType.lsEnumValues.empty() && IsStringType(rSimpleType.stBaseType.sName))
       {
         Enum stEnum;
 
@@ -1901,6 +1921,7 @@ namespace codegen
       for (std::list<Attribute>::const_iterator itAttr = rlsAttrs.begin(); itAttr != rlsAttrs.end(); ++itAttr)
       {
         const Attribute* pAttr = &*itAttr;
+        bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
           AttributeMap::const_iterator itTargetElem = m_stWsdlTypes.mAttributes.find(pAttr->stType.GetNsName());
@@ -1934,7 +1955,7 @@ namespace codegen
         {
           stMember.mOptions["defaultValue"] = pAttr->sDefault;
         }
-        if (pAttr->bIsOptional)
+        if (bIsAttrOptional)
         {
           MakeOptional(stMember.stDataType);
         }
@@ -2509,9 +2530,15 @@ namespace codegen
         return "";
       }
 
-      // check namespace is lowercase and service name begins with uppercase letter
+      // check namespace is lowercase
       char chNamespace = sNamespace[nPosBegin];
       if (tolower(chNamespace) != chNamespace)
+      {
+        return "";
+      }
+
+      const std::string& sServiceName = sNamespace.substr(nPosEnd + 1);
+      if (sServiceName == "xsd" || sServiceName == "wsdl")
       {
         return "";
       }

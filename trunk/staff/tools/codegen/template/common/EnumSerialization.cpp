@@ -1,7 +1,8 @@
+#cginclude <StringTypes>
 
 DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 {
-#ifeq($(Enum.Options.*baseType),string)
+#ifeq($(Enum.Options.*baseType),$($sStringTypes))
   std::string sResult;
   switch (eEnumValue)
   {
@@ -23,7 +24,7 @@ DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 
 const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)
 {
-#ifeq($(Enum.Options.*baseType),string)
+#ifeq($(Enum.Options.*baseType),$($sStringTypes))
   const std::string& sValue = rdoParam.GetText();
 #foreach $(Enum.Members)
   if (sValue == "$(Member.Value||Member.Name)")

@@ -1,4 +1,5 @@
 #ifeq($(Enum.Extern),0)
+#cginclude <common/StringTypes>
 \
 #var sNewOpeningNs $(Enum.OpeningNs)
 #var sNewEndningNs $(Enum.EndingNs)
@@ -22,13 +23,13 @@ $($sNewOpeningNs)
 ,
 #ifeqend
 #ifneq($(Member.Value),)
-#ifeq($(Enum.Options.*baseType),string)
+#ifeq($(Enum.Options.*baseType),$($sStringTypes))
     // *value: $(Member.Value)
 #ifeqend
 #ifeqend
     $(Member.Name)\
 #ifneq($(Member.Value),)
-#ifneq($(Enum.Options.*baseType),string)
+#ifneq($(Enum.Options.*baseType),$($sStringTypes))
  = $(Member.Value)\
 #ifeqend
 #ifeqend
