@@ -875,6 +875,35 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // attribute management
 
+    // optimized create attribute functions
+    void CreateAttribute(const char* szAttrName, bool bValue);
+    void CreateAttribute(const char* szAttrName, byte btValue);
+    void CreateAttribute(const char* szAttrName, int nValue);
+    void CreateAttribute(const char* szAttrName, short shValue);
+    void CreateAttribute(const char* szAttrName, long lValue);
+    void CreateAttribute(const char* szAttrName, long long llValue);
+    void CreateAttribute(const char* szAttrName, unsignedByte ubtValue);
+    void CreateAttribute(const char* szAttrName, unsigned int unValue);
+    void CreateAttribute(const char* szAttrName, unsigned short ushValue);
+    void CreateAttribute(const char* szAttrName, unsigned long ulValue);
+    void CreateAttribute(const char* szAttrName, unsigned long long ullValue);
+    void CreateAttribute(const char* szAttrName, float fValue);
+    void CreateAttribute(const char* szAttrName, double dValue);
+
+    void CreateAttribute(const std::string& sAttrName, bool bValue);
+    void CreateAttribute(const std::string& sAttrName, byte btValue);
+    void CreateAttribute(const std::string& sAttrName, int nValue);
+    void CreateAttribute(const std::string& sAttrName, short shValue);
+    void CreateAttribute(const std::string& sAttrName, long lValue);
+    void CreateAttribute(const std::string& sAttrName, long long llValue);
+    void CreateAttribute(const std::string& sAttrName, unsignedByte ubtValue);
+    void CreateAttribute(const std::string& sAttrName, unsigned int unValue);
+    void CreateAttribute(const std::string& sAttrName, unsigned short ushValue);
+    void CreateAttribute(const std::string& sAttrName, unsigned long ulValue);
+    void CreateAttribute(const std::string& sAttrName, unsigned long long ullValue);
+    void CreateAttribute(const std::string& sAttrName, float fValue);
+    void CreateAttribute(const std::string& sAttrName, double dValue);
+
     //!         create and add attribute
     /*! \param  szAttrName - attribute name (C-string)
         \param  szAttrText - attribute text (C-string)
@@ -975,6 +1004,68 @@ namespace staff
         \return attribute
         */
     const Attribute GetAttributeByQName(const QName& rQName) const;
+
+    //!         get attribute by local name
+    /*! \param  szLocalName - attribute's local name (C-string)
+        \return attribute
+        */
+    Attribute GetAttributeByLocalName(const char* szLocalName);
+
+    //!         get attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    Attribute GetAttributeByLocalName(const std::string& sLocalName);
+
+    //!         get attribute by local name
+    /*! \param  szLocalName - attribute's local name
+        \return attribute
+        */
+    const Attribute GetAttributeByLocalName(const char* szLocalName) const;
+
+    //!         get attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    const Attribute GetAttributeByLocalName(const std::string& sLocalName) const;
+
+    //!         get attribute by local name
+    /*! does not throws an exception if attribute does not exists
+        to check is returned attribute is valid please use !Attribute.IsNull()
+        \param  szLocalName - attribute's local name (C-string)
+        \return attribute
+        */
+    Attribute GetAttributeByLocalNameOpt(const char* szLocalName);
+
+    //!         get attribute by local name
+    /*! does not throws an exception if attribute does not exists
+        to check is returned attribute is valid please use !Attribute.IsNull()
+        \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    Attribute GetAttributeByLocalNameOpt(const std::string& sLocalName);
+
+    //!         get attribute by local name
+    /*! does not throws an exception if attribute does not exists
+        to check is returned attribute is valid please use !Attribute.IsNull()
+        \param  szLocalName - attribute's local name (C-string)
+        \return attribute
+        */
+    const Attribute GetAttributeByLocalNameOpt(const char* szLocalName) const;
+
+    //!         get attribute by local name
+    /*! does not throws an exception if attribute does not exists
+        to check is returned attribute is valid please use !Attribute.IsNull()
+        \param  sLocalName - attribute's local name
+        \return attribute
+        */
+    const Attribute GetAttributeByLocalNameOpt(const std::string& sLocalName) const;
+
+    //!         get attribute by local name
+    /*! \param  sLocalName - attribute's local name
+        \return found attribute or NULL
+        */
+    axiom_attribute_t* GetAxiomAttributeByLocalName(const char *szLocalName) const;
 
     //!         get attribute value by name
     /*! \param  szLocalName - attribute's local name(C-string)

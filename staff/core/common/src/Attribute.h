@@ -30,6 +30,9 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
+  typedef char byte;
+  typedef unsigned char unsignedByte;
+
   class DataObject;
   class Value;
   class QName;
@@ -81,6 +84,11 @@ namespace staff
     //!         destructor
     ~Attribute();
 
+    //!         tests if the Attribute is NULL or not
+    /*! \return true if the Attribute is NULL
+    */
+    bool IsNull() const;
+
     //!         get ownership flag
     /*! \return true - if ownership flag set
         */
@@ -120,6 +128,23 @@ namespace staff
     /*! \param  tValue - value
     */
     void SetValue(const Value& rValue);
+
+    // optimized get value functions
+    // returns true, if conversion to type was successed
+    bool GetValue(bool& rbValue) const;
+    bool GetValue(byte& rbtValue) const;
+    bool GetValue(int& rnValue) const;
+    bool GetValue(short& rshValue) const;
+    bool GetValue(long& rlValue) const;
+    bool GetValue(long long& rllValue) const;
+    bool GetValue(unsignedByte& rubtValue) const;
+    bool GetValue(unsigned int& runValue) const;
+    bool GetValue(unsigned short& rushValue) const;
+    bool GetValue(unsigned long& rulValue) const;
+    bool GetValue(unsigned long long& rullValue) const;
+    bool GetValue(float& rfValue) const;
+    bool GetValue(double& rdValue) const;
+    void GetValue(std::string& sValue) const;
 
     //!         get qname
     /*! \return qname
