@@ -74,6 +74,8 @@ namespace codegen
     {
       return sPrefix.empty() ? sName : (sPrefix + ":" + sName);
     }
+
+    void FromType(const rise::xml::CXMLNode& rElement, const std::string& sType);
   };
 
   std::ostream& operator<<(std::ostream& rOut, const QName& rstQName)
@@ -91,7 +93,16 @@ namespace codegen
     Attribute();
 
     Attribute& Parse(const rise::xml::CXMLNode& rNodeAttr);
-    void FromType(const rise::xml::CXMLNode& rNodeElement, const std::string& sAttrType);
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+  struct AttributeGroup: public QName
+  {
+    bool bIsRef;
+    std::list<Attribute> lsAttributes;
+
+    AttributeGroup();
+    AttributeGroup& Parse(const rise::xml::CXMLNode& rNodeAttributeGroup);
   };
 
   //////////////////////////////////////////////////////////////////////////
@@ -111,7 +122,6 @@ namespace codegen
 
     Element();
 
-    void FromType(const rise::xml::CXMLNode& rNodeElement, const std::string& sElemType);
     Element& Parse(const rise::xml::CXMLNode& rNodeElement);
 
   private:
@@ -138,6 +148,7 @@ namespace codegen
     std::string sElementName;
     std::list<Element> lsElements;
     std::list<Attribute> lsAttributes;
+    std::list<AttributeGroup> lsAttributeGroups;
     std::string sParentName;
     std::string sParentNs;
     bool bIsExtern;
@@ -157,6 +168,7 @@ namespace codegen
     void ParseComplexAttr(const rise::xml::CXMLNode& rNodeAttr);
     void ParseComplexContent(const rise::xml::CXMLNode& rNodeComplexContent, bool bIsSimple);
   };
+
 
   //////////////////////////////////////////////////////////////////////////
   std::string FindNamespaceUri( const rise::xml::CXMLNode& rNode, const std::string& sPrefix )
@@ -328,8 +340,9 @@ namespace codegen
     return bChanged;
   }
 
-  void ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
+  bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
   {
+    bool bReaded = false;
     rise::xml::CXMLNode::TXMLNodeConstIterator itDoc = rNode.FindSubnode("documentation");
     if (itDoc == rNode.NodeEnd())
     {
@@ -342,6 +355,7 @@ namespace codegen
 
     if (itDoc != rNode.NodeEnd())
     {
+      bReaded = true;
       const std::string& sDoc = itDoc->NodeContent().AsString();
       sDescr = sDoc;
 #ifdef __linux__
@@ -366,6 +380,7 @@ namespace codegen
       rise::StrReplace(sDescr, "\n", " ", true);
       NormalizeString(sDescr);
     }
+    return bReaded;
   }
 
   const rise::xml::CXMLNode& GetGroupDeclaration(const rise::xml::CXMLNode& rGroup)
@@ -401,6 +416,13 @@ namespace codegen
     rDataType.sUsedName.erase();
   }
 
+  //////////////////////////////////////////////////////////////////////////
+  void QName::FromType(const rise::xml::CXMLNode& rElement, const std::string& sType)
+  {
+    sName = StripPrefix(sType);
+    sPrefix = GetPrefix(sType);
+    sNamespace = FindNamespaceUri(rElement, sPrefix);
+  }
 
   //////////////////////////////////////////////////////////////////////////
   Attribute::Attribute():
@@ -431,7 +453,7 @@ namespace codegen
     itAttr = rNodeAttr.FindAttribute("type");
     if (itAttr != rNodeAttr.AttrEnd())
     { // attr is simple
-      FromType(rNodeAttr, itAttr->sAttrValue.AsString());
+      stType.FromType(rNodeAttr, itAttr->sAttrValue.AsString());
     }
     else
     { // reference to another type
@@ -439,32 +461,17 @@ namespace codegen
       if (itAttr != rNodeAttr.AttrEnd())
       {
         bIsRef = true;
-        FromType(rNodeAttr, itAttr->sAttrValue.AsString());
+        stType.FromType(rNodeAttr, itAttr->sAttrValue.AsString());
       }
     }
 
     return *this;
   }
 
-  void Attribute::FromType(const rise::xml::CXMLNode& rNodeElement, const std::string& sAttrType)
-  {
-    stType.sName = StripPrefix(sAttrType);
-    stType.sPrefix = GetPrefix(sAttrType);
-    stType.sNamespace = FindNamespaceUri(rNodeElement, stType.sPrefix);
-  }
-
-
   //////////////////////////////////////////////////////////////////////////
   Element::Element():
     bIsArray(false), bIsExtern(false), bIsRef(false), bIsOptional(false), bIsNillable(false)
   {
-  }
-
-  void Element::FromType(const rise::xml::CXMLNode& rNodeElement, const std::string& sElemType)
-  {
-    stType.sName = StripPrefix(sElemType);
-    stType.sPrefix = GetPrefix(sElemType);
-    stType.sNamespace = FindNamespaceUri(rNodeElement, stType.sPrefix);
   }
 
   Element& Element::Parse( const rise::xml::CXMLNode& rNodeElement )
@@ -499,7 +506,7 @@ namespace codegen
     itAttr = rNodeElement.FindAttribute("type");
     if (itAttr != rNodeElement.AttrEnd())
     { // element is simple
-      FromType(rNodeElement, itAttr->sAttrValue.AsString());
+      stType.FromType(rNodeElement, itAttr->sAttrValue.AsString());
     }
     else
     { // element is complex
@@ -508,7 +515,7 @@ namespace codegen
       if (itAttr != rNodeElement.AttrEnd())
       { // find element
         bIsRef = true;
-        FromType(rNodeElement, itAttr->sAttrValue.AsString());
+        stType.FromType(rNodeElement, itAttr->sAttrValue.AsString());
       }
       else
       {
@@ -657,6 +664,11 @@ namespace codegen
         if (sNodeName == "anyAttribute")
         {
           bHasAnyAttribute = true;
+        }
+        else
+        if (sNodeName == "attributeGroup")
+        {
+          lsAttributeGroups.insert(lsAttributeGroups.end(), AttributeGroup())->Parse(*itChild);
         }
         else
         if (sNodeName != "annotation" && sNodeName != "documentation") // already parsed
@@ -819,10 +831,59 @@ namespace codegen
   }
 
   //////////////////////////////////////////////////////////////////////////
+  AttributeGroup::AttributeGroup():
+    bIsRef(false)
+  {
+  }
+
+  AttributeGroup& AttributeGroup::Parse(const rise::xml::CXMLNode& rNodeAttributeGroup)
+  {
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeAttributeGroup.FindAttribute("ref");
+    if (itAttr != rNodeAttributeGroup.AttrEnd())
+    {
+      bIsRef = true;
+      FromType(rNodeAttributeGroup, itAttr->sAttrValue.AsString());
+    }
+    else
+    {
+      itAttr = rNodeAttributeGroup.FindAttribute("name");
+      if (itAttr != rNodeAttributeGroup.AttrEnd())
+      {
+        sName = itAttr->sAttrValue.AsString();
+      }
+
+      GetTns(rNodeAttributeGroup, sNamespace, sPrefix);
+      ReadDoc(rNodeAttributeGroup, sDescr, sDetail);
+
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAttr = rNodeAttributeGroup.NodeBegin();
+          itNodeAttr != rNodeAttributeGroup.NodeEnd(); ++itNodeAttr)
+      {
+        if (itNodeAttr->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+        {
+          if (itNodeAttr->NodeName() != "attribute")
+          {
+            if (itNodeAttr->NodeName() != "annotation" && itNodeAttr->NodeName() != "documentation")
+            {
+              rise::LogWarning() << "Unsupported [" << itNodeAttr->NodeName() << "] within attributeGroup";
+            }
+          }
+          else
+          {
+            lsAttributes.insert(lsAttributes.end(), Attribute())->Parse(*itNodeAttr);
+          }
+        }
+      }
+    }
+
+    return *this;
+  }
+
+  //////////////////////////////////////////////////////////////////////////
   typedef std::map<std::string, Element> ElementMap;
   typedef std::map<std::string, ComplexType> ComplexTypeMap;
   typedef std::map<std::string, SimpleType> SimpleTypeMap;
   typedef std::map<std::string, Attribute> AttributeMap;
+  typedef std::map<std::string, AttributeGroup> AttributeGroupMap;
 
   class WsdlParserImpl;
 
@@ -832,6 +893,7 @@ namespace codegen
     ComplexTypeMap mComplexTypes;
     SimpleTypeMap mSimpleTypes;
     AttributeMap mAttributes;
+    AttributeGroupMap mAttributeGroups;
     std::set<std::string> m_setNsAliases;
     WsdlParserImpl* m_pParser;
 
@@ -979,6 +1041,8 @@ namespace codegen
                       stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
                       OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
                     }
+                    stMember.sDescr = itAttr->sDescr;
+                    stMember.sDetail = itAttr->sDetail;
                     stStruct.lsMembers.push_back(stMember);
                   }
 
@@ -1810,6 +1874,51 @@ namespace codegen
       return stDataType;
     }
 
+    void WriteAttributesToStruct(const std::list<Attribute>& rlsAttrs, Struct& rstStruct,
+                                 const std::string& sGroupName = "")
+    {
+      for (std::list<Attribute>::const_iterator itAttr = rlsAttrs.begin(); itAttr != rlsAttrs.end(); ++itAttr)
+      {
+        const Attribute* pAttr = &*itAttr;
+        while (pAttr->bIsRef)
+        {
+          AttributeMap::const_iterator itTargetElem = m_stWsdlTypes.mAttributes.find(pAttr->stType.GetNsName());
+
+          RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mAttributes.end(),
+                       "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
+          pAttr = &itTargetElem->second;
+        }
+
+        Param stMember;
+        stMember.mOptions["isAttribute"] = "true";
+        if (!sGroupName.empty())
+        {
+          stMember.mOptions["attributeGroupName"] = sGroupName;
+        }
+        stMember.sName = pAttr->sName;
+        if (pAttr->stType.sName.empty()) // use string as default attribute value type
+        {
+          stMember.stDataType.sName = "string";
+          stMember.stDataType.sNamespace = "std::";
+          stMember.stDataType.sUsedName = "std::string";
+          stMember.stDataType.eType = DataType::TypeString;
+        }
+        else
+        {
+          GetCppType(pAttr->stType, stMember.stDataType);
+          stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+          OptimizeCppNs(stMember.stDataType.sUsedName, rstStruct.sNamespace);
+        }
+        if (!pAttr->sDefault.empty())
+        {
+          stMember.mOptions["defaultValue"] = pAttr->sDefault;
+        }
+        stMember.sDescr = itAttr->sDescr;
+        stMember.sDetail = itAttr->sDetail;
+        rstStruct.lsMembers.push_back(stMember);
+      }
+    }
+
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
                                 const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
@@ -2052,41 +2161,25 @@ namespace codegen
           pstStruct->lsMembers.push_back(stMember);
         }
 
-        for (std::list<Attribute>::const_iterator itAttr = rComplexType.lsAttributes.begin();
-          itAttr != rComplexType.lsAttributes.end(); ++itAttr)
+        WriteAttributesToStruct(rComplexType.lsAttributes, *pstStruct);
+
+        for (std::list<AttributeGroup>::const_iterator itAttrGroup = rComplexType.lsAttributeGroups.begin();
+          itAttrGroup != rComplexType.lsAttributeGroups.end(); ++itAttrGroup)
         {
-          const Attribute* pAttr = &*itAttr;
-          while (pAttr->bIsRef)
+          const AttributeGroup* pAttrGroup = &*itAttrGroup;
+          while (pAttrGroup->bIsRef)
           {
-            AttributeMap::const_iterator itTargetElem = m_stWsdlTypes.mAttributes.find(pAttr->stType.GetNsName());
+            AttributeGroupMap::const_iterator itTargetElem =
+                m_stWsdlTypes.mAttributeGroups.find(pAttrGroup->GetNsName());
 
-            RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mAttributes.end(),
-                         "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
-            pAttr = &itTargetElem->second;
+            RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mAttributeGroups.end(),
+                         "Can't find attribute declaration for: " + pAttrGroup->GetNsName());
+            pAttrGroup = &itTargetElem->second;
           }
 
-          Param stMember;
-          stMember.mOptions["isAttribute"] = "true";
-          stMember.sName = pAttr->sName;
-          if (pAttr->stType.sName.empty()) // use string as default attribute value type
-          {
-            stMember.stDataType.sName = "string";
-            stMember.stDataType.sNamespace = "std::";
-            stMember.stDataType.sUsedName = "std::string";
-            stMember.stDataType.eType = DataType::TypeString;
-          }
-          else
-          {
-            GetCppType(pAttr->stType, stMember.stDataType);
-            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-            OptimizeCppNs(stMember.stDataType.sUsedName, pstStruct->sNamespace);
-          }
-          if (!pAttr->sDefault.empty())
-          {
-            stMember.mOptions["defaultValue"] = pAttr->sDefault;
-          }
-          pstStruct->lsMembers.push_back(stMember);
+          WriteAttributesToStruct(pAttrGroup->lsAttributes, *pstStruct, pAttrGroup->sName);
         }
+
       }
 
       return stDataType;
@@ -2495,6 +2588,13 @@ namespace codegen
           Attribute stAttr;
           stAttr.Parse(*itType);
           mAttributes[stAttr.GetNsName()] = stAttr;
+        }
+        else
+        if (sType == "attributeGroup")
+        {
+          AttributeGroup stAttrGroup;
+          stAttrGroup.Parse(*itType);
+          mAttributeGroups[stAttrGroup.GetNsName()] = stAttrGroup;
         }
         else
         if (sType == "group")
