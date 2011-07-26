@@ -51,6 +51,9 @@ $($sEndingNs)
 $($sNewOpeningNs)
 #ifeqend   // namespace changed
 \
+#ifneq($(Typedef.Options.$Count),0)
+
+#ifeqend
 #foreach $(Typedef.Options)
   // *$($ThisNodeName): $($ThisNodeValue)
 #end
