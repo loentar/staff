@@ -122,6 +122,11 @@ namespace codegen
               std::string::size_type nEnd = 0;
               do
               {
+                if (nBegin >= sNsName.size())
+                {
+                  pstTmp = NULL;
+                  break;
+                }
                 nEnd = sNsName.find("::", nBegin);
                 const std::string& sSubName =
                     nEnd != std::string::npos ?
