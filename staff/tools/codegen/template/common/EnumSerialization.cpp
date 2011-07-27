@@ -1,9 +1,8 @@
 #cginclude "StringTypes"
 
-DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
+std::string& operator<<(std::string& sResult, const $(Enum.NsName) eEnumValue)
 {
 #ifeq($(Enum.Options.*baseType),$($sStringTypes))
-  std::string sResult;
   switch (eEnumValue)
   {
 #foreach $(Enum.Members)
@@ -15,19 +14,24 @@ DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
     RISE_THROWS(rise::CLogicNoItemException,
        "Value out of range while serializing enum [$(Enum.NsName)]: " + rise::ToStr(eEnumValue));
   };
-  rdoParam.SetText(sResult);
 #else
-  rdoParam.SetValue(eEnumValue);
+  sResult = staff::ToString(static_cast<int>(eEnumValue));
 #ifeqend
+  return sResult;
+}
+
+DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
+{
+  std::string sParam;
+  rdoParam.SetText(sParam << eEnumValue);
   return rdoParam;
 }
 
-const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)
+const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumValue)
 {
 #ifeq($(Enum.Options.*baseType),$($sStringTypes))
-  const std::string& sValue = rdoParam.GetText();
 #foreach $(Enum.Members)
-  if (sValue == "$(Member.Value||Member.Name)")
+  if (sParam == "$(Member.Value||Member.Name)")
   {
     reEnumValue = $(Enum.Namespace)$(Member.Name);
   }
@@ -35,10 +39,17 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumV
 #end
   {
     RISE_THROWS(rise::CLogicNoItemException,
-       "Value out of range while deserializing enum [$(Enum.NsName)]: [" + sValue + "]");
+       "Value out of range while deserializing enum [$(Enum.NsName)]: [" + sParam + "]");
   }
 #else
-  reEnumValue = static_cast< $(Enum.NsName) >(static_cast<int>(rdoParam.GetValue()));
+  int nValue = 0;
+  rdoParam.GetValue(nValue);
+  reEnumValue = static_cast< $(Enum.NsName) >(nValue);
 #ifeqend
+}
+
+const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)
+{
+  rdoParam.GetText() >> reEnumValue;
   return rdoParam;
 }
