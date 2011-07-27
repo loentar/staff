@@ -1,4 +1,4 @@
-#cginclude <StringTypes>
+#cginclude "StringTypes"
 
 DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 {
