@@ -1,3 +1,4 @@
+#ifeq($(Struct.Extern),0)
 #foreach $(Struct.Members)
 #context $(Param.DataType)
 #cginclude "DetectTypeInclude.h"
@@ -6,3 +7,4 @@
 #foreach $(Struct.Structs)
 #cginclude "DetectStructInclude.h"
 #end
+#ifeqend

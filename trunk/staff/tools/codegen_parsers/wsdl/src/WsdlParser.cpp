@@ -1595,6 +1595,51 @@ namespace codegen
 //      return rStruct1.sName == rStruct2.sParentName;
 //    }
 
+    static bool IsStructUsesOther(const Struct& rStruct1, const Struct& rStruct2)
+    {
+      bool bResult = false;
+      for (std::list<Param>::const_iterator itMember = rStruct1.lsMembers.begin();
+           !bResult && itMember != rStruct1.lsMembers.end(); ++itMember)
+      {
+        const DataType& rDataType = itMember->stDataType;
+        bResult = rDataType.eType == DataType::TypeStruct &&
+            rDataType.sName == rStruct2.sName &&
+            (rDataType.sNamespace == rStruct2.sNamespace ||
+              (rStruct2.sNamespace.empty() &&
+                (rDataType.sNamespace.empty() || rDataType.sNamespace == "::")));
+      }
+
+      for (std::list<Struct>::const_iterator itStruct = rStruct1.lsStructs.begin();
+           !bResult && itStruct != rStruct1.lsStructs.end(); ++itStruct)
+      {
+        bResult = IsStructUsesOther(*itStruct, rStruct2);
+      }
+
+      return bResult;
+    }
+
+    void FixStructOrder(std::list<Struct>& rlsStructs)
+    {
+      for (std::list<Struct>::iterator itStruct1 = rlsStructs.begin();
+           itStruct1 != rlsStructs.end(); ++itStruct1)
+      {
+        for (std::list<Struct>::iterator itStruct2 = itStruct1;
+             itStruct2 != rlsStructs.end(); ++itStruct2)
+        {
+          if (itStruct1 != itStruct2 && !itStruct1->bForward && !itStruct2->bForward)
+          {
+            if (IsStructUsesOther(*itStruct1, *itStruct2))
+            {
+              rise::LogDebug() << "Moving struct [" << itStruct2->sName
+                               << "] before to [" << itStruct1->sName << "]";
+              rlsStructs.splice(itStruct1, rlsStructs, itStruct2++);
+              break;
+            }
+          }
+        }
+      }
+    }
+
     void ParseInterface(rise::xml::CXMLNode& rRootNode, Project& rProject)
     {
       bool bSchema = rRootNode.NodeName() == "schema";
@@ -1731,6 +1776,13 @@ namespace codegen
         Interface& rProjectThisInterface = rProject.lsInterfaces.back();
 
         ParseInterface(rDefs, rProject);
+
+        // fix enum member names
+        FixEnums(m_stInterface.lsEnums);
+        FixEnumsInStruct(m_stInterface.lsStructs);
+
+        // fix structures
+        FixStructOrder(m_stInterface.lsStructs);
 
         rProjectThisInterface = m_stInterface;
 
@@ -2562,6 +2614,64 @@ namespace codegen
       {
         rDataType.bIsConst = true;
         rDataType.bIsRef = true;
+      }
+    }
+
+    void FixEnums(std::list<Enum>& rlsEnums)
+    { // check and fix enums for conflicts
+      std::set<std::string> setGlobalEnumValues;
+      bool bHasConflicts = false;
+
+      for (std::list<Enum>::const_iterator itEnum = rlsEnums.begin();
+           itEnum != rlsEnums.end() && !bHasConflicts; ++itEnum)
+      {
+        if (!itEnum->mOptions.count("renamed")) // do not rename enum twice
+        {
+          for (std::list<Enum::EnumMember>::const_iterator itMember = itEnum->lsMembers.begin();
+               itMember != itEnum->lsMembers.end(); ++itEnum)
+          {
+            if (!setGlobalEnumValues.count(itMember->sName))
+            {
+              setGlobalEnumValues.insert(itMember->sName);
+            }
+            else
+            {
+              rise::LogWarning() << "conflicting enum names [" << itMember->sName
+                                 << "] (first orccurence) renaming all enums members...";
+              bHasConflicts = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (bHasConflicts) // rename all enums to form EnumName_EnumMember, updating values
+      {
+        for (std::list<Enum>::iterator itEnum = rlsEnums.begin(); itEnum != rlsEnums.end(); ++itEnum)
+        {
+          if (!itEnum->mOptions.count("renamed")) // do not rename enum twice
+          {
+            itEnum->mOptions["renamed"] = "true";
+            for (std::list<Enum::EnumMember>::iterator itMember = itEnum->lsMembers.begin();
+                 itMember != itEnum->lsMembers.end(); ++itMember)
+            {
+              if (itMember->sValue.empty()) // set correct element value
+              {
+                itMember->sValue = itMember->sName;
+              }
+              itMember->sName = itEnum->sName + "_" + itMember->sName;
+            }
+          }
+        }
+      }
+    }
+
+    void FixEnumsInStruct(std::list<Struct>& rlsStructs)
+    {
+      for (std::list<Struct>::iterator itStruct = rlsStructs.begin(); itStruct != rlsStructs.end(); ++itStruct)
+      {
+        FixEnums(itStruct->lsEnums);
+        FixEnumsInStruct(itStruct->lsStructs);
       }
     }
 
