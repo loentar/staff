@@ -2,28 +2,21 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
-#include <map>
 #ifneq($(Interface.Classes.$Count),0)
 #include <rise/common/SharedPtr.h>
+#ifeqend
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
-#include <staff/common/Exception.h>
-#include <staff/common/Operation.h>
-#include <staff/common/Value.h>
-#include <staff/common/IService.h>
 #include <staff/common/Attribute.h>
+#include <staff/common/Exception.h>
+#include <staff/common/DataObject.h>
+#ifneq($(Interface.Classes.$Count),0)
+#include <staff/common/Operation.h>
+#include <staff/common/IService.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
-#else // types only interface
-#include <staff/utils/fromstring.h>
-#include <staff/utils/tostring.h>
-#include <staff/utils/HexBinary.h>
-#include <staff/utils/Base64Binary.h>
-#include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
-#include <staff/common/Attribute.h>
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Includes)
 #include "$(Include.FilePath)$(Include.Name)Wrapper.h"
@@ -107,8 +100,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #context $($sContext)
 \
 \
-#ifeq($(.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||enum)
       $($sParamNode) >> $($sOptMod)$(Param.Name);
+#else
+#ifeq($(.Type),typedef)
+      DeserializeTypedef_$(.NsName.!mangle)($($sParamNode), $($sOptMod)$(Param.Name));
 #else
 #ifeq($(.Type),generic)
 #ifneq($(.Name),COperation||Operation)
@@ -130,7 +126,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
         tdoKey >> tKey;
+#else
+        DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, tKey);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
@@ -142,7 +142,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #else
 #ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
         DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+#ifneq($(.TemplateParams.TemplateParam2.Type),typedef)
         tdoValue >> rValue;
+#else
+        DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoValue, rValue);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
         rValue = tdoItem.GetChildByLocalName("Value").FirstChild();
@@ -165,7 +169,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         $(.TemplateParams.TemplateParam1)& rItem = *($($sOptMod)$(Param.Name))\
 .insert(($($sOptMod)$(Param.Name)).end(), $(.TemplateParams.TemplateParam1)());
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
         tdoItem >> rItem;
+#else
+        DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, rItem);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
         ($($sOptMod)$(Param.Name)).push_back(tdoItem);
@@ -179,6 +187,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
       }
 #ifeqend // template
+#ifeqend
 #ifeqend
 #ifeqend
 \
@@ -260,7 +269,11 @@ $(Param.Name)\
 \
 #ifeq($(.Type),struct||typedef||enum) // result for structs and types
       staff::DataObject& rdoResult = rOperation.Result();
+#ifneq($(.Type),typedef)
       rdoResult << $($sOptMod)tResult;
+#else
+      SerializeTypedef_$(.NsName.!mangle)(rdoResult, $($sOptMod)tResult);
+#ifeqend
 #else
 #ifeq($(.Type),template)
       staff::DataObject& rdoResult = rOperation.Result();
@@ -274,23 +287,31 @@ $(Param.Name)\
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoKey = tdoItem.CreateChild("Key");
-        tdoKey << tKey;
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
+        tdoKey << it->first;
+#else
+        SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, it->first);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 \
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-        tdoItem.CreateChild("Value").tdoValue.SetValue(it->second);
+#ifeq($(.TemplateParams.TemplateParam2.Type),generic||string)
+        tdoItem.CreateChild("Value").SetValue(it->second);
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
         DataObject tdoValue = tdoItem.CreateChild("Value");
+#ifneq($(.TemplateParams.TemplateParam2.Type),typedef)
         tdoValue << it->second;
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
+        SerializeTypedef_$(.TemplateParams.TemplateParam2.NsName.!mangle)(tdoValue, it->second);
+#ifeqend
+#else
+#ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
         tdoItem.CreateChild("Value").AppendChild(it->second);
 #else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam2.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
@@ -302,7 +323,11 @@ $(Param.Name)\
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
         DataObject tdoItem = rdoResult.CreateChild("Item");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
         tdoItem << *it;
+#else
+        SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem << *it);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
         rdoResult.CreateChild("Item").AppendChild(*it);

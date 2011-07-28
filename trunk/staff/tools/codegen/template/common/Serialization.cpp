@@ -24,9 +24,23 @@ namespace staff
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0) // do not serialize extern type
 
-#ifeq($(Typedef.DataType.IsTemplate),1)
-DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
+DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
+#ifeq($(Typedef.DataType.Type),generic||string)
+  rdoParam.SetValue(rtType);
+  return rdoParam;
+#else
+#ifeq($(Typedef.DataType.Type),dataobject)
+  rdoParam.AppendChild(rtType);
+  return rdoParam;
+#else
+#ifeq($(Typedef.DataType.Type),typedef)
+  return SerializeTypedef_$(Typedef.DataType.NsName.!mangle)(rdoParam, rtType);
+#else
+#ifeq($(Typedef.DataType.Type),struct)
+  return rdoParam << rtType;
+#else
+#ifeq($(Typedef.DataType.Type),template)
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
 #var ElementName $(Typedef.Options.*elementName||"Item")
@@ -38,14 +52,22 @@ DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
     tdoItem.CreateChild("Key", it->first);
 #else
     DataObject tdoKey = tdoItem.CreateChild("Key");
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
     tdoKey << it->first;
+#else
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, it->first);
+#ifeqend
 #ifeqend
 
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),generic||string)
     tdoItem.CreateChild("Value", it->second);
 #else
     DataObject tdoValue = tdoItem.CreateChild("Value");
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),typedef)
     tdoValue << it->second;
+#else
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam2.NsName.!mangle)(tdoValue, it->second);
+#ifeqend
 #ifeqend
 \
 #else
@@ -54,37 +76,26 @@ DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
     rdoParam.CreateChild("$($ElementName)", *it);
 #else
     DataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem << *it;
+#else
+    SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, *it);
+#ifeqend
 #ifeqend
 \
 #ifeqend
   }
 
   return rdoParam;
+#else
+#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type) while serializing typedef"
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend // ifeq($(Typedef.DataType.Type),template)
 }
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)
-DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
-{
-#ifeq($(Typedef.DataType.Type),generic||string)
-  rdoParam.SetValue(rtType);
-  return rdoParam;
-#else
-#ifeq($(Typedef.DataType.Type),dataobject)
-  rdoParam.AppendChild(rtType);
-  return rdoParam;
-#else
-#ifeq($(Typedef.DataType.Type),typedef||template)
-  return rdoParam << rtType;
-#else
-#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
-#ifeqend
-#ifeqend
-#ifeqend
-}
-#ifeqend
 
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
 #ifeqend //ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end // foreach $(Interface.Structs)
 #ifeqend
@@ -93,25 +104,26 @@ DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 // typedef deserializators
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0)
-#ifneq($(Typedef.DataType.Type),struct)
-const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtType)
+const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
+(const DataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
 #ifeq($(Typedef.DataType.Type),generic||string)
   rdoParam.GetValue(rtType);
   return rdoParam;
 #else
 \
-\
 #ifeq($(Typedef.DataType.Type),dataobject)
   rtType = rdoParam.FirstChild();
   return rdoParam;
 #else
 \
-\
 #ifeq($(Typedef.DataType.Type),typedef)
-  return rdoParam << rtType;
+  return DeserializeTypedef_$(Typedef.DataType.NsName.!mangle)(rdoParam, rtType);
 #else
 \
+#ifeq($(Typedef.DataType.Type),struct)
+  return rdoParam >> rtType;
+#else
 \
 #ifeq($(Typedef.DataType.Type),template)
   for (DataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
@@ -126,14 +138,24 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtTy
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string||generic)
     tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem.GetChildByLocalName("Key") >> tKey;
+#else
+    DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1)\
+(tdoItem.GetChildByLocalName("Key"), tKey);
+#ifeqend
 #ifeqend
 
     $((Typedef.DataType.TemplateParams.TemplateParam2)& rValue = rtType[tKey];
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string||generic)
     tdoItem.GetChildByLocalName("Value").GetValue(rValue);
 #else
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem.GetChildByLocalName("Value") >> rValue;
+#else
+    DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1)\
+(tdoItem.GetChildByLocalName("Value"), rValue);
+#ifeqend
 #ifeqend
 #else  //  ----- list -----
 \
@@ -148,7 +170,11 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtTy
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     $(Typedef.DataType.TemplateParams.TemplateParam1)& rItem = *rtType\
 .insert(rtType.end(), $(Typedef.DataType.TemplateParams.TemplateParam1)());
+#ifneq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem >> rItem;
+#else
+    DeserializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, rItem);
+#ifeqend
 #else
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
     rtType.push_back(tdoItem);
@@ -163,14 +189,14 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtTy
   }
   return rdoParam;
 #else
-#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type);"
+#cgerror "Typedef.DataType.Type = $(Typedef.DataType.Type) while deserializing typedef"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
 }
 
-#ifeqend // not struct
 #ifeqend // ifeq($(Typedef.Extern),0) // do not serialize extern type
 #end
 }

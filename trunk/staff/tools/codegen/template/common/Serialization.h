@@ -9,19 +9,7 @@ namespace staff
 #cginclude "StructSerialization.h"
 #end
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  DataObject& operator<<(DataObject& rdoParam, const $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
-#ifeq($(Typedef.DataType.IsTemplate),1) // there must be an serializer for each container
-  const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtType);
-#else // DataType.IsTemplate
-#ifneq($(Typedef.DataType.Type),struct)     // !!struct!! structs already have serializator
-  const DataObject& operator>>(const DataObject& rdoParam, $(Typedef.NsName)& rtType);
-#ifeqend // ifneq($(Typedef.DataType.Type),struct
-#ifeqend // ifeq($(Typedef.DataType.IsTemplate),1)
+  DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, const $(Typedef.NsName)& rtType);
+  const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)(const DataObject& rdoParam, $(Typedef.NsName)& rtType);
 #end // foreach $(Interface.Typedefs)
 }
