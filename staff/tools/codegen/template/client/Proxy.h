@@ -8,7 +8,6 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/client/ServiceClient.h>
 #ifeqend
-#include <staff/common/WsdlTypes.h>
 #include "$(Interface.FilePath)$(Interface.Name).h"
 
 #ifneq($(Interface.Classes.$Count),0)

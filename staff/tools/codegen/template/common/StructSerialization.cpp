@@ -50,9 +50,13 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #var doName rdoParam
 #else
 #var doName tdoParam$(Param.Name)
-  DataObject tdoParam$(Param.Name) = rdoParam.CreateChild("$(Param.Name)");
+  DataObject $($doName) = rdoParam.CreateChild("$(Param.Name)");
 #ifeqend // serialize to parent element?
+#ifneq($(.Type),typedef)
   $($doName) << $($sOptMod)rstStruct.$(Param.Name);
+#else
+  SerializeTypedef_$(.NsName.!mangle)($($doName), $($sOptMod)rstStruct.$(Param.Name));
+#ifeqend
 #else
 \
 \
@@ -79,7 +83,11 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoKey = tdoItem.CreateChild("Key");
-    tdoKey << tKey;
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
+    tdoKey << it->first;
+#else
+    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, it->first);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
@@ -90,7 +98,11 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoValue = tdoItem.CreateChild("Value");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
     tdoValue << it->second;
+#else
+    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoValue, it->second);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     tdoItem.CreateChild("Value").AppendChild(it->second);
@@ -107,7 +119,11 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem << *it;
+#else
+    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, *it);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     $($doName).CreateChild("$($ElementName)").AppendChild(*it);
@@ -207,8 +223,11 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #else
 #var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
 #ifeqend
-#ifeq($(.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||enum)
   rdoParam$($DeserializeNodeInstruct) >> $($sOptMod)rstStruct.$(Param.Name);
+#else
+#ifeq($(.Type),typedef)
+  DeserializeTypedef_$(.NsName.!mangle)(rdoParam$($DeserializeNodeInstruct), $($sOptMod)rstStruct.$(Param.Name));
 #else
 #ifeq($(.Type),template)
 
@@ -223,9 +242,13 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||enum)
     DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
     tdoKey >> tKey;
+#else
+    DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, tKey);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
@@ -237,7 +260,11 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #else
 #ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
     DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+#ifneq($(.TemplateParams.TemplateParam2.Type),typedef)
     tdoValue >> rValue;
+#else
+    DeserializeTypedef_$(.TemplateParams.TemplateParam2.NsName.!mangle)(tdoValue, rValue);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
     rValue = tdoItem.GetChildByLocalName("Value").FirstChild();
@@ -260,7 +287,11 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     $(.TemplateParams.TemplateParam1)& rItem = *($($sOptMod)rstStruct.$(Param.Name))\
 .insert(($($sOptMod)rstStruct.$(Param.Name)).end(), $(.TemplateParams.TemplateParam1)());
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     tdoItem >> rItem;
+#else
+    DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, rItem);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     ($($sOptMod)rstStruct.$(Param.Name)).push_back(tdoItem);
@@ -290,6 +321,7 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeqend
 #else
 #cgerror unknown type($(.Type)) of Param.Name: $(Param.Name)::$(.Name)
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

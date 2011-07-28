@@ -5,26 +5,21 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
 #include <rise/common/MutablePtr.h>
-#include <staff/utils/fromstring.h>
-#include <staff/utils/tostring.h>
-#include <staff/utils/HexBinary.h>
-#include <staff/utils/Base64Binary.h>
-#include <staff/common/Operation.h>
-#include <staff/common/Exception.h>
-#include <staff/common/Value.h>
-#include <staff/client/ServiceFactory.h>
-#include <staff/client/IProxyAllocator.h>
-#include <staff/client/ICallback.h>
-#include <staff/client/Options.h>
-#else // types only interface
+#ifeqend
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
-#ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #include <staff/common/Attribute.h>
+#ifneq($(Interface.Classes.$Count),0)
+#include <staff/common/Operation.h>
+#include <staff/common/Exception.h>
+#include <staff/client/ServiceFactory.h>
+#include <staff/client/IProxyAllocator.h>
+#include <staff/client/ICallback.h>
+#include <staff/client/Options.h>
+#ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Includes)
 #include "$(Include.FilePath)$(Include.Name)Proxy.h"
 #end
@@ -141,8 +136,11 @@ public:
 #ifeq($(.Type),dataobject) // !!dataobject!!
     $($sOptMod)tReturn = $($sResultName).FirstChild();
 #else
-#ifeq($(.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||enum)
     $($sResultName) >> $($sOptMod)tReturn;
+#else
+#ifeq($(.Type),typedef)
+    DeserializeTypedef_$(.NsName.!mangle)($($sResultName), $($sOptMod)tReturn);
 #else
 #ifeq($(.Type),template)
 
@@ -175,24 +173,32 @@ public:
       tdoItem.GetChildByLocalName("Key").GetValue(tKey);
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-       DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
-       tdoKey >> tKey;
+      DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
+      tdoKey >> tKey;
+#else
+      DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, tKey);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
+#ifeq($(.TemplateParams.TemplateParam2.Type),generic||string)
       tdoItem.GetChildByLocalName("Value").GetValue(tValue);
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
       DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+#ifneq($(.TemplateParams.TemplateParam2.Type),typedef)
       tdoValue >> tValue;
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
+      DeserializeTypedef_$(.TemplateParams.TemplateParam2.NsName.!mangle)(tdoValue >> tValue);
+#ifeqend
+#else
+#ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
       tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
 #else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#cgerror key element type $(.TemplateParams.TemplateParam2.Type) is not supported
 #ifeqend
 #ifeqend
 #ifeqend
@@ -204,7 +210,11 @@ public:
       tdoItem.GetValue(tItem);
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
       tdoItem >> tItem;
+#else
+      DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, tItem);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
       tItem = tdoItem;
@@ -220,6 +230,7 @@ public:
 
 #else
 #cgerror ".Type = $(.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -465,8 +476,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(.Type),dataobject) // !!dataobject!!
   tdoParam$(Param.Name).AppendChild($($sOptMod)$(Param.Name));
 #else
-#ifeq($(.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||enum)
   tdoParam$(Param.Name) << $($sOptMod)$(Param.Name);
+#else
+#ifeq($(.Type),typedef)
+  SerializeTypedef_$(.NsName.!mangle)(tdoParam$(Param.Name), $($sOptMod)$(Param.Name));
 #else
 #ifeq($(.Type),template)
   for ($(.NsName)::const_iterator it = ($($sOptMod)$(Param.Name)).begin();
@@ -491,7 +505,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoValue = tdoItem.CreateChild("Value");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
     tdoValue << it->second;
+#else
+    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoValue, it->second);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     tdoItem.CreateChild("Value").AppendChild(it->second);
@@ -508,7 +526,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
     DataObject tdoItem = tdoParam$(Param.Name).CreateChild("Item");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
     tdoItem << *it;
+#else
+    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, *it);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     tdoParam$(Param.Name).CreateChild("Item").AppendChild(*it);
@@ -522,6 +544,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   }
 #else
 #cgerror ".Type = $(.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -584,8 +607,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(.Type),dataobject) // !!dataobject!!
   $($sOptMod)tReturn = rdoResult.FirstChild();
 #else
-#ifeq($(.Type),struct||typedef||enum)
+#ifeq($(.Type),struct||enum)
   rdoResult >> $($sOptMod)tReturn;
+#else
+#ifeq($(.Type),typedef)
+  DeserializeTypedef_$(.NsName.!mangle)(rdoResult, $($sOptMod)tReturn);
 #else
 #ifeq($(.Type),template)
 
@@ -619,18 +645,26 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
   DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
   tdoKey >> tKey;
+#else
+  DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoKey, tKey);
+#ifeqend
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
 
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-   tdoItem.GetChildByLocalName("Value").GetValue(tValue);
+  tdoItem.GetChildByLocalName("Value").GetValue(tValue);
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-   DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
-   tdoValue >> tValue;
+  DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
+#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
+  tdoValue >> tValue;
+#else
+  DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoValue, tValue);
+#ifeqend
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
    tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
@@ -646,13 +680,17 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.GetValue(tItem);
 #else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
+#ifeq($(.TemplateParams.TemplateParam1.Type),struct||enum)
     tdoItem >> tItem;
+#else
+#ifeq($(.TemplateParams.TemplateParam1.Type),typedef)
+    DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoItem, tItem);
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
     tItem = tdoItem;
 #else
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -663,6 +701,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #else
 #cgerror ".Type = $(.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
