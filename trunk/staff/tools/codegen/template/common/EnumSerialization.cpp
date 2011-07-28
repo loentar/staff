@@ -43,9 +43,10 @@ const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumV
   }
 #else
   int nValue = 0;
-  rdoParam.GetValue(nValue);
+  staff::FromString(sParam, nValue);
   reEnumValue = static_cast< $(Enum.NsName) >(nValue);
 #ifeqend
+  return sParam;
 }
 
 const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)

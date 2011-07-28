@@ -5,6 +5,8 @@
 #include <map>
 #ifneq($(Interface.Classes.$Count),0)
 #include <rise/common/SharedPtr.h>
+#include <staff/utils/fromstring.h>
+#include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/Exception.h>
@@ -15,6 +17,8 @@
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #else // types only interface
+#include <staff/utils/fromstring.h>
+#include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>

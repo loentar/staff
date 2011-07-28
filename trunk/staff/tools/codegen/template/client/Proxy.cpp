@@ -5,6 +5,7 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
 #include <rise/common/MutablePtr.h>
+#include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
@@ -16,6 +17,8 @@
 #include <staff/client/ICallback.h>
 #include <staff/client/Options.h>
 #else // types only interface
+#include <staff/utils/fromstring.h>
+#include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>
