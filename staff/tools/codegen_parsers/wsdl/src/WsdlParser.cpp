@@ -2020,8 +2020,20 @@ namespace codegen
         else
         {
           GetCppType(pAttr->stType, stMember.stDataType);
+
+          // do not optimize namespace if member name equals data type name
+          bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
+          if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
+          {
+            stMember.stDataType.sNamespace = "::";
+          }
+
           stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-          OptimizeCppNs(stMember.stDataType.sUsedName, rstStruct.sNamespace);
+
+          if (!bDoNotOptimizeNs)
+          {
+            OptimizeCppNs(stMember.stDataType.sUsedName, rstStruct.sNamespace);
+          }
         }
         if (!pAttr->sDefault.empty())
         {
