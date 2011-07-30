@@ -1658,6 +1658,12 @@ namespace codegen
         m_stWsdlTypes.ParseSchema(rRootNode);
       }
 
+      for (SimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
+        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
+      {
+        SimpleTypeToData(itSimple->second, m_stWsdlTypes, true);
+      }
+
       for (ComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
             itComplex != m_stWsdlTypes.mComplexTypes.end(); ++itComplex)
       {
@@ -1826,7 +1832,7 @@ namespace codegen
       }
     }
 
-    DataType SimpleTypeToData(const SimpleType& rSimpleType, const WsdlTypes& rWsdlTypes)
+    DataType SimpleTypeToData(const SimpleType& rSimpleType, const WsdlTypes& rWsdlTypes, bool bWriteAsForward = false)
     {
       DataType stDataType;
 
@@ -1894,7 +1900,7 @@ namespace codegen
       // write typedef
       else
       {
-        std::list<Typedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
+        std::list<Typedef>::iterator itTypedef = m_stInterface.lsTypedefs.begin();
         for (; itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
         {
           if (itTypedef->sName == rSimpleType.sName)
@@ -1903,7 +1909,7 @@ namespace codegen
           }
         }
 
-        if (itTypedef != m_stInterface.lsTypedefs.end())
+        if (itTypedef != m_stInterface.lsTypedefs.end() && !itTypedef->bForward)
         {
           stDataType.eType = DataType::TypeTypedef;
           stDataType.sName = itTypedef->sName;
@@ -1912,15 +1918,32 @@ namespace codegen
         else
         if (!rSimpleType.sName.empty())
         {
-          Typedef stTypedef;
-          stTypedef.sName = rSimpleType.sName;
-          stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
-          stTypedef.sDescr = rSimpleType.sDescr;
-          stTypedef.sDetail = rSimpleType.sDetail;
+          Typedef* pstTypedef = NULL;
+          if (itTypedef == m_stInterface.lsTypedefs.end())
+          {
+            Typedef stTypedef;
+            stTypedef.sName = rSimpleType.sName;
+            stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
+            stTypedef.sDescr = rSimpleType.sDescr;
+            stTypedef.sDetail = rSimpleType.sDetail;
 
-          m_stInterface.lsTypedefs.push_back(stTypedef);
+            m_stInterface.lsTypedefs.insert(m_stInterface.lsTypedefs.end(), stTypedef);
 
-          Typedef& rstTypedef = m_stInterface.lsTypedefs.back();
+            pstTypedef = &m_stInterface.lsTypedefs.back();
+          }
+          else
+          {
+            pstTypedef = &*itTypedef;
+          }
+
+          stDataType.eType = DataType::TypeTypedef;
+          stDataType.sName = pstTypedef->sName;
+          stDataType.sNamespace = pstTypedef->sNamespace;
+
+          if (bWriteAsForward)
+          {
+            return stDataType;
+          }
 
           std::string sEnumValues;
           for (StringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
@@ -1934,7 +1957,7 @@ namespace codegen
           }
           if (!sEnumValues.empty())
           {
-            rstTypedef.mOptions["enumValues"] = sEnumValues;
+            pstTypedef->mOptions["enumValues"] = sEnumValues;
           }
 
           DataType stTypedefDataType;
@@ -1943,18 +1966,15 @@ namespace codegen
           {
             DataTypeFromName(rSimpleType.stBaseType.sName, stTypedefDataType, rWsdlTypes);
           }
-          rstTypedef.stDataType = stTypedefDataType;
+          pstTypedef->stDataType = stTypedefDataType;
 
-          stDataType.eType = DataType::TypeTypedef;
-          stDataType.sName = rstTypedef.sName;
-          stDataType.sNamespace = rstTypedef.sNamespace;
 
           if (!rSimpleType.lsRestrictions.empty())
           {
             for (std::list< SimpleType::StringPair >::const_iterator itRestr = rSimpleType.lsRestrictions.begin();
                  itRestr != rSimpleType.lsRestrictions.end(); ++itRestr)
             {
-              rstTypedef.mOptions["restriction-" + itRestr->first] = itRestr->second;
+              pstTypedef->mOptions["restriction-" + itRestr->first] = itRestr->second;
             }
           }
         }
@@ -2018,7 +2038,7 @@ namespace codegen
     }
 
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
-                                const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
+                               const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
       DataType stDataType;
 
@@ -2523,14 +2543,32 @@ namespace codegen
 
         rise::StrReplace(rDataType.sName, ".", "::", true);
 
-        const Struct* pstStruct = GetStruct(rDataType.sNamespace + rDataType.sName, m_stInterface);
-        if (pstStruct)
+        rDataType.eType = DataType::TypeUnknown;
+
+        const BaseType* pBaseType = GetBaseType(rDataType.sNamespace + rDataType.sName, m_stInterface);
+        if (pBaseType)
         {
-          rDataType.eType = DataType::TypeStruct;
-          return;
+          switch (pBaseType->eType)
+          {
+            case BaseType::TypeStruct:
+            {
+              rDataType.eType = DataType::TypeStruct;
+              break;
+            }
+            case BaseType::TypeTypedef:
+            {
+              rDataType.eType = DataType::TypeTypedef;
+              break;
+            }
+            case BaseType::TypeEnum:
+            {
+              rDataType.eType = DataType::TypeEnum;
+              break;
+            }
+            default:;
+          }
         }
 
-        rDataType.eType = DataType::TypeUnknown;
       }
     }
 
@@ -2628,7 +2666,7 @@ namespace codegen
         if (!itEnum->mOptions.count("renamed")) // do not rename enum twice
         {
           for (std::list<Enum::EnumMember>::const_iterator itMember = itEnum->lsMembers.begin();
-               itMember != itEnum->lsMembers.end(); ++itEnum)
+               itMember != itEnum->lsMembers.end(); ++itMember)
           {
             if (!setGlobalEnumValues.count(itMember->sName))
             {
