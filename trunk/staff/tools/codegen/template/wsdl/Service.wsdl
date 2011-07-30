@@ -192,12 +192,24 @@
 #foreach $(Interface.Classes)
   <!-- Messages of service $(Class.NsName.!dot) -->
 #foreach $(Class.Members)
+\
+#var sResponse $(Member.Options.*responseElement)
+#var sResult $(Member.Options.*resultElement)
+\
+#ifeq($($sResponse),)
+#ifeq($($sResult),)
+#var sResponse $(Member.Name)Result
+#else
+#var sResponse $(Member.Name)Response
+#ifeqend
+#ifeqend
+\
   <wsdl:message name="$(Class.NsName.!mangle)_$(Member.Name)Request">
     <wsdl:part element="$($TnsPrefix):$(Member.Options.*requestElement||Member.Name)" name="$(Class.NsName.!mangle)_$(Member.Name)Request"/>
   </wsdl:message>
 
   <wsdl:message name="$(Class.NsName.!mangle)_$(Member.Name)Response">
-    <wsdl:part element="$($TnsPrefix):$(Member.Options.*responseElement||Member.Name.!append/Result/)" name="$(Class.NsName.!mangle)_$(Member.Name)Response"/>
+    <wsdl:part element="$($TnsPrefix):$($sResponse)" name="$(Class.NsName.!mangle)_$(Member.Name)Response"/>
   </wsdl:message>
 
 #end // #foreach Class.Members
