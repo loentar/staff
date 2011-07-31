@@ -154,6 +154,7 @@ namespace codegen
     bool bIsMessagePart;
     bool bIsSimpleContent;
     bool bHasAnyAttribute;
+    bool bIsAbstract;
 
     ComplexType();
     ComplexType& Parse(const rise::xml::CXMLNode& rNodeComplexType);
@@ -396,7 +397,7 @@ namespace codegen
   }
 
 
-  void MakeOptional(DataType& rDataType)
+  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass = "Optional")
   {
     if (rDataType.sName == "Optional")
     {
@@ -408,7 +409,7 @@ namespace codegen
     }
     rDataType.lsParams.push_front(rDataType);
     rDataType.lsParams.resize(1);
-    rDataType.sName = "Optional";
+    rDataType.sName = sTemplateClass;
     rDataType.sNamespace = "staff::";
     rDataType.eType = DataType::TypeTemplate;
     rDataType.sUsedName.erase();
@@ -640,21 +641,27 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   ComplexType::ComplexType():
     bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
-    bHasAnyAttribute(false), nLastChoiceId(0)
+    bHasAnyAttribute(false), bIsAbstract(false), nLastChoiceId(0)
   {
   }
 
   ComplexType& ComplexType::Parse( const rise::xml::CXMLNode& rNodeComplexType )
   {
-    rise::xml::CXMLNode::TXMLAttrConstIterator itAttrName = rNodeComplexType.FindAttribute("name");
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeComplexType.FindAttribute("name");
 
-    if (itAttrName != rNodeComplexType.AttrEnd())
+    if (itAttr != rNodeComplexType.AttrEnd())
     {
-      sName = itAttrName->sAttrValue.AsString();
+      sName = itAttr->sAttrValue.AsString();
     }
     else
     {
       sName = sElementName;
+    }
+
+    itAttr = rNodeComplexType.FindAttribute("abstract");
+    if (itAttr != rNodeComplexType.AttrEnd())
+    {
+      bIsAbstract = itAttr->sAttrValue.AsString() == "true";
     }
 
     GetTns(rNodeComplexType, sNamespace, sPrefix);
@@ -1080,7 +1087,7 @@ namespace codegen
                     }
                     if (itAttr->bIsOptional)
                     {
-                      MakeOptional(stMember.stDataType);
+                      WrapTypeInTemplate(stMember.stDataType);
                     }
                     stMember.sDescr = itAttr->sDescr;
                     stMember.sDetail = itAttr->sDetail;
@@ -1109,11 +1116,24 @@ namespace codegen
 
                 OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
+                // find child complex type
+                ComplexTypeMap::iterator itComplexType =
+                    m_stWsdlTypes.mComplexTypes.find(rChildElement.stType.GetNsName());
+                if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+                {
+                  const ComplexType& rChildComplexType = itComplexType->second;
+
+                  if (rChildComplexType.bIsAbstract)
+                  {
+                    WrapTypeInTemplate(stParam.stDataType, "Abstract");
+                  }
+                }
+
                 if (!bIsResponse)
                 { // request
                   if (rElement.bIsOptional || rChildElement.bIsOptional)
                   {
-                    MakeOptional(stParam.stDataType);
+                    WrapTypeInTemplate(stParam.stDataType);
                   }
 
                   FixParamDataType(stParam.stDataType);
@@ -1139,7 +1159,7 @@ namespace codegen
                     }
                     if (rElement.bIsNillable)
                     {
-                      MakeOptional(stParam.stDataType);
+                      WrapTypeInTemplate(stParam.stDataType);
                     }
                   }
                   else
@@ -1148,7 +1168,7 @@ namespace codegen
                     rMember.mOptions["resultElement"] = rElement.sName;
                     if (rChildElement.bIsOptional)
                     {
-                      MakeOptional(stParam.stDataType);
+                      WrapTypeInTemplate(stParam.stDataType);
                     }
                   }
                   stParam.stDataType.sNodeName = rElement.sName;
@@ -1212,28 +1232,22 @@ namespace codegen
             ComplexType& rComplexType = itComplexType->second;
             rComplexType.bIsMessagePart = true;
 
-            if (rComplexType.lsElements.empty())
+            if (!rComplexType.bIsAbstract && rComplexType.lsElements.empty())
             { // assume void type
               stParam.stDataType.sName = "void";
-            }
-            else
-            if (rComplexType.lsElements.size() == 1 && !rComplexType.lsElements.front().bIsArray) // inline complex type with element name
-            {
-              const Element& rElem = rComplexType.lsElements.front();
-
-              GetCppType(rElem.stType, stParam.stDataType);
-
-              if (stParam.stDataType.eType == DataType::TypeUnknown)
-              {
-                DataTypeFromName(rElem.stType.GetNsName(), stParam.stDataType, m_stWsdlTypes);
-              }
-
-              stParam.sName = rElem.sName;
             }
             else
             {
               stParam.stDataType = ComplexTypeToData(rComplexType, m_stWsdlTypes);
             }
+
+            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+            if (rComplexType.bIsAbstract)
+            {
+              WrapTypeInTemplate(stParam.stDataType, "Abstract");
+            }
+
           }
           else // search in simple types
           {
@@ -1252,12 +1266,10 @@ namespace codegen
                      << " interface name: " << m_stInterface.sName;
               }
             }
+            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
           }
         }
-
-
-        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-        OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
         if (!bIsResponse)
         {  // set node name for request
@@ -1265,7 +1277,7 @@ namespace codegen
 
           if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
           {
-            MakeOptional(stParam.stDataType);
+            WrapTypeInTemplate(stParam.stDataType);
           }
 
           FixParamDataType(stParam.stDataType);
@@ -1288,7 +1300,7 @@ namespace codegen
 
           if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
           {
-            MakeOptional(stParam.stDataType);
+            WrapTypeInTemplate(stParam.stDataType);
           }
 
           rMember.stReturn = stParam;
@@ -1615,7 +1627,7 @@ namespace codegen
         bResult = IsStructUsesOther(*itStruct, rStruct2);
       }
 
-      return bResult;
+      return bResult || rStruct1.sParentName == rStruct2.sName;
     }
 
     void FixStructOrder(std::list<Struct>& rlsStructs)
@@ -1623,10 +1635,11 @@ namespace codegen
       for (std::list<Struct>::iterator itStruct1 = rlsStructs.begin();
            itStruct1 != rlsStructs.end(); ++itStruct1)
       {
-        for (std::list<Struct>::iterator itStruct2 = itStruct1;
-             itStruct2 != rlsStructs.end(); ++itStruct2)
+        std::list<Struct>::iterator itStruct2 = itStruct1;
+        ++itStruct2;
+        for (; itStruct2 != rlsStructs.end(); ++itStruct2)
         {
-          if (itStruct1 != itStruct2 && !itStruct1->bForward && !itStruct2->bForward)
+          if (!itStruct1->bForward && !itStruct2->bForward)
           {
             if (IsStructUsesOther(*itStruct1, *itStruct2))
             {
@@ -2041,7 +2054,7 @@ namespace codegen
         }
         if (bIsAttrOptional)
         {
-          MakeOptional(stMember.stDataType);
+          WrapTypeInTemplate(stMember.stDataType);
         }
         stMember.sDescr = itAttr->sDescr;
         stMember.sDetail = itAttr->sDetail;
@@ -2134,6 +2147,10 @@ namespace codegen
           stStruct.sNamespace = stDataType.sNamespace;
           stStruct.sDescr = rComplexType.sDescr;
           stStruct.sDetail = rComplexType.sDetail;
+          if (rComplexType.bIsAbstract)
+          {
+            stStruct.mOptions["abstract"] = "true";
+          }
 
           // inheritance
           if (!sForceParentName.empty())
@@ -2274,8 +2291,29 @@ namespace codegen
           if (!sChoiceId.empty())
           {
             stMember.mOptions["choiceId"] = sChoiceId;
-            MakeOptional(stMember.stDataType);
+            WrapTypeInTemplate(stMember.stDataType);
           }
+
+          if (stMember.stDataType.eType == DataType::TypeStruct)
+          {
+            const Struct* pstStruct = GetStruct(stMember.stDataType.sNamespace + stMember.stDataType.sName,
+                                                m_stInterface);
+
+            if (!pstStruct)
+            {
+              rise::LogWarning() << "Can't find struct declaration: " << stMember.stDataType.sNamespace
+                                 << stMember.stDataType.sName;
+            }
+            else
+            {
+              StringMap::const_iterator itAbstract = pstStruct->mOptions.find("abstract");
+              if (itAbstract != pstStruct->mOptions.end())
+              {
+                WrapTypeInTemplate(stMember.stDataType, "Abstract");
+              }
+            }
+          }
+
 
           pstStruct->lsMembers.push_back(stMember);
         }
@@ -2425,7 +2463,7 @@ namespace codegen
 
       if (pElement->bIsOptional)
       {
-        MakeOptional(rDataType);
+        WrapTypeInTemplate(rDataType);
       }
     }
 

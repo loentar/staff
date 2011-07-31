@@ -1024,6 +1024,7 @@ namespace codegen
 
     void ParseStruct( Struct& rStruct )
     {
+      bool bHasVirtualDtor = false;
       char chTmp = '\0';
       std::string sTmp;
       bool bFunction = false;
@@ -1136,11 +1137,12 @@ namespace codegen
 
           Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
+          rstStruct.mOptions.insert(stParamTmp.mOptions.begin(), stParamTmp.mOptions.end());
+
           ParseStruct(rstStruct);
           if (!rstStruct.bForward)
           {
             rstStruct.sDescr = stParamTmp.sDescr;
-            rstStruct.mOptions = stParamTmp.mOptions;
           }
 
           continue;
@@ -1166,6 +1168,11 @@ namespace codegen
             (sToken == ("~" + rStruct.sName)))  // destructor
         {
           bFunction = true;
+        }
+
+        if (sTmp == ("virtual ~" + rStruct.sName))  // virtual destructor
+        {
+          bHasVirtualDtor = true;
         }
 
         // struct member
@@ -1212,6 +1219,15 @@ namespace codegen
       CSP_ASSERT(chTmp == ';', "missing ';' after struct definition", m_stInterface.sFileName, m_nLine);
 
       SkipSingleLineComment();
+
+      StringMap::const_iterator itAbstract = rStruct.mOptions.find("abstract");
+      if (itAbstract != rStruct.mOptions.end() &&
+          (itAbstract->second == "true" || itAbstract->second == "1"))
+      {
+        CSP_ASSERT(bHasVirtualDtor, "\nStructure [" + rStruct.sNamespace + rStruct.sName +
+                   "] marked as abstract, but it does not have virtual destructor.\n",
+                   m_stInterface.sFileName, m_nLine);
+      }
     }
 
     void ParseEnum( Enum& rEnum )
@@ -1570,12 +1586,13 @@ namespace codegen
 
         Struct& rstStruct = TypeInList(rInterface.lsStructs, sName, m_sCurrentNamespace);
 
+        rstStruct.mOptions.insert(mOptions.begin(), mOptions.end());
+
         ParseStruct(rstStruct);
         if (!rstStruct.bForward)
         {
           rstStruct.sDescr = sDescr;
           rstStruct.sDetail = sDetail;
-          rstStruct.mOptions = mOptions;
         }
 
         sDescr.erase();
@@ -1779,8 +1796,13 @@ namespace codegen
         m_tFile.get(sbData, '\n');
         m_tFile.ignore();
         m_tFile.get(sbData, '\n');
+        std::string sBefore = sbData.str();
+        rise::StrTrim(sBefore);
 
-        rParseException.Message() += ": before\n-----------------\n" + sbData.str() + "\n-----------------\n";
+        if (!sBefore.empty())
+        {
+          rParseException.Message() += ": before\n-----------------\n" + sBefore + "\n-----------------\n";
+        }
 
         throw;
       }

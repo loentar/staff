@@ -193,6 +193,7 @@ staff/core/client/src/ServiceClient.h
 staff/core/client/src/ServiceFactory.cpp
 staff/core/client/src/ServiceFactory.h
 staff/core/client/src/staffclientexport.h
+staff/core/common/src/Abstract.h
 staff/core/common/src/Attribute.cpp
 staff/core/common/src/Attribute.h
 staff/core/common/src/Config.cpp
@@ -270,6 +271,11 @@ staff/core/utils/src/staffutilsexport.h
 staff/core/utils/src/tocstring.h
 staff/core/utils/src/tostring.h
 staff/modules/axis2services/mod_axis2services.c
+staff/samples/abstract/client/src/main.cpp
+staff/samples/abstract/client/src/Transport.h
+staff/samples/abstract/component/src/Transport.h
+staff/samples/abstract/component/src/TransportImpl.cpp
+staff/samples/abstract/component/src/TransportImpl.h
 staff/samples/binarydata/client/src/KeyGenerator.h
 staff/samples/binarydata/client/src/main.cpp
 staff/samples/binarydata/component/src/KeyGenerator.h

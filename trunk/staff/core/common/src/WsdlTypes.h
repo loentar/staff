@@ -85,6 +85,8 @@ namespace staff
   class Attribute;
   typedef std::list<Attribute> anyAttribute;
 
+  template<typename Type> class Abstract;
+
 }
 
 #endif // _WSDLTYPES_H_

@@ -99,6 +99,16 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #context $($sContext)
 \
+#ifeq($(.Name),Abstract) // abstract type
+
+#ifeq($(Param.Options.*isAttribute),true||1) // attribute
+#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
+#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+      $($sParamNode) >> $($sOptMod)$(Param.Name);
+#else // not abstract
 \
 #ifeq($(.Type),struct||enum)
       $($sParamNode) >> $($sOptMod)$(Param.Name);
@@ -190,6 +200,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
 \
 #ifeq($(Param.DataType.Name),Optional)
 #indent -
@@ -267,6 +278,11 @@ $(Param.Name)\
 #ifeqend
 #context $($sContext)
 \
+#ifeq($(.Name),Abstract) // abstract type
+      staff::DataObject& rdoResult = rOperation.Result();
+      rdoResult << $($sOptMod)tResult;
+#else // not abstract
+\
 #ifeq($(.Type),struct||typedef||enum) // result for structs and types
       staff::DataObject& rdoResult = rOperation.Result();
 #ifneq($(.Type),typedef)
@@ -341,6 +357,7 @@ $(Param.Name)\
       }
 #ifeqend // template
 #ifeqend // struct, typedef, enum
+#ifeqend // abstract
 \
 #ifeq($(Member.Return.Name),Optional)
 #indent -

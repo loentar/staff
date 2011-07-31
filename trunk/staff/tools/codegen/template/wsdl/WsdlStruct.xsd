@@ -1,6 +1,10 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
 
-      <complexType name="$(Struct.NativeName.!dot)">
+      <complexType name="$(Struct.NativeName.!dot)"\
+#ifeq($(Struct.Options.*abstract),true||1)
+ abstract="true"\
+#ifeqend
+>
 #ifneq($(Struct.Description),)
         <annotation><documentation>$(Struct.Description)</documentation></annotation>
 #ifeqend
@@ -43,6 +47,12 @@
 #var sContext Param.DataType
 #ifeqend      // optional
 #context $($sContext)
+#ifeq($(Param.DataType.Name),Abstract)
+#var sContext .TemplateParams.TemplateParam1
+#else
+#var sContext .
+#ifeqend      // abstract
+#context $($sContext)
 #ifeq($(.Type),dataobject)
 >
             <complexType>
@@ -84,6 +94,7 @@
 #ifeqend
 #ifeqend // template
 #ifeqend
+#contextend   // abstract
 #contextend   // optional
 #ifeqend // not attribute
 #end // #foreach $(Struct.Members) -- elements

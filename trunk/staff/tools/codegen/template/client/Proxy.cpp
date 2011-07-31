@@ -127,6 +127,17 @@ public:
 #ifeqend
 #context $($sContext)
 \
+#ifeq($(.Name),Abstract) // abstract type
+
+#ifeq($(Param.Options.*isAttribute),true||1) // attribute
+#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
+#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+  $($sResultName) >> $($sOptMod)tReturn;
+#else // not abstract
+\
 #ifeq($(.Type),generic)    // !!generic!!
     $($sResultName).GetValue($($sOptMod)tReturn);
 #else
@@ -230,6 +241,7 @@ public:
 
 #else
 #cgerror ".Type = $(.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -467,6 +479,18 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 \
 #ifneq($(.Name),ICallback)
   staff::DataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
+\
+#ifeq($(.Name),Abstract) // abstract type
+
+#ifeq($(Param.Options.*isAttribute),true||1) // attribute
+#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
+#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+  tdoParam$(Param.Name) << $($sOptMod)$(Param.Name);
+#else // not abstract
+\
 #ifeq($(.Type),generic)    // !!generic!!
   tdoParam$(Param.Name).SetValue($($sOptMod)$(Param.Name));
 #else
@@ -550,6 +574,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
 #else // ICallback
 #ifneq($($tCallbackParamName),)
 #cgerror Duplicate callback definition in "$(Class.Name)::$(Member.Name)"
@@ -597,6 +622,10 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var sOptMod
 #ifeqend
 #context $($sContext)
+\
+#ifeq($(.Name),Abstract) // abstract type
+  rdoResult >> $($sOptMod)tReturn;
+#else // not abstract
 \
 #ifeq($(.Type),generic)    // !!generic!!
   rdoResult.GetValue($($sOptMod)tReturn);
@@ -701,6 +730,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #else
 #cgerror ".Type = $(.Type);"
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

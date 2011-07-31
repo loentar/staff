@@ -73,6 +73,9 @@ $(Param.Name)($(Param.Options.*defaultValue))\
     {
     }
 #ifeqend
+#ifeq($(Struct.Options.*abstract),true||1)
+    virtual ~$(Struct.Name)() {}
+#ifeqend
   };
 
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
