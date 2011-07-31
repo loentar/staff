@@ -2256,11 +2256,51 @@ namespace staff
     rNamespace.SetDataObject(this);
   }
 
+  void DataObject::DeclareNamespace(const char* szUri, const char* szPrefix /*= ""*/)
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    axiom_namespace_t* pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
+    RISE_ASSERTS(pNamespace, "Failed to create namespace");
+    axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, pNamespace);
+  }
+
+  void DataObject::DeclareNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/)
+  {
+    DeclareNamespace(sUri.c_str(), sPrefix.c_str());
+  }
+
   void DataObject::SetNamespace(Namespace& rNamespace)
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
     rNamespace.SetDataObject(this);
+  }
+
+  void DataObject::SetNamespace(const char* szUri, const char* szPrefix /*= ""*/)
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    axiom_namespace_t* pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
+    RISE_ASSERTS(pNamespace, "Failed to create namespace");
+    axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNamespace, m_pAxiomNode);
+  }
+
+  void DataObject::SetNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/)
+  {
+    DeclareNamespace(sUri.c_str(), sPrefix.c_str());
+  }
+
+  std::string DataObject::GetNamespacePrefixByUri(const char* szUri) const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, szUri, NULL);
+    RISE_ASSERTS(pNs, "Can't find prefix for uri: [" + std::string(szUri) + "]");
+    const char* pPrefix = static_cast<const char*>(axiom_namespace_get_prefix(pNs, m_pEnv));
+    return pPrefix ? pPrefix : "";
+  }
+
+  std::string DataObject::GetNamespacePrefixByUri(const std::string& sUri) const
+  {
+    return GetNamespacePrefixByUri(sUri.c_str());
   }
 
   Namespace DataObject::FindNamespace(const std::string& sUri)

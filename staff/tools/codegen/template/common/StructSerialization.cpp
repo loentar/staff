@@ -5,8 +5,63 @@
 #foreach $(Struct.Enums)
 #cginclude "EnumSerialization.cpp"
 #end
+\
+#ifeq($(Struct.Options.*abstract),true||1)
 
-DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
+DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >& tpAbstractStruct)
+{
+  const std::string& sInstanceType = tpAbstractStruct.GetType();
+#var sThisStructNsName $(.NsName)
+#foreach $(Interface.Structs) // check all top-level structs including external
+#ifeq($(Struct.ParentNsName),$($sThisStructNsName))
+  if (sInstanceType == "$(Struct.NsName.!dot)")
+  {
+    rdoParam << static_cast< const $(Struct.NsName)& >(*tpAbstractStruct);
+  }
+  else
+#ifeqend
+#end
+  {
+    RISE_THROWS(rise::CLogicNoItemException, "Can't serialize dynamic type [" + sInstanceType + "]");
+  }
+  rdoParam.DeclareNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
+  rdoParam.CreateAttribute("xsi:type", sInstanceType);
+  return rdoParam;
+}
+
+const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsName) >& tpAbstractStruct)
+{
+  std::string sInstanceType;
+  const std::string& sXsiPrefix = rdoParam.GetNamespacePrefixByUri("http://www.w3.org/2001/XMLSchema-instance");
+  rdoParam.GetAttributeTextByName(sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type", sInstanceType);
+#var sThisStructNsName $(.NsName)
+#foreach $(Interface.Structs) // check all top-level structs including external
+#ifeq($(Struct.ParentNsName),$($sThisStructNsName))
+  if (sInstanceType == "$(Struct.NsName.!dot)")
+  {
+    tpAbstractStruct = new $(Struct.NsName);
+    rdoParam >> static_cast< $(Struct.NsName)& >(*tpAbstractStruct);
+  }
+  else
+#ifeqend
+#end
+  {
+    RISE_THROWS(rise::CLogicNoItemException, "Can't deserialize dynamic type [" + sInstanceType + "]");
+  }
+  return rdoParam;
+}
+#ifeqend
+\
+
+DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& \
+#ifeq($(Struct.Members.$Count),0)
+/*\
+#ifeqend
+rstStruct\
+#ifeq($(Struct.Members.$Count),0)
+*/\
+#ifeqend
+)
 {
 #ifneq($(Struct.ParentName),)
   // serialize parent struct
@@ -26,6 +81,24 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #var sOptMod
 #ifeqend
 #context $($sContext)
+\
+#ifeq($(.Name),Abstract) // abstract type
+
+#ifeq($(Param.Options.*isAttribute),true||1) // attribute
+#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
+#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
+#ifeqend
+#ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
+#var doName rdoParam
+#else
+#var doName tdoParam$(Param.Name)
+  DataObject $($doName) = rdoParam.CreateChild("$(Param.Name)");
+#ifeqend // serialize to parent element?
+  $($doName) << $($sOptMod)rstStruct.$(Param.Name);
+#else // not abstract
+\
 #ifeq($(Param.Options.*isAttribute),true||1) // serialize to attribute
 #ifeq($(.Type),generic||string||typedef)
   rdoParam.CreateAttribute("$(Param.Name)", $($sOptMod)rstStruct.$(Param.Name));
@@ -160,6 +233,7 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend // abstract
 #ifeqend // if attribute
 \
 #ifeq($(Param.DataType.Name),Optional)
@@ -172,7 +246,15 @@ DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& rstStruct)
   return rdoParam;
 }
 
-const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstStruct)
+const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& \
+#ifeq($(Struct.Members.$Count),0)
+/*\
+#ifeqend
+rstStruct\
+#ifeq($(Struct.Members.$Count),0)
+*/\
+#ifeqend
+)
 {
 #ifneq($(Struct.ParentName),)
   // deserialize parent struct
@@ -199,6 +281,16 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #var sOptMod
 #ifeqend
 #context $($sContext)
+\
+#ifeq($(.Name),Abstract) // abstract type
+#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
+#var DeserializeNodeInstruct
+#else
+#var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
+#ifeqend
+  rdoParam$($DeserializeNodeInstruct) >> $($sOptMod)rstStruct.$(Param.Name);
+#else // not abstract
+\
 #ifeq($(Param.Options.*isAttribute),true||1) // deserialize from attribute
 #ifeq($(.Type),generic||string||typedef)
 #ifeq($(Param.DataType.Name),Optional)
@@ -327,6 +419,7 @@ const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& rstSt
 #ifeqend
 #ifeqend
 #ifeqend // if attribute
+#ifeqend // abstract type
 \
 #ifeq($(Param.DataType.Name),Optional)
 #indent -

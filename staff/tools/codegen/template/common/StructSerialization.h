@@ -9,3 +9,7 @@
 #cginclude "StructSerialization.h"
 #end
 #ifeqend
+#ifeq($(Struct.Options.*abstract),true||1)
+  DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >& tpAbstractStruct);
+  const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsName) >& tpAbstractStruct);
+#ifeqend

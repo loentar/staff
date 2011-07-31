@@ -63,6 +63,12 @@
 #var sContext Param.DataType
 #ifeqend      // optional
 #context $($sContext)
+#ifeq($(.Name),Abstract)
+#var sContext .TemplateParams.TemplateParam1
+#else
+#var sContext .
+#ifeqend      // abstract
+#context $($sContext)
 #ifeq($(.Type),dataobject)   // dataobject
 >
               <complexType>
@@ -88,6 +94,7 @@
 "/>
 #ifeqend      // template
 #ifeqend      // dataobject
+#contextend   // abstract
 #contextend   // optional
 #end  // foreach member.params
           </sequence>
@@ -138,6 +145,12 @@
 #var sContext Member.Return
 #ifeqend      // optional
 #context $($sContext)
+#ifeq($(.Name),Abstract)
+#var sContext .TemplateParams.TemplateParam1
+#else
+#var sContext .
+#ifeqend      // abstract
+#context $($sContext)
 \
 #ifeq($(.Name),void)
 >
@@ -179,6 +192,7 @@
 #ifeqend
 \
 \
+#contextend // abstract
 #contextend // optional
 #end // #foreach $(Class.Members)
 #end // foreach Interface.Classes

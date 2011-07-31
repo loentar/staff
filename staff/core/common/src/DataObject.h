@@ -833,10 +833,46 @@ namespace staff
         */
     void DeclareNamespace(Namespace& rNamespace);
 
+    //!         declare new namespace in element scope
+    /*! \param  szUri - uri (C-string)
+        \param  szPrefix - prefix (C-string)
+        */
+    void DeclareNamespace(const char* szUri, const char* szPrefix /*= ""*/);
+
+    //!         declare new namespace in element scope
+    /*! \param  sUri - uri
+        \param  sPrefix - prefix
+        */
+    void DeclareNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/);
+
     //!         set namespace for element
     /*! \param  rNamespace - namespace
         */
     void SetNamespace(Namespace& rNamespace);
+
+    //!         set namespace for element
+    /*! \param  szUri - uri (C-string)
+        \param  szPrefix - prefix (C-string)
+        */
+    void SetNamespace(const char* szUri, const char* szPrefix /*= ""*/);
+
+    //!         set namespace for element
+    /*! \param  sUri - uri
+        \param  sPrefix - prefix
+        */
+    void SetNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/);
+
+    //!         get namespace prefix by uri
+    /*! \param  szUri - uri (C-string)
+        \return prefix
+        */
+    std::string GetNamespacePrefixByUri(const char* szUri) const;
+
+    //!         get namespace prefix by uri
+    /*! \param  sUri - uri
+        \return prefix
+        */
+    std::string GetNamespacePrefixByUri(const std::string& sUri) const;
 
     //!         find a namespace in the scope of the document.
     /*!         Start to find from the given node and go up the hierarchy.

@@ -23,7 +23,7 @@
 #else
 #ifeq($(.Namespace),staff::)
 \
-#ifeq($(.Type),dataobject)
+#ifeq($(.Name),DataObject||Abstract||Attribute||Operation||ICallback)
 #ifneq($($aStaffIncludes.!match/$(.Name).h/),true)
 #var aStaffIncludes $($aStaffIncludes)[staff/common/$(.Name).h]
 #ifeqend
@@ -33,7 +33,7 @@
 #var aStaffIncludes $($aStaffIncludes)[staff/common/WsdlTypes.h]
 #ifeqend // wsdl types
 \
-#ifeqend // dataobject
+#ifeqend // staff types
 #ifeqend // staff
 #ifeqend // std
 \

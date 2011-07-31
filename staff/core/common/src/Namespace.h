@@ -26,6 +26,7 @@
 #include <string>
 
 typedef struct axiom_namespace axiom_namespace_t;
+typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
