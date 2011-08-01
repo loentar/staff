@@ -101,7 +101,8 @@ namespace staff
       axiom_soap_envelope_t* pSoapEnvelope = axis2_callback_get_envelope(pAxis2Callback, pEnv);
       if (!pSoapEnvelope)
       {
-        CreateFault(*pCallback, "client", "Failed to get soap envelope while parsing response");
+        const char* szError = reinterpret_cast<const char*>(AXIS2_ERROR_GET_MESSAGE(pEnv->error));
+        CreateFault(*pCallback, "client", szError ? szError : "UNKNOWN");
         return AXIS2_FAILURE;
       }
 
@@ -148,7 +149,8 @@ namespace staff
         {
           const axis2_char_t* szNamespaceUri = axiom_namespace_get_uri(pNamespace, pEnv);
 
-          if(axutil_strcmp(szNamespaceUri, "http://schemas.xmlsoap.org/soap/envelope/") == 0)
+          if (!axutil_strcmp(szNamespaceUri, AXIOM_SOAP11_SOAP_ENVELOPE_NAMESPACE_URI) || // soap 1.1
+              !axutil_strcmp(szNamespaceUri, AXIOM_SOAP12_SOAP_ENVELOPE_NAMESPACE_URI)) // soap 1.2
           {
             try
             {
@@ -217,7 +219,8 @@ namespace staff
       return AXIS2_SUCCESS;
     }
 
-    static void CreateFault(ICallback<const DataObject&>& rCallback, const std::string& sFaultCode, const std::string& sFaultError)
+    static void CreateFault(ICallback<const DataObject&>& rCallback, const std::string& sFaultCode,
+                            const std::string& sFaultError)
     {
       // generate fault using Operation
       Operation tFault;
@@ -519,7 +522,7 @@ namespace staff
   std::string ServiceClient::GetLastErrorStr()
   {
     const char* szError = reinterpret_cast<const char*>(AXIS2_ERROR_GET_MESSAGE(m_pEnv->error));
-    return szError ? szError : "";
+    return szError ? szError : "UNKNOWN";
   }
 
   ServiceClient::operator axis2_svc_client_t*()
