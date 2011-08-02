@@ -51,12 +51,12 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
   if (sOperationName == "CreateInstance")
   {
     staff::ServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName,
-                                                                 rRequest.GetChildByLocalName("sInstanceId").GetText());
+                                                                rRequest.GetChildByLocalName("sInstanceId").GetText());
   } else
   if (sOperationName == "FreeInstance")
   {
     staff::ServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
-                                                               rRequest.GetChildByLocalName("sInstanceId").GetText());
+                                                              rRequest.GetChildByLocalName("sInstanceId").GetText());
   } else
   {
     rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl;
@@ -84,11 +84,16 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 \
 #foreach $(Member.Params)  // ------------------- params ------------------------
 \
-#ifeq($(Param.DataType.Name),Optional)
-      staff::DataObject tdoParam$(Param.Name) = rRequest.GetChildByLocalNameOpt("$(Param.Name)");
-      if (!tdoParam$(Param.Name).IsNull())
+#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($(Param.DataType.Name),Nillable)
+      const staff::DataObject& rdoParam$(Param.Name) = rRequest.GetChildByLocalName("$(Param.Name)");
+      if (!rdoParam$(Param.Name).IsNil())
+#else
+      const staff::DataObject& rdoParam$(Param.Name) = rRequest.GetChildByLocalNameOpt("$(Param.Name)");
+      if (!rdoParam$(Param.Name).IsNull())
+#ifeqend
       {
-#var sParamNode tdoParam$(Param.Name)
+#var sParamNode rdoParam$(Param.Name)
 #var sContext Param.DataType.TemplateParams.TemplateParam1
 #var sOptMod *
 #indent +
@@ -125,7 +130,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 \
       for (::staff::DataObject tdoItem = $($sParamNode).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
       {
-#ifeq($(.NsName),std::map)  // -------- map ----------
+#ifeq($(.Name),map||multimap)  // -------- map ----------
         $(.TemplateParams.TemplateParam1) tKey\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
  = 0\
@@ -168,6 +173,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 
 #else // -------- list ----------
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
         $(.TemplateParams.TemplateParam1) tItem = 0;
         tdoItem.GetValue(tItem);
@@ -193,6 +199,9 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #ifeqend
 #ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
+#ifeqend
 \
 #ifeqend
       }
@@ -202,7 +211,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #ifeqend
 \
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
 #indent -
       }
 #ifeqend
@@ -215,13 +224,9 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 $(Member.Return.NsName) tResult = \
 #else
 #ifeq($(Member.Return.Type),generic||string)    // !!generic!!
-#ifeq($(Member.Return.Name),Optional)
-$(Member.Return.NsName) tResult = \
-#else
 rOperation.Result().SetValue(\
-#ifeqend
 #else
-#ifeq($(Member.Return.Type),dataobject) // !!dataobject!! 
+#ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
 rOperation.Result().AppendChild(
 #ifeqend
 #ifeqend
@@ -258,7 +263,7 @@ $(Param.Name)\
 \
 #ifneq($(Member.Return.Name),void)
 #ifeq($(Member.Return.Type),generic||string||dataobject)
-#ifneq($(Member.Return.Name),Optional)
+#ifneq($(Member.Return.Name),Optional||Nillable)
 )\
 #ifeqend
 #ifeqend
@@ -266,7 +271,7 @@ $(Param.Name)\
 );
 \
 \
-#ifeq($(Member.Return.Name),Optional)
+#ifeq($(Member.Return.Name),Optional||Nillable)
       if (!tResult.IsNull())
       {
 #indent +
@@ -283,19 +288,23 @@ $(Param.Name)\
       rdoResult << $($sOptMod)tResult;
 #else // not abstract
 \
-#ifeq($(.Type),struct||typedef||enum) // result for structs and types
-      staff::DataObject& rdoResult = rOperation.Result();
-#ifneq($(.Type),typedef)
-      rdoResult << $($sOptMod)tResult;
+#ifeq($(.Type),generic||string)
+#ifeq($(Member.Return.Name),Optional||Nillable)
+      rOperation.Result().SetValue($($sOptMod)tResult);
+#ifeqend
 #else
-      SerializeTypedef_$(.NsName.!mangle)(rdoResult, $($sOptMod)tResult);
+#ifeq($(.Type),struct||typedef||enum) // result for structs and types
+#ifneq($(.Type),typedef)
+      rOperation.Result() << $($sOptMod)tResult;
+#else
+      SerializeTypedef_$(.NsName.!mangle)(rOperation.Result(), $($sOptMod)tResult);
 #ifeqend
 #else
 #ifeq($(.Type),template)
       staff::DataObject& rdoResult = rOperation.Result();
       for ($(.NsName)::const_iterator it = ($($sOptMod)tResult).begin(); it != ($($sOptMod)tResult).end(); ++it)
       {
-#ifeq($(.NsName),std::map)
+#ifeq($(.Name),map||multimap)
         DataObject tdoItem = rdoResult.CreateChild("Item");
 \
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
@@ -334,6 +343,7 @@ $(Param.Name)\
 
 #else
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
         rdoResult.CreateChild("Item").SetValue(*it);
 #else
@@ -352,15 +362,25 @@ $(Param.Name)\
 #ifeqend
 #ifeqend
 #ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
+#ifeqend
 \
 #ifeqend
       }
 #ifeqend // template
 #ifeqend // struct, typedef, enum
+#ifeqend // generic, string
 #ifeqend // abstract
 \
-#ifeq($(Member.Return.Name),Optional)
+#ifeq($(Member.Return.Name),Optional||Nillable)
 #indent -
+      }
+#ifeqend
+#ifeq($(Member.Return.Name),Nillable)
+      else
+      {
+        rOperation.Result().SetNil();
       }
 #ifeqend
 \

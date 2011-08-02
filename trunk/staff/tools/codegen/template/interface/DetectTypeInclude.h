@@ -1,7 +1,7 @@
-#ifeq($(.Name),Optional)
+#ifeq($(.Name),Optional||Nillable)
 \
-#ifneq($($aStaffIncludes.!match/Optional.h/),true)
-#var aStaffIncludes $($aStaffIncludes)[staff/common/Optional.h]
+#ifneq($($aStaffIncludes.!match/$(.Name).h/),true)
+#var aStaffIncludes $($aStaffIncludes)[staff/common/$(.Name).h]
 #ifeqend
 \
 #var sOptContext .TemplateParams.TemplateParam1

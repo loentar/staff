@@ -47,6 +47,8 @@ namespace staff
 {
   enum { NUM_TO_STR_BUFF_SIZE = 32 };
 
+  static const char* g_szXsiSchemaUrl = "http://www.w3.org/2001/XMLSchema-instance";
+
   DataObject::DataObject(axiom_node_t* pAxiomNode /*= NULL*/):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
@@ -2209,6 +2211,104 @@ namespace staff
         axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
+
+  //////////////////////////////////////////////////////////////////////////
+  // dynamic types support
+
+  void DataObject::SetInstanceType(const std::string& sInstanceType)
+  {
+    DeclareNamespace(g_szXsiSchemaUrl, "xsi");
+    CreateAttribute("xsi:type", sInstanceType);
+  }
+
+  std::string DataObject::GetInstanceType() const
+  {
+    const std::string& sXsiPrefix = GetNamespacePrefixByUri(g_szXsiSchemaUrl);
+    return GetAttributeTextByName(sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type");
+  }
+
+  bool DataObject::GetInstanceTypeOpt(std::string& sInstanceType) const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode,
+                                                          g_szXsiSchemaUrl, NULL);
+    if (!pNs)
+    {
+      return false;
+    }
+
+    const char* szPrefix = static_cast<const char*>(axiom_namespace_get_prefix(pNs, m_pEnv));
+    const std::string& sXsiPrefix(szPrefix ? szPrefix : "");
+
+    axiom_attribute_t* pAttr =
+        GetAxiomAttributeByLocalName((sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type").c_str());
+    if (!pAttr)
+    {
+      return false;
+    }
+
+    const char* szValue = axiom_attribute_get_value(pAttr, m_pEnv);
+    sInstanceType = szValue ? szValue : "";
+    return true;
+  }
+
+  void DataObject::RemoveInstanceType()
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    const std::string& sXsiPrefix = GetNamespacePrefixByUri(g_szXsiSchemaUrl);
+    axiom_attribute_t* pAttr =
+        GetAxiomAttributeByLocalName((sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type").c_str());
+#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
+    axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, pAttr);
+#else
+    RISE_THROWS(DomInternalException,
+                "This function is not implemented in Axis2/C-1.7.0 and greater");
+#endif
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  // xsd:nillable support
+
+  void DataObject::SetNil(bool bIsNil /*= true*/)
+  {
+    DeclareNamespace(g_szXsiSchemaUrl, "xsi");
+    CreateAttribute("xsi:nil", bIsNil ? "true" : "false");
+  }
+
+  bool DataObject::IsNil() const
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode,
+                                                          g_szXsiSchemaUrl, NULL);
+    if (!pNs)
+    {
+      return false;
+    }
+
+    const char* szValue = NULL;
+    const char* szPrefix = static_cast<const char*>(axiom_namespace_get_prefix(pNs, m_pEnv));
+
+    if (!szPrefix || !szPrefix[0])
+    {
+      szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                          const_cast<char*>("nil"));
+    }
+    else
+    {
+      char* szAttrName = axutil_stracat(m_pEnv, szPrefix, ":nil");
+      szValue = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv, szAttrName);
+      AXIS2_FREE(m_pEnv->allocator, szAttrName);
+    }
+
+    if (!szValue)
+    {
+      return false;
+    }
+
+    return !axutil_strcmp(szValue, "true") || !axutil_strcmp(szValue, "1");
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
   // namespace management
