@@ -44,7 +44,7 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
   for ($(Typedef.NsName)::const_iterator it = rtType.begin(); it != rtType.end(); ++it)
   {
 #var ElementName $(Typedef.Options.*elementName||"Item")
-#ifeq($(Typedef.DataType.NsName),std::map)
+#ifeq($(Typedef.DataType.Name),map||multimap)
 \
     DataObject tdoItem = rdoParam.CreateChild("$($ElementName)");
 
@@ -72,6 +72,7 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 \
 #else
 \
+#ifeq($(Typedef.DataType.Name),list||vector)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic||string)
     rdoParam.CreateChild("$($ElementName)", *it);
 #else
@@ -81,6 +82,9 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 #else
     SerializeTypedef_$(Typedef.DataType.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, *it);
 #ifeqend
+#ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
 #ifeqend
 \
 #ifeqend
@@ -128,7 +132,7 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 #ifeq($(Typedef.DataType.Type),template)
   for (DataObject tdoItem = rdoParam.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
-#ifeq($(Typedef.DataType.NsName),std::map)
+#ifeq($(Typedef.DataType.Name),map||multimap)
 \
     $(Typedef.DataType.TemplateParams.TemplateParam1) tKey\
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
@@ -146,7 +150,7 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 #ifeqend
 #ifeqend
 
-    $((Typedef.DataType.TemplateParams.TemplateParam2)& rValue = rtType[tKey];
+    $(Typedef.DataType.TemplateParams.TemplateParam2)& rValue = rtType[tKey];
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),string||generic)
     tdoItem.GetChildByLocalName("Value").GetValue(rValue);
 #else
@@ -159,6 +163,7 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 #ifeqend
 #else  //  ----- list -----
 \
+#ifeq($(Typedef.DataType.Name),list||vector)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),generic)
     $(Typedef.DataType.TemplateParams.TemplateParam1) tItem = 0;
     tdoItem.GetValue(tItem);
@@ -183,6 +188,9 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 #ifeqend
 #ifeqend
 #ifeqend
+#ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
 #ifeqend
 \
 #ifeqend

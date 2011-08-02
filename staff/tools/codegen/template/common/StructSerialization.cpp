@@ -24,16 +24,13 @@ DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >&
   {
     RISE_THROWS(rise::CLogicNoItemException, "Can't serialize dynamic type [" + sInstanceType + "]");
   }
-  rdoParam.DeclareNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
-  rdoParam.CreateAttribute("xsi:type", sInstanceType);
+  rdoParam.SetInstanceType(sInstanceType);
   return rdoParam;
 }
 
 const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsName) >& tpAbstractStruct)
 {
-  std::string sInstanceType;
-  const std::string& sXsiPrefix = rdoParam.GetNamespacePrefixByUri("http://www.w3.org/2001/XMLSchema-instance");
-  rdoParam.GetAttributeTextByName(sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type", sInstanceType);
+  const std::string& sInstanceType = rdoParam.GetInstanceType();
 #var sThisStructNsName $(.NsName)
 #foreach $(Interface.Structs) // check all top-level structs including external
 #ifeq($(Struct.ParentNsName),$($sThisStructNsName))
@@ -70,7 +67,7 @@ rstStruct\
 #ifeqend
 \
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
   if (!rstStruct.$(Param.Name).IsNull())
   {
 #var sContext Param.DataType.TemplateParams.TemplateParam1
@@ -148,7 +145,7 @@ rstStruct\
 #else
 #var ElementName Item
 #ifeqend
-#ifeq($(.NsName),std::map)
+#ifeq($(.Name),map||multimap)
     DataObject tdoItem = $($doName).CreateChild("$($ElementName)");
 \
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
@@ -187,6 +184,7 @@ rstStruct\
 
 #else
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     $($doName).CreateChild("$($ElementName)").SetValue(*it);
 #else
@@ -204,6 +202,9 @@ rstStruct\
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
+#ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
 #ifeqend
 \
 #ifeqend
@@ -236,8 +237,14 @@ rstStruct\
 #ifeqend // abstract
 #ifeqend // if attribute
 \
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
 #indent -
+  }
+#ifeqend
+#ifeq($(Param.DataType.Name),Nillable)
+  else
+  {
+    rdoParam.CreateChild("$(Param.Name)").SetNil();
   }
 #ifeqend
 #contextend
@@ -262,33 +269,44 @@ rstStruct\
 
 #ifeqend
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
 #ifeq($(Param.Options.*isAttribute),true||1)
+#ifeq($(Param.DataType.Name),Nillable)
+#cgerror nillable attributes is not supported: in $(Struct.NsName)::$(Param.Name)
+#ifeqend
   const staff::Attribute& rAttr$(Param.Name) = rdoParam.GetAttributeByLocalNameOpt("$(Param.Name)");
   if (!rAttr$(Param.Name).IsNull())
+#else // not attribute
+#ifeq($(Param.DataType.Name),Nillable)
+  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)");
+  if (!rdoParam$(Param.Name).IsNil())
 #else
   const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
   if (!rdoParam$(Param.Name).IsNull())
-#ifeqend
+#ifeqend // nillable||optional
+#ifeqend // is attr
   {
+#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
+#var sParamNode rdoParam
+#else
 #var sParamNode rdoParam$(Param.Name)
+#ifeqend
 #var sContext Param.DataType.TemplateParams.TemplateParam1
 #var sOptMod *
 #indent +
 #else
-#var sParamNode rRequest.GetChildByLocalName("$(Param.Name)")
+#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
+#var sParamNode rdoParam
+#else
+#var sParamNode rdoParam.GetChildByLocalName("$(Param.Name)")
+#ifeqend
 #var sContext Param.DataType
 #var sOptMod
 #ifeqend
 #context $($sContext)
 \
 #ifeq($(.Name),Abstract) // abstract type
-#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
-#var DeserializeNodeInstruct
-#else
-#var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
-#ifeqend
-  rdoParam$($DeserializeNodeInstruct) >> $($sOptMod)rstStruct.$(Param.Name);
+  $($sParamNode) >> $($sOptMod)rstStruct.$(Param.Name);
 #else // not abstract
 \
 #ifeq($(Param.Options.*isAttribute),true||1) // deserialize from attribute
@@ -310,22 +328,17 @@ rstStruct\
 #ifeqend
 #ifeqend
 #else // deserialize from subnode node
-#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
-#var DeserializeNodeInstruct
-#else
-#var DeserializeNodeInstruct .GetChildByLocalName("$(Param.Name)")
-#ifeqend
 #ifeq($(.Type),struct||enum)
-  rdoParam$($DeserializeNodeInstruct) >> $($sOptMod)rstStruct.$(Param.Name);
+  $($sParamNode) >> $($sOptMod)rstStruct.$(Param.Name);
 #else
 #ifeq($(.Type),typedef)
-  DeserializeTypedef_$(.NsName.!mangle)(rdoParam$($DeserializeNodeInstruct), $($sOptMod)rstStruct.$(Param.Name));
+  DeserializeTypedef_$(.NsName.!mangle)($($sParamNode), $($sOptMod)rstStruct.$(Param.Name));
 #else
 #ifeq($(.Type),template)
 
-  for (DataObject tdoItem = rdoParam$($DeserializeNodeInstruct).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
+  for (DataObject tdoItem = $($sParamNode).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
-#ifeq($(.NsName),std::map)  // -------- map ----------
+#ifeq($(.Name),map||multimap)  // -------- map ----------
     $(.TemplateParams.TemplateParam1) tKey\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
  = 0\
@@ -368,6 +381,7 @@ rstStruct\
 
 #else // -------- list ----------
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
     $(.TemplateParams.TemplateParam1) tItem = 0;
     tdoItem.GetValue(tItem);
@@ -393,6 +407,9 @@ rstStruct\
 #ifeqend
 #ifeqend
 #ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
+#ifeqend
 \
 #ifeqend
   }
@@ -409,7 +426,7 @@ rstStruct\
     ($($sOptMod)rstStruct.$(Param.Name)).push_back(*itAttr);
   }
 #else
-  rdoParam$($DeserializeNodeInstruct).GetValue($($sOptMod)rstStruct.$(Param.Name));
+  $($sParamNode).GetValue($($sOptMod)rstStruct.$(Param.Name));
 #ifeqend
 #else
 #cgerror unknown type($(.Type)) of Param.Name: $(Param.Name)::$(.Name)
@@ -421,7 +438,7 @@ rstStruct\
 #ifeqend // if attribute
 #ifeqend // abstract type
 \
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
 #indent -
   }
 #ifeqend

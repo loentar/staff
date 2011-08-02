@@ -210,6 +210,7 @@ staff/core/common/src/MessageContext.cpp
 staff/core/common/src/MessageContext.h
 staff/core/common/src/Namespace.cpp
 staff/core/common/src/Namespace.h
+staff/core/common/src/Nillable.h
 staff/core/common/src/Operation.cpp
 staff/core/common/src/Operation.h
 staff/core/common/src/Optional.h
@@ -339,6 +340,11 @@ staff/samples/loadorder/component/src/DepSvc4Impl.cpp
 staff/samples/loadorder/component/src/DepSvc4Impl.h
 staff/samples/login/client/src/Login.h
 staff/samples/login/client/src/main.cpp
+staff/samples/nillable/client/src/main.cpp
+staff/samples/nillable/client/src/NillableService.h
+staff/samples/nillable/component/src/NillableService.h
+staff/samples/nillable/component/src/NillableServiceImpl.cpp
+staff/samples/nillable/component/src/NillableServiceImpl.h
 staff/samples/optional/client/src/main.cpp
 staff/samples/optional/client/src/Tasks.h
 staff/samples/optional/component/src/Tasks.h

@@ -94,12 +94,17 @@ public:
 #ifeqend
 )
   {
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Name),Optional)
+#var sOptNodeMod Opt
+#else
+#var sOptNodeMod
+#ifeqend
 #var sResultName rdoResponse
 #ifneq($(Member.Options.*resultElement),)
-#var sResultName rdoResponse.GetChildByLocalName("$(Member.Options.*resultElement)")
+#var sResultName rdoResponse.GetChildByLocalName$($sOptNodeMod)("$(Member.Options.*resultElement)")
 #else
 #ifneq($(Member.Return.NodeName),)
-#var sResultName rdoResponse.GetChildByLocalName("$(Member.Return.NodeName)")
+#var sResultName rdoResponse.GetChildByLocalName$($sOptNodeMod)("$(Member.Return.NodeName)")
 #ifeqend
 #ifeqend
 #context $(Param.DataType.TemplateParams.TemplateParam1) // callback param
@@ -111,12 +116,16 @@ public:
  = 0\
 #ifeqend
 ;
-#ifeq($(.Name),Optional)
+#ifeq($(.Name),Optional||Nillable)
 #ifneq($($sResultName),rdoResponse)
     const staff::DataObject& rdoResult = $($sResultName);
 #var sResultName rdoResult
 #ifeqend
+#ifeq($(.Name),Nillable)
+    if (!$($sResultName).IsNil())
+#else
     if (!$($sResultName).IsNull())
+#ifeqend
     {
 #var sContext .TemplateParams.TemplateParam1
 #var sOptMod *
@@ -155,7 +164,7 @@ public:
 #else
 #ifeq($(.Type),template)
 
-#ifeq($(.NsName),std::map)
+#ifeq($(.Name),map||multimap)
 \
     $(.TemplateParams.TemplateParam1) tKey\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
@@ -217,6 +226,7 @@ public:
 
 #else
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
       tdoItem.GetValue(tItem);
 #else
@@ -238,6 +248,9 @@ public:
       ($($sOptMod)tReturn).push_back(tItem);
 #ifeqend
     }
+#else
+#cgerror template type $(.NsName) is not supported
+#ifeqend
 
 #else
 #cgerror ".Type = $(.Type);"
@@ -250,7 +263,7 @@ public:
 #ifeqend
 \
 #contextend // optional
-#ifeq($(.Name),Optional)
+#ifeq($(.Name),Optional||Nillable)
 #indent -
     }
 #ifeqend
@@ -465,7 +478,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
 \
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
   if (!$(Param.Name).IsNull())
   {
 #indent +
@@ -510,7 +523,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   for ($(.NsName)::const_iterator it = ($($sOptMod)$(Param.Name)).begin();
       it != ($($sOptMod)$(Param.Name)).end(); ++it)
   {
-#ifeq($(.NsName),std::map)
+#ifeq($(.Name),map||multimap)
     ::staff::DataObject tdoItem = tdoParam$(Param.Name).CreateChild("Item");
 \
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
@@ -545,6 +558,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #else
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoParam$(Param.Name).CreateChild("Item").SetValue(*it);
 #else
@@ -562,6 +576,9 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
 #ifeqend
 #ifeqend
+#ifeqend
+#else
+#cgerror template type $(.NsName) is not supported
 #ifeqend
 \
 #ifeqend
@@ -582,8 +599,14 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var tCallbackParamName $(Param.Name)
 #ifeqend
 \
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
 #indent -
+  }
+#ifeqend
+#ifeq($(Param.DataType.Name),Nillable)
+  else
+  {
+    tOperation.Request().CreateChild("$(Param.Name)").SetNil();
   }
 #ifeqend
 \
@@ -611,8 +634,12 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 ;
 
-#ifeq($(Member.Return.Name),Optional)
+#ifeq($(Member.Return.Name),Optional||Nillable)
+#ifeq($(Member.Return.Name),Nillable)
+  if (!rdoResult.IsNil())
+#else
   if (!rdoResult.IsNull())
+#ifeqend
   {
 #var sContext Member.Return.TemplateParams.TemplateParam1
 #var sOptMod *
@@ -644,7 +671,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifeq($(.Type),template)
 
-#ifeq($(.NsName),std::map)
+#ifeq($(.Name),map||multimap)
 \
   $(.TemplateParams.TemplateParam1) tKey\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
@@ -706,6 +733,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 
 #else
 \
+#ifeq($(.Name),list||vector)
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
     tdoItem.GetValue(tItem);
 #else
@@ -725,6 +753,9 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 \
     ($($sOptMod)tReturn).push_back(tItem);
+#else
+#cgerror template type $(.NsName) is not supported
+#ifeqend
 #ifeqend
   }
 
@@ -738,7 +769,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 #ifeqend
 \
-#ifeq($(Member.Return.Name),Optional)
+#ifeq($(Member.Return.Name),Optional||Nillable)
 #indent -
   }
 #ifeqend

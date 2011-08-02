@@ -397,7 +397,7 @@ namespace codegen
   }
 
 
-  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass = "Optional")
+  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass)
   {
     if (rDataType.sName == "Optional")
     {
@@ -1087,7 +1087,7 @@ namespace codegen
                     }
                     if (itAttr->bIsOptional)
                     {
-                      WrapTypeInTemplate(stMember.stDataType);
+                      WrapTypeInTemplate(stMember.stDataType, "Optional");
                     }
                     stMember.sDescr = itAttr->sDescr;
                     stMember.sDetail = itAttr->sDetail;
@@ -1133,7 +1133,12 @@ namespace codegen
                 { // request
                   if (rElement.bIsOptional || rChildElement.bIsOptional)
                   {
-                    WrapTypeInTemplate(stParam.stDataType);
+                    WrapTypeInTemplate(stParam.stDataType, "Optional");
+                  }
+                  else
+                  if (rElement.bIsNillable || rChildElement.bIsNillable)
+                  {
+                    WrapTypeInTemplate(stParam.stDataType, "Nillable");
                   }
 
                   FixParamDataType(stParam.stDataType);
@@ -1157,9 +1162,9 @@ namespace codegen
                     {
                       rMember.mOptions["resultElement"] = rChildElement.sName;
                     }
-                    if (rElement.bIsNillable)
+                    if (rElement.bIsNillable) // for response we assume nillable as optional
                     {
-                      WrapTypeInTemplate(stParam.stDataType);
+                      WrapTypeInTemplate(stParam.stDataType, "Optional");
                     }
                   }
                   else
@@ -1168,7 +1173,12 @@ namespace codegen
                     rMember.mOptions["resultElement"] = rElement.sName;
                     if (rChildElement.bIsOptional)
                     {
-                      WrapTypeInTemplate(stParam.stDataType);
+                      WrapTypeInTemplate(stParam.stDataType, "Optional");
+                    }
+                    else
+                    if (rChildElement.bIsNillable)
+                    {
+                      WrapTypeInTemplate(stParam.stDataType, "Nillable");
                     }
                   }
                   stParam.stDataType.sNodeName = rElement.sName;
@@ -1277,7 +1287,12 @@ namespace codegen
 
           if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
           {
-            WrapTypeInTemplate(stParam.stDataType);
+            WrapTypeInTemplate(stParam.stDataType, "Optional");
+          }
+          else
+          if (rElement.bIsNillable)
+          {
+            WrapTypeInTemplate(stParam.stDataType, "Nillable");
           }
 
           FixParamDataType(stParam.stDataType);
@@ -1300,7 +1315,12 @@ namespace codegen
 
           if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
           {
-            WrapTypeInTemplate(stParam.stDataType);
+            WrapTypeInTemplate(stParam.stDataType, "Optional");
+          }
+          else
+          if (rElement.bIsNillable)
+          {
+            WrapTypeInTemplate(stParam.stDataType, "Nillable");
           }
 
           rMember.stReturn = stParam;
@@ -2054,7 +2074,7 @@ namespace codegen
         }
         if (bIsAttrOptional)
         {
-          WrapTypeInTemplate(stMember.stDataType);
+          WrapTypeInTemplate(stMember.stDataType, "Optional");
         }
         stMember.sDescr = itAttr->sDescr;
         stMember.sDetail = itAttr->sDetail;
@@ -2291,7 +2311,7 @@ namespace codegen
           if (!sChoiceId.empty())
           {
             stMember.mOptions["choiceId"] = sChoiceId;
-            WrapTypeInTemplate(stMember.stDataType);
+            WrapTypeInTemplate(stMember.stDataType, "Optional");
           }
 
           if (stMember.stDataType.eType == DataType::TypeStruct)
@@ -2463,7 +2483,12 @@ namespace codegen
 
       if (pElement->bIsOptional)
       {
-        WrapTypeInTemplate(rDataType);
+        WrapTypeInTemplate(rDataType, "Optional");
+      }
+      else
+      if (pElement->bIsNillable)
+      {
+        WrapTypeInTemplate(rDataType, "Nillable");
       }
     }
 

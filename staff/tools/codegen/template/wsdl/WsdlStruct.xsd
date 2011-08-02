@@ -38,9 +38,13 @@
 #var sChoiceId $(Param.Options.*choiceId)
 #ifeqend
           <element name="$(Param.Name)"\
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($(Param.DataType.Name),Nillable)
+ nillable="true"\
+#else
 #ifeq($($sChoiceId),)
  minOccurs="0"\
+#ifeqend
 #ifeqend
 #var sContext Param.DataType.TemplateParams.TemplateParam1
 #else

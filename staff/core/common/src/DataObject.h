@@ -806,6 +806,42 @@ namespace staff
     void SetText(const std::string& sText);
 
     //////////////////////////////////////////////////////////////////////////
+    // dynamic types support
+
+    //! set xml schema instance type
+    /*! \param sInstanceType - xml schema instance type
+      */
+    void SetInstanceType(const std::string& sInstanceType);
+
+    //! get xml schema instance type
+    /*! \param sInstanceType - xml schema instance type
+      */
+    std::string GetInstanceType() const;
+
+    //! get xml schema instance type
+    /*! \param sInstanceType - xml schema instance type
+        \return true, if xsi type exists
+      */
+    bool GetInstanceTypeOpt(std::string& sInstanceType) const;
+
+    //! remove xml schema instance type
+    void RemoveInstanceType();
+
+    //////////////////////////////////////////////////////////////////////////
+    // xsd:nillable support
+
+    //! set element instance is nil
+    /*! \param bIsNil - xsi:nil attribute value (true or false)
+      */
+    void SetNil(bool bIsNil = true);
+
+    //! get element instance is nil
+    /*! if xsi:nil attribute is not set, returns false
+        \return xsi:nil attribute value (true or false)
+      */
+    bool IsNil() const;
+
+    //////////////////////////////////////////////////////////////////////////
     // namespace management
 
     //!         get the namespace

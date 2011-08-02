@@ -56,8 +56,12 @@
           <sequence>
 #foreach $(Member.Params)
             <element name="$(Param.Name)"\
-#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($(Param.DataType.Name),Nillable)
+ nillable="true"\
+#else
  minOccurs="0"\
+#ifeqend
 #var sContext Param.DataType.TemplateParams.TemplateParam1
 #else
 #var sContext Param.DataType
@@ -134,11 +138,15 @@
 #ifeqend
 \
       <element name="$($sResult)"\
-#ifeq($(Member.Return.Name),Optional)
+#ifeq($(Member.Return.Name),Optional||Nillable)
+#ifeq($(Member.Return.Name),Nillable)
+ nillable="true"\
+#else
 #ifeq($($bEndElem),)
  nillable="true"\
 #else
  minOccurs="0"\
+#ifeqend
 #ifeqend
 #var sContext Member.Return.TemplateParams.TemplateParam1
 #else
