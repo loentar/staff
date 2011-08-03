@@ -8,3 +8,8 @@
 #cginclude "DetectStructInclude.h"
 #end
 #ifeqend
+#ifeq($(Struct.Options.*abstract),true||1)
+#ifneq($($aStaffIncludes.!match/Abstract.h/),true)
+#var aStaffIncludes $($aStaffIncludes)[staff/common/Abstract.h]
+#ifeqend
+#ifeqend
