@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="nillable_client"
-	ProjectGUID="{C96900CF-9D51-4C2A-B277-5AB5A75D4E4E}"
-	RootNamespace="simple_client"
+	Name="samples.abstract.Transport"
+	ProjectGUID="{DC3A728A-90A3-4D5F-BAE3-7E6752761820}"
+	RootNamespace="abstract_component"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -20,40 +20,36 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
+			BuildLogFile="$(IntDir)\BuildLog_service.htm"
 			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="codegen.cmd $(PlatformName)"
+			/>
 			<Tool
 				Name="VCCustomBuildTool"
 				CommandLine=""
 				AdditionalDependencies=""
 				Outputs=""
-				ExecutionBucket="1"
-			/>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="codegen.cmd $(PlatformName)"
-				ExecutionBucket="2"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-				ExecutionBucket="3"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
 				Name="VCMIDLTool"
-				ExecutionBucket="4"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				ExecutionBucket="5"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -64,65 +60,54 @@
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
-				ExecutionBucket="6"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ExecutionBucket="7"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				ExecutionBucket="8"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				ExecutionBucket="9"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
-				ExecutionBucket="10"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				ExecutionBucket="11"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
-				ExecutionBucket="12"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				ExecutionBucket="13"
 			/>
 			<Tool
 				Name="VCFxCopTool"
-				ExecutionBucket="14"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
-				ExecutionBucket="15"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
-				ExecutionBucket="16"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -145,7 +130,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -163,12 +148,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -203,8 +188,9 @@
 			Name="Debug|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
+			BuildLogFile="$(IntDir)\BuildLog_service.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -230,7 +216,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -250,12 +236,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -288,7 +274,7 @@
 			Name="Release|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -312,7 +298,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -330,12 +316,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="17"
@@ -373,28 +359,40 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{cc450ca4-e9ec-4834-b6a6-6856d1ac84cb}"
+			UniqueIdentifier="{07e54607-d4c9-45df-a42e-9d86aa91a246}"
 			>
 			<File
-				RelativePath=".\src\main.cpp"
+				RelativePath=".\src\ComponentImpl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\NillableServiceProxy.cpp"
+				RelativePath=".\src\TransportImpl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\TransportWrapper.cpp"
 				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{f4d096b9-cccd-4620-b5b6-bf3da5c44d47}"
+			UniqueIdentifier="{75dcc6d4-5642-4561-b387-18c430bd544b}"
 			>
 			<File
-				RelativePath=".\src\NillableService.h"
+				RelativePath=".\src\ComponentImpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\NillableServiceProxy.h"
+				RelativePath=".\src\Transport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\TransportImpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\TransportWrapper.h"
 				>
 			</File>
 		</Filter>

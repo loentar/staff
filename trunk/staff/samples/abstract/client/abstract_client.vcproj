@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="nillable_client"
-	ProjectGUID="{C96900CF-9D51-4C2A-B277-5AB5A75D4E4E}"
+	Name="abstract_client"
+	ProjectGUID="{17C1E488-2290-4AF7-BCF2-715AE97AAD45}"
 	RootNamespace="simple_client"
 	Keyword="Win32Proj"
 	>
@@ -380,7 +380,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\NillableServiceProxy.cpp"
+				RelativePath=".\src\TransportProxy.cpp"
 				>
 			</File>
 		</Filter>
@@ -390,11 +390,11 @@
 			UniqueIdentifier="{f4d096b9-cccd-4620-b5b6-bf3da5c44d47}"
 			>
 			<File
-				RelativePath=".\src\NillableService.h"
+				RelativePath=".\src\Transport.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\NillableServiceProxy.h"
+				RelativePath=".\src\TransportProxy.h"
 				>
 			</File>
 		</Filter>

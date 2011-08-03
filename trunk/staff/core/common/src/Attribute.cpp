@@ -37,14 +37,6 @@ namespace staff
   {
   }
 
-  Attribute::Attribute(Attribute& rAttribute):
-    m_bOwner(rAttribute.m_bOwner),
-    m_pDataObject(rAttribute.m_pDataObject), 
-    m_pAxiomAttribute(rAttribute.m_pAxiomAttribute)
-  {
-    rAttribute.m_bOwner = false;
-  }
-
   Attribute::Attribute(const Attribute& rAttribute):
     m_bOwner(rAttribute.m_bOwner),
     m_pDataObject(rAttribute.m_pDataObject),
@@ -305,15 +297,6 @@ namespace staff
 
     QName tqName(pqName);
     return tqName;
-  }
-
-  Attribute& Attribute::operator=(Attribute& rAttribute)
-  {
-    m_bOwner = rAttribute.m_bOwner;
-    m_pDataObject = rAttribute.m_pDataObject;
-    m_pAxiomAttribute = rAttribute.m_pAxiomAttribute;
-    rAttribute.m_bOwner = false;
-    return *this;
   }
 
   Attribute& Attribute::operator=(const Attribute& rAttribute)

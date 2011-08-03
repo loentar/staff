@@ -406,6 +406,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\src\Abstract.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Attribute.h"
 				>
 			</File>
@@ -435,6 +439,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Namespace.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Nillable.h"
 				>
 			</File>
 			<File

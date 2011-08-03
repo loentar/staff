@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 #ifdef _MSC_VER
+#pragma warning (disable: 4996)
 #define staff_snprintf _snprintf
 #else
 #define staff_snprintf snprintf
