@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="samples.optional.Tasks"
-	ProjectGUID="{855D2CE7-035E-48A6-8322-5936ABC72473}"
-	RootNamespace="optional_component"
+	Name="samples.nillable.Nillable"
+	ProjectGUID="{0C6BDC3D-50E3-4874-A88F-94317C1545CA}"
+	RootNamespace="nillable_component"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -366,11 +366,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\TasksImpl.cpp"
+				RelativePath=".\src\NillableServiceImpl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\TasksWrapper.cpp"
+				RelativePath=".\src\NillableServiceWrapper.cpp"
 				>
 			</File>
 		</Filter>
@@ -384,15 +384,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Tasks.h"
+				RelativePath=".\src\NillableService.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\TasksImpl.h"
+				RelativePath=".\src\NillableServiceImpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\TasksWrapper.h"
+				RelativePath=".\src\NillableServiceWrapper.h"
 				>
 			</File>
 		</Filter>

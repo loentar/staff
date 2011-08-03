@@ -53,11 +53,6 @@ namespace staff
     //!         ownership transfer constructor
     /*! \param  rAttribute - attribute
         */
-    Attribute(Attribute& rAttribute);
-
-    //!         ownership transfer constructor
-    /*! \param  rAttribute - attribute
-        */
     Attribute(const Attribute& rAttribute);
 
     //!         axiom_attribute_t* cast operator
@@ -155,12 +150,6 @@ namespace staff
     /*! \return qname
     */
     QName GetQName();
-
-    //!         ownership transfer operation
-    /*! \param  rAttribute - source attribute
-        \return *this
-        */
-    Attribute& operator=(Attribute& rAttribute);
 
     //!         ownership transfer operation
     /*! \param  rAttribute - source attribute

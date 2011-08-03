@@ -26,14 +26,14 @@
 #include <typeinfo>
 #include <string>
 #include <staff/utils/fromstring.h>
-#include "staffcommonexport.h"
+#include <rise/common/ExceptionTemplate.h>
 
 namespace staff
 {
 
   //! abstract type representation
   template<typename Type>
-  class STAFF_COMMON_EXPORT Abstract
+  class Abstract
   {
   public:
     Abstract():
