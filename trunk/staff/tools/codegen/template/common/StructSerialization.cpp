@@ -67,15 +67,28 @@ rstStruct\
 #ifeqend
 \
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Name),Optional||Nillable)
-  if (!rstStruct.$(Param.Name).IsNull())
+#var sOptMod
+#var sContext Param.DataType
+#var bIsOpt
+#var bIsNil
+#ifeq($(.DataType.Name),Optional)
+  if (!rstStruct.$(Param.Name).IsNull()) // optional
   {
-#var sContext Param.DataType.TemplateParams.TemplateParam1
+#var sContext $($sContext).TemplateParams.TemplateParam1
 #var sOptMod *
 #indent +
-#else
-#var sContext Param.DataType
-#var sOptMod
+#var bIsOpt 1
+#ifeqend
+#context $($sContext)
+\
+#var sContext .
+#ifeq($(.Name),Nillable)
+  if (!rstStruct.$(Param.Name).IsNull()) // nillable
+  {
+#var sContext .TemplateParams.TemplateParam1
+#var sOptMod $($sOptMod)*
+#indent +
+#var bIsNil 1
 #ifeqend
 #context $($sContext)
 \
@@ -237,17 +250,20 @@ rstStruct\
 #ifeqend // abstract
 #ifeqend // if attribute
 \
-#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($($bIsNil),1)
 #indent -
   }
-#ifeqend
-#ifeq($(Param.DataType.Name),Nillable)
   else
   {
     rdoParam.CreateChild("$(Param.Name)").SetNil();
   }
 #ifeqend
-#contextend
+#contextend // nillable
+#ifeq($($bIsOpt),1)
+#indent -
+  }
+#ifeqend
+#contextend // optional
 \
 #end
   return rdoParam;
@@ -269,40 +285,52 @@ rstStruct\
 
 #ifeqend
 #foreach $(Struct.Members)
-#ifeq($(Param.DataType.Name),Optional||Nillable)
-#ifeq($(Param.Options.*isAttribute),true||1)
-#ifeq($(Param.DataType.Name),Nillable)
-#cgerror nillable attributes is not supported: in $(Struct.NsName)::$(Param.Name)
-#ifeqend
-  const staff::Attribute& rAttr$(Param.Name) = rdoParam.GetAttributeByLocalNameOpt("$(Param.Name)");
-  if (!rAttr$(Param.Name).IsNull())
-#else // not attribute
-#ifeq($(Param.DataType.Name),Nillable)
-  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)");
-  if (!rdoParam$(Param.Name).IsNil())
-#else
-  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
-  if (!rdoParam$(Param.Name).IsNull())
-#ifeqend // nillable||optional
-#ifeqend // is attr
-  {
-#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
-#var sParamNode rdoParam
-#else
-#var sParamNode rdoParam$(Param.Name)
-#ifeqend
-#var sContext Param.DataType.TemplateParams.TemplateParam1
-#var sOptMod *
-#indent +
-#else
-#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
-#var sParamNode rdoParam
-#else
-#var sParamNode rdoParam.GetChildByLocalName("$(Param.Name)")
-#ifeqend
 #var sContext Param.DataType
 #var sOptMod
+#var sParentElem rdoParam.GetChildByLocalName("$(Param.Name)")
+#var bIsOpt
+#var bIsNil
+\
+#ifeq($(Param.DataType.Name),Optional)
+#ifeq($(Param.Options.*isAttribute),true||1)
+  const staff::Attribute& rAttr$(Param.Name) = rdoParam.GetAttributeByLocalNameOpt("$(Param.Name)");
+  if (!rAttr$(Param.Name).IsNull()) // optional attribute
+#else // not attribute
+  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalNameOpt("$(Param.Name)");
+  if (!rdoParam$(Param.Name).IsNull()) // optional
+#ifeqend // is attr
+  {
+#var sParentElem rdoParam$(Param.Name)
+#var sContext $($sContext).TemplateParams.TemplateParam1
+#var sOptMod $($sOptMod)*
+#var bIsOpt 1
+#indent +
 #ifeqend
+#context $($sContext)
+\
+#var sContext .
+#ifeq($(.Name),Nillable)
+#ifeq($(Param.Options.*isAttribute),true||1)
+#cgerror nillable attributes is not supported: in $(Struct.NsName)::$(Param.Name)
+#ifeqend
+#ifeq($($sOptMod),)
+  const staff::DataObject& rdoParam$(Param.Name) = rdoParam.GetChildByLocalName("$(Param.Name)");
+#ifeqend
+  if (!rdoParam$(Param.Name).IsNil()) // nillable
+  {
+#var sParentElem rdoParam$(Param.Name)
+#var sContext .TemplateParams.TemplateParam1
+#var sOptMod $($sOptMod)*
+#var bIsNil 1
+#indent +
+#ifeqend
+\
+#ifeq($(Param.Options.*useParentElement),true||1) // deserialize from parent element?
+#var sParamNode rdoParam
+#else
+#var sParamNode $($sParentElem)
+#ifeqend
+\
 #context $($sContext)
 \
 #ifeq($(.Name),Abstract) // abstract type
@@ -438,7 +466,12 @@ rstStruct\
 #ifeqend // if attribute
 #ifeqend // abstract type
 \
-#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($($bIsNil),1)
+#indent -
+  }
+#ifeqend
+#contextend
+#ifeq($($bIsOpt),1)
 #indent -
   }
 #ifeqend

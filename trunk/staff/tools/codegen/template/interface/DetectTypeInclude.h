@@ -1,22 +1,16 @@
 #ifeq($(.Name),Optional||Nillable)
-\
 #ifneq($($aStaffIncludes.!match/$(.Name).h/),true)
 #var aStaffIncludes $($aStaffIncludes)[staff/common/$(.Name).h]
 #ifeqend
-\
-#var sOptContext .TemplateParams.TemplateParam1
-#else
-#var sOptContext .
-#ifeqend // optional
-#context $($sOptContext)
+#ifeqend // optional or nillable
 \
 #ifeq($(.Namespace),std::)
 \
-#ifneq($($aStdIncludes.!match/[$(.Name)]/),true)
 #var sCurrCheckType $(.Name)
 #ifeq($($sCurrCheckType),multimap)
 #var sCurrCheckType map
 #ifeqend
+#ifneq($($aStdIncludes.!match/[$($sCurrCheckType)]/),true)
 #var aStdIncludes $($aStdIncludes)[$($sCurrCheckType)]
 #ifeqend
 \
@@ -38,11 +32,8 @@
 #ifeqend // std
 \
 #ifeq($(.Type),template)
-#ifneq($(.Name),Optional)
 #foreach $(.TemplateParams)
 #cginclude "DetectTypeInclude.h"
 #end
 #ifeqend
-#ifeqend
 \
-#contextend
