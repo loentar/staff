@@ -1817,7 +1817,7 @@ namespace codegen
         ParseInterface(rDefs, rProject);
 
         // fix enum member names
-        FixEnums(m_stInterface.lsEnums);
+        FixEnums(m_stInterface.lsEnums, m_stInterface.lsStructs, &m_stInterface.lsTypedefs);
         FixEnumsInStruct(m_stInterface.lsStructs);
 
         // fix structures
@@ -2275,8 +2275,19 @@ namespace codegen
                 rDataType.eType == DataType::TypeTypedef ||
                 rDataType.eType == DataType::TypeEnum)
             {
+              // do not optimize namespace if member name equals data type name
+              bool bDoNotOptimizeNs = rDataType.sName == stMember.sName;
+              if (bDoNotOptimizeNs && rDataType.sNamespace.empty())
+              {
+                rDataType.sNamespace = "::";
+              }
+
               rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-              OptimizeCppNs(rDataType.sUsedName, sOwnerName);
+
+              if (!bDoNotOptimizeNs)
+              {
+                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
+              }
             }
           }
           else
@@ -2730,15 +2741,31 @@ namespace codegen
       }
     }
 
-    void FixEnums(std::list<Enum>& rlsEnums)
+    void FixEnums(std::list<Enum>& rlsEnums, const std::list<Struct>& rlsStructs,
+                  const std::list<Typedef>* plsTypedefs = NULL)
     { // check and fix enums for conflicts
       std::set<std::string> setGlobalEnumValues;
       bool bHasConflicts = false;
 
+      for (std::list<Struct>::const_iterator itStruct = rlsStructs.begin();
+           itStruct != rlsStructs.end(); ++itStruct)
+      {
+        setGlobalEnumValues.insert(itStruct->sName);
+      }
+
+      if (plsTypedefs)
+      {
+        for (std::list<Typedef>::const_iterator itTypedef = plsTypedefs->begin();
+             itTypedef != plsTypedefs->end(); ++itTypedef)
+        {
+          setGlobalEnumValues.insert(itTypedef->sName);
+        }
+      }
+
       for (std::list<Enum>::const_iterator itEnum = rlsEnums.begin();
            itEnum != rlsEnums.end() && !bHasConflicts; ++itEnum)
       {
-        if (!itEnum->mOptions.count("renamed")) // do not rename enum twice
+        if (!itEnum->mOptions.count("renamed")) // do not check renamed enums
         {
           for (std::list<Enum::EnumMember>::const_iterator itMember = itEnum->lsMembers.begin();
                itMember != itEnum->lsMembers.end(); ++itMember)
@@ -2783,7 +2810,7 @@ namespace codegen
     {
       for (std::list<Struct>::iterator itStruct = rlsStructs.begin(); itStruct != rlsStructs.end(); ++itStruct)
       {
-        FixEnums(itStruct->lsEnums);
+        FixEnums(itStruct->lsEnums, itStruct->lsStructs);
         FixEnumsInStruct(itStruct->lsStructs);
       }
     }
