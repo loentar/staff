@@ -2494,12 +2494,12 @@ namespace codegen
 
       if (pElement->bIsOptional)
       {
-        WrapTypeInTemplate(rDataType, "Optional");
+        WrapTypeInTemplate(pElement->bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
       }
       else
       if (pElement->bIsNillable)
       {
-        WrapTypeInTemplate(rDataType, "Nillable");
+        WrapTypeInTemplate(pElement->bIsArray ? rDataType.lsParams.front() : rDataType, "Nillable");
       }
     }
 
