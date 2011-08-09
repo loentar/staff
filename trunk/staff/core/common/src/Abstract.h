@@ -172,13 +172,13 @@ namespace staff
           RISE_ASSERTS(sIn[nPos] == 'E', "Failed to demangle string [" + sIn + "]");
           break;
         }
-        if (nNumLen > 0)
-        {
-          sOut += '.';
-        }
 
         if (nPosEnd != std::string::npos)
         {
+          if (nNumLen > 0)
+          {
+            sOut += '.';
+          }
           staff::FromString(sIn.substr(nPos, nPosEnd - nPos), nNumLen);
           nPos = nPosEnd;
         }
