@@ -73,7 +73,11 @@ rstStruct\
 #ifeq($(Param.Options.*useParentElement),true||1) // serialize to parent element?
 #var sdoParam rdoParam
 #else
+#ifeq($(Param.Options.*isAttribute),true||1)      // serialize to attribute
+#var sdoParam rdoParam
+#else
 #var sdoParam rdoParam.CreateChild("$(Param.Name)")
+#ifeqend
 #ifeqend
 #cginclude "TypeSerialization.cpp"
 #contextend
