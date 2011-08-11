@@ -2212,6 +2212,201 @@ namespace staff
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, bool& rbValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rbValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, byte& rbtValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rbtValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, int& rnValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rnValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, short& rshValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rshValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, long& rlValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rlValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, long long& rllValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rllValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsignedByte& rubtValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rubtValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned int& runValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, runValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned short& rushValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rushValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned long& rulValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rulValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned long long& rullValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rullValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, float& rfValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rfValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, double& rdValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rdValue);
+  }
+
+  void DataObject::GetChildValueByLocalName(const char* szLocalName, std::string& sValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+
+    // szText == NULL in case "<node></node>"
+    sValue = szText ? szText : "";
+  }
+
+  std::string DataObject::GetChildTextByLocalName(const char* szLocalName) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+
+    // szText == NULL in case "<node></node>"
+    return szText ? szText : "";
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, bool& rbValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rbValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, byte& rbtValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rbtValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, int& rnValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rnValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, short& rshValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rshValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, long& rlValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rlValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, long long& rllValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rllValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, unsignedByte& rubtValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rubtValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, unsigned int& runValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), runValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, unsigned short& rushValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rushValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, unsigned long& rulValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rulValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, unsigned long long& rullValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rullValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, float& rfValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rfValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, double& rdValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rdValue);
+  }
+
+  void DataObject::GetChildValueByLocalName(const std::string& sLocalName, std::string& sValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(sLocalName.c_str());
+    sValue = szText ? szText : "";
+  }
+
+  std::string DataObject::GetChildTextByLocalName(const std::string& sLocalName) const
+  {
+    const char* szText = GetChildTextByLocalNameC(sLocalName.c_str());
+    return szText ? szText : "";
+  }
+
+  const char* DataObject::GetChildTextByLocalNameC(const char* szLocalName) const
+  {
+    RISE_ASSERTP(szLocalName);
+    axiom_node_t* pChildNode = NULL;
+    axiom_element_t* pChildElement = NULL;
+    RISE_ASSERTS(FindChildByLocalName(szLocalName, &pChildNode, &pChildElement),
+                 "Child element [" + std::string(szLocalName) + "] does not exists");
+    return axiom_element_get_text(pChildElement, m_pEnv, pChildNode);
+  }
+
   //////////////////////////////////////////////////////////////////////////
   // dynamic types support
 

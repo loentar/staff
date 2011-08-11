@@ -101,10 +101,10 @@ public:
 };
 
 // callback for Tasks::EchoOpt
-class TasksEchoOptCallback: public staff::ICallback< staff::Optional< std::list< std::string >  > >
+class TasksEchoOptCallback: public staff::ICallback< staff::Optional< std::list<std::string> > >
 {
 public:
-  virtual void OnComplete(staff::Optional< std::list< std::string >  > tResult)
+  virtual void OnComplete(staff::Optional< std::list<std::string> > tResult)
   {
     // process result here
     rise::LogInfo() << "EchoOpt(asynch) result: " << tResult;
@@ -172,13 +172,23 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // staff::Optional< ::samples::optional::AttachInfo > tGetAttachInfoResult = pTasks->GetAttachInfo(nTaskId);
     // rise::LogInfo() << "GetAttachInfo result: " << tGetAttachInfoResult;
 
-    staff::Optional< std::list< std::string >  > opt;
+    staff::Optional< std::list<std::string> > opt;
     opt->push_back("test");
-    staff::Optional< std::list< std::string >  > tEchoOptResult = pTasks->EchoOpt(opt);
+    staff::Optional< std::list<std::string> > tEchoOptResult = pTasks->EchoOpt(opt);
     rise::LogInfo() << "EchoOpt result: " << tEchoOptResult;
 
-    staff::Optional< std::list< std::string >  > tEchoOptResult1 = pTasks->EchoOpt(staff::Optional< std::list< std::string >  >());
-    rise::LogInfo() << "EchoOpt(none) result: " << tEchoOptResult;
+    staff::Optional< std::list<std::string> > tEchoOptResult1 = pTasks->EchoOpt(staff::Optional< std::list<std::string> >());
+    rise::LogInfo() << "EchoOpt(none) result: " << tEchoOptResult1;
+
+
+    std::list< staff::Optional<std::string> > opt2;
+    opt2.push_back(staff::Optional<std::string>("test2"));
+    std::list< staff::Optional<std::string> > tEcho2OptResult = pTasks->EchoOpt2(opt2);
+    rise::LogInfo() << "EchoOpt2 result: " << tEcho2OptResult;
+
+    std::list< staff::Optional<std::string> > tEcho2OptResult1 = pTasks->EchoOpt2(std::list< staff::Optional<std::string> >());
+    rise::LogInfo() << "EchoOpt2(none) result: " << tEcho2OptResult1;
+
 
     tGetAllTasksResult = pTasks->GetAllTasks();
     rise::LogInfo() << "GetAllTasks result: \n" << tGetAllTasksResult;

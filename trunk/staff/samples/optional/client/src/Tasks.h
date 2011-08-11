@@ -49,6 +49,8 @@ namespace optional
 
     virtual staff::Optional< std::list<std::string> > EchoOpt(const staff::Optional< std::list<std::string> >& opt) = 0;
 
+    virtual std::list< staff::Optional<std::string> > EchoOpt2(const std::list< staff::Optional<std::string> >& opt) = 0;
+
     //! get all tasks
     /*! \return tasks list
       */
@@ -66,6 +68,8 @@ namespace optional
     virtual void GetAttachInfo(int nTaskId, staff::ICallback< staff::Optional<AttachInfo> >& rCallback) = 0;
 
     virtual void EchoOpt(const staff::Optional< std::list<std::string> >& opt, staff::ICallback< staff::Optional< std::list<std::string> > >& rCallback) = 0;
+
+    virtual void EchoOpt2(const std::list< staff::Optional<std::string> >& opt, staff::ICallback< std::list< staff::Optional<std::string> > >& rCallback) = 0;
 
     virtual void GetAllTasks(staff::ICallback<TasksList>& rCallback) const = 0;
 
