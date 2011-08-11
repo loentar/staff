@@ -87,6 +87,12 @@ staff::Optional< std::list<std::string> > TasksImpl::EchoOpt(
   return opt;
 }
 
+std::list< staff::Optional<std::string> > TasksImpl::EchoOpt2(
+  const std::list< staff::Optional<std::string> >& opt)
+{
+  return opt;
+}
+
 }
 }
 

@@ -94,19 +94,6 @@ public:
 #ifeqend
 )
   {
-#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Name),Optional)
-#var sOptNodeMod Opt
-#else
-#var sOptNodeMod
-#ifeqend
-#var sResultName rdoResponse
-#ifneq($(Member.Options.*resultElement),)
-#var sResultName rdoResponse.GetChildByLocalName$($sOptNodeMod)("$(Member.Options.*resultElement)")
-#else
-#ifneq($(Member.Return.NodeName),)
-#var sResultName rdoResponse.GetChildByLocalName$($sOptNodeMod)("$(Member.Return.NodeName)")
-#ifeqend
-#ifeqend
 #context $(Param.DataType.TemplateParams.TemplateParam1) // callback param
 #ifeq($(.Name),void)      // !!void!!
     m_rCallback.OnComplete();
@@ -116,160 +103,14 @@ public:
  = 0\
 #ifeqend
 ;
-#ifeq($(.Name),Optional||Nillable)
-#ifneq($($sResultName),rdoResponse)
-    const staff::DataObject& rdoResult = $($sResultName);
-#var sResultName rdoResult
-#ifeqend
-#ifeq($(.Name),Nillable)
-    if (!$($sResultName).IsNil())
-#else
-    if (!$($sResultName).IsNull())
-#ifeqend
-    {
-#var sContext .TemplateParams.TemplateParam1
-#var sOptMod *
 #indent +
-#else
-#var sContext .
-#var sOptMod
-#ifeqend
-#context $($sContext)
-\
-#ifeq($(.Name),Abstract) // abstract type
-
-#ifeq($(Param.Options.*isAttribute),true||1) // attribute
-#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
-#ifeqend
-#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
-#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
-#ifeqend
-  $($sResultName) >> $($sOptMod)tReturn;
-#else // not abstract
-\
-#ifeq($(.Type),generic)    // !!generic!!
-    $($sResultName).GetValue($($sOptMod)tReturn);
-#else
-#ifeq($(.Type),string)    // !!string!!
-    $($sOptMod)tReturn = $($sResultName).GetText();
-#else
-#ifeq($(.Type),dataobject) // !!dataobject!!
-    $($sOptMod)tReturn = $($sResultName).FirstChild();
-#else
-#ifeq($(.Type),struct||enum)
-    $($sResultName) >> $($sOptMod)tReturn;
-#else
-#ifeq($(.Type),typedef)
-    DeserializeTypedef_$(.NsName.!mangle)($($sResultName), $($sOptMod)tReturn);
-#else
-#ifeq($(.Type),template)
-
-#ifeq($(.Name),map||multimap)
-\
-    $(.TemplateParams.TemplateParam1) tKey\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-    $(.TemplateParams.TemplateParam2) tValue\
-#ifeq($(.TemplateParams.TemplateParam2.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#else
-\
-    $(.TemplateParams.TemplateParam1) tItem\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#ifeqend
-    for (::staff::DataObject tdoItem = $($sResultName).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
-    {
-#ifeq($(.NsName),std::map)
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
-      tdoItem.GetChildByLocalName("Key").GetValue(tKey);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-      DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-      tdoKey >> tKey;
-#else
-      DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoKey, tKey);
-#ifeqend
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-
-#ifeq($(.TemplateParams.TemplateParam2.Type),generic||string)
-      tdoItem.GetChildByLocalName("Value").GetValue(tValue);
-#else
-#ifeq($(.TemplateParams.TemplateParam2.Type),struct||typedef||enum)
-      DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
-#ifneq($(.TemplateParams.TemplateParam2.Type),typedef)
-      tdoValue >> tValue;
-#else
-      DeserializeTypedef_$(.TemplateParams.TemplateParam2.NsName.!mangle)(tdoValue >> tValue);
-#ifeqend
-#else
-#ifeq($(.TemplateParams.TemplateParam2.Type),dataobject)
-      tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam2.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-      tReturn[tKey] = tValue;
-
-#else
-\
-#ifeq($(.Name),list||vector)
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-      tdoItem.GetValue(tItem);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-      tdoItem >> tItem;
-#else
-      DeserializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, tItem);
-#ifeqend
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
-      tItem = tdoItem;
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-\
-      ($($sOptMod)tReturn).push_back(tItem);
-#ifeqend
-    }
-#else
-#cgerror template type $(.NsName) is not supported
-#ifeqend
-
-#else
-#cgerror ".Type = $(.Type);"
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-\
-#contextend // optional
-#ifeq($(.Name),Optional||Nillable)
+#var sParam tReturn
+#var sdoParam rdoResponse
+#var sParamName $(Member.Options.*resultElement)
+#cginclude <common/TypeDeserialization.cpp>
 #indent -
-    }
-#ifeqend
     m_rCallback.OnComplete(tReturn);
 #ifeqend // void
-\
 #contextend // callback
   }
 
@@ -466,151 +307,25 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 \
 #var tCallbackParamName
-  staff::Operation tOperation(\
-#ifneq($(Member.Options.*requestElement),)
-"$(Member.Options.*requestElement)"\
-#else
-"$(Member.Name)"\
-#ifeqend
+  staff::Operation tOperation("$(Member.Options.*requestElement||Member.Name)"\
 , "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
 
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)
-\
-#ifeq($(Param.DataType.Name),Optional||Nillable)
-  if (!$(Param.Name).IsNull())
-  {
-#indent +
-#var sContext Param.DataType.TemplateParams.TemplateParam1
-#var sOptMod *
-#else
-#var sContext Param.DataType
-#var sOptMod
-#ifeqend
-#context $($sContext)
-\
-#ifneq($(.Name),ICallback)
-  staff::DataObject tdoParam$(Param.Name) = tOperation.Request().CreateChild("$(Param.Name)");
-\
-#ifeq($(.Name),Abstract) // abstract type
-
-#ifeq($(Param.Options.*isAttribute),true||1) // attribute
-#cgerror Can't serialize abstract member into attribute. In struct $(Struct.NsName), member $(Param.Name)
-#ifeqend
-#ifneq($(.TemplateParams.TemplateParam1.Type),struct)
-#cgerror Abstract template type is not struct. In struct $(Struct.NsName), member $(Param.Name)
-#ifeqend
-  tdoParam$(Param.Name) << $($sOptMod)$(Param.Name);
-#else // not abstract
-\
-#ifeq($(.Type),generic)    // !!generic!!
-  tdoParam$(Param.Name).SetValue($($sOptMod)$(Param.Name));
-#else
-#ifeq($(.Type),string)    // !!string!!
-  tdoParam$(Param.Name).SetText($($sOptMod)$(Param.Name));
-#else
-#ifeq($(.Type),dataobject) // !!dataobject!!
-  tdoParam$(Param.Name).AppendChild($($sOptMod)$(Param.Name));
-#else
-#ifeq($(.Type),struct||enum)
-  tdoParam$(Param.Name) << $($sOptMod)$(Param.Name);
-#else
-#ifeq($(.Type),typedef)
-  SerializeTypedef_$(.NsName.!mangle)(tdoParam$(Param.Name), $($sOptMod)$(Param.Name));
-#else
-#ifeq($(.Type),template)
-  for ($(.NsName)::const_iterator it = ($($sOptMod)$(Param.Name)).begin();
-      it != ($($sOptMod)$(Param.Name)).end(); ++it)
-  {
-#ifeq($(.Name),map||multimap)
-    ::staff::DataObject tdoItem = tdoParam$(Param.Name).CreateChild("Item");
-\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-    tdoItem.CreateChild("Key").SetValue(it->first);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    DataObject tdoKey = tdoItem.CreateChild("Key");
-    tdoKey << tKey;
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-    tdoItem.CreateChild("Value").tdoValue.SetValue(it->second);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    DataObject tdoValue = tdoItem.CreateChild("Value");
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-    tdoValue << it->second;
-#else
-    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoValue, it->second);
-#ifeqend
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
-    tdoItem.CreateChild("Value").AppendChild(it->second);
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-
-#else
-\
-#ifeq($(.Name),list||vector)
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-    tdoParam$(Param.Name).CreateChild("Item").SetValue(*it);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-    DataObject tdoItem = tdoParam$(Param.Name).CreateChild("Item");
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-    tdoItem << *it;
-#else
-    SerializeTypedef_$(.TemplateParams.TemplateParam1.NsName.!mangle)(tdoItem, *it);
-#ifeqend
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
-    tdoParam$(Param.Name).CreateChild("Item").AppendChild(*it);
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-#else
-#cgerror template type $(.NsName) is not supported
-#ifeqend
-\
-#ifeqend
-  }
-#else
-#cgerror ".Type = $(.Type);"
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
+#ifneq($(Param.DataType.Name),ICallback)
+#context $(Param.DataType)
+#var sParam $(Param.Name)
+#var sParamName $(Param.Name)
+#var sdoParam tOperation.Request().CreateChild("$(Param.Name)")
+#cginclude <common/TypeSerialization.cpp>
+#contextend
 #else // ICallback
 #ifneq($($tCallbackParamName),)
 #cgerror Duplicate callback definition in "$(Class.Name)::$(Member.Name)"
 #ifeqend
 #var tCallbackParamName $(Param.Name)
 #ifeqend
-\
-#ifeq($(Param.DataType.Name),Optional||Nillable)
-#indent -
-  }
-#ifeqend
-#ifeq($(Param.DataType.Name),Nillable)
-  else
-  {
-    tOperation.Request().CreateChild("$(Param.Name)").SetNil();
-  }
-#ifeqend
-\
-#contextend
 #end // member.params
 
 #ifeqend // Member.Params.$Count != 0
@@ -626,156 +341,34 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 \
 #ifneq($(Member.Return.Name),void)      // !!void!!
 
-
   const staff::DataObject& rdoResult = tOperation.ResultOpt();
+#ifneq($(Member.Return.Type),string||dataobject)
   $(Member.Return.NsName) tReturn\
 #ifeq($(Member.Return.Type),generic)    // !!generic!!
  = 0\
 #ifeqend
 ;
-
-#ifeq($(Member.Return.Name),Optional||Nillable)
-#ifeq($(Member.Return.Name),Nillable)
-  if (!rdoResult.IsNil())
-#else
-  if (!rdoResult.IsNull())
-#ifeqend
-  {
-#var sContext Member.Return.TemplateParams.TemplateParam1
-#var sOptMod *
-#indent +
-#else
-#var sContext Member.Return
-#var sOptMod
-#ifeqend
-#context $($sContext)
-\
-#ifeq($(.Name),Abstract) // abstract type
-  rdoResult >> $($sOptMod)tReturn;
-#else // not abstract
-\
-#ifeq($(.Type),generic)    // !!generic!!
-  rdoResult.GetValue($($sOptMod)tReturn);
-#else
-#ifeq($(.Type),string)    // !!string!!
-  $($sOptMod)tReturn = rdoResult.GetText();
-#else
-#ifeq($(.Type),dataobject) // !!dataobject!!
-  $($sOptMod)tReturn = rdoResult.FirstChild();
-#else
-#ifeq($(.Type),struct||enum)
-  rdoResult >> $($sOptMod)tReturn;
-#else
-#ifeq($(.Type),typedef)
-  DeserializeTypedef_$(.NsName.!mangle)(rdoResult, $($sOptMod)tReturn);
-#else
-#ifeq($(.Type),template)
-
-#ifeq($(.Name),map||multimap)
-\
-  $(.TemplateParams.TemplateParam1) tKey\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
- $(.TemplateParams.TemplateParam2) tValue\
-#ifeq($(.TemplateParams.TemplateParam2.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#else
-\
-  $(.TemplateParams.TemplateParam1) tItem\
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
- = 0\
-#ifeqend
-;
-\
-#ifeqend
-  for (::staff::DataObject tdoItem = rdoResult.FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
-  {
-#ifeq($(.NsName),std::map)
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic)
-   tdoItem.GetChildByLocalName("Key").GetValue(tKey);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-  DataObject tdoKey = tdoItem.GetChildByLocalName("Key");
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-  tdoKey >> tKey;
-#else
-  DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoKey, tKey);
-#ifeqend
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-  tdoItem.GetChildByLocalName("Value").GetValue(tValue);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||enum)
-  DataObject tdoValue = tdoItem.GetChildByLocalName("Value");
-#ifneq($(.TemplateParams.TemplateParam1.Type),typedef)
-  tdoValue >> tValue;
-#else
-  DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoValue, tValue);
-#ifeqend
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
-   tValue = tdoItem.GetChildByLocalName("Value").FirstChild();
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
-    tReturn[tKey] = tValue;
-
-#else
-\
-#ifeq($(.Name),list||vector)
-#ifeq($(.TemplateParams.TemplateParam1.Type),generic||string)
-    tdoItem.GetValue(tItem);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),struct||enum)
-    tdoItem >> tItem;
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),typedef)
-    DeserializeTypedef_$(.TemplateParams.TemplateParam1.!mangle)(tdoItem, tItem);
-#else
-#ifeq($(.TemplateParams.TemplateParam1.Type),dataobject)
-    tItem = tdoItem;
-#else
-#cgerror key element type $(.TemplateParams.TemplateParam1.Type) is not supported
-#ifeqend
-#ifeqend
-#ifeqend
 #ifeqend
 \
-    ($($sOptMod)tReturn).push_back(tItem);
-#else
-#cgerror template type $(.NsName) is not supported
-#ifeqend
-#ifeqend
-  }
-
-#else
-#cgerror ".Type = $(.Type);"
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
-#ifeqend
+#ifeq($(Member.Return.Type),string||dataobject)
+  return \
 #ifeqend
 \
-#ifeq($(Member.Return.Name),Optional||Nillable)
-#indent -
-  }
-#ifeqend
+#context $(Member.Return)
+#var sParam tReturn
+#var sParamName
+#var sdoParam rdoResult
+#cginclude <common/TypeDeserialization.cpp>
 #contextend
+#ifeq($(Member.Return.Type),struct||typedef||template||generic||enum)
+  return tReturn\
+#else
+#ifneq($(Member.Return.Type),string||dataobject)
+#cgerror "Member.Return.Name = $(Member.Return.Name);"
+#ifeqend
+#ifeqend
+;
 \
-  return tReturn;
 #ifeqend
 #else // is asynch
   // asynchronous call

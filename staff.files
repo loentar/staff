@@ -409,6 +409,8 @@ staff/tools/codegen/template/common/Serialization.cpp
 staff/tools/codegen/template/common/Serialization.h
 staff/tools/codegen/template/common/StructSerialization.cpp
 staff/tools/codegen/template/common/StructSerialization.h
+staff/tools/codegen/template/common/TypeDeserialization.cpp
+staff/tools/codegen/template/common/TypeSerialization.cpp
 staff/tools/codegen/template/component/codegen.config
 staff/tools/codegen/template/component/ComponentImpl.cpp
 staff/tools/codegen/template/component/ComponentImpl.h

@@ -26,6 +26,7 @@ namespace optional
     virtual ::samples::optional::TasksList GetAllTasks() const;
     virtual staff::Optional<AttachInfo> GetAttachInfo(int nTaskId);
     virtual staff::Optional< std::list<std::string> > EchoOpt(const staff::Optional< std::list<std::string> >& opt);
+    virtual std::list< staff::Optional<std::string> > EchoOpt2(const std::list< staff::Optional<std::string> >& opt);
 
   private:
     TasksList m_lsTasks;

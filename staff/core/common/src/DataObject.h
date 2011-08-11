@@ -805,6 +805,43 @@ namespace staff
         */
     void SetText(const std::string& sText);
 
+
+    // optimized get value functions
+    // returns true, if conversion to type was successed
+    bool GetChildValueByLocalName(const char* szLocalName, bool& rbValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, byte& rbtValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, int& rnValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, short& rshValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, long& rlValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, long long& rllValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, unsignedByte& rubtValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, unsigned int& runValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, unsigned short& rushValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, unsigned long& rulValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, unsigned long long& rullValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, float& rfValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, double& rdValue) const;
+    void GetChildValueByLocalName(const char* szLocalName, std::string& sValue) const;
+    std::string GetChildTextByLocalName(const char* szLocalName) const;
+
+
+    bool GetChildValueByLocalName(const std::string& sLocalName, bool& rbValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, byte& rbtValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, int& rnValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, short& rshValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, long& rlValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, long long& rllValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, unsignedByte& rubtValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, unsigned int& runValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, unsigned short& rushValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, unsigned long& rulValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, unsigned long long& rullValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, float& rfValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, double& rdValue) const;
+    void GetChildValueByLocalName(const std::string& sLocalName, std::string& sValue) const;
+    std::string GetChildTextByLocalName(const std::string& sLocalName) const;
+
+
     //////////////////////////////////////////////////////////////////////////
     // dynamic types support
 
@@ -1345,6 +1382,8 @@ namespace staff
 
     //! internal constructor for childs
     DataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement);
+
+    const char* GetChildTextByLocalNameC(const char* szLocalName) const;
 
   private:
     axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node

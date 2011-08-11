@@ -48,6 +48,8 @@ namespace optional
 
     virtual staff::Optional< std::list<std::string> > EchoOpt(const staff::Optional< std::list<std::string> >& opt) = 0;
 
+    virtual std::list< staff::Optional<std::string> > EchoOpt2(const std::list< staff::Optional<std::string> >& opt) = 0;
+
     //! get all tasks
     /*! \return tasks list
       */

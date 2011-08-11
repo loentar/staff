@@ -264,7 +264,7 @@ namespace codegen
             case 'r': sParamBegin.replace(nPos, 2, 1, '\r'); break;
             case 'n': sParamBegin.replace(nPos, 2, 1, '\n'); break;
             case 't': sParamBegin.replace(nPos, 2, 1, '\t'); break;
-            case '\\': sParamBegin.erase(nPos, 1); break;
+            default: sParamBegin.erase(nPos, 1);
             }
           }
         }
@@ -562,6 +562,11 @@ namespace codegen
       {
         if (sString[nPosEnd] == ')')
         {
+          if (nPosEnd > 0 && sString[nPosEnd - 1] == '\\')
+          {
+            ++nPosEnd;
+            continue;
+          }
           --nRecursion;
           if (nRecursion == 0)
           {
