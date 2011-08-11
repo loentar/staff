@@ -54,7 +54,7 @@ namespace staff
 
     inline Nillable<Type>& operator=(const Nillable<Type>& rOpt)
     {
-      m_tpData = const_cast< Nillable<Type>& >(rOpt).m_tpData;
+      m_tpData = rOpt.m_tpData;
       return *this;
     }
 
@@ -85,7 +85,7 @@ namespace staff
 
     inline const Type* operator->() const
     {
-      return &(const_cast< Nillable<Type>* >(this)->Get());
+      return &Get();
     }
 
     inline Type& operator*()
@@ -95,7 +95,7 @@ namespace staff
 
     inline const Type& operator*() const
     {
-      return const_cast< Nillable<Type>* >(this)->Get();
+      return Get();
     }
 
     inline void Reset()
@@ -113,7 +113,7 @@ namespace staff
       return !!m_tpData.Get();
     }
 
-    inline Type& Get()
+    inline Type& Get() const
     {
       Type* pData = m_tpData.Get();
       if (!pData)
@@ -126,7 +126,7 @@ namespace staff
     }
 
   private:
-    rise::CMutablePtr<Type> m_tpData;
+    mutable rise::CMutablePtr<Type> m_tpData;
   };
 
 } // namespace staff
