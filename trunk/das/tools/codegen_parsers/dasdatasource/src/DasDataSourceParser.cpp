@@ -352,7 +352,6 @@ namespace codegen
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
                                                  + stParam.stDataType.sName;
         OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
-        stParam.stDataType.sNodeName = stParam.sName;
 
         if (stParam.stDataType.eType == DataType::TypeString ||
             stParam.stDataType.eType == DataType::TypeStruct ||

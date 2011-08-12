@@ -67,7 +67,7 @@ $(Param.DataType.TemplateParams.TemplateParam1) tResult\
 #end // Project.Interfaces
 
 
-int main(int nArgs, const char* paszArgs[])
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
@@ -81,15 +81,20 @@ int main(int nArgs, const char* paszArgs[])
     // Invoke Your service here:
 #foreach $(Class.Members)
 
-#ifeq($(Member.IsAsynch),0) // blocking call
-#ifneq($(Member.Return.NodeName),)
-#var VarName $(Member.Return.NodeName)
-#else
-#var VarName t$(Member.Name)Result
+#foreach $(Member.Params)
+#ifneq($(Param.DataType.Name),ICallback)
+    // $(Param.DataType.NsName) $(Param.Name)\
+#ifeq($(Param.DataType.Type),generic)
+ = 0\
 #ifeqend
+;
+#ifeqend
+#end // Member.Params
+#ifeq($(Member.IsAsynch),0) // blocking call
+#var sResult $(Member.Options.*responseElement||Member.Options.*resultElement||"t$(Member.Name)Result")
     // \
 #ifneq($(Member.Return.Name),void)
-$(Member.Return.NsName) $($VarName) = \
+$(Member.Return.NsName) $($sResult) = \
 #ifeqend
 p$(Class.ServiceName)->$(Member.Name)(\
 #foreach $(Member.Params)
@@ -100,7 +105,7 @@ $(Param.Name)\
 #end // Member.Params
 );
 #ifneq($(Member.Return.Name),void)
-    // rise::LogInfo() << "$(Member.Name) result: " << $($VarName);
+    // rise::LogInfo() << "$(Member.Name) result: " << $($sResult);
 #else
     // rise::LogInfo() << "$(Member.Name) called";
 #ifeqend

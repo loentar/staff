@@ -657,7 +657,6 @@ namespace codegen
       rDataType.eType = DataType::TypeUnknown;
       rDataType.sUsedName.erase();
       rDataType.lsParams.clear();
-      rDataType.sNodeName.erase();
       rDataType.sNamespace.erase();
 
       std::string sTypeName;
@@ -794,9 +793,6 @@ namespace codegen
 
       ParseDataType(sDataType, rParameter.stDataType);
       rParameter.sName = sParamAndType.substr(nPos + 1);
-      // rise::StrTrim(rParameter.sName); // already between spaces
-
-      rParameter.stDataType.sNodeName = rParameter.sName;
     }
 
     // member
@@ -1012,6 +1008,31 @@ namespace codegen
           } else
           {
             ParseMember(stMember);
+            for (StringMap::const_iterator itOption = stMember.mOptions.begin();
+                 itOption != stMember.mOptions.end(); ++itOption)
+            {
+              if (itOption->first.substr(0, 6) == "param-")
+              {
+                const std::string& sParamName = itOption->first.substr(6);
+                for (std::list<Param>::iterator itParam = stMember.lsParams.begin();
+                     itParam != stMember.lsParams.end(); ++itParam)
+                {
+                  if (itParam->sName == sParamName)
+                  {
+                    const std::string& sTmp = itOption->second;
+                    std::string::size_type nPos = sTmp.find(':', 1);
+                    if (nPos != std::string::npos)
+                    {  // add an option
+                      std::string sName = sTmp.substr(0, nPos);
+                      std::string sValue = sTmp.substr(nPos + 1);
+                      rise::StrTrim(sName);
+                      rise::StrTrim(sValue);
+                      itParam->mOptions[sName] = sValue;
+                    }
+                  }
+                }
+              }
+            }
             rClass.lsMembers.push_back(stMember);
           }
         }

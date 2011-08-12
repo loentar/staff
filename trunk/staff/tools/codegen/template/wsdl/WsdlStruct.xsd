@@ -37,7 +37,7 @@
 #ifeqend
 #var sChoiceId $(Param.Options.*choiceId)
 #ifeqend
-          <element name="$(Param.Name)"\
+          <element name="$(.Options.*elementName||Param.Name)"\
 #ifeq($(Param.DataType.Name),Optional||Nillable)
 #ifeq($(Param.DataType.Name),Nillable)
  nillable="true"\
@@ -70,6 +70,7 @@
           </element>
 #else
 #ifeq($(.Type),template)
+#ifeq($(Param.Options.*useParentElement),)
 >
             <complexType>
 #ifneq($(Param.Description),)
@@ -82,6 +83,11 @@
               </sequence>
             </complexType>
           </element>
+#else
+ type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+#ifeqend
 #else // simple type
  type="\
 #cginclude "WsdlDataType.xsd"

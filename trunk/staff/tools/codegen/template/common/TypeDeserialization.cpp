@@ -158,7 +158,7 @@ $($doName).FirstChild()\
 #ifeq($(.Type),template)                                       // ==== template ====
   for (staff::DataObject tdoItem = $($sdoParam).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
-#var sElementName $(.Options.*elementName||"Item")
+#var sElementName $($sElementName||.Options.*elementName||"Item")
 #ifneq($($bUseParentElement),true||1)
     if (tdoItem.GetLocalName() == "$($sElementName)")
     {
@@ -185,7 +185,7 @@ $($doName).FirstChild()\
 #contextend
 #indent -
 \
-  $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)$($sParam))[tKey];
+    $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)$($sParam))[tKey];
 #indent +
 #context $(.TemplateParams.TemplateParam2)
 #cgpushvars
@@ -208,7 +208,7 @@ insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)()
 #var sParamTmp rItem
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||enum)
-      $(.TemplateParams.TemplateParam1.NsName) tItem\
+    $(.TemplateParams.TemplateParam1.NsName) tItem\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
  = 0\
 #ifeqend

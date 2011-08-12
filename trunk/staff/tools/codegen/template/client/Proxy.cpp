@@ -309,6 +309,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var tCallbackParamName
   staff::Operation tOperation("$(Member.Options.*requestElement||Member.Name)"\
 , "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
+  staff::DataObject& rdoRequest = tOperation.Request();
 
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
 #ifneq($(Member.Params.$Count),0)
@@ -317,7 +318,13 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #context $(Param.DataType)
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
-#var sdoParam tOperation.Request().CreateChild("$(Param.Name)")
+#ifeq($(Param.Options.*useParentElement),)
+#var sdoParam rdoRequest.CreateChild("$(Param.Name)")
+#var sElementName
+#else
+#var sdoParam rdoRequest
+#var sElementName $(Param.Name)
+#ifeqend
 #cginclude <common/TypeSerialization.cpp>
 #contextend
 #else // ICallback
@@ -332,7 +339,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend // bGenerateBody
 #ifeq($($tCallbackParamName),)
   // synchronous call
-  tOperation.SetResponse(m_tClient.$($SendMethod)(tOperation.Request()));
+  tOperation.SetResponse(m_tClient.$($SendMethod)(rdoRequest));
   if (m_tClient.GetLastResponseHasFault())
   {
     RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
@@ -373,7 +380,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else // is asynch
   // asynchronous call
   staff::PICallback tCallback(new $(Class.Name)$(Member.Name)AsynchCallProxy($($tCallbackParamName)));
-  m_tClient.Invoke(tOperation.Request(), tCallback);
+  m_tClient.Invoke(rdoRequest, tCallback);
 #ifeqend
 }
 #end

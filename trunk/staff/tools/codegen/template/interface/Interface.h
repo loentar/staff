@@ -116,6 +116,11 @@ $($sNewOpeningNs)
 #foreach $(Member.Options)
     // *$($ThisNodeName): $($ThisNodeValue)
 #end
+#foreach $(Member.Params)
+#foreach $(Param.Options)
+    // *param-$(Param.Name): $($ThisNodeName): $($ThisNodeValue)
+#end
+#end
 #ifneq($($nonblocking),)
     virtual void $(Member.Name)($(Member.Params)\
 #ifneq($(Member.Params.$Count),0)
