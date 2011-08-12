@@ -26,6 +26,7 @@ namespace staff
 
 DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
+#var bUseParentElement $(Typedef.Options.*useParentElement)
 #context $(Typedef.DataType)
 #var sParam rtType
 #var sdoParam rdoParam
@@ -45,6 +46,7 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 (const DataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
+#var bUseParentElement $(Typedef.Options.*useParentElement)
 #context $(Typedef.DataType)
 #var sParam rtType
 #var sdoParam rdoParam

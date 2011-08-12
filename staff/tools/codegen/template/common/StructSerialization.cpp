@@ -79,6 +79,11 @@ rstStruct\
 #var sdoParam rdoParam.CreateChild("$(Param.Name)")
 #ifeqend
 #ifeqend
+#ifeq($(Struct.Options.*choiceArrayItem),true||1)
+#ifneq($(Param.$Num),0)
+  else
+#ifeqend
+#ifeqend
 #cginclude "TypeSerialization.cpp"
 #contextend
 #end
@@ -102,10 +107,24 @@ rstStruct\
 #ifeqend
 #foreach $(Struct.Members)
 #context $(Param.DataType)
-#var sParam rstStruct.$(Param.Name)
+#ifneq($(Struct.Options.*choiceArrayItem),true||1)
 #var sParamName $(Param.Name)
+#else
+#var sParamName
+#ifneq($(Param.$Num),0)
+  else
+#ifeqend
+  if (rdoParam.GetLocalName() == "$(Param.Name)")
+  {
+#indent +
+#ifeqend
+#var sParam rstStruct.$(Param.Name)
 #var sdoParam rdoParam
 #cginclude "TypeDeserialization.cpp"
+#ifeq($(Struct.Options.*choiceArrayItem),true||1)
+#indent -
+  }
+#ifeqend
 #contextend
 #end
   return rdoParam;

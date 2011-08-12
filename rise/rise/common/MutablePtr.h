@@ -168,13 +168,13 @@ namespace rise
         if(*m_pnCounter == 0)
         {
           delete m_pnCounter;
-          m_pnCounter = NULL;
           if(m_pData != NULL)
           {
             delete m_pData;
-            m_pData = NULL;
           }
         }
+        m_pnCounter = NULL;
+        m_pData = NULL;
       }
     }
     
