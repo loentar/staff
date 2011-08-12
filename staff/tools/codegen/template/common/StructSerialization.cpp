@@ -84,6 +84,11 @@ rstStruct\
   else
 #ifeqend
 #ifeqend
+#ifeq($(Param.Options.*useParentElement),)
+#var sElementName
+#else
+#var sElementName $(Param.Name)
+#ifeqend
 #cginclude "TypeSerialization.cpp"
 #contextend
 #end
@@ -117,6 +122,11 @@ rstStruct\
   if (rdoParam.GetLocalName() == "$(Param.Name)")
   {
 #indent +
+#ifeqend
+#ifeq($(Param.Options.*useParentElement),)
+#var sElementName
+#else
+#var sElementName $(Param.Name)
 #ifeqend
 #var sParam rstStruct.$(Param.Name)
 #var sdoParam rdoParam

@@ -455,7 +455,6 @@ namespace codegen
       rDataType.eType = DataType::TypeUnknown;
       rDataType.sUsedName.erase();
       rDataType.lsParams.clear();
-      rDataType.sNodeName.erase();
       rDataType.sNamespace.erase();
 
       std::string sTypeName;

@@ -163,8 +163,6 @@ namespace codegen
     rNodeDataTypes["NsName"] = sNsName;
     rNodeDataTypes.AddSubNode(" Type namespace ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Namespace"] = rDataType.sNamespace;
-    rNodeDataTypes.AddSubNode(" Node name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["NodeName"] = rDataType.sNodeName;
     rNodeDataTypes.AddSubNode(" Type ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Type"] = rDataType.eType;
 

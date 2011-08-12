@@ -52,7 +52,6 @@ namespace codegen
     bool                 bIsConst;    //!<  const type
     bool                 bIsRef;      //!<  reference type
     Type                 eType;       //!<  data type enum
-    std::string          sNodeName;   //!<  SOAP node name
     std::string          sUsedName;   //!<  name as used
     std::string          sName;       //!<  type name (int, string, etc.)
     std::string          sNamespace;  //!<  namespace

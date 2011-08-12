@@ -1040,9 +1040,13 @@ namespace codegen
                 {
                   GetCppType(rChildElement.stType, stDataType);
                 }
+                stParam.sName = rChildElement.sName;
                 if (rChildElement.bIsArray)
                 {
-                  stParam.sName = rElement.sName;
+                  if (!nRecursionLevel)
+                  {
+                    stParam.mOptions["useParentElement"] = "true";
+                  }
                   stParam.stDataType.lsParams.push_back(stDataType);
                   stParam.stDataType.eType = DataType::TypeTemplate;
                   stParam.stDataType.sName = "list";
@@ -1050,12 +1054,10 @@ namespace codegen
                 }
                 else
                 {
-                  stParam.sName = rChildElement.sName;
                   stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
                   OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
                   stParam.stDataType = stDataType;
                 }
-                stParam.stDataType.sNodeName = rChildElement.sName;
 
                 if (!rComplexType.lsAttributes.empty() || rComplexType.bHasAnyAttribute)
                 {
@@ -1189,7 +1191,6 @@ namespace codegen
                       WrapTypeInTemplate(stParam.stDataType, "Nillable");
                     }
                   }
-                  stParam.stDataType.sNodeName = rElement.sName;
                   rMember.stReturn = stParam;
                 }
               }
@@ -1291,8 +1292,6 @@ namespace codegen
 
         if (!bIsResponse)
         {  // set node name for request
-          stParam.stDataType.sNodeName = rElement.sName;
-
           if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
           {
             WrapTypeInTemplate(stParam.stDataType, "Optional");
@@ -1332,7 +1331,6 @@ namespace codegen
           }
 
           rMember.stReturn = stParam;
-          rMember.stReturn.stDataType.sNodeName = rElement.sName;
         }
       }
 
@@ -1365,7 +1363,6 @@ namespace codegen
 
         Param stParam;
         stParam.sName = StripPrefix(sPartName);
-        stParam.stDataType.sNodeName = stParam.sName;
 
         const std::string& sName = StripPrefix(sType);
         const std::string& sPrefix = GetPrefix(sType);
@@ -1373,7 +1370,6 @@ namespace codegen
 
         GetCppType(QName(sName, sPrefix, sNamespace), stParam.stDataType);
         RISE_ASSERTES(!stParam.stDataType.sName.empty(), rise::CLogicNoItemException, "Unknown part type");
-        stParam.stDataType.sNodeName = stParam.stDataType.sName;
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
         OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
@@ -2100,7 +2096,6 @@ namespace codegen
       if (stDataType.eType == DataType::TypeTypedef ||
           stDataType.eType == DataType::TypeStruct)
       {
-        stDataType.sNodeName = stDataType.sName;
         return stDataType;
       }
 
@@ -2110,28 +2105,37 @@ namespace codegen
         const Element& rElem = rComplexType.lsElements.front();
         if (rElem.bIsArray)
         {
-          Typedef stTypedef;
-          stTypedef.bExtern = rComplexType.bIsExtern;
-          stTypedef.sName = stDataType.sName;
-          stTypedef.sNamespace = stDataType.sNamespace;
-          stTypedef.sDescr = rComplexType.sDescr;
-          stTypedef.sDetail = rComplexType.sDetail;
-
-          ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
-
-          if (!rElem.sName.empty())
+          if (!rElem.lsComplexTypes.empty())
           {
-            stTypedef.mOptions["elementName"] = rElem.sName;
+            Typedef stTypedef;
+            stTypedef.bExtern = rComplexType.bIsExtern;
+            stTypedef.sName = stDataType.sName;
+            stTypedef.sNamespace = stDataType.sNamespace;
+            stTypedef.sDescr = rComplexType.sDescr;
+            stTypedef.sDetail = rComplexType.sDetail;
+
+            ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
+
+            if (!rElem.sName.empty())
+            {
+              stTypedef.mOptions["elementName"] = rElem.sName;
+            }
+
+            m_stInterface.lsTypedefs.push_back(stTypedef);
+
+            DataType stResDataType;
+            stResDataType.eType = DataType::TypeTypedef;
+            stResDataType.sName = stTypedef.sName;
+            stResDataType.sNamespace = stTypedef.sNamespace;
+
+            return stResDataType;
           }
-
-          m_stInterface.lsTypedefs.push_back(stTypedef);
-
-          DataType stResDataType;
-          stResDataType.eType = DataType::TypeTypedef;
-          stResDataType.sName = stTypedef.sName;
-          stResDataType.sNamespace = stTypedef.sNamespace;
-
-          return stResDataType;
+          else
+          {
+            DataType stResDataType;
+            ElementToData(rElem, stResDataType, rWsdlTypes);
+            return stResDataType;
+          }
         }
       }
 
@@ -2286,6 +2290,24 @@ namespace codegen
           stMember.sDetail = pElement->sDetail;
 
           ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
+
+          if (!pElement->lsComplexTypes.empty())
+          {
+            const ComplexType& rComplexType = pElement->lsComplexTypes.front();
+            if (!rComplexType.lsElements.empty())
+            {
+              const std::string& sElemName = StripPrefix(rComplexType.lsElements.front().sName);
+              if (sElemName != "Item")
+              {
+                stMember.mOptions["elementName"] = sElemName;
+              }
+            }
+          }
+
+          if (pElement->bIsArray)
+          {
+            stMember.mOptions["useParentElement"] = "true";
+          }
 
           if (stMember.sName.empty())
           {
@@ -2493,7 +2515,6 @@ namespace codegen
       {
         if (pElement->bIsArray) // wrap in array
         {
-          rDataType.sNodeName = pElement->sName;
           rDataType.lsParams.push_back(rDataType);
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
@@ -2507,20 +2528,17 @@ namespace codegen
         {
           DataType stTempl;
           GetCppType(pElement->stType, stTempl);
-          stTempl.sNodeName = pElement->sName;
           stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
           OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
 
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
           rDataType.eType = DataType::TypeTemplate;
-          rDataType.sNodeName = pElement->sName;
           rDataType.lsParams.push_back(stTempl);
         }
         else
         {
           GetCppType(pElement->stType, rDataType);
-          rDataType.sNodeName = pElement->sName;
           rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
           OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
         }

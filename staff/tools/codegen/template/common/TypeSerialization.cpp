@@ -99,7 +99,7 @@
   for ($(.NsName)::const_iterator itItem = ($($sOptMod)$($sParam)).begin(), itItemEnd = ($($sOptMod)$($sParam)).end();
        itItem != itItemEnd; ++itItem)
   {
-#var sElementName $(.Options.*elementName||"Item")
+#var sElementName $($sElementName||.Options.*elementName||"Item")
 #ifeq($(.Name),map||multimap)                                  // ==== map ====
 #ifeq($($bUseParentElement),true||1)
 #var sdoItem $($doName)

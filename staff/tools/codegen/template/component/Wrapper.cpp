@@ -90,6 +90,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #end
 \
 #foreach $(Member.Params)  // ------------------- params ------------------------
+#ifeq($(Param.Options.*useParentElement),)
+#var sElementName
+#else
+#var sElementName $(Param.Name)
+#ifeqend
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 #context $(Param.DataType)
 #indent +2
