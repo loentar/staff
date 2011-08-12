@@ -5,7 +5,7 @@
 #ifeqend
 \
 #ifeq($(.Name),Optional||Nillable)           // ######### Optional or Nillable ############
-  if (!$($sParam).IsNull()) // $(.Name)
+  if (!($($sOptMod)$($sParam)).IsNull()) // $(.Name)
   {
 #cgpushvars
 #var sOptMod $($sOptMod)*
@@ -101,15 +101,21 @@
   {
 #var sElementName $(.Options.*elementName||"Item")
 #ifeq($(.Name),map||multimap)                                  // ==== map ====
-    staff::DataObject tdoItem = $($doName).CreateChild("$($sElementName)");
+#ifeq($($bUseParentElement),true||1)
+#var sdoItem $($doName)
+#else
+#var sdoItem tdoItem
+    staff::DataObject $($sdoItem) = $($doName).CreateChild("$($sElementName)");
+#ifeqend
 \
 #indent +
 #context $(.TemplateParams.TemplateParam1)
 #cgpushvars
+#var bUseParentElement
 #var sOptMod
 #var sParam itItem->first
 #var sParamName Item
-#var sdoParam tdoItem.CreateChild("Key")
+#var sdoParam $($sdoItem).CreateChild("Key")
 #cginclude "TypeSerialization.cpp"
 #cgpopvars
 #contextend
@@ -118,10 +124,11 @@
 #indent +
 #context $(.TemplateParams.TemplateParam2)
 #cgpushvars
+#var bUseParentElement
 #var sOptMod
 #var sParam itItem->second
 #var sParamName Item
-#var sdoParam tdoItem.CreateChild("Value")
+#var sdoParam $($sdoItem).CreateChild("Value")
 #cginclude "TypeSerialization.cpp"
 #cgpopvars
 #contextend
@@ -135,7 +142,12 @@
 #var sOptMod
 #var sParam (*itItem)
 #var sParamName Item
+#ifeq($($bUseParentElement),true||1)
+#var sdoItem $($doName)
+#else
 #var sdoParam $($doName).CreateChild("$($sElementName)")
+#ifeqend
+#var bUseParentElement
 #cginclude "TypeSerialization.cpp"
 #cgpopvars
 #contextend

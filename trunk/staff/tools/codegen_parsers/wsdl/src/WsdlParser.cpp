@@ -155,6 +155,7 @@ namespace codegen
     bool bIsSimpleContent;
     bool bHasAnyAttribute;
     bool bIsAbstract;
+    bool bIsInlineArray;
 
     ComplexType();
     ComplexType& Parse(const rise::xml::CXMLNode& rNodeComplexType);
@@ -435,6 +436,12 @@ namespace codegen
       sType == "anySimpleType";
   }
 
+  bool IsElementArray(const rise::xml::CXMLNode& rElement)
+  {
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rElement.FindAttribute("maxOccurs");
+    return (itAttr != rElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
+  }
+
   //////////////////////////////////////////////////////////////////////////
   void QName::FromType(const rise::xml::CXMLNode& rElement, const std::string& sType)
   {
@@ -531,8 +538,7 @@ namespace codegen
     itAttr = rNodeElement.FindAttribute("nillable");
     bIsNillable = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "true");
 
-    itAttr = rNodeElement.FindAttribute("maxOccurs");
-    bIsArray = (itAttr != rNodeElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
+    bIsArray = IsElementArray(rNodeElement);
 
     if (!bIsArray)
     {
@@ -641,7 +647,7 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   ComplexType::ComplexType():
     bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
-    bHasAnyAttribute(false), bIsAbstract(false), nLastChoiceId(0)
+    bHasAnyAttribute(false), bIsAbstract(false), bIsInlineArray(false), nLastChoiceId(0)
   {
   }
 
@@ -692,6 +698,7 @@ namespace codegen
         if (sNodeName == "choice")
         {
           ParseSequence(*itChild, rise::ToStr(nLastChoiceId++));
+          bIsInlineArray = IsElementArray(*itChild);
         }
         else
         if (sNodeName == "group")
@@ -765,6 +772,7 @@ namespace codegen
         if (sNodeName == "choice")
         {
           ParseSequence(*itChild, rise::ToStr(nLastChoiceId++));
+          bIsInlineArray = IsElementArray(*itChild);
         }
         else
         if (sNodeName == "group")
@@ -2172,6 +2180,34 @@ namespace codegen
             stStruct.mOptions["abstract"] = "true";
           }
 
+          if (rComplexType.bIsInlineArray)
+          {
+            // wrap struct into inline array
+            Typedef stTypedef;
+            static_cast<BaseType&>(stTypedef) = static_cast<const BaseType&>(stStruct);
+            stStruct.sName += "Item";
+            stStruct.mOptions["choiceArrayItem"] = "true";
+
+            stTypedef.stDataType.sName = "list";
+            stTypedef.stDataType.sNamespace = "std::";
+            stTypedef.stDataType.eType = DataType::TypeTemplate;
+            stTypedef.mOptions["useParentElement"] = "true";
+
+            DataType stTypedefDataType;
+            stTypedefDataType.eType = DataType::TypeTypedef;
+            stTypedefDataType.sName = stStruct.sName;
+            stTypedefDataType.sNamespace = stStruct.sNamespace;
+            stTypedef.stDataType.lsParams.push_back(stTypedefDataType);
+
+            m_stInterface.lsTypedefs.push_back(stTypedef);
+
+            stDataType.eType = DataType::TypeTypedef;
+          }
+          else
+          {
+            stDataType.eType = DataType::TypeStruct;
+          }
+
           // inheritance
           if (!sForceParentName.empty())
           {
@@ -2198,8 +2234,6 @@ namespace codegen
               OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
             }
           }
-
-          stDataType.eType = DataType::TypeStruct;
 
           std::string::size_type nPos = stStruct.sName.rfind("::");
           if (nPos != std::string::npos)

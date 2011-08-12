@@ -34,7 +34,7 @@
 #var doName $($sdoParam)
 #else
 #var doName $($sdoParam)$($sParamName)
-  const staff::DataObject& $($sdoParam)$($sParamName) = $($sdoParam).GetChildByLocalNameOpt("$($sParamName)");
+  const staff::DataObject& $($doName) = $($sdoParam).GetChildByLocalNameOpt("$($sParamName)");
 #ifeqend
   if (!$($doName).IsNull()) // optional
 #ifeqend // is attr
@@ -42,9 +42,11 @@
 #ifneq($($bUseParentElem),)
 #var doName $($sdoParam)
 #else
-#var doName $($sdoParam)$($sParamName)
 #ifeq($($sOptMod),)
+#var doName $($sdoParam)$($sParamName)
   const staff::DataObject& $($sdoParam)$($sParamName) = $($sdoParam).GetChildByLocalName("$($sParamName)");
+#else
+#var doName $($sdoParam)
 #ifeqend
 #ifeqend
   if (!$($doName).IsNil()) // $(.Name)
@@ -52,13 +54,26 @@
   {
 #cgpushvars
 #var sOptMod $($sOptMod)*
+#var sdoParam $($doName)
 #indent +
 #context $(.TemplateParams.TemplateParam1)
+#ifneq($(.Options.*isAttribute),true||1)
+#var sParamName
+#ifeqend
 #cginclude "TypeDeserialization.cpp"
 #contextend
 #indent -
 #cgpopvars
   }
+#ifeq($(.Name),Nillable)
+#ifneq($($sOptMod),)
+  else
+  {
+    // touch the variable to make it nil instead of null: Optional< Nillable< Data > >
+    $($sOptMod)$($sParam);
+  }
+#ifeqend
+#ifeqend
 #else // not optional or nillable */
 \
 #ifneq($($bUseParentElem),)
@@ -144,8 +159,12 @@ $($doName).FirstChild()\
   for (staff::DataObject tdoItem = $($sdoParam).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
 #var sElementName $(.Options.*elementName||"Item")
+#ifneq($($bUseParentElement),true||1)
     if (tdoItem.GetLocalName() == "$($sElementName)")
     {
+#indent +
+#else
+#ifeqend
 #ifeq($(.Name),map||multimap)                                  // ==== map ====
     $(.TemplateParams.TemplateParam1) tKey\
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic)
@@ -156,6 +175,7 @@ $($doName).FirstChild()\
 #indent +
 #context $(.TemplateParams.TemplateParam1)
 #cgpushvars
+#var bUseParentElement
 #var sOptMod
 #var sParam tKey
 #var sParamName Key
@@ -165,10 +185,11 @@ $($doName).FirstChild()\
 #contextend
 #indent -
 \
-    $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)$($sParam))[tKey];
+  $(.TemplateParams.TemplateParam2)& rValue = ($($sOptMod)$($sParam))[tKey];
 #indent +
 #context $(.TemplateParams.TemplateParam2)
 #cgpushvars
+#var bUseParentElement
 #var sOptMod
 #var sParam rValue
 #var sParamName Value
@@ -182,7 +203,7 @@ $($doName).FirstChild()\
 #ifeq($(.Name),list||vector)                                 // ==== list ====
 #var sParamTmp
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||template)
-      $(.TemplateParams.TemplateParam1.NsName)& rItem = *($($sOptMod)$($sParam)).\
+    $(.TemplateParams.TemplateParam1.NsName)& rItem = *($($sOptMod)$($sParam)).\
 insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)());
 #var sParamTmp rItem
 #else
@@ -194,12 +215,13 @@ insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)()
 ;
 #var sParamTmp tItem
 #else
-      ($($sOptMod)$($sParam)).push_back(\
+    ($($sOptMod)$($sParam)).push_back(\
 #ifeqend
 #ifeqend
-#indent +2
+#indent +
 #context $(.TemplateParams.TemplateParam1)
 #cgpushvars
+#var bUseParentElement
 #var sOptMod
 #var sParam $($sParamTmp)
 #var sParamName
@@ -207,9 +229,9 @@ insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)()
 #cginclude "TypeDeserialization.cpp"
 #cgpopvars
 #contextend
-#indent -2
+#indent -
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||enum)
-      ($($sOptMod)$($sParam)).push_back(tItem);
+    ($($sOptMod)$($sParam)).push_back(tItem);
 #else
 #ifneq($(.TemplateParams.TemplateParam1.Type),struct||typedef||template)
 );
@@ -219,7 +241,11 @@ insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)()
 #cgerror template type $(.NsName) is not supported
 #ifeqend
 #ifeqend
+#ifneq($($bUseParentElement),true||1)
+#indent -
     }
+#else
+#ifeqend
   }
 
 #else
