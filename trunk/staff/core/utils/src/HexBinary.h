@@ -39,15 +39,14 @@ namespace staff
 
     //! initializing constructor
     /*! encode data while construction
-        \param pBinaryData
-        \param ulDataSize
+        \param rByteArray - binary data
       */
     HexBinary(const ByteArray& rByteArray);
 
     //! initializing constructor
     /*! encode data while construction
-        \param pBinaryData
-        \param ulDataSize
+        \param pBinaryData - pointer to binary data
+        \param ulDataSize - binary data length
       */
     HexBinary(const byte* pBinaryData, unsigned long ulDataSize);
 

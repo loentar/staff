@@ -31,7 +31,7 @@ include $(MAKEFILES_DEP)
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
-VERSION=2.0.0-tp5
+VERSION=2.0.0-tp6
 
 ifeq ($(MAKECMDGOALS),distrib)
 include ../Makefile.distrib

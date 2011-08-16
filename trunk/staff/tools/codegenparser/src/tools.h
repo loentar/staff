@@ -34,6 +34,7 @@ namespace codegen
   //! get base type(currently struct and enum) by full or partial name in current context
   /*! \param  sNsName - type name in form [[[[some::]namespace::]Struct::]SubStruct::]SubSubstruct
       \param  rstInterface - reference to current interface
+      \param  eBaseType - base type to search
       \param  pstParent - optional pointer to structure search from
       \return found structure, NULL if not found
     */
@@ -55,9 +56,9 @@ namespace codegen
 
   //! optimize C++ namespace
   /*! example:
-        sOptimizeNs: ::samples::ticket::Ticket
-        sCurrentNs: ::samples::sharedtypes::
-        result: ticket::
+        sOptimizeNs: "::samples::ticket::Ticket"
+        sCurrentNs: "::samples::sharedtypes::"
+        result: "ticket::"
 
       \param  sOptimizeNs - namespace to optimize
       \param  sCurrentNs - current namespace

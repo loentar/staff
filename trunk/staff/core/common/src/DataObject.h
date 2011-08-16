@@ -321,7 +321,7 @@ namespace staff
     void Create(const std::string& sLocalName, double dValue);
 
     //!         create named node, set ownership flag, set node value(string)
-    /*! \param  sLocalName - node name
+    /*! \param  szLocalName - node name(C-string)
         \param  szText - node value(C-string)
     */
     void Create(const char* szLocalName, const char* szText);
@@ -333,7 +333,7 @@ namespace staff
     void Create(const std::string& sLocalName, const char* szText);
 
     //!         create named node, set ownership flag, set node value(string)
-    /*! \param  sLocalName - node name
+    /*! \param  szLocalName - node name(C-string)
         \param  sText - node value(string)
     */
     void Create(const char* szLocalName, const std::string& sText);
@@ -504,20 +504,20 @@ namespace staff
 
     //!         create child node with local name and value
     /*! \param  szLocalName - child's local name(C-string)
-        \param  sValue - child's value
+        \param  rValue - child's value
         \return created child
         */
     DataObject CreateChild(const char* szLocalName, const Value& rValue);
 
     //!         create child node with local name and value
     /*! \param  sLocalName - child's local name
-        \param  sValue - child's value
+        \param  rValue - child's value
         \return created child
         */
     DataObject CreateChild(const std::string& sLocalName, const Value& rValue);
 
     //!         create child with given local name if no child nodes with given name exists
-    /*! \param  sLocalName - child's local name
+    /*! \param  szLocalName - child's local name
         \return created or already existing child
         */
     DataObject CreateChildOnce(const char* szLocalName);
@@ -794,7 +794,7 @@ namespace staff
     //!         set node value(string)
     /*! alias for SetValue(char*)
         \sa SetValue
-        \param  sText - node value(string)
+        \param  szText - node value(string)
         */
     void SetText(const char* szText);
 
@@ -851,7 +851,7 @@ namespace staff
     void SetInstanceType(const std::string& sInstanceType);
 
     //! get xml schema instance type
-    /*! \param sInstanceType - xml schema instance type
+    /*! \return xml schema instance type
       */
     std::string GetInstanceType() const;
 
@@ -1171,7 +1171,7 @@ namespace staff
     const Attribute GetAttributeByLocalNameOpt(const std::string& sLocalName) const;
 
     //!         get attribute by local name
-    /*! \param  sLocalName - attribute's local name
+    /*! \param  szLocalName - attribute's local name
         \return found attribute or NULL
         */
     axiom_attribute_t* GetAxiomAttributeByLocalName(const char *szLocalName) const;
