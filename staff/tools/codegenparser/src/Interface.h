@@ -104,7 +104,7 @@ namespace codegen
     Type          eType;        //!<  type
     std::string   sName;        //!<  name
     std::string   sNamespace;   //!<  namespace
-    std::string   sOwnerName;   //!<  owner struct name in format StructName[::SubType]
+    std::string   sOwnerName;   //!<  owner struct name in format "StructName[::SubType]"
     std::string   sDescr;       //!<  service description
     std::string   sDetail;      //!<  detailed description
     bool          bExtern;      //!<  imported from other interface

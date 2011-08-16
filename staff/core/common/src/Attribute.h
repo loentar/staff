@@ -120,7 +120,7 @@ namespace staff
     Value GetValue() const;
 
     //!         set attribute value
-    /*! \param  tValue - value
+    /*! \param  rValue - value
     */
     void SetValue(const Value& rValue);
 
