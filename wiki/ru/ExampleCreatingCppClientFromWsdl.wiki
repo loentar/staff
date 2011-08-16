@@ -1,118 +1,134 @@
-#summary Создание СОА клиентов на основе WSDL описания.
+#summary Создание C++ клиента StockQuote из WSDL.
+
+<h1>Содержание</h1>
+<wiki:toc max_depth="2" />
 
 = Введение =
 
- Документ описывает базовую последовательность шагов, которую необходимо выполнить для создания С++ клиента, используя WSDL.
+Этот документ описывает шаги для создания С++ клиента из WSDL.
 
- В качестве примера используется Веб-сервис !StockQuote http://www.webservicex.net/WCF/ServiceDetails.aspx?SID=19
+В качестве сервиса будет использован сервис !StockQuote с http://webservicex.net/ws/WSDetails.aspx?CATID=2&WSID=9 .
 
- В результате выполнения шагов будет получен C++ клиент для работы с сервисом !StockQuote.
+= Зависимости =
+
+Должен быть установлен и сконфигурирован WSF Staff как описано в [InstallationManual Инструкции по установке].
 
 
 = Описание =
 
-== 0. Структура каталогов ==
- Сначала создадим структуру каталогов для клиента:
+== 1. Генерация проекта клиента ==
 
+ # Создайте каталог куда будет помещен клиент !StockQuote;
+ # Войдите в этот каталог и запустите генератор кода для создания проекта из WSDL:
 {{{
- # переменная нужна только для лучшего понимания структуры каталогов
- export WSCLIENTDIR=~/devel/ws/clients/stockquote
- # создаем каталог клиента и каталог для хранения исходного кода
- mkdir -p ${WSCLIENTDIR}/src
+  staff_codegen -pwsdl -tclient_all http://www.webservicex.net/stockquote.asmx?WSDL
+}}}
+ # Будет сгенерирован следующий набор файлов:
+|| *Файл*                      || *Описание*                                      ||
+|| stockquote.asmx             || Загруженный файл WSDL                           ||
+|| Makefile                    || Makefile для GNU Make                           ||
+|| stockquote_client.pro       || Файл проекта Qt (для qmake и Qt-Creator IDE)    ||
+|| stockquote_client.vcproj    || Файл проекта для Visual Studio                  ||
+|| codegen.cmd                 || Скрипт кодогенерации для VS                     ||
+|| src/stockquote.h            || Интерфейс сервиса !StockQuote                   ||
+|| src/main.cpp                || Шаблон реализации клиента                       ||
+
+
+== 2. Реализация клиента ==
+
+Для реализации клиента Вы можете использовать:
+  * Microsoft Visual Studio 2005 или выше;
+  * Qt-Creator (любая версия);
+  * Любой текстовый редактор.
+
+Используйте один из способов ниже:
+
+==== Открытие клиентского проекта в Visual Studio ====
+
+Для открытия проекта в Visual Studio запустите `stockquote_client.vcproj`.
+
+В Solution Explorer откройте файл `main.cpp` находящийся в подпапке "Source Files".
+
+
+==== Открытие клиентского проекта в Qt-Creator ====
+
+Запустите Qt-Creator, Нажмите кнопку "Open Project..." в режиме "Welcome", либо выберите пункт главного меню "File" => "Open File or Project...".
+
+Перейдите к файлу `stockquote_client.pro` и нажмите "Open".
+
+В открывшемся окне "Project Setup" нажмите "Finish".
+
+В панели "Projects" откройте файл `main.cpp` находящийся в подпапке "Sources/src".
+
+
+==== Открытие клиентского проекта в любом текстовом редакторе ====
+
+Запустите текстовый редактор и откройте файл `main.cpp` из каталога `src` находящемся в каталоге клиента !StockQuote.
+
+
+=== Реализация клиента ===
+
+Раскоментируйте исходный код ниже комментария "Invoke Your service here:".
+
+Добавьте строку следом за "`staff::Optional<std::string> symbol`":
+{{{
+symbol = "IBM";
 }}}
 
-== 1. Реализация клиента ==
- Клиент должен производить запрос курса акций и выводить результат на экран:
-
+Функция main клиента !StockQuote должна выглядеть так:
 {{{
- # переходим в каталог исходных файлов клиента
- cd ${WSCLIENTDIR}/src
- # получаем WSDL для веб-сервиса StockQuote
- wget http://www.webservicex.net/stockquote.asmx?WSDL -O StockQuote.wsdl
- # генерируем шаблон реализации клиента
- ${STAFF_HOME}/bin/staff_codegen -pwsdl -tclientimpl StockQuote.wsdl
-}}}
 
- Далее, в шаблоне клиента необходимо реализовать код для вызова сервиса. Откройте файл main.cpp в текстовом редакторе:
+int main(int /*nArgs*/, const char* /*paszArgs*/[])
+{
+  try
+  {
+    std::auto_ptr< StockQuote > pStockQuote(::staff::ServiceFactory::Inst().GetService< StockQuote >());
 
-{{{
- gedit main.cpp
-}}}
+    RISE_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
 
-и добавьте код вызова сервиса и вывода результатов после комментария "Invoke Your service here", указав в параметре вместо COMPANY_NAME имя компании, например IBM.
+    // Invoke Your service here:
 
-{{{
- staff::string GetQuoteResult = pStockQuote->GetQuote("COMPANY_NAME");
- std::cout << "Result:" << std::endl << GetQuoteResult << std::endl;
-}}}
+    staff::Optional<std::string> symbol;
+    symbol = "IBM";
+    const std::string& GetQuoteResponse = pStockQuote->GetQuote(symbol);
+    rise::LogInfo() << "GetQuote result: " << GetQuoteResponse;
+  }
+  RISE_CATCH_ALL
 
-== 2. Генерация интерфейса и упаковщика ==
- Для генерации интерфейса и упаковщика сервиса введите команду
+  return 0;
+}
 
-{{{
-  staff_codegen -w -tinterface StockQuote.wsdl
-  staff_codegen -tclient StockQuote.h
 }}}
 
 
-== 3. Компиляция и запуск ==
- Создайте Makefile для компиляции клиента.
+== 3. Компиляция и запуск клиента ==
 
-{{{
-  cd ${WSCLIENTDIR}
-  gedit Makefile
-}}}
 
- Вставьте код Makefile:
-{{{
-TARGET = StockQuoteClient
-TARGETNAME = $(TARGET)
+==== Компиляция и запуск клиента в Visual Studio ====
 
-PLATFORM ?= $(shell uname -m)
-SRCDIR = src/
-OBJDIR = obj/$(PLATFORM)/
-OUTDIR = out/$(PLATFORM)/
+Выберите из главного меню "Build" => "Configuration Manager...".
 
-CXXFLAGS += -Wno-deprecated -fexceptions -I$(STAFF_HOME)/include -fPIC
-LDFLAGS += -fexceptions -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lstaffclient -lrise
+В открывшемся окне установите параметр "Active solution configuration" в "Release", если Вы используете версию из секции загрузок. Иначе клиент не будет запущен из-за несовместимости библиотек. Нажмите "Close".
 
-SOURCES = $(wildcard $(SRCDIR)*.cpp)
-OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+Для компиляции проекта выберите из главного меню "Build" => "Build Solution". Клиент `stockquote_client` теперь должен быть скомпилирован.
 
-# == make =========================================== 
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
+|| _*Замечание*: Если Вы получаете ошибку "LINK : fatal error LNK1104: cannot open file '.\release\stockquoteProxy.obj'" (может произойти при первой сборке), запустите процесс сборки снова._ ||
 
-# link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME)
+Для запуска клиента выберите из главного меню "Debug" => "Start without debugging...".
 
-# compile 
-$(OBJDIR)%.o: $(SRCDIR)%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+Должно появиться консольное окно с результатами выполнения.
 
-# == clean ========================================== 
-clean:
-	rm -Rf $(OBJDIR) $(OUTDIR)
 
-# == mkdir ========================================== 
-"%/":
-	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
+==== Компиляция и запуск клиента в Qt-Creator ====
 
-# == check ========================================== 
-check:
-ifeq ($(STAFF_HOME),)
-	@echo "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
-endif
-}}}
+Для компиляции клиента выберите из главного меню "Build" => "Build All".
 
-Скомпилируйте клиент командой 
-{{{
- make
-}}}
+Для запуска клиента выберите из главного меню "Build" => "Run".
 
-Запустите скомпилированный клиент:
-{{{
- out/$(uname -m)/StockQuoteClient
-}}}
+
+==== Компиляция и запуск клиента с использованием GNU Make ====
+
+Для компиляции клиента введите команду `make` (`gmake` in FreeBSD) из каталога клиента.
+
+Для запуска клиента войдите в каталог `out`, войдите в подкаталог внутри, запустите `stockquote_client`.
 

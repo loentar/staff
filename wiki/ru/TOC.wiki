@@ -20,6 +20,8 @@
     * Создание J2ME клиента
       * [ExampleCalculatorJ2meClientInEclipse J2ME-клиент в Eclipse]
       * [ExampleCalculatorJ2meClient J2ME-клиент]
+    * Создание J2EE клиента
+      * [ExampleCalculartorJ2EEClientInEclipse J2EE-клиент в Eclipse]
     * REST
       * [ExampleCalculatorRestfulClient RESTful C++ клиент]
       * [ExampleCalculatorRestfulService RESTful сервис]
