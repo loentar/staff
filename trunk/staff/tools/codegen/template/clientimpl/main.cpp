@@ -94,7 +94,14 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 #var sResult $(Member.Options.*responseElement||Member.Options.*resultElement||"t$(Member.Name)Result")
     // \
 #ifneq($(Member.Return.Name),void)
-$(Member.Return.NsName) $($sResult) = \
+#ifeq($(Member.Return.Type),struct||typedef||template||string||dataobject)
+const \
+#ifeqend
+$(Member.Return.NsName)\
+#ifeq($(Member.Return.Type),struct||typedef||template||string||dataobject)
+&\
+#ifeqend
+ $($sResult) = \
 #ifeqend
 p$(Class.ServiceName)->$(Member.Name)(\
 #foreach $(Member.Params)

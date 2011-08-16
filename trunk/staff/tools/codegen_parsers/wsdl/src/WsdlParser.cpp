@@ -20,6 +20,7 @@
  */
 
 #include <set>
+#include <iostream>
 #include <rise/common/Log.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/xml/XMLNode.h>
@@ -1734,10 +1735,15 @@ namespace codegen
     {
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
       bool bRemote = sFileUri.find("://") != std::string::npos;
-      const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
-                                              sFileUri.substr(nPos + 1) : sFileUri;
       const std::string& sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
                                               sFileUri.substr(0, nPos + 1) : "";
+      std::string sInterfaceFileName = (nPos != std::string::npos) ? sFileUri.substr(nPos + 1) : sFileUri;
+
+      nPos = sInterfaceFileName.find('?'); // remove GET parameters from interface file name
+      if (nPos != std::string::npos)
+      {
+        sInterfaceFileName.erase(nPos);
+      }
 
       for (std::list<Interface>::iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
@@ -1761,6 +1767,23 @@ namespace codegen
           if (!HttpClient::Get(sFileUri, sFileData))
           {
             rise::LogError() << "Can't download file " << sFileUri;
+          }
+          else
+          {
+            if (!m_rParseSettings.mEnv.count("do_not_save_wsdl"))
+            {
+              std::cout << "saving " << sInterfaceFileName << std::endl;
+              std::ofstream ofStream(sInterfaceFileName.c_str());
+              if (!ofStream.good())
+              {
+                rise::LogWarning() << "Can't open file [" << sInterfaceFileName << "]";
+              }
+              else
+              {
+                ofStream << sFileData;
+                ofStream.close();
+              }
+            }
           }
           std::istringstream issData(sFileData);
           tWsdlDoc.LoadFromStream(issData);
