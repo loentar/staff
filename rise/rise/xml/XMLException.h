@@ -94,7 +94,7 @@ namespace rise
             */
         virtual void SetFormat( CString& sFormat ) const throw()
         {
-          sFormat = "{File}[{Line}] {Func}: {Descr}({Expr}); {Object}: {LineNo}\n";
+          sFormat = "{Descr}\n\nThrown from {File}[{Line}]: {Func}.\nExpression: \"{Expr}\"; {Object}: {LineNo}";
         }
         
         //!        get string exception description

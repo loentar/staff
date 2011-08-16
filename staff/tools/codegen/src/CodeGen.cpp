@@ -653,6 +653,13 @@ namespace codegen
 
       while((nPosStart = sString.find("$(", nPosEnd)) != std::string::npos)
       {
+        if (nPosStart > 0 && sString[nPosStart - 1] == '\\')
+        {
+          sString.erase(nPosStart - 1, 1);
+          nPosEnd = nPosStart + 1;
+          continue;
+        }
+
         nPosEnd = ReplaceToValueFindBracketMatch(sString, nPosStart + 2, rNode);
 
         RISE_ASSERTS(nPosEnd != std::string::npos, "end of variable name expected: [" + sString + "]");

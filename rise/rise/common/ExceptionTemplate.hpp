@@ -126,7 +126,7 @@ namespace rise
   template<int CLASS>
   void CExceptionTemplate<CLASS>::SetFormat( CString& sFormat ) const throw()
   {
-    sFormat = "{File}[{Line}] {Func}: {Descr}({Expr}); {Object}";
+    sFormat = "{Descr}\n\nThrown from {File}[{Line}]: {Func}.\nExpression: \"{Expr}\"; {Object}";
     if(m_bStackTracing)
       sFormat += "\nStack:\n{Stack}";
   }
