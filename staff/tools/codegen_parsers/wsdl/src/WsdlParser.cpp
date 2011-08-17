@@ -2128,37 +2128,28 @@ namespace codegen
         const Element& rElem = rComplexType.lsElements.front();
         if (rElem.bIsArray)
         {
-          if (!rElem.lsComplexTypes.empty())
+          Typedef stTypedef;
+          stTypedef.bExtern = rComplexType.bIsExtern;
+          stTypedef.sName = stDataType.sName;
+          stTypedef.sNamespace = stDataType.sNamespace;
+          stTypedef.sDescr = rComplexType.sDescr;
+          stTypedef.sDetail = rComplexType.sDetail;
+
+          ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
+
+          if (!rElem.sName.empty())
           {
-            Typedef stTypedef;
-            stTypedef.bExtern = rComplexType.bIsExtern;
-            stTypedef.sName = stDataType.sName;
-            stTypedef.sNamespace = stDataType.sNamespace;
-            stTypedef.sDescr = rComplexType.sDescr;
-            stTypedef.sDetail = rComplexType.sDetail;
-
-            ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
-
-            if (!rElem.sName.empty())
-            {
-              stTypedef.mOptions["elementName"] = rElem.sName;
-            }
-
-            m_stInterface.lsTypedefs.push_back(stTypedef);
-
-            DataType stResDataType;
-            stResDataType.eType = DataType::TypeTypedef;
-            stResDataType.sName = stTypedef.sName;
-            stResDataType.sNamespace = stTypedef.sNamespace;
-
-            return stResDataType;
+            stTypedef.mOptions["elementName"] = rElem.sName;
           }
-          else
-          {
-            DataType stResDataType;
-            ElementToData(rElem, stResDataType, rWsdlTypes);
-            return stResDataType;
-          }
+
+          m_stInterface.lsTypedefs.push_back(stTypedef);
+
+          DataType stResDataType;
+          stResDataType.eType = DataType::TypeTypedef;
+          stResDataType.sName = stTypedef.sName;
+          stResDataType.sNamespace = stTypedef.sNamespace;
+
+          return stResDataType;
         }
       }
 
