@@ -2,7 +2,8 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
-#var HasAsynchOps
+#var HasAsynchOps $($nonblocking)
+#ifeq($($HasAsynchOps),)
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
 #foreach $(Class.Members)
@@ -14,10 +15,11 @@
 #end
 #end
 #end
+#ifeqend
 \
 #include <memory>
 #include <rise/common/Log.h>
-#ifeq($($HasAsynchOps),true)
+#ifneq($($HasAsynchOps),)
 #include <rise/threading/Thread.h>
 #include <staff/common/DataObject.h>
 #include <staff/client/ICallback.h>
@@ -28,27 +30,40 @@
 #include "$(Interface.FilePath)$(Interface.Name).h"
 #end
 
+#ifneq($($HasAsynchOps),)
+// callbacks
+
 #foreach $(Project.Interfaces)
 #ifneq($(Interface.Classes.$Count),0)
-// callbacks
 #foreach $(Interface.Classes)
 #foreach $(Class.Members)
-#ifneq($(Member.Params.$Count),0)
+\
+#var sCallbackType
+#ifneq($($nonblocking),)
+#var sCallbackType $(Member.Return.NsName)
+#ifeqend
+\
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Name),ICallback)
-#var HasAsynchOps true
+#var sCallbackType $(Param.DataType.TemplateParams.TemplateParam1)
+#ifeqend
+#end // member.params
+\
+#ifneq($($sCallbackType),)
 // callback for $(Class.Name)::$(Member.Name)
-class $(Class.Name)$(Member.Name)Callback: public staff::ICallback< $(Param.DataType.TemplateParams.TemplateParam1) >
+class $(Class.Name)$(Member.Name)Callback: public staff::ICallback< $($sCallbackType) >
 {
 public:
   virtual void OnComplete(\
-#ifneq($(Param.DataType.TemplateParams.TemplateParam1),void)
-$(Param.DataType.TemplateParams.TemplateParam1) tResult\
+#ifneq($($sCallbackType),void)
+$($sCallbackType) tResult\
 #ifeqend
 )
   {
     // process result here
+#ifneq($($sCallbackType),void)
     // rise::LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
+#ifeqend
   }
 
   void OnFault(const staff::DataObject& rFault)
@@ -58,14 +73,13 @@ $(Param.DataType.TemplateParams.TemplateParam1) tResult\
   }
 };
 
-#ifeqend // icallback
-#end // member.params
-#ifeqend // member.params
+#ifeqend // sCallbackType
 #end  // class.members
 #end  // interface.classes
 #ifeqend // ifneq((Interface.Classes.Count),0)
 #end // Project.Interfaces
 
+#ifeqend
 
 int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
@@ -90,7 +104,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 ;
 #ifeqend
 #end // Member.Params
-#ifeq($(Member.IsAsynch),0) // blocking call
+#ifeq($(Member.IsAsynch)$($nonblocking),0) // blocking call
 #var sResult $(Member.Options.*responseElement||Member.Options.*resultElement||"t$(Member.Name)Result")
     // \
 #ifneq($(Member.Return.Name),void)
@@ -129,6 +143,9 @@ t$(Class.Name)$(Member.Name)Callback\
 $(Param.Name)\
 #ifeqend // ICallback
 #end // Member.Params
+#ifneq($($nonblocking),)
+, t$(Class.Name)$(Member.Name)Callback\
+#ifeqend
 );
 
     // // Wait for asynch call is completed

@@ -357,6 +357,35 @@ namespace codegen
         rise::StrReplace(sResult, sWhat, sWith, true);
       }
       else
+      if (sFunction.substr(0, 13) == "replacenotof/")
+      {
+        sFunction.erase(0, 13);
+        sResult = rNode.NodeContent().AsString();
+
+        // what replace
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        // replace with
+        nPosEnd = ParseParam(sFunction);
+        std::string sWith = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWith, rNode);
+
+        std::string::size_type nPosStart = 0;
+        while ((nPosEnd = sResult.find_first_of(sWhat, nPosStart)) != std::string::npos)
+        {
+          sResult.replace(nPosStart, nPosEnd - nPosStart, sWith);
+          nPosStart += sWith.size() + 1;
+        }
+        if (nPosStart < sResult.size())
+        {
+          sResult.replace(nPosStart, sResult.size() - nPosStart, sWith);
+        }
+      }
+      else
       if (sFunction.substr(0, 5) == "trim/")
       {
         sFunction.erase(0, 5);
@@ -485,6 +514,94 @@ namespace codegen
             sResult.substr(nResSize - nWhatSize) == sWhat)
         {
           sResult.erase(nResSize - nWhatSize);
+        }
+      }
+      else
+      if (sFunction.substr(0, 6) == "token/")
+      {
+        sFunction.erase(0, 6);
+        const std::string& sVal = rNode.NodeContent().AsString();
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        std::string::size_type nPos = sVal.find_first_of(sWhat);
+
+        if (nPos != std::string::npos)
+        {
+          sResult = sVal.substr(0, nPos);
+        }
+        else
+        {
+          sResult.erase();
+        }
+      }
+      else
+      if (sFunction.substr(0, 10) == "lasttoken/")
+      {
+        sFunction.erase(0, 10);
+        const std::string& sVal = rNode.NodeContent().AsString();
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        std::string::size_type nPos = sVal.find_last_of(sWhat);
+
+        if (nPos != std::string::npos)
+        {
+          sResult = sVal.substr(nPos + 1);
+        }
+        else
+        {
+          sResult.erase();
+        }
+      }
+      else
+      if (sFunction.substr(0, 4) == "cut/")
+      {
+        sFunction.erase(0, 4);
+        const std::string& sVal = rNode.NodeContent().AsString();
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        std::string::size_type nPos = sVal.find_first_of(sWhat);
+
+        if (nPos != std::string::npos)
+        {
+          sResult = sVal.substr(nPos + 1);
+        }
+        else
+        {
+          sResult.erase();
+        }
+      }
+      else
+      if (sFunction.substr(0, 8) == "cutlast/")
+      {
+        sFunction.erase(0, 8);
+        const std::string& sVal = rNode.NodeContent().AsString();
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rNode);
+
+        std::string::size_type nPos = sVal.find_last_of(sWhat);
+
+        if (nPos != std::string::npos)
+        {
+          sResult = sVal.substr(0, nPos);
+        }
+        else
+        {
+          sResult.erase();
         }
       }
       else
