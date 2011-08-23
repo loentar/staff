@@ -1315,6 +1315,8 @@ namespace codegen
           m_tFile.ignore();
           SkipWs();
           ReadBefore(stMember.sValue);
+          SkipWsOnly();
+          ReadDescrComment(rEnum.lsMembers.back().sDescr);
           SkipWs();
           chTmp = m_tFile.peek();
         }
@@ -1331,6 +1333,8 @@ namespace codegen
                    std::string(1, chTmp) + "\" found.", m_stInterface.sFileName, m_nLine);
 
         m_tFile.ignore();
+
+        ReadDescrComment(rEnum.lsMembers.back().sDescr);
       }
 
       SkipWsInLine();

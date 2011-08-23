@@ -122,6 +122,7 @@ namespace codegen
     {
       std::string sName;   //!<  enum member name
       std::string sValue;  //!<  enum member value (optional)
+      std::string sDescr;  //!<  enum member description
     };
 
     std::list<EnumMember>  lsMembers;     //!<  members

@@ -292,6 +292,8 @@ namespace codegen
     rNodeMember["Name"] = rEnumMember.sName;
     rNodeMember.AddSubNode(" Value ", CXMLNode::ENTCOMMENT);
     rNodeMember["Value"] = rEnumMember.sValue;
+    rNodeMember.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
+    rNodeMember["Description"] = rEnumMember.sDescr;
 
     return rNodeEnumMembers;
   }

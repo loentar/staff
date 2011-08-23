@@ -18,10 +18,8 @@ $($sNewOpeningNs)
 #end
   enum $(Enum.Name)
   {
+#var nEnumMembers $(Enum.Members.$Count.!dec)
 #foreach $(Enum.Members)
-#ifneq($(Member.$Num),0)
-,
-#ifeqend
 #ifneq($(Member.Value),)
 #ifeq($(Enum.Options.*baseType),$($sStringTypes))
     // *value: $(Member.Value)
@@ -33,8 +31,14 @@ $($sNewOpeningNs)
  = $(Member.Value)\
 #ifeqend
 #ifeqend
-#end
+#ifneq($($nEnumMembers),$(Member.$Num))
+,\
+#ifeqend
+#ifneq($(Member.Description),)
+ //!< $(Member.Description)\
+#ifeqend
 
+#end
   };
 
 #ifneq($($sNewOpeningNs),$($sOpeningNs))

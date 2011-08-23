@@ -135,7 +135,7 @@ namespace codegen
 
     bool bIsExtern;
     QName stBaseType;
-    StringList lsEnumValues;
+    std::list<Enum::EnumMember> lsEnumMembers;
     std::list< StringPair > lsRestrictions;
 
     SimpleType();
@@ -417,26 +417,6 @@ namespace codegen
     rDataType.sUsedName.erase();
   }
 
-  bool IsStringType(const std::string& sType)
-  {
-    return sType == "string" ||
-      sType == "anyURI" ||
-      sType == "NOTATION" ||
-      sType == "normalizedString" ||
-      sType == "token" ||
-      sType == "language" ||
-      sType == "IDREFS" ||
-      sType == "ENTITIES" ||
-      sType == "NMTOKEN" ||
-      sType == "NMTOKENS" ||
-      sType == "Name" ||
-      sType == "NCName" ||
-      sType == "ID" ||
-      sType == "IDREF" ||
-      sType == "ENTITY" ||
-      sType == "anySimpleType";
-  }
-
   bool IsElementArray(const rise::xml::CXMLNode& rElement)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rElement.FindAttribute("maxOccurs");
@@ -624,16 +604,43 @@ namespace codegen
           for (rise::xml::CXMLNode::TXMLNodeConstIterator itSubChild = itChild->NodeBegin();
             itSubChild != itChild->NodeEnd(); ++itSubChild)
           {
-            if (itSubChild->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+            const rise::xml::CXMLNode& rSubChild = *itSubChild;
+            if (rSubChild.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
             {
-              if (itSubChild->NodeName() == "enumeration")
+              if (rSubChild.NodeName() == "enumeration")
               {
-                lsEnumValues.push_back(itSubChild->Attribute("value").AsString());
+                Enum::EnumMember stMember;
+                const std::string& sValue = rSubChild.Attribute("value").AsString();
+                rise::xml::CXMLNode::TXMLAttrConstIterator itCppEnumAttr = rSubChild.FindAttribute("cpp:enum");
+                if (itCppEnumAttr != rSubChild.AttrEnd())
+                {
+                  stMember.sName = itCppEnumAttr->sAttrValue.AsString();
+                  if (FixId(stMember.sName))
+                  {
+                    rise::LogWarning() << "Cpp enum name was renamed ["
+                                       << itCppEnumAttr->sAttrValue.AsString() << "] => ["
+                                       << stMember.sName << "]";
+                  }
+                  stMember.sValue = sValue;
+                }
+                else
+                {
+                  stMember.sName = sValue;
+                  if (FixId(stMember.sName))
+                  {
+                    stMember.sValue = sValue;
+                  }
+                }
+                std::string sTmp;
+                ReadDoc(rSubChild, stMember.sDescr, sTmp);
+                stMember.sDescr += sTmp;
+
+                lsEnumMembers.push_back(stMember);
               }
               else
               {
-                lsRestrictions.push_back(StringPair(itSubChild->NodeName(),
-                                                  itSubChild->Attribute("value").AsString()));
+                lsRestrictions.push_back(StringPair(rSubChild.NodeName(),
+                                                  rSubChild.Attribute("value").AsString()));
               }
             }
           }
@@ -948,6 +955,7 @@ namespace codegen
     AttributeMap mAttributes;
     AttributeGroupMap mAttributeGroups;
     std::set<std::string> m_setNsAliases;
+    std::set<std::string> m_setImports;
     WsdlParserImpl* m_pParser;
 
     WsdlTypes(WsdlParserImpl* pParser);
@@ -1897,7 +1905,7 @@ namespace codegen
       DataType stDataType;
 
       // write enum
-      if (!rSimpleType.lsEnumValues.empty() && IsStringType(rSimpleType.stBaseType.sName))
+      if (!rSimpleType.lsEnumMembers.empty())
       {
         Enum stEnum;
 
@@ -1921,18 +1929,7 @@ namespace codegen
           stEnum.sDescr = rSimpleType.sDescr;
           stEnum.sDetail = rSimpleType.sDetail;
           stEnum.mOptions["baseType"] = rSimpleType.stBaseType.sName;
-
-          for (StringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
-            itValue != rSimpleType.lsEnumValues.end(); ++itValue)
-          {
-            stEnum.lsMembers.push_back(Enum::EnumMember());
-            Enum::EnumMember& rMember = stEnum.lsMembers.back();
-            rMember.sName = *itValue;
-            if (FixId(rMember.sName))
-            {
-              rMember.sValue = *itValue;
-            }
-          }
+          stEnum.lsMembers = rSimpleType.lsEnumMembers;
 
           std::string::size_type nPos = stEnum.sName.rfind("::");
           if (nPos != std::string::npos)
@@ -2003,21 +2000,6 @@ namespace codegen
           if (bWriteAsForward)
           {
             return stDataType;
-          }
-
-          std::string sEnumValues;
-          for (StringList::const_iterator itValue = rSimpleType.lsEnumValues.begin();
-            itValue != rSimpleType.lsEnumValues.end(); ++itValue)
-          {
-            if (!sEnumValues.empty())
-            {
-              sEnumValues += ",";
-            }
-            sEnumValues += *itValue;
-          }
-          if (!sEnumValues.empty())
-          {
-            pstTypedef->mOptions["enumValues"] = sEnumValues;
           }
 
           DataType stTypedefDataType;
@@ -3021,13 +3003,34 @@ namespace codegen
     }
   }
 
+  template <typename Type>
+  bool IsBaseTypeExists(const BaseType& rBaseType, const std::list<Type>& rlsTypes)
+  {
+    bool bFound = false;
+    for (typename std::list<Type>::const_iterator itType = rlsTypes.begin();
+        itType != rlsTypes.end(); ++itType)
+    {
+      if (itType->sName == rBaseType.sName &&
+          itType->sNamespace == rBaseType.sNamespace &&
+          itType->sOwnerName == rBaseType.sOwnerName)
+      {
+        bFound = true;
+        break;
+      }
+    }
+    return bFound;
+  }
+
   void ImportEnums(const std::list<Enum>& rlsSrc, std::list<Enum>& rlsDst)
   {
     for (std::list<Enum>::const_iterator itEnum = rlsSrc.begin();
         itEnum != rlsSrc.end(); ++itEnum)
     {
-      rlsDst.push_back(*itEnum);
-      rlsDst.back().bExtern = true;
+      if (!IsBaseTypeExists(*itEnum, rlsDst))
+      {
+        rlsDst.push_back(*itEnum);
+        rlsDst.back().bExtern = true;
+      }
     }
   }
 
@@ -3036,17 +3039,20 @@ namespace codegen
     for (std::list<Struct>::const_iterator itStruct = rlsSrc.begin();
         itStruct != rlsSrc.end(); ++itStruct)
     {
-      rlsDst.push_back(Struct());
-      Struct& rstStruct = rlsDst.back();
-      rstStruct.sName = itStruct->sName;
-      rstStruct.sNamespace = itStruct->sNamespace;
-      rstStruct.sParentName = itStruct->sParentName;
-      rstStruct.sDescr = itStruct->sDescr;
-      rstStruct.sDetail = itStruct->sDetail;
-      rstStruct.bExtern = true;
-      rstStruct.sOwnerName = itStruct->sOwnerName;
-      ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
-      ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
+      if (!IsBaseTypeExists(*itStruct, rlsDst))
+      {
+        rlsDst.push_back(Struct());
+        Struct& rstStruct = rlsDst.back();
+        rstStruct.sName = itStruct->sName;
+        rstStruct.sNamespace = itStruct->sNamespace;
+        rstStruct.sParentName = itStruct->sParentName;
+        rstStruct.sDescr = itStruct->sDescr;
+        rstStruct.sDetail = itStruct->sDetail;
+        rstStruct.bExtern = true;
+        rstStruct.sOwnerName = itStruct->sOwnerName;
+        ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
+        ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
+      }
     }
   }
 
@@ -3142,6 +3148,14 @@ namespace codegen
       sSchemaLocation = itLocation->sAttrValue.AsString();
     }
 
+    const std::string& sImportHash = sImportNs + ":" + sSchemaLocation;
+    if (!!m_setImports.count(sImportHash))
+    {
+      rise::LogDebug() << "[" << sImportHash << "] is already imported";
+      return;
+    }
+    m_setImports.insert(sImportHash);
+
     RISE_ASSERTP(m_pParser);
 
     if (m_setNsAliases.count(sImportNs) != 0)
@@ -3223,22 +3237,39 @@ namespace codegen
       for (std::list<Typedef>::const_iterator itTypedef = rNewInterface.lsTypedefs.begin();
           itTypedef != rNewInterface.lsTypedefs.end(); ++itTypedef)
       {
-        Typedef stTypedef = *itTypedef;
-        stTypedef.sName = itTypedef->sName;
-        stTypedef.sNamespace = itTypedef->sNamespace;
-        stTypedef.sDescr = itTypedef->sDescr;
-        stTypedef.sDetail= itTypedef->sDetail;
-        stTypedef.bExtern = true;
-        rInterface.lsTypedefs.push_back(stTypedef);
+        if (!IsBaseTypeExists(*itTypedef, rInterface.lsTypedefs))
+        {
+          Typedef stTypedef = *itTypedef;
+          stTypedef.sName = itTypedef->sName;
+          stTypedef.sNamespace = itTypedef->sNamespace;
+          stTypedef.sDescr = itTypedef->sDescr;
+          stTypedef.sDetail= itTypedef->sDetail;
+          stTypedef.bExtern = true;
+          rInterface.lsTypedefs.push_back(stTypedef);
+        }
       }
 
-      Include stInclude;
-      stInclude.sInterfaceName = rNewInterface.sName;
-      stInclude.sNamespace = rNewInterface.sNamespace;
-      stInclude.sFileName = rNewInterface.sFileName;
-      stInclude.sFilePath = rNewInterface.sFilePath;
-      stInclude.sTargetNs = rNewInterface.sTargetNs;
-      rInterface.lsIncludes.push_back(stInclude);
+      bool bFound = false;
+      for (std::list<Include>::const_iterator itInclude = rInterface.lsIncludes.begin();
+           itInclude != rInterface.lsIncludes.end(); ++itInclude)
+      {
+        if (itInclude->sFileName == rNewInterface.sFileName &&
+            itInclude->sFilePath == rNewInterface.sFilePath)
+        {
+          bFound = true;
+          break;
+        }
+      }
+      if (!bFound)
+      {
+        Include stInclude;
+        stInclude.sInterfaceName = rNewInterface.sName;
+        stInclude.sNamespace = rNewInterface.sNamespace;
+        stInclude.sFileName = rNewInterface.sFileName;
+        stInclude.sFilePath = rNewInterface.sFilePath;
+        stInclude.sTargetNs = rNewInterface.sTargetNs;
+        rInterface.lsIncludes.push_back(stInclude);
+      }
 
       // insert imported namespaces into current definitions or xsd's schema element
       rise::xml::CXMLNode* pNodeDefinitions = &rNodeImport;
