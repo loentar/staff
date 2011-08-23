@@ -43,7 +43,8 @@ clean:
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLDIR)$(LIBDIR)$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(LIBDIR)codegen/parsers/$(TARGETNAME)
+	-cd $(INSTALLDIR) && rmdir -p $(LIBDIR)codegen/parsers/
 
 # == mkdir ==========================================
 "%/":

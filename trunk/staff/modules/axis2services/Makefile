@@ -82,6 +82,26 @@ endif
 endif
 endif
 
+uninstall:
+ifneq ($(APXS),)
+ifeq ($(LINUX_VERSION),debian)
+	rm -f ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
+	rm -f ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
+	rm -f /usr/lib/apache2/modules/$(TARGETNAME)
+else
+ifeq ($(APXS),/www/bin/apxs)
+	rm -f /www/conf/mods-enabled/$(TARGET).conf
+	rm -f /www/modules/$(TARGETNAME)
+else
+	test ! -z "$(APACHECONFDIR)" -a -d "$(APACHECONFDIR)"
+	test ! -z "$(APACHEMODDIR)" -a -d "$(APACHEMODDIR)"
+	rm -f $(APACHECONFDIR)/$(TARGET).conf
+	rm -f $(APACHEMODDIR)/$(TARGETNAME)
+endif
+endif
+endif
+
+
 # == mkdir ==========================================
 "%/":
 	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@

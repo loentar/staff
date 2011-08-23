@@ -44,6 +44,15 @@ else
 install:;
 endif
 
+# == uninstall ======================================
+ifneq ($(MYSQL_DEV_INSTALLED),0)
+uninstall: check
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
+else
+uninstall:;
+endif
+
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
