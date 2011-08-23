@@ -43,7 +43,7 @@ ifeq ($(LINUX_VERSION),debian)
 	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)usr/lib/apache2/modules/
 else
 ifeq ($(APXS),/www/bin/apxs)
-	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)etc/apache2/mods-enabled/ $(DEPLOYROOTDIR)usr/lib/apache2/modules/
+	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)www/conf/mods-enabled/ $(DEPLOYROOTDIR)www/modules/
 	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > $(DEPLOYROOTDIR)www/conf/mods-enabled/$(TARGET).conf
 	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
 	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)www/modules/

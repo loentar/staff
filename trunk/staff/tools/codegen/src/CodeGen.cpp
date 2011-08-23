@@ -171,49 +171,77 @@ namespace codegen
         return rNode;
       }
 
-      if (sVariable == "$Num")
+      if (sVariable[0] == '$')
       {
-        static CXMLNode tNodeNum;
-        const CXMLNode* pNodeParent = pNode->GetParent();
-        RISE_ASSERTS(pNodeParent != NULL, "can't get number for node: " + pNode->NodeName());
+        std::string sProperty;
+        sVariable.erase(0, 1);
 
-        int nNum = 0;
+        nPos = sVariable.find('.');
 
-        for (CXMLNode::TXMLNodeConstIterator itNode = pNodeParent->NodeBegin();
-                  itNode != pNodeParent->NodeEnd(); ++itNode)
+        if (nPos != std::string::npos)
         {
-          if (itNode->NodeType() == CXMLNode::ENTGENERIC)
+          sProperty = sVariable.substr(0, nPos);
+          sVariable.erase(0, nPos + 1);
+        }
+        else
+        {
+          sProperty = sVariable;
+          sVariable.erase();
+        }
+
+        if (sProperty == "Num")
+        {
+          static CXMLNode tNodeNum;
+          const CXMLNode* pNodeParent = pNode->GetParent();
+          RISE_ASSERTS(pNodeParent != NULL, "can't get number for node: " + pNode->NodeName());
+
+          int nNum = 0;
+
+          for (CXMLNode::TXMLNodeConstIterator itNode = pNodeParent->NodeBegin();
+                    itNode != pNodeParent->NodeEnd(); ++itNode)
           {
-            if (&*itNode == pNode)
+            if (itNode->NodeType() == CXMLNode::ENTGENERIC)
             {
-              break;
+              if (&*itNode == pNode)
+              {
+                break;
+              }
+              ++nNum;
             }
-            ++nNum;
           }
+
+          tNodeNum.NodeContent() = nNum;
+          pNode = &tNodeNum;
         }
-
-        tNodeNum.NodeContent() = nNum;
-        return tNodeNum;
-      }
-      else
-      if (sVariable == "$Count")
-      {
-        static CXMLNode tSubNodeCount;
-        int nNum = 0;
-
-        for (CXMLNode::TXMLNodeConstIterator itNode = pNode->NodeBegin();
-          itNode != pNode->NodeEnd(); ++itNode)
+        else
+        if (sProperty == "Count")
         {
-          if (itNode->NodeType() == CXMLNode::ENTGENERIC)
+          static CXMLNode tSubNodeCount;
+          int nNum = 0;
+
+          for (CXMLNode::TXMLNodeConstIterator itNode = pNode->NodeBegin();
+            itNode != pNode->NodeEnd(); ++itNode)
           {
-            ++nNum;
+            if (itNode->NodeType() == CXMLNode::ENTGENERIC)
+            {
+              ++nNum;
+            }
           }
+
+          tSubNodeCount.NodeContent() = nNum;
+          pNode = &tSubNodeCount;
+        }
+        else
+        {
+          RISE_THROWS(rise::CLogicNoItemException, "Unknown Property: [" + sVariable + "]");
         }
 
-        tSubNodeCount.NodeContent() = nNum;
-        return tSubNodeCount;
+        if (sVariable.empty())
+        {
+          return *pNode;
+        }
       }
-      else
+
       if (sVariable[0] == '!')
       { // exec function
         sVariable.erase(0, 1);
