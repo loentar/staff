@@ -43,6 +43,7 @@ install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
 uninstall: check
 	rm -f $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
 	rm -Rf $(INSTALLDIR)$(BINDIR)template
+	-rmdir $(INSTALLDIR)$(BINDIR)
 
 # == clean ==========================================
 clean:

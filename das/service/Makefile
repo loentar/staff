@@ -60,6 +60,13 @@ install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/datasources/" "$(STAFF_HOME)/
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 
+# == uninstall ======================================
+uninstall: check
+	rm -Rf $(STAFF_HOME)/include/staff/das/service/
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(patsubst $(OUTDIR)%, $(INSTALLDIR)$(COMDIR)$(COMPONENT)/%, $(WSDLS))
+	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)/datasources $(INSTALLDIR)$(COMDIR)$(COMPONENT)/providers $(INSTALLDIR)$(COMDIR)$(COMPONENT)
+
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)

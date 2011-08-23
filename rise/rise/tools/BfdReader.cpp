@@ -21,7 +21,7 @@
 
 #include "BfdReader.h"
 
-#if defined OS_Linux
+#if defined OS_Linux && defined RISE_USE_BFD
 #define _GNU_SOURCE 1
 
 #include <dlfcn.h>

@@ -58,6 +58,12 @@ install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 
+# == uninstall ======================================
+uninstall: check
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(patsubst $(OUTDIR)%, $(INSTALLDIR)$(COMDIR)$(COMPONENT)/%, $(WSDLS))
+	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
+
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)

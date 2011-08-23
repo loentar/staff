@@ -37,6 +37,13 @@ install: check "$(INSTALLDIR)$(LIBDIR)" "$(STAFF_HOME)/include/staff/das/common/
 	cp -f $(SRCDIR)*.h $(STAFF_HOME)/include/staff/das/common/
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(LIBDIR)
 
+# == uninstall ======================================
+uninstall: check
+	rm -f $(INSTALLDIR)$(LIBDIR)$(TARGETNAME)
+	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
+	rm -Rf $(STAFF_HOME)/include/staff/das/common/
+	-cd $(STAFF_HOME) && rmdir -p include/staff/das/
+
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)

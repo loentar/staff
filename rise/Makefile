@@ -28,26 +28,24 @@ endif
 CXXFLAGS += -DRISE_LOG_SRC_RECODE=$(RISE_LOG_SRC_RECODE) -DRISE_LOG_DST_RECODE=$(RISE_LOG_DST_RECODE)
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DRISE_DLL_EXPORTS=1
+else
+# detect bfd usability
+  USE_BFD := $(shell echo "\#include <bfd.h>" | LANG=C `gcc -print-prog-name=cc1plus` -E >/dev/null 2>&1 && echo "-DRISE_USE_BFD")
+  CXXFLAGS += $(USE_BFD)
 endif
 
-ifneq ($(OS),MINGW)
-USRINCDIR = /usr/include/
-USRINCDIRVER = $(USRINCDIR)rise-$(VERSION)/
-USRLIBDIR = /usr/lib/
-else
 USRINCDIR = $(STAFF_HOME)/include/
-USRINCDIRVER = $(USRINCDIR)rise/
 USRLIBDIR = $(STAFF_HOME)/lib/
+ifneq ($(OS),MINGW)
+USRINCDIRVER = $(USRINCDIR)rise-$(VERSION)/
+else
+USRINCDIRVER = $(USRINCDIR)rise/
 endif
 
-DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)/
-DEPLOYINCDIR = $(DEPLOYDIR)usr/include/
-ifneq ($(OS),MINGW)
-DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise-$(VERSION)/
-else
-DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise/
-endif
-DEPLOYLIBDIR = $(DEPLOYDIR)usr/lib/
+DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)
+DEPLOYINCDIR = $(DEPLOYDIR)$(USRINCDIR)
+DEPLOYINCDIRVER = $(DEPLOYDIR)$(USRINCDIRVER)
+DEPLOYLIBDIR = $(DEPLOYDIR)$(USRLIBDIR)
 
 ifneq ($(OS),MINGW)
   CXXFLAGS += -fPIC -rdynamic
@@ -130,6 +128,7 @@ include ../Makefile.distrib
 
 # == install ========================================
 install: install_headers install_libs
+	-@[ ! -L /usr/lib/librise.so -a ! -L /usr/include/rise ] || (echo uninstalling librise from /usr/lib; rm -Rf /usr/lib/librise.so* /usr/include/rise*)
 
 install_libs: $(OUTDIR)$(TARGETLIBVER) "$(USRLIBDIR)"
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIBVER)
@@ -153,7 +152,7 @@ endif
 
 # == uninstall ======================================
 uninstall:
-	rm -Rf $(USRINCDIR)rise $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIBVER)
+	rm -Rf $(USRINCDIR)rise $(USRINCDIRVER) $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIBVER)
 
 # == clean ==========================================
 clean:
