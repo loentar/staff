@@ -1,13 +1,13 @@
 #summary Codegen's metacomments description
 = Codegen metacomments =
 
-_Notice: codegen metacomments names and values are case sensitive_
+_Notice: names and values of codegen metacomments are case sensitive_
 
-== Interface related: ==
+== Interface: ==
 || name || description || allowed values || service || client || example ||
 || targetNamespace || set target namespace for interface || _any uri_ || || x || // `*`targetNamespace: http://ws.apache.org/axis2/services/echo ||
 
-== Service related: ==
+== Service: ==
 || name || description || allowed values || service || client || example ||
 || ! || set service short and detail description (doxygen style) || _any_ || x || || //! Calculator service<br/>/`*`! detailed description of the service `*`/ ||
 || loadAtStartup || create default service instance on startup || true<br/>false || x || || // `*`loadAtStartup: true ||
@@ -18,7 +18,7 @@ _Notice: codegen metacomments names and values are case sensitive_
 || soapVersion || set soap version to use || 1.1<br/>1.2 || || x || // `*`soapVersion: 1.1 ||
 || soapVersionUri || set soap version uri to use || _soap version uri_ || || x || // `*`soapVersionUri: http://schemas.xmlsoap.org/wsdl/soap12/ ||
 
-== Service operation related: ==
+== Service operation: ==
 || name || description || allowed values || service || client || example ||
 || ! || set service operation description (doxygen style) || _any_ || x || || //! Add operation<br/>/`*`! detailed description of the operation `*`/ ||
 || soapAction || soap action for operation || _any_ || || x || // `*`soapAction: http://ws.apache.org/axis2/c/samples/echo/soap_action ||
@@ -37,12 +37,27 @@ _Notice: codegen metacomments names and values are case sensitive_
 || timeout || sets the wait time after which a client times out in a blocking scenario || _any integer_ || || x || // `*`timeout: 30000 ||
 || mep || sets message exchange pattern for this operation || in-out<br/>robust out-only<br/>in-only || || x || // `*`mep: in-out ||
 
+== Structure: ==
+|| name || description || allowed values || applied to || example ||
+|| abstract || mark given structure as abstract for serialization.<br/>_Please note, you should declare virtual destructor for this structure._ || true<br/>false || client, serivce || // `*`abstract: true ||
+|| choiceArrayItem || mark given structure as item of choice array || true<br/>false || client, serivce || // `*`choiceArrayItem: true ||
+
 == Structure member: ==
 || name || description || allowed values || applied to || example ||
 || protobufTag || sets protobuf's tag value || _any integer_ || protobuf || // `*`protobufTag: 10 ||
 || defaultValue || sets default value || _any_ || cpp, wsdl, protobuf || // `*`defaultValue: true ||
 || isAttribute || serialize/deserialize struct member as attribute (wrapped style) || true<br/>false || client, serivce || // `*`isAttribute: true ||
-|| useParentElement || serialize/deserialize struct member to parent element, used with isAttribute || true<br/>false || client, serivce || // `*`useParentElement: true ||
+|| attributeGroupName || specify name for attribute group || ID || client, serivce || // `*`attributeGroupName: myAttrGroup ||
+|| useParentElement || serialize/deserialize struct member to parent element || true<br/>false || client, serivce || // `*`useParentElement: true ||
+|| choiceId || set structure member as of wsdl choice type, set id for this choice group || _non negative integer_ || client, serivce || // `*`choiceId: 0 ||
+
+== Enum: ==
+|| name || description || allowed values || applied to || example ||
+|| baseType || specify base type for enum serialization || wsdl type || client, serivce || // `*`baseType: string ||
+
+== Typedef: ==
+|| name || description || allowed values || applied to || example ||
+|| elementName || specify element name for each item of array || ID || client, serivce || // `*`elementName: item ||
 
 == Example ==
 This is a [http://code.google.com/p/staff/source/browse/trunk/staff/samples/echo/client_blocking_dual/src/Echo.h echo interface example] to call Axis2/C service "echo" with separate listener in blocking mode.

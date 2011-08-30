@@ -6,7 +6,7 @@
 
 = Simple service and client: Calculator =
 
-Using staff service is easy as native C++ class.
+Web service in WSF Staff is a class inherited from staff::IService.
 
 == Sample of Calculator interface ==
 
@@ -337,8 +337,6 @@ function StartSample()
 
 = Sample of simple RESTful Calculator =
 
-Use calculator service sample. 
-
 _Note: To mark service as RESTful just add special comments into interface file. Service implementation leave unchanged._
 
 == RESTful service interface ==
@@ -360,7 +358,7 @@ public:
 
 == Executing RESTful service ==
 
-You may execute RESTul service from web browser. Just enter link containing service name and params:
+You can execute RESTul service from web browser. Just enter link containing service name and params:
 
 http://localhost:9090/axis2/services/Calculator/add?a=1&b=2
 
@@ -369,10 +367,10 @@ Browser output:
 
 <br/>
 
-= Easy WSDL generation =
+= WSDL generation =
 
-== Generating common WSDL == 
-To generate wsdl from interface You may use codegen. To generate wsdl for Calculator just enter:
+== Generating generic WSDL == 
+Service interface `Calculator.h` must located in current directory. To generate wsdl for Calculator service enter:
 
 {{{
 staff_codegen -twsdl Calculator.h
@@ -382,10 +380,11 @@ Calculator.wsdl will be generated.
 
 == Generating WSDL with BPEL support == 
 
-To generate WSDL with BPEL support define special flag:
+To generate WSDL with BPEL support, define special flag:
 
 {{{
 staff_codegen -twsdl -dbpel Calculator.h
 }}}
 
 Calculator.wsdl with BPEL support will be generated.
+
