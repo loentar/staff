@@ -33,7 +33,7 @@ namespace staff
   {
   public:
     RuntimeImpl():
-      m_pEnv(axutil_env_create_all("staff.log", AXIS2_LOG_LEVEL_TRACE))
+      m_pEnv(axutil_env_create_all("staff.log", GetAxis2LogLevel()))
     {
     }
 
@@ -51,6 +51,57 @@ namespace staff
         m_mEnv.clear();
       }
       axutil_env_free(m_pEnv);
+    }
+
+    static axutil_log_levels_t GetAxis2LogLevel()
+    {
+      static axutil_log_levels_t eLogLevel = static_cast<axutil_log_levels_t>(-1);
+      if (eLogLevel == static_cast<axutil_log_levels_t>(-1))
+      {
+        const char* szAxis2LogEnv = getenv("STAFF_AXIS2C_LOG_LEVEL");
+        if (szAxis2LogEnv)
+        {
+          std::string sAxis2LogEnv(szAxis2LogEnv);
+          if (sAxis2LogEnv == "CRITICAL")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_CRITICAL;
+          }
+          else
+          if (sAxis2LogEnv == "WARNING")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_WARNING;
+          }
+          else
+          if (sAxis2LogEnv == "INFO")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_INFO;
+          }
+          else
+          if (sAxis2LogEnv == "DEBUG")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_DEBUG;
+          }
+          else
+          if (sAxis2LogEnv == "USER")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_USER;
+          }
+          else
+          if (sAxis2LogEnv == "TRACE")
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_TRACE;
+          }
+          else
+          {
+            eLogLevel = AXIS2_LOG_LEVEL_WARNING;
+          }
+        }
+        else
+        {
+          eLogLevel = AXIS2_LOG_LEVEL_WARNING;
+        }
+      }
+      return eLogLevel;
     }
     
   public:
@@ -104,7 +155,7 @@ namespace staff
     RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv == m_pImpl->m_mEnv.end())
     {
-      axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), AXIS2_LOG_LEVEL_TRACE);
+      axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), RuntimeImpl::GetAxis2LogLevel());
       m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
       return pEnv;
     }
