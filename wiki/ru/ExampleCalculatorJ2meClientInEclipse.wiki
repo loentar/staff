@@ -8,7 +8,7 @@
   * Java SE (JDK);
   * Sun Java Wireless Toolkit (WTK);
   * Eclipse с WTP, MTJ;
-  * Сервис samples.Calculator из ExampleCalculatorServiceWindows или ExampleCalculatorServiceLinux;
+  * Сервис samples.Calculator из ExampleCalculatorService;
 
 == Создание J2ME клиента Calculator ==
 === Создание проекта ===
@@ -18,7 +18,7 @@
   # Нажмите "Finish"; будет открыт созданный проект;
 
 === Генерация прокси клиента ===
-Скопируйте интерфейс сервиса samples.Calculator (Calculator.h) (из ExampleCalculatorServiceWindows или ExampleCalculatorServiceLinux) в каталог исходных файлов проекта.
+Скопируйте интерфейс сервиса samples.Calculator (Calculator.h) (из ExampleCalculatorService) в каталог исходных файлов проекта.
 
 Запустите генератор кода:
 {{{

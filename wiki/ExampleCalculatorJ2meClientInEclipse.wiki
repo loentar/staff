@@ -8,7 +8,7 @@ Must have the following dependencies:
   * Java SE (JDK);
   * Sun Java Wireless Toolkit (WTK);
   * Eclipse with WTP, MTJ;
-  * Service samples.Calculator from ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux;
+  * Service samples.Calculator from ExampleCalculatorService;
 
 == Creating a J2ME client Calculator ==
 === Creating a Project ===
@@ -18,7 +18,7 @@ Must have the following dependencies:
   # Click "Finish"; will open your project;
 
 === Generating client proxy ===
-Copy Calculator's interface (ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux) to project's source dir.
+Copy Calculator's interface from ExampleCalculatorService into project's source dir.
 
 Start codegen:
 {{{

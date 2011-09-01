@@ -2,7 +2,7 @@
 
 = Example: Creating a data source client =
 
-Please read the ExampleCalculatorClientLinux or ExampleCalculatorClientWindows to understand the process of client creation.
+Please read the ExampleCalculatorClient to understand the process of client creation.
 
 == 1. Directory structure ==
 

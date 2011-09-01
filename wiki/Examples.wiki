@@ -1,20 +1,31 @@
 #summary Examples
 #labels Featured
 
-Windows examples:
-  * [ExampleCalculatorServiceWindows Creating a Calculator service using Visual Studio 2005]
-  * [ExampleCalculatorClientWindows Creating a Calculator client using Visual Studio 2005]
+== Common examples ==
+  * [ExampleCalculatorService Creating a Calculator service]
+  * [ExampleCalculatorClient Creating a Calculator client]
+  * [ExampleCalculatorNonBlocking Asynchronous C++ client]
 
-Linux examples:
-  * [ExampleCalculatorServiceLinux Creating a Calculator service]
-  * [ExampleCalculatorClientLinux Creating a Calculator client]
+== WSDL ==
+  * [ExampleCreatingCppClientFromWsdl Creating C++ client from WSDL]
+
+== REST ==
+  * [ExampleCalculatorRestfulService Enabling REST support for the service]
+  * [ExampleCalculatorRestfulClient Enabling REST support for the client]
+
+== AJAX ==
   * [ExampleCalculatorAjaxClient Creating a Calculator AJAX client]
 
-Common examples:
+== Qt ==
   * [ExampleStockQuoteQtCreator Creating StockQuote client that uses Qt]
-  * [ExampleCalculatorNonBlocking How to modify C++ client to call services in non blocking mode]
-  * [ExampleCalculatorRestfulService How to modify web service to support REST]
-  * [ExampleCreatingCppClientFromWsdl How to create C++ client from WSDL]
-  * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME Wireless Toolkit]
-  * [ExampleDasDataSource Creating datasource for DAS using sqlite3 provider]
+
+== Java ==
+  * [ExampleCalculatorJ2meClient Creating a J2ME Calculator client using Sun J2ME WTK]
+  * [ExampleCalculatorJ2meClientInEclipse Creating a J2ME Calculator client in Eclipse]
+  * [ExampleCalculartorJ2EEClientInEclipse Creating a J2EE client in Eclipse]
+
+== DAS ==
+  * [ExampleDasDataSource Creating datasource for DAS]
   * [ExampleDasClient Creating a data source client]
+
+

@@ -134,6 +134,6 @@ ProtobufConnector.h    ProtobufConnector.cpp
 
 Implement connector's functions depending on the RPC implementation you are using.
 
-Compile and install component as descried in example under [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceLinux#6._Compilation_and_installation Linux] or [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceWindows#6._Compilation Windows].
+Compile and install component as descried in [http://code.google.com/p/staff/wiki/ExampleCalculatorService#3._Compiling_and_installing_service example].
 
 

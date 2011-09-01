@@ -6,7 +6,9 @@
 
 = Simple service and client: Calculator =
 
-Web service in WSF Staff is a class inherited from staff::IService.
+Writing WSF Staff-based service is so easy as writing ordinary C++ class.
+
+To mark class is a service you should inherit it from staff::IService.
 
 == Sample of Calculator interface ==
 
@@ -24,7 +26,7 @@ public:
 }}}
 
 
-== Sample of Calculator service ==
+== Sample of Calculator service implementation ==
 
 {{{
 // CalculatorImpl.h
@@ -146,7 +148,7 @@ function OnButtonAddClick()
 
 = Using complex types: Users service =
 
-Using complex types is easy as native C++.
+Using complex types also transparent.
 
 == Sample of Users interface ==
 

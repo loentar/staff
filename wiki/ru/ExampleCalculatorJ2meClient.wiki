@@ -98,7 +98,7 @@ public class CalculatorMIDlet extends MIDlet implements CommandListener, Runnabl
 }}}
 
 === Генерация прокси клиента ===
-Скопируйте интерфейс сервиса samples.Calculator (Calculator.h) (из ExampleCalculatorServiceWindows или ExampleCalculatorServiceLinux) в каталог исходных файлов прокта.
+Скопируйте интерфейс сервиса samples.Calculator (Calculator.h) (из ExampleCalculatorService) в каталог исходных файлов прокта.
 
 Запустите генератор кода:
 {{{

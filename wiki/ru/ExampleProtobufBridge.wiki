@@ -135,6 +135,6 @@ ProtobufConnector.h    ProtobufConnector.cpp
 
 Реализуйте функции коннектора в зависимости от используемой Вами реализации RPC.
 
-Скомпилируйте и установите компонент как описано в примере под [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceLinux#6._Compilation_and_installation Linux] или [http://code.google.com/p/staff/wiki/ExampleCalculatorServiceWindows#6._Compilation Windows].
+Скомпилируйте и установите компонент как описано в [http://code.google.com/p/staff/wiki/ExampleCalculatorService#3._Compiling_and_installing_service примере].
 
 

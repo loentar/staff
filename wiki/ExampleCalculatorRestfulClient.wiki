@@ -1,6 +1,6 @@
 #summary Example: How to modify Calculator client to enable REST
 
-Use Calculator client from ExampleCalculatorClientWindows or ExampleCalculatorClientLinux.
+Use Calculator client from ExampleCalculatorClient.
 
 Also, service must be modified to enable REST: ExampleCalculatorRestfulService.
 
@@ -30,7 +30,7 @@ Clean and compile client.
 
 == 3. Starting client ==
 
-Start client in [ExampleCalculatorClientWindows#7._Start_client Windows] or [ExampleCalculatorClientLinux#7._Start_client Linux]. You should get similar results.
+Start client as in ExampleCalculatorClient. You should get similar results.
 
 == 4. Dynamic modifying REST client options ==
 

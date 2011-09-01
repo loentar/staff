@@ -6,11 +6,9 @@
   * [Examples Примеры]
     * [BriefExamples Примеры кода]
     * Создание сервиса
-      * [ExampleCalculatorServiceLinux C++ сервис под Linux]
-      * [ExampleCalculatorServiceWindows C++ сервис под Windows]
+      * [ExampleCalculatorService сервис Calculator]
     * Создание C++ клиента
-      * [ExampleCalculatorClientWindows C++ клиент под Windows]
-      * [ExampleCalculatorClientLinux C++ клиент под Linux]
+      * [ExampleCalculatorClient клиент Calculator]
       * [ExampleCalculatorNonBlocking Неблокируемый C++ клиент]
     * DAS
       * [ExampleDasDataSource Создание источника данных]

@@ -1,6 +1,6 @@
 #summary Example: How to modify web service to support REST
 
-We're using Calculator service from ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux.
+We're using Calculator service from ExampleCalculatorService.
 
 == 1. Enabling REST support in service ==
 

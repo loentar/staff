@@ -97,7 +97,7 @@ public class CalculatorMIDlet extends MIDlet implements CommandListener, Runnabl
 }}}
 
 === Generating client proxy ===
-Copy Calculator's interface (ExampleCalculatorServiceWindows or ExampleCalculatorServiceLinux) to project's source dir.
+Copy Calculator's interface (ExampleCalculatorService) into project's source dir.
 
 Start codegen:
 {{{

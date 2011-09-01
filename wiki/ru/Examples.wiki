@@ -1,20 +1,30 @@
 #summary Examples
 #labels Featured
 
-Примеры в Windows:
-  * [ExampleCalculatorServiceWindows Создание сервиса Calculator в Visual Studio 2005]
-  * [ExampleCalculatorClientWindows Создание клиента Calculator в Visual Studio 2005]
+== Базовые примеры ==
+  * [ExampleCalculatorService Сервис "Calculator"]
+  * [ExampleCalculatorClient C++ клиент "Calculator"]
+  * [ExampleCalculatorNonBlocking Асинхронный С++ клиент]
 
-Примеры в Linux:
-  * [ExampleCalculatorServiceLinux Создение сервиса Calculator]
-  * [ExampleCalculatorClientLinux Создание клиента Calculator]
-  * [ExampleCalculatorAjaxClient Создание AJAX клиента Calculator]
+== WSDL ==
+  * [ExampleCreatingCppClientFromWsdl Создание C++ клиента из WSDL]
 
-Общие примеры:
+== REST ==
+  * [ExampleCalculatorRestfulService Включение поддержки REST в сервисе]
+  * [ExampleCalculatorRestfulClient Включение поддержки REST в клиенте]
+
+== AJAX ==
+  * [ExampleCalculatorAjaxClient Создание AJAX клиента "Calculator"]
+
+== Qt ==
   * [ExampleStockQuoteQtCreator Создание клиента StockQuote использующего Qt]
-  * [ExampleCalculatorNonBlocking Как модифицировать C++ клиент для вызова сервисов в неблокируемом режиме]
-  * [ExampleCalculatorRestfulService Как модифицировать Сервис для поддержки REST]
-  * [ExampleCreatingCppClientFromWsdl Как создать C++ клиент из WSDL]
-  * [ExampleCalculatorJ2meClient Создание J2ME клиента Calculator используя Sun J2ME Wireless Toolkit]
-  * [ExampleDasDataSource Создание источников данных для DAS используя провайдер sqlite3]
-  * [ExampleDasClient Создание клиента источника данных]
+
+== Java ==
+  * [ExampleCalculatorJ2meClient Создание J2ME клиента "Calculator" используя Sun J2ME WTK]
+  * [ExampleCalculatorJ2meClientInEclipse Создание J2ME клиента "Calculator" в Eclipse]
+  * [ExampleCalculartorJ2EEClientInEclipse Создание J2EE клиента в Eclipse]
+
+== DAS ==
+  * [ExampleDasDataSource Создание источников данных для DAS]
+  * [ExampleDasClient Создание клиента DAS]
+

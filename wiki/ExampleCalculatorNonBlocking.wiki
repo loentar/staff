@@ -1,6 +1,6 @@
 #summary Example: How to modify C++ client to call services in non blocking mode
 
-Use Calculator client from ExampleCalculatorClientWindows or ExampleCalculatorClientLinux .
+Use Calculator client from ExampleCalculatorClient.
 
 == 1. Enabling non blocking call ==
 
