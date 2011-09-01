@@ -145,12 +145,12 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   struct ComplexType: public QName
   {
-    std::string sElementName;
     std::list<Element> lsElements;
     std::list<Attribute> lsAttributes;
     std::list<AttributeGroup> lsAttributeGroups;
     std::string sParentName;
     std::string sParentNs;
+    std::string sAnyAttrDescr;
     bool bIsExtern;
     bool bIsMessagePart;
     bool bIsSimpleContent;
@@ -341,9 +341,8 @@ namespace codegen
     return bChanged;
   }
 
-  bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
+  bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDoc, bool bSingleLine = true)
   {
-    bool bReaded = false;
     rise::xml::CXMLNode::TXMLNodeConstIterator itDoc = rNode.FindSubnode("documentation");
     if (itDoc == rNode.NodeEnd())
     {
@@ -356,13 +355,26 @@ namespace codegen
 
     if (itDoc != rNode.NodeEnd())
     {
-      bReaded = true;
-      const std::string& sDoc = itDoc->NodeContent().AsString();
-      sDescr = sDoc;
+      sDoc = itDoc->NodeContent().AsString();
 #ifdef __linux__
-      rise::StrReplace(sDescr, "\r", "", true);
+      rise::StrReplace(sDoc, "\r", "", true);
 #endif
+      if (bSingleLine)
+      {
+        rise::StrReplace(sDoc, "\n", " ", true);
+      }
+      return true;
+    }
 
+    return false;
+  }
+
+  bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDescr, std::string& sDetail)
+  {
+    bool bReaded = ReadDoc(rNode, sDescr, false);
+
+    if (bReaded)
+    {
       std::string::size_type nPos = 0;
       while ((nPos = sDescr.find(".", nPos)) != std::string::npos)
       {
@@ -420,7 +432,38 @@ namespace codegen
   bool IsElementArray(const rise::xml::CXMLNode& rElement)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rElement.FindAttribute("maxOccurs");
-    return (itAttr != rElement.AttrEnd()) && (itAttr->sAttrValue.AsString() == "unbounded");
+    return (itAttr != rElement.AttrEnd()) &&
+        (itAttr->sAttrValue.AsString() == "unbounded" || itAttr->sAttrValue.AsInt() > 1);
+  }
+
+  template <typename Type>
+  const Type* FindQNameType(const std::string& sNsName, const std::list<Type>& rlsTypes)
+  {
+    for (typename std::list<Type>::const_iterator itType = rlsTypes.begin();
+         itType != rlsTypes.end(); ++itType)
+    {
+      if (itType->GetNsName() == sNsName)
+      {
+        return &*itType;
+      }
+    }
+
+    return NULL;
+  }
+
+  template <typename Type>
+  Type* FindQNameType(const std::string& sNsName, std::list<Type>& rlsTypes)
+  {
+    for (typename std::list<Type>::iterator itType = rlsTypes.begin();
+         itType != rlsTypes.end(); ++itType)
+    {
+      if (itType->GetNsName() == sNsName)
+      {
+        return &*itType;
+      }
+    }
+
+    return NULL;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -553,9 +596,17 @@ namespace codegen
             const std::string& sNodeName = itChild->NodeName();
             if (sNodeName == "complexType")
             {
+              const rise::xml::CXMLNode& rNodeComplexType = *itChild;
               lsComplexTypes.push_back(ComplexType());
-              lsComplexTypes.back().sElementName = sName;
-              lsComplexTypes.back().Parse(*itChild);
+              ComplexType& rComplexType = lsComplexTypes.back();
+              rComplexType.Parse(*itChild);
+
+              if (!rNodeComplexType.IsAttributeExists("name"))
+              {
+                rComplexType.sName = sName;
+                rComplexType.sDescr = sDescr;
+                rComplexType.sDetail = sDetail;
+              }
             }
             else
             if (sNodeName == "simpleType")
@@ -631,9 +682,7 @@ namespace codegen
                     stMember.sValue = sValue;
                   }
                 }
-                std::string sTmp;
-                ReadDoc(rSubChild, stMember.sDescr, sTmp);
-                stMember.sDescr += sTmp;
+                ReadDoc(rSubChild, stMember.sDescr);
 
                 lsEnumMembers.push_back(stMember);
               }
@@ -662,14 +711,9 @@ namespace codegen
   ComplexType& ComplexType::Parse( const rise::xml::CXMLNode& rNodeComplexType )
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeComplexType.FindAttribute("name");
-
     if (itAttr != rNodeComplexType.AttrEnd())
     {
       sName = itAttr->sAttrValue.AsString();
-    }
-    else
-    {
-      sName = sElementName;
     }
 
     itAttr = rNodeComplexType.FindAttribute("abstract");
@@ -723,6 +767,7 @@ namespace codegen
         if (sNodeName == "anyAttribute")
         {
           bHasAnyAttribute = true;
+          ReadDoc(*itChild, sAnyAttrDescr);
         }
         else
         if (sNodeName == "attributeGroup")
@@ -939,33 +984,37 @@ namespace codegen
   }
 
   //////////////////////////////////////////////////////////////////////////
-  typedef std::map<std::string, Element> ElementMap;
-  typedef std::map<std::string, ComplexType> ComplexTypeMap;
-  typedef std::map<std::string, SimpleType> SimpleTypeMap;
-  typedef std::map<std::string, Attribute> AttributeMap;
+  typedef std::list<Element> ElementList;
+  typedef std::list<ComplexType> ComplexTypeList;
+  typedef std::list<SimpleType> SimpleTypeList;
+  typedef std::list<Attribute> AttributeList;
   typedef std::map<std::string, AttributeGroup> AttributeGroupMap;
 
   class WsdlParserImpl;
 
+  struct WsdlParsers
+  {
+    static WsdlParserImpl& Parser(const std::string& sFile);
+  };
+
   struct WsdlTypes
   {
-    ElementMap mElements;
-    ComplexTypeMap mComplexTypes;
-    SimpleTypeMap mSimpleTypes;
-    AttributeMap mAttributes;
+    ElementList lsElements;
+    ComplexTypeList lsComplexTypes;
+    SimpleTypeList lsSimpleTypes;
+    AttributeList lsAttributes;
     AttributeGroupMap mAttributeGroups;
     std::set<std::string> m_setNsAliases;
     std::set<std::string> m_setImports;
+    std::set<std::string> m_setIncludes;
     WsdlParserImpl* m_pParser;
 
-    WsdlTypes(WsdlParserImpl* pParser);
+    void Init(WsdlParserImpl* pParser);
     void Parse(rise::xml::CXMLNode& rNodeWsdl, Project& rProject, Interface& rInterface);
     void ParseSchema(const rise::xml::CXMLNode& rSchema);
     void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst);
-    void Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface);
-    void IncludeAll(rise::xml::CXMLNode& rNode);
+    void Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface, bool bInclude);
     void ImportAll(rise::xml::CXMLNode& rNode, Project& rProject, Interface& rInterface);
-    void IncludeSchema(rise::xml::CXMLNode &rNodeParent, rise::xml::CXMLNode::TXMLNodeIterator &itNodeInclude);
   };
 
 
@@ -975,10 +1024,21 @@ namespace codegen
   class WsdlParserImpl
   {
   public:
-    WsdlParserImpl(const ParseSettings& rParseSettings):
-      m_stWsdlTypes(this), m_rParseSettings(rParseSettings)
+    WsdlParserImpl():
+      m_pParseSettings(NULL)
     {
       m_sRootNamespace = "::";
+    }
+
+    bool IsInit()
+    {
+      return !!m_pParseSettings;
+    }
+
+    void Init(const ParseSettings& rParseSettings)
+    {
+      m_pParseSettings = &rParseSettings;
+      m_stWsdlTypes.Init(this);
       StringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
       if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
       {
@@ -989,15 +1049,16 @@ namespace codegen
 
     bool ParseTypeAny(const Element& rElement, DataType& rDataType)
     {
-      if (m_rParseSettings.mEnv.count("use_schema_for_any") != 0)
+      RISE_ASSERTP(m_pParseSettings);
+      if (m_pParseSettings->mEnv.count("use_schema_for_any") != 0)
       {
         const Element* pSchemaElem = NULL;
         const std::string& sNamespace = rElement.stType.sNamespace;
         // find DataSource declaration
-        for (ElementMap::const_iterator itElem = m_stWsdlTypes.mElements.begin();
-          itElem != m_stWsdlTypes.mElements.end() && !pSchemaElem; ++itElem)
+        for (ElementList::const_iterator itElem = m_stWsdlTypes.lsElements.begin();
+          itElem != m_stWsdlTypes.lsElements.end() && !pSchemaElem; ++itElem)
         {
-          const Element& rChildElem = itElem->second;
+          const Element& rChildElem = *itElem;
           if (rChildElem.sNamespace == sNamespace && !rChildElem.lsComplexTypes.empty())
           {
             pSchemaElem = &rChildElem;
@@ -1121,6 +1182,7 @@ namespace codegen
                     stMember.stDataType.sNamespace = "staff::";
                     stMember.stDataType.sUsedName = "staff::anyAttribute";
                     stMember.stDataType.eType = DataType::TypeGeneric;
+                    stMember.sDescr = rComplexType.sAnyAttrDescr;
                     stStruct.lsMembers.push_back(stMember);
                   }
 
@@ -1136,11 +1198,11 @@ namespace codegen
                 OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
                 // find child complex type
-                ComplexTypeMap::iterator itComplexType =
-                    m_stWsdlTypes.mComplexTypes.find(rChildElement.stType.GetNsName());
-                if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+                const ComplexType* pComplexType =
+                    FindQNameType(rChildElement.stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+                if (pComplexType)
                 {
-                  const ComplexType& rChildComplexType = itComplexType->second;
+                  const ComplexType& rChildComplexType = *pComplexType;
 
                   if (rChildComplexType.bIsAbstract)
                   {
@@ -1253,11 +1315,11 @@ namespace codegen
         stParam.sName = rElement.sName;
 
         {// search in complex types
-          ComplexTypeMap::iterator itComplexType =
-              m_stWsdlTypes.mComplexTypes.find(rElement.stType.GetNsName());
-          if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+          ComplexType* pComplexType =
+              FindQNameType(rElement.stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+          if (pComplexType)
           {
-            ComplexType& rComplexType = itComplexType->second;
+            ComplexType& rComplexType = *pComplexType;
             rComplexType.bIsMessagePart = true;
 
             if (!rComplexType.bIsAbstract && rComplexType.lsElements.empty())
@@ -1279,20 +1341,21 @@ namespace codegen
           }
           else // search in simple types
           {
-            SimpleTypeMap::const_iterator itSimpleType =
-                m_stWsdlTypes.mSimpleTypes.find(rElement.stType.GetNsName());
-            if (itSimpleType != m_stWsdlTypes.mSimpleTypes.end())
+            const SimpleType* pSimpleType =
+                FindQNameType(rElement.stType.GetNsName(), m_stWsdlTypes.lsSimpleTypes);
+            if (!pSimpleType)
             {
-              stParam.stDataType = SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
-            }
-            else // type is generic or unknown
-            {
+              // type is generic or unknown
               GetCppType(rElement.stType, stParam.stDataType);
               if (stParam.stDataType.eType == DataType::TypeUnknown)
               {
                 rise::LogError() << "Cannot detect type of " << rElement.stType.GetNsName()
                      << " interface name: " << m_stInterface.sName;
               }
+            }
+            else
+            {
+              stParam.stDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
             }
             stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
             OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
@@ -1355,11 +1418,11 @@ namespace codegen
         const std::string& sElementNsName = itAttrType->sAttrValue.AsString();
 
         // finding element of part
-        ElementMap::const_iterator itElement = rWsdlTypes.mElements.find(sElementNsName);
-        RISE_ASSERTES(itElement != rWsdlTypes.mElements.end(), rise::CLogicNoItemException,
-          "Element " + itAttrType->sAttrValue.AsString() + " is not found, while parsing part");
+        const Element* pElement = FindQNameType(sElementNsName, rWsdlTypes.lsElements);
+        RISE_ASSERTES(pElement, rise::CLogicNoItemException, "Element " + sElementNsName
+                      + " is not found, while parsing part");
 
-        ParsePartElement(itElement->second, rMember, bIsResponse);
+        ParsePartElement(*pElement, rMember, bIsResponse);
       }
       else
       { // inline part declaration
@@ -1688,6 +1751,7 @@ namespace codegen
 
     void ParseInterface(rise::xml::CXMLNode& rRootNode, Project& rProject)
     {
+      RISE_ASSERTP(m_pParseSettings);
       bool bSchema = rRootNode.NodeName() == "schema";
       RISE_ASSERTES(bSchema || rRootNode.NodeName() == "definitions", rise::CLogicFormatException,
         "Invalid wsdl/xsd root node name: [" + rRootNode.NodeName() + "]");
@@ -1704,25 +1768,38 @@ namespace codegen
         m_stWsdlTypes.ParseSchema(rRootNode);
       }
 
-      for (SimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
-        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
+      for (SimpleTypeList::const_iterator itSimple = m_stWsdlTypes.lsSimpleTypes.begin();
+        itSimple != m_stWsdlTypes.lsSimpleTypes.end(); ++itSimple)
       {
-        SimpleTypeToData(itSimple->second, m_stWsdlTypes, true);
+        SimpleTypeToData(*itSimple, m_stWsdlTypes, true);
       }
 
-      for (ComplexTypeMap::const_iterator itComplex = m_stWsdlTypes.mComplexTypes.begin();
-            itComplex != m_stWsdlTypes.mComplexTypes.end(); ++itComplex)
+      for (ComplexTypeList::const_iterator itComplex = m_stWsdlTypes.lsComplexTypes.begin();
+            itComplex != m_stWsdlTypes.lsComplexTypes.end(); ++itComplex)
       {
-        if (!itComplex->second.bIsMessagePart)
+        if (!itComplex->bIsMessagePart)
         {
-          ComplexTypeToData(itComplex->second, m_stWsdlTypes);
+          ComplexTypeToData(*itComplex, m_stWsdlTypes);
         }
       }
 
-      for (SimpleTypeMap::const_iterator itSimple = m_stWsdlTypes.mSimpleTypes.begin();
-        itSimple != m_stWsdlTypes.mSimpleTypes.end(); ++itSimple)
+      for (SimpleTypeList::const_iterator itSimple = m_stWsdlTypes.lsSimpleTypes.begin();
+        itSimple != m_stWsdlTypes.lsSimpleTypes.end(); ++itSimple)
       {
-        SimpleTypeToData(itSimple->second, m_stWsdlTypes);
+        SimpleTypeToData(*itSimple, m_stWsdlTypes);
+      }
+
+      if (m_pParseSettings->mEnv.count("write_all_elements"))
+      {
+        DataType stDataTypeTmp;
+        for (ElementList::const_iterator itElement = m_stWsdlTypes.lsElements.begin();
+          itElement != m_stWsdlTypes.lsElements.end(); ++itElement)
+        {
+          if (!itElement->bIsExtern)
+          {
+            ElementToData(*itElement, stDataTypeTmp, m_stWsdlTypes);
+          }
+        }
       }
 
 //      for (TElementMap::const_iterator itElement = m_stWsdlTypes.mElements.begin();
@@ -1741,6 +1818,7 @@ namespace codegen
 
     Interface& Parse( const std::string& sFileUri, Project& rProject )
     {
+      RISE_ASSERTP(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
       bool bRemote = sFileUri.find("://") != std::string::npos;
       const std::string& sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
@@ -1759,6 +1837,7 @@ namespace codegen
         if (itInterface->sFileName == sInterfaceFileName &&
             itInterface->sFilePath == sInterfaceFilePath)
         {
+          rise::LogWarning() << "Already parsed";
           return *itInterface; // already parsed
         }
       }
@@ -1778,7 +1857,7 @@ namespace codegen
           }
           else
           {
-            if (!m_rParseSettings.mEnv.count("do_not_save_wsdl"))
+            if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
             {
               std::cout << "saving " << sInterfaceFileName << std::endl;
               std::ofstream ofStream(sInterfaceFileName.c_str());
@@ -1867,6 +1946,11 @@ namespace codegen
       return m_stInterface;
     }
 
+    Interface& GetInterface()
+    {
+      return m_stInterface;
+    }
+
     const WsdlTypes& GetWsdlTypes()
     {
       return m_stWsdlTypes;
@@ -1874,29 +1958,30 @@ namespace codegen
 
     const ParseSettings& GetParseSettings() const
     {
-      return m_rParseSettings;
+      RISE_ASSERTP(m_pParseSettings);
+      return *m_pParseSettings;
     }
 
   private:
     void DataTypeFromName(const std::string& sDataType, DataType& rDataType, const WsdlTypes& rWsdlTypes)
     {
       // struct/typedef
-      SimpleTypeMap::const_iterator itSimpleType = rWsdlTypes.mSimpleTypes.find(sDataType);
-      if (itSimpleType != rWsdlTypes.mSimpleTypes.end())
+      const SimpleType* pSimpleType = FindQNameType(sDataType, rWsdlTypes.lsSimpleTypes);
+      if (!pSimpleType)
       {
-        rDataType = SimpleTypeToData(itSimpleType->second, rWsdlTypes);
-      }
-      else
-      {
-        ComplexTypeMap::const_iterator itComplexType = rWsdlTypes.mComplexTypes.find(sDataType);
-        if (itComplexType != rWsdlTypes.mComplexTypes.end())
-        {
-          rDataType = ComplexTypeToData(itComplexType->second, rWsdlTypes);
-        }
-        else
+        const ComplexType* pComplexType = FindQNameType(sDataType, rWsdlTypes.lsComplexTypes);
+        if (!pComplexType)
         {
           rDataType.eType = DataType::TypeUnknown;
         }
+        else
+        {
+          rDataType = ComplexTypeToData(*pComplexType, rWsdlTypes);
+        }
+      }
+      else
+      {
+        rDataType = SimpleTypeToData(*pSimpleType, rWsdlTypes);
       }
     }
 
@@ -1945,7 +2030,10 @@ namespace codegen
             }
             else
             {
-              rise::LogError() << "Can't find owner struct: " << stEnum.sName.substr(0, nPos);
+              if (!bWriteAsForward)
+              {
+                rise::LogError() << "Can't find owner struct: " << stEnum.sName.substr(0, nPos);
+              }
             }
           }
           else
@@ -2038,11 +2126,9 @@ namespace codegen
         bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
-          AttributeMap::const_iterator itTargetElem = m_stWsdlTypes.mAttributes.find(pAttr->stType.GetNsName());
-
-          RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mAttributes.end(),
-                       "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
-          pAttr = &itTargetElem->second;
+          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.GetNsName(), m_stWsdlTypes.lsAttributes);
+          RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
+          pAttr = pAttrTarget;
         }
 
         Param stMember;
@@ -2104,8 +2190,10 @@ namespace codegen
         return stDataType;
       }
 
-      // single type array
-      if (rComplexType.lsElements.size() == 1)
+      // single type array without any attributes. optimize to list with given element name
+      if (rComplexType.lsElements.size() == 1 &&
+          rComplexType.lsAttributes.empty() &&
+          !rComplexType.bHasAnyAttribute)
       {
         const Element& rElem = rComplexType.lsElements.front();
         if (rElem.bIsArray)
@@ -2273,11 +2361,11 @@ namespace codegen
           const Element* pElement = &*itElement;
           while (pElement->bIsRef)
           {
-            ElementMap::const_iterator itTargetElem = m_stWsdlTypes.mElements.find(pElement->stType.GetNsName());
+            Element* pTargetElem = FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsElements);
 
-            RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mElements.end(),
-                         "Can't find element declaration for: " + pElement->stType.GetNsName());
-            pElement = &itTargetElem->second;
+            RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
+                         + "]. from [" + m_stInterface.sFileName + "]");
+            pElement = pTargetElem;
           }
 
           Param stMember;
@@ -2290,12 +2378,16 @@ namespace codegen
           if (!pElement->lsComplexTypes.empty())
           {
             const ComplexType& rComplexType = pElement->lsComplexTypes.front();
-            if (!rComplexType.lsElements.empty())
+            if (rComplexType.lsElements.size() == 1)
             {
-              const std::string& sElemName = StripPrefix(rComplexType.lsElements.front().sName);
-              if (sElemName != "Item")
+              const Element& rElem = rComplexType.lsElements.front();
+              if (rElem.bIsArray)
               {
-                stMember.mOptions["elementName"] = sElemName;
+                const std::string& sElemName = StripPrefix(rElem.sName);
+                if (!sElemName.empty() && sElemName != "Item")
+                {
+                  stMember.mOptions["elementName"] = sElemName;
+                }
               }
             }
           }
@@ -2409,6 +2501,7 @@ namespace codegen
           stMember.stDataType.sNamespace = "staff::";
           stMember.stDataType.sUsedName = "staff::anyAttribute";
           stMember.stDataType.eType = DataType::TypeGeneric;
+          stMember.sDescr = rComplexType.sAnyAttrDescr;
           pstStruct->lsMembers.push_back(stMember);
         }
 
@@ -2424,7 +2517,8 @@ namespace codegen
                 m_stWsdlTypes.mAttributeGroups.find(pAttrGroup->GetNsName());
 
             RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mAttributeGroups.end(),
-                         "Can't find attribute declaration for: " + pAttrGroup->GetNsName());
+                         "Can't find attribute group declaration for: [" + pAttrGroup->GetNsName()
+                         + "]. from [" + m_stInterface.sFileName + "]");
             pAttrGroup = &itTargetElem->second;
           }
 
@@ -2445,11 +2539,11 @@ namespace codegen
 
       while (pElement->bIsRef)
       {
-        ElementMap::const_iterator itTargetElem = m_stWsdlTypes.mElements.find(pElement->stType.GetNsName());
+        Element* pTargetElem = FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsElements);
 
-        RISE_ASSERTS(itTargetElem != m_stWsdlTypes.mElements.end(),
-                     "Can't find element declaration for: " + pElement->stType.GetNsName());
-        pElement = &itTargetElem->second;
+        RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
+                     + "]. from [" + m_stInterface.sFileName + "]");
+        pElement = pTargetElem;
       }
 
       if (!pElement->stType.sName.empty())
@@ -2474,18 +2568,20 @@ namespace codegen
         }
         else // reference to type
         {
-          ComplexTypeMap::const_iterator itComplexType = m_stWsdlTypes.mComplexTypes.find(pElement->stType.GetNsName());
-          if (itComplexType != m_stWsdlTypes.mComplexTypes.end())
+          ComplexType* pComplexType =
+              FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+          if (!pComplexType)
           {
-            rDataType = ComplexTypeToData(itComplexType->second, m_stWsdlTypes);
+            const SimpleType* pSimpleType =
+                FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsSimpleTypes);
+            if (pSimpleType)
+            {
+              rDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
+            }
           }
           else
           {
-            SimpleTypeMap::const_iterator itSimpleType = m_stWsdlTypes.mSimpleTypes.find(pElement->stType.GetNsName());
-            if (itSimpleType != m_stWsdlTypes.mSimpleTypes.end())
-            {
-              rDataType = SimpleTypeToData(itSimpleType->second, m_stWsdlTypes);
-            }
+            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes);
           }
         }
       }
@@ -2730,7 +2826,7 @@ namespace codegen
       std::string::size_type nPosBegin = sNamespace.find("://");
       if (nPosBegin == std::string::npos)
       {
-        return "";
+        return m_sRootNamespace;
       }
 
       nPosBegin += 3;
@@ -2738,33 +2834,33 @@ namespace codegen
       nPosBegin = sNamespace.find("/", nPosBegin);
       if (nPosBegin == std::string::npos)
       {
-        return "";
+        return m_sRootNamespace;
       }
 
       std::string::size_type nPosNewBegin = sNamespace.find_last_of("/");
       if (nPosNewBegin == std::string::npos || nPosNewBegin < nPosBegin)
       {
-        return "";
+        return m_sRootNamespace;
       }
       nPosBegin = nPosNewBegin + 1;
 
       std::string::size_type nPosEnd = sNamespace.find_last_of('.');
       if (nPosEnd == std::string::npos || nPosEnd == (sNamespace.size() - 1) || nPosEnd < nPosBegin)
       {
-        return "";
+        return m_sRootNamespace;
       }
 
       // check namespace is lowercase
       char chNamespace = sNamespace[nPosBegin];
       if (tolower(chNamespace) != chNamespace)
       {
-        return "";
+        return m_sRootNamespace;
       }
 
       const std::string& sServiceName = sNamespace.substr(nPosEnd + 1);
       if (sServiceName == "xsd" || sServiceName == "wsdl")
       {
-        return "";
+        return m_sRootNamespace;
       }
 
       // exclude service/interface name
@@ -2867,12 +2963,12 @@ namespace codegen
     Interface m_stInterface;
     WsdlTypes m_stWsdlTypes;
     std::string m_sRootNamespace;
-    const ParseSettings& m_rParseSettings;
+    const ParseSettings* m_pParseSettings;
   };
 
-  WsdlTypes::WsdlTypes(WsdlParserImpl* pParser):
-    m_pParser(pParser)
+  void WsdlTypes::Init(WsdlParserImpl* pParser)
   {
+    m_pParser = pParser;
   }
 
   void WsdlTypes::Parse(rise::xml::CXMLNode& rNodeWsdl, Project& rProject, Interface& rInterface)
@@ -2914,30 +3010,26 @@ namespace codegen
         const std::string& sType = itType->NodeName();
         if (sType == "element")
         {
-          Element stElement;
-          stElement.Parse(*itType);
-          mElements[stElement.GetNsName()] = stElement;
+          Element& rElement = *lsElements.insert(lsElements.end(), Element());
+          rElement.Parse(*itType);
         }
         else
         if (sType == "complexType")
         {
-          ComplexType stComplexType;
-          stComplexType.Parse(*itType);
-          mComplexTypes[stComplexType.GetNsName()] = stComplexType;
+          ComplexType& rComplexType = *lsComplexTypes.insert(lsComplexTypes.end(), ComplexType());
+          rComplexType.Parse(*itType);
         }
         else
         if (sType == "simpleType")
         {
-          SimpleType stSimpleType;
-          stSimpleType.Parse(*itType);
-          mSimpleTypes[stSimpleType.GetNsName()] = stSimpleType;
+          SimpleType& rSimpleType = *lsSimpleTypes.insert(lsSimpleTypes.end(), SimpleType());
+          rSimpleType.Parse(*itType);
         }
         else
         if (sType == "attribute")
         {
-          Attribute stAttr;
-          stAttr.Parse(*itType);
-          mAttributes[stAttr.GetNsName()] = stAttr;
+          Attribute& rAttr = *lsAttributes.insert(lsAttributes.end(), Attribute());
+          rAttr.Parse(*itType);
         }
         else
         if (sType == "attributeGroup")
@@ -2951,7 +3043,7 @@ namespace codegen
         { // already parsed if needed
         }
         else
-        if (sType == "import")
+        if (sType == "import" || sType == "include")
         { // already imported
         }
         else
@@ -2966,10 +3058,11 @@ namespace codegen
     }
   }
 
-  void ReplacePrefix(Element& rElement, const std::string& sNamespace, const std::string& sPrefix)
+  void ReplacePrefix(Element& rElement, const std::string& sNamespace, const std::string& sPrefix,
+                     bool bInclude)
   {
     rElement.bIsExtern = true;
-    if (rElement.sNamespace == sNamespace)
+    if (!bInclude && rElement.sNamespace == sNamespace)
     {
       rElement.sPrefix = sPrefix;
     }
@@ -2978,7 +3071,7 @@ namespace codegen
         itSimpleType != rElement.lsSimpleTypes.end(); ++itSimpleType)
     {
       itSimpleType->bIsExtern = true;
-      if (itSimpleType->sNamespace == sNamespace)
+      if (!bInclude && itSimpleType->sNamespace == sNamespace)
       {
         itSimpleType->sPrefix = sPrefix;
       }
@@ -2990,7 +3083,7 @@ namespace codegen
       ComplexType& rComplexType = *itComplexType;
       rComplexType.bIsExtern = true;
 
-      if (rComplexType.sNamespace == sNamespace)
+      if (!bInclude && rComplexType.sNamespace == sNamespace)
       {
         rComplexType.sPrefix = sPrefix;
       }
@@ -2998,7 +3091,7 @@ namespace codegen
       for (std::list<Element>::iterator itElement = rComplexType.lsElements.begin();
           itElement != rComplexType.lsElements.end(); ++itElement)
       {
-        ReplacePrefix(*itElement, sNamespace, sPrefix);
+        ReplacePrefix(*itElement, sNamespace, sPrefix, bInclude);
       }
     }
   }
@@ -3056,68 +3149,8 @@ namespace codegen
     }
   }
 
-  void WsdlTypes::IncludeSchema(rise::xml::CXMLNode& rNodeParent,
-                                rise::xml::CXMLNode::TXMLNodeIterator& itNodeInclude)
-  {
-    std::string sSchemaLocation;
-    rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = itNodeInclude->FindAttribute("location");
-    if (itLocation != itNodeInclude->AttrEnd())
-    {
-      sSchemaLocation = itLocation->sAttrValue.AsString();
-    }
-    else
-    {
-      itLocation = itNodeInclude->FindAttribute("schemaLocation");
-      if (itLocation == itNodeInclude->AttrEnd())
-      {
-        rise::LogWarning() << "schemaLocation is not in include instruction";
-        return;
-      }
-      sSchemaLocation = itLocation->sAttrValue.AsString();
-    }
-
-    rise::xml::CXMLDocument tWsdlDoc;
-    rise::xml::CXMLNode& rDefs = tWsdlDoc.GetRoot();
-
-    bool bRemote = sSchemaLocation.find("://") != std::string::npos;
-    if (bRemote)
-    {
-      std::string sFileData;
-      rise::LogDebug() << "Downloading the " << sSchemaLocation;
-      if (!HttpClient::Get(sSchemaLocation, sFileData))
-      {
-        rise::LogError() << "Can't download file " << sSchemaLocation;
-      }
-      std::istringstream issData(sFileData);
-      tWsdlDoc.LoadFromStream(issData);
-    }
-    else
-    {
-      tWsdlDoc.LoadFromFile(sSchemaLocation);
-    }
-
-    IncludeAll(rDefs); // recursive include all
-
-    // replace <include schemaLocation="..." /> to included content
-    if (rDefs.NodeName() != "schema")
-    {
-      rise::LogWarning() << "Invalid root node name for XSD: expected: \"schema\" found \""
-                         << rDefs.NodeName() << "\"";
-    }
-
-    rise::xml::CXMLNode::TXMLNodeConstIterator itNodeSchema = rDefs.NodeBegin();
-    if (itNodeSchema != rDefs.NodeEnd())
-    {
-      *itNodeInclude = *itNodeSchema;
-      ++itNodeSchema;
-    }
-    for (; itNodeSchema != rDefs.NodeEnd(); ++itNodeSchema)
-    {
-      rNodeParent.AddSubNode("", itNodeInclude) = *itNodeSchema;
-    }
-  }
-
-  void WsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface)
+  void WsdlTypes::Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface,
+                         bool bInclude)
   {
     std::string sImportNs;
     rise::xml::CXMLNode::TXMLAttrConstIterator itNamespace = rNodeImport.FindAttribute("namespace");
@@ -3149,16 +3182,28 @@ namespace codegen
     }
 
     const std::string& sImportHash = sImportNs + ":" + sSchemaLocation;
-    if (!!m_setImports.count(sImportHash))
+    if (!bInclude)
     {
-      rise::LogDebug() << "[" << sImportHash << "] is already imported";
-      return;
+      if (m_setImports.count(sImportHash))
+      {
+        rise::LogDebug() << "[" << sImportHash << "] is already imported";
+        return;
+      }
+      m_setImports.insert(sImportHash);
     }
-    m_setImports.insert(sImportHash);
+    else
+    {
+      if (m_setIncludes.count(sImportHash))
+      {
+        rise::LogDebug() << "[" << sImportHash << "] is already included";
+        return;
+      }
+      m_setIncludes.insert(sImportHash);
+    }
 
     RISE_ASSERTP(m_pParser);
 
-    if (m_setNsAliases.count(sImportNs) != 0)
+    if (!bInclude && m_setNsAliases.count(sImportNs) != 0)
     { // import into current namespace
       static int nUnnamedNsNum = 0;
       rise::LogDebug2() << "Namespace: " << sImportNs << " is alias for current";
@@ -3174,7 +3219,7 @@ namespace codegen
           break;
         }
       }
-      RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node");
+      RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node in [" + rInterface.sFileName + "]");
 
       rise::xml::CXMLNode::TXMLNsList& rlsNamespaces = pNodeDefinitions->GetNsList();
       rlsNamespaces.push_back(rise::xml::SXMLNamespace(sPrefix, sImportNs));
@@ -3203,136 +3248,142 @@ namespace codegen
     }
 
     std::string sImportNsPrefix;
-    GetNsPrefix(rNodeImport, sImportNs, sImportNsPrefix);
 
-    rise::LogDebug2() << "Importing: " << sSchemaLocation << " into namespace: " << sImportNs;
-
-    WsdlParserImpl tWsdlParser(m_pParser->GetParseSettings());
-    try
+    if (bInclude)
     {
-      Interface& rNewInterface = tWsdlParser.Parse(m_pParser->GetParseSettings().sInDir
-                                                        + sSchemaLocation, rProject);
+      rise::LogDebug2() << "Including [" << sSchemaLocation
+                        << "] from: [" << rInterface.sFileName << "]";
+    }
+    else
+    {
+      GetNsPrefix(rNodeImport, sImportNs, sImportNsPrefix);
+      rise::LogDebug2() << "Importing [" << sSchemaLocation << "] into namespace: [" << sImportNs
+                        << "] from: [" << rInterface.sFileName << "]";
+    }
 
-      // import operations
-      const WsdlTypes& rImportedWsdlTypes = tWsdlParser.GetWsdlTypes();
-      for (ElementMap::const_iterator itElement = rImportedWsdlTypes.mElements.begin();
-          itElement != rImportedWsdlTypes.mElements.end(); ++itElement)
+    WsdlParserImpl& rWsdlParser = WsdlParsers::Parser(sSchemaLocation);
+    Interface* pNewInterface = NULL;
+
+    if (!rWsdlParser.IsInit())
+    {
+      rWsdlParser.Init(m_pParser->GetParseSettings());
+      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation, rProject);
+
+      Include& rInclude = *rInterface.lsIncludes.insert(rInterface.lsIncludes.end(), Include());
+      rInclude.sInterfaceName = pNewInterface->sName;
+      rInclude.sNamespace = pNewInterface->sNamespace;
+      rInclude.sFileName = pNewInterface->sFileName;
+      rInclude.sFilePath = pNewInterface->sFilePath;
+      rInclude.sTargetNs = pNewInterface->sTargetNs;
+    }
+    else
+    {
+      pNewInterface = &rWsdlParser.GetInterface();
+    }
+
+    // import operations
+    const WsdlTypes& rImportedWsdlTypes = rWsdlParser.GetWsdlTypes();
+    for (ElementList::const_iterator itElement = rImportedWsdlTypes.lsElements.begin();
+        itElement != rImportedWsdlTypes.lsElements.end(); ++itElement)
+    {
+      Element& rElement = *lsElements.insert(lsElements.end(), *itElement);
+      ReplacePrefix(rElement, sImportNs, sImportNsPrefix, bInclude);
+    }
+
+    // import extern attributes
+    const AttributeList& rmImpAttrs = rWsdlParser.GetWsdlTypes().lsAttributes;
+    for (AttributeList::const_iterator itAttr = rmImpAttrs.begin(); itAttr != rmImpAttrs.end(); ++itAttr)
+    {
+      Attribute& rAttr = *lsAttributes.insert(lsAttributes.end(), *itAttr);
+      if (!bInclude)
       {
-        Element& rElement = mElements[sImportNsPrefix + ":" + itElement->second.sName];
-        rElement = itElement->second;
-        ReplacePrefix(rElement, sImportNs, sImportNsPrefix);
+        rAttr.sPrefix = sImportNsPrefix;
       }
+    }
 
-      // import extern attributes
-      const AttributeMap& rmImpAttrs = tWsdlParser.GetWsdlTypes().mAttributes;
-      for (AttributeMap::const_iterator itAttr = rmImpAttrs.begin(); itAttr != rmImpAttrs.end(); ++itAttr)
+    ImportEnums(pNewInterface->lsEnums, rInterface.lsEnums);
+    ImportStruct(pNewInterface->lsStructs, rInterface.lsStructs);
+
+    // use extern typedefs
+    for (std::list<Typedef>::const_iterator itTypedef = pNewInterface->lsTypedefs.begin();
+        itTypedef != pNewInterface->lsTypedefs.end(); ++itTypedef)
+    {
+      if (!IsBaseTypeExists(*itTypedef, rInterface.lsTypedefs))
       {
-        mAttributes[sImportNsPrefix + ":" + itAttr->second.sName] = itAttr->second;
+        Typedef stTypedef = *itTypedef;
+        stTypedef.sName = itTypedef->sName;
+        stTypedef.sNamespace = itTypedef->sNamespace;
+        stTypedef.sDescr = itTypedef->sDescr;
+        stTypedef.sDetail= itTypedef->sDetail;
+        stTypedef.bExtern = true;
+        rInterface.lsTypedefs.push_back(stTypedef);
       }
+    }
 
-      ImportEnums(rNewInterface.lsEnums, rInterface.lsEnums);
-      ImportStruct(rNewInterface.lsStructs, rInterface.lsStructs);
-
-      // use extern typedefs
-      for (std::list<Typedef>::const_iterator itTypedef = rNewInterface.lsTypedefs.begin();
-          itTypedef != rNewInterface.lsTypedefs.end(); ++itTypedef)
+    // insert imported namespaces into current definitions or xsd's schema element
+    rise::xml::CXMLNode* pNodeDefinitions = &rNodeImport;
+    for (; pNodeDefinitions != NULL; pNodeDefinitions = pNodeDefinitions->GetParent())
+    {
+      if (pNodeDefinitions->NodeName() == "definitions" ||
+          (pNodeDefinitions->NodeName() == "schema" && pNodeDefinitions->GetParent() == NULL))
       {
-        if (!IsBaseTypeExists(*itTypedef, rInterface.lsTypedefs))
-        {
-          Typedef stTypedef = *itTypedef;
-          stTypedef.sName = itTypedef->sName;
-          stTypedef.sNamespace = itTypedef->sNamespace;
-          stTypedef.sDescr = itTypedef->sDescr;
-          stTypedef.sDetail= itTypedef->sDetail;
-          stTypedef.bExtern = true;
-          rInterface.lsTypedefs.push_back(stTypedef);
-        }
+        break;
       }
+    }
+    RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node in [" + rInterface.sFileName + "]");
 
+    const rise::xml::CXMLNode::TXMLNsList& lsImportedNamespaces = NamespacesCache::mCache[sSchemaLocation];
+    rise::xml::CXMLNode::TXMLNsList& lsNamespaces = pNodeDefinitions->GetNsList();
+    for (rise::xml::CXMLNode::TXMLNsList::const_iterator itImpNs = lsImportedNamespaces.begin();
+        itImpNs != lsImportedNamespaces.end(); ++itImpNs)
+    {
       bool bFound = false;
-      for (std::list<Include>::const_iterator itInclude = rInterface.lsIncludes.begin();
-           itInclude != rInterface.lsIncludes.end(); ++itInclude)
+      for (rise::xml::CXMLNode::TXMLNsList::const_iterator itNs = lsNamespaces.begin();
+          itNs != lsNamespaces.end(); ++itNs)
       {
-        if (itInclude->sFileName == rNewInterface.sFileName &&
-            itInclude->sFilePath == rNewInterface.sFilePath)
+        if (itNs->sNs == itImpNs->sNs)
         {
           bFound = true;
           break;
         }
       }
+
       if (!bFound)
       {
-        Include stInclude;
-        stInclude.sInterfaceName = rNewInterface.sName;
-        stInclude.sNamespace = rNewInterface.sNamespace;
-        stInclude.sFileName = rNewInterface.sFileName;
-        stInclude.sFilePath = rNewInterface.sFilePath;
-        stInclude.sTargetNs = rNewInterface.sTargetNs;
-        rInterface.lsIncludes.push_back(stInclude);
+        lsNamespaces.push_back(*itImpNs);
       }
-
-      // insert imported namespaces into current definitions or xsd's schema element
-      rise::xml::CXMLNode* pNodeDefinitions = &rNodeImport;
-      for (; pNodeDefinitions != NULL; pNodeDefinitions = pNodeDefinitions->GetParent())
-      {
-        if (pNodeDefinitions->NodeName() == "definitions" ||
-            (pNodeDefinitions->NodeName() == "schema" && pNodeDefinitions->GetParent() == NULL))
-        {
-          break;
-        }
-      }
-      RISE_ASSERTS(pNodeDefinitions, "Can't find definitions node");
-
-      const rise::xml::CXMLNode::TXMLNsList& lsImportedNamespaces = NamespacesCache::mCache[sSchemaLocation];
-      rise::xml::CXMLNode::TXMLNsList& lsNamespaces = pNodeDefinitions->GetNsList();
-      for (rise::xml::CXMLNode::TXMLNsList::const_iterator itImpNs = lsImportedNamespaces.begin();
-          itImpNs != lsImportedNamespaces.end(); ++itImpNs)
-      {
-        bool bFound = false;
-        for (rise::xml::CXMLNode::TXMLNsList::const_iterator itNs = lsNamespaces.begin();
-            itNs != lsNamespaces.end(); ++itNs)
-        {
-          if (itNs->sNs == itImpNs->sNs)
-          {
-            bFound = true;
-            break;
-          }
-        }
-
-        if (!bFound)
-        {
-          lsNamespaces.push_back(*itImpNs);
-        }
-      }
-
-      rise::LogDebug2() << "Importing: " << sSchemaLocation << " is complete";
     }
-    catch (rise::CException& rException)
-    {
-      rise::LogWarning() << "Cannot import xsd schema \"" << sSchemaLocation
-          << "\": " << rException.GetDescr() << ". Service's interface may be incomplete.";
-    }
+
+    rise::LogDebug2() << (bInclude ? "Including" : "Importing") << " [" << sSchemaLocation << "] complete";
   }
-
-  void WsdlTypes::IncludeAll(rise::xml::CXMLNode& rNode)
-  {
-    for(rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNode.FindSubnode("include");
-      itNodeChild != rNode.NodeEnd(); itNodeChild = rNode.FindSubnode("include", ++itNodeChild))
-    {
-      IncludeSchema(rNode, itNodeChild);
-    }
-  }
-
 
   void WsdlTypes::ImportAll(rise::xml::CXMLNode& rNode, Project& rProject, Interface& rInterface)
   {
-    IncludeAll(rNode);
-    for(rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNode.FindSubnode("import");
-      itNodeChild != rNode.NodeEnd(); itNodeChild = rNode.FindSubnode("import", ++itNodeChild))
+    for (rise::xml::CXMLNode::TXMLNodeIterator itNodeChild = rNode.NodeBegin();
+      itNodeChild != rNode.NodeEnd(); ++itNodeChild)
     {
-      Import(*itNodeChild, rProject, rInterface);
+      if (itNodeChild->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+      {
+        if (itNodeChild->NodeName() == "import")
+        {
+          Import(*itNodeChild, rProject, rInterface, false);
+        }
+        else
+        if (itNodeChild->NodeName() == "include")
+        {
+          Import(*itNodeChild, rProject, rInterface, true);
+        }
+      }
     }
   }
+
+  WsdlParserImpl& WsdlParsers::Parser(const std::string& sFile)
+  {
+rise::LogInfo() << sFile;
+    static std::map<std::string, WsdlParserImpl> mMap;
+    return mMap[sFile];
+  }
+
 
   // wsdl parser
 
@@ -3355,12 +3406,20 @@ namespace codegen
     for (StringList::const_iterator itFileName = rParseSettings.lsFiles.begin();
           itFileName != rParseSettings.lsFiles.end(); ++itFileName)
     {
-      WsdlParserImpl tWsdlParser(rParseSettings);
-      std::string sFileName = rParseSettings.sInDir + *itFileName;
+      WsdlParserImpl& rWsdlParser = WsdlParsers::Parser(*itFileName);
+      if (!rWsdlParser.IsInit())
+      {
+        rWsdlParser.Init(rParseSettings);
+        std::string sFileName = rParseSettings.sInDir + *itFileName;
 
-      rise::LogDebug() << "Processing wsdl: " << *itFileName;
+        rise::LogDebug() << "Processing: " << *itFileName;
 
-      tWsdlParser.Parse(sFileName, rProject);
+        rWsdlParser.Parse(sFileName, rProject);
+      }
+      else
+      {
+        rise::LogDebug() << *itFileName << " already processed";
+      }
     }
   }
 

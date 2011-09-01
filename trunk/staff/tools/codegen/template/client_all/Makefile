@@ -36,6 +36,8 @@ OBJECTS := \$(patsubst \$(SRCDIR)%.cpp,\$(OBJDIR)%.o,\$(SOURCES))
 # == make ===========================================
 make: check "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGET)
 
+all: make
+
 # link
 \$(OUTDIR)\$(TARGET): \$(OBJECTS)
 	\$(CXX) \$(OBJECTS) -o \$(OUTDIR)\$(TARGET) \$(LDFLAGS)
@@ -63,3 +65,7 @@ check:
 ifeq (\$(STAFF_HOME),)
 	@\$(ECHO) "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
 endif
+
+# == run ============================================
+run: \$(OUTDIR)\$(TARGET)
+	\$(OUTDIR)\$(TARGET)

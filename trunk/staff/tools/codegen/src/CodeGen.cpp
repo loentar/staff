@@ -50,6 +50,26 @@ namespace codegen
 {
   using rise::xml::CXMLNode;
 
+  void Mkdir(const std::string& sDirName)
+  {
+    for (std::string::size_type nPos = 0; nPos != std::string::npos;)
+    {
+      nPos = sDirName.find('/', nPos + 1);
+      const std::string& sCurrDir = sDirName.substr(0, nPos);
+      if (!sCurrDir.empty())
+      {
+        int nRes =
+#ifndef WIN32
+        mkdir(sCurrDir.c_str(), 0755);
+#else
+        _mkdir(sCurrDir.c_str());
+#endif
+        RISE_ASSERTS(nRes != -1 || errno == EEXIST, "Failed to create dir ["
+                     + sCurrDir + "]: " + strerror(errno));
+      }
+    }
+  }
+
   class TemplateParser
   {
   public:
@@ -1376,24 +1396,7 @@ namespace codegen
           ReplaceToValue(sDirName, rNode);
           rise::StrTrim(sDirName);
 
-          sDirName = m_sOutDir + sDirName;
-
-          for (std::string::size_type nPos = 0; nPos != std::string::npos;)
-          {
-            nPos = sDirName.find('/', nPos + 1);
-            const std::string& sCurrDir = sDirName.substr(0, nPos);
-            if (!sCurrDir.empty())
-            {
-              int nRes =
-#ifndef WIN32
-              mkdir(sCurrDir.c_str(), 0755);
-#else
-              _mkdir(sCurrDir.c_str());
-#endif
-              RISE_ASSERTS(nRes != -1 || errno == EEXIST, "Failed to create dir ["
-                           + sCurrDir + "]: " + strerror(errno));
-            }
-          }
+          Mkdir(m_sOutDir + sDirName);
         }
         else
         if (sLine.substr(0, 11) == "#cginclude ")
@@ -1558,6 +1561,8 @@ namespace codegen
   void CodeGen::Start( const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const StringMap& rmEnv )
   {
     TemplateParser tTemplateParser;
+
+    Mkdir(sOutDir);
 
     tTemplateParser.Init(sTemplateDir);
     tTemplateParser.SetEnv(rmEnv);
