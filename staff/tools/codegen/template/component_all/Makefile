@@ -95,6 +95,8 @@ OBJECTS := \$(patsubst \$(SRCDIR)%.cpp,\$(OBJDIR)%.o,\$(SOURCES))
 # == make ===========================================
 make: check "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGETNAME)
 
+all: make
+
 # link
 \$(OUTDIR)\$(TARGETNAME): \$(OBJECTS)
 	\$(CXX) \$(OBJECTS) -o \$(OUTDIR)\$(TARGETNAME) \$(LDFLAGS)
