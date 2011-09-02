@@ -11,13 +11,15 @@ To enable REST support for any service you just need to write two special codege
 // *restLocation: <REST_LOCATION>
 }}}
 
-Where `<REST_METHOD>` is one of GET, PUT, POST, DELETE and `<REST_LOCATION>` is the part of URL to access to service's operation.
+Where:
+ * `<REST_METHOD>` is either of GET, PUT, POST or DELETE Http methods;
+ * `<REST_LOCATION>` is the part of URL to access to service's operation. If Method is GET, location can contain argument names.
 
 These comments should be added for each service operation, for which you want to include REST support.
 
 == 2. Modifying Calculator service ==
 
-Open samples/calculator/src/Calculator.h and add these lines before Add operation
+Open samples/calculator/src/Calculator.h and add these lines before Add operation:
 {{{
 // *restMethod: GET
 // *restLocation: Add

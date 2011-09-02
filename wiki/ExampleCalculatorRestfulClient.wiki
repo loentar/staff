@@ -10,13 +10,13 @@ To enable REST support for client you need to write three special codegen metaco
 {{{
 // *restEnable: <REST_ENABLE>
 // *restMethod: <REST_METHOD>
-// *wsaTo: <REST_SERVICE_LOCATION>
+// *restLocation: <REST_LOCATION>
 }}}
 
 Where:
-  * `<REST_ENABLE>` is a flag to enable or disable using of REST to call given operation;
+  * `<REST_ENABLE>` is a flag to enable or disable using of REST to call given operation (`true` or `false`);
   * `<REST_METHOD>` is either of GET, PUT, POST, DELETE as declared in the service;
-  * `<REST_SERVICE_LOCATION>` is URL to access service operation.
+  * `<REST_LOCATION>` is a part of URL to access service operation. It should be same as in the service.
 
 == 2. Modifying Calculator client ==
 Open Calculator/client/src/Calculator.h and add these lines before Add operation:
