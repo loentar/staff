@@ -748,6 +748,8 @@ namespace codegen
             std::string sInline = sString.substr(nPosEnd - 1, nInlineEnd - nPosEnd + 2);
             ReplaceToValue(sInline, rNode);
             sString.replace(nPosEnd - 1, nInlineEnd - nPosEnd + 2, sInline);
+            --nPosEnd; // move to prior the '$('
+            continue;
           }
           else
           {
