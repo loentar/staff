@@ -27,7 +27,7 @@ staff_codegen -tclient_all -isrc Calculator.h
 }}}
 
 
-Will be generated set of files as follows:
+In both cases, it will be generated set of files as follows:
 || *File name*                         || *Description* ||
 || `samples.Calculator.wsdl`           || Downloaded WSDL (_only when generating from wsdl_) ||
 || `Makefile`                          || Makefile for GNU Make utility ||
@@ -80,7 +80,7 @@ To compile your client start the `make` command (`gmake` in FreeBSD).
 
 To start client enter `make run`.
 
-You must see following results:
+You can see the results:
 ||1 + 2 = 3<p/>1 - 2 = -1||
 
 

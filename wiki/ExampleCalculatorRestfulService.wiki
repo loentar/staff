@@ -1,6 +1,6 @@
 #summary Example: How to modify web service to support REST
 
-We're using Calculator service from ExampleCalculatorService.
+Use the Calculator service from ExampleCalculatorService.
 
 == 1. Enabling REST support in service ==
 
@@ -17,24 +17,18 @@ These comments should be added for each service operation, for which you want to
 
 == 2. Modifying Calculator service ==
 
-Open Calculator/component/src/Calculator.h and add these lines before Add operation
+Open samples/calculator/src/Calculator.h and add these lines before Add operation
 {{{
 // *restMethod: GET
 // *restLocation: Add
 }}}
 
-You should get:
+Add operation now should look like:
 {{{
 ...
-
-    //! Add operation
-    /*! \param nA - first argument
-        \param nB - second argument
-        \return nA + nB result
-    */
     // *restMethod: GET
-    // *restLocation: Add
-    virtual int Add(int nA, int nB) = 0;
+    // *restLocation: Add/a={a},b={b}
+    virtual int Add(int a, int b) = 0;
 
 ...
 }}}
@@ -43,11 +37,11 @@ Clean, compile and install modified service.
 
 Restart Axis2/c.
 
-== 3. Test web service using web browser ==
+== 3. Testing RESTful web service using web browser ==
 
-Open next URL to invoke our RESTful service samples.Calculator:
+Open URL to invoke RESTful web service samples.Calculator:
 
-http://localhost:9090/axis2/services/samples.Calculator/Add?nA=1&nB=2
+http://localhost:9090/axis2/services/samples.Calculator/Add/a=1,b=2
 
 Service execution results must shown.
 
@@ -57,4 +51,4 @@ To learn how to modify Calculator client to enable REST, please read ExampleCalc
 
 == 5. Download source code ==
 
-[http://staff.googlecode.com/files/samples.RESTfulCalculatorComponent.7z Download] source code of the RESTful Calculator service.
+[http://staff.googlecode.com/files/samples.calculator_component_rest.7z Download] source code of the RESTful Calculator service.
