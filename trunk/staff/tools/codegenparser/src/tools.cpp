@@ -21,6 +21,7 @@
 
 #include "Interface.h"
 #include "tools.h"
+#include <set>
 
 namespace staff
 {
@@ -63,6 +64,24 @@ namespace codegen
     const BaseType* pstResult = NULL;
 
     std::string::size_type nNsNameSize = sNsName.size();
+
+    if ((eBaseType & BaseType::TypeTypedef) != 0)
+    {
+      std::string sFindNsName = sNsName;
+      if (sNsName.substr(0, 2) != "::")
+      {
+        sFindNsName = "::" + sNsName;
+      }
+
+      for (std::list<Typedef>::const_reverse_iterator itTypedef = rstInterface.lsTypedefs.rbegin();
+           itTypedef != rstInterface.lsTypedefs.rend(); ++itTypedef)
+      {
+        if ((itTypedef->sNamespace + itTypedef->sName) == sFindNsName)
+        {
+          return &*itTypedef;
+        }
+      }
+    }
 
     // look substructs
     for(;;)
@@ -236,10 +255,68 @@ namespace codegen
            nPos < sCurrentNs.size() &&
            sOptimizeNs[nPos] == sCurrentNs[nPos]; ++nPos);
 
-    if (nPos > 2 && sOptimizeNs.substr(nPos - 2, 2) == "::")
+    if (nPos >= 2 && sOptimizeNs.substr(nPos - 2, 2) == "::")
     {
       sOptimizeNs.erase(0, nPos);
     }
+  }
+
+  bool FixId(std::string& sId, bool bIgnoreBool /*= false*/)
+  {
+    static const char* szIdChars = "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static std::set<std::string> setCppReservedWords;
+    bool bChanged = false;
+
+    if (sId.empty())
+    {
+      return false;
+    }
+
+    std::string::size_type nPos = 0;
+    while ((nPos = sId.find_first_not_of(szIdChars)) != std::string::npos)
+    {
+      sId[nPos] = '_';
+      bChanged = true;
+    }
+
+    const char chFirst = sId[0];
+    if (chFirst >= '0' && chFirst <= '9')
+    {
+      sId.insert(0, "_", 1);
+      return true;
+    }
+
+    if (setCppReservedWords.empty())
+    {
+      const unsigned nCppReservedWordsCount = 79;
+      const char* aszCppReservedWords[nCppReservedWordsCount] =
+      {
+        "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "_Bool", "break", "case", "catch",
+        "char", "class", "compl", "_Complex", "const", "const_cast", "continue", "default", "delete",
+        "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float",
+        "for", "friend", "goto", "if", "_Imaginary", "inline", "int", "long", "mutable", "namespace",
+        "new", "not", "not_eq", "operator", "or", "or_eq", "private", "protected", "public", "register",
+        "reinterpret_cast", "restrict", "return", "short", "signed", "sizeof", "static", "static_cast",
+        "struct", "switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename",
+        "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
+        "time"
+      };
+      for (unsigned nIndex = 0; nIndex < nCppReservedWordsCount; ++nIndex)
+      {
+        setCppReservedWords.insert(aszCppReservedWords[nIndex]);
+      }
+    }
+
+    if (setCppReservedWords.count(sId))
+    {
+      if (!bIgnoreBool || (sId != "true" && sId != "false"))
+      {
+        sId += '_';
+        bChanged = true;
+      }
+    }
+
+    return bChanged;
   }
 
 }

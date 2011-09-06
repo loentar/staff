@@ -115,6 +115,7 @@ namespace codegen
     bool bIsRef;
     bool bIsOptional;
     bool bIsNillable;
+    bool bIsMessage;
     std::string sDefault;
     std::string sChoiceId;
 
@@ -314,33 +315,6 @@ namespace codegen
     }
   }
 
-  bool FixId(std::string& sId)
-  {
-    static const char* szIdChars = "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    bool bChanged = false;
-    if (sId.empty())
-    {
-      return false;
-    }
-
-    std::string::size_type nPos = 0;
-    while ((nPos = sId.find_first_not_of(szIdChars)) != std::string::npos)
-    {
-      sId[nPos] = '_';
-      bChanged = true;
-    }
-
-    const char chFirst = sId[0];
-    if (chFirst >= '0' && chFirst <= '9')
-    {
-      sId.insert(0, "_", 1);
-      bChanged = true;
-    }
-
-    return bChanged;
-  }
-
   bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDoc, bool bSingleLine = true)
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itDoc = rNode.FindSubnode("documentation");
@@ -411,14 +385,18 @@ namespace codegen
   }
 
 
-  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass)
+  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass, bool bIgnoreWarn = false)
   {
-    if (rDataType.sName == "Optional")
+    if (rDataType.sName == sTemplateClass)
     {
-      std::string sType = rDataType.lsParams.empty()
-          ? "<unknown>"
-          : rDataType.lsParams.front().sNamespace + rDataType.lsParams.front().sName;
-      rise::LogWarning() << "Type " << sType << " already marked as optional";
+      // choice < optional >
+      if (!bIgnoreWarn)
+      {
+        std::string sType = rDataType.lsParams.empty()
+            ? "<unknown>"
+            : rDataType.lsParams.front().sNamespace + rDataType.lsParams.front().sName;
+        rise::LogWarning() << "Type " << sType << " already marked as " << sTemplateClass;
+      }
       return;
     }
     rDataType.lsParams.push_front(rDataType);
@@ -539,11 +517,12 @@ namespace codegen
 
   //////////////////////////////////////////////////////////////////////////
   Element::Element():
-    bIsArray(false), bIsExtern(false), bIsRef(false), bIsOptional(false), bIsNillable(false)
+    bIsArray(false), bIsExtern(false), bIsRef(false), bIsOptional(false), bIsNillable(false),
+    bIsMessage(false)
   {
   }
 
-  Element& Element::Parse( const rise::xml::CXMLNode& rNodeElement )
+  Element& Element::Parse(const rise::xml::CXMLNode& rNodeElement)
   {
     rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rNodeElement.FindAttribute("name");
 
@@ -1111,6 +1090,10 @@ namespace codegen
                   GetCppType(rChildElement.stType, stDataType);
                 }
                 stParam.sName = rChildElement.sName;
+                if (FixId(stParam.sName))
+                {
+                  stParam.mOptions["elementName"] = rChildElement.sName;
+                }
                 if (rChildElement.bIsArray)
                 {
                   if (!nRecursionLevel)
@@ -1135,6 +1118,7 @@ namespace codegen
                   Struct stStruct;
                   stStruct.bForward = false;
                   stStruct.sName = rElement.sName;
+                  FixId(stStruct.sName);
                   stStruct.sNamespace = TnsToCppNs(rElement.sNamespace);
                   stStruct.sDescr = rElement.sDescr;
                   stStruct.sDetail = rElement.sDetail;
@@ -1152,6 +1136,10 @@ namespace codegen
                       stMember.mOptions["defaultValue"] = itAttr->sDefault;
                     }
                     stMember.sName = itAttr->sName;
+                    if (FixId(stMember.sName))
+                    {
+                      stParam.mOptions["elementName"] = itAttr->sName;
+                    }
                     if (itAttr->stType.sName.empty()) // use string as default attribute value type
                     {
                       stMember.stDataType.sName = "string";
@@ -1295,6 +1283,10 @@ namespace codegen
       { // simple type
         Param stParam;
         stParam.sName = rElement.sName;
+        if (FixId(stParam.sName))
+        {
+          stParam.mOptions["elementName"] = rElement.sName;
+        }
         stParam.stDataType = SimpleTypeToData(rElement.lsSimpleTypes.front(), m_stWsdlTypes);
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
 
@@ -1313,6 +1305,10 @@ namespace codegen
         Param stParam;
 
         stParam.sName = rElement.sName;
+        if (FixId(stParam.sName))
+        {
+          stParam.mOptions["elementName"] = rElement.sName;
+        }
 
         {// search in complex types
           ComplexType* pComplexType =
@@ -1410,7 +1406,7 @@ namespace codegen
 
     // part is an params list or result
     void ParsePart(Member& rMember, const rise::xml::CXMLNode& rPart,
-                   const WsdlTypes& rWsdlTypes, bool bIsResponse)
+                   WsdlTypes& rWsdlTypes, bool bIsResponse, bool bFault)
     {
       rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = rPart.FindAttribute("element");
       if (itAttrType != rPart.AttrEnd())
@@ -1418,13 +1414,18 @@ namespace codegen
         const std::string& sElementNsName = itAttrType->sAttrValue.AsString();
 
         // finding element of part
-        const Element* pElement = FindQNameType(sElementNsName, rWsdlTypes.lsElements);
+        Element* pElement = FindQNameType(sElementNsName, rWsdlTypes.lsElements);
         RISE_ASSERTES(pElement, rise::CLogicNoItemException, "Element " + sElementNsName
                       + " is not found, while parsing part");
 
-        ParsePartElement(*pElement, rMember, bIsResponse);
+        if (!bFault)
+        {
+          ParsePartElement(*pElement, rMember, bIsResponse);
+        }
+        pElement->bIsMessage = true;
       }
       else
+      if (!bFault)
       { // inline part declaration
         const std::string& sPartName = rPart.Attribute("name").AsString();
         rise::xml::CXMLNode::TXMLAttrConstIterator itType = rPart.FindAttribute("type");
@@ -1459,23 +1460,28 @@ namespace codegen
     }
 
 
-    void ParseRequest(Member& rMember, const rise::xml::CXMLNode& rMessage, const WsdlTypes& rWsdlTypes)
+    void ParseRequest(Member& rMember, const rise::xml::CXMLNode& rMessage, WsdlTypes& rWsdlTypes)
     {
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodePart = rMessage.FindSubnode("part");
           itNodePart != rMessage.NodeEnd();
           itNodePart = rMessage.FindSubnode("part", ++itNodePart))
       {
-        ParsePart(rMember, *itNodePart, rWsdlTypes, false);
+        ParsePart(rMember, *itNodePart, rWsdlTypes, false, false);
       }
     }
 
-    void ParseResponse(Member& rMember, const rise::xml::CXMLNode& rMessage, const WsdlTypes& rWsdlTypes)
+    void ParseResponse(Member& rMember, const rise::xml::CXMLNode& rMessage, WsdlTypes& rWsdlTypes)
     {
-      ParsePart(rMember, rMessage.Subnode("part"), rWsdlTypes, true);
+      ParsePart(rMember, rMessage.Subnode("part"), rWsdlTypes, true, false);
     }
 
+    void ParseFault(Member& rMember, const rise::xml::CXMLNode& rMessage, WsdlTypes& rWsdlTypes)
+    {
+      ParsePart(rMember, rMessage.Subnode("part"), rWsdlTypes, false, true);
+    }
 
-    void ParseOperation(Member& rMember, const rise::xml::CXMLNode& rOperation, const rise::xml::CXMLNode& rDefs, const WsdlTypes& rWsdlTypes)
+    void ParseOperation(Member& rMember, const rise::xml::CXMLNode& rOperation, const rise::xml::CXMLNode& rDefs,
+                        WsdlTypes& rWsdlTypes)
     {
       bool bHasInput = false;
       bool bHasOutput = false;
@@ -1517,6 +1523,23 @@ namespace codegen
       else
       { // one way message
         rMember.stReturn.stDataType.sName = "void";
+      }
+
+      // response
+      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeFault =
+        rOperation.FindSubnode("fault");
+      if (itNodeFault != rOperation.NodeEnd())
+      {
+        std::string sResponseName = StripPrefix(itNodeFault->Attribute("message").AsString());
+
+        rise::xml::CXMLNode::TXMLNodeConstIterator itMessage =
+          rDefs.FindNodeMatch("message", rise::xml::SXMLAttribute("name", sResponseName));
+
+        RISE_ASSERTES(itMessage != rDefs.NodeEnd(), rise::CLogicNoItemException,
+          "Can't find message definition(output) for: " + sResponseName);
+
+        ParseFault(rMember, *itMessage, rWsdlTypes);
+        bHasOutput = true;
       }
 
       if (bHasInput && !bHasOutput)
@@ -1620,7 +1643,7 @@ namespace codegen
       }
     }
 
-    void ParseService(Interface& rInterface, const rise::xml::CXMLNode& rDefs, const WsdlTypes& rWsdlTypes,
+    void ParseService(Interface& rInterface, const rise::xml::CXMLNode& rDefs, WsdlTypes& rWsdlTypes,
                       const std::string& sTargetNamespace)
     {
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeService = rDefs.FindSubnode("service");
@@ -1789,19 +1812,6 @@ namespace codegen
         SimpleTypeToData(*itSimple, m_stWsdlTypes);
       }
 
-      if (m_pParseSettings->mEnv.count("write_all_elements"))
-      {
-        DataType stDataTypeTmp;
-        for (ElementList::const_iterator itElement = m_stWsdlTypes.lsElements.begin();
-          itElement != m_stWsdlTypes.lsElements.end(); ++itElement)
-        {
-          if (!itElement->bIsExtern)
-          {
-            ElementToData(*itElement, stDataTypeTmp, m_stWsdlTypes);
-          }
-        }
-      }
-
 //      for (TElementMap::const_iterator itElement = m_stWsdlTypes.mElements.begin();
 //        itElement != m_stWsdlTypes.mElements.end(); ++itElement)
 //      {
@@ -1813,6 +1823,16 @@ namespace codegen
       if (!bSchema)
       {
         ParseService(m_stInterface, rRootNode, m_stWsdlTypes, m_stInterface.sTargetNs);
+      }
+
+      DataType stDataTypeTmp;
+      for (ElementList::const_iterator itElement = m_stWsdlTypes.lsElements.begin();
+        itElement != m_stWsdlTypes.lsElements.end(); ++itElement)
+      {
+        if (!itElement->bIsExtern && !itElement->bIsMessage)
+        {
+          ElementToData(*itElement, stDataTypeTmp, m_stWsdlTypes);
+        }
       }
     }
 
@@ -2068,6 +2088,10 @@ namespace codegen
           {
             Typedef stTypedef;
             stTypedef.sName = rSimpleType.sName;
+            if (!FixId(stTypedef.sName))
+            {
+              stTypedef.mOptions["elementName"] = rSimpleType.sName;
+            }
             stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
             stTypedef.sDescr = rSimpleType.sDescr;
             stTypedef.sDetail = rSimpleType.sDetail;
@@ -2138,6 +2162,11 @@ namespace codegen
           stMember.mOptions["attributeGroupName"] = sGroupName;
         }
         stMember.sName = pAttr->sName;
+        if (FixId(stMember.sName))
+        {
+          stMember.mOptions["elementName"] = pAttr->sName;
+        }
+
         if (pAttr->stType.sName.empty()) // use string as default attribute value type
         {
           stMember.stDataType.sName = "string";
@@ -2177,6 +2206,63 @@ namespace codegen
       }
     }
 
+    bool HasDerivedTypes(const std::string& sComplexTypeName, const ElementList& rElements)
+    {
+      bool bResult = false;
+
+      for (ElementList::const_iterator itElem = rElements.begin();
+           itElem != rElements.end() && !bResult; ++itElem)
+      {
+        const Element& rElem = *itElem;
+        for (SimpleTypeList::const_iterator itType = rElem.lsSimpleTypes.begin();
+             itType != rElem.lsSimpleTypes.end(); ++itType)
+        {
+          const SimpleType& rType = *itType;
+          if (rType.stBaseType.sName == sComplexTypeName)
+          {
+            return true;
+          }
+        }
+
+        bResult |= HasDerivedTypes(sComplexTypeName, rElem.lsComplexTypes);
+      }
+
+      return bResult;
+    }
+
+    bool HasDerivedTypes(const std::string& sComplexTypeName, const ComplexTypeList& rTypes)
+    {
+      bool bResult = false;
+      for (ComplexTypeList::const_iterator itType = rTypes.begin();
+           itType != rTypes.end(); ++itType)
+      {
+        const ComplexType& rType = *itType;
+        if (rType.sParentName == sComplexTypeName)
+        {
+          return true;
+        }
+
+        bResult |= HasDerivedTypes(sComplexTypeName, rType.lsElements);
+      }
+
+      return bResult;
+    }
+
+    bool HasDerivedTypes(const std::string& sComplexTypeName, const WsdlTypes& rWsdlTypes)
+    {
+      if (HasDerivedTypes(sComplexTypeName, rWsdlTypes.lsElements))
+      {
+        return true;
+      }
+
+      if (HasDerivedTypes(sComplexTypeName, rWsdlTypes.lsComplexTypes))
+      {
+        return true;
+      }
+
+      return false;
+    }
+
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
                                const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
@@ -2193,7 +2279,8 @@ namespace codegen
       // single type array without any attributes. optimize to list with given element name
       if (rComplexType.lsElements.size() == 1 &&
           rComplexType.lsAttributes.empty() &&
-          !rComplexType.bHasAnyAttribute)
+          !rComplexType.bHasAnyAttribute &&
+          !HasDerivedTypes(rComplexType.sName, rWsdlTypes))
       {
         const Element& rElem = rComplexType.lsElements.front();
         if (rElem.bIsArray)
@@ -2294,6 +2381,18 @@ namespace codegen
           else
           {
             stDataType.eType = DataType::TypeStruct;
+          }
+
+          if (rComplexType.sParentName == rComplexType.sName)
+          {
+            if (!rComplexType.lsElements.empty())
+            {
+              rise::LogError() << "Additional Elements found while inheriting from ComplexType with same name."
+                                  "Additional Elements will be ignored. While parsing: ["
+                               << rComplexType.sName << "] ns: [" << rComplexType.sNamespace << "] \n: ["
+                               << rComplexType.sParentName << "] ns: [" << rComplexType.sParentNs << "]";
+            }
+            return stDataType;
           }
 
           // inheritance
@@ -2466,7 +2565,7 @@ namespace codegen
           if (!sChoiceId.empty())
           {
             stMember.mOptions["choiceId"] = sChoiceId;
-            WrapTypeInTemplate(stMember.stDataType, "Optional");
+            WrapTypeInTemplate(stMember.stDataType, "Optional", true);
           }
 
           if (stMember.stDataType.eType == DataType::TypeStruct)
@@ -2759,17 +2858,7 @@ namespace codegen
       { // not an wsdl type, some typedef or struct
         rDataType.sName = stQName.sName;
         rDataType.sNamespace = TnsToCppNs(stQName.sNamespace);
-
-        for (std::list<Typedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
-            itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
-        {
-          if (itTypedef->sName == rDataType.sName &&
-              itTypedef->sNamespace == rDataType.sNamespace)
-          {
-            rDataType.eType = DataType::TypeTypedef;
-            return;
-          }
-        }
+        FixId(rDataType.sName);
 
         rise::StrReplace(rDataType.sName, ".", "::", true);
 
@@ -3379,7 +3468,6 @@ namespace codegen
 
   WsdlParserImpl& WsdlParsers::Parser(const std::string& sFile)
   {
-rise::LogInfo() << sFile;
     static std::map<std::string, WsdlParserImpl> mMap;
     return mMap[sFile];
   }

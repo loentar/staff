@@ -92,6 +92,9 @@ namespace codegen
     return *itType;
   }
 
+  //! check and fix identifier
+  bool FixId(std::string& sName, bool bIgnoreBool = false);
+
 
 }
 }
