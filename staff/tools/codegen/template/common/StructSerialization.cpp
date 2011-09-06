@@ -51,11 +51,11 @@ const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsNa
 \
 
 DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& \
-#ifeq($(Struct.Members.$Count),0)
+#ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 /*\
 #ifeqend
 rstStruct\
-#ifeq($(Struct.Members.$Count),0)
+#ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 */\
 #ifeqend
 )
@@ -96,11 +96,11 @@ rstStruct\
 }
 
 const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& \
-#ifeq($(Struct.Members.$Count),0)
+#ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 /*\
 #ifeqend
 rstStruct\
-#ifeq($(Struct.Members.$Count),0)
+#ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 */\
 #ifeqend
 )

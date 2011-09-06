@@ -23,7 +23,6 @@
 #include <errno.h>
 #include <string.h>
 #include <list>
-#include <set>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -260,38 +259,6 @@ namespace codegen
       return true;
     }
     
-    void CheckAndFixName(std::string& sName, bool bIgnoreBool = false)
-    {
-      static std::set<std::string> setCppReservedWords;
-      if (setCppReservedWords.empty())
-      {
-        const unsigned nCppReservedWordsCount = 78;
-        const char* aszCppReservedWords[nCppReservedWordsCount] = 
-        {
-          "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "_Bool", "break", "case", "catch",
-          "char", "class", "compl", "_Complex", "const", "const_cast", "continue", "default", "delete",
-          "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float",
-          "for", "friend", "goto", "if", "_Imaginary", "inline", "int", "long", "mutable", "namespace",
-          "new", "not", "not_eq", "operator", "or", "or_eq", "private", "protected", "public", "register",
-          "reinterpret_cast", "restrict", "return", "short", "signed", "sizeof", "static", "static_cast",
-          "struct", "switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename",
-          "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
-        };
-        for (unsigned nIndex = 0; nIndex < nCppReservedWordsCount; ++nIndex)
-        {
-          setCppReservedWords.insert(aszCppReservedWords[nIndex]);
-        }
-      }
-      
-      if (setCppReservedWords.count(sName))
-      {
-        if (!bIgnoreBool || (sName != "true" && sName != "false"))
-        {
-          sName += '_';
-        }
-      }
-    }
-
     template<typename StructType>
     bool ParseCompositeDataType(const std::list<StructType>& rList, DataType& rDataType)
     {
@@ -528,7 +495,7 @@ namespace codegen
       std::string sOperation;
       ReadBefore(sOperation);
       CSP_ASSERT(!sOperation.empty(), "Can't get operation name", m_stInterface.sFileName, m_nLine);
-      CheckAndFixName(sOperation);
+      FixId(sOperation);
       rMember.sName = sOperation;
 
       SkipWs();
@@ -644,7 +611,7 @@ namespace codegen
       char chTmp = '\0';
       std::string sTmp;
 
-      CheckAndFixName(rClass.sName);
+      FixId(rClass.sName);
       SkipWs();
       rClass.sNamespace = m_sCurrentNamespace;
 
@@ -707,7 +674,7 @@ namespace codegen
       std::string sTmp;
       std::string sDescr;
 
-      CheckAndFixName(rEnum.sName);
+      FixId(rEnum.sName);
 
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
                  m_stInterface.sFileName, m_nLine);
@@ -745,7 +712,7 @@ namespace codegen
 
         ReadBefore(stMember.sName, "=;}");
         rise::StrTrim(stMember.sName);
-        CheckAndFixName(stMember.sName);
+        FixId(stMember.sName);
 
         chTmp = m_tFile.peek();
         if (chTmp == '=')
@@ -753,7 +720,7 @@ namespace codegen
           m_tFile.ignore();
           ReadBefore(stMember.sValue, ";}");
           rise::StrTrim(stMember.sValue);
-          CheckAndFixName(stMember.sValue);
+          FixId(stMember.sValue);
           chTmp = m_tFile.peek();
         }
 
@@ -786,7 +753,7 @@ namespace codegen
       char chTmp = '\0';
       std::string sTmp;
 
-      CheckAndFixName(rStruct.sName);
+      FixId(rStruct.sName);
 
       const std::string& sOwnerName = (!rStruct.sOwnerName.empty() ?
                                         (rStruct.sOwnerName + "::") : "") + rStruct.sName;
@@ -858,7 +825,7 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
-          CheckAndFixName(sName);
+          FixId(sName);
 
           Enum& rstEnum = TypeInList(rStruct.lsEnums, sName, m_sCurrentNamespace, sOwnerName);
 
@@ -877,7 +844,7 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
-          CheckAndFixName(sName);
+          FixId(sName);
 
           Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
@@ -937,7 +904,7 @@ namespace codegen
         SkipWs();
         ReadBefore(sToken);
         stParamTmp.sName = sToken;
-        CheckAndFixName(stParamTmp.sName);
+        FixId(stParamTmp.sName);
 
         SkipWs();
         chTmp = m_tFile.peek();
@@ -988,13 +955,13 @@ namespace codegen
               if (stParamTmp.stDataType.eType == DataType::TypeEnum)
               {
                 // fix namespace
-                CheckAndFixName(sTmp);
+                FixId(sTmp);
                 sTmp = stParamTmp.stDataType.sNamespace + sTmp;
                 OptimizeCppNs(sTmp, rStruct.sNamespace + sOwnerName);
               }
               else
               {
-                CheckAndFixName(sTmp, true);
+                FixId(sTmp, true);
               }
               
               stParamTmp.mOptions["defaultValue"] = sTmp;
