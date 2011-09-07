@@ -93,6 +93,7 @@ namespace codegen
   }
 
   //! check and fix identifier
+  STAFF_CODEGENPARSER_EXPORT
   bool FixId(std::string& sName, bool bIgnoreBool = false);
 
 

@@ -318,18 +318,25 @@ namespace codegen
   bool ReadDoc(const rise::xml::CXMLNode& rNode, std::string& sDoc, bool bSingleLine = true)
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itDoc = rNode.FindSubnode("documentation");
-    if (itDoc == rNode.NodeEnd())
+    if (itDoc != rNode.NodeEnd())
+    {
+      sDoc = itDoc->NodeContent().AsString();
+    }
+    else
     {
       itDoc = rNode.FindSubnode("annotation");
       if (itDoc != rNode.NodeEnd())
       {
-        itDoc = itDoc->FindSubnode("documentation");
+        rise::xml::CXMLNode::TXMLNodeConstIterator itDocum = itDoc->FindSubnode("documentation");
+        if (itDocum != itDoc->NodeEnd())
+        {
+          sDoc = itDocum->NodeContent().AsString();
+        }
       }
     }
 
-    if (itDoc != rNode.NodeEnd())
+    if (!sDoc.empty())
     {
-      sDoc = itDoc->NodeContent().AsString();
 #ifdef __linux__
       rise::StrReplace(sDoc, "\r", "", true);
 #endif
