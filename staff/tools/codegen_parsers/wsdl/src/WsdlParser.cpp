@@ -422,12 +422,13 @@ namespace codegen
   }
 
   template <typename Type>
-  const Type* FindQNameType(const std::string& sNsName, const std::list<Type>& rlsTypes)
+  const Type* FindQNameType(const std::string& sName, const std::string& sNamespace,
+                            const std::list<Type>& rlsTypes)
   {
     for (typename std::list<Type>::const_iterator itType = rlsTypes.begin();
          itType != rlsTypes.end(); ++itType)
     {
-      if (itType->GetNsName() == sNsName)
+      if (itType->sName == sName && itType->sNamespace == sNamespace)
       {
         return &*itType;
       }
@@ -437,12 +438,13 @@ namespace codegen
   }
 
   template <typename Type>
-  Type* FindQNameType(const std::string& sNsName, std::list<Type>& rlsTypes)
+  Type* FindQNameType(const std::string& sName, const std::string& sNamespace,
+                      std::list<Type>& rlsTypes)
   {
     for (typename std::list<Type>::iterator itType = rlsTypes.begin();
          itType != rlsTypes.end(); ++itType)
     {
-      if (itType->GetNsName() == sNsName)
+      if (itType->sName == sName && itType->sNamespace == sNamespace)
       {
         return &*itType;
       }
@@ -1194,7 +1196,8 @@ namespace codegen
 
                 // find child complex type
                 const ComplexType* pComplexType =
-                    FindQNameType(rChildElement.stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+                    FindQNameType(rChildElement.stType.sName, rChildElement.sNamespace,
+                                  m_stWsdlTypes.lsComplexTypes);
                 if (pComplexType)
                 {
                   const ComplexType& rChildComplexType = *pComplexType;
@@ -1319,7 +1322,7 @@ namespace codegen
 
         {// search in complex types
           ComplexType* pComplexType =
-              FindQNameType(rElement.stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+              FindQNameType(rElement.stType.sName, rElement.sNamespace, m_stWsdlTypes.lsComplexTypes);
           if (pComplexType)
           {
             ComplexType& rComplexType = *pComplexType;
@@ -1345,7 +1348,7 @@ namespace codegen
           else // search in simple types
           {
             const SimpleType* pSimpleType =
-                FindQNameType(rElement.stType.GetNsName(), m_stWsdlTypes.lsSimpleTypes);
+                FindQNameType(rElement.stType.sName, rElement.sNamespace, m_stWsdlTypes.lsSimpleTypes);
             if (!pSimpleType)
             {
               // type is generic or unknown
@@ -1419,9 +1422,13 @@ namespace codegen
       if (itAttrType != rPart.AttrEnd())
       { // reference to element type
         const std::string& sElementNsName = itAttrType->sAttrValue.AsString();
+        const std::string& sElementName = StripPrefix(sElementNsName);
+        const std::string& sElementNamespace = FindNamespaceUri(rPart, GetPrefix(sElementNsName));
 
         // finding element of part
-        Element* pElement = FindQNameType(sElementNsName, rWsdlTypes.lsElements);
+        Element* pElement = FindQNameType(sElementName,
+                                          sElementNamespace,
+                                          rWsdlTypes.lsElements);
         RISE_ASSERTES(pElement, rise::CLogicNoItemException, "Element " + sElementNsName
                       + " is not found, while parsing part");
 
@@ -1990,13 +1997,14 @@ namespace codegen
     }
 
   private:
-    void DataTypeFromName(const std::string& sDataType, DataType& rDataType, const WsdlTypes& rWsdlTypes)
+    void DataTypeFromName(const std::string& sName, const std::string& sNamespace, DataType& rDataType,
+                          const WsdlTypes& rWsdlTypes)
     {
       // struct/typedef
-      const SimpleType* pSimpleType = FindQNameType(sDataType, rWsdlTypes.lsSimpleTypes);
+      const SimpleType* pSimpleType = FindQNameType(sName, sNamespace, rWsdlTypes.lsSimpleTypes);
       if (!pSimpleType)
       {
-        const ComplexType* pComplexType = FindQNameType(sDataType, rWsdlTypes.lsComplexTypes);
+        const ComplexType* pComplexType = FindQNameType(sName, sNamespace, rWsdlTypes.lsComplexTypes);
         if (!pComplexType)
         {
           rDataType.eType = DataType::TypeUnknown;
@@ -2125,7 +2133,8 @@ namespace codegen
           GetCppType(rSimpleType.stBaseType, stTypedefDataType);
           if (stTypedefDataType.eType == DataType::TypeUnknown)
           {
-            DataTypeFromName(rSimpleType.stBaseType.sName, stTypedefDataType, rWsdlTypes);
+            DataTypeFromName(rSimpleType.stBaseType.sName, rSimpleType.stBaseType.sNamespace,
+                             stTypedefDataType, rWsdlTypes);
           }
           pstTypedef->stDataType = stTypedefDataType;
 
@@ -2157,7 +2166,8 @@ namespace codegen
         bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
-          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.GetNsName(), m_stWsdlTypes.lsAttributes);
+          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.sName, pAttr->stType.sNamespace,
+                                                       m_stWsdlTypes.lsAttributes);
           RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
           pAttr = pAttrTarget;
         }
@@ -2332,7 +2342,8 @@ namespace codegen
 
         if (stTypedef.stDataType.eType == DataType::TypeUnknown)
         {
-          DataTypeFromName(rComplexType.sParentName, stTypedef.stDataType, m_stWsdlTypes);
+          DataTypeFromName(rComplexType.sParentName, rComplexType.sParentNs, stTypedef.stDataType,
+                           m_stWsdlTypes);
         }
 
         m_stInterface.lsTypedefs.push_back(stTypedef);
@@ -2467,7 +2478,8 @@ namespace codegen
           const Element* pElement = &*itElement;
           while (pElement->bIsRef)
           {
-            Element* pTargetElem = FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsElements);
+            Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->sNamespace,
+                                                 m_stWsdlTypes.lsElements);
 
             RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
                          + "]. from [" + m_stInterface.sFileName + "]");
@@ -2478,6 +2490,11 @@ namespace codegen
           stMember.sName = StripPrefix(pElement->sName);
           stMember.sDescr = pElement->sDescr;
           stMember.sDetail = pElement->sDetail;
+
+          if (FixId(stMember.sName))
+          {
+            stMember.mOptions["elementName"] = StripPrefix(pElement->sName);
+          }
 
           ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
 
@@ -2645,7 +2662,8 @@ namespace codegen
 
       while (pElement->bIsRef)
       {
-        Element* pTargetElem = FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsElements);
+        Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->sNamespace,
+                                             m_stWsdlTypes.lsElements);
 
         RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
                      + "]. from [" + m_stInterface.sFileName + "]");
@@ -2675,11 +2693,11 @@ namespace codegen
         else // reference to type
         {
           ComplexType* pComplexType =
-              FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsComplexTypes);
+              FindQNameType(pElement->stType.sName, pElement->sNamespace, m_stWsdlTypes.lsComplexTypes);
           if (!pComplexType)
           {
             const SimpleType* pSimpleType =
-                FindQNameType(pElement->stType.GetNsName(), m_stWsdlTypes.lsSimpleTypes);
+                FindQNameType(pElement->stType.sName, pElement->sNamespace, m_stWsdlTypes.lsSimpleTypes);
             if (pSimpleType)
             {
               rDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
