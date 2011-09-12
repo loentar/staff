@@ -339,12 +339,16 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend // bGenerateBody
 #ifeq($($tCallbackParamName),)
   // synchronous call
+#ifeq($($SendMethod),Invoke)
   tOperation.SetResponse(m_tClient.$($SendMethod)(rdoRequest));
   if (m_tClient.GetLastResponseHasFault())
   {
     RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
     RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
   }
+#else
+  m_tClient.$($SendMethod)(rdoRequest);
+#ifeqend
 \
 #ifneq($(Member.Return.Name),void)      // !!void!!
 
