@@ -8,7 +8,7 @@
 package $($currentNs);
 #ifeqend
 
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 #var templateParam1 $(Typedef.DataType.TemplateParams.TemplateParam1.!dot)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),struct||typedef)
 import $($templateParam1);
@@ -20,13 +20,13 @@ import $($templateParam2);
 #ifeqend
 #ifeqend
 #ifeqend // is template
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 import java.util.*;
 #ifeqend
 import org.kxml2.kdom.*;
 
 
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),string)
 #var templateParam1Type String
 #else
@@ -109,7 +109,7 @@ import org.kxml2.kdom.*;
 public class $(Typedef.Name)
 {
 #var typeName
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 #ifeq($(Typedef.DataType.Name),list||vector) // j2me does not support LinkedList etc..
 #var typeName Vector
 #else
@@ -149,7 +149,7 @@ public class $(Typedef.Name)
 
   public Node Serialize(Element tElement)
   {
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 //template $(Typedef.NsName)
 #ifeq($(Typedef.DataType.Name),list||vector) // j2me does not support LinkedList etc..
     int nItems = m_tData.size();
@@ -208,7 +208,7 @@ public class $(Typedef.Name)
 
   public $(Typedef.Name) Deserialize(Element tElement)
   {
-#ifeq($(Typedef.DataType.IsTemplate),1)
+#ifeq($(Typedef.DataType.Type),template)
 //template $(Typedef.NsName)
     m_tData = new Vector();
     int nItems = tElement.getChildCount();

@@ -1011,23 +1011,28 @@ namespace codegen
             for (StringMap::const_iterator itOption = stMember.mOptions.begin();
                  itOption != stMember.mOptions.end(); ++itOption)
             {
-              if (itOption->first.substr(0, 6) == "param-")
+              const std::string& sOptionName = itOption->first;
+              if (sOptionName.substr(0, 6) == "param-")
               {
-                const std::string& sParamName = itOption->first.substr(6);
-                for (std::list<Param>::iterator itParam = stMember.lsParams.begin();
-                     itParam != stMember.lsParams.end(); ++itParam)
+                std::string::size_type nPos = sOptionName.find_last_of('-');
+                if (nPos == std::string::npos)
                 {
-                  if (itParam->sName == sParamName)
+                  rise::LogError() << "Invalid param option: " << sOptionName;
+                }
+                else
+                {
+                  const std::string& sParamName = sOptionName.substr(6, nPos - 6);
+
+
+                  for (std::list<Param>::iterator itParam = stMember.lsParams.begin();
+                       itParam != stMember.lsParams.end(); ++itParam)
                   {
-                    const std::string& sTmp = itOption->second;
-                    std::string::size_type nPos = sTmp.find(':', 1);
-                    if (nPos != std::string::npos)
-                    {  // add an option
-                      std::string sName = sTmp.substr(0, nPos);
-                      std::string sValue = sTmp.substr(nPos + 1);
-                      rise::StrTrim(sName);
-                      rise::StrTrim(sValue);
-                      itParam->mOptions[sName] = sValue;
+                    if (itParam->sName == sParamName)
+                    {
+                      const std::string& sName = sOptionName.substr(nPos + 1);
+                      // add an option
+                      itParam->mOptions[sName] = itOption->second;
+                      break;
                     }
                   }
                 }

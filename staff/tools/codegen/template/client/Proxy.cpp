@@ -323,7 +323,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var sElementName
 #else
 #var sdoParam rdoRequest
-#var sElementName $(Param.Name)
+#var sElementName $(Param.Options.*elementName||Param.Name)
 #ifeqend
 #cginclude <common/TypeSerialization.cpp>
 #contextend

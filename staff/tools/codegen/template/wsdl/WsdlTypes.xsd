@@ -18,8 +18,8 @@
 
 #foreach $(Interface.Typedefs)
 #ifeq($(Typedef.Extern),0) // do not serialize extern type
-#ifeq($(Typedef.DataType.IsTemplate),1)
-      <complexType name="$(Typedef.NativeName)">
+#ifeq($(Typedef.DataType.Type),template)
+      <complexType name="$(Typedef.Name)">
 #ifneq($(Typedef.Description),)
         <annotation><documentation>$(Typedef.Description)</documentation></annotation>
 #ifeqend
@@ -90,7 +90,7 @@
         </sequence>
       </complexType>
 #else
-      <simpleType name="$(Typedef.NativeName)">
+      <simpleType name="$(Typedef.Name)">
 #ifneq($(Typedef.Description),)
         <annotation><documentation>$(Typedef.Description)</documentation></annotation>
 #ifeqend

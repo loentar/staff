@@ -93,7 +93,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeq($(Param.Options.*useParentElement),)
 #var sElementName
 #else
-#var sElementName $(Param.Name)
+#var sElementName $(Param.Options.*elementName||Param.Name)
 #ifeqend
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 #context $(Param.DataType)

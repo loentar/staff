@@ -1,6 +1,6 @@
 #ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
 
-      <complexType name="$(Struct.NativeName.!dot)"\
+      <complexType name="$(Struct.Name.!dot)"\
 #ifeq($(Struct.Options.*abstract),true||1)
  abstract="true"\
 #ifeqend

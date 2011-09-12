@@ -94,7 +94,7 @@ namespace codegen
     }
     else
     {
-      sOut += (rDataType.sNamespace == "::" ? "" : rDataType.sNamespace) + rDataType.sName;
+      sOut += rDataType.sNamespace + rDataType.sName;
     }
 
     bool bIsTemplate = !rDataType.lsParams.empty();
@@ -166,41 +166,20 @@ namespace codegen
     rNodeDataTypes.AddSubNode(" Type ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["Type"] = rDataType.eType;
 
-    std::string sNativeName;
-    if (rDataType.eType == DataType::TypeTypedef)
-    {
-      sNativeName = ((rDataType.sName[0] == 'T') &&
-         (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
-    }
-    else
-    if (rDataType.eType == DataType::TypeStruct)
-    {
-      sNativeName = ((rDataType.sName[0] == 'S') &&
-         (toupper(rDataType.sName[1]) == rDataType.sName[1]) ? rDataType.sName.substr(1) : rDataType.sName);
-    }
-    else
-    {
-      sNativeName = rDataType.sName;
-    }
-
-    rNodeDataTypes.AddSubNode(" Native name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["NativeName"] = sNativeName;
-
     rNodeDataTypes.AddSubNode(" Used typedef ", CXMLNode::ENTCOMMENT);
     rNodeDataTypes["UsedTypedef"] = sUsedTypedef;
 
     rNodeDataTypes.NodeContent() = "";
     GetDataType(rNodeDataTypes.NodeContent().AsString(), rDataType);
 
-    bool bIsTemplate = rDataType.lsParams.size() != 0;
-    rNodeDataTypes.AddSubNode(" Template ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["IsTemplate"] = bIsTemplate;
-
     rNodeDataTypes.AddSubNode(" Template params ", CXMLNode::ENTCOMMENT);
     CXMLNode& rNodeTemplateParams = rNodeDataTypes.AddSubNode("TemplateParams");
     int nNum = 1;
-    for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin(); it != rDataType.lsParams.end(); ++it, ++nNum)
+    for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin();
+        it != rDataType.lsParams.end(); ++it, ++nNum)
+    {
       rNodeTemplateParams.AddSubNode("TemplateParam" + rise::ToStr(nNum)) << *it;
+    }
 
     if (rDataType.eType == DataType::TypeUnknown)
     {
@@ -391,9 +370,6 @@ namespace codegen
                           + rEnum.sName;
     rNodeEnum.AddSubNode(" Enum namespace", CXMLNode::ENTCOMMENT);
     rNodeEnum["Namespace"] = rEnum.sNamespace;
-    rNodeEnum.AddSubNode(" Native enum name ", CXMLNode::ENTCOMMENT);
-    rNodeEnum["NativeName"] = ((rEnum.sName[0] == 'E') &&
-      (toupper(rEnum.sName[1]) == rEnum.sName[1]) ? rEnum.sName.substr(1) : rEnum.sName);
     rNodeEnum.AddSubNode(" Enum owner name", CXMLNode::ENTCOMMENT);
     rNodeEnum["Owner"] = rEnum.sOwnerName;
 
@@ -438,11 +414,6 @@ namespace codegen
     rNodeStruct["Namespace"] = rStruct.sNamespace;
     rNodeStruct.AddSubNode(" Struct owner name", CXMLNode::ENTCOMMENT);
     rNodeStruct["Owner"] = rStruct.sOwnerName;
-    rNodeStruct.AddSubNode(" Native struct name ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["NativeName"] = (rStruct.sOwnerName.empty() ? "" : (rStruct.sOwnerName + "::")) +
-        ((rStruct.sName[0] == 'S') &&
-      (toupper(rStruct.sName[1]) == rStruct.sName[1]) ? rStruct.sName.substr(1) : rStruct.sName);
-
 
     // parent
     std::string::size_type nPos = rStruct.sParentName.find_last_of("::");
@@ -498,10 +469,6 @@ namespace codegen
     rNodeTypedef["NsName"] = rTypedef.sNamespace + rTypedef.sName;
     rNodeTypedef.AddSubNode(" Typedef namespace ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Namespace"] = rTypedef.sNamespace;
-    rNodeTypedef.AddSubNode(" Typedef native name ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["NativeName"] = ((rTypedef.sName[0] == 'T') &&
-         (toupper(rTypedef.sName[1]) == rTypedef.sName[1]) ? rTypedef.sName.substr(1) : rTypedef.sName);
-
     rNodeTypedef.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
     rNodeTypedef["Description"] = rTypedef.sDescr;
     rNodeTypedef.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
