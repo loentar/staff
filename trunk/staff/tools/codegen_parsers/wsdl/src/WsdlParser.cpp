@@ -173,6 +173,21 @@ namespace codegen
 
 
   //////////////////////////////////////////////////////////////////////////
+
+  const std::string& GetTns(const rise::xml::CXMLNode& rNode)
+  {
+    for (const rise::xml::CXMLNode* pNode = &rNode; pNode != NULL; pNode = pNode->GetParent())
+    {
+      rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = pNode->FindAttribute("targetNamespace");
+      if (itAttr != pNode->AttrEnd())
+      {
+        return itAttr->sAttrValue.AsString();
+      }
+    }
+
+    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
+  }
+
   std::string FindNamespaceUri( const rise::xml::CXMLNode& rNode, const std::string& sPrefix )
   {
     for (const rise::xml::CXMLNode* pNode = &rNode; pNode != NULL; pNode = pNode->GetParent())
@@ -190,7 +205,7 @@ namespace codegen
 
     if (sPrefix.empty())
     {
-      return "http://www.w3.org/2001/XMLSchema";
+      return GetTns(rNode);
     }
 
     rise::LogWarning() << "Can't find prefix declaration [" << sPrefix
@@ -250,20 +265,6 @@ namespace codegen
 //    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace with nsuri: [" + sNamespaceUri
 //                + "] prefix: [" + sPrefix + "] for: " + rise::ToStr(rNode));
     sPrefix.erase();
-  }
-
-  const std::string& GetTns(const rise::xml::CXMLNode& rNode)
-  {
-    for (const rise::xml::CXMLNode* pNode = &rNode; pNode != NULL; pNode = pNode->GetParent())
-    {
-      rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = pNode->FindAttribute("targetNamespace");
-      if (itAttr != pNode->AttrEnd())
-      {
-        return itAttr->sAttrValue.AsString();
-      }
-    }
-
-    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
   }
 
   std::string StripPrefix(const std::string& sSymbol)
@@ -411,7 +412,7 @@ namespace codegen
     rDataType.sName = sTemplateClass;
     rDataType.sNamespace = "staff::";
     rDataType.eType = DataType::TypeTemplate;
-    rDataType.sUsedName.erase();
+//    rDataType.sUsedName.erase();
   }
 
   bool IsElementArray(const rise::xml::CXMLNode& rElement)
@@ -1098,15 +1099,24 @@ namespace codegen
                 {
                   GetCppType(rChildElement.stType, stDataType);
                 }
-                stParam.sName = rChildElement.sName;
+                const std::string& sElemName = rChildElement.bIsRef ? rChildElement.stType.sName
+                                                                     : rChildElement.sName;
+                stParam.sName = sElemName;
                 if (FixId(stParam.sName))
                 {
-                  stParam.mOptions["elementName"] = rChildElement.sName;
+                  stParam.mOptions["elementName"] = sElemName;
+                }
+                else
+                if (stDataType.sName == stParam.sName)
+                {
+                  stParam.mOptions["elementName"] = sElemName;
+//                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
                 }
                 if (rChildElement.bIsArray)
                 {
                   if (!nRecursionLevel)
                   {
+                    stParam.mOptions["elementName"] = sElemName;
                     stParam.mOptions["useParentElement"] = "true";
                   }
                   stParam.stDataType.lsParams.push_back(stDataType);
@@ -1116,8 +1126,8 @@ namespace codegen
                 }
                 else
                 {
-                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
-                  OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
+//                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
+//                  OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
                   stParam.stDataType = stDataType;
                 }
 
@@ -1153,14 +1163,14 @@ namespace codegen
                     {
                       stMember.stDataType.sName = "string";
                       stMember.stDataType.sNamespace = "std::";
-                      stMember.stDataType.sUsedName = "std::string";
+//                      stMember.stDataType.sUsedName = "std::string";
                       stMember.stDataType.eType = DataType::TypeString;
                     }
                     else
                     {
                       GetCppType(itAttr->stType, stMember.stDataType);
-                      stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-                      OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+//                      stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+//                      OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
                     }
                     if (itAttr->bIsOptional)
                     {
@@ -1177,7 +1187,7 @@ namespace codegen
                     stMember.sName = "lsAnyAttributes";
                     stMember.stDataType.sName = "anyAttribute";
                     stMember.stDataType.sNamespace = "staff::";
-                    stMember.stDataType.sUsedName = "staff::anyAttribute";
+//                    stMember.stDataType.sUsedName = "staff::anyAttribute";
                     stMember.stDataType.eType = DataType::TypeGeneric;
                     stMember.sDescr = rComplexType.sAnyAttrDescr;
                     stStruct.lsMembers.push_back(stMember);
@@ -1188,11 +1198,11 @@ namespace codegen
                   stParam.stDataType.eType = DataType::TypeStruct;
                   stParam.stDataType.sName = stStruct.sName;
                   stParam.stDataType.sNamespace = stStruct.sNamespace;
-                  stParam.stDataType.sUsedName = stStruct.sNamespace + stParam.stDataType.sName;
+//                  stParam.stDataType.sUsedName = stStruct.sNamespace + stParam.stDataType.sName;
                   stParam.stDataType.lsParams.clear();
                 }
 
-                OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+//                OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
                 // find child complex type
                 const ComplexType* pComplexType =
@@ -1298,7 +1308,7 @@ namespace codegen
           stParam.mOptions["elementName"] = rElement.sName;
         }
         stParam.stDataType = SimpleTypeToData(rElement.lsSimpleTypes.front(), m_stWsdlTypes);
-        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+//        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
 
         if (bIsResponse)
         {
@@ -1337,8 +1347,8 @@ namespace codegen
               stParam.stDataType = ComplexTypeToData(rComplexType, m_stWsdlTypes);
             }
 
-            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+//            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+//            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
             if (rComplexType.bIsAbstract)
             {
               WrapTypeInTemplate(stParam.stDataType, "Abstract");
@@ -1363,8 +1373,8 @@ namespace codegen
             {
               stParam.stDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
             }
-            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+//            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+//            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
           }
         }
 
@@ -1457,8 +1467,8 @@ namespace codegen
 
         GetCppType(QName(sName, sPrefix, sNamespace), stParam.stDataType);
         RISE_ASSERTES(!stParam.stDataType.sName.empty(), rise::CLogicNoItemException, "Unknown part type");
-        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-        OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
+//        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
+//        OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
 
         FixParamDataType(stParam.stDataType);
 
@@ -1850,7 +1860,7 @@ namespace codegen
       }
     }
 
-    Interface& Parse( const std::string& sFileUri, Project& rProject )
+    Interface& Parse(const std::string& sFileUri, Project& rProject, const std::string& sDefaultTns = "")
     {
       RISE_ASSERTP(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
@@ -1921,12 +1931,16 @@ namespace codegen
         }
         else
         {
-          m_stInterface.sTargetNs = sFileUri;
-          if (m_stInterface.sTargetNs.find(':') == std::string::npos)
+          if (sDefaultTns.empty())
           {
-            m_stInterface.sTargetNs = "http://tempui.org/" + m_stInterface.sTargetNs;
+            m_stInterface.sTargetNs = sFileUri.find("://") != std::string::npos ? sFileUri :
+                                        "http://tempui.org/" + sFileUri;
+            rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
           }
-          rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
+          else
+          {
+            m_stInterface.sTargetNs = sDefaultTns;
+          }
           rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
         }
 
@@ -2188,26 +2202,26 @@ namespace codegen
         {
           stMember.stDataType.sName = "string";
           stMember.stDataType.sNamespace = "std::";
-          stMember.stDataType.sUsedName = "std::string";
+//          stMember.stDataType.sUsedName = "std::string";
           stMember.stDataType.eType = DataType::TypeString;
         }
         else
         {
           GetCppType(pAttr->stType, stMember.stDataType);
 
-          // do not optimize namespace if member name equals data type name
-          bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
-          if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
-          {
-            stMember.stDataType.sNamespace = "::";
-          }
+//          // do not optimize namespace if member name equals data type name
+//          bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
+//          if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
+//          {
+//            stMember.stDataType.sNamespace = "::";
+//          }
 
-          stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+//          stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
 
-          if (!bDoNotOptimizeNs)
-          {
-            OptimizeCppNs(stMember.stDataType.sUsedName, rstStruct.sNamespace);
-          }
+//          if (!bDoNotOptimizeNs)
+//          {
+//            OptimizeCppNs(stMember.stDataType.sUsedName, rstStruct.sNamespace);
+//          }
         }
         if (!pAttr->sDefault.empty())
         {
@@ -2436,7 +2450,7 @@ namespace codegen
 
               stStruct.sParentNamespace = stParentType.sNamespace;
               stStruct.sParentName = stStruct.sParentNamespace + stParentType.sName;
-              OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
+//              OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
             }
           }
 
@@ -2527,59 +2541,59 @@ namespace codegen
           }
 
           // optimize template argument type
-          if (stMember.stDataType.eType == DataType::TypeTemplate)
-          {
-            const std::string& sOwnerName =
-                pstStruct->sNamespace +
-                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-                pstStruct->sName + "::";
+//          if (stMember.stDataType.eType == DataType::TypeTemplate)
+//          {
+//            const std::string& sOwnerName =
+//                pstStruct->sNamespace +
+//                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+//                pstStruct->sName + "::";
 
-            RISE_ASSERTS(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
-                        " is template, but no template arg is defined");
-            DataType& rDataType = stMember.stDataType.lsParams.front();
+//            RISE_ASSERTS(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
+//                        " is template, but no template arg is defined");
+//            DataType& rDataType = stMember.stDataType.lsParams.front();
 
-            if (rDataType.eType == DataType::TypeStruct ||
-                rDataType.eType == DataType::TypeTypedef ||
-                rDataType.eType == DataType::TypeEnum)
-            {
-              // do not optimize namespace if member name equals data type name
-              bool bDoNotOptimizeNs = rDataType.sName == stMember.sName;
-              if (bDoNotOptimizeNs && rDataType.sNamespace.empty())
-              {
-                rDataType.sNamespace = "::";
-              }
+//            if (rDataType.eType == DataType::TypeStruct ||
+//                rDataType.eType == DataType::TypeTypedef ||
+//                rDataType.eType == DataType::TypeEnum)
+//            {
+//              // do not optimize namespace if member name equals data type name
+//              bool bDoNotOptimizeNs = rDataType.sName == stMember.sName;
+//              if (bDoNotOptimizeNs && rDataType.sNamespace.empty())
+//              {
+//                rDataType.sNamespace = "::";
+//              }
 
-              rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+//              rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
 
-              if (!bDoNotOptimizeNs)
-              {
-                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
-              }
-            }
-          }
-          else
-          if (stMember.stDataType.eType == DataType::TypeStruct ||
-              stMember.stDataType.eType == DataType::TypeTypedef ||
-              stMember.stDataType.eType == DataType::TypeEnum)
-          {
-            // do not optimize namespace if member name equals data type name
-            bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
-            if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
-            {
-              stMember.stDataType.sNamespace = "::";
-            }
+//              if (!bDoNotOptimizeNs)
+//              {
+//                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
+//              }
+//            }
+//          }
+//          else
+//          if (stMember.stDataType.eType == DataType::TypeStruct ||
+//              stMember.stDataType.eType == DataType::TypeTypedef ||
+//              stMember.stDataType.eType == DataType::TypeEnum)
+//          {
+//            // do not optimize namespace if member name equals data type name
+//            bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
+//            if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
+//            {
+//              stMember.stDataType.sNamespace = "::";
+//            }
 
-            const std::string& sOwnerName =
-                pstStruct->sNamespace +
-                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-                pstStruct->sName + "::";
-            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+//            const std::string& sOwnerName =
+//                pstStruct->sNamespace +
+//                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
+//                pstStruct->sName + "::";
+//            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
 
-            if (!bDoNotOptimizeNs)
-            {
-              OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
-            }
-          }
+//            if (!bDoNotOptimizeNs)
+//            {
+//              OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
+//            }
+//          }
 
           if (!pElement->sDefault.empty())
           {
@@ -2622,7 +2636,7 @@ namespace codegen
           stMember.sName = "lsAnyAttributes";
           stMember.stDataType.sName = "anyAttribute";
           stMember.stDataType.sNamespace = "staff::";
-          stMember.stDataType.sUsedName = "staff::anyAttribute";
+//          stMember.stDataType.sUsedName = "staff::anyAttribute";
           stMember.stDataType.eType = DataType::TypeGeneric;
           stMember.sDescr = rComplexType.sAnyAttrDescr;
           pstStruct->lsMembers.push_back(stMember);
@@ -2735,7 +2749,7 @@ namespace codegen
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
           rDataType.eType = DataType::TypeTemplate;
-          rDataType.sUsedName.erase();
+//          rDataType.sUsedName.erase();
         }
       }
       else
@@ -2744,8 +2758,8 @@ namespace codegen
         {
           DataType stTempl;
           GetCppType(pElement->stType, stTempl);
-          stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
-          OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
+//          stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
+//          OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
 
           rDataType.sName = "list";
           rDataType.sNamespace = "std::";
@@ -2755,8 +2769,8 @@ namespace codegen
         else
         {
           GetCppType(pElement->stType, rDataType);
-          rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-          OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
+//          rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+//          OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
         }
       }
 
@@ -2863,7 +2877,7 @@ namespace codegen
           }
           rDataType.eType = DataType::TypeGeneric;
         }
-        rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+//        rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
       }
       else
       if (stQName.sName == "DataObject") // non xsd:any, may have additional schema
@@ -3274,7 +3288,7 @@ namespace codegen
     }
     else
     { // import into default namespace
-      sImportNs = FindNamespaceUri(rNodeImport, rNodeImport.Namespace());
+      sImportNs = GetTns(rNodeImport);
     }
 
     std::string sSchemaLocation;
@@ -3381,7 +3395,8 @@ namespace codegen
     if (!rWsdlParser.IsInit())
     {
       rWsdlParser.Init(m_pParser->GetParseSettings());
-      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation, rProject);
+      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation,
+                                         rProject, sImportNs);
 
       Include& rInclude = *rInterface.lsIncludes.insert(rInterface.lsIncludes.end(), Include());
       rInclude.sInterfaceName = pNewInterface->sName;

@@ -118,7 +118,7 @@ $($sNewOpeningNs)
 #end
 #foreach $(Member.Params)
 #foreach $(Param.Options)
-    // *param-$(Param.Name): $($ThisNodeName): $($ThisNodeValue)
+    // *param-$(Param.Name)-$($ThisNodeName): $($ThisNodeValue)
 #end
 #end
 #ifneq($($nonblocking),)

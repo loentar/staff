@@ -27,7 +27,8 @@
 #ifeq($(.Name),Optional||Nillable)           // ######### Optional or Nillable ############
 #ifeq($(.Name),Optional)
 #ifeq($(.Options.*isAttribute),true||1)
-  const staff::Attribute& rAttr$($sParamName) = $($sdoParam).GetAttributeByLocalNameOpt("$($sParamName)");
+  const staff::Attribute& rAttr$($sParamName) = \
+$($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)");
   if (!rAttr$($sParamName).IsNull()) // optional attribute
 #else // not attribute
 #ifneq($($bUseParentElem),)
@@ -92,14 +93,14 @@
 #ifneq($($sOptMod),) // is optional
   rAttr$($sParamName).GetValue($($sOptMod)$($sParam));
 #else
-  $($sdoParam).GetAttributeValueByName("$($sParamName)", $($sOptMod)$($sParam));
+  $($sdoParam).GetAttributeValueByName("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #ifeqend
 #else
 #ifeq($(.Type),enum)
 #ifneq($($sOptMod),) // is optional
   rAttr$($sParamName).GetText() >> $($sOptMod)$($sParam);
 #else
-  $($sdoParam).GetAttributeTextByName("$($sParamName)") >> $($sOptMod)$($sParam);
+  $($sdoParam).GetAttributeTextByName("$(.Options.*elementName||$sParamName)") >> $($sOptMod)$($sParam);
 #ifeqend
 #else
 #cgerror Cannot deserialize type $(.Type) to attribute value. $($sParamName)

@@ -2,9 +2,7 @@
 #
 # == defines ==============================================================
 
-ifeq "" "$(MAKECMDGOALS)"
-  MAKECMDGOALS = make
-endif
+MAKECMDGOALS ?= make
 
 ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 ifneq ($(MAKECMDGOALS),test)
@@ -13,7 +11,9 @@ endif
 MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' $(EXCLUDE_TESTS) | sed 's/^.\///g')
 
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
+ifeq "" "$(PARALLEL)"
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
+endif
 
 #.PHONY: $(MAKECMDGOALS)
 
@@ -27,7 +27,9 @@ $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 include $(MAKEFILES_DEP)
 
 %.dep:
+ifeq "" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
+endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 PROJECT=staff
