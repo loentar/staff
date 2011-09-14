@@ -25,6 +25,7 @@
 #include <map>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/exmacros.h>
+#include <rise/threading/CriticalSection.h>
 #include "Runtime.h"
 
 namespace staff
@@ -121,6 +122,7 @@ namespace staff
   public:
     AxutilEnvMap m_mEnv;
     axutil_env_t* m_pEnv;
+    rise::threading::CCriticalSection m_tLock;
   };
 
 
@@ -152,20 +154,27 @@ namespace staff
       return m_pImpl->m_pEnv;
     }
 
-    RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
-    if (itEnv == m_pImpl->m_mEnv.end())
     {
-      axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(), RuntimeImpl::GetAxis2LogLevel());
-      m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
-      return pEnv;
-    }
+      rise::threading::CScopedCriticalSection tScopedLock(m_pImpl->m_tLock);
 
-    ++itEnv->second.nCounter;
-    return itEnv->second.pEnv;
+      RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
+      if (itEnv == m_pImpl->m_mEnv.end())
+      {
+        axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(),
+                                                   RuntimeImpl::GetAxis2LogLevel());
+        m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
+        return pEnv;
+      }
+
+      ++itEnv->second.nCounter;
+      return itEnv->second.pEnv;
+    }
   }
 
   void Runtime::FreeAxis2Env(const std::string& sEnvComponent)
   {
+    rise::threading::CScopedCriticalSection tScopedLock(m_pImpl->m_tLock);
+
     RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
     if (itEnv != m_pImpl->m_mEnv.end())
     {
