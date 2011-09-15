@@ -40,6 +40,7 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/Log.h>
 #include <rise/threading/Thread.h>
+#include <staff/security/tools.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/MessageContext.h>
@@ -130,6 +131,12 @@ public:
       exit(1);
     }
 
+    // initialize security
+    if (!staff_security_init())
+    {
+      rise::LogError() << "Failed to initialize staff::security.";
+      exit(1);
+    }
 
     m_pEnv = pEnv;
     m_pConf = pConf;
@@ -159,6 +166,8 @@ rise::LogEntry();
     m_bShuttingDown = true;
     staff::ServiceDispatcher::Inst().Deinit();
 #endif
+
+    staff_security_free();
 
     if (pSvcSkeleton)
     {

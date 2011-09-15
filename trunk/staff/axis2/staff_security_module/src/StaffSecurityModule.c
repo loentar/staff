@@ -181,11 +181,6 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
   STAFF_PARAM_UNUSED(pConfCtx);
   STAFF_PARAM_UNUSED(pModuleDesc);
 
-  if (!staff_security_init())
-  {
-    fprintf(stderr, "Failed to initialize staff::security.\n");
-    exit(1);
-  }
   return AXIS2_SUCCESS;
 }
 
@@ -209,8 +204,6 @@ AXIS2_EXPORT axis2_handler_t* AXIS2_CALL StaffSecurity_create(const axutil_env_t
 axis2_status_t AXIS2_CALL StaffSecurityModule_shutdown(axis2_module_t* pModule, 
                                                          const axutil_env_t* pEnv)
 {
-  staff_security_free();
-
   if(pModule->handler_create_func_map)
   {
     axutil_hash_free(pModule->handler_create_func_map, pEnv);
