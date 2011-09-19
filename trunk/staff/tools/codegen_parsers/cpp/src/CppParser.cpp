@@ -1925,7 +1925,7 @@ namespace codegen
       }
     }
 
-    if (!uServicesCount && !rParseSettings.bNoServiceError && !rProject.lsInterfaces.empty())
+    if (!uServicesCount && !rParseSettings.bNoServiceWarn && !rProject.lsInterfaces.empty())
     {
        rise::LogWarning() <<
            "No staff service interfaces found. Staff services must inherited from staff::IService.\n"

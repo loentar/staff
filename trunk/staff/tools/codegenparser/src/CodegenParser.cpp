@@ -27,7 +27,7 @@ namespace staff
 namespace codegen
 {
   ParseSettings::ParseSettings():
-    bNoServiceError(true)
+    bNoServiceWarn(false)
   {
   }
 

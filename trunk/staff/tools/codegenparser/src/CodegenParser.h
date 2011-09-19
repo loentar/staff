@@ -36,9 +36,9 @@ namespace codegen
   {
     std::string    sInDir;          //!<  input dir
     std::string    sOutDir;         //!<  output dir
-    StringList    lsFiles;         //!<  input files
-    StringMap     mEnv;            //!<  environment - arguments passed through -d option
-    bool           bNoServiceError; //!<  throw error if no service found
+    StringList     lsFiles;         //!<  input files
+    StringMap      mEnv;            //!<  environment - arguments passed through -d option
+    bool           bNoServiceWarn;  //!<  do not dislpay warning if no service found
 
     ParseSettings();
   };
