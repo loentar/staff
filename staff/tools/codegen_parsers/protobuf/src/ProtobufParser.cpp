@@ -1598,7 +1598,7 @@ namespace codegen
       }
     }
 
-    CSP_ASSERT(!(uServicesCount == 0 && rParseSettings.bNoServiceError),
+    CSP_ASSERT(!(uServicesCount == 0 && rParseSettings.bNoServiceWarn),
                "No staff service interfaces found. Staff services must inherited from staff::IService.\n"
                 "Example:\n----\n#include <staff/common/IService.h>\n\n  class Calc: public staff::IService\n"
                 "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n",

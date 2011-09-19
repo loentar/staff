@@ -45,7 +45,7 @@ void Help()
     "  -o<outputdir>   - Set output dir\n"
     "  -c<changedir>   - Set input and output dirs\n"
     "  -u              - Update only (generate only missing files, update existing files if needed)\n"
-    "  -e              - Don't error if Interface file does not contain a service\n"
+    "  -e              - Don't warn if Interface file(s) does not contain a service\n"
     "  -d              - Define environment variables: -dvar1=value1,var2=2,var3\n"
     "  -l[t|p]         - Display parsers(p) and/or templates(t) lists\n"
     "  -n<prj_name>    - Set project name (output file name for xml description)\n"
@@ -128,7 +128,7 @@ int main(int nArgs, const char* szArgs[])
         break;
 
       case 'e':
-        stParseSettings.bNoServiceError = false;
+        stParseSettings.bNoServiceWarn = true;
         break;
 
       case 'd':
