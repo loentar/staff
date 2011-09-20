@@ -19,13 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <axiom.h>
 #include <axis2_util.h>
-#include <axiom_soap.h>
-#include <map>
 #include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
-#include <rise/threading/CriticalSection.h>
 #include "Runtime.h"
 
 namespace staff
@@ -34,24 +29,22 @@ namespace staff
   {
   public:
     RuntimeImpl():
-      m_pEnv(axutil_env_create_all("staff.log", GetAxis2LogLevel()))
+      m_pEnv(CreateAxis2Env("staff.log"))
     {
     }
 
     ~RuntimeImpl()
     {
-      if (m_mEnv.size() != 0)
-      {
-        for (AxutilEnvMap::iterator itEnv = m_mEnv.begin(); itEnv != m_mEnv.end(); ++itEnv)
-        {
-          if (itEnv->second.pEnv)
-          {
-            axutil_env_free(itEnv->second.pEnv);
-          }
-        }
-        m_mEnv.clear();
-      }
       axutil_env_free(m_pEnv);
+    }
+
+    static axutil_env_t* CreateAxis2Env(const axis2_char_t* szLogName)
+    {
+      static axis2_bool_t bEnableLog = !getenv("STAFF_AXIS2C_DISABLE_LOG") ? AXIS2_TRUE : AXIS2_FALSE;
+
+      axutil_env_t* pEnv = axutil_env_create_all(szLogName, GetAxis2LogLevel());
+      axutil_env_enable_log(pEnv, bEnableLog);
+      return pEnv;
     }
 
     static axutil_log_levels_t GetAxis2LogLevel()
@@ -106,29 +99,17 @@ namespace staff
     }
     
   public:
-    struct AxutilEnvCounted
-    {
-      int nCounter;
-      axutil_env_t* pEnv;
-
-      AxutilEnvCounted():
-        nCounter(1), pEnv(NULL)
-      {
-      }
-    };
-
-    typedef std::map<std::string, AxutilEnvCounted> AxutilEnvMap;
-
-  public:
-    AxutilEnvMap m_mEnv;
     axutil_env_t* m_pEnv;
-    rise::threading::CCriticalSection m_tLock;
+    std::string m_sAxis2cHome;
+    std::string m_sStaffHome;
   };
 
 
   Runtime::Runtime():
     m_pImpl(new RuntimeImpl)
   {
+    m_pImpl->m_sAxis2cHome = GetEnvOpt("AXIS2C_HOME");
+    m_pImpl->m_sStaffHome = GetEnvOpt("STAFF_HOME");
   }
 
   Runtime::~Runtime()
@@ -147,67 +128,48 @@ namespace staff
     return m_pImpl->m_pEnv;
   }
 
-  axutil_env_t* Runtime::GetAxis2Env(const std::string& sEnvComponent)
+  axutil_env_t* Runtime::CreateAxis2Env(const char* szLogName)
   {
-    if (sEnvComponent == "staff")
-    {
-      return m_pImpl->m_pEnv;
-    }
-
-    {
-      rise::threading::CScopedCriticalSection tScopedLock(m_pImpl->m_tLock);
-
-      RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
-      if (itEnv == m_pImpl->m_mEnv.end())
-      {
-        axutil_env_t* pEnv = axutil_env_create_all((sEnvComponent + ".log").c_str(),
-                                                   RuntimeImpl::GetAxis2LogLevel());
-        m_pImpl->m_mEnv[sEnvComponent].pEnv = pEnv;
-        return pEnv;
-      }
-
-      ++itEnv->second.nCounter;
-      return itEnv->second.pEnv;
-    }
+    return RuntimeImpl::CreateAxis2Env(szLogName);
   }
 
-  void Runtime::FreeAxis2Env(const std::string& sEnvComponent)
+  axutil_env_t* Runtime::CreateAxis2Env(const std::string& sLogName)
   {
-    rise::threading::CScopedCriticalSection tScopedLock(m_pImpl->m_tLock);
-
-    RuntimeImpl::AxutilEnvMap::iterator itEnv = m_pImpl->m_mEnv.find(sEnvComponent);
-    if (itEnv != m_pImpl->m_mEnv.end())
-    {
-      --itEnv->second.nCounter;
-      if (itEnv->second.nCounter == 0)
-      {
-        axutil_env_free(itEnv->second.pEnv);
-        m_pImpl->m_mEnv.erase(itEnv);
-      }
-    }
+    return RuntimeImpl::CreateAxis2Env(sLogName.c_str());
   }
 
-  std::string Runtime::GetEnv(const std::string& rEnvVariable) const
+  void Runtime::FreeAxis2Env(axutil_env_t* pEnv)
   {
-    const char* szEnv = getenv(rEnvVariable.c_str());
+    axutil_env_free(pEnv);
+  }
+
+  std::string Runtime::GetEnv(const std::string& sVariable) const
+  {
+    const char* szEnv = AXIS2_GETENV(sVariable.c_str());
     RISE_ASSERTES(szEnv, rise::CLogicNoItemException,
-                  "Environment variable " + rEnvVariable + " not found");
+                  "Environment variable " + sVariable + " not found");
     return szEnv;
   }
 
-  std::string Runtime::GetAxis2Home() const
+  std::string Runtime::GetEnvOpt(const std::string& sVariable) const
   {
-    return GetEnv("AXIS2C_HOME");
+    const char* szEnv = AXIS2_GETENV(sVariable.c_str());
+    return szEnv ? szEnv : "";
   }
 
-  std::string Runtime::GetStaffHome() const
+  const std::string& Runtime::GetAxis2Home() const
   {
-    return GetEnv("STAFF_HOME");
+    return m_pImpl->m_sAxis2cHome;
+  }
+
+  const std::string& Runtime::GetStaffHome() const
+  {
+    return m_pImpl->m_sStaffHome;
   }
 
   std::string Runtime::GetComponentsHome() const
   {
-    return GetStaffHome() + RISE_PATH_SEPARATOR + std::string("components");
+    return m_pImpl->m_sStaffHome + RISE_PATH_SEPARATOR + std::string("components");
   }
 
   std::string Runtime::GetComponentHome(const std::string& sComponent) const

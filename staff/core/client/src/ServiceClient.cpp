@@ -231,11 +231,11 @@ namespace staff
 
   ServiceClient::ServiceClient():
     m_pSvcClient(NULL),
+    m_pEnv(Runtime::Inst().CreateAxis2Env("staff_client.log")),
     m_pOptions(NULL),
     m_bOptOwner(false),
     m_bInit(false)
   {
-    m_pEnv = Runtime::Inst().GetAxis2Env("staff_client");
   }
 
   ServiceClient::~ServiceClient()
@@ -245,12 +245,12 @@ namespace staff
     {
       delete m_pOptions;
     }
-    Runtime::Inst().FreeAxis2Env("staff_client");
+    Runtime::Inst().FreeAxis2Env(m_pEnv);
   }
 
   void ServiceClient::Init(const std::string& sServiceUri /*= ""*/)
   {
-    std::auto_ptr<Options> pOptions(new Options);
+    std::auto_ptr<Options> pOptions(new Options(m_pEnv));
     if (!sServiceUri.empty())
     {
       pOptions->SetToAddress(sServiceUri);
