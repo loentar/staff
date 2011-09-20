@@ -28,14 +28,14 @@
 
 namespace staff
 {
-  Options::Options():
-    m_pEnv(Runtime::Inst().GetAxis2Env("staff_client")), m_bOwner(true)
+  Options::Options(axutil_env_t* pEnv):
+    m_pEnv(pEnv), m_bOwner(true)
   {
     m_pOptions = axis2_options_create(m_pEnv);
   }
 
-  Options::Options(axis2_options_t* pOptions):
-    m_pOptions(pOptions), m_pEnv(Runtime::Inst().GetAxis2Env("staff_client")), m_bOwner(false)
+  Options::Options(axis2_options_t* pOptions, axutil_env_t* pEnv):
+    m_pOptions(pOptions), m_pEnv(pEnv), m_bOwner(false)
   {
   }
 
@@ -45,7 +45,6 @@ namespace staff
     {
       axis2_options_free(m_pOptions, m_pEnv);
     }
-    Runtime::Inst().FreeAxis2Env("staff_client");
   }
 
 

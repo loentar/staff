@@ -46,14 +46,16 @@ namespace staff
   public:
     //! constructor
     /*! sets owner flag to true
+        \param pEnv - axis2/c env
       */
-    Options();
+    Options(axutil_env_t* pEnv);
 
     //! constructor
     /*! sets owner flag to false
         \param pOptions - axis2 options
+        \param pEnv - axis2/c env
       */
-    Options(axis2_options_t* pOptions);
+    Options(axis2_options_t* pOptions, axutil_env_t* pEnv);
 
     //! destructor
     /*! axis2 options will be destroyed only if owner flag is set

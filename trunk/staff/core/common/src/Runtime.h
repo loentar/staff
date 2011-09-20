@@ -45,25 +45,31 @@ namespace staff
     axutil_env_t* GetAxis2Env();
 
     //!         get Axis2/C env for given component
-    /*! \param  sEnvComponent - environment component(service, client, etc)
+    /*! \param  szLogName - log name(C-string), for example: client.log
         \return Axis2/C env
     */
-    axutil_env_t* GetAxis2Env(const std::string& sEnvComponent);
+    axutil_env_t* CreateAxis2Env(const char* szLogName);
 
-    //!         free Axis2/C env for given component
-    /*! \param  sEnvComponent - environment component(service, client, etc)
+    //!         get Axis2/C env for given component
+    /*! \param  sLogName - log name, for example: client.log
+        \return Axis2/C env
     */
-    void FreeAxis2Env(const std::string& sEnvComponent);
+    axutil_env_t* CreateAxis2Env(const std::string& sLogName);
+
+    //!         free Axis2/C env
+    /*! \param  pEnv - Axis2/C environment created by CreateAxis2Env
+    */
+    void FreeAxis2Env(axutil_env_t* pEnv);
 
     //!         get Axis2/C home dir
     /*! \return Axis2/C home dir
     */
-    std::string GetAxis2Home() const;
+    const std::string& GetAxis2Home() const;
 
     //!         get staff home dir
     /*! \return staff home dir
     */
-    std::string GetStaffHome() const;
+    const std::string& GetStaffHome() const;
 
     //!         get home dir for staff components
     /*! \return home dir for staff components
@@ -82,6 +88,12 @@ namespace staff
         \return environment variable value
         */
     std::string GetEnv(const std::string& sVariable) const;
+
+    //!         get environment variable value
+    /*! \param  sVariable - environment variable
+        \return environment variable value, or empty, if no variable found
+        */
+    std::string GetEnvOpt(const std::string& sVariable) const;
 
   private:
     Runtime();

@@ -36,6 +36,7 @@
 #include <axis2_const.h>
 #include <axis2_conf_ctx.h>
 #include <axis2_addr.h>
+#include <axis2_util.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
 #include <axis2_http_header.h>
@@ -44,6 +45,15 @@
 #include "StaffSecurityUtils.h"
 
 #define STAFF_PARAM_UNUSED(param) (void)param
+#define STAFF_SECURITY_CALC_FN_NAME "staff_security_calculate_access_by_session_id"
+#ifdef WIN32
+#define STAFF_SECURITY_DL_NAME "staff_security.dll"
+#else
+#define STAFF_SECURITY_DL_NAME "libstaffsecurity.so"
+#endif
+
+typedef int (*staff_security_calc_fn_t)(const char*, const char*, int*);
+staff_security_calc_fn_t g_pstaff_security_calc_fn = NULL;
 
 struct axis2_handler
 {
@@ -67,9 +77,12 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
     const axis2_char_t* szSessionId = NULL;
     const axis2_char_t* szInstanceId = NULL;
     axis2_char_t* szServiceName = NULL;
+    axutil_hash_t * pHashHeaders = NULL;
     int nAccess = 0;
 
-    axutil_hash_t * pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);
+    AXIS2_UTILS_CHECK(g_pstaff_security_calc_fn);
+
+    pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);
 
     if (pHashHeaders != NULL)
     {
@@ -91,7 +104,7 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
       szSessionId = STAFF_SECURITY_NOBODY_SESSION_ID;
     }
 
-    if (!staff_security_calculate_access_by_session_id(szServiceOperationPath, szSessionId, &nAccess))
+    if (!g_pstaff_security_calc_fn(szServiceOperationPath, szSessionId, &nAccess))
     {
       dprintf("Access denied to user with unknown or expired session id [%s] while accessing to operation %s\n",
         szSessionId, szServiceOperationPath);
@@ -176,10 +189,60 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
                                                       axis2_conf_ctx_t* pConfCtx,
                                                       axis2_module_desc_t* pModuleDesc)
 {
+  axis2_bool_t bIsSvcSide = AXIS2_FALSE;
+  axis2_ctx_t* pAxis2Ctx = NULL;
+  axutil_property_t* pProp = NULL;
+
   STAFF_PARAM_UNUSED(pModule);
   STAFF_PARAM_UNUSED(pEnv);
   STAFF_PARAM_UNUSED(pConfCtx);
   STAFF_PARAM_UNUSED(pModuleDesc);
+
+  pAxis2Ctx = axis2_conf_ctx_get_base(pConfCtx, pEnv);
+  if (!pAxis2Ctx)
+  {
+    return AXIS2_FAILURE;
+  }
+
+  pProp = axis2_ctx_get_property(pAxis2Ctx, pEnv, AXIS2_IS_SVR_SIDE);
+  if (pProp)
+  {
+    const void* pPropValue = axutil_property_get_value(pProp, pEnv);
+    if (pProp && !strcmp((const axis2_char_t*)pPropValue, AXIS2_VALUE_TRUE))
+    {
+      bIsSvcSide = AXIS2_TRUE;
+    }
+  }
+
+  if (bIsSvcSide)
+  {
+    void* pProcAddr = NULL;
+    AXIS2_DLHANDLER pDlHandler = AXIS2_PLATFORM_LOADLIB(STAFF_SECURITY_DL_NAME);
+    if (!pDlHandler)
+    {
+#ifndef WIN32
+      AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "Loading shared library %s  Failed. DLERROR IS %s",
+                      STAFF_SECURITY_DL_NAME, AXIS2_PLATFORM_LOADLIB_ERROR);
+#else
+      axis2_char_t szBuff[AXUTIL_WIN32_ERROR_BUFSIZE];
+      axutil_win32_get_last_error(szBuff, AXUTIL_WIN32_ERROR_BUFSIZE);
+      AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "Loading shared library %s  Failed. DLERROR IS %s",
+                      dll_name, szBuff);
+#endif
+      AXIS2_ERROR_SET(pEnv->error, AXIS2_ERROR_DLL_LOADING_FAILED, AXIS2_FAILURE);
+
+      return AXIS2_FAILURE;
+    }
+
+    pProcAddr = AXIS2_PLATFORM_GETPROCADDR(pDlHandler, STAFF_SECURITY_CALC_FN_NAME);
+    g_pstaff_security_calc_fn = *(staff_security_calc_fn_t*)&pProcAddr;
+    if (!g_pstaff_security_calc_fn)
+    {
+      AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "Failed to get symbol");
+      AXIS2_ERROR_SET(pEnv->error, AXIS2_ERROR_DLL_LOADING_FAILED, AXIS2_FAILURE);
+      return AXIS2_FAILURE;
+    }
+  }
 
   return AXIS2_SUCCESS;
 }
