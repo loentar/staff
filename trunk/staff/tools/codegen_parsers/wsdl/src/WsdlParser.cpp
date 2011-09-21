@@ -2180,9 +2180,10 @@ namespace codegen
         bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
-          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.sName, pAttr->stType.sNamespace,
+          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.sName, pAttr->sNamespace,
                                                        m_stWsdlTypes.lsAttributes);
-          RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for: " + pAttr->stType.GetNsName());
+          RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for: " + pAttr->stType.GetNsName() +
+                       " while parsing " + m_stInterface.sFileName);
           pAttr = pAttrTarget;
         }
 
