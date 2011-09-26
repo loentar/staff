@@ -5,29 +5,37 @@
 
 === Main info ===
 
-Staff is Web Service Framework for C++, AJAX, and J2ME that is based on Apache Axis2/C.
+Staff is Web Service Framework for C++ based on Apache Axis2/C.
 
 WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional features:
-  * stateful [ExampleCalculatorServiceWindows#2._Creating_service_interface Web Services implementation] in C++ with instance support;
-  * [ExampleCalculatorClientWindows synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClient AJAX] and [ExampleCalculatorJ2meClient J2ME];
-  * [TrafficCompression traffic compression] support in J2ME and AJAX. 
+  * stateful [ExampleCalculatorService Web Services implementation] in C++ with instance support;
+  * [ExampleCalculatorClient synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClient AJAX] and [ExampleCalculatorJ2meClient J2ME];
   * service-component [SoaApplicationStruct architecture implementation];
+  * to interact with the service you can use: simple types (number, string, enum, ...), complex types (struct, typedef, list, ...) and raw xml (!DataObject);
   * support for RESTful [ExampleCalculatorRestfulService web services] and [ExampleCalculatorRestfulClient clients];
   * [ExampleCreatingCppClientFromWsdl WSDL] support with xsd import/export;
   * [ExampleCalculatorJ2meClient J2ME client] support is based on ksoap;
-  * [CodegenMetacomments code generator] to generate any sort of Web Services related source code (not only in C++);
-  * access to relational databases via [ExampleDasDataSource DAS] (data access service). <br/>_Supported DBMS: Postgresql, MySQL, SQLite3._;
+  * [CodegenTemplates code generator] to generate any sort of Web Services related source code (not only in C++);
+  * access to relational databases via [ExampleDasDataSource DAS] (data access service). _Supported DBMS are: Postgresql, MySQL, SQLite3._;
+  * [TrafficCompression traffic compression] support in J2ME and AJAX. 
   * security support (users, groups, sessions, ACLs, etc.);
 
-<br/>
+<br>
 In the Service interface:
   * STL containers supported: list, vector, map;
-  * Structures may be inherited;
+  * Structure inheritance is supported;
   * Structures can be nested;
   * Structures may have struct, typedef and template fields;
   * Typedefs is supported;
-  * Namespaces are treated as component's name.
+  * Enums is supported;
+  * C++ Namespaces are treated as component's name.
 
+<br>
+WSDL extensions supported:
+  * Dynamic types (Abstract);
+  * Nillable;
+  * Optional;
+  * hexBinary and base64Binary.
 
 
 === Security ===
@@ -40,17 +48,20 @@ Security DB is on the SQLite 3.
 <p/><p/>
 
 === Code generator (codegen) ===
-Code generator includes following common templates:
+
+For more information about codegen's templates see the CodegenTemplates wiki page.
+
+Code generator has following common templates:
+  * complete client generation;
+  * complete service generation;
   * web service interface generation from WSDL;
   * WSDL generation from web service interface;
   * BPEL support: codegen supports WSDL generation compatible with BPEL;
-  * web service stub generation;
-  * client skeleton generation;
   * Google Protocol Buffers's proto files can be generated from web service interface;
   * web service interface can be generated from Google Protocol Buffers's proto files;
   * internal files generation (Proxies, Wrappers, etc);
 
-_Interface is an abstract C++ class that can be used for creating web services and clients;_
+  || _Service interface is a C++ header file that contain a class (service), which provide set of functions (service operations). Also interface can contain structures, typedefs and enums that will be used to interact with the service._ ||
 
 Most of new templates can be created without changing codegen's source code.
 
