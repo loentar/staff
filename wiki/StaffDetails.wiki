@@ -1,13 +1,17 @@
 #summary Staff details
 #labels Phase-Design
 
-= Staff details =
+<h1> Staff details </h1>
 
-=== Main info ===
+<h1>Table of Contents</h1>
+<wiki:toc max_depth="3" />
 
-Staff is Web Service Framework for C++ based on Apache Axis2/C.
+== What is it? ==
+Staff is Web Service Framework for C++ based on Apache Axis2/C. WSF Staff provide C++ interface to most used Apache Axis2/C functions, and also it provide many additional features.
 
-WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional features:
+== Main features ==
+
+Main features provided by WSF Staff:
   * stateful [ExampleCalculatorService Web Services implementation] in C++ with instance support;
   * [ExampleCalculatorClient synchronous] and [ExampleCalculatorNonBlocking asynchronous] client implementation in C++, [ExampleCalculatorAjaxClient AJAX] and [ExampleCalculatorJ2meClient J2ME];
   * service-component [SoaApplicationStruct architecture implementation];
@@ -20,7 +24,10 @@ WSF Staff wraps Apache Axis2/C code into C++, and also provides many additional 
   * [TrafficCompression traffic compression] support in J2ME and AJAX. 
   * security support (users, groups, sessions, ACLs, etc.);
 
-<br>
+=== Service interface ===
+
+Service interface is a C++ header file that contain a class (service), which provide set of functions (service operations). Also interface can contain structures, typedefs and enums that will be used to interact with the service.
+
 In the Service interface:
   * STL containers supported: list, vector, map;
   * Structure inheritance is supported;
@@ -30,13 +37,29 @@ In the Service interface:
   * Enums is supported;
   * C++ Namespaces are treated as component's name.
 
-<br>
-WSDL extensions supported:
+=== WSDL ===
+WSDL extensions supported by WSF Staff are:
   * Dynamic types (Abstract);
   * Nillable;
   * Optional;
   * hexBinary and base64Binary.
 
+
+=== Code generator (codegen) ===
+
+For more information about codegen's templates see the CodegenTemplates wiki page.
+
+Code generator can produce code following :
+  * complete client;
+  * complete service;
+  * web service interface generation from WSDL;
+  * WSDL generation from web service interface;
+  * BPEL support: codegen supports WSDL generation compatible with BPEL;
+  * Google Protocol Buffers's proto files can be generated from web service interface;
+  * web service interface can be generated from Google Protocol Buffers's proto files;
+  * internal files generation (Proxies, Wrappers, etc);
+
+Most of new templates can be created without changing codegen's source code.
 
 === Security ===
 Security model is based on ACL and rules access users and groups to following security object:
@@ -47,24 +70,16 @@ Security model is based on ACL and rules access users and groups to following se
 Security DB is on the SQLite 3.
 <p/><p/>
 
-=== Code generator (codegen) ===
+== Portability and Platform Support ==
+Currently WSF Staff has been ported to following platforms:
+  * Linux;
+  * Microsoft Windows;
+  * Mac OS X;
+  * FreeBSD.
 
-For more information about codegen's templates see the CodegenTemplates wiki page.
+Tested under Ubuntu 9.10-11.04 (x86 and x86_64), RHEL5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1.
 
-Code generator has following common templates:
-  * complete client generation;
-  * complete service generation;
-  * web service interface generation from WSDL;
-  * WSDL generation from web service interface;
-  * BPEL support: codegen supports WSDL generation compatible with BPEL;
-  * Google Protocol Buffers's proto files can be generated from web service interface;
-  * web service interface can be generated from Google Protocol Buffers's proto files;
-  * internal files generation (Proxies, Wrappers, etc);
+Windows binaries can be built using MSVC or GCC (MinGW) compilers.
 
-  || _Service interface is a C++ header file that contain a class (service), which provide set of functions (service operations). Also interface can contain structures, typedefs and enums that will be used to interact with the service._ ||
-
-Most of new templates can be created without changing codegen's source code.
-
-
-=== License ===
+== License ==
 WSF Staff is released with Apache License V2.0.
