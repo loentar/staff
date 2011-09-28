@@ -60,6 +60,7 @@ namespace rise
       m_sNamespace = rNode.m_sNamespace;
       m_sContent = rNode.m_sContent;
       m_tAttr = rNode.m_tAttr;
+      m_tNsList = rNode.m_tNsList;
 
       m_tSubNodes.clear();
       for (TXMLNodeList::const_iterator itNode = rNode.m_tSubNodes.begin();
