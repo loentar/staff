@@ -185,7 +185,9 @@ namespace codegen
       }
     }
 
-    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
+    static std::string sEmptyTns;
+    return sEmptyTns;
+//    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
   }
 
   std::string FindNamespaceUri( const rise::xml::CXMLNode& rNode, const std::string& sPrefix )
@@ -242,7 +244,7 @@ namespace codegen
       }
     }
 
-    RISE_ASSERTS(!sNamespaceUri.empty(), "Can't find target namespace for node: " + rise::ToStr(rNode));
+//    RISE_ASSERTS(!sNamespaceUri.empty(), "Can't find target namespace for node: " + rise::ToStr(rNode));
   }
 
 
@@ -1895,25 +1897,19 @@ namespace codegen
         {
           std::string sFileData;
           rise::LogDebug() << "Downloading the " << sFileUri;
-          if (!HttpClient::Get(sFileUri, sFileData))
+          RISE_ASSERTS(HttpClient::Get(sFileUri, sFileData), "Can't download file: " + sFileUri);
+          if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
           {
-            rise::LogError() << "Can't download file " << sFileUri;
-          }
-          else
-          {
-            if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
+            std::cout << "saving " << sInterfaceFileName << std::endl;
+            std::ofstream ofStream(sInterfaceFileName.c_str());
+            if (!ofStream.good())
             {
-              std::cout << "saving " << sInterfaceFileName << std::endl;
-              std::ofstream ofStream(sInterfaceFileName.c_str());
-              if (!ofStream.good())
-              {
-                rise::LogWarning() << "Can't open file [" << sInterfaceFileName << "]";
-              }
-              else
-              {
-                ofStream << sFileData;
-                ofStream.close();
-              }
+              rise::LogWarning() << "Can't open file [" << sInterfaceFileName << "]";
+            }
+            else
+            {
+              ofStream << sFileData;
+              ofStream.close();
             }
           }
           std::istringstream issData(sFileData);
@@ -1929,20 +1925,20 @@ namespace codegen
         {
           m_stInterface.sTargetNs = itTns->sAttrValue.AsString();
         }
-        else
-        {
-          if (sDefaultTns.empty())
-          {
-            m_stInterface.sTargetNs = sFileUri.find("://") != std::string::npos ? sFileUri :
-                                        "http://tempui.org/" + sFileUri;
-            rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
-          }
-          else
-          {
-            m_stInterface.sTargetNs = sDefaultTns;
-          }
-          rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
-        }
+//        else
+//        {
+//          if (sDefaultTns.empty())
+//          {
+//            m_stInterface.sTargetNs = sFileUri.find("://") != std::string::npos ? sFileUri :
+//                                        "http://tempui.org/" + sFileUri;
+//            rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
+//          }
+//          else
+//          {
+//            m_stInterface.sTargetNs = sDefaultTns;
+//          }
+//          rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
+//        }
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
@@ -2180,10 +2176,10 @@ namespace codegen
         bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
-          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.sName, pAttr->sNamespace,
+          const Attribute* pAttrTarget = FindQNameType(pAttr->stType.sName, pAttr->stType.sNamespace,
                                                        m_stWsdlTypes.lsAttributes);
-          RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for: " + pAttr->stType.GetNsName() +
-                       " while parsing " + m_stInterface.sFileName);
+          RISE_ASSERTS(pAttrTarget, "Can't find attribute declaration for [" + pAttr->stType.GetNsName() +
+                       "] while parsing [" + m_stInterface.sFileName + "]");
           pAttr = pAttrTarget;
         }
 
@@ -2493,7 +2489,7 @@ namespace codegen
           const Element* pElement = &*itElement;
           while (pElement->bIsRef)
           {
-            Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->sNamespace,
+            Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->stType.sNamespace,
                                                  m_stWsdlTypes.lsElements);
 
             RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
@@ -2738,7 +2734,10 @@ namespace codegen
         }
         else
         {
-          rise::LogWarning() << "Untyped element: " << pElement->sName;
+//          rise::LogWarning() << "Untyped element: [" << pElement->sName << "]. Using as DataObject ";
+          rDataType.sName = "DataObject";
+          rDataType.sNamespace = "staff::";
+          rDataType.eType = DataType::TypeDataObject;
         }
       }
 
@@ -2803,7 +2802,7 @@ namespace codegen
         else
         if (stQName.sName == "DataObject")
         {
-          rDataType.sName = "CDataObject";
+          rDataType.sName = "DataObject";
           rDataType.sNamespace = "staff::";
           rDataType.eType = DataType::TypeDataObject;
         }
@@ -2883,7 +2882,7 @@ namespace codegen
       else
       if (stQName.sName == "DataObject") // non xsd:any, may have additional schema
       {
-        rDataType.sName = "CDataObject";
+        rDataType.sName = "DataObject";
         rDataType.sNamespace = "staff::";
         rDataType.eType = DataType::TypeDataObject;
       }
@@ -3478,7 +3477,7 @@ namespace codegen
         }
       }
 
-      if (!bFound)
+      if (!bFound && !itImpNs->sNs.empty())
       {
         lsNamespaces.push_back(*itImpNs);
       }
