@@ -452,7 +452,8 @@ namespace codegen
         sDataTypeName == "staff::ID" ||
         sDataTypeName == "staff::IDREF" ||
         sDataTypeName == "staff::ENTITY" ||
-        sDataTypeName == "staff::anySimpleType"
+        sDataTypeName == "staff::anySimpleType" ||
+        sDataTypeName == "staff::anyType"
       )
       {
         rDataType.eType = DataType::TypeString;
@@ -1260,6 +1261,7 @@ namespace codegen
     {
       char chTmp = '\0';
       std::string sTmp;
+      std::string sDescr;
 
       CSP_ASSERT(!m_tFile.eof(), "unexpected EOF(after enum name): " + rEnum.sName,
                  m_stInterface.sFileName, m_nLine);
@@ -1321,7 +1323,10 @@ namespace codegen
           SkipWs();
           ReadBefore(stMember.sValue);
           SkipWsOnly();
-          ReadDescrComment(rEnum.lsMembers.back().sDescr);
+          if (!rEnum.lsMembers.empty())
+          {
+            ReadDescrComment(rEnum.lsMembers.back().sDescr);
+          }
           SkipWs();
           chTmp = m_tFile.peek();
         }

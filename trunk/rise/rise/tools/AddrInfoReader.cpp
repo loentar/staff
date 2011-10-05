@@ -67,6 +67,11 @@ namespace rise
         // executable(compat)
           rAddrInfo.sContext = m_sExeName;
         }
+
+        if (rAddrInfo.sContext.empty())
+        {
+          return false;
+        }
         
         TPAutoBfdReader& rpReader = m_tBfdMap[rAddrInfo.sContext];
         if(rpReader.Get() == NULL)

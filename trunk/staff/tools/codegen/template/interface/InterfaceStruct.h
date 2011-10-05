@@ -17,7 +17,7 @@ $($sNewOpeningNs)
 #end
   struct $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
-: public $(Struct.ParentUsedName)
+: public $(Struct.ParentNsName)
 #else
 
 #ifeqend
