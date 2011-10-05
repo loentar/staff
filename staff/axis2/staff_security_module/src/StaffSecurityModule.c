@@ -52,6 +52,7 @@
 #define STAFF_SECURITY_DL_NAME "libstaffsecurity.so"
 #endif
 
+axis2_bool_t g_bIsSvrSide = AXIS2_FALSE;
 typedef int (*staff_security_calc_fn_t)(const char*, const char*, int*);
 staff_security_calc_fn_t g_pstaff_security_calc_fn = NULL;
 
@@ -70,7 +71,7 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
   STAFF_PARAM_UNUSED(pHandler);
   AXIS2_ENV_CHECK(pEnv, AXIS2_FAILURE);
 
-  if (axis2_msg_ctx_get_server_side(pMsgCtx, pEnv))
+  if (g_bIsSvrSide)
   {
     axis2_char_t* szServiceOperationPath = NULL;
     const axis2_char_t* szHttpHost = NULL;
@@ -189,7 +190,6 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
                                                       axis2_conf_ctx_t* pConfCtx,
                                                       axis2_module_desc_t* pModuleDesc)
 {
-  axis2_bool_t bIsSvcSide = AXIS2_FALSE;
   axis2_ctx_t* pAxis2Ctx = NULL;
   axutil_property_t* pProp = NULL;
 
@@ -210,11 +210,11 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
     const void* pPropValue = axutil_property_get_value(pProp, pEnv);
     if (pProp && !strcmp((const axis2_char_t*)pPropValue, AXIS2_VALUE_TRUE))
     {
-      bIsSvcSide = AXIS2_TRUE;
+      g_bIsSvrSide = AXIS2_TRUE;
     }
   }
 
-  if (bIsSvcSide)
+  if (g_bIsSvrSide)
   {
     void* pProcAddr = NULL;
     AXIS2_DLHANDLER pDlHandler = AXIS2_PLATFORM_LOADLIB(STAFF_SECURITY_DL_NAME);

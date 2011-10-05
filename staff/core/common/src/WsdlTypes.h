@@ -76,11 +76,7 @@ namespace staff
   typedef unsigned int positiveInteger;
 
   typedef string anySimpleType;
-
-  //! WSDL anyType
-  struct anyType
-  {
-  };
+  typedef string anyType;
 
   class Attribute;
   typedef std::list<Attribute> anyAttribute;

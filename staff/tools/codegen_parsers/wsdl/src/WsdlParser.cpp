@@ -789,10 +789,6 @@ namespace codegen
           Element& rElement = *lsElements.insert(lsElements.end(), Element());
           rElement.Parse(*itChild);
           rElement.sChoiceId = sChoiceId;
-          if (rElement.stType.sName == "anyType")
-          {
-            rElement.stType.sName = "DataObject";
-          }
         }
         else
         if (sNodeName == "any")
@@ -1777,24 +1773,38 @@ namespace codegen
 
     void FixStructOrder(std::list<Struct>& rlsStructs)
     {
-      for (std::list<Struct>::iterator itStruct1 = rlsStructs.begin();
-           itStruct1 != rlsStructs.end(); ++itStruct1)
+      if (!rlsStructs.empty())
       {
-        std::list<Struct>::iterator itStruct2 = itStruct1;
-        ++itStruct2;
-        for (; itStruct2 != rlsStructs.end(); ++itStruct2)
+        for (int n = rlsStructs.size(); n > 0; --n)
         {
-          if (!itStruct1->bForward && !itStruct2->bForward)
+          bool bWasReordered = false;
+          for (std::list<Struct>::iterator itStruct1 = rlsStructs.begin();
+               itStruct1 != rlsStructs.end(); ++itStruct1)
           {
-            if (IsStructUsesOther(*itStruct1, *itStruct2))
+            std::list<Struct>::iterator itStruct2 = itStruct1;
+            ++itStruct2;
+            for (; itStruct2 != rlsStructs.end(); ++itStruct2)
             {
-              rise::LogDebug() << "Moving struct [" << itStruct2->sName
-                               << "] before to [" << itStruct1->sName << "]";
-              rlsStructs.splice(itStruct1, rlsStructs, itStruct2++);
-              break;
+              if (!itStruct1->bForward && !itStruct2->bForward)
+              {
+                if (IsStructUsesOther(*itStruct1, *itStruct2))
+                {
+                  rise::LogDebug() << "Moving struct [" << itStruct2->sName
+                                   << "] before to [" << itStruct1->sName << "]";
+                  rlsStructs.splice(itStruct1, rlsStructs, itStruct2++);
+                  bWasReordered = true;
+                  break;
+                }
+              }
             }
           }
+          if (!bWasReordered)
+          {
+            return;
+          }
         }
+
+        rise::LogWarning() << "Can't reorder structures. Circular dependecies is possible";
       }
     }
 
@@ -1862,7 +1872,7 @@ namespace codegen
       }
     }
 
-    Interface& Parse(const std::string& sFileUri, Project& rProject, const std::string& sDefaultTns = "")
+    Interface& Parse(const std::string& sFileUri, Project& rProject)
     {
       RISE_ASSERTP(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
@@ -2305,38 +2315,38 @@ namespace codegen
       }
 
       // single type array without any attributes. optimize to list with given element name
-      if (rComplexType.lsElements.size() == 1 &&
-          rComplexType.lsAttributes.empty() &&
-          !rComplexType.bHasAnyAttribute &&
-          !HasDerivedTypes(rComplexType.sName, rWsdlTypes))
-      {
-        const Element& rElem = rComplexType.lsElements.front();
-        if (rElem.bIsArray)
-        {
-          Typedef stTypedef;
-          stTypedef.bExtern = rComplexType.bIsExtern;
-          stTypedef.sName = stDataType.sName;
-          stTypedef.sNamespace = stDataType.sNamespace;
-          stTypedef.sDescr = rComplexType.sDescr;
-          stTypedef.sDetail = rComplexType.sDetail;
+//      if (rComplexType.lsElements.size() == 1 &&
+//          rComplexType.lsAttributes.empty() &&
+//          !rComplexType.bHasAnyAttribute &&
+//          !HasDerivedTypes(rComplexType.sName, rWsdlTypes))
+//      {
+//        const Element& rElem = rComplexType.lsElements.front();
+//        if (rElem.bIsArray)
+//        {
+//          Typedef stTypedef;
+//          stTypedef.bExtern = rComplexType.bIsExtern;
+//          stTypedef.sName = stDataType.sName;
+//          stTypedef.sNamespace = stDataType.sNamespace;
+//          stTypedef.sDescr = rComplexType.sDescr;
+//          stTypedef.sDetail = rComplexType.sDetail;
 
-          ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
+//          ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
 
-          if (!rElem.sName.empty())
-          {
-            stTypedef.mOptions["elementName"] = rElem.sName;
-          }
+//          if (!rElem.sName.empty())
+//          {
+//            stTypedef.mOptions["elementName"] = rElem.sName;
+//          }
 
-          m_stInterface.lsTypedefs.push_back(stTypedef);
+//          m_stInterface.lsTypedefs.push_back(stTypedef);
 
-          DataType stResDataType;
-          stResDataType.eType = DataType::TypeTypedef;
-          stResDataType.sName = stTypedef.sName;
-          stResDataType.sNamespace = stTypedef.sNamespace;
+//          DataType stResDataType;
+//          stResDataType.eType = DataType::TypeTypedef;
+//          stResDataType.sName = stTypedef.sName;
+//          stResDataType.sNamespace = stTypedef.sNamespace;
 
-          return stResDataType;
-        }
-      }
+//          return stResDataType;
+//        }
+//      }
 
       if (rComplexType.bIsSimpleContent)
       {
@@ -2446,7 +2456,7 @@ namespace codegen
               GetCppType(rComplexType.sParentName, rComplexType.sParentNs, stParentType);
 
               stStruct.sParentNamespace = stParentType.sNamespace;
-              stStruct.sParentName = stStruct.sParentNamespace + stParentType.sName;
+              stStruct.sParentName = stParentType.sName;
 //              OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
             }
           }
@@ -2487,6 +2497,7 @@ namespace codegen
         {
           const std::string& sChoiceId = itElement->sChoiceId;
           const Element* pElement = &*itElement;
+          bool bIsArray = pElement->bIsArray;
           while (pElement->bIsRef)
           {
             Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->stType.sNamespace,
@@ -2509,6 +2520,14 @@ namespace codegen
 
           ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
 
+          if (bIsArray && !pElement->bIsArray)
+          {
+            stMember.stDataType.lsParams.push_back(stMember.stDataType);
+            stMember.stDataType.sName = "list";
+            stMember.stDataType.sNamespace = "std::";
+            stMember.stDataType.eType = DataType::TypeTemplate;
+          }
+
           if (!pElement->lsComplexTypes.empty())
           {
             const ComplexType& rComplexType = pElement->lsComplexTypes.front();
@@ -2526,7 +2545,7 @@ namespace codegen
             }
           }
 
-          if (pElement->bIsArray)
+          if (bIsArray || pElement->bIsArray)
           {
             stMember.mOptions["useParentElement"] = "true";
           }
@@ -2668,6 +2687,7 @@ namespace codegen
                        const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
     {
       const Element* pElement = &rElement;
+      bool bIsArray = pElement->bIsArray;
 
       rDataType.eType = DataType::TypeUnknown;
 
@@ -2680,6 +2700,7 @@ namespace codegen
                      + "]. from [" + m_stInterface.sFileName + "]");
         pElement = pTargetElem;
       }
+      bIsArray |= pElement->bIsArray;
 
       if (!pElement->stType.sName.empty())
       {
@@ -2743,7 +2764,7 @@ namespace codegen
 
       if (rDataType.eType != DataType::TypeUnknown)
       {
-        if (pElement->bIsArray) // wrap in array
+        if (bIsArray) // wrap in array
         {
           rDataType.lsParams.push_back(rDataType);
           rDataType.sName = "list";
@@ -2754,7 +2775,7 @@ namespace codegen
       }
       else
       {
-        if (pElement->bIsArray)
+        if (bIsArray)
         {
           DataType stTempl;
           GetCppType(pElement->stType, stTempl);
@@ -2776,12 +2797,12 @@ namespace codegen
 
       if (pElement->bIsOptional)
       {
-        WrapTypeInTemplate(pElement->bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
+        WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
       }
       else
       if (pElement->bIsNillable)
       {
-        WrapTypeInTemplate(pElement->bIsArray ? rDataType.lsParams.front() : rDataType, "Nillable");
+        WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Nillable");
       }
     }
 
@@ -2866,7 +2887,8 @@ namespace codegen
             stQName.sName == "byte" ||
             stQName.sName == "unsignedByte" ||
             stQName.sName == "positiveInteger" ||
-            stQName.sName == "anySimpleType")
+            stQName.sName == "anySimpleType" ||
+            stQName.sName == "anyType")
           {
             rDataType.sName = stQName.sName;
             rDataType.sNamespace = "staff::";
@@ -2891,7 +2913,7 @@ namespace codegen
       {
         rDataType.sName = stQName.sName;
         rDataType.sNamespace = "staff::";
-        rDataType.eType = DataType::TypeGeneric;
+        rDataType.eType = DataType::TypeString;
       }
       else
       { // not an wsdl type, some typedef or struct
@@ -3395,20 +3417,19 @@ namespace codegen
     if (!rWsdlParser.IsInit())
     {
       rWsdlParser.Init(m_pParser->GetParseSettings());
-      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation,
-                                         rProject, sImportNs);
-
-      Include& rInclude = *rInterface.lsIncludes.insert(rInterface.lsIncludes.end(), Include());
-      rInclude.sInterfaceName = pNewInterface->sName;
-      rInclude.sNamespace = pNewInterface->sNamespace;
-      rInclude.sFileName = pNewInterface->sFileName;
-      rInclude.sFilePath = pNewInterface->sFilePath;
-      rInclude.sTargetNs = pNewInterface->sTargetNs;
+      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation, rProject);
     }
     else
     {
       pNewInterface = &rWsdlParser.GetInterface();
     }
+
+    Include& rInclude = *rInterface.lsIncludes.insert(rInterface.lsIncludes.end(), Include());
+    rInclude.sInterfaceName = pNewInterface->sName;
+    rInclude.sNamespace = pNewInterface->sNamespace;
+    rInclude.sFileName = pNewInterface->sFileName;
+    rInclude.sFilePath = pNewInterface->sFilePath;
+    rInclude.sTargetNs = pNewInterface->sTargetNs;
 
     // import operations
     const WsdlTypes& rImportedWsdlTypes = rWsdlParser.GetWsdlTypes();
