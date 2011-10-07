@@ -27,6 +27,12 @@
 #var aStaffIncludes $($aStaffIncludes)[staff/common/WsdlTypes.h]
 #ifeqend // wsdl types
 \
+#ifeq($(.Name),anyAttribute)
+#ifneq($($aStaffIncludes.!match/Attribute.h/),true)
+#var aStaffIncludes $($aStaffIncludes)[staff/common/Attribute.h]
+#ifeqend // any attribute
+#ifeqend // any attribute
+\
 #ifeqend // staff types
 #ifeqend // staff
 #ifeqend // std

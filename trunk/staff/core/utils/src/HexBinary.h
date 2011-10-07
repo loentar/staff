@@ -120,6 +120,7 @@ namespace staff
 
     // compatability operators
     operator const std::string&() const;
+    operator std::string&();
     // may throw exception if data is in invalid format
     operator ByteArray() const;
     HexBinary& operator=(const std::string& sData);

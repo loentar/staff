@@ -88,13 +88,23 @@ namespace codegen
       sOut += "const ";
     }
 
+    if (!bNoModifiers && !rDataType.sPrefix.empty())
+    {
+      sOut += rDataType.sPrefix + " ";
+    }
+
     if (bAsUsed && !rDataType.sUsedName.empty())
     {
       sOut += rDataType.sUsedName;
     }
     else
     {
-      sOut += rDataType.sNamespace + rDataType.sName;
+      sOut += rDataType.sNamespace;
+      if (!rDataType.sOwnerName.empty())
+      {
+        sOut += rDataType.sOwnerName + "::";
+      }
+      sOut += rDataType.sName;
     }
 
     bool bIsTemplate = !rDataType.lsParams.empty();

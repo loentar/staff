@@ -153,6 +153,11 @@ namespace staff
     return m_sEncodedData;
   }
 
+  HexBinary::operator std::string&()
+  {
+    return m_sEncodedData;
+  }
+
   HexBinary::operator ByteArray() const
   {
     ByteArray baResult;

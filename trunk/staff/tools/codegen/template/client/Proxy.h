@@ -9,6 +9,9 @@
 #include <staff/client/ServiceClient.h>
 #ifeqend
 #include "$(Interface.FilePath)$(Interface.Name).h"
+#foreach $(Interface.Includes)
+#include "$(Include.FilePath)$(Include.Name)Proxy.h"
+#end
 
 #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)

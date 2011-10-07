@@ -53,8 +53,10 @@ namespace codegen
     bool                 bIsRef;      //!<  reference type
     Type                 eType;       //!<  data type enum
     std::string          sUsedName;   //!<  name as used
+    std::string          sPrefix;     //!<  prefix
     std::string          sName;       //!<  type name (int, string, etc.)
     std::string          sNamespace;  //!<  namespace
+    std::string          sOwnerName;  //!<  owner struct name in format "StructName[::SubType]"
     std::list<DataType>  lsParams;    //!<  template parameters
 
     //! default constructor

@@ -50,7 +50,7 @@ const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsNa
 #ifeqend
 \
 
-DataObject& operator<<(DataObject& rdoParam, const $(Struct.NsName)& \
+DataObject& operator<<(DataObject& rdoParam, const struct $(Struct.NsName)& \
 #ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 /*\
 #ifeqend
@@ -62,7 +62,7 @@ rstStruct\
 {
 #ifneq($(Struct.ParentName),)
   // serialize parent struct
-  rdoParam << static_cast< const $(Struct.ParentNsName)& >(rstStruct);
+  rdoParam << static_cast< const struct $(Struct.ParentNsName)& >(rstStruct);
 
 #ifeqend
 \
@@ -81,7 +81,9 @@ rstStruct\
 #ifeqend
 #ifeq($(Struct.Options.*choiceArrayItem),true||1)
 #ifneq($(Param.$Num),0)
+#ifneq($(Param.Options.*isAttribute),true||1)
   else
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeq($(Param.Options.*useParentElement),)
@@ -95,7 +97,7 @@ rstStruct\
   return rdoParam;
 }
 
-const DataObject& operator>>(const DataObject& rdoParam, $(Struct.NsName)& \
+const DataObject& operator>>(const DataObject& rdoParam, struct $(Struct.NsName)& \
 #ifeq($(Struct.Members.$Count)$(Struct.ParentNsName),0)
 /*\
 #ifeqend
@@ -107,7 +109,7 @@ rstStruct\
 {
 #ifneq($(Struct.ParentName),)
   // deserialize parent struct
-  rdoParam >> static_cast< $(Struct.ParentNsName)& >(rstStruct);
+  rdoParam >> static_cast< struct $(Struct.ParentNsName)& >(rstStruct);
 
 #ifeqend
 #foreach $(Struct.Members)
