@@ -683,6 +683,14 @@ namespace codegen
           rise::LogWarning() << "members must be non-static. Line:" << m_nLine;
           CSP_ASSERT(sTypeName.empty(), "static after typename", m_stInterface.sFileName, m_nLine);
         }
+        else
+        if (sTmp == "struct")
+        {
+          rDataType.sPrefix = sTmp;
+          sTmp = sDataType.substr(sTmp.size());
+          rise::StrTrim(sTmp);
+          nEnd = std::string::npos;
+        }
 
         if (nEnd != std::string::npos)
         {
@@ -1161,18 +1169,28 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
+          SkipWs();
 
-          Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
+          char chData = m_tFile.peek();
+          if (chData == ';' || chData == ':' || chData == '{')
+          { // nested struct
+            Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
-          rstStruct.mOptions.insert(stParamTmp.mOptions.begin(), stParamTmp.mOptions.end());
+            rstStruct.mOptions.insert(stParamTmp.mOptions.begin(), stParamTmp.mOptions.end());
 
-          ParseStruct(rstStruct);
-          if (!rstStruct.bForward)
-          {
-            rstStruct.sDescr = stParamTmp.sDescr;
+            ParseStruct(rstStruct);
+            if (!rstStruct.bForward)
+            {
+              rstStruct.sDescr = stParamTmp.sDescr;
+            }
+
+            continue;
           }
-
-          continue;
+          else
+          {
+            stParamTmp.stDataType.sPrefix = sToken;
+            sToken += " " + sName;
+          }
         }
 
         ReadBefore(sTmp, ";}(");

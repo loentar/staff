@@ -118,6 +118,7 @@ namespace staff
 
     // compatability operators
     operator const std::string&() const;
+    operator std::string&();
     operator ByteArray() const;
     Base64Binary& operator=(const std::string& sData);
     Base64Binary& operator=(const ByteArray& rData);

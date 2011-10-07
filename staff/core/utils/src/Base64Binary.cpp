@@ -112,6 +112,11 @@ namespace staff
     return m_sEncodedData;
   }
 
+  Base64Binary::operator std::string&()
+  {
+    return m_sEncodedData;
+  }
+
   Base64Binary::operator ByteArray() const
   {
     ByteArray baResult;

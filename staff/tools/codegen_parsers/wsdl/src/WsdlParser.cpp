@@ -395,9 +395,10 @@ namespace codegen
   }
 
 
-  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateClass, bool bIgnoreWarn = false)
+  void WrapTypeInTemplate(DataType& rDataType, const std::string& sTemplateName,
+                          const std::string& sTemplateNamespace = "staff::", bool bIgnoreWarn = false)
   {
-    if (rDataType.sName == sTemplateClass)
+    if (rDataType.sName == sTemplateName)
     {
       // choice < optional >
       if (!bIgnoreWarn)
@@ -405,15 +406,17 @@ namespace codegen
         std::string sType = rDataType.lsParams.empty()
             ? "<unknown>"
             : rDataType.lsParams.front().sNamespace + rDataType.lsParams.front().sName;
-        rise::LogWarning() << "Type " << sType << " already marked as " << sTemplateClass;
+        rise::LogWarning() << "Type " << sType << " already marked as " << sTemplateName;
       }
       return;
     }
     rDataType.lsParams.push_front(rDataType);
     rDataType.lsParams.resize(1);
-    rDataType.sName = sTemplateClass;
-    rDataType.sNamespace = "staff::";
+    rDataType.sName = sTemplateName;
+    rDataType.sNamespace = sTemplateNamespace;
     rDataType.eType = DataType::TypeTemplate;
+    rDataType.sPrefix.erase();
+    rDataType.sOwnerName.erase();
 //    rDataType.sUsedName.erase();
   }
 
@@ -1117,10 +1120,7 @@ namespace codegen
                     stParam.mOptions["elementName"] = sElemName;
                     stParam.mOptions["useParentElement"] = "true";
                   }
-                  stParam.stDataType.lsParams.push_back(stDataType);
-                  stParam.stDataType.eType = DataType::TypeTemplate;
-                  stParam.stDataType.sName = "list";
-                  stParam.stDataType.sNamespace = "std::";
+                  WrapTypeInTemplate(stParam.stDataType, "list", "std::");
                 }
                 else
                 {
@@ -2302,7 +2302,8 @@ namespace codegen
     }
 
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
-                               const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
+                               const std::string& sForceParentName = "", const std::string& sForceParentNs = "",
+                               Struct* pstOwnerStruct = NULL)
     {
       DataType stDataType;
 
@@ -2481,8 +2482,21 @@ namespace codegen
           }
           else
           {
-            m_stInterface.lsStructs.push_back(stStruct);
-            pstStruct = &m_stInterface.lsStructs.back();
+            if (pstOwnerStruct)
+            {
+              stStruct.sOwnerName =
+                  pstOwnerStruct->sOwnerName.empty() ?
+                  pstOwnerStruct->sName :
+                  pstOwnerStruct->sOwnerName + "::" + pstOwnerStruct->sName;
+              pstStruct = &*(pstOwnerStruct->lsStructs.insert(pstOwnerStruct->lsStructs.end(), stStruct));
+              stDataType.sOwnerName = stStruct.sOwnerName;
+              stDataType.sPrefix = "struct";
+            }
+            else
+            {
+              m_stInterface.lsStructs.push_back(stStruct);
+              pstStruct = &m_stInterface.lsStructs.back();
+            }
           }
         }
 
@@ -2497,7 +2511,6 @@ namespace codegen
         {
           const std::string& sChoiceId = itElement->sChoiceId;
           const Element* pElement = &*itElement;
-          bool bIsArray = pElement->bIsArray;
           while (pElement->bIsRef)
           {
             Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->stType.sNamespace,
@@ -2518,14 +2531,13 @@ namespace codegen
             stMember.mOptions["elementName"] = StripPrefix(pElement->sName);
           }
 
-          ElementToData(*pElement, stMember.stDataType, rWsdlTypes);
-
-          if (bIsArray && !pElement->bIsArray)
+          if (!itElement->bIsRef)
           {
-            stMember.stDataType.lsParams.push_back(stMember.stDataType);
-            stMember.stDataType.sName = "list";
-            stMember.stDataType.sNamespace = "std::";
-            stMember.stDataType.eType = DataType::TypeTemplate;
+            ElementToData(*itElement, stMember.stDataType, rWsdlTypes, "", "", pstStruct);
+          }
+          else
+          {
+            ElementToData(*itElement, stMember.stDataType, rWsdlTypes);
           }
 
           if (!pElement->lsComplexTypes.empty())
@@ -2545,7 +2557,7 @@ namespace codegen
             }
           }
 
-          if (bIsArray || pElement->bIsArray)
+          if (itElement->bIsArray)
           {
             stMember.mOptions["useParentElement"] = "true";
           }
@@ -2619,13 +2631,19 @@ namespace codegen
           if (!sChoiceId.empty())
           {
             stMember.mOptions["choiceId"] = sChoiceId;
-            WrapTypeInTemplate(stMember.stDataType, "Optional", true);
+            WrapTypeInTemplate(stMember.stDataType, "Optional", "staff::", true);
           }
 
           if (stMember.stDataType.eType == DataType::TypeStruct)
           {
-            const Struct* pstStruct = GetStruct(stMember.stDataType.sNamespace + stMember.stDataType.sName,
-                                                m_stInterface);
+            std::string sNsName = stMember.stDataType.sNamespace;
+            if (!stMember.stDataType.sOwnerName.empty())
+            {
+              sNsName += stMember.stDataType.sOwnerName + "::";
+            }
+            sNsName += stMember.stDataType.sName;
+
+            const Struct* pstStruct = GetStruct(sNsName, m_stInterface);
 
             if (!pstStruct)
             {
@@ -2684,11 +2702,10 @@ namespace codegen
     }
 
     void ElementToData(const Element& rElement, DataType& rDataType, const WsdlTypes& rWsdlTypes,
-                       const std::string& sForceParentName = "", const std::string& sForceParentNs = "")
+                       const std::string& sForceParentName = "", const std::string& sForceParentNs = "",
+                       Struct* pstOwnerStruct = NULL)
     {
       const Element* pElement = &rElement;
-      bool bIsArray = pElement->bIsArray;
-
       rDataType.eType = DataType::TypeUnknown;
 
       while (pElement->bIsRef)
@@ -2700,7 +2717,8 @@ namespace codegen
                      + "]. from [" + m_stInterface.sFileName + "]");
         pElement = pTargetElem;
       }
-      bIsArray |= pElement->bIsArray;
+
+      bool bIsArray = rElement.bIsArray || pElement->bIsArray;
 
       if (!pElement->stType.sName.empty())
       {
@@ -2719,7 +2737,8 @@ namespace codegen
           for (std::list<ComplexType>::const_iterator itComplexSubtype = pElement->lsComplexTypes.begin();
             itComplexSubtype != pElement->lsComplexTypes.end(); ++itComplexSubtype)
           {
-            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, sForceParentName, sForceParentNs);
+            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, sForceParentName, sForceParentNs,
+                                          pstOwnerStruct);
           }
         }
         else // reference to type
@@ -2737,7 +2756,7 @@ namespace codegen
           }
           else
           {
-            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes);
+            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, "", "", pstOwnerStruct);
           }
         }
       }
@@ -2751,7 +2770,7 @@ namespace codegen
         if (!pElement->lsComplexTypes.empty())
         {
           rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes,
-                                        sForceParentName, sForceParentNs);
+                                        sForceParentName, sForceParentNs, pstOwnerStruct);
         }
         else
         {
@@ -2759,48 +2778,27 @@ namespace codegen
           rDataType.sName = "DataObject";
           rDataType.sNamespace = "staff::";
           rDataType.eType = DataType::TypeDataObject;
+          rDataType.sPrefix.erase();
+          rDataType.sOwnerName.erase();
         }
       }
 
-      if (rDataType.eType != DataType::TypeUnknown)
+      if (rDataType.eType == DataType::TypeUnknown)
       {
-        if (bIsArray) // wrap in array
-        {
-          rDataType.lsParams.push_back(rDataType);
-          rDataType.sName = "list";
-          rDataType.sNamespace = "std::";
-          rDataType.eType = DataType::TypeTemplate;
-//          rDataType.sUsedName.erase();
-        }
+        GetCppType(pElement->stType, rDataType);
       }
-      else
+
+      if (bIsArray) // wrap in array
       {
-        if (bIsArray)
-        {
-          DataType stTempl;
-          GetCppType(pElement->stType, stTempl);
-//          stTempl.sUsedName = stTempl.sNamespace + stTempl.sName;
-//          OptimizeCppNs(stTempl.sUsedName, m_stInterface.sNamespace);
-
-          rDataType.sName = "list";
-          rDataType.sNamespace = "std::";
-          rDataType.eType = DataType::TypeTemplate;
-          rDataType.lsParams.push_back(stTempl);
-        }
-        else
-        {
-          GetCppType(pElement->stType, rDataType);
-//          rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-//          OptimizeCppNs(rDataType.sUsedName, m_stInterface.sNamespace);
-        }
+        WrapTypeInTemplate(rDataType, "list", "std::");
       }
 
-      if (pElement->bIsOptional)
+      if (pElement->bIsOptional || rElement.bIsOptional)
       {
         WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
       }
       else
-      if (pElement->bIsNillable)
+      if (pElement->bIsNillable || rElement.bIsNillable)
       {
         WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Nillable");
       }

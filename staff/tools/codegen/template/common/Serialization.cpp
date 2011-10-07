@@ -29,6 +29,7 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 #cgpushvars
 #var bUseParentElement $(Typedef.Options.*useParentElement)
 #context $(Typedef.DataType)
+#var sParamName
 #var sParam rtType
 #var sdoParam rdoParam
 #cginclude "TypeSerialization.cpp"
@@ -51,6 +52,8 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 #cgpushvars
 #var bUseParentElement $(Typedef.Options.*useParentElement)
 #context $(Typedef.DataType)
+#var bRValue 1
+#var sParamName
 #var sParam rtType
 #var sdoParam rdoParam
 #cginclude "TypeDeserialization.cpp"

@@ -5,12 +5,14 @@
 #ifeqend
 \
 #var bLValue
+#ifeq($($bRValue),)
 #ifeq($($sOptMod)$(.Type),string||dataobject) // test it is lvalue and string or dataobject and not optional
 #ifeq($($sParam),)
 #var bLValue 1
 #else
 #ifeq($($sParamName),)
 #var bLValue 1
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -115,7 +117,7 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
   for (staff::DataObject::ConstAttributeIterator itAttr = ($($sOptMod)$($sdoParam)).AttributeBegin(),
        itAttrEnd = ($($sOptMod)$($sdoParam)).AttributeEnd(); itAttr != itAttrEnd; ++itAttr)
   {
-    ($($sOptMod)$($sParamName)).push_back(*itAttr);
+    ($($sOptMod)$($sParam)).push_back(*itAttr);
   }
 #else
 \
@@ -181,6 +183,7 @@ $($doName).FirstChild()\
 #var sParam tKey
 #var sParamName Key
 #var sdoParam tdoItem
+#var bRValue
 #cginclude "TypeDeserialization.cpp"
 #cgpopvars
 #contextend
@@ -195,6 +198,7 @@ $($doName).FirstChild()\
 #var sParam rValue
 #var sParamName Value
 #var sdoParam tdoItem
+#var bRValue
 #cginclude "TypeDeserialization.cpp"
 #cgpopvars
 #contextend
@@ -204,9 +208,8 @@ $($doName).FirstChild()\
 #ifeq($(.Name),list||vector)                                 // ==== list ====
 #var sParamTmp
 #ifeq($(.TemplateParams.TemplateParam1.Type),struct||typedef||template)
-    $(.TemplateParams.TemplateParam1.NsName)& rItem = *($($sOptMod)$($sParam)).\
-insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)());
-#var sParamTmp rItem
+    ($($sOptMod)$($sParam)).resize(($($sOptMod)$($sParam)).size() + 1);
+#var sParamTmp ($($sOptMod)$($sParam)).back()
 #else
 #ifeq($(.TemplateParams.TemplateParam1.Type),generic||enum)
     $(.TemplateParams.TemplateParam1.NsName) tItem\
@@ -227,6 +230,7 @@ insert(($($sOptMod)$($sParam)).end(), $(.TemplateParams.TemplateParam1.NsName)()
 #var sParam $($sParamTmp)
 #var sParamName
 #var sdoParam tdoItem
+#var bRValue
 #cginclude "TypeDeserialization.cpp"
 #cgpopvars
 #contextend

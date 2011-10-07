@@ -20,9 +20,6 @@
 #include <staff/client/ICallback.h>
 #include <staff/client/Options.h>
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
-#foreach $(Interface.Includes)
-#include "$(Include.FilePath)$(Include.Name)Proxy.h"
-#end
 #include "$(Interface.FilePath)$(Interface.Name)Proxy.h"
 
 #cginclude <common/Serialization.cpp>
@@ -318,7 +315,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #context $(Param.DataType)
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
-#ifeq($(Param.Options.*useParentElement),)
+#ifeq($(Param.Options.*useParentElement||Member.Options.*inlineRequestElement),)
 #var sdoParam rdoRequest.CreateChild("$(Param.Name)")
 #var sElementName
 #else
