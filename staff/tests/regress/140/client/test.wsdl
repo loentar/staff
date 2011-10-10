@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://localhost/test/" targetNamespace="http://localhost/test/">
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://localhost/test/">
+      <xsd:element name="request" type="xsd:unsignedShort" />
+
+      <xsd:complexType name="word">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:token">
+            <xsd:attribute name="id" type="xsd:unsignedShort"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+
+      <xsd:element name="response">
+        <xsd:complexType name="response_type">
+          <xsd:sequence>
+            <xsd:element name="word" type="tns:word" maxOccurs="unbounded" />
+            <xsd:element name="note" type="xsd:string" minOccurs="0" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="test_request">
+    <wsdl:part name="request" element="tns:request" />
+  </wsdl:message>
+  <wsdl:message name="test_response">
+    <wsdl:part name="response" element="tns:response" />
+  </wsdl:message>
+  <wsdl:portType name="test_port_type">
+    <wsdl:operation name="test_op">
+      <wsdl:input name="test_input" message="tns:test_request" />
+      <wsdl:output name="test_output" message="tns:test_response" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="test_binding" type="tns:test_port_type">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="test_op">
+      <soap12:operation style="document" soapActionRequired="false" />
+      <wsdl:input name="test_input">
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="test_output">
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="test">
+    <wsdl:port name="test_port" binding="tns:test_binding">
+      <soap12:address location="http://localhost/test" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

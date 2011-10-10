@@ -943,7 +943,7 @@ namespace codegen
   {
     rise::xml::CXMLNode::TXMLNodeConstIterator itNodeExtension = rNodeComplexContent.FindSubnode("extension");
 
-    this->bIsSimpleContent = bIsSimple;
+    bIsSimpleContent = bIsSimple;
 
     if (itNodeExtension != rNodeComplexContent.NodeEnd())
     {
@@ -2413,7 +2413,10 @@ namespace codegen
 //        }
 //      }
 
-      if (rComplexType.bIsSimpleContent)
+      if (rComplexType.bIsSimpleContent &&
+          rComplexType.lsAttributes.empty() &&
+          !rComplexType.bHasAnyAttribute &&
+          !HasDerivedTypes(rComplexType.sName, rWsdlTypes))
       {
         Typedef stTypedef;
         stTypedef.bExtern = rComplexType.bIsExtern;
@@ -2848,6 +2851,101 @@ namespace codegen
       }
     }
 
+    void GetCppTypeByName(const std::string& sName, DataType& rDataType)
+    {
+      if (sName == "string")
+      {
+        rDataType.sName = "string";
+        rDataType.sNamespace = "std::";
+        rDataType.eType = DataType::TypeString;
+      }
+      else
+      if (sName == "duration" ||
+          sName == "dateTime" ||
+          sName == "time" ||
+          sName == "date" ||
+          sName == "gYearMonth" ||
+          sName == "gYear" ||
+          sName == "gMonthDay" ||
+          sName == "gDay" ||
+          sName == "gMonth" ||
+          sName == "anyURI" ||
+          sName == "QName" ||
+          sName == "NOTATION" ||
+          sName == "normalizedString" ||
+          sName == "token" ||
+          sName == "language" ||
+          sName == "IDREFS" ||
+          sName == "ENTITIES" ||
+          sName == "NMTOKEN" ||
+          sName == "NMTOKENS" ||
+          sName == "Name" ||
+          sName == "NCName" ||
+          sName == "ID" ||
+          sName == "IDREF" ||
+          sName == "ENTITY" ||
+          sName == "anySimpleType" ||
+          sName == "anyType")
+      {
+        rDataType.sName = sName;
+        rDataType.sNamespace = "staff::";
+        rDataType.eType = DataType::TypeString;
+      }
+      else
+      if (sName == "DataObject")
+      {
+        rDataType.sName = "DataObject";
+        rDataType.sNamespace = "staff::";
+        rDataType.eType = DataType::TypeDataObject;
+      }
+      else
+      {
+        rDataType.eType = DataType::TypeGeneric;
+        if (sName == "boolean")
+        {
+          rDataType.sName = "bool";
+        }
+        else
+        if (sName == "integer")
+        {
+          rDataType.sName = "int";
+        }
+        else
+        if (sName == "unsignedLong")
+        {
+          rDataType.sName = "unsigned long";
+        }
+        else
+        if (sName == "unsignedInt")
+        {
+          rDataType.sName = "unsigned int";
+        }
+        else
+        if (sName == "unsignedShort")
+        {
+          rDataType.sName = "unsigned short";
+        }
+        else
+        if (sName == "decimal" ||
+            sName == "hexBinary" ||
+            sName == "base64Binary" ||
+            sName == "nonPositiveInteger" ||
+            sName == "negativeInteger" ||
+            sName == "nonNegativeInteger" ||
+            sName == "byte" ||
+            sName == "unsignedByte" ||
+            sName == "positiveInteger")
+        {
+          rDataType.sName = sName;
+          rDataType.sNamespace = "staff::";
+        }
+        else
+        {
+          rDataType.sName = sName;
+        }
+      }
+    }
+
     void GetCppType(const QName& stQName, DataType& rDataType)
     {
       bool bIsXmlType = stQName.sNamespace == "http://www.w3.org/2001/XMLSchema" ||
@@ -2856,92 +2954,7 @@ namespace codegen
       rDataType.sNamespace.erase();
       if (bIsXmlType)
       {
-        if (stQName.sName == "string")
-        {
-          rDataType.sName = "string";
-          rDataType.sNamespace = "std::";
-          rDataType.eType = DataType::TypeString;
-        }
-        else
-        if (stQName.sName == "DataObject")
-        {
-          rDataType.sName = "DataObject";
-          rDataType.sNamespace = "staff::";
-          rDataType.eType = DataType::TypeDataObject;
-        }
-        else
-        {
-          if (stQName.sName == "boolean")
-          {
-            rDataType.sName = "bool";
-          }
-          else
-          if (stQName.sName == "integer")
-          {
-            rDataType.sName = "int";
-          }
-          else
-          if (stQName.sName == "unsignedLong")
-          {
-            rDataType.sName = "unsigned long";
-          }
-          else
-          if (stQName.sName == "unsignedInt")
-          {
-            rDataType.sName = "unsigned int";
-          }
-          else
-          if (stQName.sName == "unsignedShort")
-          {
-            rDataType.sName = "unsigned short";
-          }
-          else
-          if (stQName.sName == "decimal" ||
-            stQName.sName == "duration" ||
-            stQName.sName == "dateTime" ||
-            stQName.sName == "time" ||
-            stQName.sName == "date" ||
-            stQName.sName == "gYearMonth" ||
-            stQName.sName == "gYear" ||
-            stQName.sName == "gMonthDay" ||
-            stQName.sName == "gDay" ||
-            stQName.sName == "gMonth" ||
-            stQName.sName == "hexBinary" ||
-            stQName.sName == "base64Binary" ||
-            stQName.sName == "anyURI" ||
-            stQName.sName == "QName" ||
-            stQName.sName == "NOTATION" ||
-            stQName.sName == "normalizedString" ||
-            stQName.sName == "token" ||
-            stQName.sName == "language" ||
-            stQName.sName == "IDREFS" ||
-            stQName.sName == "ENTITIES" ||
-            stQName.sName == "NMTOKEN" ||
-            stQName.sName == "NMTOKENS" ||
-            stQName.sName == "Name" ||
-            stQName.sName == "NCName" ||
-            stQName.sName == "ID" ||
-            stQName.sName == "IDREF" ||
-            stQName.sName == "ENTITY" ||
-            stQName.sName == "nonPositiveInteger" ||
-            stQName.sName == "negativeInteger" ||
-            stQName.sName == "nonNegativeInteger" ||
-            stQName.sName == "byte" ||
-            stQName.sName == "unsignedByte" ||
-            stQName.sName == "positiveInteger" ||
-            stQName.sName == "anySimpleType" ||
-            stQName.sName == "anyType")
-          {
-            rDataType.sName = stQName.sName;
-            rDataType.sNamespace = "staff::";
-          }
-          else
-          {
-            rDataType.sName = stQName.sName;
-          }
-          rDataType.eType = DataType::TypeGeneric;
-        }
-//        rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
+        GetCppTypeByName(stQName.sName, rDataType);
       }
       else
       if (stQName.sName == "DataObject") // non xsd:any, may have additional schema
@@ -3166,9 +3179,9 @@ namespace codegen
             Param stMember;
             stMember.mOptions["useParentElement"] = "true";
             stMember.sName = "tParent";
+            GetCppTypeByName(rstStruct.sParentName, stMember.stDataType);
             stMember.stDataType.sName = rstStruct.sParentName;
             stMember.stDataType.sNamespace = rstStruct.sParentNamespace;
-//            stMember.stDataType.eType = ;
             rstStruct.lsMembers.push_front(stMember);
             rstStruct.sParentName.erase();
             rstStruct.sParentNamespace.erase();
