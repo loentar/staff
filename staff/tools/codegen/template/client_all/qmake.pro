@@ -11,7 +11,7 @@ CONFIG      -= app_bundle
 TEMPLATE     = app
 
 INCLUDEPATH += \$(STAFF_HOME)/include
-LIBS        += -L\$(STAFF_HOME)/lib -lstaffclient
+LIBS        += -L\$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient -lrise
 
 #var nLastInterface $(Project.Interfaces.$Count)
 #var nLastInterface $($nLastInterface.!dec)

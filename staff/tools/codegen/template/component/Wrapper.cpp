@@ -18,9 +18,6 @@
 #include <staff/component/ServiceInstanceManager.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
-#foreach $(Interface.Includes)
-#include "$(Include.FilePath)$(Include.Name)Wrapper.h"
-#end
 #include "$(Interface.FilePath)$(Interface.Name)Wrapper.h"
 
 #cginclude <common/Serialization.cpp>

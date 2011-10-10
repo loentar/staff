@@ -32,9 +32,16 @@ namespace staff
   {
   }
 
-  QName::QName(QName& rQName)
+  QName::QName(const QName& rQName)
   {
     operator=(rQName);
+  }
+
+  QName::QName(const std::string& sLocalPart):
+    m_bOwner(false),
+    m_pAxutilQName(NULL)
+  {
+    Create(sLocalPart);
   }
 
   QName::QName(const std::string& sLocalPart, const std::string& sNamespaceUri):
@@ -64,11 +71,12 @@ namespace staff
     }
   }
 
-  QName& QName::operator=(QName& rstQName)
+  QName& QName::operator=(const QName& rstQName)
   {
     Detach();
     m_bOwner = rstQName.m_bOwner;
     m_pAxutilQName = rstQName.m_pAxutilQName;
+    rstQName.m_bOwner = false;
     return *this;
   }
 
@@ -99,6 +107,11 @@ namespace staff
   bool QName::operator!=(axutil_qname_t* pQName) const
   {
     return !(operator==(pQName));
+  }
+
+  void QName::FromString(const std::string& sQName)
+  {
+    Create(sQName);
   }
 
   QName::operator std::string() const
@@ -136,8 +149,29 @@ namespace staff
 
   QName& QName::Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix /*= ""*/)
   {
-    axutil_qname_t* pAxutilQName = axutil_qname_create(m_pEnv,
-        sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
+    Detach();
+
+    axutil_qname_t* pAxutilQName = NULL;
+
+    if (sPrefix.empty())
+    {
+      std::string::size_type nPos = sLocalPart.find_last_of(':');
+      if (!nPos)
+      {
+        pAxutilQName = axutil_qname_create(m_pEnv, sLocalPart.c_str(), "", "");
+      }
+      else
+      {
+        pAxutilQName = axutil_qname_create(m_pEnv, sLocalPart.substr(0, nPos).c_str(),
+                                           "", sLocalPart.substr(0, nPos + 1).c_str());
+      }
+    }
+    else
+    {
+      pAxutilQName = axutil_qname_create(m_pEnv,
+          sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
+    }
+
     RISE_ASSERTES(pAxutilQName != NULL, DomFormatException, "Can\'t create AxiOM qname");
 
     m_pAxutilQName = pAxutilQName;
@@ -165,7 +199,9 @@ namespace staff
     if (m_pAxutilQName != NULL)
     {
       if(m_bOwner)
+      {
         Free();
+      }
       else
       {
         m_pAxutilQName = NULL;

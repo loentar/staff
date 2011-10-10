@@ -305,6 +305,7 @@ namespace staff
     void Create(const char* szLocalName, unsigned long long ullValue);
     void Create(const char* szLocalName, float fValue);
     void Create(const char* szLocalName, double dValue);
+    void Create(const char* szLocalName, const QName& rstQName);
 
     void Create(const std::string& sLocalName, bool bValue);
     void Create(const std::string& sLocalName, byte btValue);
@@ -319,6 +320,7 @@ namespace staff
     void Create(const std::string& sLocalName, unsigned long long ullValue);
     void Create(const std::string& sLocalName, float fValue);
     void Create(const std::string& sLocalName, double dValue);
+    void Create(const std::string& sLocalName, const QName& rstQName);
 
     //!         create named node, set ownership flag, set node value(string)
     /*! \param  szLocalName - node name(C-string)
@@ -459,6 +461,7 @@ namespace staff
     DataObject CreateChild(const char* szLocalName, unsigned long long ullValue);
     DataObject CreateChild(const char* szLocalName, float fValue);
     DataObject CreateChild(const char* szLocalName, double dValue);
+    DataObject CreateChild(const char* szLocalName, const QName& rstQName);
 
     DataObject CreateChild(const std::string& sLocalName, bool bValue);
     DataObject CreateChild(const std::string& sLocalName, byte btValue);
@@ -473,6 +476,7 @@ namespace staff
     DataObject CreateChild(const std::string& sLocalName, unsigned long long ullValue);
     DataObject CreateChild(const std::string& sLocalName, float fValue);
     DataObject CreateChild(const std::string& sLocalName, double dValue);
+    DataObject CreateChild(const std::string& sLocalName, const QName& rstQName);
 
     //!         create child node with local name and value
     /*! \param  szLocalName - child's local name(C-string)
@@ -750,6 +754,7 @@ namespace staff
     void SetValue(double dValue);
     void SetValue(const char* szText);
     void SetValue(const std::string& sText);
+    void SetValue(const QName& rstQName);
 
 
     // optimized get value functions
@@ -768,6 +773,7 @@ namespace staff
     bool GetValue(float& rfValue) const;
     bool GetValue(double& rdValue) const;
     void GetValue(std::string& sValue) const;
+    void GetValue(QName& rstQName) const;
 
     //!         get node value(copy)
     /*! \return node value(copy)
@@ -822,6 +828,7 @@ namespace staff
     bool GetChildValueByLocalName(const char* szLocalName, float& rfValue) const;
     bool GetChildValueByLocalName(const char* szLocalName, double& rdValue) const;
     void GetChildValueByLocalName(const char* szLocalName, std::string& sValue) const;
+    void GetChildValueByLocalName(const char* szLocalName, QName& rstQName) const;
     std::string GetChildTextByLocalName(const char* szLocalName) const;
 
 
@@ -839,6 +846,7 @@ namespace staff
     bool GetChildValueByLocalName(const std::string& sLocalName, float& rfValue) const;
     bool GetChildValueByLocalName(const std::string& sLocalName, double& rdValue) const;
     void GetChildValueByLocalName(const std::string& sLocalName, std::string& sValue) const;
+    void GetChildValueByLocalName(const std::string& sLocalName, QName& rstQName) const;
     std::string GetChildTextByLocalName(const std::string& sLocalName) const;
 
 
@@ -998,6 +1006,7 @@ namespace staff
     void CreateAttribute(const char* szAttrName, unsigned long long ullValue);
     void CreateAttribute(const char* szAttrName, float fValue);
     void CreateAttribute(const char* szAttrName, double dValue);
+    void CreateAttribute(const char* szAttrName, const QName& rstQName);
 
     void CreateAttribute(const std::string& sAttrName, bool bValue);
     void CreateAttribute(const std::string& sAttrName, byte btValue);
@@ -1012,6 +1021,7 @@ namespace staff
     void CreateAttribute(const std::string& sAttrName, unsigned long long ullValue);
     void CreateAttribute(const std::string& sAttrName, float fValue);
     void CreateAttribute(const std::string& sAttrName, double dValue);
+    void CreateAttribute(const std::string& sAttrName, const QName& rstQName);
 
     //!         create and add attribute
     /*! \param  szAttrName - attribute name (C-string)
@@ -1223,6 +1233,7 @@ namespace staff
     bool GetAttributeValueByName(const char *szLocalName, float& rfValue) const;
     bool GetAttributeValueByName(const char *szLocalName, double& rdValue) const;
     void GetAttributeValueByName(const char *szLocalName, std::string& sValue) const;
+    void GetAttributeValueByName(const char *szLocalName, QName& sValue) const;
 
     bool GetAttributeValueByName(const std::string& sLocalName, bool& rbValue) const;
     bool GetAttributeValueByName(const std::string& sLocalName, byte& rbtValue) const;
@@ -1238,6 +1249,7 @@ namespace staff
     bool GetAttributeValueByName(const std::string& sLocalName, float& rfValue) const;
     bool GetAttributeValueByName(const std::string& sLocalName, double& rdValue) const;
     void GetAttributeValueByName(const std::string& sLocalName, std::string& sValue) const;
+    void GetAttributeValueByName(const std::string& sLocalName, QName& sValue) const;
 
 
     //////////////////////////////////////////////////////////////////////////

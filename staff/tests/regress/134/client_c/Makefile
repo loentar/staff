@@ -3,7 +3,7 @@ all:
 
 
 clean:
-	rm test_client
+	rm -f test_client
 
 test: all
 	./test_client

@@ -8,7 +8,7 @@ LOGFILE := $(MAKECMDGOALS).log
 
 ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 
-MAKEFILE_PATHS := $(patsubst ./%/Makefile,%/_,$(shell find . -mindepth 2 -type f -name Makefile))
+MAKEFILE_PATHS := $(patsubst ./%/Makefile,%/_,$(shell find . -mindepth 2 -maxdepth 3 -type f -name Makefile))
 
 #
 #

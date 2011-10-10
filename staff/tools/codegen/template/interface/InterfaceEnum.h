@@ -1,5 +1,4 @@
 #ifeq($(Enum.Extern),0)
-#cginclude <common/StringTypes>
 \
 #var sNewOpeningNs $(Enum.OpeningNs)
 #var sNewEndningNs $(Enum.EndingNs)
