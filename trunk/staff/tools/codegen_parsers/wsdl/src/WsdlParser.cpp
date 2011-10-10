@@ -522,8 +522,45 @@ namespace codegen
       itAttr = rNodeAttr.FindAttribute("ref");
       if (itAttr != rNodeAttr.AttrEnd())
       {
-        bIsRef = true;
-        stType.FromType(rNodeAttr, itAttr->sAttrValue.AsString());
+        const std::string& sValue = itAttr->sAttrValue.AsString();
+        if (sValue.substr(0, 4) == "xml:")
+        {
+          const std::string& sName = StripPrefix(sValue);
+          std::string sPrefix = rNodeAttr.Namespace();
+          if (!sPrefix.empty())
+          {
+            sPrefix += ':';
+          }
+
+          if (sName == "base")
+          {
+            stType.FromType(rNodeAttr, sPrefix + "anyURI");
+          }
+          else
+          if (sName == "lang")
+          {
+            stType.FromType(rNodeAttr, sPrefix + "lang");
+          }
+          else
+          if (sName == "space")
+          {
+            stType.FromType(rNodeAttr, sPrefix + "NCName");
+          }
+          else
+          if (sName == "id")
+          {
+            stType.FromType(rNodeAttr, sPrefix + "ID");
+          }
+          else
+          {
+            rise::LogError() << "Invalid xml ref: [" << sValue << "]";
+          }
+        }
+        else
+        {
+          bIsRef = true;
+          stType.FromType(rNodeAttr, sValue);
+        }
       }
     }
 
@@ -652,7 +689,9 @@ namespace codegen
             const rise::xml::CXMLNode& rSubChild = *itSubChild;
             if (rSubChild.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
             {
-              if (rSubChild.NodeName() == "enumeration")
+              const std::string& sSubChildNodeName = rSubChild.NodeName();
+
+              if (sSubChildNodeName == "enumeration")
               {
                 Enum::EnumMember stMember;
                 const std::string& sValue = rSubChild.Attribute("value").AsString();
@@ -681,12 +720,34 @@ namespace codegen
                 lsEnumMembers.push_back(stMember);
               }
               else
+              if (sSubChildNodeName != "annotation" && sSubChildNodeName != "documentation")
               {
-                lsRestrictions.push_back(StringPair(rSubChild.NodeName(),
+                lsRestrictions.push_back(StringPair(sSubChildNodeName,
                                                   rSubChild.Attribute("value").AsString()));
               }
             }
           }
+        }
+        else
+        if (sNodeName == "union")
+        { // represent union as string
+          lsRestrictions.push_back(StringPair(sNodeName, itChild->Attribute("memberTypes").AsString()));
+
+          stBaseType.sName = "string";
+          stBaseType.sNamespace = "http://www.w3.org/2001/XMLSchema";
+        }
+        else
+        if (sNodeName == "list")
+        { // represent union as string
+          lsRestrictions.push_back(StringPair(sNodeName, itChild->Attribute("itemType").AsString()));
+
+          stBaseType.sName = "string";
+          stBaseType.sNamespace = "http://www.w3.org/2001/XMLSchema";
+        }
+        else
+        if (sNodeName != "annotation" && sNodeName != "documentation")
+        {
+          rise::LogWarning() << "Unsupported [" << sNodeName << "] in simple type";
         }
       }
     }
@@ -1204,7 +1265,7 @@ namespace codegen
 
                 // find child complex type
                 const ComplexType* pComplexType =
-                    FindQNameType(rChildElement.stType.sName, rChildElement.sNamespace,
+                    FindQNameType(rChildElement.stType.sName, rChildElement.stType.sNamespace,
                                   m_stWsdlTypes.lsComplexTypes);
                 if (pComplexType)
                 {
@@ -1330,7 +1391,7 @@ namespace codegen
 
         {// search in complex types
           ComplexType* pComplexType =
-              FindQNameType(rElement.stType.sName, rElement.sNamespace, m_stWsdlTypes.lsComplexTypes);
+              FindQNameType(rElement.stType.sName, rElement.stType.sNamespace, m_stWsdlTypes.lsComplexTypes);
           if (pComplexType)
           {
             ComplexType& rComplexType = *pComplexType;
@@ -1356,7 +1417,7 @@ namespace codegen
           else // search in simple types
           {
             const SimpleType* pSimpleType =
-                FindQNameType(rElement.stType.sName, rElement.sNamespace, m_stWsdlTypes.lsSimpleTypes);
+                FindQNameType(rElement.stType.sName, rElement.stType.sNamespace, m_stWsdlTypes.lsSimpleTypes);
             if (!pSimpleType)
             {
               // type is generic or unknown
@@ -1905,25 +1966,35 @@ namespace codegen
 
         if (bRemote)
         {
-          std::string sFileData;
-          rise::LogDebug() << "Downloading the " << sFileUri;
-          RISE_ASSERTS(HttpClient::Get(sFileUri, sFileData), "Can't download file: " + sFileUri);
-          if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
+          std::ifstream ifStream(sInterfaceFileName.c_str());
+          if (ifStream.good())
           {
-            std::cout << "saving " << sInterfaceFileName << std::endl;
-            std::ofstream ofStream(sInterfaceFileName.c_str());
-            if (!ofStream.good())
-            {
-              rise::LogWarning() << "Can't open file [" << sInterfaceFileName << "]";
-            }
-            else
-            {
-              ofStream << sFileData;
-              ofStream.close();
-            }
+            std::cout << "Using cached [" << sInterfaceFileName << "] for " << sFileUri << std::endl;
+            tWsdlDoc.LoadFromStream(ifStream);
+            ifStream.close();
           }
-          std::istringstream issData(sFileData);
-          tWsdlDoc.LoadFromStream(issData);
+          else
+          {
+            std::string sFileData;
+            std::cout << "Downloading the " << sFileUri << std::endl;
+            RISE_ASSERTS(HttpClient::Get(sFileUri, sFileData), "Can't download file: " + sFileUri);
+            if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
+            {
+              std::cout << "Saving [" << sInterfaceFileName << "]" << std::endl;
+              std::ofstream ofStream(sInterfaceFileName.c_str());
+              if (!ofStream.good())
+              {
+                rise::LogWarning() << "Can't save [" << sInterfaceFileName << "]";
+              }
+              else
+              {
+                ofStream << sFileData;
+                ofStream.close();
+              }
+            }
+            std::istringstream issData(sFileData);
+            tWsdlDoc.LoadFromStream(issData);
+          }
         }
         else
         {
@@ -1935,20 +2006,6 @@ namespace codegen
         {
           m_stInterface.sTargetNs = itTns->sAttrValue.AsString();
         }
-//        else
-//        {
-//          if (sDefaultTns.empty())
-//          {
-//            m_stInterface.sTargetNs = sFileUri.find("://") != std::string::npos ? sFileUri :
-//                                        "http://tempui.org/" + sFileUri;
-//            rise::LogDebug() << "Generating tns: for " << sFileUri << " [" << m_stInterface.sTargetNs << "]";
-//          }
-//          else
-//          {
-//            m_stInterface.sTargetNs = sDefaultTns;
-//          }
-//          rDefs.AddAttribute("targetNamespace", m_stInterface.sTargetNs);
-//        }
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
@@ -1978,6 +2035,7 @@ namespace codegen
             break;
           }
         }
+        FixId(m_stInterface.sName);
 
         rProject.lsInterfaces.push_back(m_stInterface);
         Interface& rProjectThisInterface = rProject.lsInterfaces.back();
@@ -1987,6 +2045,8 @@ namespace codegen
         // fix enum member names
         FixEnums(m_stInterface.lsEnums, m_stInterface.lsStructs, &m_stInterface.lsTypedefs);
         FixEnumsInStruct(m_stInterface.lsStructs);
+
+        FixStructInheritance(m_stInterface.lsStructs);
 
         // fix structures
         FixStructOrder(m_stInterface.lsStructs);
@@ -2100,77 +2160,82 @@ namespace codegen
       // write typedef
       else
       {
-        std::list<Typedef>::iterator itTypedef = m_stInterface.lsTypedefs.begin();
-        for (; itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
+        if (rSimpleType.sName.empty())
         {
-          if (itTypedef->sName == rSimpleType.sName)
-          {
-            break;
-          }
-        }
-
-        if (itTypedef != m_stInterface.lsTypedefs.end() && !itTypedef->bForward)
-        {
-          stDataType.eType = DataType::TypeTypedef;
-          stDataType.sName = itTypedef->sName;
-          stDataType.sNamespace = itTypedef->sNamespace;
+          GetCppType(rSimpleType.stBaseType, stDataType);
         }
         else
-        if (!rSimpleType.sName.empty())
         {
-          Typedef* pstTypedef = NULL;
-          if (itTypedef == m_stInterface.lsTypedefs.end())
+          std::string sTypedefName = rSimpleType.sName;
+          bool bNameFixed = FixId(sTypedefName);
+
+          std::list<Typedef>::iterator itTypedef = m_stInterface.lsTypedefs.begin();
+          for (; itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
           {
-            Typedef stTypedef;
-            stTypedef.sName = rSimpleType.sName;
-            if (!FixId(stTypedef.sName))
+            if (itTypedef->sName == sTypedefName)
             {
-              stTypedef.mOptions["elementName"] = rSimpleType.sName;
+              break;
             }
-            stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
-            stTypedef.sDescr = rSimpleType.sDescr;
-            stTypedef.sDetail = rSimpleType.sDetail;
+          }
 
-            m_stInterface.lsTypedefs.insert(m_stInterface.lsTypedefs.end(), stTypedef);
-
-            pstTypedef = &m_stInterface.lsTypedefs.back();
+          if (itTypedef != m_stInterface.lsTypedefs.end() && !itTypedef->bForward)
+          {
+            stDataType.eType = DataType::TypeTypedef;
+            stDataType.sName = itTypedef->sName;
+            stDataType.sNamespace = itTypedef->sNamespace;
           }
           else
           {
-            pstTypedef = &*itTypedef;
-          }
-
-          stDataType.eType = DataType::TypeTypedef;
-          stDataType.sName = pstTypedef->sName;
-          stDataType.sNamespace = pstTypedef->sNamespace;
-
-          if (bWriteAsForward)
-          {
-            return stDataType;
-          }
-
-          DataType stTypedefDataType;
-          GetCppType(rSimpleType.stBaseType, stTypedefDataType);
-          if (stTypedefDataType.eType == DataType::TypeUnknown)
-          {
-            DataTypeFromName(rSimpleType.stBaseType.sName, rSimpleType.stBaseType.sNamespace,
-                             stTypedefDataType, rWsdlTypes);
-          }
-          pstTypedef->stDataType = stTypedefDataType;
-
-
-          if (!rSimpleType.lsRestrictions.empty())
-          {
-            for (std::list< SimpleType::StringPair >::const_iterator itRestr = rSimpleType.lsRestrictions.begin();
-                 itRestr != rSimpleType.lsRestrictions.end(); ++itRestr)
+            Typedef* pstTypedef = NULL;
+            if (itTypedef == m_stInterface.lsTypedefs.end())
             {
-              pstTypedef->mOptions["restriction-" + itRestr->first] = itRestr->second;
+              Typedef stTypedef;
+              stTypedef.sName = sTypedefName;
+              if (bNameFixed)
+              {
+                stTypedef.mOptions["elementName"] = rSimpleType.sName;
+              }
+              stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
+              stTypedef.sDescr = rSimpleType.sDescr;
+              stTypedef.sDetail = rSimpleType.sDetail;
+
+              m_stInterface.lsTypedefs.insert(m_stInterface.lsTypedefs.end(), stTypedef);
+
+              pstTypedef = &m_stInterface.lsTypedefs.back();
+            }
+            else
+            {
+              pstTypedef = &*itTypedef;
+            }
+
+            stDataType.eType = DataType::TypeTypedef;
+            stDataType.sName = pstTypedef->sName;
+            stDataType.sNamespace = pstTypedef->sNamespace;
+
+            if (bWriteAsForward)
+            {
+              return stDataType;
+            }
+
+            DataType stTypedefDataType;
+            GetCppType(rSimpleType.stBaseType, stTypedefDataType);
+            if (stTypedefDataType.eType == DataType::TypeUnknown)
+            {
+              DataTypeFromName(rSimpleType.stBaseType.sName, rSimpleType.stBaseType.sNamespace,
+                               stTypedefDataType, rWsdlTypes);
+            }
+            pstTypedef->stDataType = stTypedefDataType;
+
+
+            if (!rSimpleType.lsRestrictions.empty())
+            {
+              for (std::list< SimpleType::StringPair >::const_iterator itRestr = rSimpleType.lsRestrictions.begin();
+                   itRestr != rSimpleType.lsRestrictions.end(); ++itRestr)
+              {
+                pstTypedef->mOptions["restriction-" + itRestr->first] = itRestr->second;
+              }
             }
           }
-        }
-        else
-        {
-          GetCppType(rSimpleType.stBaseType, stDataType);
         }
       }
 
@@ -2302,7 +2367,6 @@ namespace codegen
     }
 
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
-                               const std::string& sForceParentName = "", const std::string& sForceParentNs = "",
                                Struct* pstOwnerStruct = NULL)
     {
       DataType stDataType;
@@ -2436,30 +2500,13 @@ namespace codegen
           }
 
           // inheritance
-          if (!sForceParentName.empty())
-          {
-            stStruct.sParentName = sForceParentName;
-          }
-          else
-          {
-            stStruct.sParentName = StripPrefix(rComplexType.sParentName);
-          }
-
+          stStruct.sParentName = StripPrefix(rComplexType.sParentName);
           if (!stStruct.sParentName.empty())
           {
-            if (!sForceParentNs.empty())
-            {
-              stStruct.sParentNamespace = sForceParentNs;
-            }
-            else
-            {
-              DataType stParentType;
-              GetCppType(rComplexType.sParentName, rComplexType.sParentNs, stParentType);
-
-              stStruct.sParentNamespace = stParentType.sNamespace;
-              stStruct.sParentName = stParentType.sName;
-//              OptimizeCppNs(stStruct.sParentName, m_stInterface.sNamespace);
-            }
+            DataType stParentType;
+            GetCppType(rComplexType.sParentName, rComplexType.sParentNs, stParentType);
+            stStruct.sParentNamespace = stParentType.sNamespace;
+            stStruct.sParentName = stParentType.sName;
           }
 
           std::string::size_type nPos = stStruct.sName.rfind("::");
@@ -2531,9 +2578,9 @@ namespace codegen
             stMember.mOptions["elementName"] = StripPrefix(pElement->sName);
           }
 
-          if (!itElement->bIsRef)
-          {
-            ElementToData(*itElement, stMember.stDataType, rWsdlTypes, "", "", pstStruct);
+          if (!itElement->bIsRef && itElement->stType.sName.empty())
+          { // inline element
+            ElementToData(*itElement, stMember.stDataType, rWsdlTypes, pstStruct);
           }
           else
           {
@@ -2702,7 +2749,6 @@ namespace codegen
     }
 
     void ElementToData(const Element& rElement, DataType& rDataType, const WsdlTypes& rWsdlTypes,
-                       const std::string& sForceParentName = "", const std::string& sForceParentNs = "",
                        Struct* pstOwnerStruct = NULL)
     {
       const Element* pElement = &rElement;
@@ -2710,7 +2756,7 @@ namespace codegen
 
       while (pElement->bIsRef)
       {
-        Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->sNamespace,
+        Element* pTargetElem = FindQNameType(pElement->stType.sName, pElement->stType.sNamespace,
                                              m_stWsdlTypes.lsElements);
 
         RISE_ASSERTS(pTargetElem, "Can't find element declaration for: [" + pElement->stType.GetNsName()
@@ -2737,18 +2783,17 @@ namespace codegen
           for (std::list<ComplexType>::const_iterator itComplexSubtype = pElement->lsComplexTypes.begin();
             itComplexSubtype != pElement->lsComplexTypes.end(); ++itComplexSubtype)
           {
-            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, sForceParentName, sForceParentNs,
-                                          pstOwnerStruct);
+            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, pstOwnerStruct);
           }
         }
         else // reference to type
         {
           ComplexType* pComplexType =
-              FindQNameType(pElement->stType.sName, pElement->sNamespace, m_stWsdlTypes.lsComplexTypes);
+              FindQNameType(pElement->stType.sName, pElement->stType.sNamespace, m_stWsdlTypes.lsComplexTypes);
           if (!pComplexType)
           {
             const SimpleType* pSimpleType =
-                FindQNameType(pElement->stType.sName, pElement->sNamespace, m_stWsdlTypes.lsSimpleTypes);
+                FindQNameType(pElement->stType.sName, pElement->stType.sNamespace, m_stWsdlTypes.lsSimpleTypes);
             if (pSimpleType)
             {
               rDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
@@ -2756,7 +2801,7 @@ namespace codegen
           }
           else
           {
-            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, "", "", pstOwnerStruct);
+            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, pstOwnerStruct);
           }
         }
       }
@@ -2769,8 +2814,7 @@ namespace codegen
         else
         if (!pElement->lsComplexTypes.empty())
         {
-          rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes,
-                                        sForceParentName, sForceParentNs, pstOwnerStruct);
+          rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes, pstOwnerStruct);
         }
         else
         {
@@ -3104,6 +3148,33 @@ namespace codegen
       {
         FixEnums(itStruct->lsEnums, itStruct->lsStructs);
         FixEnumsInStruct(itStruct->lsStructs);
+      }
+    }
+
+    void FixStructInheritance(std::list<Struct>& rlsStruct)
+    {
+      for (std::list<Struct>::iterator itStruct = rlsStruct.begin();
+           itStruct != rlsStruct.end(); ++itStruct)
+      {
+        Struct& rstStruct = *itStruct;
+        if (!rstStruct.sParentName.empty())
+        {
+          const std::string& sParentNsName = rstStruct.sParentNamespace + rstStruct.sParentName;
+          const Struct* pstParent = GetStruct(sParentNsName, m_stInterface);
+          if (!pstParent)
+          {
+            Param stMember;
+            stMember.mOptions["useParentElement"] = "true";
+            stMember.sName = "tParent";
+            stMember.stDataType.sName = rstStruct.sParentName;
+            stMember.stDataType.sNamespace = rstStruct.sParentNamespace;
+//            stMember.stDataType.eType = ;
+            rstStruct.lsMembers.push_front(stMember);
+            rstStruct.sParentName.erase();
+            rstStruct.sParentNamespace.erase();
+          }
+        }
+        FixStructInheritance(rstStruct.lsStructs);
       }
     }
 

@@ -8,7 +8,12 @@
 #include <string>
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/component/ServiceWrapper.h>
+#ifeqend
+#foreach $(Interface.Includes)
+#include "$(Include.FilePath)$(Include.Name)Wrapper.h"
+#end
 #include "$(Interface.FilePath)$(Interface.Name).h"
+#ifneq($(Interface.Classes.$Count),0)
 
 namespace staff
 {
@@ -98,9 +103,6 @@ $(Class.EndingNs)
 
 #end
 #ifeqend // serializators
-#ifeq($(Interface.Classes.$Count),0)
-#include "$(Interface.FilePath)$(Interface.Name).h"
-#ifeqend
 
 #cginclude <common/Serialization.h>
 

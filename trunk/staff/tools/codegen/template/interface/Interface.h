@@ -4,6 +4,7 @@
 #ifndef _$(Interface.Name)_h_
 #define _$(Interface.Name)_h_
 
+#cginclude <common/StringTypes>
 #cginclude "DetectIncludes.h"
 #foreach $(Interface.Includes)
 #include "$(Include.FilePath)$(Include.Name).h"

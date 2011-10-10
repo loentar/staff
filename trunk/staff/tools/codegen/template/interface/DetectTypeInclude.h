@@ -17,7 +17,7 @@
 #else
 #ifeq($(.Namespace),staff::)
 \
-#ifeq($(.Name),DataObject||Abstract||Attribute||Operation||ICallback)
+#ifeq($(.Name),DataObject||Abstract||Attribute||QName||Operation||ICallback)
 #ifneq($($aStaffIncludes.!match/$(.Name).h/),true)
 #var aStaffIncludes $($aStaffIncludes)[staff/common/$(.Name).h]
 #ifeqend
@@ -32,6 +32,18 @@
 #var aStaffIncludes $($aStaffIncludes)[staff/common/Attribute.h]
 #ifeqend // any attribute
 #ifeqend // any attribute
+\
+#ifeq($(.Name),hexBinary)
+#ifneq($($aStaffIncludes.!match/HexBinary.h/),true)
+#var aStaffIncludes $($aStaffIncludes)[staff/utils/HexBinary.h]
+#ifeqend
+#ifeqend
+\
+#ifeq($(.Name),base64Binary)
+#ifneq($($aStaffIncludes.!match/Base64Binary.h/),true)
+#var aStaffIncludes $($aStaffIncludes)[staff/utils/Base64Binary.h]
+#ifeqend
+#ifeqend
 \
 #ifeqend // staff types
 #ifeqend // staff

@@ -46,7 +46,12 @@ namespace staff
     //!        constructor with ownership transfer
     /*! \param  rstQName - existing QName
         */
-    QName(QName& rstQName);
+    QName(const QName& rstQName);
+
+    //!         initializing constructor
+    /*! \param  sLocalPart - local part (may contain prefix)
+        */
+    QName(const std::string& sLocalPart);
 
     //!         initializing constructor
     /*! \param  sLocalPart - local part (may contain prefix)
@@ -68,7 +73,7 @@ namespace staff
     /*! \param  rQName - source QName
         \return reference to current QName
         */
-    QName& operator=(QName& rQName);
+    QName& operator=(const QName& rQName);
 
     //!         initialization operator
     /*! \param  pQName - AxiOM QName
@@ -119,12 +124,13 @@ namespace staff
     // create/delete
     
     //!         create QName with ownership flag
-    /*! \param  sLocalPart - local part
+    /*! \param  sLocalPart - local part (can contain prefix)
         \param  sNamespaceUri - namespace URI
         \param  sPrefix - prefix
         \return reference to current QName
         */
-    QName& Create(const std::string& sLocalPart, const std::string& sNamespaceUri, const std::string& sPrefix = "");
+    QName& Create(const std::string& sLocalPart, const std::string& sNamespaceUri = "",
+                  const std::string& sPrefix = "");
 
     //!         free QName (even if ownership flag is not set)
     void Free();
@@ -150,6 +156,11 @@ namespace staff
     */
     QName Clone();
 
+    //!         string cast
+    /*! \return prefix:localPart
+    */
+    void FromString(const std::string& sQName);
+
     //!         string cast operator
     /*! \return prefix:localPart
     */
@@ -171,7 +182,7 @@ namespace staff
     operator axutil_qname_t*();
 
   private:
-    bool m_bOwner;                   //!<  ownership flag
+    mutable bool m_bOwner;           //!<  ownership flag
     axutil_qname_t* m_pAxutilQName;  //!<  AxiOM qname
     static axutil_env_t* m_pEnv;     //!<  Axis2/C environment
   };

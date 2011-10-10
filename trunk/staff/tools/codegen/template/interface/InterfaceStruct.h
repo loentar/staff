@@ -58,10 +58,15 @@ $($sNewOpeningNs)
 , \
 #ifeqend
 #var nDefFirst 1
-#ifeq($(Param.DataType.Type),string)
+#ifeq($(Param.DataType.Type),template)
+#var sDefValueType $(Param.DataType.TemplateParams.TemplateParam1.Name)
+#else
+#var sDefValueType $(Param.DataType.Name)
+#ifeqend
+#ifeq($($sDefValueType),$($sStringTypes))
 $(Param.Name)("$(Param.Options.*defaultValue)")\
 #else
-#ifeq($(Param.DataType.Name),char)
+#ifeq($($sDefValueType),char)
 $(Param.Name)('$(Param.Options.*defaultValue)')\
 #else
 $(Param.Name)($(Param.Options.*defaultValue))\

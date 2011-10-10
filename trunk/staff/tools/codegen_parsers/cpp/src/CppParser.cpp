@@ -1169,10 +1169,23 @@ namespace codegen
           std::string sName;
           SkipWs();
           ReadBefore(sName, " \r\n\t;{}");
-          SkipWs();
 
-          char chData = m_tFile.peek();
-          if (chData == ';' || chData == ':' || chData == '{')
+          bool bNestedStruct = false;
+
+          if (!sName.empty() && *sName.rbegin() == ':')
+          {
+            sName.resize(sName.size() - 1);
+            bNestedStruct = true;
+            m_tFile.unget();
+          }
+          else
+          {
+            SkipWs();
+            char chData = m_tFile.peek();
+            bNestedStruct = chData == ';' || chData == ':' || chData == '{';
+          }
+
+          if (bNestedStruct)
           { // nested struct
             Struct& rstStruct = TypeInList(rStruct.lsStructs, sName, m_sCurrentNamespace, sOwnerName);
 
@@ -1187,7 +1200,7 @@ namespace codegen
             continue;
           }
           else
-          {
+          { // struct ::ns::Struct1 struct1;
             stParamTmp.stDataType.sPrefix = sToken;
             sToken += " " + sName;
           }
