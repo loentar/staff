@@ -187,7 +187,6 @@ namespace codegen
 
     static std::string sEmptyTns;
     return sEmptyTns;
-//    RISE_THROWS(rise::CLogicNoItemException, "Can't find target namespace for: " + rise::ToStr(rNode));
   }
 
   std::string FindNamespaceUri( const rise::xml::CXMLNode& rNode, const std::string& sPrefix )
@@ -205,13 +204,12 @@ namespace codegen
       }
     }
 
-    if (sPrefix.empty())
+    if (!sPrefix.empty())
     {
-      return GetTns(rNode);
+      rise::LogWarning() << "Can't find prefix declaration [" << sPrefix
+                         << "] for node [" << rNode.GetNodeNsName() << "]";
     }
 
-    rise::LogWarning() << "Can't find prefix declaration [" << sPrefix
-                       << "] for node [" << rNode.GetNodeNsName() << "]";
     return "";
   }
 
@@ -1128,361 +1126,6 @@ namespace codegen
       return false;
     }
 
-    void ParsePartElement(const Element& rElement, Member& rMember, bool bIsResponse, int nRecursionLevel = 0)
-    {
-      // parse element operation parameters
-      // declared as complex type
-      if (!rElement.lsComplexTypes.empty())
-      {
-        // inline complex type
-        for (std::list<ComplexType>::const_iterator itComplexType = rElement.lsComplexTypes.begin();
-          itComplexType != rElement.lsComplexTypes.end(); ++itComplexType)
-        {
-          const ComplexType& rComplexType = *itComplexType;
-          if (bIsResponse && rComplexType.lsElements.empty())
-          {
-            rMember.stReturn.stDataType.sName = "void";
-          }
-          else
-          {
-            for (std::list<Element>::const_iterator itParamElement = rComplexType.lsElements.begin();
-              itParamElement != rComplexType.lsElements.end(); ++itParamElement)
-            {
-              const Element& rChildElement = *itParamElement;
-              if (!rChildElement.stType.sName.empty()) // type is set: processing elem as struct
-              {
-                Param stParam;
-
-                DataType stDataType;
-
-                // trying to parse attached schema to "any" using namespace
-                if (rChildElement.stType.sName != "DataObject" || rChildElement.sNamespace.empty()
-                    || !ParseTypeAny(rChildElement, stDataType))
-                {
-                  GetCppType(rChildElement.stType, stDataType);
-                }
-                const std::string& sElemName = rChildElement.bIsRef ? rChildElement.stType.sName
-                                                                     : rChildElement.sName;
-                stParam.sName = sElemName;
-                if (FixId(stParam.sName))
-                {
-                  stParam.mOptions["elementName"] = sElemName;
-                }
-                else
-                if (stDataType.sName == stParam.sName)
-                {
-                  stParam.mOptions["elementName"] = sElemName;
-//                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
-                }
-                if (rChildElement.bIsArray)
-                {
-                  if (!nRecursionLevel)
-                  {
-                    stParam.mOptions["elementName"] = sElemName;
-                    stParam.mOptions["useParentElement"] = "true";
-                  }
-                  WrapTypeInTemplate(stParam.stDataType, "list", "std::");
-                }
-                else
-                {
-//                  stDataType.sUsedName = stDataType.sNamespace + stDataType.sName;
-//                  OptimizeCppNs(stDataType.sUsedName, m_stInterface.sNamespace);
-                  stParam.stDataType = stDataType;
-                }
-
-                if (!rComplexType.lsAttributes.empty() || rComplexType.bHasAnyAttribute)
-                {
-                  // create structure-wrapper for element with attributes
-                  Struct stStruct;
-                  stStruct.bForward = false;
-                  stStruct.sName = rElement.sName;
-                  FixId(stStruct.sName);
-                  stStruct.sNamespace = TnsToCppNs(rElement.sNamespace);
-                  stStruct.sDescr = rElement.sDescr;
-                  stStruct.sDetail = rElement.sDetail;
-
-                  stParam.mOptions["useParentElement"] = "true";
-                  stStruct.lsMembers.push_back(stParam);
-
-                  for (std::list<Attribute>::const_iterator itAttr = rComplexType.lsAttributes.begin();
-                    itAttr != rComplexType.lsAttributes.end(); ++itAttr)
-                  {
-                    Param stMember;
-                    stMember.mOptions["isAttribute"] = "true";
-                    if (!itAttr->sDefault.empty())
-                    {
-                      stMember.mOptions["defaultValue"] = itAttr->sDefault;
-                    }
-                    stMember.sName = itAttr->sName;
-                    if (FixId(stMember.sName))
-                    {
-                      stParam.mOptions["elementName"] = itAttr->sName;
-                    }
-                    if (itAttr->stType.sName.empty()) // use string as default attribute value type
-                    {
-                      stMember.stDataType.sName = "string";
-                      stMember.stDataType.sNamespace = "std::";
-//                      stMember.stDataType.sUsedName = "std::string";
-                      stMember.stDataType.eType = DataType::TypeString;
-                    }
-                    else
-                    {
-                      GetCppType(itAttr->stType, stMember.stDataType);
-//                      stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-//                      OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
-                    }
-                    if (itAttr->bIsOptional)
-                    {
-                      WrapTypeInTemplate(stMember.stDataType, "Optional");
-                    }
-                    stMember.sDescr = itAttr->sDescr;
-                    stMember.sDetail = itAttr->sDetail;
-                    stStruct.lsMembers.push_back(stMember);
-                  }
-
-                  if (rComplexType.bHasAnyAttribute)
-                  {
-                    Param stMember;
-                    stMember.sName = "lsAnyAttributes";
-                    stMember.stDataType.sName = "anyAttribute";
-                    stMember.stDataType.sNamespace = "staff::";
-//                    stMember.stDataType.sUsedName = "staff::anyAttribute";
-                    stMember.stDataType.eType = DataType::TypeGeneric;
-                    stMember.sDescr = rComplexType.sAnyAttrDescr;
-                    stStruct.lsMembers.push_back(stMember);
-                  }
-
-                  m_stInterface.lsStructs.push_back(stStruct);
-
-                  stParam.stDataType.eType = DataType::TypeStruct;
-                  stParam.stDataType.sName = stStruct.sName;
-                  stParam.stDataType.sNamespace = stStruct.sNamespace;
-//                  stParam.stDataType.sUsedName = stStruct.sNamespace + stParam.stDataType.sName;
-                  stParam.stDataType.lsParams.clear();
-                }
-
-//                OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
-
-                // find child complex type
-                const ComplexType* pComplexType =
-                    FindQNameType(rChildElement.stType.sName, rChildElement.stType.sNamespace,
-                                  m_stWsdlTypes.lsComplexTypes);
-                if (pComplexType)
-                {
-                  const ComplexType& rChildComplexType = *pComplexType;
-
-                  if (rChildComplexType.bIsAbstract)
-                  {
-                    WrapTypeInTemplate(stParam.stDataType, "Abstract");
-                  }
-                }
-
-                if (!bIsResponse)
-                { // request
-                  if (rElement.bIsOptional || rChildElement.bIsOptional)
-                  {
-                    WrapTypeInTemplate(stParam.stDataType, "Optional");
-                  }
-                  else
-                  if (rElement.bIsNillable || rChildElement.bIsNillable)
-                  {
-                    WrapTypeInTemplate(stParam.stDataType, "Nillable");
-                  }
-
-                  FixParamDataType(stParam.stDataType);
-
-                  rMember.lsParams.push_back(stParam);
-                  if (nRecursionLevel == 0 && rElement.sName != rMember.sName)
-                  {
-                    rMember.mOptions["requestElement"] = rElement.sName;
-                  }
-
-                }
-                else
-                { // response
-                  if (nRecursionLevel == 0)
-                  {
-                    if (rElement.sName != (rMember.sName + "Result"))
-                    {
-                      rMember.mOptions["responseElement"] = rElement.sName;
-                    }
-                    if (!rChildElement.sName.empty() && !rChildElement.bIsArray)
-                    {
-                      rMember.mOptions["resultElement"] = rChildElement.sName;
-                    }
-                    if (rElement.bIsNillable) // for response we assume nillable as optional
-                    {
-                      WrapTypeInTemplate(stParam.stDataType, "Optional");
-                    }
-                  }
-                  else
-                  if (nRecursionLevel == 1)
-                  {
-                    rMember.mOptions["resultElement"] = rElement.sName;
-                    if (rChildElement.bIsOptional)
-                    {
-                      WrapTypeInTemplate(stParam.stDataType, "Optional");
-                    }
-                    else
-                    if (rChildElement.bIsNillable)
-                    {
-                      WrapTypeInTemplate(stParam.stDataType, "Nillable");
-                    }
-                  }
-                  rMember.stReturn = stParam;
-                }
-              }
-              else // type is not set: processing as inline complex or simple type
-              {
-                if (nRecursionLevel == 0)
-                {
-                  if (bIsResponse)
-                  {
-                    if (rElement.sName != (rMember.sName + "Result"))
-                    {
-                      rMember.mOptions["responseElement"] = rElement.sName;
-                    }
-                  }
-                  else
-                  {
-                    if (rElement.sName != rMember.sName)
-                    {
-                      rMember.mOptions["requestElement"] = rElement.sName;
-                    }
-                  }
-                }
-                ParsePartElement(rChildElement, rMember, bIsResponse, nRecursionLevel + 1);
-              }
-            }
-          }
-        }
-      }
-      else
-      if (!rElement.lsSimpleTypes.empty())
-      { // simple type
-        Param stParam;
-        stParam.sName = rElement.sName;
-        if (FixId(stParam.sName))
-        {
-          stParam.mOptions["elementName"] = rElement.sName;
-        }
-        stParam.stDataType = SimpleTypeToData(rElement.lsSimpleTypes.front(), m_stWsdlTypes);
-//        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-
-        if (bIsResponse)
-        {
-          rMember.stReturn = stParam;
-        }
-        else
-        {
-          FixParamDataType(stParam.stDataType);
-          rMember.lsParams.push_back(stParam);
-        }
-      }
-      else
-      { // reference to type
-        Param stParam;
-
-        stParam.sName = rElement.sName;
-        if (FixId(stParam.sName))
-        {
-          stParam.mOptions["elementName"] = rElement.sName;
-        }
-
-        {// search in complex types
-          ComplexType* pComplexType =
-              FindQNameType(rElement.stType.sName, rElement.stType.sNamespace, m_stWsdlTypes.lsComplexTypes);
-          if (pComplexType)
-          {
-            ComplexType& rComplexType = *pComplexType;
-            rComplexType.bIsMessagePart = true;
-
-            if (!rComplexType.bIsAbstract && rComplexType.lsElements.empty())
-            { // assume void type
-              stParam.stDataType.sName = "void";
-            }
-            else
-            {
-              stParam.stDataType = ComplexTypeToData(rComplexType, m_stWsdlTypes);
-            }
-
-//            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-//            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
-            if (rComplexType.bIsAbstract)
-            {
-              WrapTypeInTemplate(stParam.stDataType, "Abstract");
-            }
-
-          }
-          else // search in simple types
-          {
-            const SimpleType* pSimpleType =
-                FindQNameType(rElement.stType.sName, rElement.stType.sNamespace, m_stWsdlTypes.lsSimpleTypes);
-            if (!pSimpleType)
-            {
-              // type is generic or unknown
-              GetCppType(rElement.stType, stParam.stDataType);
-              if (stParam.stDataType.eType == DataType::TypeUnknown)
-              {
-                rise::LogError() << "Cannot detect type of " << rElement.stType.GetNsName()
-                     << " interface name: " << m_stInterface.sName;
-              }
-            }
-            else
-            {
-              stParam.stDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
-            }
-//            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-//            OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
-          }
-        }
-
-        if (!bIsResponse)
-        {  // set node name for request
-          if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
-          {
-            WrapTypeInTemplate(stParam.stDataType, "Optional");
-          }
-          else
-          if (rElement.bIsNillable)
-          {
-            WrapTypeInTemplate(stParam.stDataType, "Nillable");
-          }
-
-          FixParamDataType(stParam.stDataType);
-
-          if (!nRecursionLevel && rElement.sName != rMember.sName)
-          {
-            rMember.mOptions["requestElement"] = rElement.sName;
-          }
-
-          rMember.mOptions["inlineRequestElement"] = "true";
-
-          rMember.lsParams.push_back(stParam);
-        }
-        else
-        {
-          if (!nRecursionLevel && rElement.sName != (rMember.sName + "Result"))
-          {
-            rMember.mOptions["responseElement"] = rElement.sName;
-          }
-
-          if (rElement.bIsOptional || (!nRecursionLevel && rElement.bIsNillable))
-          {
-            WrapTypeInTemplate(stParam.stDataType, "Optional");
-          }
-          else
-          if (rElement.bIsNillable)
-          {
-            WrapTypeInTemplate(stParam.stDataType, "Nillable");
-          }
-
-          rMember.stReturn = stParam;
-        }
-      }
-
-    }
-
     // part is an params list or result
     void ParsePart(Member& rMember, const rise::xml::CXMLNode& rPart,
                    WsdlTypes& rWsdlTypes, bool bIsResponse, bool bFault)
@@ -1490,22 +1133,100 @@ namespace codegen
       rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = rPart.FindAttribute("element");
       if (itAttrType != rPart.AttrEnd())
       { // reference to element type
-        const std::string& sElementNsName = itAttrType->sAttrValue.AsString();
-        const std::string& sElementName = StripPrefix(sElementNsName);
-        const std::string& sElementNamespace = FindNamespaceUri(rPart, GetPrefix(sElementNsName));
+        const std::string& sElementPrefixName = itAttrType->sAttrValue.AsString();
+        const std::string& sElementName = StripPrefix(sElementPrefixName);
+        const std::string& sElementNamespace = FindNamespaceUri(rPart, GetPrefix(sElementPrefixName));
 
         // finding element of part
-        Element* pElement = FindQNameType(sElementName,
-                                          sElementNamespace,
-                                          rWsdlTypes.lsElements);
-        RISE_ASSERTES(pElement, rise::CLogicNoItemException, "Element " + sElementNsName
+        Element* pElement = FindQNameType(sElementName, sElementNamespace, rWsdlTypes.lsElements);
+        RISE_ASSERTES(pElement, rise::CLogicNoItemException, "Element " + sElementPrefixName
                       + " is not found, while parsing part");
 
         if (!bFault)
         {
-          ParsePartElement(*pElement, rMember, bIsResponse);
+          DataType stDataType;
+          Struct* pstStruct = NULL;
+          bool bOptimizeStruct = false;
+
+          pElement->bIsMessage = true;
+          ElementToData(*pElement, stDataType, rWsdlTypes);
+          FixAbstractDataType(stDataType);
+
+          if (!bIsResponse)
+          {
+            FixParamDataType(stDataType);
+          }
+          if (stDataType.eType == DataType::TypeStruct)
+          {
+            pstStruct = const_cast<Struct*>(GetStruct(stDataType.sNamespace + stDataType.sName,
+                                                      m_stInterface));
+            RISE_ASSERTS(pstStruct, "Can't find struct declaration: " +
+                         stDataType.sNamespace + stDataType.sName);
+
+            bOptimizeStruct = pstStruct && pstStruct->sParentName.empty() &&
+                (pstStruct->mOptions.empty() ||
+                  (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden")));
+          }
+
+          if (bIsResponse) // response
+          {
+            rMember.mOptions["responseElement"] = pElement->sName;
+            if (!!pstStruct && pstStruct->lsMembers.empty())
+            {
+              rMember.stReturn.stDataType.sName = "void";
+            }
+            else
+            {
+              if (bOptimizeStruct)
+              {
+                const Param& rParam = pstStruct->lsMembers.front();
+                rMember.mOptions["resultElement"] = rParam.sName;
+                rMember.stReturn.stDataType = rParam.stDataType;
+              }
+              else
+              {
+                rMember.stReturn.stDataType = stDataType;
+
+                // unhide struct
+                if (pstStruct && pstStruct->mOptions.count("hidden"))
+                {
+                  pstStruct->mOptions.erase("hidden");
+                  pstStruct->bExtern = false;
+                  pElement->bIsMessage = false;
+                }
+              }
+            }
+          }
+          else // request
+          {
+            rMember.mOptions["requestElement"] = pElement->sName;
+            if (bOptimizeStruct)
+            {
+              for (std::list<Param>::const_iterator itParam = pstStruct->lsMembers.begin();
+                   itParam != pstStruct->lsMembers.end(); ++itParam)
+              {
+                rMember.lsParams.push_back(*itParam);
+                FixParamDataType(rMember.lsParams.back().stDataType);
+              }
+            }
+            else
+            { // simple parameter
+              Param stParam;
+              stParam.sName = pElement->sName;
+              stParam.stDataType = stDataType;
+              rMember.lsParams.push_back(stParam);
+              rMember.mOptions["inlineRequestElement"] = "true";
+
+              // unhide struct
+              if (pstStruct && pstStruct->mOptions.count("hidden"))
+              {
+                pstStruct->mOptions.erase("hidden");
+                pstStruct->bExtern = false;
+                pElement->bIsMessage = false;
+              }
+            }
+          }
         }
-        pElement->bIsMessage = true;
       }
       else
       if (!bFault)
@@ -1526,13 +1247,10 @@ namespace codegen
 
         GetCppType(QName(sName, sPrefix, sNamespace), stParam.stDataType);
         RISE_ASSERTES(!stParam.stDataType.sName.empty(), rise::CLogicNoItemException, "Unknown part type");
-//        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;
-//        OptimizeCppNs(stParam.stDataType.sUsedName, m_stInterface.sNamespace);
-
-        FixParamDataType(stParam.stDataType);
 
         if (!bIsResponse)
         {
+          FixParamDataType(stParam.stDataType);
           rMember.lsParams.push_back(stParam);
         }
         else
@@ -1926,7 +1644,7 @@ namespace codegen
       for (ElementList::const_iterator itElement = m_stWsdlTypes.lsElements.begin();
         itElement != m_stWsdlTypes.lsElements.end(); ++itElement)
       {
-        if (!itElement->bIsExtern && !itElement->bIsMessage)
+        if (!itElement->bIsExtern)
         {
           ElementToData(*itElement, stDataTypeTmp, m_stWsdlTypes);
         }
@@ -2366,16 +2084,58 @@ namespace codegen
       return false;
     }
 
-    DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
-                               Struct* pstOwnerStruct = NULL)
+    void FixAbstractDataType(DataType& rDataType)
     {
+      if (rDataType.eType == DataType::TypeStruct)
+      {
+        std::string sNsName = rDataType.sNamespace;
+        if (!rDataType.sOwnerName.empty())
+        {
+          sNsName += rDataType.sOwnerName + "::";
+        }
+        sNsName += rDataType.sName;
+
+        const Struct* pstStruct = GetStruct(sNsName, m_stInterface);
+
+        if (!pstStruct)
+        {
+          rise::LogWarning() << "Can't find struct declaration: " << rDataType.sNamespace
+                             << rDataType.sName;
+        }
+        else
+        {
+          StringMap::const_iterator itAbstract = pstStruct->mOptions.find("abstract");
+          if (itAbstract != pstStruct->mOptions.end())
+          {
+            WrapTypeInTemplate(rDataType, "Abstract");
+          }
+        }
+      }
+    }
+
+    DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
+                               Struct* pstOwnerStruct = NULL, bool bIsMessagePart = false)
+    {
+      const BaseType* pBaseType = NULL;
       DataType stDataType;
 
-      GetCppType(rComplexType, stDataType);
+      GetCppType(rComplexType, stDataType, &pBaseType);
 
-      if (stDataType.eType == DataType::TypeTypedef ||
-          stDataType.eType == DataType::TypeStruct)
+      if (stDataType.eType == DataType::TypeTypedef)
       {
+        return stDataType;
+      }
+
+      if (stDataType.eType == DataType::TypeStruct)
+      {
+        // if complex type is not related to the messagePart
+        RISE_ASSERT(pBaseType);
+        Struct* pstStruct = const_cast<Struct*>(static_cast<const Struct*>(pBaseType));
+        if (!bIsMessagePart && !!pstStruct->mOptions.count("hidden") && pstStruct->bExtern)
+        {
+          pstStruct->bExtern = false;
+          pstStruct->mOptions.erase("hidden");
+        }
         return stDataType;
       }
 
@@ -2546,6 +2306,12 @@ namespace codegen
             {
               m_stInterface.lsStructs.push_back(stStruct);
               pstStruct = &m_stInterface.lsStructs.back();
+
+              if (bIsMessagePart)
+              {
+                pstStruct->mOptions["hidden"];
+                pstStruct->bExtern = true;
+              }
             }
           }
         }
@@ -2684,32 +2450,7 @@ namespace codegen
             WrapTypeInTemplate(stMember.stDataType, "Optional", "staff::", true);
           }
 
-          if (stMember.stDataType.eType == DataType::TypeStruct)
-          {
-            std::string sNsName = stMember.stDataType.sNamespace;
-            if (!stMember.stDataType.sOwnerName.empty())
-            {
-              sNsName += stMember.stDataType.sOwnerName + "::";
-            }
-            sNsName += stMember.stDataType.sName;
-
-            const Struct* pstStruct = GetStruct(sNsName, m_stInterface);
-
-            if (!pstStruct)
-            {
-              rise::LogWarning() << "Can't find struct declaration: " << stMember.stDataType.sNamespace
-                                 << stMember.stDataType.sName;
-            }
-            else
-            {
-              StringMap::const_iterator itAbstract = pstStruct->mOptions.find("abstract");
-              if (itAbstract != pstStruct->mOptions.end())
-              {
-                WrapTypeInTemplate(stMember.stDataType, "Abstract");
-              }
-            }
-          }
-
+          FixAbstractDataType(stMember.stDataType);
 
           pstStruct->lsMembers.push_back(stMember);
         }
@@ -2786,7 +2527,7 @@ namespace codegen
           for (std::list<ComplexType>::const_iterator itComplexSubtype = pElement->lsComplexTypes.begin();
             itComplexSubtype != pElement->lsComplexTypes.end(); ++itComplexSubtype)
           {
-            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, pstOwnerStruct);
+            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, pstOwnerStruct, pElement->bIsMessage);
           }
         }
         else // reference to type
@@ -2804,7 +2545,7 @@ namespace codegen
           }
           else
           {
-            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, pstOwnerStruct);
+            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, pstOwnerStruct, pElement->bIsMessage);
           }
         }
       }
@@ -2817,7 +2558,8 @@ namespace codegen
         else
         if (!pElement->lsComplexTypes.empty())
         {
-          rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes, pstOwnerStruct);
+          rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes, pstOwnerStruct,
+                                        pElement->bIsMessage);
         }
         else
         {
@@ -2946,7 +2688,7 @@ namespace codegen
       }
     }
 
-    void GetCppType(const QName& stQName, DataType& rDataType)
+    void GetCppType(const QName& stQName, DataType& rDataType, const BaseType** ppBaseType = NULL)
     {
       bool bIsXmlType = stQName.sNamespace == "http://www.w3.org/2001/XMLSchema" ||
                         stQName.sNamespace == "http://schemas.xmlsoap.org/wsdl/";
@@ -3004,6 +2746,10 @@ namespace codegen
           }
         }
 
+        if (ppBaseType)
+        {
+          *ppBaseType = pBaseType;
+        }
       }
     }
 
@@ -3390,10 +3136,6 @@ namespace codegen
     {
       sImportNs = itNamespace->sAttrValue.AsString();
     }
-    else
-    { // import into default namespace
-      sImportNs = GetTns(rNodeImport);
-    }
 
     std::string sSchemaLocation;
     rise::xml::CXMLNode::TXMLAttrConstIterator itLocation = rNodeImport.FindAttribute("location");
@@ -3455,28 +3197,6 @@ namespace codegen
 
       rise::xml::CXMLNode::TXMLNsList& rlsNamespaces = pNodeDefinitions->GetNsList();
       rlsNamespaces.push_back(rise::xml::SXMLNamespace(sPrefix, sImportNs));
-
-/*      try
-      {
-        rise::xml::CXMLDocument tWsdlDoc;
-        rise::xml::CXMLNode& rDefs = tWsdlDoc.GetRoot();
-
-        try
-        {
-          tWsdlDoc.LoadFromFile(sSchemaLocation);
-        }
-        catch(rise::CException&)
-        { // retry with include option
-          tWsdlDoc.LoadFromFile(m_pParser->GetParseSettings().sInDir + '/' + sSchemaLocation);
-        }
-
-        m_pParser->ParseInterface(rDefs, rProject);
-      }
-      catch (rise::CException& rException)
-      {
-        rise::LogWarning() << "Cannot import xsd schema \"" << sSchemaLocation
-            << "\": " << rException.GetDescr() << ". Service's interface may be incomplete.";
-      }*/
     }
 
     std::string sImportNsPrefix;
@@ -3513,7 +3233,7 @@ namespace codegen
     rInclude.sFilePath = pNewInterface->sFilePath;
     rInclude.sTargetNs = pNewInterface->sTargetNs;
 
-    // import operations
+    // import elements
     const WsdlTypes& rImportedWsdlTypes = rWsdlParser.GetWsdlTypes();
     for (ElementList::const_iterator itElement = rImportedWsdlTypes.lsElements.begin();
         itElement != rImportedWsdlTypes.lsElements.end(); ++itElement)

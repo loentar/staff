@@ -62,7 +62,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
     rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl;
     tpServiceImpl = GetImpl(sSessionId, sInstanceId);
 #foreach $(Class.Members)
-    if (sOperationName == "$(Member.Name)")
+    if (sOperationName == "$(Member.Options.*requestElement||Member.Name)")
     {
 #ifneq($(Member.Options.*responseElement),)
       rOperation.SetResponseName("$(Member.Options.*responseElement)");

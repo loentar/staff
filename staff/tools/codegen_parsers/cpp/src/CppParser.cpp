@@ -1883,8 +1883,8 @@ namespace codegen
           itStruct != m_stInterface.lsStructs.end(); ++itStruct)
       {
         std::string& sNsParent = itStruct->sParentName;
-        // skip structs with no parent and with namespace, declared from global scope
-        if (sNsParent.empty() || sNsParent.substr(0, 2) == "::")
+        // skip structs without parent
+        if (sNsParent.empty())
         {
           continue;
         }
