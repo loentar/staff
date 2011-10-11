@@ -13,7 +13,7 @@
       </xsd:complexType>
 
       <xsd:element name="response">
-        <xsd:complexType name="response_type">
+        <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="word" type="tns:word" maxOccurs="unbounded" />
             <xsd:element name="note" type="xsd:string" minOccurs="0" />
