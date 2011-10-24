@@ -1180,7 +1180,10 @@ namespace codegen
               if (bOptimizeStruct)
               {
                 const Param& rParam = pstStruct->lsMembers.front();
-                rMember.mOptions["resultElement"] = rParam.sName;
+                // check result element name because it may be renamed
+                StringMap::const_iterator itResultElement = rParam.mOptions.find("elementName");
+                rMember.mOptions["resultElement"] = itResultElement != rParam.mOptions.end() ?
+                    itResultElement->second : rParam.sName;
                 rMember.stReturn.stDataType = rParam.stDataType;
               }
               else
