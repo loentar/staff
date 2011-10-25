@@ -9,7 +9,7 @@ ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
 MAKEFILES_DEP = $(wildcard */Makefile.dep)
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
 
-ifeq "" "$(PARALLEL)"
+ifeq "0" "$(PARALLEL)"
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
 endif
 
@@ -39,7 +39,7 @@ endif
 include $(MAKEFILES_DEP)
 
 %.dep:
-ifeq "" "$(PARALLEL)"
+ifeq "0" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)

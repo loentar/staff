@@ -13,10 +13,12 @@
 #var sOpeningNs
 #var sEndingNs
 \
-#ifneq($(Interface.TargetNamespace),||http://tempui.org/$(Interface.Classes.*Class.*ServiceNsName))
+#ifneq($(Interface.Options.$Count),0)
 
-// *targetNamespace: $(Interface.TargetNamespace)
-#ifeqend // tns
+#foreach $(Interface.Options)
+// *interface.$($ThisNodeName): $($ThisNodeValue)
+#end
+#ifeqend
 \
 #ifneq($(Interface.Structs.$Count),0)   //   structs forwarding
 

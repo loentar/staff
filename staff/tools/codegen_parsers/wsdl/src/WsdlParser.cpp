@@ -838,7 +838,8 @@ namespace codegen
     return *this;
   }
 
-  void ComplexType::ParseSequence(const rise::xml::CXMLNode& rNodeSequence, const std::string& sChoiceId /*= ""*/)
+  void ComplexType::ParseSequence(const rise::xml::CXMLNode& rNodeSequence,
+                                  const std::string& sChoiceId /*= ""*/)
   {
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeSequence.NodeBegin();
       itChild != rNodeSequence.NodeEnd(); ++itChild)
@@ -968,13 +969,15 @@ namespace codegen
     }
     else
     {
-      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeRestriction = rNodeComplexContent.FindSubnode("restriction");
+      rise::xml::CXMLNode::TXMLNodeConstIterator itNodeRestriction =
+          rNodeComplexContent.FindSubnode("restriction");
 
       if (itNodeRestriction != rNodeComplexContent.NodeEnd())
       {
         sParentName = itNodeRestriction->Attribute("base").AsString();
 
-        for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAttr = itNodeRestriction->FindSubnode("attribute");
+        for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAttr =
+             itNodeRestriction->FindSubnode("attribute");
             itNodeAttr != itNodeRestriction->NodeEnd();
             itNodeAttr = itNodeRestriction->FindSubnode("attribute", ++itNodeAttr))
         {
@@ -1163,7 +1166,9 @@ namespace codegen
             RISE_ASSERTS(pstStruct, "Can't find struct declaration: " +
                          stDataType.sNamespace + stDataType.sName);
 
-            bOptimizeStruct = pstStruct && pstStruct->sParentName.empty() &&
+            // expand element to operation's arguments only in case: inline element without references
+            bOptimizeStruct = !pElement->lsComplexTypes.empty() &&
+                pstStruct && pstStruct->sParentName.empty() &&
                 (pstStruct->mOptions.empty() ||
                   (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden")));
           }
@@ -1174,6 +1179,8 @@ namespace codegen
             if (!!pstStruct && pstStruct->lsMembers.empty())
             {
               rMember.stReturn.stDataType.sName = "void";
+              pstStruct->mOptions["hidden"];
+              pstStruct->bExtern = true;
             }
             else
             {
@@ -1202,9 +1209,9 @@ namespace codegen
           }
           else // request
           {
-            rMember.mOptions["requestElement"] = pElement->sName;
             if (bOptimizeStruct)
             {
+              rMember.mOptions["requestElement"] = pElement->sName;
               for (std::list<Param>::const_iterator itParam = pstStruct->lsMembers.begin();
                    itParam != pstStruct->lsMembers.end(); ++itParam)
               {
@@ -1284,8 +1291,8 @@ namespace codegen
       ParsePart(rMember, rMessage.Subnode("part"), rWsdlTypes, false, true);
     }
 
-    void ParseOperation(Member& rMember, const rise::xml::CXMLNode& rOperation, const rise::xml::CXMLNode& rDefs,
-                        WsdlTypes& rWsdlTypes)
+    void ParseOperation(Member& rMember, const rise::xml::CXMLNode& rOperation,
+                        const rise::xml::CXMLNode& rDefs, WsdlTypes& rWsdlTypes)
     {
       bool bHasInput = false;
       bool bHasOutput = false;
@@ -1381,7 +1388,8 @@ namespace codegen
           return false;
         }
 
-        rise::xml::CXMLNode::TXMLAttrConstIterator itAttrTransport = itBindingTransport->FindAttribute("transport");
+        rise::xml::CXMLNode::TXMLAttrConstIterator itAttrTransport =
+            itBindingTransport->FindAttribute("transport");
         if (itAttrTransport == itBindingTransport->AttrEnd())
         {
           return false;
@@ -1393,7 +1401,8 @@ namespace codegen
         }
 
         // checking soap version, must be 1.1
-        const std::string& sTransportUri = FindNamespaceUri(*itBindingTransport, itBindingTransport->Namespace());
+        const std::string& sTransportUri = FindNamespaceUri(*itBindingTransport,
+                                                            itBindingTransport->Namespace());
         if (sTransportUri.empty())
         {
           std::string sName = "<noname>";
@@ -1419,7 +1428,8 @@ namespace codegen
       std::string m_sTypeName;
     };
 
-    void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName, const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
+    void ParseSoapAction(const std::string& sPortTypeName, const std::string& sOperationName,
+                         const rise::xml::CXMLNode& rDefs, std::string& sSoapAction)
     {
       rise::xml::CXMLNode::TXMLNodeConstIterator itNodeBinding =
         rDefs.FindNodeIf(FindNodeBinding(sPortTypeName));
@@ -1447,8 +1457,7 @@ namespace codegen
       }
     }
 
-    void ParseService(Interface& rInterface, const rise::xml::CXMLNode& rDefs, WsdlTypes& rWsdlTypes,
-                      const std::string& sTargetNamespace)
+    void ParseService(Interface& rInterface, const rise::xml::CXMLNode& rDefs, WsdlTypes& rWsdlTypes)
     {
       for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeService = rDefs.FindSubnode("service");
             itNodeService != rDefs.NodeEnd(); itNodeService = rDefs.FindSubnode("service", ++itNodeService))
@@ -1457,8 +1466,12 @@ namespace codegen
         Class& rClass = rInterface.lsClasses.back();
         const rise::xml::CXMLNode& rService = *itNodeService;
         rClass.sName = rService.Attribute("name").AsString();
-        rClass.mOptions["targetNamespace"] = sTargetNamespace;
 
+        StringMap::const_iterator itTns = rInterface.mOptions.find("targetNamespace");
+        if (itTns != rInterface.mOptions.end())
+        {
+          rClass.mOptions["targetNamespace"] = itTns->second;
+        }
 
         rise::xml::CXMLNode::TXMLNodeConstIterator itNodePort = rService.FindSubnode("port");
         if (itNodePort != rService.NodeEnd())
@@ -1640,7 +1653,7 @@ namespace codegen
 
       if (!bSchema)
       {
-        ParseService(m_stInterface, rRootNode, m_stWsdlTypes, m_stInterface.sTargetNs);
+        ParseService(m_stInterface, rRootNode, m_stWsdlTypes);
       }
 
       DataType stDataTypeTmp;
@@ -1722,16 +1735,16 @@ namespace codegen
           tWsdlDoc.LoadFromFile(sFileUri);
         }
 
-        rise::xml::CXMLNode::TXMLAttrConstIterator itTns = rDefs.FindAttribute("targetNamespace");
-        if (itTns != rDefs.AttrEnd())
+        for (rise::xml::CXMLNode::TXMLAttrConstIterator itTns = rDefs.AttrBegin();
+             itTns != rDefs.AttrEnd(); ++itTns)
         {
-          m_stInterface.sTargetNs = itTns->sAttrValue.AsString();
+          m_stInterface.mOptions[itTns->sAttrName] = itTns->sAttrValue.AsString();
         }
 
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
         m_stInterface.sFilePath = sInterfaceFilePath;
-        m_stInterface.sNamespace = TnsToCppNs(m_stInterface.sTargetNs);
+        m_stInterface.sNamespace = TnsToCppNs(StringMapValue(m_stInterface.mOptions, "targetNamespace"));
         m_stInterface.sName = sInterfaceFileName;
         nPos = m_stInterface.sName.find_last_of('.');
         if (nPos != std::string::npos)
@@ -1821,7 +1834,8 @@ namespace codegen
       }
     }
 
-    DataType SimpleTypeToData(const SimpleType& rSimpleType, const WsdlTypes& rWsdlTypes, bool bWriteAsForward = false)
+    DataType SimpleTypeToData(const SimpleType& rSimpleType, const WsdlTypes& rWsdlTypes,
+                              bool bWriteAsForward = false)
     {
       DataType stDataType;
 
@@ -1950,7 +1964,8 @@ namespace codegen
 
             if (!rSimpleType.lsRestrictions.empty())
             {
-              for (std::list< SimpleType::StringPair >::const_iterator itRestr = rSimpleType.lsRestrictions.begin();
+              for (std::list< SimpleType::StringPair >::const_iterator itRestr =
+                   rSimpleType.lsRestrictions.begin();
                    itRestr != rSimpleType.lsRestrictions.end(); ++itRestr)
               {
                 pstTypedef->mOptions["restriction-" + itRestr->first] = itRestr->second;
@@ -3234,7 +3249,7 @@ namespace codegen
     rInclude.sNamespace = pNewInterface->sNamespace;
     rInclude.sFileName = pNewInterface->sFileName;
     rInclude.sFilePath = pNewInterface->sFilePath;
-    rInclude.sTargetNs = pNewInterface->sTargetNs;
+    rInclude.sTargetNs = StringMapValue(pNewInterface->mOptions, "targetNamespace");
 
     // import elements
     const WsdlTypes& rImportedWsdlTypes = rWsdlParser.GetWsdlTypes();

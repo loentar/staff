@@ -71,6 +71,29 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
       rOperation.SetResponseName("$(Member.Return.ResponseName)");
 #ifeqend
 #ifeqend
+\
+#ifneq($(Member.Options.*mep),in-only)
+#ifneq($(Interface.Options.*targetNamespace),)
+      rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+#ifeqend
+\
+#ifneq($(Interface.Options.*elementFormDefault),)
+#ifeq($(Interface.Options.*elementFormDefault),qualified)
+      rOperation.GetResponse().SetElementFormDefaultQualified(true);
+#else
+      rOperation.GetResponse().SetElementFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+\
+#ifneq($(Interface.Options.*attributeFormDefault),)
+#ifeq($(Interface.Options.*attributeFormDefault),qualified)
+      rOperation.GetResponse().SetAttributeFormDefaultQualified(true);
+#else
+      rOperation.GetResponse().SetAttributeFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+#ifeqend
+\
 #ifneq($(Member.Options.*resultElement),)
       rOperation.SetResultName("$(Member.Options.*resultElement)");
 #ifeqend
@@ -95,9 +118,16 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
 #context $(Param.DataType)
 #indent +2
+#ifneq($(Param.Options.*useParentElement||Member.Options.*inlineRequestElement),)
+#var sParam $(Param.Name)
+#var sParamName
+#var sdoParam rRequest
+#else
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
 #var sdoParam rRequest
+#ifeqend
+\
 #cginclude <common/TypeDeserialization.cpp>
 #indent -2
 #contextend
@@ -135,9 +165,15 @@ rOperation\
 #else
 #ifeq($(Param.DataType.Type),string||dataobject)
 #context $(Param.DataType)
+#ifneq($(Param.Options.*useParentElement||Member.Options.*inlineRequestElement),)
+#var sParam $(Param.Name)
+#var sParamName
+#var sdoParam rRequest
+#else
 #var sParam
 #var sParamName $(Param.Name)
 #var sdoParam rRequest
+#ifeqend
 #cginclude <common/TypeDeserialization.cpp>
 #contextend
 #else

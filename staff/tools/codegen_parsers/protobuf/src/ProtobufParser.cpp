@@ -1048,7 +1048,6 @@ namespace codegen
       stInclude.sNamespace = rInterface.sNamespace;
       stInclude.sFileName = rInterface.sFileName;
       stInclude.sFilePath = rInterface.sFilePath;
-      stInclude.sTargetNs = rInterface.sTargetNs;
       m_stInterface.lsIncludes.push_back(stInclude);
     }
 

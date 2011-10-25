@@ -350,24 +350,10 @@ namespace staff
 
   void Operation::PrepareResult()
   {
-//    Result().NamespaceList() = Request().NamespaceList();
-
     const DataObject& rResponse = GetResponse();
     if (GetResponse().GetLocalName().empty())
     {
       rResponse.SetLocalName(m_tdoRequest.GetLocalName() + "Result");
-    }
-
-    if (rResponse.GetPrefix().empty() || rResponse.GetNamespaceUri().empty())
-    {
-      const std::string& sNamespaceUri = m_tdoRequest.GetNamespaceUri();
-      if (!sNamespaceUri.empty())
-      {
-        const std::string& sPrefix = m_tdoRequest.GetPrefix();
-        QName tqnResult(rResponse.GetLocalName(), sNamespaceUri,
-                         sPrefix.empty() ? "ns" : sPrefix);
-        rResponse.SetQName(tqnResult);
-      }
     }
   }
 

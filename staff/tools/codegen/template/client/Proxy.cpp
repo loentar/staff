@@ -307,7 +307,26 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   staff::Operation tOperation("$(Member.Options.*requestElement||Member.Name)"\
 , "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
   staff::DataObject& rdoRequest = tOperation.Request();
-
+#ifneq($(Interface.Options.*targetNamespace),)
+  rdoRequest.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+#ifeqend
+\
+#ifneq($(Interface.Options.*elementFormDefault),)
+#ifeq($(Interface.Options.*elementFormDefault),qualified)
+  rdoRequest.SetElementFormDefaultQualified(true);
+#else
+  rdoRequest.SetElementFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+\
+#ifneq($(Interface.Options.*attributeFormDefault),)
+#ifeq($(Interface.Options.*attributeFormDefault),qualified)
+  rdoRequest.SetAttributeFormDefaultQualified(true);
+#else
+  rdoRequest.SetAttributeFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+\
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
 #ifneq($(Member.Params.$Count),0)
 #foreach $(Member.Params)

@@ -178,8 +178,8 @@ wsdl
 # == clean ==========================================
 clean:
 	rm -f \$(OUTDIR)\$(TARGETNAME) \$(OBJECTS) \$(CODEGEN_FILES)
-	test ! -d \$(OBJDIR) || rmdir -p \$(OBJDIR)
-	test ! -d \$(OUTDIR) || rmdir -p \$(OUTDIR)
+	-test ! -d \$(OBJDIR) || rmdir -p \$(OBJDIR)
+	-test ! -d \$(OUTDIR) || rmdir -p \$(OUTDIR)
 
 # == mkdir ==========================================
 "%/":
