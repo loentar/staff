@@ -176,7 +176,7 @@ namespace codegen
     std::string          sNamespace;     //!<  interface main namespace
     std::string          sFileName;      //!<  input file name
     std::string          sFilePath;      //!<  input file path
-    std::string          sTargetNs;      //!<  target namespace
+    StringMap            mOptions;       //!<  metacomments options
     std::list<Include>   lsIncludes;     //!<  included files
     std::list<Enum>      lsEnums;        //!<  enum list
     std::list<Typedef>   lsTypedefs;     //!<  typedef list

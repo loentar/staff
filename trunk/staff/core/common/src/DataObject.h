@@ -29,6 +29,7 @@
 typedef struct axiom_node axiom_node_t;
 typedef struct axiom_element axiom_element_t;
 typedef struct axiom_attribute axiom_attribute_t;
+typedef struct axiom_namespace axiom_namespace_t;
 typedef struct axutil_hash_index_t axutil_hash_index_t;
 typedef struct axutil_env axutil_env_t;
 
@@ -270,6 +271,24 @@ namespace staff
         */
     void SetNamespaceUri(const std::string& sUri) const;
 
+    //!         set namespace uri and generate prefix for it in top node
+    /*! \param  szUri - namespace uri (C-string)
+        \param  bChildsOnly - apply namespace only to newly created child elements and
+                                do not apply it to current element
+        \param  psPrefix - generated prefix
+      */
+    void SetNamespaceUriGenPrefix(const char* szUri, bool bChildsOnly = false,
+                                  std::string* psPrefix = NULL);
+
+    //!         set namespace uri and generate prefix for it in top node
+    /*! \param  sUri - namespace uri
+        \param  bChildsOnly - apply namespace only to newly created child elements and
+                                do not apply it to current element
+        \param  psPrefix - generated prefix
+      */
+    void SetNamespaceUriGenPrefix(const std::string& sUri, bool bChildsOnly = false,
+                                  std::string* psPrefix = NULL);
+
     //////////////////////////////////////////////////////////////////////////
     // node management
 
@@ -403,6 +422,16 @@ namespace staff
 
     //////////////////////////////////////////////////////////////////////////
     // child nodes management
+
+    //!         use qualified form while creating childs
+    /*! \param  bQualified - true - use qualified form, false - use unqualified form
+      */
+    void SetElementFormDefaultQualified(bool bQualified = true);
+
+    //!         get default element form while creating childs
+    /*! \return true - using qualified form, false - using unqualified form
+      */
+    bool IsElementFromDefaultQualified() const;
 
     //!         get first child element
     /*! \return first child element
@@ -992,6 +1021,16 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // attribute management
 
+    //!         use qualified form while creating attributes
+    /*! \param  bQualified - true - use qualified form, false - use unqualified form
+      */
+    void SetAttributeFormDefaultQualified(bool bQualified = true);
+
+    //!         get default element form while creating attributes
+    /*! \return true - using qualified form, false - using unqualified form
+      */
+    bool IsAttributeFromDefaultQualified() const;
+
     // optimized create attribute functions
     void CreateAttribute(const char* szAttrName, bool bValue);
     void CreateAttribute(const char* szAttrName, byte btValue);
@@ -1400,7 +1439,10 @@ namespace staff
   private:
     axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node
     axiom_element_t* m_pAxiomElement;   //!<  DataObject's AxiOM node element
+    axiom_namespace_t* m_pChildNs;      //!<  namespace to create childs within
     bool m_bOwner;                      //!<  ownership flag
+    bool m_bElemFormDefaultQualified;   //!<  use qualified form while creating childs
+    bool m_bAttrFormDefaultQualified;   //!<  use qualified form while creating attributes
     static axutil_env_t* m_pEnv;        //!<  Axis2/C environment
 
     friend class Iterator;

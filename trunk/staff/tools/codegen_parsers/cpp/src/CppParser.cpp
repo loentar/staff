@@ -1474,7 +1474,7 @@ namespace codegen
           stInclude.sNamespace = rInterface.sNamespace;
           stInclude.sFileName = rInterface.sFileName;
           stInclude.sFilePath = rInterface.sFilePath;
-          stInclude.sTargetNs = rInterface.sTargetNs;
+          stInclude.sTargetNs = StringMapValue(rInterface.mOptions, "targetNamespace");
           m_stInterface.lsIncludes.push_back(stInclude);
         }
       }
@@ -1513,11 +1513,14 @@ namespace codegen
               }
               else
               {
-                if (sName == "targetNamespace")
+                if (sName.substr(0, 10) == "interface.")
                 {
-                  rInterface.sTargetNs = sValue;
+                  rInterface.mOptions[sName.substr(10)] = sValue;
                 }
-                mOptions[sName] = sValue;
+                else
+                {
+                  mOptions[sName] = sValue;
+                }
               }
             }
           }

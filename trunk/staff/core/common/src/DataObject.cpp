@@ -52,7 +52,10 @@ namespace staff
   DataObject::DataObject(axiom_node_t* pAxiomNode /*= NULL*/):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     if (pAxiomNode)
     {
@@ -63,7 +66,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(szLocalName);
   }
@@ -71,7 +77,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(sLocalName.c_str());
   }
@@ -79,15 +88,21 @@ namespace staff
   DataObject::DataObject(const QName& stQName):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(stQName);
   }
 
   DataObject::DataObject(const DataObject& rDataObject):
-    m_pAxiomNode(const_cast<DataObject&>(rDataObject).m_pAxiomNode),
-    m_pAxiomElement(const_cast<DataObject&>(rDataObject).m_pAxiomElement),
-    m_bOwner(rDataObject.m_bOwner)
+    m_pAxiomNode(rDataObject.m_pAxiomNode),
+    m_pAxiomElement(rDataObject.m_pAxiomElement),
+    m_pChildNs(rDataObject.m_pChildNs),
+    m_bOwner(rDataObject.m_bOwner),
+    m_bElemFormDefaultQualified(rDataObject.m_bElemFormDefaultQualified),
+    m_bAttrFormDefaultQualified(rDataObject.m_bAttrFormDefaultQualified)
   {
     const_cast<DataObject&>(rDataObject).m_bOwner = false;
   }
@@ -95,7 +110,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, bool bValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -105,7 +123,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, byte btValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -115,7 +136,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, int nValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -125,7 +149,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, short shValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -135,7 +162,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, long lValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -145,7 +175,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, long long llValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -155,7 +188,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, unsignedByte ubtValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -165,7 +201,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, unsigned int unValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -175,7 +214,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, unsigned short ushValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -185,7 +227,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, unsigned long ulValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -195,7 +240,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, unsigned long long ullValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -205,7 +253,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, float fValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -215,7 +266,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, double dValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -226,7 +280,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, bool bValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(bValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -236,7 +293,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, byte btValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(btValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -246,7 +306,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, int nValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(nValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -256,7 +319,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, short shValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(shValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -266,7 +332,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, long lValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(lValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -276,7 +345,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, long long llValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(llValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -286,7 +358,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, unsignedByte ubtValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ubtValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -296,7 +371,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, unsigned int unValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(unValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -306,7 +384,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, unsigned short ushValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ushValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -316,7 +397,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, unsigned long ulValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ulValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -326,7 +410,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, unsigned long long ullValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ullValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -336,7 +423,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, float fValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -346,7 +436,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, double dValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
@@ -356,7 +449,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, const char* szText):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(szLocalName, szText);
   }
@@ -364,7 +460,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, const char* szText):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(sLocalName.c_str(), szText);
   }
@@ -372,7 +471,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, const std::string& sText):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(szLocalName, sText.c_str());
   }
@@ -380,7 +482,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, const std::string& sText):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(sLocalName.c_str(), sText.c_str());
   }
@@ -388,7 +493,10 @@ namespace staff
   DataObject::DataObject(const char* szLocalName, const Value& rValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(szLocalName, rValue.AsString().c_str());
   }
@@ -396,7 +504,10 @@ namespace staff
   DataObject::DataObject(const std::string& sLocalName, const Value& rValue):
     m_pAxiomNode(NULL),
     m_pAxiomElement(NULL),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
     Create(sLocalName.c_str(), rValue.AsString().c_str());
   }
@@ -404,7 +515,10 @@ namespace staff
   DataObject::DataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement):
     m_pAxiomNode(pAxiomNode),
     m_pAxiomElement(pAxiomElement),
-    m_bOwner(false)
+    m_pChildNs(NULL),
+    m_bOwner(false),
+    m_bElemFormDefaultQualified(false),
+    m_bAttrFormDefaultQualified(false)
   {
   }
 
@@ -640,6 +754,110 @@ namespace staff
   void DataObject::SetNamespaceUri(const std::string& sUri) const
   {
     SetNamespaceUri(sUri.c_str());
+  }
+
+  void DataObject::SetNamespaceUriGenPrefix(const char* szUri, bool bChildsOnly /*= false*/,
+                                            std::string* psPrefix /*= NULL*/)
+  {
+    static const axis2_ssize_t uDefPrefixSize = 2;
+    static const axis2_char_t szDefPrefix[uDefPrefixSize + 1] = "ns";
+
+    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+
+    // find top element
+    axiom_node_t* pTopNode = m_pAxiomNode;
+    axiom_node_t* pCurrNode = NULL;
+
+    while (!!(pCurrNode = axiom_node_get_parent(pTopNode, m_pEnv)))
+    {
+      pTopNode = pCurrNode;
+    }
+
+    RISE_ASSERTS(axiom_node_get_node_type(pTopNode, m_pEnv) == AXIOM_ELEMENT,
+                 "Top node is not an element!");
+
+    axiom_element_t* pTopElement =
+      reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pTopNode, m_pEnv));
+
+    RISE_ASSERT(pTopElement);
+
+    axiom_namespace_t* pNamespace =
+        axiom_element_find_declared_namespace(pTopElement, m_pEnv, szUri, NULL);
+
+    if (pNamespace)
+    { // namespace found
+      if (psPrefix)
+      {
+        const char* szPrefix = axiom_namespace_get_prefix(pNamespace, m_pEnv);
+        *psPrefix = szPrefix ? szPrefix : "";
+      }
+    }
+    else
+    {
+      // namespace is not found, creating one
+      int nLastUsedIndex = -1;
+
+      axutil_hash_t* pNsHash = axiom_element_get_namespaces(pTopElement, m_pEnv);
+      if (pNsHash)
+      {
+        int nLastIndex = 0;
+        axis2_char_t* szCurrPrefix = NULL;
+        axiom_namespace_t* pCurrNs = NULL;
+        for (axutil_hash_index_t* pIndex = axutil_hash_first(pNsHash, m_pEnv);
+             pIndex; pIndex = axutil_hash_next(m_pEnv, pIndex))
+        {
+          axutil_hash_this(pIndex, NULL, NULL, reinterpret_cast<void**>(&pCurrNs));
+          if (pCurrNs)
+          {
+            szCurrPrefix = axiom_namespace_get_prefix(pCurrNs, m_pEnv);
+            if (!axutil_strncmp(szCurrPrefix, szDefPrefix, uDefPrefixSize))
+            {
+              szCurrPrefix += uDefPrefixSize;
+              // get greatest number of ns
+              if (staff::FromCString(szCurrPrefix, nLastIndex) &&
+                  nLastIndex > nLastUsedIndex)
+              {
+                nLastUsedIndex = nLastIndex;
+              }
+            }
+          }
+        }
+      }
+
+      ++nLastUsedIndex;
+
+      static const axis2_ssize_t nPrefixSize = uDefPrefixSize + NUM_TO_STR_BUFF_SIZE;
+      axis2_char_t szPrefix[nPrefixSize];
+      RISE_ASSERT(static_cast<axis2_ssize_t>(
+                    staff_snprintf(szPrefix, nPrefixSize, "%s%d", szDefPrefix, nLastUsedIndex)) <
+                  nPrefixSize);
+
+      pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
+      RISE_ASSERT(pNamespace);
+
+      // adding new namespace without finding in declarations
+      axiom_element_declare_namespace_assume_param_ownership(pTopElement, m_pEnv, pNamespace);
+
+      if (psPrefix)
+      {
+        *psPrefix = szPrefix;
+      }
+    }
+
+    if (bChildsOnly)
+    {
+      m_pChildNs = pNamespace;
+    }
+    else
+    {
+      axiom_element_set_namespace_assume_param_ownership(m_pAxiomElement, m_pEnv, pNamespace);
+    }
+  }
+
+  void DataObject::SetNamespaceUriGenPrefix(const std::string& sUri, bool bChildsOnly /*= false*/,
+                                            std::string* psPrefix /*= NULL*/)
+  {
+    SetNamespaceUriGenPrefix(sUri.c_str(), bChildsOnly, psPrefix);
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -1183,6 +1401,16 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // child nodes management
 
+  void DataObject::SetElementFormDefaultQualified(bool bQualified /*= true*/)
+  {
+    m_bElemFormDefaultQualified = bQualified;
+  }
+
+  bool DataObject::IsElementFromDefaultQualified() const
+  {
+    return m_bElemFormDefaultQualified;
+  }
+
   DataObject DataObject::FirstChild()
   {
     return axiom_node_get_first_element(m_pAxiomNode, m_pEnv);
@@ -1223,6 +1451,12 @@ namespace staff
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, pAxiomNode);
 
+    if (m_bElemFormDefaultQualified)
+    {
+      axiom_element_set_namespace_assume_param_ownership(pAxiomElement, m_pEnv,
+        m_pChildNs ?  m_pChildNs : axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    }
+
     return DataObject(pAxiomNode, pAxiomElement);
   }
 
@@ -1231,6 +1465,12 @@ namespace staff
     axiom_node_t* pAxiomNode = NULL;
     axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, m_pAxiomNode, szLocalName, NULL, &pAxiomNode);
     RISE_ASSERTES(pAxiomElement, DomInternalException, "Failed to create axiom element");
+
+    if (m_bElemFormDefaultQualified)
+    {
+      axiom_element_set_namespace_assume_param_ownership(pAxiomElement, m_pEnv,
+        m_pChildNs ?  m_pChildNs : axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    }
 
     return DataObject(pAxiomNode, pAxiomElement);
   }
@@ -1452,6 +1692,12 @@ namespace staff
     axis2_status_t nResult =
         axiom_element_set_text(pAxiomElement, m_pEnv, szText, pAxiomNode);
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+
+    if (m_bElemFormDefaultQualified)
+    {
+      axiom_element_set_namespace_assume_param_ownership(pAxiomElement, m_pEnv,
+        m_pChildNs ?  m_pChildNs : axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    }
 
     return DataObject(pAxiomNode, pAxiomElement);
   }
@@ -2687,6 +2933,16 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // attribute management
 
+  void DataObject::SetAttributeFormDefaultQualified(bool bQualified /*= true*/)
+  {
+    m_bAttrFormDefaultQualified = bQualified;
+  }
+
+  bool DataObject::IsAttributeFromDefaultQualified() const
+  {
+    return m_bAttrFormDefaultQualified;
+  }
+
   void DataObject::CreateAttribute(const char* szAttrName, bool bValue)
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
@@ -2892,6 +3148,12 @@ namespace staff
     axis2_status_t nResult =
         axiom_element_add_attribute(m_pAxiomElement, m_pEnv, pAxiomAttribute, m_pAxiomNode);
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
+
+    if (m_bAttrFormDefaultQualified)
+    {
+      axiom_attribute_set_namespace(pAxiomAttribute, m_pEnv, 
+        m_pChildNs ?  m_pChildNs : axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
+    }
   }
 
   void DataObject::CreateAttribute(const std::string& sAttrName, const char* szAttrText)
@@ -3560,8 +3822,11 @@ namespace staff
       Detach();
       m_bOwner = rDataObject.m_bOwner;
       const_cast<DataObject&>(rDataObject).m_bOwner = false;
-      m_pAxiomNode = const_cast<DataObject&>(rDataObject).m_pAxiomNode;
-      m_pAxiomElement = const_cast<DataObject&>(rDataObject).m_pAxiomElement;
+      m_pAxiomNode = rDataObject.m_pAxiomNode;
+      m_pAxiomElement = rDataObject.m_pAxiomElement;
+      m_pChildNs = rDataObject.m_pChildNs;
+      m_bElemFormDefaultQualified = rDataObject.m_bElemFormDefaultQualified;
+      m_bAttrFormDefaultQualified = rDataObject.m_bAttrFormDefaultQualified;
     }
     return *this;
   }

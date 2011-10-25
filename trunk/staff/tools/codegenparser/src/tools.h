@@ -96,6 +96,12 @@ namespace codegen
   STAFF_CODEGENPARSER_EXPORT
   bool FixId(std::string& sName, bool bIgnoreBool = false);
 
+  //!
+  STAFF_CODEGENPARSER_EXPORT
+  const std::string& StringMapValue(const StringMap& rmMap, const std::string& sName,
+                                    const std::string& sDefaultValue = "");
+
+
 
 }
 }

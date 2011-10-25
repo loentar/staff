@@ -22,6 +22,26 @@ std::string& operator<<(std::string& sResult, const $(Enum.NsName) eEnumValue)
 
 DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 {
+#ifneq($(Interface.Options.*targetNamespace),)
+  rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
+#ifeqend
+\
+#ifneq($(Interface.Options.*elementFormDefault),)
+#ifeq($(Interface.Options.*elementFormDefault),qualified)
+  rdoParam.SetElementFormDefaultQualified(true);
+#else
+  rdoParam.SetElementFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+\
+#ifneq($(Interface.Options.*attributeFormDefault),)
+#ifeq($(Interface.Options.*attributeFormDefault),qualified)
+  rdoParam.SetAttributeFormDefaultQualified(true);
+#else
+  rdoParam.SetAttributeFormDefaultQualified(false);
+#ifeqend
+#ifeqend
+\
   std::string sParam;
   rdoParam.SetText(sParam << eEnumValue);
   return rdoParam;

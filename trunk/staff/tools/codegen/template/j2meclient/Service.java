@@ -60,8 +60,8 @@ public class $(Class.ServiceName)
     if (sTargetNamespace == null || sTargetNamespace.equals(""))
     {
       sTargetNamespace =\
-#ifneq($(Interface.TargetNamespace),)
- "$(Interface.TargetNamespace)"\
+#ifneq($(Interface.Options.*targetNamespace),)
+ "$(Interface.Options.*targetNamespace)"\
 #else
  "http://tempui.org/$(Class.ServiceNsName)"\
 #ifeqend

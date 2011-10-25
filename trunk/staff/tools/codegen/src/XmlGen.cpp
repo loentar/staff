@@ -517,14 +517,20 @@ namespace codegen
     rNodeInterface.AddSubNode(" Interface name with namespace ", CXMLNode::ENTCOMMENT);
     rNodeInterface["NsName"] = rInterface.sNamespace + rInterface.sName;
 
-    rNodeInterface.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["TargetNamespace"] = rInterface.sTargetNs;
-
     rNodeInterface.AddSubNode(" Interface file name ", CXMLNode::ENTCOMMENT);
     rNodeInterface["FileName"] = rInterface.sFileName;
 
     rNodeInterface.AddSubNode(" Interface file path ", CXMLNode::ENTCOMMENT);
     rNodeInterface["FilePath"] = rInterface.sFilePath;
+
+    rNodeInterface.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
+    CXMLNode& rNodeOptions = rNodeInterface.AddSubNode("Options");
+
+    for (StringMap::const_iterator itOption = rInterface.mOptions.begin();
+        itOption != rInterface.mOptions.end(); ++itOption)
+    {
+      rNodeOptions[itOption->first] = itOption->second;
+    }
 
     // included files
     rNodeInterface.AddSubNode(" Included files ", CXMLNode::ENTCOMMENT);
