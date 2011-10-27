@@ -47,7 +47,11 @@
 #define STAFF_PARAM_UNUSED(param) (void)param
 #define STAFF_SECURITY_CALC_FN_NAME "staff_security_calculate_access_by_session_id"
 #ifdef WIN32
+#ifdef _MSC_VER
 #define STAFF_SECURITY_DL_NAME "staff_security.dll"
+#else
+#define STAFF_SECURITY_DL_NAME "staffsecurity.dll"
+#endif
 #else
 #define STAFF_SECURITY_DL_NAME "libstaffsecurity.so"
 #endif
@@ -227,7 +231,7 @@ axis2_status_t AXIS2_CALL StaffSecurityModule_init( axis2_module_t* pModule,
       axis2_char_t szBuff[AXUTIL_WIN32_ERROR_BUFSIZE];
       axutil_win32_get_last_error(szBuff, AXUTIL_WIN32_ERROR_BUFSIZE);
       AXIS2_LOG_ERROR(pEnv->log, AXIS2_LOG_SI, "Loading shared library %s  Failed. DLERROR IS %s",
-                      dll_name, szBuff);
+                      STAFF_SECURITY_DL_NAME, szBuff);
 #endif
       AXIS2_ERROR_SET(pEnv->error, AXIS2_ERROR_DLL_LOADING_FAILED, AXIS2_FAILURE);
 
