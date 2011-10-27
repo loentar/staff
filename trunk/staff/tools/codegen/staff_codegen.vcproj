@@ -374,10 +374,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\CodegenParser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Interface.h"
 				>
 			</File>
