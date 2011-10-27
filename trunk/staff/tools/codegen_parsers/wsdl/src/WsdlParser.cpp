@@ -2799,6 +2799,46 @@ namespace codegen
       }
 
       nPosBegin += 3;
+      std::string::size_type nPosAddrBegin = nPosBegin;
+
+      // address
+      nPosBegin = sNamespace.find("/", nPosBegin);
+      if (nPosBegin == std::string::npos)
+      {
+        return m_sRootNamespace;
+      }
+
+      if (m_pParseSettings->mEnv.count("javans"))
+      {
+        // use java-style namespace parsing: model.myproject.org => ::org::myproject::model
+        std::string sAddress = sNamespace.substr(nPosAddrBegin, nPosBegin - nPosAddrBegin);
+        std::string::size_type nPos = sAddress.find(':', nPosBegin);
+        // remove port
+        if (nPos != std::string::npos)
+        {
+          sAddress.erase(nPos);
+        }
+
+        // invert namespace sequence
+        nPosBegin = 0;
+        for (;;)
+        {
+          nPos = sAddress.find('.', nPosBegin);
+          if (nPos != std::string::npos)
+          {
+            sCppNamespace = sAddress.substr(nPosBegin, nPos - nPosBegin) + "::" + sCppNamespace;
+          }
+          else
+          {
+            sCppNamespace = sAddress.substr(nPosBegin) + "::" + sCppNamespace;
+            break;
+          }
+          nPosBegin = nPos + 1;
+        }
+
+        return m_sRootNamespace + sCppNamespace;
+      }
+
       // skip address
       nPosBegin = sNamespace.find("/", nPosBegin);
       if (nPosBegin == std::string::npos)
