@@ -1150,6 +1150,7 @@ namespace codegen
           DataType stDataType;
           Struct* pstStruct = NULL;
           bool bOptimizeStruct = false;
+          bool bUnhideStruct = false;
 
           pElement->bIsMessage = true;
           ElementToData(*pElement, stDataType, rWsdlTypes);
@@ -1170,7 +1171,8 @@ namespace codegen
             bOptimizeStruct = !pElement->lsComplexTypes.empty() &&
                 pstStruct && pstStruct->sParentName.empty() &&
                 (pstStruct->mOptions.empty() ||
-                  (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden")));
+                  (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
+                pstStruct->lsStructs.empty() && pstStruct->lsEnums.empty();
           }
 
           if (bIsResponse) // response
@@ -1196,14 +1198,7 @@ namespace codegen
               else
               {
                 rMember.stReturn.stDataType = stDataType;
-
-                // unhide struct
-                if (pstStruct && pstStruct->mOptions.count("hidden"))
-                {
-                  pstStruct->mOptions.erase("hidden");
-                  pstStruct->bExtern = false;
-                  pElement->bIsMessage = false;
-                }
+                bUnhideStruct = true;
               }
             }
           }
@@ -1226,15 +1221,16 @@ namespace codegen
               stParam.stDataType = stDataType;
               rMember.lsParams.push_back(stParam);
               rMember.mOptions["inlineRequestElement"] = "true";
-
-              // unhide struct
-              if (pstStruct && pstStruct->mOptions.count("hidden"))
-              {
-                pstStruct->mOptions.erase("hidden");
-                pstStruct->bExtern = false;
-                pElement->bIsMessage = false;
-              }
+              bUnhideStruct = true;
             }
+          }
+
+          // unhide struct
+          if (bUnhideStruct && pstStruct && pstStruct->mOptions.count("hidden"))
+          {
+            pstStruct->mOptions.erase("hidden");
+            pstStruct->bExtern = false;
+            pElement->bIsMessage = false;
           }
         }
       }
