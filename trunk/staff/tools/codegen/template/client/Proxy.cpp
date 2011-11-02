@@ -305,7 +305,15 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 \
 #var tCallbackParamName
   staff::Operation tOperation("$(Member.Options.*requestElement||Member.Name)"\
-, "$(Member.Options.*responseElement)", "$(Member.Options.*resultElement)");
+#ifneq($(Member.Options.*responseElement),)
+, "$(Member.Options.*responseElement)"\
+#ifneq($(Member.Return.Type),template)
+#ifneq($(Member.Options.*resultElement),)
+, "$(Member.Options.*resultElement)"\
+#ifeqend
+#ifeqend
+#ifeqend
+);
   staff::DataObject& rdoRequest = tOperation.Request();
 #ifneq($(Interface.Options.*targetNamespace),)
   rdoRequest.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
@@ -385,6 +393,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var sParam tReturn
 #var sParamName
 #var sdoParam rdoResult
+#var sElementName $(Member.Options.*resultElement)
 #cginclude <common/TypeDeserialization.cpp>
 #contextend
 #ifeq($(Member.Return.Type),struct||typedef||template||generic||enum)

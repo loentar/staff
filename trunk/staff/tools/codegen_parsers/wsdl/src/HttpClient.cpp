@@ -102,24 +102,39 @@ namespace codegen
         pResponse = axis2_http_client_get_response(pClient, pEnv);
         if (pResponse)
         {
-          axis2_ssize_t nBodySize = 0;
 #ifdef _DEBUG
           rise::LogDebug2() << "Content Type: " << axis2_http_simple_response_get_content_type(pResponse, pEnv);
-          rise::LogDebug2() << "Content Length: " << axis2_http_simple_response_get_content_length(pResponse, pEnv);
 #endif
           axutil_stream_t* pStream = axis2_http_simple_response_get_body(pResponse, pEnv);
 
-          int nContentLength = axis2_http_simple_response_get_content_length(pResponse, pEnv);
-
-          szBody = reinterpret_cast<char*>(AXIS2_MALLOC(pEnv->allocator, sizeof(char) * nContentLength));
-
           int nReaded = 0;
-          while ((nReaded = axutil_stream_read(pStream, pEnv, szBody + nBodySize, nContentLength - nBodySize)) > 0)
+          int nContentLength = axis2_http_simple_response_get_content_length(pResponse, pEnv);
+          if (nContentLength != -1)
           {
-            nBodySize += nReaded;
-          }
+            rise::LogDebug2() << "Content Length: " << nContentLength;
 
-          sResponse.assign(szBody, nBodySize);
+            axis2_ssize_t nBodySize = 0;
+            szBody = reinterpret_cast<char*>(AXIS2_MALLOC(pEnv->allocator, sizeof(char) * nContentLength));
+
+            while ((nReaded = axutil_stream_read(pStream, pEnv, szBody + nBodySize, nContentLength - nBodySize)) > 0)
+            {
+              nBodySize += nReaded;
+            }
+
+            sResponse.assign(szBody, nBodySize);
+          }
+          else
+          {
+            // chunked
+            rise::LogDebug2() << "Content Length: Unknown";
+
+            static const int nBuffSize = 1024;
+            char szBuffer[nBuffSize];
+            while ((nReaded = axutil_stream_read(pStream, pEnv, szBuffer, nBuffSize)) > 0)
+            {
+              sResponse.append(szBuffer, static_cast<std::string::size_type>(nReaded));
+            }
+          }
 
           AXIS2_FREE(pEnv->allocator, szBody);
           bResult = true;
