@@ -2596,14 +2596,13 @@ namespace codegen
         WrapTypeInTemplate(rDataType, "list", "std::");
       }
 
-      if (pElement->bIsOptional || rElement.bIsOptional)
-      {
-        WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
-      }
-      else
       if (pElement->bIsNillable || rElement.bIsNillable)
       {
         WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Nillable");
+      }
+      if (pElement->bIsOptional || rElement.bIsOptional)
+      {
+        WrapTypeInTemplate(bIsArray ? rDataType.lsParams.front() : rDataType, "Optional");
       }
     }
 
