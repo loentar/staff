@@ -1064,9 +1064,11 @@ namespace codegen
     void Init(WsdlParserImpl* pParser);
     void Parse(rise::xml::CXMLNode& rNodeWsdl, Project& rProject, Interface& rInterface);
     void ParseSchema(const rise::xml::CXMLNode& rSchema);
+    void GetInterfaceAttrs(const rise::xml::CXMLNode &rSchema, Interface &Interface);
     void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst);
     void Import(rise::xml::CXMLNode& rNodeImport, Project& rProject, Interface& rInterface, bool bInclude);
     void ImportAll(rise::xml::CXMLNode& rNode, Project& rProject, Interface& rInterface);
+  public:
   };
 
 
@@ -1616,6 +1618,7 @@ namespace codegen
         // import xsd in definitions
         m_stWsdlTypes.ImportAll(rRootNode, rProject, m_stInterface);
         m_stWsdlTypes.ParseSchema(rRootNode);
+        m_stWsdlTypes.GetInterfaceAttrs(rRootNode, m_stInterface);
       }
 
       for (SimpleTypeList::const_iterator itSimple = m_stWsdlTypes.lsSimpleTypes.begin();
@@ -1729,12 +1732,6 @@ namespace codegen
         else
         {
           tWsdlDoc.LoadFromFile(sFileUri);
-        }
-
-        for (rise::xml::CXMLNode::TXMLAttrConstIterator itTns = rDefs.AttrBegin();
-             itTns != rDefs.AttrEnd(); ++itTns)
-        {
-          m_stInterface.mOptions[itTns->sAttrName] = itTns->sAttrValue.AsString();
         }
 
         // fill in interface name
@@ -3027,7 +3024,17 @@ namespace codegen
         itNodeChild != itTypes->NodeEnd(); itNodeChild = itTypes->FindSubnode("schema", ++itNodeChild))
       {
         ParseSchema(*itNodeChild);
+        GetInterfaceAttrs(*itNodeChild, rInterface);
       }
+    }
+  }
+
+  void WsdlTypes::GetInterfaceAttrs(const rise::xml::CXMLNode& rSchema, Interface& rInterface)
+  {
+    for (rise::xml::CXMLNode::TXMLAttrConstIterator itAttr = rSchema.AttrBegin();
+         itAttr != rSchema.AttrEnd(); ++itAttr)
+    {
+      rInterface.mOptions[itAttr->sAttrName] = itAttr->sAttrValue.AsString();
     }
   }
 
