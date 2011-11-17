@@ -307,8 +307,14 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   staff::Operation tOperation("$(Member.Options.*requestElement||Member.Name)"\
 #ifneq($(Member.Options.*responseElement),)
 , "$(Member.Options.*responseElement)"\
-#ifneq($(Member.Return.Type),template)
 #ifneq($(Member.Options.*resultElement),)
+#var bWriteResp 1
+#ifeq($(Member.Return.Type),template)
+#ifneq($(Member.Return.Name),Optional||Nillable)
+#var bWriteResp 0
+#ifeqend
+#ifeqend
+#ifeq($($bWriteResp),1)
 , "$(Member.Options.*resultElement)"\
 #ifeqend
 #ifeqend
