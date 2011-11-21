@@ -10,6 +10,7 @@
     * Creating a C++ client
       * [ExampleCalculatorClient Calculator client]
       * [ExampleCalculatorNonBlocking Non-blocking C++ client]
+      * [ExampleCalculatorCustomClient Calculator custom client]
     * DAS
       * [ExampleDasDataSource Creating datasource]
       * [ExampleDasClient Creating DAS client]

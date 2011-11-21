@@ -10,6 +10,7 @@
     * Создание C++ клиента
       * [ExampleCalculatorClient клиент Calculator]
       * [ExampleCalculatorNonBlocking Неблокируемый C++ клиент]
+      * [ExampleCalculatorCustomClient Пользовательский C++ клиент]
     * DAS
       * [ExampleDasDataSource Создание источника данных]
       * [ExampleDasClient Создание клиента DAS]
