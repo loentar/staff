@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="$(Project.Interfaces.Interface.NsName.!mangle)_client"
+	Name="$($sProjectName)"
 	ProjectGUID=""
-	RootNamespace="$(Project.Interfaces.Interface.NsName.!mangle)_client"
+	RootNamespace="$($sProjectName)"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

@@ -4,7 +4,7 @@
 QT          += core
 QT          -= gui
 
-TARGET       = $(Project.Interfaces.Interface.Namespace.!dot||Project.Interfaces.Interface.Name.!tolower.!dot)
+TARGET       = $($sProjectName)
 CONFIG      += console
 CONFIG      -= app_bundle
 

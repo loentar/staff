@@ -6,7 +6,7 @@ INTERFACES :=\
  $(Interface.Name).h\
 #end
 
-TARGET := $(Project.Interfaces.Interface.NsName.!mangle)_client
+TARGET := $($sProjectName)
 
 
 PLATFORM ?= \$(shell uname -m)
