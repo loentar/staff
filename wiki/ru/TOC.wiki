@@ -47,6 +47,7 @@
   * [InstallationManual Установка]
     * Windows
       * [InstallationManualWindows Установка staff из исходного кода]
+      * [InstallationManualWindowsMinGW Установка staff из исходного кода с MinGW]
       * [InstallationManualWindowsBinary Установка staff из бинарного кода]
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]

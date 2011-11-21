@@ -47,6 +47,7 @@
   * [InstallationManual Installation]
     * Windows
       * [InstallationManualWindows Install staff from source code]
+      * [InstallationManualWindowsMinGW Install staff from source code under MinGW]
       * [InstallationManualWindowsBinary Install staff from binary tarball]
     * Linux
       * [InstallationManualLinux Install staff from source code]

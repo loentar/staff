@@ -9,7 +9,7 @@
 {{{
 AXIS2C_HOME=c:\ws\axis2c
 STAFF_HOME=c:\ws\staff
-PATH=c:\ws\lib;%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin
+PATH=%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin
 }}}
 
 Эти переменные необходимо установить в свойствах системы. После установки переменных необходимо выполнить повторный вход в систему или перезагрузку Windows.
@@ -19,17 +19,9 @@ PATH=c:\ws\lib;%AXIS2C_HOME%\lib;%STAFF_HOME%\lib;%STAFF_HOME%\bin
 
 Где {{{<ARCH>}}} архитектура пакета: win32 или win64.
 
-Список каталогов, если Вы используете версию MSVC (2005):
+Список каталогов:
 {{{
 c:\ws\axis2c
-c:\ws\staff
-}}}
-
-И если Вы используете версию GCC (MinGW):
-{{{
-c:\ws\axis2c
-c:\ws\include
-c:\ws\lib
 c:\ws\staff
 }}}
 
