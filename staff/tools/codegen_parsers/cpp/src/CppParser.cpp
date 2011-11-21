@@ -297,6 +297,35 @@ namespace codegen
       return !sComment.empty();
     }
 
+    bool CheckIgnoreMetacomment(const std::string& sText)
+    {
+      bool bResult = false;
+      if (sText.substr(1, 11) == "ignoreBegin")
+      {
+        // start ignore block
+        std::string sLine;
+        do
+        {
+          ReadBefore(sLine, "\n");
+          m_tFile.ignore();
+          rise::StrTrim(sLine);
+          if (sLine.size() >= 12 && sLine[0] == '/' && sLine[1] == '/')
+          {
+            sLine.erase(0, 2);
+            rise::StrTrim(sLine);
+            if (sLine.substr(0, 10) == "*ignoreEnd")
+            {
+              bResult = true;
+              break;
+            }
+          }
+        }
+        while (m_tFile.good());
+      }
+
+      return bResult;
+    }
+
     template<typename StructType>
     bool ParseCompositeDataType(const std::list<StructType>& rList, DataType& rDataType)
     {
@@ -937,14 +966,17 @@ namespace codegen
           {
             if (sTmp[0] == '*') // codegen metacomment
             {
-              std::string::size_type nPos = sTmp.find(':', 1);
-              if (nPos != std::string::npos)
-              {  // add an option
-                std::string sName = sTmp.substr(1, nPos - 1);
-                std::string sValue = sTmp.substr(nPos + 1);
-                rise::StrTrim(sName);
-                rise::StrTrim(sValue);
-                stMember.mOptions[sName] = sValue;
+              if (!CheckIgnoreMetacomment(sTmp))
+              {
+                std::string::size_type nPos = sTmp.find(':', 1);
+                if (nPos != std::string::npos)
+                {  // add an option
+                  std::string sName = sTmp.substr(1, nPos - 1);
+                  std::string sValue = sTmp.substr(nPos + 1);
+                  rise::StrTrim(sName);
+                  rise::StrTrim(sValue);
+                  stMember.mOptions[sName] = sValue;
+                }
               }
             }
             else
@@ -1121,14 +1153,17 @@ namespace codegen
           {
             if (sTmp[0] == '*') // codegen metacomment
             {
-              std::string::size_type nPos = sTmp.find(':', 1);
-              if (nPos != std::string::npos)
-              {  // add an option
-                std::string sName = sTmp.substr(1, nPos - 1);
-                std::string sValue = sTmp.substr(nPos + 1);
-                rise::StrTrim(sName);
-                rise::StrTrim(sValue);
-                stParamTmp.mOptions[sName] = sValue;
+              if (!CheckIgnoreMetacomment(sTmp))
+              {
+                std::string::size_type nPos = sTmp.find(':', 1);
+                if (nPos != std::string::npos)
+                {  // add an option
+                  std::string sName = sTmp.substr(1, nPos - 1);
+                  std::string sValue = sTmp.substr(nPos + 1);
+                  rise::StrTrim(sName);
+                  rise::StrTrim(sValue);
+                  stParamTmp.mOptions[sName] = sValue;
+                }
               }
             }
             else
@@ -1328,15 +1363,18 @@ namespace codegen
           {
             if (sTmp[0] == '*') // codegen metacomment
             {
-              std::string::size_type nPos = sTmp.find(':', 1);
-              if (nPos != std::string::npos)
+              if (!CheckIgnoreMetacomment(sTmp))
               {
-                std::string sName = sTmp.substr(1, nPos - 1);
-                rise::StrTrim(sName);
-                if (sName == "value")
+                std::string::size_type nPos = sTmp.find(':', 1);
+                if (nPos != std::string::npos)
                 {
-                  stMember.sValue = sTmp.substr(nPos + 1);
-                  rise::StrTrim(stMember.sValue);
+                  std::string sName = sTmp.substr(1, nPos - 1);
+                  rise::StrTrim(sName);
+                  if (sName == "value")
+                  {
+                    stMember.sValue = sTmp.substr(nPos + 1);
+                    rise::StrTrim(stMember.sValue);
+                  }
                 }
               }
             }
@@ -1500,26 +1538,29 @@ namespace codegen
         {
           if (sTmp[0] == '*') // codegen metacomment
           {
-            std::string::size_type nPos = sTmp.find(':', 1);
-            if (nPos != std::string::npos)
-            {  // add an option
-              std::string sName = sTmp.substr(1, nPos - 1);
-              std::string sValue = sTmp.substr(nPos + 1);
-              rise::StrTrim(sName);
-              rise::StrTrim(sValue);
-              if (sName == "engageModule")
-              {
-                lsModules.push_back(sValue);
-              }
-              else
-              {
-                if (sName.substr(0, 10) == "interface.")
+            if (!CheckIgnoreMetacomment(sTmp))
+            {
+              std::string::size_type nPos = sTmp.find(':', 1);
+              if (nPos != std::string::npos)
+              {  // add an option
+                std::string sName = sTmp.substr(1, nPos - 1);
+                std::string sValue = sTmp.substr(nPos + 1);
+                rise::StrTrim(sName);
+                rise::StrTrim(sValue);
+                if (sName == "engageModule")
                 {
-                  rInterface.mOptions[sName.substr(10)] = sValue;
+                  lsModules.push_back(sValue);
                 }
                 else
                 {
-                  mOptions[sName] = sValue;
+                  if (sName.substr(0, 10) == "interface.")
+                  {
+                    rInterface.mOptions[sName.substr(10)] = sValue;
+                  }
+                  else
+                  {
+                    mOptions[sName] = sValue;
+                  }
                 }
               }
             }
