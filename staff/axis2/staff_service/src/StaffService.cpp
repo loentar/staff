@@ -48,7 +48,7 @@
 #include <staff/component/SharedContext.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
-#ifdef WIN32
+#ifdef _MSC_VER
 #include "version.h"
 #endif
 
