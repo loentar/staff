@@ -3,9 +3,6 @@ include ../VERSION
 
 ifneq "$(wildcard /etc/debian_version)" ""
   PKG = deb
-else
-%:
-	@echo "Unsupported build system"; false
 endif
 
 ifeq ($(AXIS2C_HOME),)
@@ -25,7 +22,11 @@ DISTRIBDIR_DEPLOY_MOD = $(prefix)/libapache2-mod-staff-axis2services/
 
 # == distrib ========================================
 distrib:
+ifneq ($(PKG),)
 	$(MAKE) -C$(PKG) $(MAKECMDGOALS)
+else
+	@echo "Unsupported build system"; false
+endif
 
 # == distrib_deploy =================================
 distrib_deploy: distrib_deploy_check distrib_deploy_libs distrib_deploy_dev distrib_deploy_apache2_mod
@@ -63,8 +64,9 @@ distrib_deploy_apache2_mod:
 
 # == distclean ======================================
 distclean:
+ifneq ($(PKG),)
 	$(MAKE) -C$(PKG) $(MAKECMDGOALS)
-	rm -f *.deb *.build *.changes
+endif
 
 
 # == mkdir ==========================================

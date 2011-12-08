@@ -38,7 +38,7 @@ install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)" "$(INSTALLDIR)$
 	@test ! -d $(INSTALLDIR)$(BINDIR)template || ( echo "removing codegen templates from old location..."; rm -Rf $(INSTALLDIR)$(BINDIR)template )
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
 	ls -d ./templates/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/g" | xargs rm -Rf
-	cp -Rdf templates $(INSTALLDIR)$(LIBDIR)codegen/
+	cp -Rf templates $(INSTALLDIR)$(LIBDIR)codegen/
 	find $(INSTALLDIR)$(LIBDIR)codegen/templates -type d -name '.svn' | xargs rm -Rf
 
 # == uninstall ======================================

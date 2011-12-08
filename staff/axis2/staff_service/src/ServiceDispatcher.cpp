@@ -19,6 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef OS_Darwin
+#include <sys/stat.h>
+#endif
 #include <list>
 #include <rise/common/Log.h>
 #include <rise/common/ExceptionTemplate.h>
@@ -73,22 +76,28 @@ rise::LogEntry();
         for (StringList::const_iterator itComponent = lsComponents.begin();
                 itComponent != lsComponents.end(); ++itComponent)
         {
+          const std::string& sComponentPath = sComponentDir + *itComponent;
           try
           {
+#ifdef OS_Darwin
+            struct stat stStat;
+            if (!lstat(sComponentPath.c_str(), &stStat) && ((stStat.st_mode & S_IFLNK) == S_IFLNK))
+            {
+              continue;
+            }
+#endif
             // loading component
-            rise::LogDebug() << "Loading component: " << (sComponentDir + *itComponent);
-            Component* pComponent = m_lsComponents.LoadPlugin(sComponentDir + *itComponent, true);
+            rise::LogDebug() << "Loading component: " << sComponentPath;
+            Component* pComponent = m_lsComponents.LoadPlugin(sComponentPath, true);
             rSharedContext.AddComponent(pComponent);
           }
           catch(const rise::CException& rEx)
           {
-            rise::LogWarning() << "Can't load component: " << (sComponentDir + *itComponent) << ": " << rEx.GetString();
-            continue;
+            rise::LogWarning() << "Can't load component: " << sComponentPath << ": " << rEx.GetString();
           }
           catch(...)
           {
-            rise::LogWarning() << "Can't load component: " << (sComponentDir + *itComponent) << ": unknown error";
-            continue;
+            rise::LogWarning() << "Can't load component: " << sComponentPath << ": unknown error";
           }
         }
       }
