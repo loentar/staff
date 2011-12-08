@@ -34,7 +34,7 @@
 #include <staff/codegen/CodegenParser.h>
 #include "CodeGen.h"
 #include "XmlGen.h"
-#ifdef WIN32
+#ifdef _MSC_VER
 #include "version.h"
 #endif
 
