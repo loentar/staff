@@ -6,7 +6,7 @@ ifeq "" "$(MAKECMDGOALS)"
   MAKECMDGOALS = make
 endif
 
-ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
+include ../../Makefile.env
 
 MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
 

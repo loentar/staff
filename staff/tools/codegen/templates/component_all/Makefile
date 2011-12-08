@@ -62,17 +62,25 @@ SRCDIR = $($SRCDIR)
 OBJDIR = obj/\$(PLATFORM)/
 OUTDIR = out/\$(PLATFORM)/
 
-INSTALLDIR = \$(STAFF_HOME)/components/
-
 ifneq (\$(DEBUG),)
   CXXFLAGS += -D_DEBUG -g -O0
   LDFLAGS += -g -O0
 endif
 
+ifneq (\$(STAFF_HOME),)
+  CXXFLAGS += -I\$(STAFF_HOME)/include/
+  LDFLAGS += -L\$(STAFF_HOME)/lib
+  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
+  INSTALLDIR = \$(STAFF_HOME)/components/
+else
+  STAFF_CODEGEN = staff_codegen
+  INSTALLDIR = /usr/lib/staff/components/
+endif
+
+
 TARGETNAME = \$(LIBPREFIX)\$(COMPONENT)\$(LIBEXT)
 
-CXXFLAGS += -I\$(STAFF_HOME)/include/
-LDFLAGS += -L\$(STAFF_HOME)/lib -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
+LDFLAGS += -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += \$(LDLIB)\$(TARGETNAME)
 
 #ifneq($($bFromInterface),)
@@ -93,7 +101,7 @@ OBJECTS := \$(patsubst \$(SRCDIR)%.cpp,\$(OBJDIR)%.o,\$(SOURCES))
 .NOTPARALLEL: \$(CODEGEN_FILES)
 
 # == make ===========================================
-make: check "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGETNAME)
+make: "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGETNAME)
 
 all: make
 
@@ -108,10 +116,10 @@ all: make
 \$(NON_CODEGEN_SOURCES): \$(CODEGEN_FILES)
 
 \$(SRCDIR)%Wrapper.h \$(SRCDIR)%Wrapper.cpp:: \$(SRCDIR)%.h
-	\$(STAFF_HOME)/bin/staff_codegen -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
 
 \$(SRCDIR)ComponentImpl.h \$(SRCDIR)ComponentImpl.cpp:: \$(CODEGEN_INTERFACES)
-	\$(STAFF_HOME)/bin/staff_codegen -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
 
 #ifneq($($bFromInterface),)
 #foreach $(Project.Interfaces)
@@ -127,13 +135,13 @@ xsd\
 wsdl\
 #ifeqend
 : \$(SRCDIR)$(Interface.Name).h
-	\$(STAFF_HOME)/bin/staff_codegen -u -twsdl \$(patsubst \$(SRCDIR)%,%,$<) -i\$(SRCDIR) -o\$(OUTDIR)
+	\$(STAFF_CODEGEN) -u -twsdl \$(patsubst \$(SRCDIR)%,%,$<) -i\$(SRCDIR) -o\$(OUTDIR)
 #end
 #end
 #ifeqend
 
 # == install ========================================
-install: check "\$(INSTALLDIR)\$(COMDIR)\$(COMPONENT)/"
+install: "\$(INSTALLDIR)\$(COMDIR)\$(COMPONENT)/"
 	cp -f \$(OUTDIR)\$(TARGETNAME) \$(INSTALLDIR)\$(COMDIR)\$(COMPONENT)/
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
@@ -160,7 +168,7 @@ wsdl\
 #end
 
 # == uninstall ======================================
-uninstall: check
+uninstall:
 	rm -f \$(INSTALLDIR)\$(COMDIR)\$(COMPONENT)/\$(TARGETNAME)
 #foreach $(Project.Interfaces)
 #foreach $(Interface.Classes)
@@ -184,8 +192,3 @@ clean:
 # == mkdir ==========================================
 "%/":
 	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
-
-check:
-ifeq (\$(STAFF_HOME),)
-	@\$(ECHO) "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
-endif

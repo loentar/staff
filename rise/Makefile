@@ -1,11 +1,13 @@
 TARGET = rise
 PROJECT = $(TARGET)
-VERSION = 0.2.8
 
-TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
-include $(TOPDIR)/../Makefile.env
+TOPDIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/..)/
+ifeq ($(MAKEFILE_ENV_INCLUDED),)
+include $(TOPDIR)Makefile.env
+endif
 
 SRCDIR = rise/
+
 TARGETLIB = $(LIBPREFIX)$(TARGET)$(LIBEXT)
 TARGETLIBVER = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 
@@ -34,22 +36,14 @@ else
   CXXFLAGS += $(USE_BFD)
 endif
 
-USRINCDIR = $(STAFF_HOME)/include/
-USRLIBDIR = $(STAFF_HOME)/lib/
 ifneq ($(OS),MINGW)
-USRINCDIRVER = $(USRINCDIR)rise-$(VERSION)/
+  DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise-$(VERSION)/
+  INSTALLINCDIRVER = $(INSTALLINCDIR)rise-$(VERSION)/
 else
-USRINCDIRVER = $(USRINCDIR)rise/
+  DEPLOYINCDIRVER = $(DEPLOYINCDIR)rise/
+  INSTALLINCDIRVER = $(INSTALLINCDIR)rise/
 endif
 
-DEPLOYDIR = $(TOPDIR)/deploy/$(PLATFORM)
-DEPLOYINCDIR = $(DEPLOYDIR)$(USRINCDIR)
-DEPLOYINCDIRVER = $(DEPLOYDIR)$(USRINCDIRVER)
-DEPLOYLIBDIR = $(DEPLOYDIR)$(USRLIBDIR)
-
-ifneq ($(OS),MINGW)
-  CXXFLAGS += -fPIC -rdynamic
-endif
 LDFLAGS = -lpthread -lstdc++
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
@@ -58,6 +52,8 @@ endif
 endif
 ifeq ($(OS),MINGW)
   LDFLAGS += -lws2_32 -limagehlp
+else
+  CXXFLAGS += -rdynamic
 endif
 LDFLAGS += $(LDLIB)$(TARGETLIBVER)
 
@@ -108,9 +104,7 @@ deploy: deploy_headers deploy_lib
 
 deploy_lib: "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETLIBVER)
 	cp -f $(OUTDIR)$(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIBVER)
-ifneq ($(OS),MINGW)
-	ln -sf $(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIB)
-endif
+	$(LN) $(TARGETLIBVER) $(DEPLOYLIBDIR)$(TARGETLIB)
 
 deploy_headers: "$(DEPLOYINCDIRVER)"
 	@echo "deploying headers to $(DEPLOYINCDIRVER)";\
@@ -120,39 +114,30 @@ deploy_headers: "$(DEPLOYINCDIRVER)"
  find $(DEPLOYINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
  find $(DEPLOYINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(DEPLOYINCDIRVER) -type d | xargs chmod a+x;
-ifneq ($(OS),MINGW)
-	ln -nsf rise-$(VERSION) $(DEPLOYINCDIR)rise
-endif
-
-include ../Makefile.distrib
+	$(LN) rise-$(VERSION) $(DEPLOYINCDIR)rise
 
 # == install ========================================
 install: install_headers install_libs
 	-@[ ! -L /usr/lib/librise.so -a ! -L /usr/include/rise ] || (echo uninstalling librise from /usr/lib; rm -Rf /usr/lib/librise.so* /usr/include/rise*)
 
-install_libs: $(OUTDIR)$(TARGETLIBVER) "$(USRLIBDIR)"
-	cp -f $(OUTDIR)$(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIBVER)
-ifneq ($(OS),MINGW)
-	ln -sf $(TARGETLIBVER) $(USRLIBDIR)$(TARGETLIB)
-endif
+install_libs: $(OUTDIR)$(TARGETLIBVER) "$(INSTALLLIBDIR)"
+	cp -f $(OUTDIR)$(TARGETLIBVER) $(INSTALLLIBDIR)$(TARGETLIBVER)
+	$(LN) $(TARGETLIBVER) $(INSTALLLIBDIR)$(TARGETLIB)
 ifeq ($(OS),Linux)
-	test -f /usr/lib/libbfd.so || ln -sf $$(find /usr/lib/libbfd-*.so | head -1) /usr/lib/libbfd.so
+	test -e /usr/lib/libbfd.so || ln -nsf $$(find /usr/lib/libbfd-*.so | head -1) /usr/lib/libbfd.so
 endif
 
-install_headers: "$(USRINCDIRVER)"
-	@echo "installing headers to $(USRINCDIRVER)";\
- cp -Rf $(SRCDIR)/* $(USRINCDIRVER);\
- chmod -R a+r $(USRINCDIRVER);\
- find $(USRINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
- find $(USRINCDIRVER) -type d -name .svn | xargs rm -Rf;\
- find $(USRINCDIRVER) -type d | xargs chmod a+x;
-ifneq ($(OS),MINGW)
-	ln -nsf rise-$(VERSION) $(USRINCDIR)rise
-endif
+install_headers: "$(INSTALLINCDIRVER)"
+	@echo "installing headers to $(INSTALLINCDIRVER)";\
+ cp -Rf $(SRCDIR)/* $(INSTALLINCDIRVER);\
+ chmod -R a+r $(INSTALLINCDIRVER);\
+ find $(INSTALLINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
+ find $(INSTALLINCDIRVER) -type d -name .svn | xargs rm -Rf;\
+ find $(INSTALLINCDIRVER) -type d | xargs chmod a+x;
 
 # == uninstall ======================================
 uninstall:
-	rm -Rf $(USRINCDIR)rise $(USRINCDIRVER) $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIBVER)
+	rm -Rf $(INSTALLINCDIR)rise $(INSTALLINCDIRVER) $(INSTALLLIBDIR)$(TARGETLIB) $(INSTALLLIBDIR)$(TARGETLIBVER)
 
 # == clean ==========================================
 clean:

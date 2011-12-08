@@ -4,6 +4,7 @@ TARGET = codegen
 TARGETNAME = staff_$(TARGET)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
 LDFLAGS += -lrise -lstaffcodegenparser
 
@@ -24,25 +25,26 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" $(OUTDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" "$(DEPLOYDIR)$(LIBDIR)codegen/" $(OUTDIR)$(TARGETNAME)
 	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
-	cp -Rf template $(DEPLOYDIR)$(BINDIR)
-	find $(DEPLOYDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
+	cp -Rf templates $(DEPLOYDIR)$(LIBDIR)codegen/
+	find $(DEPLOYDIR)$(LIBDIR)codegen/ -type d -name '.svn' | xargs rm -Rf
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
-install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)"
+install: check "$(INSTALLDIR)$(BINDIR)" "$(INSTALLDIR)$(INCDIR)" "$(INSTALLDIR)$(LIBDIR)codegen/"
+	@test ! -d $(INSTALLDIR)$(BINDIR)template || ( echo "removing codegen templates from old location..."; rm -Rf $(INSTALLDIR)$(BINDIR)template )
 	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
-	ls -d ./template/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/g" | xargs rm -Rf
-	cp -Rf template $(INSTALLDIR)$(BINDIR)
-	find $(INSTALLDIR)$(BINDIR) -type d -name '.svn' | xargs rm -Rf
+	ls -d ./templates/* | sed "s/^\./$$(echo $(INSTALLDIR)$(BINDIR) | sed 's/\//\\\//g')/g" | xargs rm -Rf
+	cp -Rdf templates $(INSTALLDIR)$(LIBDIR)codegen/
+	find $(INSTALLDIR)$(LIBDIR)codegen/templates -type d -name '.svn' | xargs rm -Rf
 
 # == uninstall ======================================
 uninstall: check
 	rm -f $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
-	rm -Rf $(INSTALLDIR)$(BINDIR)template
+	rm -Rf $(INSTALLDIR)$(LIBDIR)codegen/template
 	-rmdir $(INSTALLDIR)$(BINDIR)
 
 # == clean ==========================================

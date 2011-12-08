@@ -2,11 +2,12 @@ include ../Makefile.env
 
 COMPONENT = staff.das
 TARGET = service
-TARGETNAME = $(LIBPREFIX)staffdas$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)staffdas$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staffdas$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread -lstaffdascommon
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))
@@ -24,11 +25,11 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 .NOTPARALLEL: $(COMPONENT_SERVICES_CODEGEN)
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
@@ -47,9 +48,11 @@ $(OUTDIR)$(COMPONENT).%.wsdl: $(SRCDIR)%.h
 	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" "$(DEPLOYDIR)include/staff/das/service/" $(OUTDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" "$(DEPLOYDIR)include/staff/das/service/" $(OUTDIR)$(LIBTARGETVER)
 	cp -f $(COMPONENT_SERVICES_HEADERS) $(DEPLOYDIR)include/staff/das/service/
-	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/
 
 # == distrib =========================================
 distrib:;
@@ -57,13 +60,14 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/datasources/" "$(STAFF_HOME)/include/staff/das/service/"
 	cp -f $(COMPONENT_SERVICES_HEADERS) $(STAFF_HOME)/include/staff/das/service/
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 
 # == uninstall ======================================
 uninstall: check
 	rm -Rf $(STAFF_HOME)/include/staff/das/service/
-	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	rm -f $(patsubst $(OUTDIR)%, $(INSTALLDIR)$(COMDIR)$(COMPONENT)/%, $(WSDLS))
 	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)/datasources $(INSTALLDIR)$(COMDIR)$(COMPONENT)/providers $(INSTALLDIR)$(COMDIR)$(COMPONENT)
 

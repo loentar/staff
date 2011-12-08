@@ -1,25 +1,26 @@
 include ../../../Makefile.env
 
 TARGET = protobuf
-TARGETNAME = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
 LDFLAGS += -lrise -lstaffcodegenparser
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
 SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
-.NOTPARALLEL: $(OUTDIR)$(TARGETNAME) deploy
+.NOTPARALLEL: $(OUTDIR)$(LIBTARGETVER) deploy
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
@@ -27,14 +28,16 @@ $(OBJDIR)%.o: %.cpp
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)codegen/parsers/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(LIBDIR)codegen/parsers/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)codegen/parsers/
+	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)codegen/parsers/$(LIBTARGET)
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
 install: check "$(INSTALLDIR)$(LIBDIR)codegen/parsers/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(LIBDIR)codegen/parsers/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)codegen/parsers/
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)codegen/parsers/$(LIBTARGET)
 
 # == clean ==========================================
 clean:
@@ -42,7 +45,7 @@ clean:
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLDIR)$(LIBDIR)codegen/parsers/$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(LIBDIR)codegen/parsers/$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)codegen/parsers/$(LIBTARGET)
 	-cd $(INSTALLDIR) && rmdir -p $(LIBDIR)codegen/parsers/
 
 # == mkdir ==========================================

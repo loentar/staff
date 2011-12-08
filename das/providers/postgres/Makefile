@@ -4,34 +4,36 @@ POSTGRESQL_DEV_INSTALLED := $(shell whereis postgresql pgsql 2>/dev/null | grep 
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres
-TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
 LDFLAGS += -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
 ifneq ($(POSTGRESQL_DEV_INSTALLED),0)
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 else
 make:
 	@$(ECHO) "\n\033[33;1mSkipping Postgresql provider compilation because Postgresql development package is not installed.\033[31;0m\n"
 endif
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)
+	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 
 # == distrib =========================================
 distrib:;
@@ -39,7 +41,8 @@ distrib:;
 # == install ========================================
 ifneq ($(POSTGRESQL_DEV_INSTALLED),0)
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 else
 install:;
 endif
@@ -47,7 +50,7 @@ endif
 # == uninstall ======================================
 ifneq ($(POSTGRESQL_DEV_INSTALLED),0)
 uninstall: check
-	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
 else
 uninstall:;

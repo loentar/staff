@@ -114,7 +114,7 @@ public:
     axis2_bool_t bEngaged = axis2_svc_is_module_engaged(m_pAxis2Svc, pEnv, pQName);
     axutil_qname_free(pQName, pEnv);
 
-    if (!bEngaged)    
+    if (!bEngaged)
     {
       rise::LogError() << "staff module is not engaged. Unable to continue.";
       exit(1);
@@ -125,7 +125,7 @@ public:
     bEngaged = axis2_svc_is_module_engaged(m_pAxis2Svc, pEnv, pQName);
     axutil_qname_free(pQName, pEnv);
 
-    if (!bEngaged)    
+    if (!bEngaged)
     {
       rise::LogError() << "staff_security module is not engaged. Unable to continue.";
       exit(1);
@@ -144,9 +144,7 @@ public:
     try
     {
       staff::ServiceDispatcher::Inst().Init(staff::ServiceDispatcher::Events(StaffService::OnConnect, StaffService::OnDisconnect));
-#if defined DEBUG || defined _DEBUG
-      rise::LogInfo() << "StaffService started";
-#endif
+      std::cout << "StaffService started (version " VERSION_FULL ")" << std::endl;
 
       return AXIS2_SUCCESS;
     }
@@ -198,8 +196,6 @@ rise::LogEntry();
     axiom_node_t* pAxiomNode,
     axis2_msg_ctx_t* pMsgCtx)
   {
-rise::LogEntry();
-
     if (pAxiomNode == NULL)
     {
       rise::LogError() << "AxiOM node is NULL\n";
@@ -256,7 +252,6 @@ rise::LogEntry();
       rise::LogDebug2() << "request SOAP Envelope: \n" << rise::ColorInkBlue << staff::DataObject(panEnv).ToString() << "\n" << rise::ColorDefault;
     }
 #endif
-    
 
     staff::Operation tOperation;
     staff::MessageContext tMessageContext(pEnv, pMsgCtx);
@@ -396,17 +391,20 @@ extern "C" AXIS2_EXPORT int axis2_get_instance(axis2_svc_skeleton** ppSvcSkeleto
 {
   *ppSvcSkeleton = StaffService::axis2_Axis2Service_create(pAxEnv);
   if(!(*ppSvcSkeleton))
+  {
     return AXIS2_FAILURE;
+  }
 
   return AXIS2_SUCCESS;
 }
 
 extern "C" AXIS2_EXPORT int axis2_remove_instance(axis2_svc_skeleton_t* pSvcSkeleton, axutil_env_t* pAxEnv)
 {
-rise::LogNotice() << "*";
   axis2_status_t tStatus = AXIS2_FAILURE;
   if (pSvcSkeleton)
+  {
     tStatus = AXIS2_SVC_SKELETON_FREE(pSvcSkeleton, pAxEnv);
+  }
 
   return tStatus;
 }

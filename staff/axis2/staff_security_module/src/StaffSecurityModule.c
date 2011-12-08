@@ -53,7 +53,7 @@
 #define STAFF_SECURITY_DL_NAME "staffsecurity.dll"
 #endif
 #else
-#define STAFF_SECURITY_DL_NAME "libstaffsecurity.so"
+#define STAFF_SECURITY_DL_NAME "libstaffsecurity" LIBRARY_VEREXT
 #endif
 
 axis2_bool_t g_bIsSvrSide = AXIS2_FALSE;

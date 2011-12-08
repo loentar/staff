@@ -2,11 +2,12 @@ include ../../../Makefile.env
 
 COMPONENT = staff.admin
 TARGET = ObjectAdmin
-TARGETNAME = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staff$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -I$(DEPLOYDIR)lib -lstaffcommon -lstaffsecurity -lstaffcomponent -lrise -lpthread
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))
@@ -24,11 +25,11 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 .NOTPARALLEL: $(CODEGEN_SOURCES)
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" codegen $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
@@ -47,20 +48,23 @@ $(OUTDIR)$(COMPONENT).%.wsdl: $(SRCDIR)%.h
 	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)
+	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	rm -f $(patsubst $(OUTDIR)%, $(INSTALLDIR)$(COMDIR)$(COMPONENT)/%, $(WSDLS))
 	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
 

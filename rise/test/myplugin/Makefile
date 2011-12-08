@@ -43,7 +43,7 @@ $(OUTDIR)$(TARGETLIB): $(OBJECTS)
 
 # == uninstall ======================================
 uninstall:
-	rm -Rf $(USRINCDIR)rise $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIB)
+	rm -Rf $(INSTALLINCDIR)rise $(USRLIBDIR)$(TARGETLIB) $(USRLIBDIR)$(TARGETLIB)
 
 # == clean ==========================================
 clean:

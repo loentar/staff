@@ -110,6 +110,19 @@ namespace staff
   {
     m_pImpl->m_sAxis2cHome = GetEnvOpt("AXIS2C_HOME");
     m_pImpl->m_sStaffHome = GetEnvOpt("STAFF_HOME");
+
+    // for dpkg
+#ifndef WIN32
+    if (m_pImpl->m_sAxis2cHome.empty())
+    {
+      m_pImpl->m_sAxis2cHome = "/usr/lib/axis2";
+    }
+
+    if (m_pImpl->m_sStaffHome.empty())
+    {
+      m_pImpl->m_sStaffHome = "/usr/lib/staff";
+    }
+#endif
   }
 
   Runtime::~Runtime()

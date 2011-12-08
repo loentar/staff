@@ -4,7 +4,7 @@
 
 MAKECMDGOALS ?= make
 
-ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
+include ../Makefile.env
 ifneq ($(MAKECMDGOALS),test)
   EXCLUDE_TESTS := -a \! -path './tests/*'
 endif
@@ -31,10 +31,3 @@ ifeq "0" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
-
-PROJECT=staff
-VERSION=2.0.0-tp6
-
-ifeq ($(MAKECMDGOALS),distrib)
-include ../Makefile.distrib
-endif
