@@ -8,9 +8,7 @@ ifneq ($(APXS),)
 make: $(TARGETNAME) deploy
 else
 make:
-	@$(ECHO) "\033[33;1m===============================================================================\033[0m"
-	@$(ECHO) "\033[33;1mWARNING: Can't find apache apxs. Apache2 module \"$(TARGET)\" will not build\033[0m"
-	@$(ECHO) "\033[33;1m===============================================================================\033[0m"
+	@$(ECHO) "\n\033[33;1mSkipping Apache2 module \"$(TARGET)\" compilation: Apache apxs is not found.\033[0m\n"
 endif
 
 ifeq ($(OS),FreeBSD)
@@ -38,8 +36,8 @@ ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)etc/apache2/mods-enabled/ $(DEPLOYROOTDIR)usr/lib/apache2/modules/
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-available/
-	ln -sf ../mods-available/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).conf
-	ln -sf ../mods-available/$(TARGET).load $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).load
+	$(LN) ../mods-available/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).conf
+	$(LN) ../mods-available/$(TARGET).load $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)usr/lib/apache2/modules/
 else
 ifeq ($(APXS),/www/bin/apxs)
@@ -64,8 +62,8 @@ install:
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf /etc/apache2/mods-available/
-	ln -sf ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
-	ln -sf ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
+	$(LN) ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
+	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 else
 ifeq ($(APXS),/www/bin/apxs)

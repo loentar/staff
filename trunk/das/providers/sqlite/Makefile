@@ -2,40 +2,43 @@ include ../../Makefile.env
 
 COMPONENT = staff.das/providers/staff.das.Sqlite
 TARGET = sqlite
-TARGETNAME = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)
+	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
+	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 
 # == distrib =========================================
 distrib:;
 
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(TARGETNAME)
+	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
 
 # == clean ==========================================

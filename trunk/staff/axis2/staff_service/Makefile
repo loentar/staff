@@ -1,12 +1,14 @@
 include ../../Makefile.env
 
 TARGET = staff_service
-TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)$(TARGET)$(LIBEXT)
 
 INSTALLLIBDIR = $(AXIS2C_HOME)/services/staff/
 
-DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/services/staff/
+DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/services/staff/
 
+CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
 CXXFLAGS += -c -I$(DEPLOYDIR)include
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
@@ -15,7 +17,7 @@ else
   LDFLAGS += -laxis2_axiom
 endif
 LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread -lstdc++
-LDFLAGS += $(LDLIB)$(TARGETNAME)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -24,19 +26,20 @@ SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
-deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(LIBTARGETVER)
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYLIBDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(DEPLOYLIBDIR)$(LIBTARGET)
 	cp -f config/services.xml $(DEPLOYLIBDIR)
 
 # == distrib =========================================
@@ -44,12 +47,13 @@ distrib:;
 
 # == install ========================================
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLLIBDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
 	cp -f config/services.xml $(INSTALLLIBDIR)
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLLIBDIR)$(TARGETNAME)
+	rm -f $(INSTALLLIBDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
 
 # == clean ==========================================
 clean:

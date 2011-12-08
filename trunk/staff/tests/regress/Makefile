@@ -6,7 +6,7 @@ MAKECMDGOALS ?= test
 
 LOGFILE := $(MAKECMDGOALS).log
 
-ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
+include ../../../Makefile.env
 
 MAKEFILE_PATHS := $(patsubst ./%/Makefile,%/_,$(shell find . -mindepth 2 -maxdepth 3 -type f -name Makefile))
 

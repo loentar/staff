@@ -10,8 +10,16 @@ CONFIG      -= app_bundle
 
 TEMPLATE     = app
 
-INCLUDEPATH += \$(STAFF_HOME)/include
-LIBS        += -L\$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient -lrise
+STAFF_HOME {
+  INCLUDEPATH += \$(STAFF_HOME)/include
+  LIBS        += -L\$(STAFF_HOME)/lib 
+  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
+}
+!STAFF_HOME {
+  STAFF_CODEGEN = staff_codegen
+}
+
+LIBS        += -lstaffutils -lstaffcommon -lstaffclient -lrise
 
 #var nLastInterface $(Project.Interfaces.$Count)
 #var nLastInterface $($nLastInterface.!dec)
@@ -57,7 +65,7 @@ OTHER_FILES += \\
 staff_client_proxy_decl.name  = staff client proxy header
 staff_client_proxy_decl.input = STAFF_INTERFACES
 staff_client_proxy_decl.output  = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}Proxy.h ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.h
-staff_client_proxy_decl.commands = \$(STAFF_HOME)/bin/staff_codegen -tclient -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h
+staff_client_proxy_decl.commands = $$STAFF_CODEGEN -tclient -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h
 staff_client_proxy_decl.variable_out = GENERATED_FILES
 QMAKE_EXTRA_COMPILERS += staff_client_proxy_decl
 

@@ -1,5 +1,4 @@
-TOPDIR ?= $(shell pwd | sed 's/$$/\//g' | sed 's/^\(.*\/rise\/\).*/\1/g' | grep \/rise\/)
-include $(TOPDIR)/../Makefile.env
+include ../../../Makefile.env
 
 TARGET = rise_test
 PROJECT = $(TARGET)
@@ -17,11 +16,6 @@ DEPLOYDIR = ../../deploy/$(PLATFORM)
 
 CXXFLAGS += -DRISE_TEST -rdynamic -I$(DEPLOYDIR)/usr/include
 LIBS = -L$(DEPLOYDIR)/usr/lib/ -lpthread -lstdc++ -lrise
-
-ifndef ("$(DEBUG)","")
-  CXXFLAGS += -DDEBUG -g -O0
-  LDFLAGS += -g -O0
-endif
 
 VPATH = $(SRCDIR)
 

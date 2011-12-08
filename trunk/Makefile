@@ -4,16 +4,16 @@
 
 MAKECMDGOALS ?= make
 
-ECHO := echo$(shell test -z "$$(echo -e)" && echo ' -e ')
-
 MAKEFILES_DEP = $(wildcard */Makefile.dep)
 MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
+
+include Makefile.env
 
 ifeq "0" "$(PARALLEL)"
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
 endif
 
-#.PHONY: $(MAKECMDGOALS)
+.PHONY: $(MAKECMDGOALS)
 
 #
 #
@@ -21,6 +21,7 @@ endif
 
 ifeq ($(MAKECMDGOALS),distclean)
 $(MAKECMDGOALS):
+	-$(MAKE) -Cdistrib distclean
 	$(MAKE) clean
 	$(MAKE) -C staff/samples clean
 	find das/samples -name Makefile -exec bash -c "echo {} | sed 's/[^\/]*$$//g' | xargs $(MAKE) clean -C" \;
@@ -31,7 +32,12 @@ $(MAKECMDGOALS):
 	$(MAKE) -C rise/test/rise_test test
 	$(MAKE) -C staff/tests test
 else
+ifeq ($(MAKECMDGOALS),distrib)
+$(MAKECMDGOALS):
+	$(MAKE) -C distrib
+else
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
+endif
 endif
 endif
 

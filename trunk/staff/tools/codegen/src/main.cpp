@@ -38,7 +38,7 @@
 void Help()
 {
   std::cerr << "Code generator for Staff\n"
-    "staff_codegen [source files][-t<template>][-p<plugin_name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-u][-e][-n<prj_name>][-x]\n"
+    "staff_codegen [source files][-t<template>][-p<plugin_name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-u][-e][-n<prj_name>][-x][-v]\n"
     "  -t<template>    - Generate source with template name. Example: -tserviceimpl\n"
     "  -p<plugin_name> - Use parser <plugin_name> to read source file(s). (default is cpp). Example: -pwsdl\n"
     "  -i<inputdir>    - Set input dir\n"
@@ -49,7 +49,8 @@ void Help()
     "  -d              - Define environment variables: -dvar1=value1,var2=2,var3\n"
     "  -l[t|p]         - Display parsers(p) and/or templates(t) lists\n"
     "  -n<prj_name>    - Set project name (output file name for xml description)\n"
-    "  -x              - Write xml description\n\n";
+    "  -x              - Write xml description\n"
+    "  -v              - Display current version and exit\n\n";
 }
 
 int main(int nArgs, const char* szArgs[])
@@ -61,11 +62,7 @@ int main(int nArgs, const char* szArgs[])
   }
 
   const char* szStaffHome = getenv("STAFF_HOME");
-  if (!szStaffHome)
-  {
-    std::cerr << "Environment variable STAFF_HOME is not set!!" << std::endl;
-    return 1;
-  }
+  const std::string& sCodegenDir = !szStaffHome ? std::string("/usr/lib/staff/codegen") : std::string(szStaffHome) + "/lib/codegen";
 
   staff::codegen::ParseSettings stParseSettings;
   staff::codegen::Project stProject;
@@ -77,8 +74,8 @@ int main(int nArgs, const char* szArgs[])
   staff::codegen::StringMap mEnv;
   int nResult = 0;
 
-  const std::string& sTemplatesDir = std::string(szStaffHome) + "/bin/template/";
-  const std::string& sPluginsDir = std::string(szStaffHome) + "/lib/codegen/parsers/";
+  const std::string& sTemplatesDir = sCodegenDir + "/templates/";
+  const std::string& sPluginsDir = sCodegenDir + "/parsers/";
   const std::string& sPluginPrefix = RISE_LIBRARY_PREFIX "staffcgparser-";
 
   stProject.sName = "Project1";
@@ -216,6 +213,11 @@ int main(int nArgs, const char* szArgs[])
 
         return 0;
       }
+
+      case 'v':
+        std::cout << "staff_codegen version " VERSION_FULL "\n\nCopyright 2009-2011 Utkin Dmitry\n\n"
+          "Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0" << std::endl;
+        return 0;
 
       default:
         std::cerr << "unrecognized option: " << szArgs[i] << std::endl << std::endl;

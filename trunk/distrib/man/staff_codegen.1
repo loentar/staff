@@ -1,0 +1,178 @@
+.\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+.TH staff_codegen 1 "2011"
+
+.SH NAME
+staff_codegen \- Codegeneration tool for WSF Staff.
+
+.SH SYNOPSIS
+staff_codegen [<source files>] [-t<template>] [-p<plugin_name>] [-i<inputdir>] [-i<outputdir>] [-c<chagedir>] [-u] [-e] [-n<prj_name>] [-x] 
+
+.SH DESCRIPTION
+staff_codegen is a part of WSF Staff. staff_codegen produce Web services related source code.
+
+.SH OPTIONS
+.B -t<template>
+.RS
+Use given template to generate code
+.RE
+
+
+.B -p<plugin_name>
+.RS
+Use parser <plugin_name> to read source code (default: cpp)
+.RE
+
+
+.B -i<inputdir>
+.RS
+Set input directory
+.RE
+
+
+.B -o<outputdir>
+.RS
+Set output directory
+.RE
+
+
+.B -c<changedir>
+.RS
+Set input and output directories, equivalent to -i<changedir> -o<changedir>
+.RE
+
+
+.B -u
+.RS
+Update: generate only missing files, update existing files by date
+.RE
+
+
+.B -e
+.RS
+Supress warning if Interface file does not contain service
+.RE
+
+
+.B -l[t|p]
+.RS
+Display parsers(p) and/or templates(t) lists
+.RE
+
+
+.B -d<var>[=<value>]
+.RS
+Define variables: -dvar1=value1,var2=2,var3
+.RE
+
+.B -n<prj_name>
+.RS
+Set project name
+.RE
+
+.B -x
+.RS
+Write internal xml description. XML file name is in format: "<project_name>.xml"
+.RE
+
+
+For more information visit: http://code.google.com/p/staff/wiki/CodegenCommandLine
+
+.SH EXAMPLES
+
+Generate complete client from WSDL:
+.RS
+staff_codegen -pwsdl -tclient_all Service.wsdl
+.RE
+
+
+Generate complete service from WSDL:
+.RS
+staff_codegen -pwsdl -tcomponent_all Service.wsdl
+.RE
+
+
+Generate service implementation skeleton:
+
+.RS
+staff_codegen -tserviceimpl Service.h
+.RE
+
+
+Create service interface from WSDL:
+
+.RS
+staff_codegen -pwsdl -tinterface Service.wsdl
+.RE
+
+
+Generate interface files, from WSDL files located in wsdl_files into current directory:
+
+.RS
+staff_codegen -iwsdl_files -tinterface -pwsdl Service1.wsdl Service2.wsdl
+.RE
+
+
+Generate WSDL files into directory ../wsdl_files from interface files located in current directory:
+
+.RS
+staff_codegen -o../wsdl_files -twsdl Service1.h Service2.h
+.RE
+
+
+Generate component and service wrapper from directory src into the same directory:
+
+.RS
+staff_codegen -csrc -tcomponent Service1.h
+.RE
+
+
+Generate client proxy if proxy files is missing or older than service interface:
+
+.RS
+staff_codegen -u -tclient Service.h
+.RE
+
+
+Generate xsd-schema for header file without service declaration:
+
+.RS
+staff_codegen -e -twsdl Types.h
+.RE
+
+
+Display the templates list:
+
+.RS
+staff_codegen -lt
+.RE
+
+
+Generate wsdl file, change service location uri:
+
+.RS
+staff_codegen -twsdl -dserviceuri=http://services.org/MyService1
+.RE
+
+
+Generate internal xml description with given name:
+
+.RS
+staff_codegen -x -ntest Service1.h
+.RE
+
+
+.SH LINKS
+.B Project's page:
+http://code.google.com/p/staff
+.RE
+.B Wiki documentation:
+http://code.google.com/p/staff/wiki/Welcome
+.RE
+.B Examples:
+http://code.google.com/p/staff/wiki/Examples
+.RE
+.B Support page:
+http://code.google.com/p/staff/wiki/SupportPage
+.RE

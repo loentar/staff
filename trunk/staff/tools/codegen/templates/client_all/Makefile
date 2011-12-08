@@ -19,8 +19,15 @@ ifneq (\$(DEBUG),)
   LDFLAGS += -g -O0
 endif
 
-CXXFLAGS += -I\$(STAFF_HOME)/include/
-LDFLAGS += -L\$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient -lrise
+ifneq (\$(STAFF_HOME),)
+  CXXFLAGS += -I\$(STAFF_HOME)/include/
+  LDFLAGS += -L\$(STAFF_HOME)/lib
+  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
+else
+  STAFF_CODEGEN = staff_codegen
+endif
+
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffclient -lrise
 
 CODEGEN_INTERFACES := \$(patsubst %.h,\$(SRCDIR)%.h,\$(INTERFACES))
 CODEGEN_HEADERS := \$(patsubst %.h,%Proxy.h,\$(CODEGEN_INTERFACES))
@@ -34,7 +41,7 @@ OBJECTS := \$(patsubst \$(SRCDIR)%.cpp,\$(OBJDIR)%.o,\$(SOURCES))
 .NOTPARALLEL: \$(CODEGEN_FILES)
 
 # == make ===========================================
-make: check "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGET)
+make: "\$(OBJDIR)" "\$(OUTDIR)" \$(OUTDIR)\$(TARGET)
 
 all: make
 
@@ -49,7 +56,7 @@ all: make
 \$(NON_CODEGEN_SOURCES): \$(CODEGEN_SOURCES)
 
 \$(SRCDIR)%Proxy.h \$(SRCDIR)%Proxy.cpp:: \$(SRCDIR)%.h
-	\$(STAFF_HOME)/bin/staff_codegen -u -tclient -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tclient -c\$(SRCDIR) \$(INTERFACES)
 
 # == clean ==========================================
 clean:
@@ -60,11 +67,6 @@ clean:
 # == mkdir ==========================================
 "%/":
 	@[ -z "$@" -o -d "$@" ] || mkdir -p $@ && chmod g+w $@
-
-check:
-ifeq (\$(STAFF_HOME),)
-	@\$(ECHO) "\033[31;1mERROR: STAFF_HOME is not set\033[0m"; false
-endif
 
 # == run ============================================
 run: \$(OUTDIR)\$(TARGET)

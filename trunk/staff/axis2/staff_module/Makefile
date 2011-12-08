@@ -1,9 +1,10 @@
 include ../../Makefile.env
 
 TARGET = staff_module
-TARGETNAME = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
+LIBTARGETVER = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)$(TARGET)$(LIBEXT)
 
-DEPLOYLIBDIR = $(DEPLOYDIR)../axis2c/modules/staff/
+DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
 CFLAGS += -c -I$(AXIS2C_INCDIR)
@@ -13,7 +14,7 @@ ifeq ($(OS),MINGW) # axis2/c library naming bug?
 else
   LFLAGS += -laxis2_axiom
 endif
-LFLAGS += $(LDLIB)$(TARGETNAME)
+LFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -22,19 +23,20 @@ SOURCES := $(wildcard $(patsubst %,%*.c,$(SRCDIR)))
 OBJECTS := $(patsubst %.c,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
-$(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LFLAGS)
+$(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 
 # == deploy ========================================
-deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYLIBDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)" "$(DEPLOYLIBDIR)" $(OUTDIR)$(LIBTARGETVER)
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYLIBDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(DEPLOYLIBDIR)$(LIBTARGET)
 	cp config/module.xml $(DEPLOYLIBDIR)
 
 # == distrib =========================================
@@ -42,12 +44,13 @@ distrib:;
 
 # == install ========================================
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLLIBDIR)$(TARGETNAME)
+	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
 	cp -f config/module.xml $(INSTALLLIBDIR)
 
 # == uninstall ======================================
 uninstall: check
-	rm -f $(INSTALLLIBDIR)$(TARGETNAME)
+	rm -f $(INSTALLLIBDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
 	rm -Rf $(INSTALLINCDIR)
 
 # == clean ==========================================
