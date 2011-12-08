@@ -48,6 +48,9 @@
 #include <staff/component/SharedContext.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
+#ifdef WIN32
+#include "version.h"
+#endif
 
 #if defined LINUX_RELEASE_MCBC
 #define sighandler_t __sighandler_t

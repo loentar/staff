@@ -27,6 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="genversion.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -108,6 +109,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="genversion.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -191,6 +193,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="genversion.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -271,6 +274,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="genversion.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
