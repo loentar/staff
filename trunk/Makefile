@@ -21,7 +21,7 @@ endif
 
 ifeq ($(MAKECMDGOALS),distclean)
 $(MAKECMDGOALS):
-	-$(MAKE) -Cdistrib distclean
+	-$(MAKE) -Cdistrib $(MAKECMDGOALS)
 	$(MAKE) clean
 	$(MAKE) -C staff/samples clean
 	find das/samples -name Makefile -exec bash -c "echo {} | sed 's/[^\/]*$$//g' | xargs $(MAKE) clean -C" \;
@@ -34,7 +34,7 @@ $(MAKECMDGOALS):
 else
 ifeq ($(MAKECMDGOALS),distrib)
 $(MAKECMDGOALS):
-	$(MAKE) -C distrib
+	$(MAKE) -Cdistrib $(MAKECMDGOALS)
 else
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 endif
