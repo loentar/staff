@@ -16,6 +16,11 @@ ifeq ($(OS),MINGW) # axis2/c library naming bug, is axis2_http_common staticaly 
 else
   LFLAGS += -laxis2_axiom -laxis2_http_common
 endif
+ifneq ($(OS),FreeBSD)
+ifneq ($(OS),MINGW)
+  LFLAGS += -ldl
+endif
+endif
 LFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
