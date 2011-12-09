@@ -1,7 +1,7 @@
 Source: staff
 Priority: extra
 Maintainer: Dmitry Utkin <loentar@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~)
+Build-Depends: debhelper (>= 7.0.50~), pkg-config(>= 0.9.0), libaxis2c0 (>= 1.6.0), libaxis2c-dev (>= 1.6.0), apache2-threaded-dev | apache2-prefork-dev (>= 2.2.0)
 Standards-Version: 3.9.1
 Section: libs
 Homepage: http://code.google.com/p/staff
@@ -43,7 +43,7 @@ Description: Web Service Framework for C++ based on Apache Axis2/C. Development 
 Package: libapache2-mod-staff-axis2services
 Section: libs
 Architecture: any
-Depends: libaxis2c0 (>= 1.6.0), apache2, ${shlibs:Depends}, ${misc:Depends}
+Depends: libaxis2c0 (>= 1.6.0), apache2.2-common (>= 2.2.0), ${shlibs:Depends}, ${misc:Depends}
 Description: Web services proxy module for Apache2.
  This is an Apache2 proxy module to forward requests/response to stateful
  Web services on Axis2/C. If you using this module Axis2/C must be started

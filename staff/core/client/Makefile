@@ -11,9 +11,9 @@ LDFLAGS += -lstaffcommon -lrise -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
 else
-  LDFLAGS += -laxis2_axiom
+  LDFLAGS += -laxis2_axiom -laxis2_http_common
 endif
-LDFLAGS += $(LDAXIS2LIBS)
+LDFLAGS += -laxis2_parser
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

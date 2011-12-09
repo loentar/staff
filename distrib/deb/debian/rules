@@ -7,17 +7,21 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+unexport AXIS2C_HOME STAFF_HOME
+
+DEBIAN_DIR = $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+
 build: build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE) -j6 USER=fakeroot -C../..
+	$(MAKE) -j6 USER=fakeroot -C$(realpath $(DEBIAN_DIR)../../..)
 	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-	test -n "$(DO_NOT_CLEAN_SOURCES)" || DO_NOT_CLEAN_SOURCES=1 $(MAKE) distclean -j6 -C../..
+	test -n "$(DO_NOT_CLEAN_SOURCES)" || DO_NOT_CLEAN_SOURCES=1 $(MAKE) distclean -j6 -C$(realpath $(DEBIAN_DIR)../../..)
 	dh_clean
 
 install: build
@@ -25,7 +29,7 @@ install: build
 	dh_testroot
 	dh_prep
 	dh_installdirs
-	$(MAKE) -j4 USER=fakeroot prefix=`pwd`/debian distrib_deploy -C..
+	$(MAKE) -j4 USER=fakeroot prefix=`pwd`/debian distrib_deploy -C$(realpath $(DEBIAN_DIR)../..)
 
 # Build architecture-independent files here.
 binary-indep: build install
