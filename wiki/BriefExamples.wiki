@@ -1,4 +1,4 @@
-#summary staff brief examples
+#summary Common features of WSF Staff in use.
 #labels Featured
 
 <h1>Table of Contents</h1>
@@ -116,9 +116,9 @@ public:
 
 int main(int, const char**)
 {
-  std::auto_ptr< ::samples::Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService< ::samples::Calculator >());
+  std::auto_ptr< Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService<Calculator>());
 
-  RISE_ASSERTES(pCalculator.get(), rise::CLogicNoItemException, "Cannot get client for service samples.Calculator!");
+  RISE_ASSERTES(pCalculator.get(), rise::CLogicNoItemException, "Cannot get client for service Calculator!");
 
   // Invoking the service
 
@@ -237,7 +237,7 @@ void UsersImpl::Del(int id)
 User UsersImpl::Get(int id)
 {
   // search user by id
-  for(UsersList::iterator it = m_lsUsers.begin(); it != m_lsUsers.end(); ++it)
+  for(UsersList::const_iterator it = m_lsUsers.begin(); it != m_lsUsers.end(); ++it)
   {
     if (it->id = id)
     {
@@ -369,6 +369,159 @@ Browser output:
 
 <br/>
 
+
+= Using Optional and Nillable =
+
+== Interface with Optional and Nillable ==
+
+Optional and Nillable is very similar in use.
+
+{{{
+...
+#include <staff/common/Optional.h>
+#include <staff/common/Nillable.h>
+...
+
+// EchoNillOpt.h
+class EchoNillOpt: public staff::IService
+{
+public:
+  virtual staff::Optional<std::string> EchoOptional(const staff::Optional<std::string>& text) = 0;
+  virtual staff::Nillable<std::string> EchoNillable(const staff::Nillable<std::string>& text) = 0;
+};
+
+}}}
+
+== Using Optional and Nillable ==
+
+{{{
+...
+#include <staff/common/Optional.h>
+#include <staff/common/Nillable.h>
+...
+
+  staff::Optional<std::string> text;
+  *text = "Hello, world!"; // set optional text
+  staff::Optional<std::string> result = pEcho->EchoOptional(text);
+
+  std::cout << "result: ";
+  if (!result.IsNull())
+  {
+    std::cout << *result << std::endl;
+  }
+  else
+  {
+    std::cout << "(not set)" << std::endl;
+  }
+  
+
+  staff::Nillable<std::string> text;
+  *text = "Hello, world!"; // set nillable text
+  staff::Nillable<std::string> result = pEcho->EchoNillable(text);
+
+  std::cout << "result: ";
+  if (!result.IsNull())
+  {
+    std::cout << *result << std::endl;
+  }
+  else
+  {
+    std::cout << "(null)" << std::endl;
+  }
+
+...
+}}}
+
+= Using Abstract datatypes =
+
+== Interface with abstract datatypes ==
+
+{{{
+// AbstractTransport.h
+...
+#include <staff/common/Abstract.h>
+...
+
+  // *abstract: true
+  struct Vehicle
+  {
+    // virtual destructor should present to get rtti working
+    virtual ~Vehicle() {}
+  };
+
+  struct Car: public Vehicle
+  {
+    std::string sModel;
+  };
+
+  struct Plane: public Vehicle
+  {
+    std::string sSerialNumber;
+  };
+
+  enum TransportType
+  {
+    TransportTypeCar,
+    TransportTypePlane
+  };
+
+  class Transport: public staff::IService
+  {
+  public:
+    virtual staff::Abstract<Vehicle> GetTransport(TransportType eTransport) = 0;
+  };
+
+}}}
+
+== Using abstract type on service side ==
+
+{{{
+// AbstractTransportImpl.cpp
+...
+
+staff::Abstract<Vehicle> TransportImpl::GetTransport(TransportType eTransport)
+{
+  staff::Abstract<Vehicle> tpResult;
+  switch (eTransport)
+  {
+    case TransportTypeCar:
+    {
+      tpResult = new Car;
+      Car& rCar = static_cast<Car&>(*tpResult);
+      rCar.sModel = "cabriolet";
+      break;
+    }
+    
+    case TransportTypePlane:
+    {
+      tpResult = new Plane;
+      Plane& rPlane = static_cast<Plane&>(*tpResult);
+      rPlane.sSerialNumber = "012345";
+      break;
+    }
+    
+    default:
+      RISE_THROWS(staff::RemoteException, "Invalid transport: " + staff::ToString(eTransport));
+  }
+  
+  return tpResult;
+}
+
+}}}
+
+== Using abstract type on client side ==
+
+{{{
+// AbstractTransportClient.cpp
+...
+
+  staff::Abstract<Vehicle> tResult = pTransport->GetTransport(TransportTypePlane);
+  const Plane& rPlaneRes = dynamic_cast<const Plane&>(*tResult);
+  std::cout << "plane serialno = " << rPlaneRes.sSerialNumber;
+
+...
+}}}
+
 = WSDL generation =
 
 == Generating generic WSDL == 
@@ -390,3 +543,85 @@ staff_codegen -twsdl -dbpel Calculator.h
 
 Calculator.wsdl with BPEL support will be generated.
 
+
+= Protobuf support =
+
+== Generating service interface from .proto file ==
+
+Source Calculator.proto file:
+{{{
+// Calculator.proto
+
+package samples.protobuf.calc;
+
+message AddRequest
+{
+  required int32 a = 1;
+  required int32 b = 2;
+};
+
+message AddResponse
+{
+  required int32 result = 1;
+};
+
+service Calculator
+{
+  rpc Add(AddRequest) returns (AddResponse);
+};
+
+}}}
+
+To generate service interface enter:
+{{{
+staff_codegen -pprotobuf Calculator.proto -tinterface
+}}}
+
+Resulting service interface:
+{{{
+// Calculator.h
+
+#ifndef _Calculator_h_
+#define _Calculator_h_
+
+#include <staff/common/IService.h>
+
+
+namespace samples
+{
+namespace protobuf
+{
+namespace calc
+{
+  struct AddRequest;
+  struct AddResponse;
+
+  struct AddRequest
+  {
+    // *protobufTag: 1
+    int a;
+    // *protobufTag: 2
+    int b;
+  };
+
+  struct AddResponse
+  {
+    // *protobufTag: 1
+    int result;
+  };
+
+
+  //!  service samples.protobuf.calc.Calculator
+  class Calculator: public staff::IService
+  {
+  public:
+    virtual AddResponse Add(const AddRequest& request) = 0;
+  };
+
+}
+}
+}
+
+#endif // _Calculator_h_
+
+}}}
