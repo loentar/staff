@@ -915,17 +915,12 @@ namespace codegen
       {
         std::string sType = itAttrRefType->sAttrValue.AsString();
 
-        if (sType.size() != 0)
+        if (!sType.empty())
         {
           Element stElemType;
-          stElemType.bIsArray = (sType.substr(sType.size() - 2) == "[]");
-          if (stElemType.bIsArray)
-          {
-            sType.erase(sType.size() - 2);
-          }
 
-          stElemType.stType.sName = sType;
-          stElemType.sName = "elem" + stElemType.stType.sName;
+          stElemType.stType.sName = StripPrefix(sType);
+          stElemType.sName = stElemType.stType.sName;
           GetTns(rNodeAttr, stElemType.sNamespace, stElemType.sPrefix);
 
           lsElements.push_back(stElemType);
@@ -974,14 +969,28 @@ namespace codegen
 
       if (itNodeRestriction != rNodeComplexContent.NodeEnd())
       {
-        sParentName = itNodeRestriction->Attribute("base").AsString();
+        const std::string& sBase = itNodeRestriction->Attribute("base").AsString();
 
-        for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAttr =
-             itNodeRestriction->FindSubnode("attribute");
-            itNodeAttr != itNodeRestriction->NodeEnd();
-            itNodeAttr = itNodeRestriction->FindSubnode("attribute", ++itNodeAttr))
+        const std::string& sBaseName = StripPrefix(sBase);
+        const std::string& sBaseNs = FindNamespaceUri(*itNodeRestriction, GetPrefix(sBase));
+        if (sBaseName == "Array" && sBaseNs == "http://schemas.xmlsoap.org/soap/encoding/")
         {
-          ParseComplexAttr(*itNodeAttr);
+          // soap array
+          // TODO: implement SOAP Array support
+          sParentName = "DataObject";
+          sDescr = "Soap Array";
+          bIsSimpleContent = true;
+        }
+        else
+        {
+          sParentName = sBase;
+          for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeAttr =
+               itNodeRestriction->FindSubnode("attribute");
+               itNodeAttr != itNodeRestriction->NodeEnd();
+               itNodeAttr = itNodeRestriction->FindSubnode("attribute", ++itNodeAttr))
+          {
+            ParseComplexAttr(*itNodeAttr);
+          }
         }
       }
     }

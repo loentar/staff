@@ -134,6 +134,7 @@ install_headers: "$(INSTALLINCDIRVER)"
  find $(INSTALLINCDIRVER) -type f -a \( \! -name '*.h' -a  \! -name '*.hpp' \) | xargs rm -f;\
  find $(INSTALLINCDIRVER) -type d -name .svn | xargs rm -Rf;\
  find $(INSTALLINCDIRVER) -type d | xargs chmod a+x;
+	$(LN) rise-$(VERSION) $(INSTALLINCDIR)rise
 
 # == uninstall ======================================
 uninstall:

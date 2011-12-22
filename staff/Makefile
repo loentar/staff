@@ -21,7 +21,7 @@ endif
 #
 # ==  GOALS  ==============================================================
 
-$(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
+$(MAKECMDGOALS): upgrade $(MAKE_ORDER_DEPS)
 
 # must be declared under main goal
 include $(MAKEFILES_DEP)
@@ -31,3 +31,6 @@ ifeq "0" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
+
+upgrade:
+	test -z "$(STAFF_HOME)" -o -L "$(STAFF_HOME)/include/staff" || rm -Rf "$(STAFF_HOME)/include/staff"
