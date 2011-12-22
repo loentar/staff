@@ -53,7 +53,7 @@ install: check install_libs install_headers
 
 install_libs: "$(INSTALLDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGETVER)
-	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
+	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 
 install_headers: "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(INSTALLDIR)$(INCDIR)
