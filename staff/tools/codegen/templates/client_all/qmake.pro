@@ -10,13 +10,14 @@ CONFIG      -= app_bundle
 
 TEMPLATE     = app
 
-STAFF_HOME {
-  INCLUDEPATH += \$(STAFF_HOME)/include
-  LIBS        += -L\$(STAFF_HOME)/lib 
-  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
-}
-!STAFF_HOME {
-  STAFF_CODEGEN = staff_codegen
+STAFF_HOME   = $\$(STAFF_HOME)
+
+!isEmpty (STAFF_HOME) {
+  INCLUDEPATH    += $$STAFF_HOME/include
+  LIBS           += -L$$STAFF_HOME/lib
+  STAFF_CODEGEN   = $$STAFF_HOME/bin/staff_codegen
+} else {
+  STAFF_CODEGEN   = staff_codegen
 }
 
 LIBS        += -lstaffutils -lstaffcommon -lstaffclient -lrise
