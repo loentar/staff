@@ -51,6 +51,7 @@
       * [InstallationManualWindowsBinary Установка staff из бинарного кода]
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]
+      * [InstallationManualUbuntuPpa Установка staff в Ubuntu из PPA]
     * Mac OS X
       * [InstallationManualMacOSX Установка staff из исходного кода]
     * FreeBSD

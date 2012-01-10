@@ -6,6 +6,7 @@
   * [InstallationManualWindows Руководство по установке под Windows из исходного кода]
 
 Руководства по установке под Linux:
+  * [InstallationManualUbuntuPpa Установка staff в Ubuntu из PPA]
   * [InstallationManualLinux Руководство по установке под Linux]
 
 Руководство по установке под Mac OS X:

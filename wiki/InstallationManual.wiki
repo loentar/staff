@@ -6,6 +6,7 @@ Windows installation manuals:
   * [InstallationManualWindows Staff Installation manual for Windows from sources]
 
 Linux installation manuals:
+  * [InstallationManualUbuntuPpa Staff Installation manual from Ubuntu PPA]
   * [InstallationManualLinux Staff Installation manual for Linux]
 
 Mac OS X installation manual:
@@ -13,3 +14,4 @@ Mac OS X installation manual:
 
 FreeBSD installation manual:
   * [InstallationManualFreeBSD Staff Installation manual for FreeBSD]
+
