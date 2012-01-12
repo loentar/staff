@@ -1160,7 +1160,7 @@ namespace codegen
         {
           DataType stDataType;
           Struct* pstStruct = NULL;
-          bool bOptimizeStruct = false;
+          bool bUnwrapStruct = false;
           bool bUnhideStruct = false;
 
           pElement->bIsMessage = true;
@@ -1178,10 +1178,12 @@ namespace codegen
             RISE_ASSERTS(pstStruct, "Can't find struct declaration: " +
                          stDataType.sNamespace + stDataType.sName);
 
-            // expand element to operation's arguments only in case: inline element without references
-            bOptimizeStruct = !pElement->lsComplexTypes.empty() &&
-                pElement->lsComplexTypes.front().lsAttributes.empty() &&
-                pElement->lsComplexTypes.front().lsAttributeGroups.empty() &&
+            // unwrap element to operation's arguments only in case: inline element without references
+            // and no attributes in response
+            bUnwrapStruct = !pElement->lsComplexTypes.empty() &&
+                (!bIsResponse ||
+                  (pElement->lsComplexTypes.front().lsAttributes.empty() &&
+                  pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
                 pstStruct && pstStruct->sParentName.empty() &&
                 (pstStruct->mOptions.empty() ||
                   (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
@@ -1199,7 +1201,7 @@ namespace codegen
             }
             else
             {
-              if (bOptimizeStruct)
+              if (bUnwrapStruct)
               {
                 const Param& rParam = pstStruct->lsMembers.front();
                 // check result element name because it may be renamed
@@ -1217,7 +1219,7 @@ namespace codegen
           }
           else // request
           {
-            if (bOptimizeStruct)
+            if (bUnwrapStruct)
             {
               rMember.mOptions["requestElement"] = pElement->sName;
               for (std::list<Param>::const_iterator itParam = pstStruct->lsMembers.begin();
