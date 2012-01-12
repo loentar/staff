@@ -1180,6 +1180,8 @@ namespace codegen
 
             // expand element to operation's arguments only in case: inline element without references
             bOptimizeStruct = !pElement->lsComplexTypes.empty() &&
+                pElement->lsComplexTypes.front().lsAttributes.empty() &&
+                pElement->lsComplexTypes.front().lsAttributeGroups.empty() &&
                 pstStruct && pstStruct->sParentName.empty() &&
                 (pstStruct->mOptions.empty() ||
                   (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
