@@ -21,9 +21,13 @@ APACHEMODDIR=/usr/libexec/apache2
 endif
 endif
 
+APXS_CFLAGS = $(shell $(APXS) -q CFLAGS)
+ifneq ($(DEBUG),)
+  APXS_CFLAGS += -D_DEBUG -g -O0
+endif
 
-$(TARGETNAME):
-	$(APXS) -c mod_$(TARGET).c
+$(TARGETNAME): mod_$(TARGET).c
+	$(APXS) -S CFLAGS="$(APXS_CFLAGS)" -c mod_$(TARGET).c
 
 # == clean ==========================================
 clean:
@@ -65,6 +69,8 @@ ifeq ($(LINUX_VERSION),debian)
 	$(LN) ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
+	test -n "$(DEBUG)" && rm -f /tmp/axis2services_debug_*.log
+	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart
 else
 ifeq ($(APXS),/www/bin/apxs)
 	mkdir -p /www/conf/mods-enabled/
@@ -86,6 +92,8 @@ ifeq ($(LINUX_VERSION),debian)
 	rm -f ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	rm -f ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	rm -f /usr/lib/apache2/modules/$(TARGETNAME)
+	test -n "$(DEBUG)" && rm -f /tmp/axis2services_debug_*.log
+	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart
 else
 ifeq ($(APXS),/www/bin/apxs)
 	rm -f /www/conf/mods-enabled/$(TARGET).conf
