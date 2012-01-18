@@ -66,10 +66,13 @@ ifneq ($(wildcard /usr/lib/libiberty_pic.a),)
   LDFLAGS += $(DEMANGLEOBJDIR)*.o
 else
 ifneq ($(wildcard /usr/lib/libiberty.a),)
+# detect library usability
+ifeq ($(shell l=/usr/lib/libiberty.a; o=$$(ar t $$l | head -1); ar x $$l $$o && gcc -shared -fPIC $$o -ot 2>&1; echo $?; rm -f t $$o),0)
   DEMANGLELIBNAME = /usr/lib/libiberty.a
   CXXFLAGS += -DRISE_USE_DEMANGLE=1
   DEMANGLEOBJDIR = $(OBJDIR)iberty/
   LDFLAGS += $(DEMANGLEOBJDIR)*.o
+endif
 endif
 endif
 endif
