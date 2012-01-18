@@ -68,9 +68,12 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-#define _DEBUG
-
 static struct sockaddr_in g_saServer;
+static const char* g_szHost = "127.0.0.1";
+static unsigned g_uPort = 9090;
+static const char* g_szAxis2Cmd = NULL;
+static const char* g_szPidFile = "/var/run/axis2.pid";
+static int g_bClientInitialized = 0;
 
 #define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
 #define ASSERT1(EXPRESSION, TEXT, PARAM1) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); return 1; }
@@ -79,14 +82,19 @@ static struct sockaddr_in g_saServer;
 #define ASSERT1_ACT(EXPRESSION, TEXT, PARAM1, ACTION) if (!(EXPRESSION)) { LOG1("ERROR: " TEXT, PARAM1); ACTION; return 1; }
 
 #ifdef _DEBUG
-FILE* pLog = NULL;
-#define LOGLABEL fprintf(pLog, "%s[%d]: %s\n", __FILE__, __LINE__, __FUNCTION__); fflush(pLog);
+FILE* g_pLog = NULL;
+#define LOGLABEL fprintf(g_pLog, "p%d t%d; %s[%d]: %s\n", \
+  getpid(), (int)pthread_self(), __FILE__, __LINE__, __FUNCTION__); fflush(g_pLog);
 
-#define LOGRAW(str) fprintf(pLog, str); fflush(pLog);
-#define LOG(str) fprintf(pLog, "%s[%d]: %s: %s\n", __FILE__, __LINE__, __FUNCTION__, str); fflush(pLog);
-#define LOG1(str, arg1) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1); fflush(pLog);
-#define LOG2(str, arg1, arg2) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2); fflush(pLog);
-#define LOG3(str, arg1, arg2, arg3) fprintf(pLog, "%s[%d]: %s: " str "\n", __FILE__, __LINE__, __FUNCTION__, arg1, arg2, arg3); fflush(pLog);
+#define LOGRAW(str) fprintf(g_pLog, str); fflush(g_pLog);
+#define LOG(str) fprintf(g_pLog, "p%d t%d; %s[%d]: %s: %s\n", \
+  getpid(), (int)pthread_self(), __FILE__, __LINE__, __FUNCTION__, str); fflush(g_pLog);
+#define LOG1(str, arg1) fprintf(g_pLog, "p%d t%d; %s[%d]: %s: " str "\n", \
+  getpid(), (int)pthread_self(), __FILE__, __LINE__, __FUNCTION__, arg1); fflush(g_pLog);
+#define LOG2(str, arg1, arg2) fprintf(g_pLog, "p%d t%d; %s[%d]: %s: " str "\n", \
+  getpid(), (int)pthread_self(), __FILE__, __LINE__, __FUNCTION__, arg1, arg2); fflush(g_pLog);
+#define LOG3(str, arg1, arg2, arg3) fprintf(g_pLog, "p%d t%d; %s[%d]: %s: " str "\n", \
+  getpid(), (int)pthread_self(), __FILE__, __LINE__, __FUNCTION__, arg1, arg2, arg3); fflush(g_pLog);
 
 void dump(const char* szData, unsigned long ulSize, unsigned long ulStartNum)
 {
@@ -97,21 +105,21 @@ void dump(const char* szData, unsigned long ulSize, unsigned long ulStartNum)
   for(i = 0; i < ulSize; i += 0x10) 
   {
     if((i % 0x10) == 0)
-      fprintf(pLog, "\n0x%.8lx   ", i + ulStartNum);
+      fprintf(g_pLog, "\n0x%.8lx   ", i + ulStartNum);
 
     for(j = 0; ((i + j) < ulSize) && (j < 0x10); j++) 
-      fprintf(pLog, "%.2x ", (unsigned char)pBuff[i+j]);
+      fprintf(g_pLog, "%.2x ", (unsigned char)pBuff[i+j]);
 
     for(; j < 0x10; j++)
-      fprintf(pLog, "   ");
+      fprintf(g_pLog, "   ");
 
-    fprintf(pLog, "  ");
+    fprintf(g_pLog, "  ");
 
     for(j = 0; ((i + j) < ulSize) && (j < 0x10); j++) 
-      fprintf(pLog, "%c", (unsigned char)pBuff[i+j] >= ' ' ? pBuff[i+j] : '.');
+      fprintf(g_pLog, "%c", (unsigned char)pBuff[i+j] >= ' ' ? pBuff[i+j] : '.');
   }
-  fprintf(pLog, "\n\n");
-  fflush(pLog);
+  fprintf(g_pLog, "\n\n");
+  fflush(g_pLog);
 }
 #else
 #define LOGLABEL
@@ -147,7 +155,7 @@ int CreateSocket()
 {
   static const int nNoDelay = 1;
   static const struct linger stLinger = {1, 5};
-  static const struct timeval tv = {60, 0};
+  static const struct timeval stTimeout = {60, 0};
 
   int nRet = 0;
   int nSockId = 0;
@@ -155,8 +163,11 @@ int CreateSocket()
   nSockId = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
   if(nSockId == -1)
+  {
     return -2;
+  }
 
+  LOG2("connecting to: %s:%d", inet_ntoa(g_saServer.sin_addr), ntohs(g_saServer.sin_port));
   nRet = connect(nSockId, &g_saServer, sizeof(g_saServer));
   if(nRet == -1)
   {
@@ -166,20 +177,20 @@ int CreateSocket()
 
   setsockopt(nSockId, IPPROTO_TCP, TCP_NODELAY, (const char*)&nNoDelay, sizeof(nNoDelay));
   setsockopt(nSockId, SOL_SOCKET, SO_LINGER, (const char*)&stLinger, sizeof(struct linger));
-  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(struct timeval));
+  setsockopt(nSockId, SOL_SOCKET, SO_RCVTIMEO, (const char*)&stTimeout, sizeof(struct timeval));
   
   return nSockId;
 }
 
-char* StrDupN(request_rec* pReq, const char* szString, int nStringSize)
+char* StrDupN(apr_pool_t* pPool, const char* szString, int nStringSize)
 {
-  char* szTmp = apr_pcalloc(pReq->pool, nStringSize + 1);
+  char* szTmp = apr_pcalloc(pPool, nStringSize + 1);
   strncpy(szTmp, szString, nStringSize);
   szTmp[nStringSize] = '\0';
   return szTmp;
 }
 
-long long Min(long long llA, long long llB)
+inline long long Min(long long llA, long long llB)
 {
   return llA > llB ? llB : llA;
 }
@@ -193,7 +204,7 @@ void FreeBlock(char** ppData)
   }
 }
 
-int ReadBlock(request_rec* pReq, char** ppResultData, long long* pllResultSize)
+int axis2services_read_block(request_rec* pReq, char** ppResultData, long long* pllResultSize)
 {
   static const int nBlockSize = HUGE_STRING_LEN;
   long long llBufferSize = nBlockSize;
@@ -219,13 +230,15 @@ int ReadBlock(request_rec* pReq, char** ppResultData, long long* pllResultSize)
   return 0;
 }
 
-int ProcessRequest(request_rec* pReq, int nSockId, int* pnHttpStatus)
+int axis2services_process_request(request_rec* pReq, int nSockId, int* pnHttpStatus)
 {
   int nResult = 0;
   char szBuffer[HUGE_STRING_LEN];
   static const int nBufferSize = sizeof(szBuffer);
 
-  LOG("\n=================================================\nProcessing request to axis2/c\n=================================================\n");
+  LOG("\n=================================================\n"
+      "Processing request to axis2/c\n"
+      "=================================================\n");
 
   { // make request
     int nHttpHeaderLength = 0;
@@ -288,7 +301,7 @@ LOGLABEL;
     }
 
     nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
-        "Host: 127.0.0.1:9090\r\n");
+        "Host: %s:%u\r\n", g_szHost, g_uPort);
     ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
 
 
@@ -306,7 +319,7 @@ LOGLABEL;
       ASSERT(ap_setup_client_block(pReq, REQUEST_CHUNKED_ERROR) == OK, "Error ap_setup_client_block");
       if (ap_should_client_block(pReq))
       {
-        ASSERT(!ReadBlock(pReq, &pBuffer, &llContentLength), "Failed to read block");
+        ASSERT(!axis2services_read_block(pReq, &pBuffer, &llContentLength), "Failed to read block");
 LOGLABEL;
       }
 
@@ -395,7 +408,9 @@ LOGLABEL;
 LOGLABEL;
   }
 
-  LOG("\n=================================================\nProcessing response from axis2/c\n=================================================\n");
+  LOG("\n=================================================\n"
+      "Processing response from axis2/c\n"
+      "=================================================\n");
 
   //////////////////////////////////////////////////
   // process response
@@ -470,7 +485,7 @@ LOGLABEL;
         // process header
         {
           const char* szName = szHeaderPosBegin;
-          const char* szValue = StrDupN(pReq, szHeaderValueBegin, szHeaderPosEnd - szHeaderValueBegin);
+          const char* szValue = StrDupN(pReq->pool, szHeaderValueBegin, szHeaderPosEnd - szHeaderValueBegin);
           LOG2("Header Name: [%s], Value: [%s]", szName, szValue);
 
           if (!strcmp(szName, "Content-Length"))
@@ -637,7 +652,7 @@ static int axis2services_handler(request_rec* pReq)
       return 504;
     }
 
-    nRet = ProcessRequest(pReq, nSockId, &nHttpStatus);
+    nRet = axis2services_process_request(pReq, nSockId, &nHttpStatus);
 LOGLABEL;
 
     CloseSocket(nSockId);
@@ -649,28 +664,258 @@ LOGLABEL;
   return OK;
 }
 
-static void axis2services_register_hooks(apr_pool_t* pPool)
+static void axis2services_start_axis2(const char* szAxis2Cmd)
 {
-  (void)(pPool);
-  g_saServer.sin_family = AF_INET;
-  g_saServer.sin_port = htons(9090);
-  g_saServer.sin_addr.s_addr = inet_addr("127.0.0.1");
+  pid_t nAxis2Pid = -1;
+  int nLockFileId = -1;
+  int nError = 0;
+  char szPid[32];
 
-  ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
-#ifdef _DEBUG
-pLog = fopen("/tmp/apm.log", "wt");
-LOGLABEL;
-#endif
+  nLockFileId = open(g_szPidFile, O_RDWR | O_CREAT | O_CLOEXEC, 0644);
+  if (nLockFileId == -1)
+  {
+    LOG1("Failed to open lock file: %s", strerror(errno));
+    return;
+  }
+
+  nError = flock(nLockFileId, LOCK_EX);
+  if (nError == -1)
+  {
+    LOG1("Failed to lock file: %s", strerror(errno));
+    close(nLockFileId);
+    nLockFileId = 0;
+    return;
+  }
+
+  nError = read(nLockFileId, szPid, sizeof(szPid) - 1);
+  if (nError > 0)
+  {
+    szPid[nError] = '\0';
+    nAxis2Pid = (pid_t)atoi(szPid);
+    if (nAxis2Pid > 0)
+    {
+      nError = kill(nAxis2Pid, 0);
+      if (nError != -1 || errno != ESRCH)
+      {
+        flock(nLockFileId, LOCK_UN);
+        close(nLockFileId);
+        LOG1("Axis2 already started. PID: %d", nAxis2Pid);
+        return;
+      }
+    }
+  }
+  lseek(nLockFileId, 0, SEEK_SET);
+
+  nAxis2Pid = fork();
+
+  switch (nAxis2Pid)
+  {
+    case 0:
+    {
+      /* Start Axis2 */
+
+      char szParam[16];
+
+      flock(nLockFileId, LOCK_UN);
+      close(nLockFileId);
+
+      /* cd to axis2 start script/binary */
+      {
+        char* szPath = strdup(szAxis2Cmd);
+        if (szPath)
+        {
+          char* szPathPos = strrchr(szPath, '/');
+          if (szPathPos)
+          {
+            *szPathPos = '\0';
+            chdir(szPath);
+          }
+          free(szPath);
+        }
+      }
+
+      snprintf(szParam, sizeof(szParam), "-p%u", g_uPort);
+
+      LOG2("Starting Axis2 with cmd: [%s %s]", szAxis2Cmd, szParam);
+
+      nError = execlp(szAxis2Cmd, szAxis2Cmd, szParam, NULL);
+      LOG2("Error #%d while starting Axis2: %s", nError, strerror(errno));
+      exit(nError);
+      break;
+    }
+
+    case -1:
+    {
+      LOG1("Error while forking process for Axis2: %s", strerror(errno));
+      break;
+    }
+
+    default:
+    {
+      /* write pid */
+      nError = snprintf(szPid, sizeof(szPid), "%d", (int)nAxis2Pid);
+      if (nError > 0)
+      {
+        write(nLockFileId, szPid, nError);
+      }
+    }
+  }
+
+  flock(nLockFileId, LOCK_UN);
+  close(nLockFileId);
 }
 
+static apr_status_t axis2services_shutdown(void* pData)
+{
+  (void)(pData);
+
+LOGLABEL;
+
+  if (!g_bClientInitialized)
+  {
+    pid_t nAxis2Pid = (pid_t)-1;
+    int nLockFileId = -1;
+    int nError = 0;
+    char szPid[32];
+
+    nLockFileId = open(g_szPidFile, O_RDONLY);
+    if (nLockFileId == -1)
+    {
+      if (errno != ENOENT)
+      {
+        LOG1("Failed to open apache2 pid file: %s", strerror(errno));
+      }
+      return;
+    }
+
+    nError = read(nLockFileId, szPid, sizeof(szPid) - 1);
+    close(nLockFileId);
+
+    if (nError > 0)
+    {
+      szPid[nError] = '\0';
+      nAxis2Pid = (pid_t)atoi(szPid);
+      if (nAxis2Pid <= 0)
+      {
+        LOG1("Invalid PID: %d", nAxis2Pid);
+        return;
+      }
+
+      nError = kill(nAxis2Pid, SIGINT);
+      if (nError == -1)
+      {
+        if (errno == ESRCH)
+        {
+          LOG1("Axis2 is already stopped (PID=%d)", nAxis2Pid);
+        }
+        else
+        {
+          LOG2("Failed to stop Axis2 (PID=%d): %s", nAxis2Pid, strerror(errno));
+          return;
+        }
+      }
+      else
+      {
+        LOG("Axis2 was stopped");
+      }
+    }
+    unlink(g_szPidFile);
+  }
+
+  return APR_SUCCESS;
+}
+
+static int axis2services_post_config(apr_pool_t* pConfPool, apr_pool_t* pLogPool,
+                                     apr_pool_t* pTempPool, server_rec* pServer)
+{
+  (void)(pConfPool);
+  (void)(pLogPool);
+  (void)(pTempPool);
+  (void)(pServer);
+
+  LOGLABEL;
+
+  LOG2("using host %s:%u", g_szHost, g_uPort);
+  g_saServer.sin_family = AF_INET;
+  g_saServer.sin_port = htons((unsigned)g_uPort);
+  g_saServer.sin_addr.s_addr = inet_addr(g_szHost);
+
+  if (g_szAxis2Cmd)
+  {
+    axis2services_start_axis2(g_szAxis2Cmd);
+  }
+
+  g_bClientInitialized = 1;
+
+  return 0;
+}
+
+static void axis2services_register_hooks(apr_pool_t* pPool)
+{
+#ifdef _DEBUG
+  char szLogPath[PATH_MAX];
+  snprintf(szLogPath, PATH_MAX, "/tmp/axis2services_debug_%d.log", getpid());
+  g_pLog = fopen(szLogPath, "a");
+#endif
+
+  ap_hook_handler(axis2services_handler, NULL, NULL, APR_HOOK_MIDDLE);
+  ap_hook_post_config(axis2services_post_config, NULL, NULL, APR_HOOK_MIDDLE);
+  apr_pool_pre_cleanup_register(pPool, NULL, axis2services_shutdown);
+
+  LOGLABEL;
+}
+
+static const char* axis2services_set_axis2_host(cmd_parms* pCmdParams, void* pConfig, const char* szAddr)
+{
+  (void)(pCmdParams);
+  (void)(pConfig);
+
+  g_szHost = szAddr;
+  LOG1("Using Axis2 host: [%s]", g_szHost);
+
+  return NULL;
+}
+
+static const char* axis2services_set_axis2_port(cmd_parms* pCmdParams, void* pConfig, const char* szPort)
+{
+  (void)(pCmdParams);
+  (void)(pConfig);
+
+  g_uPort = (unsigned)atoi(szPort);
+  LOG2("Using Axis2 port: [%d] conf port: [%s]", g_uPort, szPort);
+
+  return NULL;
+}
+
+static const char* axis2services_set_axis2_cmd(cmd_parms* pCmdParams, void* pConfig, const char* szAxis2Cmd)
+{
+  (void)(pCmdParams);
+  (void)(pConfig);
+
+  LOG1("Using Axis2 command: [%s]", szAxis2Cmd);
+  g_szAxis2Cmd = szAxis2Cmd;
+
+  return NULL;
+}
+
+
+static const command_rec axis2services_config_commands[] =
+{
+  AP_INIT_RAW_ARGS("Axis2Host", axis2services_set_axis2_host, NULL, RSRC_CONF, "Set Axis2 host"),
+  AP_INIT_RAW_ARGS("Axis2Port", axis2services_set_axis2_port, NULL, RSRC_CONF, "Set Axis2 port"),
+  AP_INIT_RAW_ARGS("Axis2Cmd",  axis2services_set_axis2_cmd,  NULL, RSRC_CONF, "Set Axis2 start cmd"),
+  {NULL}
+};
+
 /* Dispatch list for API hooks */
-module AP_MODULE_DECLARE_DATA axis2services_module = {
-    STANDARD20_MODULE_STUFF, 
-    NULL,                  /* create per-dir    config structures */
-    NULL,                  /* merge  per-dir    config structures */
-    NULL,                  /* create per-server config structures */
-    NULL,                  /* merge  per-server config structures */
-    NULL,                  /* table of config file commands       */
-    axis2services_register_hooks  /* register hooks                      */
+module AP_MODULE_DECLARE_DATA axis2services_module =
+{
+  STANDARD20_MODULE_STUFF,
+  NULL,                           /* create per-dir    config structures */
+  NULL,                           /* merge  per-dir    config structures */
+  NULL,                           /* create per-server config structures */
+  NULL,                           /* merge  per-server config structures */
+  axis2services_config_commands,  /* table of config file commands       */
+  axis2services_register_hooks    /* register hooks                      */
 };
 
