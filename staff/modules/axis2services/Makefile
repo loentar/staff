@@ -69,7 +69,7 @@ ifeq ($(LINUX_VERSION),debian)
 	$(LN) ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
-	test -n "$(DEBUG)" && rm -f /tmp/axis2services_debug_*.log
+	test -z "$(DEBUG)" || rm -f /tmp/axis2services_debug_*.log
 	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart
 else
 ifeq ($(APXS),/www/bin/apxs)
@@ -92,7 +92,7 @@ ifeq ($(LINUX_VERSION),debian)
 	rm -f ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	rm -f ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	rm -f /usr/lib/apache2/modules/$(TARGETNAME)
-	test -n "$(DEBUG)" && rm -f /tmp/axis2services_debug_*.log
+	test -z "$(DEBUG)" || rm -f /tmp/axis2services_debug_*.log
 	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart
 else
 ifeq ($(APXS),/www/bin/apxs)
