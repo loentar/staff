@@ -5,6 +5,7 @@ MYSQL_DEV_INSTALLED := $(shell whereis mysql 2>/dev/null | grep include -c)
 COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql
 LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
+LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/mysql
 LDFLAGS += -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
