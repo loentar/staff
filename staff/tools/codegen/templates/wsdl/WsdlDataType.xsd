@@ -2,7 +2,7 @@
 boolean\
 #else
 #ifeq($(.Type),struct||typedef||enum)
-tns_$(.Namespace.!mangle):$(.Name.!dot)\
+ns_$(.Namespace.!mangle):$(.Name.!dot)\
 #else
 #ifeq($(.Type),template)
 #context $(.TemplateParams.TemplateParam1)

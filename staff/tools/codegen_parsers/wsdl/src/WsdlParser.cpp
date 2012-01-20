@@ -2877,8 +2877,7 @@ namespace codegen
         return m_sRootNamespace;
       }
 
-      // exclude service/interface name
-      sCppNamespace = sNamespace.substr(nPosBegin, nPosEnd - nPosBegin);
+      sCppNamespace = sNamespace.substr(nPosBegin);
 
       rise::StrReplace(sCppNamespace, ".", "::", true);
 

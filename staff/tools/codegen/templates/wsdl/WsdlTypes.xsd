@@ -46,7 +46,7 @@
 " nillable="true" />
 #ifeqend
 #else // bool
-#ifeq($(Typedef.DataType.NsName),map||multimap) // -- map -------------------------
+#ifeq($(Typedef.DataType.Name),map||multimap) // -- map -------------------------
           <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" nillable="true">
             <complexType>
               <sequence>
