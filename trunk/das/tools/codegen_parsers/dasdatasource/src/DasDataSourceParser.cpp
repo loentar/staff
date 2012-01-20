@@ -121,6 +121,31 @@ namespace codegen
     }
   }
 
+  void DasDataSourceParser::ImportInterface(Interface& rInterface, const Interface& rImportedInterface)
+  {
+    Include stInclude;
+    stInclude.sFileName = rImportedInterface.sFileName;
+    stInclude.sFilePath = rImportedInterface.sFilePath;
+    stInclude.sNamespace = rImportedInterface.sNamespace;
+    stInclude.sInterfaceName = rImportedInterface.sName;
+    rInterface.lsIncludes.push_back(stInclude);
+
+    for (std::list<Struct>::const_iterator itStruct = rImportedInterface.lsStructs.begin();
+      itStruct != rImportedInterface.lsStructs.end(); ++itStruct)
+    {
+      rInterface.lsStructs.push_back(*itStruct);
+      rInterface.lsStructs.back().bExtern = true;
+    }
+
+    for (std::list<Typedef>::const_iterator itTypedef = rImportedInterface.lsTypedefs.begin();
+      itTypedef != rImportedInterface.lsTypedefs.end(); ++itTypedef)
+    {
+      rInterface.lsTypedefs.push_back(*itTypedef);
+      rInterface.lsTypedefs.back().bExtern = true;
+    }
+
+  }
+
   void DasDataSourceParser::ParseTypes(const rise::xml::CXMLNode& rNodeTypes, Project& rProject,
                                         Interface& rInterface, const std::string& sNamespace)
   {
@@ -148,12 +173,7 @@ namespace codegen
           if (itInterface->sFileName == sInterfaceFileName &&
               itInterface->sFilePath == sInterfaceFilePath)
           {
-            Include stInclude;
-            stInclude.sFileName = itInterface->sFileName;
-            stInclude.sFilePath = itInterface->sFilePath;
-            stInclude.sNamespace = itInterface->sNamespace;
-            stInclude.sInterfaceName = itInterface->sName;
-            rInterface.lsIncludes.push_back(stInclude);
+            ImportInterface(rInterface, *itInterface);
             bFound = true;
             break;
           }
@@ -183,27 +203,7 @@ namespace codegen
           const rise::xml::CXMLNode& rNodeTypes = tTypesDoc.GetRoot();
           ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
 
-
-          Include stInclude;
-          stInclude.sFileName = sInterfaceFileName;
-          stInclude.sFilePath = sInterfaceFilePath;
-          stInclude.sNamespace = sNamespace;
-          stInclude.sInterfaceName = stInterface.sName;
-          rInterface.lsIncludes.push_back(stInclude);
-
-          for (std::list<Struct>::const_iterator itStruct = stInterface.lsStructs.begin();
-            itStruct != stInterface.lsStructs.end(); ++itStruct)
-          {
-            rInterface.lsStructs.push_back(*itStruct);
-            rInterface.lsStructs.back().bExtern = true;
-          }
-
-          for (std::list<Typedef>::const_iterator itTypedef = stInterface.lsTypedefs.begin();
-            itTypedef != stInterface.lsTypedefs.end(); ++itTypedef)
-          {
-            rInterface.lsTypedefs.push_back(*itTypedef);
-            rInterface.lsTypedefs.back().bExtern = true;
-          }
+          ImportInterface(rInterface, stInterface);
 
           rProject.lsInterfaces.push_back(stInterface);
         }

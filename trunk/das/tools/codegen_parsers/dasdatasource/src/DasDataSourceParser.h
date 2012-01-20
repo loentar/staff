@@ -52,6 +52,7 @@ namespace codegen
   private:
     void ParseProject(const rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
                       const std::string& sRootNs);
+    void ImportInterface(Interface& rInterface, const Interface& rImportedInterface);
     void ParseTypes(const rise::xml::CXMLNode& rNodeTypes, Project& rProject, Interface& rInterface,
                     const std::string& sNamespace);
     void ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr);

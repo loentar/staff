@@ -11,9 +11,9 @@ wsdl: "out/"
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(COMDIR)staff.das/datasources/$(NAMESPACE)/"
 	cp -f datasources/* $(DEPLOYDIR)$(COMDIR)staff.das/datasources/$(NAMESPACE)
-	for wsdl in $(patsubst out/%,%,$(wildcard out/*.wsdl));\
+	for wsdl in $(patsubst out/%,%,$(wildcard out/*.wsdl out/*.xsd));\
 do\
- destdir="$(DEPLOYDIR)$(COMDIR)$$(echo $$wsdl | sed 's/\.*[^\.]*\.wsdl$$//g')/";\
+ destdir="$(DEPLOYDIR)$(COMDIR)$$(echo $$wsdl | sed 's/\.*[^\.]*\.\(wsdl\|\xsd\)$$//g')/";\
  mkdir -p $$destdir && cp -f out/$$wsdl $$destdir;\
 done
 
@@ -23,9 +23,9 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)staff.das/datasources/$(NAMESPACE)/"
 	cp -f datasources/* $(INSTALLDIR)$(COMDIR)staff.das/datasources/$(NAMESPACE)/
-	for wsdl in $(patsubst out/%,%,$(wildcard out/*.wsdl));\
+	for wsdl in $(patsubst out/%,%,$(wildcard out/*.wsdl out/*.xsd));\
 do\
- destdir="$(INSTALLDIR)$(COMDIR)$$(echo $$wsdl | sed 's/\.*[^\.]*\.wsdl$$//g')/";\
+ destdir="$(INSTALLDIR)$(COMDIR)$$(echo $$wsdl | sed 's/\.*[^\.]*\.\(wsdl\|\xsd\)$$//g')/";\
  mkdir -p $$destdir && cp -f out/$$wsdl $$destdir;\
 done
 

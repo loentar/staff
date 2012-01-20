@@ -113,10 +113,17 @@ namespace codegen
 
         if (!nPos)
         {
+          bool bIsOpt = false;
           sVariable = sVariableName.substr(1);
           RISE_ASSERTS(!sVariable.empty(), "Element name expected in Name: " + sVariableName);
           nPos = sVariable.find('.');
           sClass = sVariable.substr(0, nPos); // next element name
+
+          if (sClass[0] == '*') // sClass can't be empty
+          {
+            sClass.erase(0, 1);
+            bIsOpt = true;
+          }
 
           for (; pNode != NULL; pNode = pNode->GetParent())
           {
@@ -132,6 +139,11 @@ namespace codegen
               pNode = &*itNode;
               break;
             }
+          }
+
+          if (!pNode && bIsOpt)
+          {
+            return tEmptyNode;
           }
         }
         else
