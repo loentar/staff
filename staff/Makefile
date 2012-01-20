@@ -33,4 +33,6 @@ endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 upgrade:
+ifeq ($(MAKECMDGOALS),install)
 	test -z "$(STAFF_HOME)" -o -L "$(STAFF_HOME)/include/staff" || rm -Rf "$(STAFF_HOME)/include/staff"
+endif
