@@ -1,6 +1,8 @@
 /usr/local/axis2c/include/axis2-1.6.0
 /usr/local/axis2c/include/axis2-1.7.0
+/usr/lib/axis2/include/axis2-1.6.0
 staff/deploy/x86_64/usr/local/staff/include
+deploy/x86_64/usr/lib/staff/include
 /usr/local/staff/include
 /usr/include/apache2
 /usr/include/apr-1.0

@@ -28,6 +28,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
+#include <staff/das/common/Executor.h>
 #include "Sqlite.h"
 
 namespace staff
@@ -252,7 +253,7 @@ namespace das
     return SqliteImpl::m_sDescr;
   }
 
-  PQueryExecutor SqliteProvider::GetQueryExecutor()
+  PExecutor SqliteProvider::GetExecutor()
   {
     return new SqliteQueryExecutor(this);
   }

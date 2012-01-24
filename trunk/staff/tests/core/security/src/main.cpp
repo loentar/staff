@@ -286,7 +286,7 @@ int main()
       // objects
 
       Object stObject;
-      ObjectList lsObjects;
+      ObjectsList lsObjects;
 
       // create test tree
       {
@@ -340,8 +340,8 @@ int main()
 
       EAccess eAccess = EAccessInherited;
       bool bAccess = false;
-      int nUserId = 3; // 'user'
-      int nGroupId = 3; // 'user'
+      int nUserId = 2; // 'user'
+      int nGroupId = 2; // 'user'
       int nObjectId = -1;
       int nParentObjectId = -1;
 
@@ -351,14 +351,14 @@ int main()
 
       // users acl
       rAcl.GetUserAccess(0, 0, eAccess);
-      Test("Acl user 'nobody' to root object(multiple users)", eAccess == EAccessGranted);
+      Test("Acl user 'nobody' to root object(multiple users)", eAccess == EAccessInherited);
       rAcl.GetUserAccess(0, nUserId, eAccess);
-      Test("Acl user 'user' to root object(multiple users)", eAccess == EAccessGranted);
+      Test("Acl user 'user' to root object(multiple users)", eAccess == EAccessInherited);
 
       rAcl.GetUserAccess(1, 0, eAccess);
-      Test("Acl user 'nobody' to inherited object", eAccess == EAccessInherited);
+      Test("Acl user 'nobody' to component object", eAccess == EAccessGranted);
       rAcl.GetUserAccess(1, nUserId, eAccess);
-      Test("Acl user 'user' to inherited object", eAccess == EAccessInherited);
+      Test("Acl user 'user' to component object", eAccess == EAccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc user 'user' to inherited object", bAccess);
@@ -391,11 +391,18 @@ int main()
 
       // groups acl
       rAcl.GetGroupAccess(0, nGroupId, eAccess);
-      Test("Acl group 'user' to root object(multiple groups)", eAccess == EAccessGranted);
+      Test("Acl group 'user' to root object(multiple groups)", eAccess == EAccessInherited);
 
       rAcl.GetGroupAccess(1, nGroupId, eAccess);
       Test("Acl group 'user' to inherited object", eAccess == EAccessInherited);
 
+
+      rAcl.GetAnyGroupAccess(4, eAccess);
+      Test("Acl user 'nobody' without group to admin object", eAccess == EAccessDenied);
+      rAcl.GetGroupAccess(4, nGroupId, eAccess);
+      Test("Acl group 'user' to admin object", eAccess == EAccessDenied);
+      rAcl.GetGroupAccess(4, 1, eAccess);
+      Test("Acl user 'admin' to admin object", eAccess == EAccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc group 'user' to inherited object", bAccess);

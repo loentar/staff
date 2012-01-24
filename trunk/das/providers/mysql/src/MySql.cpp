@@ -31,6 +31,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
+#include <staff/das/common/Executor.h>
 #include "MySql.h"
 
 namespace staff
@@ -237,7 +238,7 @@ namespace das
     return MySqlImpl::m_sDescr;
   }
 
-  PQueryExecutor MySqlProvider::GetQueryExecutor()
+  PExecutor MySqlProvider::GetExecutor()
   {
     return new MySqlQueryExecutor(this);
   }

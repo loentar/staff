@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Users" descr="Data source for manipulating with users (provider is Services)">
+    <provider name="staff.das.Services">
+      <connection>
+        <service>staff.samples.das.services.Accounts</service>
+      </connection>
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+
+      <User type="struct" descr="User info">
+        <nId type="int" descr="User id"/>
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+      </User>
+      <UsersList type="list" itemtype="User" descr="Users list" />
+
+      <UserToAdd type="struct" descr="User info with password for adding">
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+        <sPassword type="string" descr="User password"/>
+      </UserToAdd>
+      <UserToAddList type="list" itemtype="UserToAdd" descr="Users to add list" />
+
+      <IntList type="list" itemtype="int" descr="list of integers" />
+      <StringList type="list" itemtype="string" descr="list of strings" />
+    </types>
+
+    <operations>
+
+      <operation name="Add" descr="add user, returns added user id">
+        <params>
+          <sName type="string" />
+          <sPassword type="string" />
+          <sDescr type="string" />
+        </params>
+        <return type="int" />
+        <execute>AddUser(sName=$(sName), sPassword=$(sPassword), sDescr=$(sDescr))</execute>
+      </operation>
+
+      <operation name="AddStruct" descr="add user, returns added user id">
+        <params>
+          <stUser type="UserToAdd" />
+        </params>
+        <return type="int" />
+        <execute>AddUser(sName=$(stUser.sName), sPassword=$(stUser.sPassword), sDescr=$(stUser.sDescr))</execute>
+      </operation>
+
+      <operation name="AddList" descr="add multiple users using script, returns added users ids list">
+        <params>
+          <lsUsers type="UserToAddList" />
+        </params>
+        <return type="IntList" />
+        <script>
+          <foreach element="$(lsUsers)">
+            <execute>AddUser(sName=$(sName), sPassword=$(sPassword), sDescr=$(sDescr))</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="AddUsers" descr="add multiple users, returns added users ids list">
+        <params>
+          <lsUsers type="UserToAddList" />
+        </params>
+        <return type="IntList" />
+        <execute>AddUsers(lsUsers=$[lsUsers])</execute>
+      </operation>
+
+      <operation name="Remove" descr="remove user by id">
+        <params>
+          <nId type="int" />
+        </params>
+        <execute>RemoveUser(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="RemoveByName" descr="remove user by name">
+        <params>
+          <sName type="string" />
+        </params>
+        <script>
+          <execute>RemoveUserByName(sName=$(sName))</execute>
+        </script>
+      </operation>
+
+      <operation name="RemoveByNameList" descr="remove users by names list">
+        <params>
+          <lsNames type="StringList" />
+        </params>
+        <script>
+          <var name="names" value="" />
+          <foreach element="$(lsNames)">
+            <execute>RemoveUserByName(sName=$nodeValue)</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="RemoveList" descr="remove users by id list">
+        <params>
+          <lsIds type="IntList" />
+        </params>
+        <script>
+          <foreach element="$(lsIds)">
+            <execute>RemoveUser(nId=$nodeValue)</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="GetUserIdByName" descr="get user id by user name">
+        <params>
+          <sName type="string" />
+        </params>
+        <return type="int" />
+        <execute>GetUserIdByName(sName=$(sName))</execute>
+      </operation>
+
+      <operation name="GetUser" descr="get user info by user id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="User" />
+        <execute>GetUser(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="GetAllUsers">
+        <params/>
+        <return type="UsersList" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+      <operation name="GetAllUsersDataObject">
+        <params/>
+        <return type="DataObject" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+      <operation name="GetAllUsersAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+    </operations>
+
+  </datasource>
+</datasources>
+

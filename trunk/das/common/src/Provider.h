@@ -37,40 +37,11 @@ namespace staff
   {
     class STAFF_DAS_COMMON_EXPORT DataSource;
 
+    class IExecutor;
+    typedef rise::CMutablePtr<IExecutor> PExecutor;
+
     //! string list
     typedef std::list<std::string> StringList;
-
-    //! Query executor interface
-    class IQueryExecutor
-    {
-    public:
-      //! destructor
-      virtual ~IQueryExecutor() {}
-
-      //! reset executor and free result
-      virtual void Reset() = 0;
-
-      //! execute query
-      /*! \param  sExecute - query to execute
-        */
-      virtual void Execute(const std::string& sExecute) = 0;
-
-      //! get fields names
-      /*! \sa Execute
-          \param  rNames - resulting field names
-        */
-      virtual void GetFieldsNames(StringList& rNames) = 0;
-
-      //! get next row
-      /*! \sa Execute
-          \param  rResult - resulting row
-          \return true if result was get
-        */
-      virtual bool GetNextResult(StringList& rResult) = 0;
-    };
-
-    //! smart pointer to Query executor object
-    typedef rise::CMutablePtr<IQueryExecutor> PQueryExecutor;
 
 
     //! DAS provider interface
@@ -101,7 +72,7 @@ namespace staff
       //! create new executor object to execute query
       /*! \return new executor
         */
-      virtual PQueryExecutor GetQueryExecutor() = 0;
+      virtual PExecutor GetExecutor() = 0;
     };
 
     //! pointer to provider wrapper

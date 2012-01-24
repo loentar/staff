@@ -28,6 +28,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
+#include <staff/das/common/Executor.h>
 #include "Postgres.h"
 
 namespace staff
@@ -233,7 +234,7 @@ namespace das
     return PostgresImpl::m_sDescr;
   }
 
-  PQueryExecutor PostgresProvider::GetQueryExecutor()
+  PExecutor PostgresProvider::GetExecutor()
   {
     return new PostgresQueryExecutor(this);
   }

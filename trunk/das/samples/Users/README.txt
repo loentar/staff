@@ -1,3 +1,5 @@
+This is a basic example to show how to work with DAS.
+
 1. install database:
  cd db/<PROVIDER>
  ./install_db
@@ -12,5 +14,8 @@
   out/*/das_users_client
 
 
-Where <PROVIDER> is postgresql, mysql or sqlite.
+Where <PROVIDER> is postgresql, mysql, sqlite or service.
+
+
+When using service provider you should install sqlite db and compile and install service from service/accounts also.
 

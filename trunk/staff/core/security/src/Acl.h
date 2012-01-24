@@ -88,6 +88,12 @@ namespace staff
           */
       void GetGroupAccess(int nObjectId, int nGroupId, EAccess& reAccess);
 
+      //! get access to object for any group
+      /*! \param nObjectId - object id
+          \param reAccess - result: access
+          */
+      void GetAnyGroupAccess(int nObjectId, EAccess& reAccess);
+
       //! calculate access to object for user
       /*! \param nObjectId - object id
           \param nUserId - group id

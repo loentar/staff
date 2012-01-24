@@ -25,6 +25,7 @@
 #include <staff/common/Attribute.h>
 #include <staff/common/DataObject.h>
 #include "DataSource.h"
+#include "Executor.h"
 #include "Provider.h"
 #include "ScriptExecuter.h"
 
@@ -49,15 +50,6 @@ namespace das
     ScriptExecuterImpl(const DataSource& rDataSource, PProvider& rpProvider):
       m_rDataSource(rDataSource), m_rpProvider(rpProvider)
     {
-    }
-
-    PQueryExecutor& GetQueryExecutor()
-    {
-      if (!m_tpExec.Get())
-      {
-        m_tpExec = m_rpProvider->GetQueryExecutor();
-      }
-      return m_tpExec;
     }
 
     DataObject ProcessOperation(const DataObject& rdoOperation)
@@ -126,7 +118,7 @@ namespace das
     }
 
     void ProcessExecute(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                         const DataType& rReturnType, DataObject& rdoResult)
+                        const DataType& rReturnType, DataObject& rdoResult)
     {
       std::string sExecute = rScript.NodeContent().AsString();
       rise::LogDebug1() << "Query is [" + sExecute + "]";
@@ -134,100 +126,124 @@ namespace das
       sExecute = Eval(rdoContext, sExecute);
       rise::LogDebug1() << "Query with params [" + sExecute + "]";
 
-      PQueryExecutor& rpExec = GetQueryExecutor();
-      rpExec->Execute(sExecute);
-
-      StringList lsResult;
-
-      if (rReturnType.eType == DataType::Generic)
+      if (!m_tpExec.Get())
       {
-        if (rpExec->GetNextResult(lsResult))
-        {
-          RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-              rise::ToStr(lsResult.size()) + " expected: 1");
-          rdoResult.SetText(lsResult.front());
-        }
+        m_tpExec = m_rpProvider->GetExecutor();
+        RISE_ASSERT(m_tpExec.Get());
       }
-      else
-      if (rReturnType.eType == DataType::Struct)
-      {
-        if (rpExec->GetNextResult(lsResult))
-        {
-          RISE_ASSERTS(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
-              rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
 
-          StringList::const_iterator itResult = lsResult.begin();
-          for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
-              itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
-          {
-            rdoResult.CreateChild(itType->sName).SetText(*itResult);
-          }
-        }
-      }
-      else
-      if (rReturnType.eType == DataType::DataObject ||
-          (rReturnType.eType == DataType::List && rReturnType.lsChilds.front().eType == DataType::DataObject))
+      switch (m_tpExec->GetType())
       {
-        StringList lsFieldsNames;
-        rpExec->GetFieldsNames(lsFieldsNames);
-        while (rpExec->GetNextResult(lsResult))
+        case IExecutor::TypeRaw:
         {
-          staff::DataObject tdoItem = rdoResult.CreateChild("Item");
+          IRawExecutor* pExec = static_cast<IRawExecutor*>(m_tpExec.Get());
+          pExec->Execute(sExecute, rdoContext, rReturnType, rdoResult);
+          break;
+        }
 
-          for (StringList::const_iterator itResult = lsResult.begin(), itName = lsFieldsNames.begin();
-               itResult != lsResult.end(); ++itResult, ++itName)
-          {
-            tdoItem.CreateChild(*itName).SetText(*itResult);
-          }
-        }
-      }
-      else
-      if (rReturnType.eType == DataType::List) // ---------------- list ----------------------------
-      {
-        const DataType& rItemType = rReturnType.lsChilds.front();
-        if (rItemType.eType == DataType::Generic) // list of generics
+        case IExecutor::TypeQuery:
         {
-          if (rpExec->GetNextResult(lsResult))
+          IQueryExecutor* pExec = static_cast<IQueryExecutor*>(m_tpExec.Get());
+
+          pExec->Execute(sExecute);
+
+          StringList lsResult;
+
+          if (rReturnType.eType == DataType::Generic)
           {
-            RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                         rise::ToStr(lsResult.size()) + " expected: 1");
-            do
+            if (pExec->GetNextResult(lsResult))
             {
-              rdoResult.CreateChild("Item").SetText(lsResult.front());
+              RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+                  rise::ToStr(lsResult.size()) + " expected: 1");
+              rdoResult.SetText(lsResult.front());
             }
-            while (rpExec->GetNextResult(lsResult));
           }
-        }
-        else
-        if (rItemType.eType == DataType::Struct) // list of structs
-        {
-          if (rpExec->GetNextResult(lsResult))
+          else
+          if (rReturnType.eType == DataType::Struct)
           {
-            RISE_ASSERTS(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
-                         rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
-            do
+            if (pExec->GetNextResult(lsResult))
+            {
+              RISE_ASSERTS(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
+                  rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
+
+              StringList::const_iterator itResult = lsResult.begin();
+              for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
+                  itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
+              {
+                rdoResult.CreateChild(itType->sName).SetText(*itResult);
+              }
+            }
+          }
+          else
+          if (rReturnType.eType == DataType::DataObject ||
+              (rReturnType.eType == DataType::List && rReturnType.lsChilds.front().eType == DataType::DataObject))
+          {
+            StringList lsFieldsNames;
+            pExec->GetFieldsNames(lsFieldsNames);
+            while (pExec->GetNextResult(lsResult))
             {
               staff::DataObject tdoItem = rdoResult.CreateChild("Item");
 
-              StringList::const_iterator itResult = lsResult.begin();
-              for (DataTypesList::const_iterator itType = rItemType.lsChilds.begin();
-                  itType != rItemType.lsChilds.end(); ++itType, ++itResult)
+              for (StringList::const_iterator itResult = lsResult.begin(), itName = lsFieldsNames.begin();
+                   itResult != lsResult.end(); ++itResult, ++itName)
               {
-                tdoItem.CreateChild(itType->sName).SetText(*itResult);
+                tdoItem.CreateChild(*itName).SetText(*itResult);
               }
             }
-            while (rpExec->GetNextResult(lsResult));
           }
+          else
+          if (rReturnType.eType == DataType::List) // ---------------- list ----------------------------
+          {
+            const DataType& rItemType = rReturnType.lsChilds.front();
+            if (rItemType.eType == DataType::Generic) // list of generics
+            {
+              if (pExec->GetNextResult(lsResult))
+              {
+                RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+                             rise::ToStr(lsResult.size()) + " expected: 1");
+                do
+                {
+                  rdoResult.CreateChild("Item").SetText(lsResult.front());
+                }
+                while (pExec->GetNextResult(lsResult));
+              }
+            }
+            else
+            if (rItemType.eType == DataType::Struct) // list of structs
+            {
+              if (pExec->GetNextResult(lsResult))
+              {
+                RISE_ASSERTS(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
+                             rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
+                do
+                {
+                  staff::DataObject tdoItem = rdoResult.CreateChild("Item");
+
+                  StringList::const_iterator itResult = lsResult.begin();
+                  for (DataTypesList::const_iterator itType = rItemType.lsChilds.begin();
+                      itType != rItemType.lsChilds.end(); ++itType, ++itResult)
+                  {
+                    tdoItem.CreateChild(itType->sName).SetText(*itResult);
+                  }
+                }
+                while (pExec->GetNextResult(lsResult));
+              }
+            }
+            else
+            {
+              RISE_THROWS(rise::CLogicNoItemException, "Unsupported list item type: " + rReturnType.sType);
+            }
+          }
+          else
+          if (rReturnType.eType != DataType::Void)
+          {
+            RISE_THROWS(rise::CLogicNoItemException, "Unsupported return type: " + rReturnType.sType);
+          }
+          break;
         }
-        else
-        {
-          RISE_THROWS(rise::CLogicNoItemException, "Unsupported list item type: " + rReturnType.sType);
-        }
-      }
-      else
-      if (rReturnType.eType != DataType::Void)
-      {
-        RISE_THROWS(rise::CLogicNoItemException, "Unsupported return type: " + rReturnType.sType);
+
+        default:
+          RISE_THROWS(rise::CLogicNoItemException, "Unknown executor type");
       }
 
     }
@@ -374,7 +390,7 @@ namespace das
         }
         else
         { // short variable name
-          nEnd = sResult.find_first_of(" \n\t\r,.;'\"~`!@#$%^&*()-+=/?", nBegin + 1);
+          nEnd = sResult.find_first_of(" \n\t\r,.;'\"~`!@#$%^&*()[]{}<>-+=/?", nBegin + 1);
 
           if (nEnd == std::string::npos)
           {
@@ -383,6 +399,11 @@ namespace das
 
           nNameBegin = nBegin + 1;
           nNameEnd = nEnd;
+        }
+
+        if (nNameBegin == nNameEnd)
+        {
+          continue;
         }
 
         const std::string& sPath = sResult.substr(nNameBegin, nNameEnd - nNameBegin);
@@ -510,7 +531,7 @@ namespace das
     const DataSource& m_rDataSource;
     PProvider& m_rpProvider;
     VarMap m_mVars;
-    PQueryExecutor m_tpExec;
+    PExecutor m_tpExec;
   };
 
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Groups" descr="Data source for reading groups (provider is Services)">
+    <provider name="staff.das.Services">
+      <connection>
+        <service>staff.samples.das.services.Accounts</service>
+      </connection>
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+      <Group type="struct" descr="Group info">
+        <nId type="int" descr="Group id"/>
+        <sName type="string" descr="Group name"/>
+        <sDescr type="string" descr="Group description"/>
+      </Group>
+      <GroupsList type="list" itemtype="Group" descr="Groups list" />
+    </types>
+
+    <operations>
+      <operation name="GetGroup" descr="get group info by group id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="Group" />
+        <execute>GetGroupById(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="GetAllGroups">
+        <params/>
+        <return type="GroupsList" />
+        <execute>GetGroups()</execute>
+      </operation>
+
+      <operation name="GetAllGroupsAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>GetGroups()</execute>
+      </operation>
+    </operations>
+
+  </datasource>
+</datasources>
+
