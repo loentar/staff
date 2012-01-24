@@ -58,7 +58,7 @@ namespace staff
       //! create new executor object to execute query
       /*! \return new executor
         */
-      virtual PQueryExecutor GetQueryExecutor();
+      virtual PExecutor GetExecutor();
 
     private:
       class MySqlImpl;

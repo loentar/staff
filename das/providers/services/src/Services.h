@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 Utkin Dmitry
+ *  Copyright 2012 Utkin Dmitry
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,15 +27,17 @@
 
 namespace staff
 {
+  class ServiceWrapper;
+
   namespace das
   {
     //! postgres provider
-    class SqliteProvider: public IProvider
+    class ServicesProvider: public IProvider
     {
     public:
-      SqliteProvider();
+      ServicesProvider();
 
-      virtual ~SqliteProvider();
+      virtual ~ServicesProvider();
 
       //! initialize
       /*! \param rDataSource - data source
@@ -61,9 +63,8 @@ namespace staff
       virtual PExecutor GetExecutor();
 
     private:
-      class SqliteImpl;
-      SqliteImpl* m_pImpl;
-      friend class SqliteQueryExecutor;
+      ServiceWrapper* m_pServiceWrapper;
+      friend class ServicesRawExecutor;
     };
 
   }

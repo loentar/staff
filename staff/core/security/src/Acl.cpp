@@ -319,10 +319,13 @@ namespace staff
 
       reAccess = EAccessInherited;
 
-      // checking group access only for existing groups
-      int nResult = sqlite3_prepare_v2(pDb, "SELECT a.permit, a.groupid, u.id FROM objects_to_groups_acl a, groups u WHERE "
-                                              "a.objectid = ?1 AND (a.groupid = ?2 OR a.groupid IS NULL) AND u.id = ?2 "
-                                              "ORDER BY groupid IS NOT NULL DESC LIMIT 0,1", -1, &pVm, NULL);
+      // checking group access for existing groups only
+      int nResult = sqlite3_prepare_v2(pDb,
+                                       "SELECT a.permit, a.groupid, g.id "
+                                       "FROM objects_to_groups_acl a, groups g "
+                                       "WHERE a.objectid = ?1 AND (a.groupid = ?2 OR a.groupid IS NULL) "
+                                          "AND g.id = ?2 "
+                                       "ORDER BY groupid IS NOT NULL DESC LIMIT 0,1", -1, &pVm, NULL);
       RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
@@ -331,6 +334,43 @@ namespace staff
         RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_bind_int(pVm, 2, nGroupId);
+        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+        nResult = sqlite3_step(pVm);
+        if(nResult == SQLITE_ROW)
+        {
+          reAccess = sqlite3_column_int(pVm, 0) == 0 ? EAccessDenied : EAccessGranted;
+        }
+        else
+        {
+          RISE_ASSERTS(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
+        }
+      }
+      catch(...)
+      {
+        sqlite3_finalize(pVm);
+        throw;
+      }
+
+      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+    }
+
+    void Acl::GetAnyGroupAccess(int nObjectId, EAccess& reAccess)
+    {
+      sqlite3* pDb = DbConn::GetDb();
+      sqlite3_stmt* pVm = NULL;
+
+      reAccess = EAccessInherited;
+
+      // checking group access for any group
+      int nResult = sqlite3_prepare_v2(pDb,
+                                       "SELECT a.permit, g.id FROM objects_to_groups_acl a, groups g "
+                                       "WHERE a.objectid = ?1 AND a.groupid IS NULL", -1, &pVm, NULL);
+      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+
+      try
+      {
+        nResult = sqlite3_bind_int(pVm, 1, nObjectId);
         RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_step(pVm);
@@ -387,20 +427,35 @@ namespace staff
           bGroupsGet = true;
         }
 
-        for (IntList::const_iterator itGroupId = lsGroupIds.begin(); itGroupId != lsGroupIds.end(); ++itGroupId)
+        if (!lsGroupIds.empty())
         {
-          GetGroupAccess(nCurrentObjectId, *itGroupId, eAccess);
+          for (IntList::const_iterator itGroupId = lsGroupIds.begin(); itGroupId != lsGroupIds.end(); ++itGroupId)
+          {
+            GetGroupAccess(nCurrentObjectId, *itGroupId, eAccess);
 
 #ifdef _DEBUG
-          rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
-              << ", group id = " << *itGroupId << ", access = " << eAccess;
+            rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
+                << ", group id = " << *itGroupId << ", access = " << eAccess;
 #endif
+
+            if (eAccess != EAccessInherited)
+            {
+              rise::LogDebug2() << "Rule found to access user " << nUserId << " to object: "
+                  << nObjectId << " by entering into group " << *itGroupId <<
+                  " in object: " << nCurrentObjectId << " = " << (eAccess == EAccessGranted);
+              return eAccess == EAccessGranted;
+            }
+          }
+        }
+        else
+        {
+          GetAnyGroupAccess(nCurrentObjectId, eAccess);
 
           if (eAccess != EAccessInherited)
           {
             rise::LogDebug2() << "Rule found to access user " << nUserId << " to object: "
-                << nObjectId << " by entering into group " << *itGroupId <<
-                " in object: " << nCurrentObjectId << " = " << (eAccess == EAccessGranted);
+                << nObjectId << ". This user does not belonging to any group: permit="
+                << (eAccess == EAccessGranted);
             return eAccess == EAccessGranted;
           }
         }
