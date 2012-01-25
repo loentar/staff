@@ -44,10 +44,10 @@ namespace das
     virtual DataObject Invoke(const DataObject& rdoOperation);
 
   private:
-    PProvider& GetProvider();
+    Providers& GetProviders();
 
   private:
-    PProvider m_tpProvider;
+    Providers m_stProviders;
     const DataSource* m_pDataSource;
   };
 }

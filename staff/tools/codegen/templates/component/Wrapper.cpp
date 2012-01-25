@@ -16,6 +16,7 @@
 #include <staff/common/Operation.h>
 #include <staff/common/IService.h>
 #include <staff/component/ServiceInstanceManager.h>
+#include <staff/component/Component.h>
 #include "$(Interface.FilePath)$(Interface.Name)Impl.h"
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
 #include "$(Interface.FilePath)$(Interface.Name)Wrapper.h"
@@ -49,18 +50,17 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
   if (sOperationName == "CreateInstance")
   {
     staff::ServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName,
-                                                                rRequest.GetChildByLocalName("sInstanceId").GetText());
+                                                                rRequest.GetChildTextByLocalName("sInstanceId"));
   }
   else
   if (sOperationName == "FreeInstance")
   {
     staff::ServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName,
-                                                              rRequest.GetChildByLocalName("sInstanceId").GetText());
+                                                              rRequest.GetChildTextByLocalName("sInstanceId"));
   }
   else
   {
-    rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl;
-    tpServiceImpl = GetImpl(sSessionId, sInstanceId);
+    rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl = GetImpl(sSessionId, sInstanceId);
 #foreach $(Class.Members)
     if (sOperationName == "$(Member.Options.*requestElement||Member.Name)")
     {
@@ -145,7 +145,7 @@ $(Member.Return.NsName) tResult = \
 rOperation.Result().SetValue(\
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
-rOperation.Result().AppendChild(
+rOperation.Result().AppendChild(\
 #ifeqend
 #ifeqend
 #ifeqend
@@ -210,6 +210,8 @@ $(Param.Name)\
     {
       RISE_THROWS(staff::RemoteException, "Unknown Operation: " + rOperation.GetName());
     }
+
+    rOperation.GetResponse().SetNamespaceUriGenPrefix("http://tempui.org/" + m_pComponent->GetName());
   }
 }
 

@@ -202,10 +202,8 @@ namespace das
     Deinit();
   }
 
-  void ServicesProvider::Init(const DataSource& rDataSource)
+  void ServicesProvider::Init(const rise::xml::CXMLNode& rConfig)
   {
-    const rise::xml::CXMLNode& rConfig = rDataSource.GetProviderConfig();
-
     // initialize connection
     const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
 

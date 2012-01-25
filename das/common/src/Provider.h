@@ -24,18 +24,22 @@
 
 #include <string>
 #include <list>
+#include <map>
 #include "staffdascommonexport.h"
 
 namespace rise
 {
   template <typename Type> class CMutablePtr;
+  namespace xml
+  {
+    class CXMLNode;
+  }
 }
 
 namespace staff
 {
   namespace das
   {
-    class STAFF_DAS_COMMON_EXPORT DataSource;
 
     class IExecutor;
     typedef rise::CMutablePtr<IExecutor> PExecutor;
@@ -52,9 +56,9 @@ namespace staff
       virtual ~IProvider() {}
 
       //! initialize provider
-      /*! \param rDataSource - data source
+      /*! \param rConfig - provider's config
         */
-      virtual void Init(const DataSource& rDataSource) = 0;
+      virtual void Init(const rise::xml::CXMLNode& rConfig) = 0;
 
       //! deinitialize provider
       virtual void Deinit() = 0;
@@ -77,6 +81,16 @@ namespace staff
 
     //! pointer to provider wrapper
     typedef rise::CMutablePtr<IProvider> PProvider;
+
+    //! map of providers
+    typedef std::map<std::string, PProvider> ProvidersMap;
+
+    //! providers
+    struct Providers
+    {
+      std::string sDefaultId;  //!< default provider id
+      ProvidersMap mProviders; //!< map of providers
+    };
 
 
     //! provider allocator

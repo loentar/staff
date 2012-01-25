@@ -45,7 +45,8 @@ namespace rise
         m_sContent = sNodeText;
     }
 
-    CXMLNode::CXMLNode(const CXMLNode& rNode)
+    CXMLNode::CXMLNode(const CXMLNode& rNode):
+      m_pNodeParent(NULL), m_eNodeType(ENTGENERIC)
     {
       *this = rNode;
     }

@@ -40,7 +40,6 @@ namespace das
   {
   public:
     PostgresImpl():
-      m_pDataSource(NULL),
       m_pConn(NULL),
       m_sHost("localhost"),
       m_sPort("5432"),
@@ -54,8 +53,6 @@ namespace das
   public:
     static const std::string m_sName;
     static const std::string m_sDescr;
-
-    const DataSource* m_pDataSource;
 
     PGconn* m_pConn;
     std::string m_sHost;
@@ -98,8 +95,7 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL
-                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
@@ -182,12 +178,8 @@ namespace das
     delete m_pImpl;
   }
 
-  void PostgresProvider::Init(const DataSource& rDataSource)
+  void PostgresProvider::Init(const rise::xml::CXMLNode& rConfig)
   {
-    m_pImpl->m_pDataSource = &rDataSource;
-
-    const rise::xml::CXMLNode& rConfig = rDataSource.GetProviderConfig();
-
     // initialize connection
     const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
 

@@ -24,7 +24,6 @@
 
 #include <string>
 #include <list>
-#include <map>
 #include <rise/xml/XMLNode.h>
 #include "staffdascommonexport.h"
 
@@ -81,6 +80,18 @@ namespace das
 
   typedef std::list<Operation> OperationsList; //! list of operations
 
+
+  //! information about provider
+  struct STAFF_DAS_COMMON_EXPORT ProviderInfo
+  {
+    std::string sName;            //!< provider name
+    std::string sId;              //!< provider id
+    rise::xml::CXMLNode tConfig;  //!< provider config
+  };
+
+  typedef std::list<ProviderInfo> ProvidersInfoList; //! list of informations about providers
+
+
   //! data source
   class STAFF_DAS_COMMON_EXPORT DataSource
   {
@@ -118,16 +129,15 @@ namespace das
       */
     const std::string& GetNamespace() const;
 
-    //! get datasource provider name
-    /*! \return datasource provider name
+    //! get default provider id
+    /*! \return default provider id
       */
-    const std::string& GetProviderName() const;
+    const std::string& GetDefaultProvideId() const;
 
-
-    //! get datasource provider config
-    /*! \return datasource provider config
+    //! get datasource providers info list
+    /*! \return datasource providers info list
       */
-    const rise::xml::CXMLNode& GetProviderConfig() const;
+    const ProvidersInfoList& GetProviders() const;
 
     //! get type description
     /*! \param sTypeName - type name
@@ -152,8 +162,8 @@ namespace das
       */
     const DataTypesList& GetTypes() const;
 
-    //! get operations map
-    /*! \return operations map
+    //! get operations list
+    /*! \return operations list
       */
     const OperationsList& GetOperations() const;
 
@@ -179,12 +189,12 @@ namespace das
     std::string m_sName;                        //!< datasource name
     std::string m_sDescr;                       //!< datasource description
     std::string m_sNamespace;                   //!< namespace
-    std::string m_sProviderName;                //!< provider name
+    std::string m_sDefaultProviderId;           //!< default provider id
+    ProvidersInfoList m_lsProviders;            //!< providers
     std::string m_sFileName;                    //!< datasource file name
-    rise::xml::CXMLNode m_tNodeProviderConfig;  //!< provider config
     DataTypesList m_lsTypes;                    //!< defined types
-    OperationsList m_lsOperations;              //!< datasource's operations map
-    IncludesList m_lsIncludes;                  //!< included types map
+    OperationsList m_lsOperations;              //!< datasource's operations list
+    IncludesList m_lsIncludes;                  //!< included types list
   };
 }
 }
