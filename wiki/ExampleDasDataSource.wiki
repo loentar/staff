@@ -147,3 +147,6 @@ Follow [ExampleDasClient this] guide to create client for datasource.
 
 Download datasource, database, client source code [http://code.google.com/p/staff/downloads/detail?name=samples.das.Accounts.7z here].
 
+== 6. Datasource that uses multiple providers ==
+
+Datasource that uses multiple providers is [DasMultipleProviders here].

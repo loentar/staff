@@ -27,4 +27,4 @@
 == DAS ==
   * [ExampleDasDataSource Создание источников данных для DAS]
   * [ExampleDasClient Создание клиента DAS]
-
+  * [DasMultipleProviders Использование нескольких провайдеров в одном источнике данных]

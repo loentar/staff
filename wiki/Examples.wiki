@@ -27,5 +27,4 @@
 == DAS ==
   * [ExampleDasDataSource Creating datasource for DAS]
   * [ExampleDasClient Creating a data source client]
-
-
+  * [DasMultipleProviders How to use multiple providers in single datasource]

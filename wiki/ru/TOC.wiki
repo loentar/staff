@@ -14,6 +14,7 @@
     * DAS
       * [ExampleDasDataSource Создание источника данных]
       * [ExampleDasClient Создание клиента DAS]
+      * [DasMultipleProviders Несколько провайдеров]
     * Создание AJAX клиента
       * [ExampleCalculatorAjaxClient Ajax-клиент]
     * Создание J2ME клиента
