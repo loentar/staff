@@ -54,7 +54,7 @@ namespace das
     {
       itAttr = itProvider->FindAttribute("id");
 
-      if (itAttr != rDataSourceNode.AttrEnd())
+      if (itAttr != itProvider->AttrEnd())
       {
         sId = itAttr->sAttrValue.AsString();
       }
