@@ -1178,16 +1178,20 @@ namespace codegen
             RISE_ASSERTS(pstStruct, "Can't find struct declaration: " +
                          stDataType.sNamespace + stDataType.sName);
 
-            // unwrap element to operation's arguments only in case: inline element without references
-            // and no attributes in response
-            bUnwrapStruct = !pElement->lsComplexTypes.empty() &&
-                (!bIsResponse ||
-                  (pElement->lsComplexTypes.front().lsAttributes.empty() &&
-                  pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
-                pstStruct && pstStruct->sParentName.empty() &&
-                (pstStruct->mOptions.empty() ||
-                  (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
-                pstStruct->lsStructs.empty() && pstStruct->lsEnums.empty();
+            if (!m_pParseSettings->mEnv.count("dontunwrap"))
+            {
+              // unwrap element to operation's arguments only in case: inline element without references
+              // and no attributes in response
+              bUnwrapStruct = !pElement->lsComplexTypes.empty() &&
+                  (!bIsResponse ||
+                    (pElement->lsComplexTypes.front().lsAttributes.empty() &&
+                    pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
+                  pstStruct && pstStruct->sParentName.empty() &&
+                  !!pstStruct->lsMembers.front().mOptions.count("choice") &&
+                  (pstStruct->mOptions.empty() ||
+                    (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
+                  pstStruct->lsStructs.empty() && pstStruct->lsEnums.empty();
+            }
           }
 
           if (bIsResponse) // response
