@@ -46,7 +46,46 @@ namespace das
   {
     rise::LogDebug() << "Loading datasource file: " << sFileName;
 
-    m_tNodeProviderConfig = rDataSourceNode.Subnode("provider");
+    m_lsProviders.clear();
+    std::string sId;
+    rise::xml::CXMLNode::TXMLAttrConstIterator itAttr;
+    rise::xml::CXMLNode::TXMLNodeConstIterator itProvider = rDataSourceNode.NodeBegin();
+    while ((itProvider = rDataSourceNode.FindSubnode("provider", itProvider)) != rDataSourceNode.NodeEnd())
+    {
+      itAttr = itProvider->FindAttribute("id");
+
+      if (itAttr != rDataSourceNode.AttrEnd())
+      {
+        sId = itAttr->sAttrValue.AsString();
+      }
+      else
+      {
+        sId.clear();
+      }
+
+      if (m_lsProviders.empty())
+      {
+        m_sDefaultProviderId = sId;
+      }
+      else
+      {
+        RISE_ASSERTS(!sId.empty(), "When using multiple providers you should set unique id for each");
+      }
+
+      for (ProvidersInfoList::const_iterator itProv = m_lsProviders.begin();
+           itProv != m_lsProviders.end(); ++itProv)
+      {
+        RISE_ASSERTS(itProv->sId != sId, "Duplicated provider id: " + sId);
+      }
+
+      m_lsProviders.push_back(ProviderInfo());
+      ProviderInfo& rInfo = m_lsProviders.back();
+
+      rInfo.sName = itProvider->Attribute("name").AsString();
+      rInfo.sId = sId;
+      rInfo.tConfig = *itProvider;
+      ++itProvider;
+    }
 
     m_sFileName = sFileName;
     m_sNamespace.erase();
@@ -60,8 +99,6 @@ namespace das
     m_sName = rDataSourceNode.Attribute("name").AsString();
 
     ParseDescr(rDataSourceNode, m_sDescr);
-
-    m_sProviderName = m_tNodeProviderConfig.Attribute("name").AsString();
 
     // Types
     m_lsTypes.clear();
@@ -279,14 +316,14 @@ namespace das
     return m_sNamespace;
   }
 
-  const std::string& DataSource::GetProviderName() const
+  const std::string& DataSource::GetDefaultProvideId() const
   {
-    return m_sProviderName;
+    return m_sDefaultProviderId;
   }
 
-  const rise::xml::CXMLNode& DataSource::GetProviderConfig() const
+  const ProvidersInfoList& DataSource::GetProviders() const
   {
-    return m_tNodeProviderConfig;
+    return m_lsProviders;
   }
 
   const DataType& DataSource::GetType(const std::string& sTypeName) const

@@ -43,7 +43,6 @@ namespace das
   {
   public:
     MySqlImpl():
-      m_pDataSource(NULL),
       m_sHost("localhost"),
       m_sPort("3306"),
       m_bConnected(false)
@@ -54,8 +53,6 @@ namespace das
   public:
     static const std::string m_sName;
     static const std::string m_sDescr;
-
-    const DataSource* m_pDataSource;
 
     MYSQL m_tConn;
     std::string m_sHost;
@@ -100,8 +97,7 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected
-                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
 
       Reset();
 
@@ -187,12 +183,8 @@ namespace das
     delete m_pImpl;
   }
 
-  void MySqlProvider::Init(const DataSource& rDataSource)
+  void MySqlProvider::Init(const rise::xml::CXMLNode& rConfig)
   {
-    m_pImpl->m_pDataSource = &rDataSource;
-
-    const rise::xml::CXMLNode& rConfig = rDataSource.GetProviderConfig();
-
     // initialize connection
     const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
 

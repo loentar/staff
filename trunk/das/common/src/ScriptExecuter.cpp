@@ -46,9 +46,12 @@ namespace das
   public:
     typedef std::map<std::string, Var> VarMap;
 
+    //! list of executors
+    typedef std::map<std::string, PExecutor> ExecutorsMap;
+
   public:
-    ScriptExecuterImpl(const DataSource& rDataSource, PProvider& rpProvider):
-      m_rDataSource(rDataSource), m_rpProvider(rpProvider)
+    ScriptExecuterImpl(const DataSource& rDataSource, Providers& rstProviders):
+      m_rDataSource(rDataSource), m_rstProviders(rstProviders)
     {
     }
 
@@ -117,6 +120,41 @@ namespace das
       }
     }
 
+    const std::string& GetProviderId(const rise::xml::CXMLNode& rScript) const
+    {
+      const rise::xml::CXMLNode* pElem = &rScript;
+      rise::xml::CXMLNode::TXMLAttrConstIterator itAttr;
+      while (pElem)
+      {
+        const std::string& sNodeName = pElem->NodeName();
+        if (sNodeName == "operation")
+        {
+          break;
+        }
+        else
+        if (sNodeName == "execute" || sNodeName == "script")
+        {
+          itAttr = pElem->FindAttribute("providerid");
+          if (itAttr != pElem->AttrEnd())
+          {
+            return itAttr->sAttrValue.AsString();
+          }
+        }
+        else
+        if (sNodeName == "provider")
+        {
+          itAttr = pElem->FindAttribute("id");
+          if (itAttr != pElem->AttrEnd())
+          {
+            return itAttr->sAttrValue.AsString();
+          }
+        }
+        pElem = pElem->GetParent();
+      }
+
+      return m_rstProviders.sDefaultId;
+    }
+
     void ProcessExecute(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
                         const DataType& rReturnType, DataObject& rdoResult)
     {
@@ -126,24 +164,31 @@ namespace das
       sExecute = Eval(rdoContext, sExecute);
       rise::LogDebug1() << "Query with params [" + sExecute + "]";
 
-      if (!m_tpExec.Get())
+      const std::string& sProviderId = GetProviderId(rScript);
+
+      PExecutor& rpExec = m_mExec[sProviderId];
+      if (!rpExec.Get())
       {
-        m_tpExec = m_rpProvider->GetExecutor();
-        RISE_ASSERT(m_tpExec.Get());
+        ProvidersMap::iterator itProvider = m_rstProviders.mProviders.find(sProviderId);
+        RISE_ASSERTS(itProvider != m_rstProviders.mProviders.end(), "Provider with id=["
+                     + sProviderId + "] does not exists");
+
+        rpExec = itProvider->second->GetExecutor();
+        RISE_ASSERT(rpExec.Get());
       }
 
-      switch (m_tpExec->GetType())
+      switch (rpExec->GetType())
       {
         case IExecutor::TypeRaw:
         {
-          IRawExecutor* pExec = static_cast<IRawExecutor*>(m_tpExec.Get());
+          IRawExecutor* pExec = static_cast<IRawExecutor*>(rpExec.Get());
           pExec->Execute(sExecute, rdoContext, rReturnType, rdoResult);
           break;
         }
 
         case IExecutor::TypeQuery:
         {
-          IQueryExecutor* pExec = static_cast<IQueryExecutor*>(m_tpExec.Get());
+          IQueryExecutor* pExec = static_cast<IQueryExecutor*>(rpExec.Get());
 
           pExec->Execute(sExecute);
 
@@ -529,15 +574,15 @@ namespace das
 
   public:
     const DataSource& m_rDataSource;
-    PProvider& m_rpProvider;
+    Providers& m_rstProviders;
     VarMap m_mVars;
-    PExecutor m_tpExec;
+    ExecutorsMap m_mExec;
   };
 
 
-  ScriptExecuter::ScriptExecuter(const DataSource& rDataSource, PProvider& rpProvider)
+  ScriptExecuter::ScriptExecuter(const DataSource& rDataSource, Providers& rstProviders)
   {
-    m_pImpl = new ScriptExecuterImpl(rDataSource, rpProvider);
+    m_pImpl = new ScriptExecuterImpl(rDataSource, rstProviders);
   }
 
   ScriptExecuter::~ScriptExecuter()

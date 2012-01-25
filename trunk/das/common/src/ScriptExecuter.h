@@ -24,6 +24,7 @@
 #define SCRIPTEXECUTER_H
 
 #include "staffdascommonexport.h"
+#include <string>
 
 namespace rise
 {
@@ -53,15 +54,16 @@ namespace staff
 {
 namespace das
 {
+
   //! script executer
   class STAFF_DAS_COMMON_EXPORT ScriptExecuter
   {
   public:
     //! construct script executer
     /*! \param rDataSource - data source
-        \param rpProvicer - provider from datasource
+        \param rstProviders - providers for datasource
       */
-    ScriptExecuter(const DataSource& rDataSource, PProvider& rpProvider);
+    ScriptExecuter(const DataSource& rDataSource, Providers& rstProviders);
 
     //! destructor
     ~ScriptExecuter();

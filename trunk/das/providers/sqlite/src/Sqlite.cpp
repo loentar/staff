@@ -40,7 +40,6 @@ namespace das
   {
   public:
     SqliteImpl():
-      m_pDataSource(NULL),
       m_pConn(NULL)
     {
     }
@@ -49,8 +48,6 @@ namespace das
   public:
     static const std::string m_sName;
     static const std::string m_sDescr;
-
-    const DataSource* m_pDataSource;
 
     sqlite3* m_pConn;
     std::string m_sDataBase;
@@ -87,8 +84,7 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL
-                   && m_pProvider->m_pImpl->m_pDataSource != NULL, "Not Initialized");
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
@@ -171,12 +167,8 @@ namespace das
     delete m_pImpl;
   }
 
-  void SqliteProvider::Init(const DataSource& rDataSource)
+  void SqliteProvider::Init(const rise::xml::CXMLNode& rConfig)
   {
-    m_pImpl->m_pDataSource = &rDataSource;
-
-    const rise::xml::CXMLNode& rConfig = rDataSource.GetProviderConfig();
-
     // initialize connection
     const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
 

@@ -40,9 +40,9 @@ namespace staff
       virtual ~ServicesProvider();
 
       //! initialize
-      /*! \param rDataSource - data source
+      /*! \param rConfig - provider config
         */
-      virtual void Init(const DataSource& rDataSource);
+      virtual void Init(const rise::xml::CXMLNode& rConfig);
 
       //! deinitialize
       virtual void Deinit();

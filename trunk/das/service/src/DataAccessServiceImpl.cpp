@@ -70,17 +70,28 @@ namespace das
   {
     m_pDataSource = &DataSourceFactory::Inst().GetDataSource(sDataSource);
 
-    const std::string& sProvider = m_pDataSource->GetProviderName();
+    const ProvidersInfoList& rlsProviders = m_pDataSource->GetProviders();
 
-    m_tpProvider = ProviderFactory::Inst().Allocate(sProvider);
-    RISE_ASSERTS(m_tpProvider.Get() != NULL, "Can't allocate provider [" + sProvider + "]");
-    m_tpProvider->Init(*m_pDataSource);
+    if (!rlsProviders.empty())
+    {
+      ProviderFactory& rProviderFactory = ProviderFactory::Inst();
+      m_stProviders.sDefaultId = rlsProviders.front().sId;
+
+      for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
+           itProvider != rlsProviders.end(); ++itProvider)
+      {
+        PProvider tpProvider = rProviderFactory.Allocate(itProvider->sName);
+        tpProvider->Init(itProvider->tConfig);
+        m_stProviders.mProviders[itProvider->sId] = tpProvider;
+      }
+    }
   }
 
   void DataAccessServiceImpl::FreeDataSource()
   {
     m_pDataSource = NULL;
-    m_tpProvider.Release();
+    m_stProviders.sDefaultId.clear();
+    m_stProviders.mProviders.clear();
   }
 
   DataObject& operator<<(DataObject& rdoTypes, const DataType& rType)
@@ -259,9 +270,9 @@ namespace das
 
   DataObject DataAccessServiceImpl::Invoke(const DataObject& rdoOperation)
   {
-    RISE_ASSERTS(m_tpProvider.Get() != NULL, "Not initialized");
+    RISE_ASSERTS(m_pDataSource, "Not initialized");
 
-    ScriptExecuter tScriptExecuter(*m_pDataSource, m_tpProvider);
+    ScriptExecuter tScriptExecuter(*m_pDataSource, m_stProviders);
     return tScriptExecuter.Process(rdoOperation);
   }
 

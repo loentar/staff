@@ -58,25 +58,29 @@ namespace das
         rise::CFileFind::Find(sDir, lsDataSourcesFiles, "*.datasources", rise::CFileFind::EFA_FILE);
         for (StringList::const_iterator itFile = lsDataSourcesFiles.begin(); itFile != lsDataSourcesFiles.end(); ++itFile)
         {
-          rise::xml::CXMLDocument tDoc;
-          const std::string& sFileName = sDir + RISE_PATH_SEPARATOR + *itFile;
-
-          tDoc.LoadFromFile(sFileName);
-
-          for (rise::xml::CXMLNode::TXMLNodeConstIterator itDataSource = tDoc.GetRoot().NodeBegin();
-              itDataSource != tDoc.GetRoot().NodeEnd(); ++itDataSource)
+          try
           {
-            if (itDataSource->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-            {
-              DataSource tDataSource;
-              tDataSource.Load(*itDataSource, sFileName);
-              const std::string& sNamespace = tDataSource.GetNamespace();
-              const std::string& sName = tDataSource.GetName();
+            rise::xml::CXMLDocument tDoc;
+            const std::string& sFileName = sDir + RISE_PATH_SEPARATOR + *itFile;
 
-              rise::LogDebug2() << "Adding datasource: " << sNamespace << "." << sName;
-              m_mDataSourcesNamespaces[sNamespace][sName] = tDataSource;
+            tDoc.LoadFromFile(sFileName);
+
+            for (rise::xml::CXMLNode::TXMLNodeConstIterator itDataSource = tDoc.GetRoot().NodeBegin();
+                itDataSource != tDoc.GetRoot().NodeEnd(); ++itDataSource)
+            {
+              if (itDataSource->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+              {
+                DataSource tDataSource;
+                tDataSource.Load(*itDataSource, sFileName);
+                const std::string& sNamespace = tDataSource.GetNamespace();
+                const std::string& sName = tDataSource.GetName();
+
+                rise::LogDebug2() << "Adding datasource: " << sNamespace << "." << sName;
+                m_mDataSourcesNamespaces[sNamespace][sName] = tDataSource;
+              }
             }
           }
+          RISE_CATCH_ALL
         }
       }
 

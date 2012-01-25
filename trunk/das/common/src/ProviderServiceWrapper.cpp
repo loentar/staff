@@ -25,6 +25,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/common/Value.h>
 #include <staff/component/ServiceInstanceManager.h>
+#include <staff/component/Component.h>
 #include "DataSource.h"
 #include "ProviderService.h"
 #include "ProviderServiceWrapper.h"
@@ -72,12 +73,11 @@ namespace das
   void ProviderServiceWrapper::Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
   {
     const staff::DataObject& rRequest = rOperation.Request();
-    staff::DataObject& rResult = rOperation.Result();
     const std::string& sOperationName = rOperation.GetName();
 
     if (sOperationName == "GetServiceDescription")
     {
-      rResult = GetServiceDescription();
+      rOperation.SetResponse(GetServiceDescription());
     }
     else
     if (sOperationName == "CreateInstance")
@@ -98,6 +98,8 @@ namespace das
       DataObject tdoResponse = tpService->Invoke(rRequest);
       rOperation.SetResponse(tdoResponse);
     }
+
+    rOperation.GetResponse().SetNamespaceUriGenPrefix("http://tempui.org/" + m_pComponent->GetName());
   }
 
   const Component* ProviderServiceWrapper::GetComponent() const
