@@ -384,18 +384,27 @@ namespace das
     void ProcessReturn(const rise::xml::CXMLNode& rScript, const DataType& rReturnType, DataObject& rdoResult)
     {
       const std::string& sVarName = rScript.Attribute("var").AsString();
-      VarMap::const_iterator itVar = m_mVars.find(sVarName);
-      RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
-      const Var& rVar = itVar->second;
-      RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
-
-      if (rReturnType.eType == DataType::Generic)
+      RISE_ASSERTS(!sVarName.empty(), "variable name is empty");
+      if (sVarName[0] == '$')
       {
-        rdoResult.SetText(rVar.sValue);
+        const std::string& sValue = Eval(DataObject(), sVarName);
+        rdoResult.SetText(sValue);
       }
       else
-      { // dataobject, list, struct
-        rdoResult = rVar.tdoValue;
+      {
+        VarMap::const_iterator itVar = m_mVars.find(sVarName);
+        RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
+        const Var& rVar = itVar->second;
+        RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
+
+        if (rReturnType.eType == DataType::Generic)
+        {
+          rdoResult.SetText(rVar.sValue);
+        }
+        else
+        { // dataobject, list, struct
+          rdoResult = rVar.tdoValue;
+        }
       }
     }
 
@@ -505,6 +514,7 @@ namespace das
               {
                 DataObject tdoResult;
                 GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
+                const_cast<DataObject&>(rVar.tdoValue).SetOwner(true);
                 RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
                 sValue = tdoResult.GetText();
               }
@@ -543,10 +553,10 @@ namespace das
             sChildPath;
         std::string::size_type nBegin = 0;
         std::string::size_type nEnd = 0;
+        std::string sName;
         do
         {
           nEnd = sPath.find('.', nBegin);
-          std::string sName;
           if (nEnd == std::string::npos)
           {
             sName = sPath.substr(nBegin);
@@ -563,6 +573,7 @@ namespace das
           }
           else
           {
+            rdoResult.SetOwner(false);
             rdoResult = rdoResult.GetChildByLocalName(sName);
           }
 

@@ -130,48 +130,52 @@ namespace das
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
           itOperation != rOperations.NodeEnd(); ++itOperation)
     {
-      const rise::xml::CXMLNode& rOperation = *itOperation;
-      Operation stOperation;
-
-      stOperation.sName = rOperation.Attribute("name").AsString();
-
-      rise::xml::CXMLNode::TXMLNodeConstIterator itScript = rOperation.FindSubnode("script");
-      if (itScript != rOperation.NodeEnd())
+      if (itOperation->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+          itOperation->NodeName() == "operation")
       {
-        stOperation.tScript = *itScript;
-      }
-      else
-      {
-        itScript = rOperation.FindSubnode("execute");
-        RISE_ASSERTS(itScript != rOperation.NodeEnd(), "cannot find <script> or <execute> element");
-        stOperation.tScript.NodeName() = "script";
-        stOperation.tScript.AddSubNode("") = *itScript;
-      }
+        const rise::xml::CXMLNode& rOperation = *itOperation;
+        Operation stOperation;
 
-      ParseDescr(rOperation, stOperation.sDescr);
+        stOperation.sName = rOperation.Attribute("name").AsString();
 
-      rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
-      if (itReturn != rOperation.NodeEnd())
-      {
-        const rise::xml::CXMLNode& rNodeReturn = *itReturn;
-        ParseType(rNodeReturn, stOperation.stReturn);
-        if (stOperation.stReturn.eType == DataType::List ||
-            stOperation.stReturn.eType == DataType::Struct)
+        rise::xml::CXMLNode::TXMLNodeConstIterator itScript = rOperation.FindSubnode("script");
+        if (itScript != rOperation.NodeEnd())
         {
-          stOperation.stReturn = GetType(stOperation.stReturn.sType);
+          stOperation.tScript = *itScript;
         }
-      }
+        else
+        {
+          itScript = rOperation.FindSubnode("execute");
+          RISE_ASSERTS(itScript != rOperation.NodeEnd(), "cannot find <script> or <execute> element");
+          stOperation.tScript.NodeName() = "script";
+          stOperation.tScript.AddSubNode("") = *itScript;
+        }
 
-      const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rParams.NodeBegin();
-            itType != rParams.NodeEnd(); ++itType)
-      {
-        DataType stType;
-        ParseType(*itType, stType);
-        stOperation.lsParams.push_back(stType);
-      }
+        ParseDescr(rOperation, stOperation.sDescr);
 
-      m_lsOperations.push_back(stOperation);
+        rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
+        if (itReturn != rOperation.NodeEnd())
+        {
+          const rise::xml::CXMLNode& rNodeReturn = *itReturn;
+          ParseType(rNodeReturn, stOperation.stReturn);
+          if (stOperation.stReturn.eType == DataType::List ||
+              stOperation.stReturn.eType == DataType::Struct)
+          {
+            stOperation.stReturn = GetType(stOperation.stReturn.sType);
+          }
+        }
+
+        const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
+        for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rParams.NodeBegin();
+              itType != rParams.NodeEnd(); ++itType)
+        {
+          DataType stType;
+          ParseType(*itType, stType);
+          stOperation.lsParams.push_back(stType);
+        }
+
+        m_lsOperations.push_back(stOperation);
+      }
     }
   }
 

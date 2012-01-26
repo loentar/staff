@@ -318,53 +318,57 @@ namespace codegen
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
           itOperation != rOperations.NodeEnd(); ++itOperation)
     {
-      const rise::xml::CXMLNode& rOperation = *itOperation;
-      Member stMember;
-
-      stMember.sName = rOperation.Attribute("name").AsString();
-
-      ParseDescr(rOperation, stMember.sDescr);
-
-      rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
-      if (itReturn != rOperation.NodeEnd())
+      if (itOperation->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
+          itOperation->NodeName() == "operation")
       {
-        stMember.stReturn.stDataType.sName = itReturn->Attribute("type").AsString();
-        FixDataType(stMember.stReturn.stDataType, stInterface, sNamespace);
-        stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
-                                                 + stMember.stReturn.stDataType.sName;
-        OptimizeCppNs(stMember.stReturn.stDataType.sUsedName, stClass.sNamespace);
-      }
-      else
-      {
-        stMember.stReturn.stDataType.sName = "void";
-      }
+        const rise::xml::CXMLNode& rOperation = *itOperation;
+        Member stMember;
 
-      const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itParam = rParams.NodeBegin();
-            itParam != rParams.NodeEnd(); ++itParam)
-      {
-        Param stParam;
-        stParam.sName = itParam->NodeName();
+        stMember.sName = rOperation.Attribute("name").AsString();
 
-        stParam.stDataType.sName = itParam->Attribute("type").AsString();
+        ParseDescr(rOperation, stMember.sDescr);
 
-        FixDataType(stParam.stDataType, stInterface, sNamespace);
-        stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
-                                                 + stParam.stDataType.sName;
-        OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
-
-        if (stParam.stDataType.eType == DataType::TypeString ||
-            stParam.stDataType.eType == DataType::TypeStruct ||
-            stParam.stDataType.eType == DataType::TypeTypedef)
+        rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
+        if (itReturn != rOperation.NodeEnd())
         {
-          stParam.stDataType.bIsConst = true;
-          stParam.stDataType.bIsRef = true;
+          stMember.stReturn.stDataType.sName = itReturn->Attribute("type").AsString();
+          FixDataType(stMember.stReturn.stDataType, stInterface, sNamespace);
+          stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
+                                                   + stMember.stReturn.stDataType.sName;
+          OptimizeCppNs(stMember.stReturn.stDataType.sUsedName, stClass.sNamespace);
+        }
+        else
+        {
+          stMember.stReturn.stDataType.sName = "void";
         }
 
-        stMember.lsParams.push_back(stParam);
-      }
+        const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
+        for (rise::xml::CXMLNode::TXMLNodeConstIterator itParam = rParams.NodeBegin();
+              itParam != rParams.NodeEnd(); ++itParam)
+        {
+          Param stParam;
+          stParam.sName = itParam->NodeName();
 
-      stClass.lsMembers.push_back(stMember);
+          stParam.stDataType.sName = itParam->Attribute("type").AsString();
+
+          FixDataType(stParam.stDataType, stInterface, sNamespace);
+          stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
+                                                   + stParam.stDataType.sName;
+          OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
+
+          if (stParam.stDataType.eType == DataType::TypeString ||
+              stParam.stDataType.eType == DataType::TypeStruct ||
+              stParam.stDataType.eType == DataType::TypeTypedef)
+          {
+            stParam.stDataType.bIsConst = true;
+            stParam.stDataType.bIsRef = true;
+          }
+
+          stMember.lsParams.push_back(stParam);
+        }
+
+        stClass.lsMembers.push_back(stMember);
+      }
     }
 
     stInterface.lsClasses.push_back(stClass);
