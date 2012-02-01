@@ -2745,12 +2745,7 @@ namespace staff
     const std::string& sXsiPrefix = GetNamespacePrefixByUri(g_szXsiSchemaUrl);
     axiom_attribute_t* pAttr =
         GetAxiomAttributeByLocalName((sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type").c_str());
-#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, pAttr);
-#else
-    RISE_THROWS(DomInternalException,
-                "This function is not implemented in Axis2/C-1.7.0 and greater");
-#endif
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -2920,14 +2915,9 @@ namespace staff
   Namespace DataObject::FindNamespaceUri(const std::string& sPrefix) const
   {
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
-#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     Namespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv,
       const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
     return tNs;
-#else
-    RISE_THROWS(DomInternalException,
-                "This function is not implemented in Axis2/C-1.7.0 and greater");
-#endif
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -3193,18 +3183,12 @@ namespace staff
 
   void DataObject::RemoveAttribute(AttributeIterator& itAttribute)
   {
-#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
-#else
-    RISE_THROWS(DomInternalException,
-                "This function is not implemented in Axis2/C-1.7.0 and greater");
-#endif
   }
 
   void DataObject::RemoveAllAttributes()
   {
-#ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
     if (pAttrHash)
     {
@@ -3221,10 +3205,6 @@ namespace staff
         }
       }
     }
-#else
-    RISE_THROWS(DomInternalException,
-                "This function is not implemented in Axis2/C-1.7.0 and greater");
-#endif
   }
 
   DataObject::AttributeIterator DataObject::FindAttributeByQName(const QName& stQName)
