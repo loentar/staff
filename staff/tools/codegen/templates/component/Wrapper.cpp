@@ -204,6 +204,9 @@ $(Param.Name)\
 #indent -2
 #contextend
 #ifeqend
+#ifeq($(Member.Options.*dontSetResultNamespace),true)
+      return;
+#ifeqend
     }
     else
 #end
