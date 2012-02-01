@@ -3858,6 +3858,11 @@ namespace staff
       axiom_document_t* pAxiomDoc = axiom_stax_builder_get_document(pStaxBuilder, m_pEnv);
       RISE_ASSERTES(pAxiomDoc != NULL, DomFormatException, "No Axis Document");
 
+#ifdef AXIS2_VERSION_1_7_0_AND_ABOVE
+      // on Axis2/C-1.7.0 we should call axiom_document_get_root_element
+      // else axiom_document_build_all will return NULL
+      axiom_document_get_root_element(pAxiomDoc, m_pEnv);
+#endif
       pAxiomNode = axiom_document_build_all(pAxiomDoc, m_pEnv);
       RISE_ASSERTES(pAxiomNode != NULL, DomFormatException, "No Root Element in the pAxiomDoc");
 
