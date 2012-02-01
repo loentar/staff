@@ -42,6 +42,7 @@ namespace wsdl
         */
     // *restMethod: GET
     // *restLocation: get/{sComponent}/{sFileName}
+    // *dontSetResultNamespace: true
     virtual void Get(const std::string& sComponent, const std::string& sFileName, Operation& rOperation) = 0;
   };
 }
