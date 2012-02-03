@@ -77,7 +77,10 @@ Currently WSF Staff has been ported to following platforms:
   * Mac OS X;
   * FreeBSD.
 
-Tested under Ubuntu 9.10-11.04 (x86 and x86_64), RHEL5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1.
+Tested on x86 and x86_64 platforms under Ubuntu 9.10-11.10, Debian Lenny, Debian Squeeze, RHEL 5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1.
+
+Tested on ARMv5 and MIPS32-v1 platforms on Busybox v1.18.
+
 
 Windows binaries can be built using MSVC or GCC (MinGW) compilers.
 
