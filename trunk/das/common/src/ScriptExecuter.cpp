@@ -196,12 +196,11 @@ namespace das
 
           if (rReturnType.eType == DataType::Generic)
           {
-            if (pExec->GetNextResult(lsResult))
-            {
-              RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                  rise::ToStr(lsResult.size()) + " expected: 1");
-              rdoResult.SetText(lsResult.front());
-            }
+            RISE_ASSERTS(pExec->GetNextResult(lsResult), "Rows count mismatch: 0 expected 1");
+            RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+                rise::ToStr(lsResult.size()) + " expected: 1");
+            rdoResult.SetText(lsResult.front());
+            RISE_ASSERTS(!pExec->GetNextResult(lsResult), "Rows count mismatch: >1 expected 1");
           }
           else
           if (rReturnType.eType == DataType::Struct)
