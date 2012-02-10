@@ -840,6 +840,13 @@ namespace staff
         */
     void SetText(const std::string& sText);
 
+    //!         get is text node null or not
+    /*! \return true, if text node is null */
+    bool IsTextNull();
+
+    //!         set text node to null
+    void SetTextNull();
+
 
     // optimized get value functions
     // returns true, if conversion to type was successed
