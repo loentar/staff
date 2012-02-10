@@ -98,6 +98,13 @@ namespace das
       {
         m_nFieldsCount = static_cast<unsigned>(sqlite3_column_count(m_pResult));
       }
+      else
+      {
+        RISE_ASSERTS(m_nLastStepStatus == SQLITE_DONE || m_nLastStepStatus == SQLITE_OK,
+                     "error #" + rise::ToStr(m_nLastStepStatus) + ": "
+                      + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
+                      + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
+      }
     }
 
     virtual void GetFieldsNames(StringList& rNames)
