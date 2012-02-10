@@ -2490,6 +2490,40 @@ namespace staff
     RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
+  bool DataObject::IsTextNull()
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    bool bResult = true;
+
+    for (axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+         pNode; pNode = axiom_node_get_next_sibling(pNode, m_pEnv))
+    {
+      if (axiom_node_get_node_type(pNode, m_pEnv) == AXIOM_TEXT)
+      {
+        bResult = false;
+        break;
+      }
+    }
+
+    return bResult;
+  }
+
+  void DataObject::SetTextNull()
+  {
+    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
+
+    axiom_node_t* pTempNode = NULL;
+    axiom_node_t* pNextNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
+    while (pNextNode)
+    {
+      pTempNode = pNextNode;
+      pNextNode = axiom_node_get_next_sibling(pTempNode, m_pEnv);
+      if (axiom_node_get_node_type(pTempNode, m_pEnv) == AXIOM_TEXT)
+      {
+        axiom_node_free_tree(pTempNode, m_pEnv);
+      }
+    }
+  }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, bool& rbValue) const
   {

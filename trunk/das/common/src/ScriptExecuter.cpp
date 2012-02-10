@@ -62,6 +62,10 @@ namespace das
       DataObject tdoResult(pOperation->sName + "Result");
 
       ProcessSequence(rdoOperation, pOperation->tScript, pOperation->stReturn, tdoResult);
+      if (pOperation->stReturn.eType == DataType::Generic)
+      {
+        RISE_ASSERTS(!tdoResult.IsTextNull(), "Empty result for generic type!");
+      }
 
       return tdoResult;
     }
@@ -196,11 +200,12 @@ namespace das
 
           if (rReturnType.eType == DataType::Generic)
           {
-            RISE_ASSERTS(pExec->GetNextResult(lsResult), "Rows count mismatch: 0 expected 1");
-            RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                rise::ToStr(lsResult.size()) + " expected: 1");
-            rdoResult.SetText(lsResult.front());
-            RISE_ASSERTS(!pExec->GetNextResult(lsResult), "Rows count mismatch: >1 expected 1");
+            if (pExec->GetNextResult(lsResult))
+            {
+              RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
+                  rise::ToStr(lsResult.size()) + " expected: 1");
+              rdoResult.SetText(lsResult.front());
+            }
           }
           else
           if (rReturnType.eType == DataType::Struct)
@@ -608,13 +613,17 @@ namespace das
   void ScriptExecuter::Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
                                const DataType& rReturnType, DataObject& rdoResult)
   {
-    return m_pImpl->ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
+    m_pImpl->ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
+    if (rReturnType.eType == DataType::Generic)
+    {
+      RISE_ASSERTS(!rdoResult.IsTextNull(), "Empty result for generic type!");
+    }
   }
 
   void ScriptExecuter::Process(const rise::xml::CXMLNode& rScript)
   {
     staff::DataObject doResult;
-    return m_pImpl->ProcessSequence(staff::DataObject(), rScript, DataType(), doResult);
+    m_pImpl->ProcessSequence(staff::DataObject(), rScript, DataType(), doResult);
   }
 
 
