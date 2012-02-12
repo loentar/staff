@@ -117,6 +117,11 @@ namespace das
             ProcessLog(rdoContext, rNodeOperator);
           }
           else
+          if (sOperator == "fault")
+          {
+            ProcessFault(rdoContext, rNodeOperator);
+          }
+          else
           {
             RISE_THROWS(rise::CLogicNoItemException, "Invalid operator: [" + sOperator + "]");
           }
@@ -540,6 +545,13 @@ namespace das
     void ProcessLog(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
     {
       rise::LogInfo() << m_rDataSource.GetName() << ": " << Eval(rdoContext, rScript.NodeContent());
+    }
+
+    void ProcessFault(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    {
+      RISE_THROWS(rise::CInternalAssertException, "Error while invoking Operation [" + rdoContext.GetLocalName() +
+                  "] in datasource [" + m_rDataSource.GetName() +
+                  "]: " + Eval(rdoContext, rScript.NodeContent()));
     }
 
     void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult)

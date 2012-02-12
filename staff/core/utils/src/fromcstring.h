@@ -44,13 +44,13 @@ namespace staff
 
   inline bool FromCString(const char* szString, bool& rbValue)
   {
-    if (!strcmp(szString, "true"))
+    if (!strcmp(szString, "true") || !strcmp(szString, "1"))
     {
       rbValue = true;
       return true;
     }
 
-    if (!strcmp(szString, "false"))
+    if (!strcmp(szString, "false") || !strcmp(szString, "0"))
     {
       rbValue = false;
       return true;
