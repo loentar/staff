@@ -24,9 +24,13 @@ das/providers/postgres/src/ProviderAllocator.cpp
 das/providers/services/src/ProviderAllocator.cpp
 das/providers/services/src/Services.cpp
 das/providers/services/src/Services.h
+das/providers/shell/src/ProviderAllocator.cpp
+das/providers/shell/src/Shell.cpp
+das/providers/shell/src/Shell.h
 das/providers/sqlite/src/ProviderAllocator.cpp
 das/providers/sqlite/src/Sqlite.cpp
 das/providers/sqlite/src/Sqlite.h
+das/samples/SysInfo/datasources/datasources/SysInfo.datasources
 das/samples/Users/client/src/main.cpp
 das/samples/Users/custom_client/src/DataAccessService.h
 das/samples/Users/custom_client/src/main.cpp
@@ -402,10 +406,6 @@ staff/tests/regress/135/test/src/Test135.h
 staff/tests/regress/136/client/src/main.cpp
 staff/tests/regress/136/client/src/Test136.h
 staff/tests/regress/136/client/src/Test136Types.h
-staff/tests/regress/140/client/test_client/src/main.cpp
-staff/tests/regress/140/client/test_client/src/test.h
-staff/tests/regress/140/client/test_client/src/testProxy.cpp
-staff/tests/regress/140/client/test_client/src/testProxy.h
 staff/tests/regress/140/client/test.wsdl
 staff/tests/regress/147/test/test.wsdl
 staff/tools/codegen_parsers/cpp/src/CppParser.cpp

@@ -31,13 +31,13 @@ namespace staff
 
   namespace das
   {
-    //! services provider
-    class ServicesProvider: public IProvider
+    //! shell provider
+    class ShellProvider: public IProvider
     {
     public:
-      ServicesProvider();
+      ShellProvider();
 
-      virtual ~ServicesProvider();
+      virtual ~ShellProvider();
 
       //! initialize
       /*! \param rConfig - provider config
@@ -63,8 +63,12 @@ namespace staff
       virtual PExecutor GetExecutor();
 
     private:
-      ServiceWrapper* m_pServiceWrapper;
-      friend class ServicesRawExecutor;
+      std::string m_sScriptsDir;
+      bool m_bColHeaders;
+      bool m_bFirstColCount;
+      std::string m_sColDelims;
+      std::string m_sRowDelims;
+      friend class ShellRawExecutor;
     };
 
   }
