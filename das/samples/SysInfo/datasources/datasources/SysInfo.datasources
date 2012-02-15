@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="SysInfo" descr="Data source to obtain system information using staff.das.Shell provider">
+    <provider name="staff.das.Shell">
+      <connection>
+        <!-- root dir for scripts
+        <scriptsdir>/usr/local/staff/components/staff.das/providers/staff.das.Shell/scripts/</scriptsdir>
+        -->
+        <!-- use first line as column names when working with complex types. false by default -->
+        <colheaders>true</colheaders>
+        <!-- count columns by first line. Rest of line put into last field. true by default
+        <firstcolcount>true</firstcolcount> -->
+        <!-- delimiters for columns: space or tab by default
+        <coldelims> &#9;</coldelims>
+        -->
+        <!-- delimiters for rows: line feed or carriage return by default
+        <coldelims>&#10;&#13;</coldelims>
+        -->
+      </connection>
+    </provider>
+
+    <types>
+      <Process type="struct" descr="Process info">
+        <nId type="int" descr="Process id"/>
+        <sCommand type="string" descr="Command line"/>
+        <sTime type="string" descr="Time consumed"/>
+      </Process>
+      <ProcessList type="list" itemtype="Process" descr="Process list" />
+    </types>
+
+    <operations>
+
+      <operation name="GetUname" descr="get certain system information">
+        <params/>
+        <return type="string" />
+        <execute>uname -a</execute>
+      </operation>
+
+      <operation name="GetMemStat" descr="get memory status">
+        <params/>
+        <return type="DataObject" />
+        <!-- don't pass any arguments inside 'sh -c ""', it is not secure -->
+        <execute>sh -c "free | sed -n '1,+1{2s/^.\+://g;p'}"</execute>
+      </operation>
+
+      <operation name="GetProcessListDataObject" descr="get process list as DataObject in default format">
+        <params/>
+        <return type="DataObject" />
+        <execute>ps x</execute>
+      </operation>
+
+      <operation name="GetProcessList" descr="get process list">
+        <params/>
+        <return type="ProcessList" />
+        <execute>ps xo pid,time,command</execute>
+      </operation>
+
+      <operation name="GetProcessListByName" descr="get process list by process name">
+        <params>
+          <sProcessName type="string"/>
+        </params>
+        <return type="ProcessList" />
+        <execute>ps -C $(sProcessName) o pid,time,command</execute>
+      </operation>
+
+    </operations>
+
+  </datasource>
+</datasources>
+
