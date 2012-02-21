@@ -189,26 +189,6 @@ $($q)$(Param.Name)$($q)='\$(param.$(Param.Name))'\
         </script>
       </operation>
 
-#foreach $(Struct.Members)
-#ifneq($(Param.$Num),0)
-      <operation name="$($opPrefix)_GetAttribute$(Param.Name)">
-        <params>
-          <$(Struct.Members.Param.Name) type="$(Struct.Members.Param.DataType.Name)"/>
-        </params>
-        <return type="$(Param.DataType.Name)"/>
-        <execute>SELECT $($q)$(Param.Name)$($q) FROM $($q)$(Struct.Name)$($q) WHERE $($q)$(Struct.Members.Param.Name)$($q) = '\$($(Struct.Members.Param.Name))'</execute>
-      </operation>
-
-      <operation name="$($opPrefix)_SetAttribute$(Param.Name)">
-        <params>
-          <$(Struct.Members.Param.Name) type="$(Struct.Members.Param.DataType.Name)"/>
-          <$(Param.Name) type="$(Param.DataType.Name)"/>
-        </params>
-        <execute>UPDATE $($q)$(Struct.Name)$($q) SET $($q)$(Param.Name)$($q) = '\$($(Param.Name))' WHERE $($q)$(Struct.Members.Param.Name)$($q) = '\$($(Struct.Members.Param.Name))'</execute>
-      </operation>
-
-#ifeqend
-#end
     </operations>
 
   </datasource>
