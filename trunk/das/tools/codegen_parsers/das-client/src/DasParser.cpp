@@ -104,9 +104,9 @@ namespace codegen
         itType != rdoTypes.End(); ++itType)
     {
       const DataObject& rdoType = *itType;
-      const std::string& sType = rdoType.GetChildByLocalName("Type").GetText();
-      const std::string& sName = rdoType.GetChildByLocalName("Name").GetText();
-      bool bExtern = rdoType.GetChildByLocalName("Extern").GetText() == "True";
+      const std::string& sType = rdoType.GetChildTextByLocalName("Type");
+      const std::string& sName = rdoType.GetChildTextByLocalName("Name");
+      bool bExtern = rdoType.GetChildTextByLocalName("Extern") == "True";
 
       if (sType == "struct")
       {
@@ -122,11 +122,11 @@ namespace codegen
         {
           const DataObject& rdoChildType = *itChildType;
           Param stMember;
-          stMember.sName = rdoChildType.GetChildByLocalName("Name").GetText();
-          stMember.stDataType.sName = rdoChildType.GetChildByLocalName("DataType").GetText();
-          stMember.sDescr = rdoChildType.GetChildByLocalName("Descr").GetText();
+          stMember.sName = rdoChildType.GetChildTextByLocalName("Name");
+          stMember.stDataType.sName = rdoChildType.GetChildTextByLocalName("DataType");
+          stMember.sDescr = rdoChildType.GetChildTextByLocalName("Descr");
 
-//          const std::string& sType = rdoChildType.GetChildByLocalName("Type").GetText();
+//          const std::string& sType = rdoChildType.GetChildTextByLocalName("Type");
 //          if (sType == "struct")
 //          {
 //            stMember.stDataType.eType = DataType::TypeStruct;
@@ -144,7 +144,7 @@ namespace codegen
           stStruct.lsMembers.push_back(stMember);
         }
 
-        stStruct.sDescr = rdoType.GetChildByLocalName("Descr").GetText();
+        stStruct.sDescr = rdoType.GetChildTextByLocalName("Descr");
         stStruct.bForward = false;
 
         rInterface.lsStructs.push_back(stStruct);
@@ -158,10 +158,10 @@ namespace codegen
         stTypedef.stDataType.sName = "list";
         stTypedef.stDataType.sNamespace = "std::";
         stTypedef.stDataType.sUsedName = "std::list";
-        stTypedef.sDescr = rdoType.GetChildByLocalName("Descr").GetText();
+        stTypedef.sDescr = rdoType.GetChildTextByLocalName("Descr");
 
         DataType stItemDataType;
-        stItemDataType.sName = rdoType.GetChildByLocalName("ItemType").GetText();
+        stItemDataType.sName = rdoType.GetChildTextByLocalName("ItemType");
         FixDataType(stItemDataType, rInterface, sNamespace);
         stItemDataType.sUsedName = stItemDataType.sNamespace + stItemDataType.sName;
         OptimizeCppNs(stItemDataType.sUsedName, stTypedef.sNamespace);
@@ -176,12 +176,12 @@ namespace codegen
       if (sType == "generic" || sType == "dataobject") // typedef
       {
         Typedef stTypedef;
-        stTypedef.sName = rdoType.GetChildByLocalName("Type").GetText();
+        stTypedef.sName = rdoType.GetChildTextByLocalName("Type");
         stTypedef.sNamespace = sNamespace;
         stTypedef.stDataType.sName = sName;
         FixDataType(stTypedef.stDataType, rInterface, sNamespace);
 
-        stTypedef.sDescr = rdoType.GetChildByLocalName("Descr").GetText();
+        stTypedef.sDescr = rdoType.GetChildTextByLocalName("Descr");
         stTypedef.bExtern = bExtern;
 
         rInterface.lsTypedefs.push_back(stTypedef);
@@ -192,20 +192,28 @@ namespace codegen
   void DasParser::Parse(const DataObject& rdoInterface, Interface& rInterface, Project& rProject,
                          const std::string& sRootNs)
   {
-    rInterface.sName = rdoInterface.GetChildByLocalName("Name").GetText();
+    rInterface.sName = rdoInterface.GetChildTextByLocalName("Name");
 
-    std::string sNamespace = rdoInterface.GetChildByLocalName("Namespace").GetText();
+    std::string sNamespace = rdoInterface.GetChildTextByLocalName("Namespace");
     rise::StrReplace(sNamespace, ".", "::", true);
     sNamespace = sRootNs + sNamespace + "::";
 
     rInterface.sNamespace = sNamespace;
+
+    const DataObject& rdoOptions = rdoInterface.GetChildByLocalName("Options");
+    for (DataObject::ConstIterator itOption = rdoOptions.Begin();
+         itOption != rdoOptions.End(); ++itOption)
+    {
+      const DataObject& rdoOption = *itOption;
+      rInterface.mOptions[rdoOption.GetLocalName()] = rdoOption.GetText();
+    }
 
     const DataObject& rdoIncludes = rdoInterface.GetChildByLocalName("Includes");
     for (DataObject::ConstIterator itInclude = rdoIncludes.Begin();
         itInclude != rdoIncludes.End(); ++itInclude)
     {
       const DataObject& rdoInclude = *itInclude;
-      const std::string& sName = rdoInclude.GetChildByLocalName("Name").GetText();
+      const std::string& sName = rdoInclude.GetChildTextByLocalName("Name");
       bool bExists = false;
 
       for (std::list<Interface>::const_iterator itInterface = rProject.lsInterfaces.begin();
@@ -220,7 +228,7 @@ namespace codegen
       Include stInclude;
       stInclude.sInterfaceName = sName;
       stInclude.sFileName = sName + ".h";
-      stInclude.sNamespace = rdoInclude.GetChildByLocalName("Namespace").GetText();
+      stInclude.sNamespace = rdoInclude.GetChildTextByLocalName("Namespace");
       rise::StrReplace(stInclude.sNamespace, ".", "::", true);
       stInclude.sNamespace = sRootNs + stInclude.sNamespace + "::";
       rInterface.lsIncludes.push_back(stInclude);
@@ -244,7 +252,7 @@ namespace codegen
     Class stClass;
     stClass.sName = rInterface.sName;
     stClass.sNamespace = sNamespace;
-    stClass.sDescr = rdoInterface.GetChildByLocalName("Descr").GetText();
+    stClass.sDescr = rdoInterface.GetChildTextByLocalName("Descr");
 
     const DataObject& rdoOperations = rdoInterface.GetChildByLocalName("Operations");
 
@@ -255,10 +263,18 @@ namespace codegen
 
       Member stMember;
 
-      stMember.sName = rdoOperation.GetChildByLocalName("Name").GetText();
-      stMember.sDescr = rdoOperation.GetChildByLocalName("Descr").GetText();
+      stMember.sName = rdoOperation.GetChildTextByLocalName("Name");
+      stMember.sDescr = rdoOperation.GetChildTextByLocalName("Descr");
 
-      stMember.stReturn.stDataType.sName = rdoOperation.GetChildByLocalName("Return").GetText();
+      const DataObject& rdoOptions = rdoOperation.GetChildByLocalName("Options");
+      for (DataObject::ConstIterator itOption = rdoOptions.Begin();
+           itOption != rdoOptions.End(); ++itOption)
+      {
+        const DataObject& rdoOption = *itOption;
+        stMember.mOptions[rdoOption.GetLocalName()] = rdoOption.GetText();
+      }
+
+      stMember.stReturn.stDataType.sName = rdoOperation.GetChildTextByLocalName("Return");
       FixDataType(stMember.stReturn.stDataType, rInterface, sNamespace);
 
       const DataObject& rdoParams = rdoOperation.GetChildByLocalName("Params");
@@ -268,8 +284,8 @@ namespace codegen
         const DataObject& rdoParam = *itParam;
         Param stParam;
 
-        stParam.sName = rdoParam.GetChildByLocalName("Name").GetText();
-        stParam.stDataType.sName = rdoParam.GetChildByLocalName("Type").GetText();
+        stParam.sName = rdoParam.GetChildTextByLocalName("Name");
+        stParam.stDataType.sName = rdoParam.GetChildTextByLocalName("Type");
 
         FixDataType(stParam.stDataType, rInterface, sNamespace);
         stParam.stDataType.sUsedName = stParam.stDataType.sNamespace + stParam.stDataType.sName;

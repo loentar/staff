@@ -47,6 +47,10 @@
     <operations>
 
       <operation name="Add" descr="add user, returns added user id">
+        <options>
+          <restMethod>PUT</restMethod>
+          <restLocation>AddUser/name={sName},pass={sPassword},descr={sDescr}</restLocation>
+        </options>
         <params>
           <sName type="string" />
           <sPassword type="string" />
@@ -87,6 +91,10 @@
       </operation>
 
       <operation name="Remove" descr="remove user by id">
+        <options>
+          <restMethod>DELETE</restMethod>
+          <restLocation>Remove/id={nId}</restLocation>
+        </options>
         <params>
           <nId type="int" />
         </params>
@@ -145,6 +153,10 @@
       </operation>
 
       <operation name="GetUser" descr="get user info by user id">
+        <options>
+          <restMethod>GET</restMethod>
+          <restLocation>GetUser/id={nId}</restLocation>
+        </options>
         <params>
           <nId type="int" />
         </params>
@@ -153,6 +165,10 @@
       </operation>
 
       <operation name="GetAllUsers">
+        <options>
+          <restMethod>GET</restMethod>
+          <restLocation>GetAllUsers</restLocation>
+        </options>
         <params/>
         <return type="UsersList" />
         <execute>SELECT "id", "name", "description" FROM "users"</execute>

@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>delete user</title>
+    <script src="jquery.js" type="text/javascript"></script>
+    <script src="http-form-hook.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <span style="color: red">THIS OPERATION MAY NOT WORK DUE TO AXIS2/C PROBLEM:<br/>
+      Please see the <a href="https://issues.apache.org/jira/browse/AXIS2C-1418?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel">HTTP_METHOD DELETE and REST does not work (server returns error 500)</a> page.
+    </span>
+    <br/>
+    <br/>
+
+    <form action="http://localhost/axis2/services/staff.das.samples.Users/Remove/" method="DELETE">
+      <table border="1px black">
+        <tbody>
+          <tr>
+            <td>id</td>
+            <td><input type="text" name="id" /></td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <input type="submit" value="Delete"/>
+    </form>
+    <br/>
+  </body>
+</html>
+

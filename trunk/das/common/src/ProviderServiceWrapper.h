@@ -57,7 +57,8 @@ namespace das
         \param  sSessionId - service session id
         \param  sInstanceId - service instance id
         */
-    virtual void Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId);
+    virtual void Invoke(staff::Operation& rOperation, const std::string& sSessionId,
+                        const std::string& sInstanceId);
 
     //!         get service's component
     /*! \return service's component
