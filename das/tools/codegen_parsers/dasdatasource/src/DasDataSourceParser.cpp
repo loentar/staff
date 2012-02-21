@@ -313,6 +313,22 @@ namespace codegen
 
     ParseDescr(rDataSourceNode, stClass.sDescr);
 
+    // Options
+    rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rDataSourceNode.FindSubnode("options");
+    if (itOptions != rDataSourceNode.NodeEnd())
+    {
+      const rise::xml::CXMLNode& rOptions = *itOptions;
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
+           itOption != rOptions.NodeEnd(); ++itOption)
+      {
+        const rise::xml::CXMLNode& rOption = *itOption;
+        if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+        {
+          stInterface.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
+        }
+      }
+    }
+
     // Operations
     const rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
@@ -327,6 +343,22 @@ namespace codegen
         stMember.sName = rOperation.Attribute("name").AsString();
 
         ParseDescr(rOperation, stMember.sDescr);
+
+        // Options
+        rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rOperation.FindSubnode("options");
+        if (itOptions != rOperation.NodeEnd())
+        {
+          const rise::xml::CXMLNode& rOptions = *itOptions;
+          for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
+               itOption != rOptions.NodeEnd(); ++itOption)
+          {
+            const rise::xml::CXMLNode& rOption = *itOption;
+            if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+            {
+              stMember.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
+            }
+          }
+        }
 
         rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
         if (itReturn != rOperation.NodeEnd())

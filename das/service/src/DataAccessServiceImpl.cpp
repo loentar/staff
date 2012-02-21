@@ -170,6 +170,15 @@ namespace das
     tdoOperation.CreateChild("Name").SetText(rOperation.sName);
     tdoOperation.CreateChild("Descr").SetText(rOperation.sDescr);
 
+    // Options
+    staff::DataObject tdoOptions = tdoOperation.CreateChild("Options");
+
+    for (StringMap::const_iterator itOption = rOperation.mOptions.begin();
+         itOption != rOperation.mOptions.end(); ++itOption)
+    {
+      tdoOptions.CreateChild(itOption->first, itOption->second);
+    }
+
     DataObject tdoParams = tdoOperation.CreateChild("Params");
 
     for (DataTypesList::const_iterator itParam = rOperation.lsParams.begin();
@@ -244,6 +253,15 @@ namespace das
       {
         tdoTypes << *itType;
       }
+    }
+
+    // Options
+    staff::DataObject tdoOptions = tdoInterface.CreateChild("Options");
+
+    const StringMap& rmOptions = m_pDataSource->GetOptions();
+    for (StringMap::const_iterator itOption = rmOptions.begin(); itOption != rmOptions.end(); ++itOption)
+    {
+      tdoOptions.CreateChild(itOption->first, itOption->second);
     }
 
     // types

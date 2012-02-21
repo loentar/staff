@@ -100,6 +100,22 @@ namespace das
 
     ParseDescr(rDataSourceNode, m_sDescr);
 
+    // options
+    rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rDataSourceNode.FindSubnode("options");
+    if (itOptions != rDataSourceNode.NodeEnd())
+    {
+      const rise::xml::CXMLNode& rOptions = *itOptions;
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
+           itOption != rOptions.NodeEnd(); ++itOption)
+      {
+        const rise::xml::CXMLNode& rOption = *itOption;
+        if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+        {
+          m_mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
+        }
+      }
+    }
+
     // Types
     m_lsTypes.clear();
 
@@ -137,6 +153,22 @@ namespace das
         Operation stOperation;
 
         stOperation.sName = rOperation.Attribute("name").AsString();
+
+        // options
+        rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rOperation.FindSubnode("options");
+        if (itOptions != rOperation.NodeEnd())
+        {
+          const rise::xml::CXMLNode& rOptions = *itOptions;
+          for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
+               itOption != rOptions.NodeEnd(); ++itOption)
+          {
+            const rise::xml::CXMLNode& rOption = *itOption;
+            if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+            {
+              stOperation.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
+            }
+          }
+        }
 
         rise::xml::CXMLNode::TXMLNodeConstIterator itScript = rOperation.FindSubnode("script");
         if (itScript != rOperation.NodeEnd())
@@ -328,6 +360,11 @@ namespace das
   const ProvidersInfoList& DataSource::GetProviders() const
   {
     return m_lsProviders;
+  }
+
+  const StringMap& DataSource::GetOptions() const
+  {
+    return m_mOptions;
   }
 
   const DataType& DataSource::GetType(const std::string& sTypeName) const

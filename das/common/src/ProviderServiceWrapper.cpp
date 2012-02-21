@@ -60,17 +60,35 @@ namespace das
   {
     DataObject tdoResult("Operations");
 
+    StringMap::const_iterator itTmp;
+
     const OperationsList& rlsOperations = m_pDataSource->GetOperations();
     for (OperationsList::const_iterator itOperation = rlsOperations.begin();
         itOperation != rlsOperations.end(); ++itOperation)
     {
-      tdoResult.CreateChild("Operation").CreateChild("Name").SetText(itOperation->sName);
+      const Operation& rOperation = *itOperation;
+
+      DataObject tdoOperation = tdoResult.CreateChild("Operation");
+      tdoOperation.CreateChild("Name", rOperation.sName);
+
+      itTmp = rOperation.mOptions.find("restMethod");
+      if (itTmp != rOperation.mOptions.end())
+      {
+        tdoOperation.CreateChild("RestMethod", itTmp->second);
+      }
+
+      itTmp = rOperation.mOptions.find("restLocation");
+      if (itTmp != rOperation.mOptions.end())
+      {
+        tdoOperation.CreateChild("RestLocation", itTmp->second);
+      }
     }
 
     return tdoResult;
   }
 
-  void ProviderServiceWrapper::Invoke(staff::Operation& rOperation, const std::string& sSessionId, const std::string& sInstanceId)
+  void ProviderServiceWrapper::Invoke(staff::Operation& rOperation, const std::string& sSessionId,
+                                      const std::string& sInstanceId)
   {
     const staff::DataObject& rRequest = rOperation.Request();
     const std::string& sOperationName = rOperation.GetName();

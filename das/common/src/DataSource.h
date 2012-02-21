@@ -24,6 +24,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 #include <rise/xml/XMLNode.h>
 #include "staffdascommonexport.h"
 
@@ -32,6 +33,7 @@ namespace staff
 namespace das
 {
   typedef std::list<std::string> StringList; //!< string list
+  typedef std::map<std::string, std::string> StringMap; //!< string map
 
   struct STAFF_DAS_COMMON_EXPORT DataType;
   typedef std::list<DataType> DataTypesList; //!< data types list
@@ -75,6 +77,7 @@ namespace das
     std::string sDescr;           //!< operation description
     DataTypesList lsParams;       //!< operation params
     DataType stReturn;            //!< return type
+    StringMap mOptions;           //!< operation options
     rise::xml::CXMLNode tScript;  //!< operation script
   };
 
@@ -139,6 +142,11 @@ namespace das
       */
     const ProvidersInfoList& GetProviders() const;
 
+    //! get datasource options
+    /*! \return datasource options
+      */
+    const StringMap& GetOptions() const;
+
     //! get type description
     /*! \param sTypeName - type name
         \return type
@@ -155,7 +163,6 @@ namespace das
     /*! \return operation description
       */
     const Operation& GetOperation(const std::string& sOperationName) const;
-
 
     //! get types list
     /*! \return types list
@@ -191,6 +198,7 @@ namespace das
     std::string m_sNamespace;                   //!< namespace
     std::string m_sDefaultProviderId;           //!< default provider id
     ProvidersInfoList m_lsProviders;            //!< providers
+    StringMap m_mOptions;                       //!< datasource options
     std::string m_sFileName;                    //!< datasource file name
     DataTypesList m_lsTypes;                    //!< defined types
     OperationsList m_lsOperations;              //!< datasource's operations list
