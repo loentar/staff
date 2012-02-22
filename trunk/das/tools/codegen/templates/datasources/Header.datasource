@@ -1,0 +1,55 @@
+  <datasource namespace="$(Interface.Namespace.!tolower.!dot)" name="\
+#ifeq($($singleservice),true)
+$(Interface.Name)\
+#else
+$(Struct.Name)\
+#ifeqend
+_Service" descr="\
+#ifneq($(Interface.Namespace.!tolower.!dot),)
+$(Interface.Namespace.!tolower.!dot).\
+#ifeqend
+#ifeq($($singleservice),true)
+$(Interface.Name)\
+#else
+$(Struct.Name)\
+#ifeqend
+_Service datasource">
+
+    <provider name="$(Interface.Options.das-provider)">
+      <connection>
+        <db>$(Interface.Options.das-db)</db>
+#foreach $(Interface.Options)
+#ifeq($($ThisNodeName.!match/das-dbconn-/),true)
+#var option $($ThisNodeName.!replace/das-dbconn-//)
+#ifneq($($option),singleservice)
+        <$($option)>$($ThisNodeValue)</$($option)>
+#ifeqend
+#ifeqend
+#end
+      </connection>
+    </provider>
+
+    <types>
+
+#ifeq($($singleservice),true)
+#foreach $(Interface.Structs)
+      <$(Struct.Name) type="struct">
+#foreach $(Struct.Members)
+        <$(Param.Name) type="$(Param.DataType.Name)"/>
+#end
+      </$(Struct.Name)>
+      <$(Struct.Name)List type="list" itemtype="$(Struct.Name)" />
+
+#end
+#else
+      <$(Struct.Name) type="struct">
+#foreach $(Struct.Members)
+        <$(Param.Name) type="$(Param.DataType.Name)"/>
+#end
+      </$(Struct.Name)>
+      <$(Struct.Name)List type="list" itemtype="$(Struct.Name)" />
+
+#ifeqend
+    </types>
+
+    <operations>

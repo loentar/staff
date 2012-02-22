@@ -14,40 +14,22 @@
 #ifeqend
 #ifeqend
 \
-
+#ifeq($($singleservice),true)
+#cginclude "Header.datasource"
+#ifeqend
+\
+\
 #foreach $(Interface.Structs)
 #ifneq($($fullopns),)
 #var opPrefix _$(Interface.Namespace.!tolower.!mangle)_$(Struct.Name)
+#else
+#var opPrefix
 #ifeqend
-  <datasource namespace="$(Interface.Namespace.!tolower.!dot)" name="$(Struct.Name)_Service" descr="\
-#ifneq($(Interface.Namespace.!tolower.!dot),)
-$(Interface.Namespace.!tolower.!dot).\
+#ifneq($($singleservice),true)
+#cginclude "Header.datasource"
+#else
+#var opPrefix $($opPrefix)_$(Struct.Name)
 #ifeqend
-$(Struct.Name)_Service datasource">
-
-    <provider name="$(Interface.Options.das-provider)">
-      <connection>
-        <db>$(Interface.Options.das-db)</db>
-#foreach $(Interface.Options)
-#ifeq($($ThisNodeName.!match/das-dbconn-/),true)
-        <$($ThisNodeName.!replace/das-dbconn-//)>$($ThisNodeValue)</$($ThisNodeName.!replace/das-dbconn-//)>
-#ifeqend
-#end
-      </connection>
-    </provider>
-
-    <!-- TODO: <include filename="providers.xml" /> -->
-
-    <types>
-      <$(Struct.Name) type="struct">
-#foreach $(Struct.Members)
-        <$(Param.Name) type="$(Param.DataType.Name)"/>
-#end
-      </$(Struct.Name)>
-      <$(Struct.Name)List type="list" itemtype="$(Struct.Name)" />
-    </types>
-
-    <operations>
 
       <!-- Table $(Struct.Name) -->
       <operation name="$($opPrefix)_Create">
@@ -185,13 +167,21 @@ $($q)$(Param.Name)$($q)\
 $($q)$(Param.Name)$($q)='\$(param.$(Param.Name))'\
 #ifeqend
 #end
-</execute>
+ WHERE $($q)$(Struct.Members.Param.Name)$($q) = '\$(param.$(Struct.Members.Param.Name))'</execute>
         </script>
       </operation>
 
+#ifneq($($singleservice),true)
     </operations>
 
   </datasource>
+#ifeqend
 
 #end
+\
+#ifeq($($singleservice),true)
+    </operations>
+
+  </datasource>
+#ifeqend
 </datasources>
