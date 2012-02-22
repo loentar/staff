@@ -39,6 +39,8 @@
       * [CodegenTemplates Codegen templates]
     * DAS
       * [DasScriptProgramming DAS script programming]
+      * [DasProviders DAS providers list]
+      * [DasDumpDb Dump DB model to datasource]
     * Others
       * [TrafficCompression Traffic compression]
   * Downloads

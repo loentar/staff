@@ -39,6 +39,8 @@
       * [CodegenTemplates Шаблоны]
     * DAS
       * [DasScriptProgramming Программирование скриптов DAS]
+      * [DasProviders Список провайдеров]
+      * [DasDumpDb Дамп модели БД]
     * Другое
       * [TrafficCompression Сжатие трафика]
   * Загрузки
