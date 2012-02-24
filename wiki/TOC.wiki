@@ -15,6 +15,7 @@
       * [ExampleDasDataSource Creating datasource]
       * [ExampleDasClient Creating DAS client]
       * [DasMultipleProviders Multiple providers]
+      * [DasRestfulDatasources RESTful datasources]
     * Creating AJAX client
       * [ExampleCalculatorAjaxClient Ajax client]
     * Creating J2ME client
