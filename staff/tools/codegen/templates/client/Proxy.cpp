@@ -236,7 +236,19 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeq($(Param.DataType.Type),generic)
 #var sRestLocation $($sRestLocation.!replace/{$(Param.Name)}/" + staff::ToString($(Param.Name)) + "/)
 #else
+#ifeq($(Param.DataType.Type)|$(Param.DataType.Name),template|Optional)
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
+#var sRestLocation $($sRestLocation.!replace/$(Param.Name)={$(Param.Name)}/" + ($(Param.Name).IsNull() ? std::string() : "$(Param.Name)=" + *$(Param.Name)) + "/) \
+#else
+#ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),generic)
+#var sRestLocation $($sRestLocation.!replace/$(Param.Name)={$(Param.Name)}/" + ($(Param.Name).IsNull() ? std::string() : "$(Param.Name)=" + staff::ToString(*$(Param.Name))) + "/) \
+#else
+#cgerror cannot generate REST parameter for [$(Param.Name)] type [Optional<$(Param.DataType.TemplateParams.TemplateParam1.Type)>]
+#ifeqend
+#ifeqend
+#else
 #cgerror cannot generate REST parameter for [$(Param.Name)] type [$(Param.DataType.Type)]
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
