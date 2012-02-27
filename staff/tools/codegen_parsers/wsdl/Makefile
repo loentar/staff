@@ -9,6 +9,7 @@ LDFLAGS += -lrise -lstaffcodegenparser -laxis2_http_sender -laxutil
 ifneq ($(OS),MINGW)
   LDFLAGS += -laxis2_http_common
 else
+  LDFLAGS += -laxis2_engine
   CXXFLAGS += -DAXIS2_DECLARE_EXPORT
 endif
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="staffcgparser-dasdumpdb"
-	ProjectGUID="{C8E123BF-5E3A-44AE-95EE-12E2F432FAF3}"
+	ProjectGUID="{F66FAFBC-74EB-4FB9-9C61-A47A9BC34759}"
 	RootNamespace="staffcgparser-dasdumpdb"
 	Keyword="Win32Proj"
 	>
@@ -42,9 +42,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="false"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,93 +66,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
+				AdditionalDependencies="rise.lib staffcodegenparser.lib staff_dascommon.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
-				RuntimeLibrary="2"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;"
-				GenerateDebugInformation="false"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -207,7 +127,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -228,13 +148,95 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
+				AdditionalDependencies="rise.lib staffcodegenparser.lib staff_dascommon.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="false"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="rise.lib staffcodegenparser.lib staff_dascommon.lib"
+				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				GenerateDebugInformation="false"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="$(TargetDir)$(TargetName).lib"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -288,7 +290,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\include\&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -307,10 +309,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staffcodegenparser.lib"
+				AdditionalDependencies="rise.lib staffcodegenparser.lib staff_dascommon.lib"
 				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\..\staff\deploy\win_$(PlatformName)\staff\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
