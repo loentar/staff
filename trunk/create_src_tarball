@@ -1,9 +1,9 @@
 #!/bin/sh
 
+. ./VERSION
 DISTRIB=../staff_tmp$(printf %x $(date +%s))/
 REVISION=$(LANG=en svn info --non-interactive 2>&- | grep 'Revision: ' | cut -d' ' -f2)
-VERSION=$(grep "VERSION=" staff/Makefile | sed 's/^.*=\(.*\)$/\1/')
-TARBALLNAME=../staff-${VERSION}-r${REVISION}
+TARBALLNAME=../staff-${PACKAGE_VERSION}-r${REVISION}
 
 test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || /bin/echo -e "\033[1mWARNING: working copy was locally modified\033[0m"
 
