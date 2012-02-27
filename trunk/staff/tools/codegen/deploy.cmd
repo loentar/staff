@@ -21,5 +21,18 @@ set templatedir=%deploydir%\staff\lib\codegen\templates
 if not EXIST %bindir% mkdir %bindir%
 if not EXIST %templatedir% mkdir %templatedir%
 
-xcopy /Y /E /S templates\*.* %templatedir%\
+setlocal
+cd templates
+for /D %%d in (*) do (
+setlocal
+  if not %%d == .svn (
+    if not exist %templatedir%\%%d mkdir %templatedir%\%%d
+    cd %%d
+    for %%f in (*) do (
+      copy /y %%f %templatedir%\%%d >NUL
+    )
+  )
+endlocal
+)
+endlocal
 xcopy /Y /S %target%\*.exe %bindir%

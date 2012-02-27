@@ -187,7 +187,7 @@ namespace das
     tStartupInfo.hStdOutput = hStdOutPipeWrite;
     tStartupInfo.hStdError = hStdOutPipeWrite;
 
-    bProcessCreated = CreateProcess(NULL, sCommand.c_str(), NULL, NULL, TRUE, 0, NULL, NULL,
+    bProcessCreated = CreateProcess(sCommand.c_str(), NULL, NULL, NULL, TRUE, 0, NULL, NULL,
                                     &tStartupInfo, &tProcessInformation);
     CloseHandle(hStdOutPipeWrite);
     RISE_ASSERTS(bProcessCreated, "Failed to create process [" + sCommand + "]");
@@ -208,7 +208,7 @@ namespace das
       }
       else
       {
-        sResult.append(szBuffer, dwBytesRead);
+        sOutput.append(szBuffer, dwBytesRead);
       }
     }
 
