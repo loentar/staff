@@ -671,12 +671,14 @@ static void axis2services_start_axis2(const char* szAxis2Cmd)
   int nError = 0;
   char szPid[32];
 
-  nLockFileId = open(g_szPidFile, O_RDWR | O_CREAT | O_CLOEXEC, 0644);
+  nLockFileId = open(g_szPidFile, O_RDWR | O_CREAT, 0644);
   if (nLockFileId == -1)
   {
     LOG1("Failed to open lock file: %s", strerror(errno));
     return;
   }
+
+  fcntl(nLockFileId, F_SETFD, FD_CLOEXEC);
 
   nError = flock(nLockFileId, LOCK_EX);
   if (nError == -1)
