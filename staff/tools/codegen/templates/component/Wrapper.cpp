@@ -73,9 +73,6 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 \
 #ifneq($(Member.Options.*mep),in-only)
-#ifneq($(Interface.Options.*targetNamespace),)
-      rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
-#ifeqend
 \
 #ifneq($(Interface.Options.*elementFormDefault),)
 #ifeq($(Interface.Options.*elementFormDefault),qualified)
@@ -206,6 +203,10 @@ $(Param.Name)\
 #ifeqend
 #ifeq($(Member.Options.*dontSetResultNamespace),true)
       return;
+#else
+#ifeq($(Member.Options.*mep),in-only)
+      return;
+#ifeqend
 #ifeqend
     }
     else
@@ -214,7 +215,19 @@ $(Param.Name)\
       RISE_THROWS(staff::RemoteException, "Unknown Operation: " + rOperation.GetName());
     }
 
+#ifneq($(Class.Options.*targetNamespacePrefix),)
+#ifneq($(Class.Options.*targetNamespace),)
+    rOperation.GetResponse().SetNamespace("$(Class.Options.*targetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
+#else
+    rOperation.GetResponse().SetNamespace("http://tempui.org/" + m_pComponent->GetName(), "$(Class.Options.*targetNamespacePrefix)");
+#ifeqend
+#else
+#ifneq($(Class.Options.*targetNamespace),)
+    rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Class.Options.*targetNamespace)");
+#else
     rOperation.GetResponse().SetNamespaceUriGenPrefix("http://tempui.org/" + m_pComponent->GetName());
+#ifeqend
+#ifeqend
   }
 }
 
