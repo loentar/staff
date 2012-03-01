@@ -5,6 +5,8 @@
 #include <rise/common/ExceptionTemplate.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
+#include "ServiceFactory.h"
+#include "Users.h"
 #include "AccountsImpl.h"
 
 namespace staff
@@ -308,6 +310,27 @@ Role AccountsImpl::GetUser(int nId)
 
   RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return stUser;
+}
+
+Role AccountsImpl::GetUserSvc(int nId)
+{
+  Role stResult;
+
+  // get datasource's proxy
+  if (m_tpUsersDatasource.IsNull())
+  {
+    m_tpUsersDatasource = staff::das::samples::ServiceFactory::Inst().GetService("staff.das.samples.Users", this);
+  }
+
+  RISE_ASSERTS(!m_tpUsersDatasource.IsNull(), "failed to get datasource");
+
+  staff::das::samples::User stUser = m_tpUsersDatasource->GetUser(nId);
+
+  stResult.nId = stUser.nId;
+  stResult.sName = stUser.sName;
+  stResult.sDescr = stUser.sDescr;
+
+  return stResult;
 }
 
 

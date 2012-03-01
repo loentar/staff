@@ -140,12 +140,20 @@
         <execute>GetUserIdByName(sName=$(sName))</execute>
       </operation>
 
-      <operation name="GetUser" descr="get user info by user id">
+      <operation name="GetUser" descr="get user info by user id using direct sql query">
         <params>
           <nId type="int" />
         </params>
         <return type="User" />
-        <execute>GetUser(nId=$(nId))</execute>
+        <execute>SELECT "id", "name", "description" FROM "users" WHERE "id" = $(nId)</execute>
+      </operation>
+
+      <operation name="GetUserSvc" descr="get user info by user id using GetUserSql via service">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="User" />
+        <execute>GetUserSvc(nId=$(nId))</execute>
       </operation>
 
       <operation name="GetAllUsers">

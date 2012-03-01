@@ -23,7 +23,6 @@
 #include <rise/common/SharedPtr.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include <staff/component/Component.h>
 #include "DataSource.h"
@@ -100,13 +99,13 @@ namespace das
     else
     if (sOperationName == "CreateInstance")
     {
-      const std::string& sInstanceId = rRequest.GetChildByLocalName("sInstanceId").GetText();
+      const std::string& sInstanceId = rRequest.GetChildTextByLocalName("sInstanceId");
       staff::ServiceInstanceManager::Inst().CreateServiceInstance(sSessionId, m_sName, sInstanceId);
     }
     else
     if (sOperationName == "FreeInstance")
     {
-      const std::string& sInstanceId = rRequest.GetChildByLocalName("sInstanceId").GetText();
+      const std::string& sInstanceId = rRequest.GetChildTextByLocalName("sInstanceId");
       staff::ServiceInstanceManager::Inst().FreeServiceInstance(sSessionId, m_sName, sInstanceId);
     }
     else

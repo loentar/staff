@@ -62,11 +62,18 @@ TARGETNAME = $(LIBPREFIX)$(COMPONENT)$(LIBEXT)
 LDFLAGS += -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
+DATASOURCES = Users.datasources
+DATATYPES = Role.datatypes
+DATASOURCESPATH = ../../datasources/multiple/datasources/
+
 CODEGEN_WSDLS_OUT := $(patsubst %,$(OUTDIR)%,$(CODEGEN_WSDLS))
 CODEGEN_INTERFACES := $(patsubst %.h,$(SRCDIR)%.h,$(INTERFACES))
 CODEGEN_HEADERS := $(patsubst %.h,%Wrapper.h,$(CODEGEN_INTERFACES)) $(SRCDIR)ComponentImpl.h
 CODEGEN_SOURCES := $(patsubst %.h,%Wrapper.cpp,$(CODEGEN_INTERFACES)) $(SRCDIR)ComponentImpl.cpp
-CODEGEN_FILES := $(CODEGEN_HEADERS) $(CODEGEN_SOURCES) $(CODEGEN_WSDLS_OUT)
+CODEGEN_HEADERS += $(patsubst %.datasources,$(SRCDIR)%Proxy.h,$(DATASOURCES)) $(patsubst %.datatypes,$(SRCDIR)%Proxy.h,$(DATATYPES)) $(SRCDIR)ServiceFactory.h
+CODEGEN_SOURCES += $(patsubst %.datasources,$(SRCDIR)%Proxy.cpp,$(DATASOURCES)) $(patsubst %.datatypes,$(SRCDIR)%Proxy.cpp,$(DATATYPES)) $(SRCDIR)ServiceFactory.cpp
+CODEGEN_DATASOURCE_HEADERS := $(patsubst %.datasources,$(SRCDIR)%.h,$(DATASOURCES)) $(patsubst %.datatypes,$(SRCDIR)%.h,$(DATATYPES))
+CODEGEN_FILES := $(CODEGEN_HEADERS) $(CODEGEN_SOURCES) $(CODEGEN_DATASOURCE_HEADERS) $(CODEGEN_WSDLS_OUT)
 
 NON_CODEGEN_SOURCES := $(filter-out $(CODEGEN_SOURCES),$(wildcard $(SRCDIR)*.cpp))
 SOURCES := $(CODEGEN_SOURCES) $(NON_CODEGEN_SOURCES)
@@ -95,8 +102,20 @@ $(SRCDIR)%Wrapper.h $(SRCDIR)%Wrapper.cpp:: $(SRCDIR)%.h
 $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp:: $(CODEGEN_INTERFACES)
 	$(STAFF_CODEGEN) -u -tcomponent -c$(SRCDIR) $(INTERFACES)
 
+$(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp: $(SRCDIR)%.h
+	$(STAFF_CODEGEN) -tserviceproxy -c$(SRCDIR) $(patsubst $(SRCDIR)%,%,$(CODEGEN_DATASOURCE_HEADERS))
+
+$(SRCDIR)%.h: $(DATASOURCESPATH)%.datasources
+	$(STAFF_CODEGEN) -pdasdatasource -tinterface -i$(DATASOURCESPATH) -o$(SRCDIR) $(DATASOURCES)
+
+$(SRCDIR)%.h: $(DATASOURCESPATH)%.datatypes
+	$(STAFF_CODEGEN) -pdasdatasource -tinterface -i$(DATASOURCESPATH) -o$(SRCDIR) $(DATATYPES)
+
+$(SRCDIR)ServiceFactory.h $(SRCDIR)ServiceFactory.cpp:: $(patsubst %,$(DATASOURCESPATH)%,$(DATASOURCES))
+	$(STAFF_CODEGEN) -tserviceproxy -c$(SRCDIR) $(CODEGEN_DATASOURCE_HEADERS)
+
 $(OUTDIR)staff.samples.das.services.Accounts.wsdl: $(SRCDIR)Accounts.h
-	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
+	$(STAFF_CODEGEN) -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
 
 # == install ========================================
 install: "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
