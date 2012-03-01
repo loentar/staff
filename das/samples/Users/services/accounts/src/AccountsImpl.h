@@ -5,7 +5,20 @@
 #ifndef _AccountsImpl_h_
 #define _AccountsImpl_h_
 
+#include <rise/common/SharedPtr.h>
 #include "Accounts.h"
+
+namespace staff
+{
+namespace das
+{
+namespace samples
+{
+  class Users;
+}
+}
+}
+
 
 namespace staff
 {
@@ -33,6 +46,9 @@ namespace services
     virtual void RemoveUserByName(const std::string& sName);
     virtual int GetUserIdByName(const std::string& sName);
     virtual Role GetUser(int nId);
+    virtual Role GetUserSvc(int nId);
+  private:
+    rise::CSharedPtr<staff::das::samples::Users> m_tpUsersDatasource;
   };
 }
 }

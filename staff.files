@@ -54,6 +54,12 @@ das/samples/Users/services/accounts/src/AccountsImpl.cpp
 das/samples/Users/services/accounts/src/AccountsImpl.h
 das/samples/Users/services/accounts/src/DbConn.cpp
 das/samples/Users/services/accounts/src/DbConn.h
+das/samples/Users/webclient/add.html
+das/samples/Users/webclient/delete.html
+das/samples/Users/webclient/get.html
+das/samples/Users/webclient/http-form-hook.js
+das/samples/Users/webclient/index.html
+das/samples/Users/webclient/list.html
 das/service/src/DataAccessService.h
 das/service/src/DataAccessServiceImpl.cpp
 das/service/src/DataAccessServiceImpl.h
@@ -65,6 +71,7 @@ das/tools/codegen_parsers/dasdatasource/src/DasDataSourceParser.h
 das/tools/codegen_parsers/dasdumpdb/src/DasDumpDb.cpp
 das/tools/codegen_parsers/dasdumpdb/src/DasDumpDb.h
 das/tools/codegen/templates/datasources/codegen.config
+das/tools/codegen/templates/datasources/Header.datasource
 das/tools/codegen/templates/datasources/Service.datasources
 das/tools/codegen/templates/datatypes/codegen.config
 das/tools/codegen/templates/datatypes/Interface.datatypes
@@ -500,6 +507,11 @@ staff/tools/codegen/templates/protobufserviceimpl/StructSerialization.h
 staff/tools/codegen/templates/serviceimpl/codegen.config
 staff/tools/codegen/templates/serviceimpl/ServiceImpl.cpp
 staff/tools/codegen/templates/serviceimpl/ServiceImpl.h
+staff/tools/codegen/templates/serviceproxy/codegen.config
+staff/tools/codegen/templates/serviceproxy/Proxy.cpp
+staff/tools/codegen/templates/serviceproxy/Proxy.h
+staff/tools/codegen/templates/serviceproxy/ServiceFactory.cpp
+staff/tools/codegen/templates/serviceproxy/ServiceFactory.h
 staff/tools/codegen/templates/wsdl/codegen.config
 staff/tools/codegen/templates/wsdl/Service.wsdl
 staff/tools/codegen/templates/wsdl/Types.xsd

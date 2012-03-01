@@ -69,6 +69,11 @@ namespace services
 
     //! get user id by name
     virtual Role GetUser(int nId) = 0;
+
+    //! get user id by name using datasource
+    /*! this operation demostrates how to invoke datasource's operation within service
+    */
+    virtual Role GetUserSvc(int nId) = 0;
   };
 
 }
