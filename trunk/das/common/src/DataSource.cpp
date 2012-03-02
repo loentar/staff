@@ -42,9 +42,19 @@ namespace das
   {
   }
 
-  void DataSource::Load(const rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName)
+  void DataSource::Load(rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName)
   {
     rise::LogDebug() << "Loading datasource file: " << sFileName;
+
+    m_sFileName = sFileName;
+
+    std::string::size_type nPos = sFileName.find_last_of(RISE_PATH_SEPARATOR);
+    if (nPos != std::string::npos)
+    {
+      m_sDataSourcesDir = sFileName.substr(0, nPos + 1);
+    }
+
+    ProcessIncludes(rDataSourceNode);
 
     m_lsProviders.clear();
     std::string sId;
@@ -87,7 +97,6 @@ namespace das
       ++itProvider;
     }
 
-    m_sFileName = sFileName;
     m_sNamespace.erase();
     m_lsIncludes.clear();
     rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rDataSourceNode.FindAttribute("namespace");
@@ -142,7 +151,8 @@ namespace das
 
     // Operations
     m_lsOperations.clear();
-    const rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    ProcessIncludes(rOperations);
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
           itOperation != rOperations.NodeEnd(); ++itOperation)
     {
@@ -300,16 +310,8 @@ namespace das
   {
     rise::xml::CXMLDocument tTypesDoc;
 
-    std::string sDataSourcesDir = m_sFileName;
-
-    std::string::size_type nPos = sDataSourcesDir.find_last_of(RISE_PATH_SEPARATOR);
-    if (nPos != std::string::npos)
-    {
-      sDataSourcesDir.erase(nPos + 1);
-    }
-
-    rise::LogDebug() << "Including file: " << (sDataSourcesDir + sFileName);
-    tTypesDoc.LoadFromFile(sDataSourcesDir + sFileName);
+    rise::LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
+    tTypesDoc.LoadFromFile(m_sDataSourcesDir + sFileName);
 
     m_lsIncludes.push_back(Include());
     Include& rstInclude = m_lsIncludes.back();
@@ -410,6 +412,30 @@ namespace das
   const OperationsList& DataSource::GetOperations() const
   {
     return m_lsOperations;
+  }
+
+  void DataSource::ProcessIncludes(rise::xml::CXMLNode& rNode)
+  {
+    for (rise::xml::CXMLNode::TXMLNodeIterator itInclude = rNode.FindSubnode("include");
+      itInclude != rNode.NodeEnd(); itInclude = rNode.FindSubnode("include", itInclude))
+    {
+      const std::string& sFileName = itInclude->Attribute("filename").AsString();
+
+      rise::xml::CXMLDocument tDoc;
+
+      rise::LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
+      tDoc.LoadFromFile(m_sDataSourcesDir + sFileName);
+
+      const rise::xml::CXMLNode& rNodeTypes = tDoc.GetRoot();
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeTypes.NodeBegin();
+            itChild != rNodeTypes.NodeEnd(); ++itChild)
+      {
+        rNode.AddSubNode("") = *itChild;
+      }
+
+      rNode.DelSubNode(itInclude++);
+    }
+
   }
 
 }

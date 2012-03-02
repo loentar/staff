@@ -15,19 +15,7 @@ $(Struct.Name)\
 #ifeqend
 _Service datasource">
 
-    <provider name="$(Interface.Options.das-provider)">
-      <connection>
-        <db>$(Interface.Options.das-db)</db>
-#foreach $(Interface.Options)
-#ifeq($($ThisNodeName.!match/das-dbconn-/),true)
-#var option $($ThisNodeName.!replace/das-dbconn-//)
-#ifneq($($option),singleservice)
-        <$($option)>$($ThisNodeValue)</$($option)>
-#ifeqend
-#ifeqend
-#end
-      </connection>
-    </provider>
+    <include filename="$(Interface.Name).providers" />
 
     <types>
 
