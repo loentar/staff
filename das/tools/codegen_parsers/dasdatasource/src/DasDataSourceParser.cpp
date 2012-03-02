@@ -68,7 +68,7 @@ namespace codegen
       rise::xml::CXMLDocument tDocDataSources;
       tDocDataSources.LoadFromFile(sFileName);
 
-      const rise::xml::CXMLNode& rNodeDataSources = tDocDataSources.GetRoot();
+      rise::xml::CXMLNode& rNodeDataSources = tDocDataSources.GetRoot();
 
       if (rNodeDataSources.NodeName() == "types")
       {
@@ -104,7 +104,7 @@ namespace codegen
         rProject.lsInterfaces.push_back(stInterface);
       }
       else
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itNodeDataSource = rNodeDataSources.NodeBegin();
+      for (rise::xml::CXMLNode::TXMLNodeIterator itNodeDataSource = rNodeDataSources.NodeBegin();
           itNodeDataSource != rNodeDataSources.NodeEnd(); ++itNodeDataSource)
       {
         if (itNodeDataSource->NodeName() == "datasource")
@@ -282,10 +282,12 @@ namespace codegen
   }
 
 
-  void DasDataSourceParser::ParseProject(const rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
-                                          const std::string& sRootNs)
+  void DasDataSourceParser::ParseProject(rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
+                                         const std::string& sRootNs)
   {
     Interface stInterface;
+
+    ProcessIncludes(rDataSourceNode);
 
     stInterface.sName = rDataSourceNode.Attribute("name").AsString();
 
@@ -305,8 +307,8 @@ namespace codegen
     const rise::xml::CXMLNode& rNodeTypes = rDataSourceNode.Subnode("types");
     ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
 
-    // class
 
+    // class
     Class stClass;
     stClass.sName = stInterface.sName;
     stClass.sNamespace = sNamespace;
@@ -330,7 +332,8 @@ namespace codegen
     }
 
     // Operations
-    const rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    ProcessIncludes(rOperations);
     for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
           itOperation != rOperations.NodeEnd(); ++itOperation)
     {
@@ -463,6 +466,30 @@ namespace codegen
     }
 
     return false;
+  }
+
+  void DasDataSourceParser::ProcessIncludes(rise::xml::CXMLNode& rNode)
+  {
+    for (rise::xml::CXMLNode::TXMLNodeIterator itInclude = rNode.FindSubnode("include");
+      itInclude != rNode.NodeEnd(); itInclude = rNode.FindSubnode("include", itInclude))
+    {
+      const std::string& sFileName = itInclude->Attribute("filename").AsString();
+
+      rise::xml::CXMLDocument tDoc;
+
+      rise::LogDebug() << "Including file: " << (m_sDir + sFileName);
+      tDoc.LoadFromFile(m_sDir + sFileName);
+
+      const rise::xml::CXMLNode& rNodeTypes = tDoc.GetRoot();
+      for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeTypes.NodeBegin();
+            itChild != rNodeTypes.NodeEnd(); ++itChild)
+      {
+        rNode.AddSubNode("") = *itChild;
+      }
+
+      rNode.DelSubNode(itInclude++);
+    }
+
   }
 
   const std::string DasDataSourceParser::m_sId = "dasdatasource";

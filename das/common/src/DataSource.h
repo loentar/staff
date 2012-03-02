@@ -109,7 +109,7 @@ namespace das
     /*! \param rDataSourceNode - datasource node
         \param sFileName - datasource's filename
         */
-    void Load(const rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName);
+    void Load(rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName);
 
     //! get included data types
     /*! \return included data types
@@ -192,6 +192,11 @@ namespace das
       */
     void IncludeTypes(const std::string& sFileName);
 
+    //! process include directive
+    /*! \param sFileName - file name
+      */
+    void ProcessIncludes(rise::xml::CXMLNode& rNode);
+
   private:
     std::string m_sName;                        //!< datasource name
     std::string m_sDescr;                       //!< datasource description
@@ -200,6 +205,7 @@ namespace das
     ProvidersInfoList m_lsProviders;            //!< providers
     StringMap m_mOptions;                       //!< datasource options
     std::string m_sFileName;                    //!< datasource file name
+    std::string m_sDataSourcesDir;              //!< datasource path extracted from file name
     DataTypesList m_lsTypes;                    //!< defined types
     OperationsList m_lsOperations;              //!< datasource's operations list
     IncludesList m_lsIncludes;                  //!< included types list

@@ -65,7 +65,7 @@ namespace das
 
             tDoc.LoadFromFile(sFileName);
 
-            for (rise::xml::CXMLNode::TXMLNodeConstIterator itDataSource = tDoc.GetRoot().NodeBegin();
+            for (rise::xml::CXMLNode::TXMLNodeIterator itDataSource = tDoc.GetRoot().NodeBegin();
                 itDataSource != tDoc.GetRoot().NodeEnd(); ++itDataSource)
             {
               if (itDataSource->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
