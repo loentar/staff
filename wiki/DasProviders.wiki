@@ -27,3 +27,8 @@ List of Raw DAS Providers:
 || staff.das.Services || Provider to invoke service operations with specified arguments || [http://staff.googlecode.com/svn/trunk/das/samples/Users/datasources/services/datasources/Users.datasources link] ||
 || staff.das.Shell    || Provider to call operating system shell commands and scripts   || [http://staff.googlecode.com/svn/trunk/das/samples/SysInfo/datasources/datasources/SysInfo.datasources link] ||
 
+
+== Multiple providers ==
+
+See [DasMultipleProviders multiple providers wiki page].
+

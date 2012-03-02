@@ -4,7 +4,7 @@
 
 Codegen plugin "dasdumpdb" designed to dump data model from a database.
 
-Plugin can work with [DasProviders Sql providerss].
+Plugin can work with [DasProviders Sql providers].
 
 To dump model you should pass database connection parameters. Parameters list is specific for each DBMS.
 
