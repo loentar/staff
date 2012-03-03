@@ -51,7 +51,7 @@ namespace das
 
   public:
     ScriptExecuterImpl(const DataSource& rDataSource, Providers& rstProviders):
-      m_rDataSource(rDataSource), m_rstProviders(rstProviders)
+      m_rDataSource(rDataSource), m_rstProviders(rstProviders), m_bReturn(false)
     {
     }
 
@@ -79,6 +79,11 @@ namespace das
         const rise::xml::CXMLNode& rNodeOperator = *itOperator;
         if (rNodeOperator.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
         {
+          if (m_bReturn)
+          {
+            return;
+          }
+
           const std::string& sOperator = rNodeOperator.NodeName();
 
           if (sOperator == "var")
@@ -104,6 +109,7 @@ namespace das
           if (sOperator == "return")
           {
             ProcessReturn(rNodeOperator, rReturnType, rdoResult);
+            m_bReturn = true;
             return;
           }
           else
@@ -604,6 +610,7 @@ namespace das
     Providers& m_rstProviders;
     VarMap m_mVars;
     ExecutorsMap m_mExec;
+    bool m_bReturn;
   };
 
 
