@@ -489,7 +489,7 @@ namespace das
         { // variable
           // get var name
           std::string sVarName;
-          std::string::size_type nPos = sPath.find('.', nBegin);
+          std::string::size_type nPos = sPath.find('.');
           if (nPos != std::string::npos)
           {
             sVarName = sPath.substr(0, nPos);
