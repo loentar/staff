@@ -108,7 +108,7 @@ namespace das
           else
           if (sOperator == "return")
           {
-            ProcessReturn(rNodeOperator, rReturnType, rdoResult);
+            ProcessReturn(rdoContext, rNodeOperator, rReturnType, rdoResult);
             m_bReturn = true;
             return;
           }
@@ -396,30 +396,39 @@ namespace das
     }
 
 
-    void ProcessReturn(const rise::xml::CXMLNode& rScript, const DataType& rReturnType, DataObject& rdoResult)
+    void ProcessReturn(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+                       const DataType& rReturnType, DataObject& rdoResult)
     {
-      const std::string& sVarName = rScript.Attribute("var").AsString();
-      RISE_ASSERTS(!sVarName.empty(), "variable name is empty");
-      if (sVarName[0] == '$')
+      rise::xml::CXMLNode::TXMLAttrConstIterator itVar = rScript.FindAttribute("var");
+      if (itVar != rScript.AttrEnd())
       {
-        const std::string& sValue = Eval(DataObject(), sVarName);
-        rdoResult.SetText(sValue);
+        const std::string& sVarName = itVar->sAttrValue.AsString();
+        RISE_ASSERTS(!sVarName.empty(), "variable name is empty");
+        if (sVarName[0] == '$')
+        {
+          const std::string& sValue = Eval(rdoContext, sVarName);
+          rdoResult.SetText(sValue);
+        }
+        else
+        {
+          VarMap::const_iterator itVar = m_mVars.find(sVarName);
+          RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
+          const Var& rVar = itVar->second;
+          RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
+
+          if (rReturnType.eType == DataType::Generic)
+          {
+            rdoResult.SetText(rVar.sValue);
+          }
+          else
+          { // dataobject, list, struct
+            rdoResult = rVar.tdoValue;
+          }
+        }
       }
       else
       {
-        VarMap::const_iterator itVar = m_mVars.find(sVarName);
-        RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
-        const Var& rVar = itVar->second;
-        RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
-
-        if (rReturnType.eType == DataType::Generic)
-        {
-          rdoResult.SetText(rVar.sValue);
-        }
-        else
-        { // dataobject, list, struct
-          rdoResult = rVar.tdoValue;
-        }
+        rdoResult.SetText(Eval(rdoContext, rScript.NodeContent()));
       }
     }
 
