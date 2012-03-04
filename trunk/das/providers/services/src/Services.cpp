@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <rise/common/console.h>
 #include <rise/xml/XMLDocument.h>
 #include <rise/common/ExceptionTemplate.h>
 #include <rise/common/MutablePtr.h>
@@ -133,9 +134,18 @@ namespace das
         }
       }
 
+#ifdef _DEBUG
+      rise::LogDebug2() << "Invoking service [" << m_pProvider->m_pServiceWrapper->GetName() << "]: \n"
+                        << rise::ColorInkBlue << rdoRequest.ToString() << rise::ColorDefault;
+#endif
       // TODO: get SessionId and InstanceId
       // security module can't filter this request 'cause we're inside
       m_pProvider->m_pServiceWrapper->Invoke(tOperation, STAFF_SECURITY_NOBODY_SESSION_ID, "");
+
+#ifdef _DEBUG
+      rise::LogDebug2() << "Service [" << m_pProvider->m_pServiceWrapper->GetName() << "] response: \n"
+                        << rise::ColorInkBlue << rdoResult.ToString() << rise::ColorDefault;
+#endif
 
       /* example of response:
         <Response>
