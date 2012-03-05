@@ -112,8 +112,7 @@ namespace das
     {
       rise::CSharedPtr<ProviderService> tpService = GetImpl(sSessionId, sInstanceId);
       RISE_ASSERT(tpService);
-      DataObject tdoResponse = tpService->Invoke(rRequest);
-      rOperation.SetResponse(tdoResponse);
+      tpService->Invoke(rRequest, rOperation.GetResponse());
     }
 
     rOperation.GetResponse().SetNamespaceUriGenPrefix("http://tempui.org/" + m_pComponent->GetName());
