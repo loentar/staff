@@ -70,9 +70,9 @@ namespace das
 
     //! process operation
     /*! \param rdoOperation - operation request data object
-        \return operation result
+        \param rdoResult - operation result
       */
-    DataObject Process(const DataObject& rdoOperation);
+    void Process(const DataObject& rdoOperation, DataObject& rdoResult);
 
     //! process script
     /*! \param rdoContext - current context

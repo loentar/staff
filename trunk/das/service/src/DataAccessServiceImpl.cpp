@@ -291,7 +291,9 @@ namespace das
     RISE_ASSERTS(m_pDataSource, "Not initialized");
 
     ScriptExecuter tScriptExecuter(*m_pDataSource, m_stProviders);
-    return tScriptExecuter.Process(rdoOperation);
+    DataObject tdoResult(rdoOperation.GetLocalName() + "Result");
+    tScriptExecuter.Process(rdoOperation, tdoResult);
+    return tdoResult;
   }
 
 }

@@ -41,7 +41,7 @@ namespace das
     ProviderService();
     virtual void OnCreate();
     virtual void OnDestroy();
-    virtual DataObject Invoke(const DataObject& rdoOperation);
+    virtual void Invoke(const DataObject& rdoOperation, DataObject& rdoResult);
 
   private:
     Providers& GetProviders();

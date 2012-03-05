@@ -60,7 +60,7 @@ namespace das
         if (itScript != itOnCreate->NodeEnd())
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
-          return tScriptExecuter.Process(*itScript);
+          tScriptExecuter.Process(*itScript);
         }
       }
     }
@@ -88,18 +88,18 @@ namespace das
         if (itScript != itOnDestroy->NodeEnd())
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
-          return tScriptExecuter.Process(*itScript);
+          tScriptExecuter.Process(*itScript);
         }
       }
     }
   }
 
-  DataObject ProviderService::Invoke(const DataObject& rdoOperation)
+  void ProviderService::Invoke(const DataObject& rdoOperation, DataObject& rdoResult)
   {
     RISE_ASSERTS(m_pDataSource, "Not initialized");
 
     ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
-    return tScriptExecuter.Process(rdoOperation);
+    tScriptExecuter.Process(rdoOperation, rdoResult);
   }
 
   Providers& ProviderService::GetProviders()

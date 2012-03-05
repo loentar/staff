@@ -55,21 +55,6 @@ namespace das
     {
     }
 
-    DataObject ProcessOperation(const DataObject& rdoOperation)
-    {
-      const Operation* pOperation = &m_rDataSource.GetOperation(rdoOperation.GetLocalName());
-
-      DataObject tdoResult(pOperation->sName + "Result");
-
-      ProcessSequence(rdoOperation, pOperation->tScript, pOperation->stReturn, tdoResult);
-      if (pOperation->stReturn.eType == DataType::Generic)
-      {
-        RISE_ASSERTS(!tdoResult.IsTextNull(), "Empty result for generic type!");
-      }
-
-      return tdoResult;
-    }
-
     void ProcessSequence(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
                                          const DataType& rReturnType, DataObject& rdoResult)
     {
@@ -633,9 +618,16 @@ namespace das
     delete m_pImpl;
   }
 
-  DataObject ScriptExecuter::Process(const DataObject& rdoOperation)
+  void ScriptExecuter::Process(const DataObject& rdoOperation, DataObject& rdoResult)
   {
-    return m_pImpl->ProcessOperation(rdoOperation);
+    const Operation* pOperation = &m_pImpl->m_rDataSource.GetOperation(rdoOperation.GetLocalName());
+
+    m_pImpl->ProcessSequence(rdoOperation, pOperation->tScript, pOperation->stReturn, rdoResult);
+
+    if (pOperation->stReturn.eType == DataType::Generic)
+    {
+      RISE_ASSERTS(!rdoResult.IsTextNull(), "Empty result for generic type!");
+    }
   }
 
   void ScriptExecuter::Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
