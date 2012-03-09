@@ -348,6 +348,10 @@ namespace das
         {
           rVar.sValue = rVar.tdoValue.GetText();
           rVar.tdoValue.Detach();
+          if (rVar.tType.sType != "string")
+          {
+            rise::StrTrim(rVar.sValue);
+          }
         }
       }
     }
