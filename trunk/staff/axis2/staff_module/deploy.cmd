@@ -18,6 +18,6 @@ set deploydir=%cd%\..\..\deploy\win_%arch%
 set libdir=%deploydir%\axis2\modules\staff
 
 if not EXIST %libdir% mkdir %libdir%
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.dll %libdir%
 xcopy /Y /S config\*.xml %libdir%
 

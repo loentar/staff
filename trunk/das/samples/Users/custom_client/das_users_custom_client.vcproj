@@ -75,7 +75,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(STAFF_HOME)\lib"
 				GenerateDebugInformation="true"
@@ -161,7 +161,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(STAFF_HOME)\lib"
 				GenerateDebugInformation="false"

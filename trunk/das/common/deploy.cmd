@@ -22,5 +22,5 @@ if not EXIST %incdir% mkdir %incdir%
 if not EXIST %libdir% mkdir %libdir%
 
 xcopy /Y /S src\*.h %incdir%
-xcopy /Y /S %target%\*.lib %libdir%
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.lib %libdir%
+xcopy /Y /S %target%*.dll %libdir%

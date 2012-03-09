@@ -37,8 +37,8 @@ endlocal
 cd ..
 
 if not exist %deploylibdir% mkdir %deploylibdir%
-copy /y %target%\rise.dll %deploylibdir% >NUL
-copy /y %target%\rise.lib %deploylibdir% >NUL
+copy /y %target%rise.dll %deploylibdir% >NUL
+copy /y %target%rise.lib %deploylibdir% >NUL
 
 echo done.
 

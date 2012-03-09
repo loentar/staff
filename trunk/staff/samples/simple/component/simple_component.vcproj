@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
@@ -156,7 +156,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
@@ -235,7 +235,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
@@ -317,7 +317,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"

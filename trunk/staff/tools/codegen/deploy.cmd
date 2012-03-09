@@ -35,4 +35,4 @@ setlocal
 endlocal
 )
 endlocal
-xcopy /Y /S %target%\*.exe %bindir%
+xcopy /Y /S %target%*.exe %bindir%
