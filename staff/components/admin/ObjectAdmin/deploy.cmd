@@ -21,4 +21,4 @@ if not EXIST %componentdir% mkdir %componentdir%
 
 xcopy /Y /S src\*.wsdl %componentdir%\
 
-xcopy /Y /S %target%\*.dll %componentdir%\
+xcopy /Y /S %target%*.dll %componentdir%\

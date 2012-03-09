@@ -78,7 +78,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
@@ -164,7 +164,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
@@ -251,7 +251,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
@@ -331,7 +331,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib staff_common.lib staff_client.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"

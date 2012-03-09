@@ -15,4 +15,4 @@ if "%arch%" == "" (
 set deploydir=%cd%\..\..\..\deploy\win_%arch%
 set exdir=%deploydir%\staff\samples\bin
 if not EXIST %exdir% mkdir %exdir%
-xcopy /Y /S %target%\*.exe %exdir%
+xcopy /Y /S %target%*.exe %exdir%

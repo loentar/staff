@@ -17,4 +17,4 @@ if "%arch%" == "" (
 set deploydir=%cd%\..\..\..\deploy\win_%arch%
 set libdir=%deploydir%\staff\lib\codegen\parsers
 if not EXIST %libdir% mkdir %libdir%
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.dll %libdir%

@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -67,7 +67,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
 				GenerateDebugInformation="true"
@@ -97,13 +97,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -150,7 +150,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
 				GenerateDebugInformation="true"
@@ -180,13 +180,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -229,7 +229,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
 				GenerateDebugInformation="false"
@@ -261,13 +261,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -311,7 +311,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib"
-				OutputFile="$(InputDir)$(IntDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
 				GenerateDebugInformation="false"
@@ -343,7 +343,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 	</Configurations>

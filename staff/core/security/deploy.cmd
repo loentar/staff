@@ -27,5 +27,5 @@ xcopy /Y /S src\*.h %incdir%
 
 xcopy /Y /S db\*.db %dbdir%
 
-xcopy /Y /S %target%\*.lib %libdir%
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.lib %libdir%
+xcopy /Y /S %target%*.dll %libdir%

@@ -17,4 +17,4 @@ set libdir=%deploydir%\staff\components\staff.das\providers\staff.das.Services\
 
 if not EXIST %libdir% mkdir %libdir%
 
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.dll %libdir%

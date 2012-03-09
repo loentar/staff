@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -81,7 +81,7 @@
 				ExecutionBucket="9"
 				UseUnicodeResponseFiles="false"
 				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib libpq.lib"
-				OutputFile="$(ProjectDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
 				GenerateDebugInformation="true"
@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 				ExecutionBucket="16"
 			/>
 			<Tool
@@ -122,90 +122,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(POSTGRESQL_HOME)\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
-				RuntimeLibrary="2"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib libpq.lib"
-				OutputFile="$(ProjectDir)$(IntDir)\$(ProjectName).dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -257,7 +176,7 @@
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
 				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib libpq.lib"
-				OutputFile="$(ProjectDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
 				GenerateDebugInformation="true"
@@ -287,13 +206,94 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(POSTGRESQL_HOME)\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib libpq.lib"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -337,7 +337,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib libpq.lib"
-				OutputFile="$(ProjectDir)$(IntDir)\$(ProjectName).dll"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
 				GenerateDebugInformation="true"
@@ -369,7 +369,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="deploy.cmd $(InputDir)$(IntDir) $(PlatformName)"
+				CommandLine="deploy.cmd $(OutDir) $(PlatformName)"
 			/>
 		</Configuration>
 	</Configurations>

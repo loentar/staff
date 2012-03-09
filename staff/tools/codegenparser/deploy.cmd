@@ -20,8 +20,8 @@ set incdir=%deploydir%\staff\include\staff
 set thisincdir=%incdir%\%projectname%
 
 if not EXIST %libdir% mkdir %libdir%
-xcopy /Y /S %target%\*.dll %libdir%
-xcopy /Y /S %target%\*.lib %libdir%
+xcopy /Y /S %target%*.dll %libdir%
+xcopy /Y /S %target%*.lib %libdir%
 
 if not EXIST %incdir% mkdir %incdir%
 if not EXIST %thisincdir% mkdir %thisincdir%

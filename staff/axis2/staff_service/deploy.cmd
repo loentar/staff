@@ -19,6 +19,6 @@ set libdir=%deploydir%\axis2\services\staff
 
 if not EXIST %libdir% mkdir %libdir%
 
-xcopy /Y /S %target%\*.dll %libdir%
+xcopy /Y /S %target%*.dll %libdir%
 
 xcopy /Y /S config\services.xml %libdir%
