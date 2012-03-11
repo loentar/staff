@@ -210,5 +210,6 @@ goto errexit
 
 :errexit
 pause
+set ERRORLEVEL=1
 :exit
 endlocal
