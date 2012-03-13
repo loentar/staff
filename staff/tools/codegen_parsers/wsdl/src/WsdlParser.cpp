@@ -1187,7 +1187,7 @@ namespace codegen
                     (pElement->lsComplexTypes.front().lsAttributes.empty() &&
                     pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
                   pstStruct && pstStruct->sParentName.empty() &&
-                  !!pstStruct->lsMembers.front().mOptions.count("choice") &&
+                  (pstStruct->lsMembers.empty() || !!pstStruct->lsMembers.front().mOptions.count("choice")) &&
                   (pstStruct->mOptions.empty() ||
                     (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
                   pstStruct->lsStructs.empty() && pstStruct->lsEnums.empty();
