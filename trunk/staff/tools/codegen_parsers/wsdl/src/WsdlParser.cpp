@@ -1688,9 +1688,17 @@ namespace codegen
       RISE_ASSERTP(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
       bool bRemote = sFileUri.find("://") != std::string::npos;
-      const std::string& sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
+      std::string sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
                                               sFileUri.substr(0, nPos + 1) : "";
       std::string sInterfaceFileName = (nPos != std::string::npos) ? sFileUri.substr(nPos + 1) : sFileUri;
+
+      {
+        const std::string::size_type nSize = m_pParseSettings->sInDir.size();
+        if (nSize && sInterfaceFilePath.substr(0, nSize) == m_pParseSettings->sInDir)
+        {
+          sInterfaceFilePath.erase(0, nSize);
+        }
+      }
 
       nPos = sInterfaceFileName.find('?'); // remove GET parameters from interface file name
       if (nPos != std::string::npos)
