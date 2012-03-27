@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Groups" descr="Data source for reading groups (providers are Services and Sqlite)">
+    <!-- first provider is default -->
+    <provider name="staff.das.Services" id="svc">
+      <connection>
+        <service>staff.samples.das.services.Accounts</service>
+      </connection>
+    </provider>
+
+    <provider name="staff.das.Sqlite" id="sql">
+      <connection>
+        <db>$(STAFF_HOME)/db/testdas.db</db>
+      </connection>
+
+      <!-- this script is executed on when this datasource is loaded -->
+      <oncreate>
+        <script>
+          <execute>PRAGMA synchronous = OFF</execute>
+        </script>
+      </oncreate>
+      <!-- you can write script here to execute it when datasource is unloaded
+      <ondestroy>
+      </ondestroy>
+      -->
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+      <Group type="struct" descr="Group info">
+        <nId type="int" descr="Group id"/>
+        <sName type="string" descr="Group name"/>
+        <sDescr type="string" descr="Group description"/>
+      </Group>
+      <GroupsList type="list" itemtype="Group" descr="Groups list" />
+    </types>
+
+    <operations>
+      <operation name="GetGroup" descr="get group info by group id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="Group" />
+        <!-- use default provider -->
+        <execute>GetGroupById(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="GetAllGroups">
+        <params/>
+        <return type="GroupsList" />
+        <execute>GetGroups()</execute>
+      </operation>
+
+      <operation name="GetAllGroupsAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <!-- use sql provider -->
+        <execute providerid="sql">SELECT "id", "name", "description" FROM "groups"</execute>
+      </operation>
+    </operations>
+
+  </datasource>
+</datasources>
+

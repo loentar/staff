@@ -1,0 +1,50 @@
+Source: staff
+Priority: extra
+Maintainer: Dmitry Utkin <loentar@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), pkg-config(>= 0.9.0), libaxis2c0 (>= 1.6.0), libaxis2c-dev (>= 1.6.0), apache2-threaded-dev | apache2-prefork-dev (>= 2.2.0)
+Standards-Version: 3.9.1
+Section: libs
+Homepage: http://code.google.com/p/staff
+Vcs-Svn: http://staff.googlecode.com/svn/trunk
+Vcs-Browser: http://code.google.com/p/staff/source/browse/#svn%2Ftrunk
+
+Package: staff-libs
+Section: libs
+Architecture: any
+Depends: libaxis2c0 (>= 1.6.0), ${shlibs:Depends}, ${misc:Depends}
+Description: Web Service Framework for C++ based on Apache Axis2/C.
+ Staff is Web Service Framework for C++ based on Apache Axis2/C.
+ WSF Staff provide C++ interface to most used Apache Axis2/C functions,
+ and also it provide many additional features.
+ .
+ Main features provided by WSF Staff:
+ .
+   - stateful Web Services implementation in C++ with instance support;
+   - synchronous and asynchronous client implementation in C++, AJAX and J2ME;
+   - service-component architecture implementation;
+   - to interact with the service you can use simple, complex types and raw xml;
+   - support for RESTful web services and clients;
+   - WSDL support with xsd import/export;
+   - J2ME client support is based on ksoap;
+   - code generator to generate any sort of Web Services related source code;
+   - access to relational databases via DAS (data access service);
+   - traffic compression support in J2ME and AJAX.
+   - security support (users, groups, sessions, ACLs, etc.);.
+
+Package: staff-dev
+Section: libdevel
+Architecture: any
+Depends: staff-libs (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Web Service Framework for C++ based on Apache Axis2/C. Development package.
+ Staff is Web Service Framework for C++ based on Apache Axis2/C.
+ WSF Staff provide C++ interface to most used Apache Axis2/C functions,
+ and also it provide many additional features.
+
+Package: libapache2-mod-staff-axis2services
+Section: libs
+Architecture: any
+Depends: libaxis2c0 (>= 1.6.0), apache2.2-common (>= 2.2.0), ${shlibs:Depends}, ${misc:Depends}
+Description: Web services proxy module for Apache2.
+ This is an Apache2 proxy module to forward requests/response to stateful
+ Web services on Axis2/C. If you using this module Axis2/C must be started
+ separately.

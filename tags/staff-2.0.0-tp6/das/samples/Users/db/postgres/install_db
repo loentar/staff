@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$USER" != "postgres" ]
+then
+  echo -e "run this script under user postgres:\n  sudo -u postgres $0\n"
+  exit 1
+else
+  export PGPASSFILE="$(grep postgres /etc/passwd | cut -d ':' -f 6)/pgpass"
+  # create the password file
+  grep -v 'dastestuser' -q $PGPASSFILE >&2 2>/dev/null || ( echo "localhost:5432:testdas:dastestuser:dastestuserpassword" >>$PGPASSFILE; chmod 0600 $PGPASSFILE )
+
+  # install user and test database
+  psql template1 <testdas.sql
+fi
+

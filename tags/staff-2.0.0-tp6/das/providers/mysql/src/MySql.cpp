@@ -1,0 +1,240 @@
+/*
+ *  Copyright 2010 Utkin Dmitry
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
+ */
+
+#ifdef WIN32
+#include <my_global.h>
+#endif
+#include <mysql.h>
+#include <rise/xml/XMLDocument.h>
+#include <rise/common/ExceptionTemplate.h>
+#include <rise/common/MutablePtr.h>
+#include <rise/string/String.h>
+#include <staff/common/Runtime.h>
+#include <staff/common/DataObject.h>
+#include <staff/common/Value.h>
+#include <staff/das/common/DataSource.h>
+#include <staff/das/common/Executor.h>
+#include "MySql.h"
+
+namespace staff
+{
+namespace das
+{
+
+  class MySqlProvider::MySqlImpl
+  {
+  public:
+    MySqlImpl():
+      m_sHost("localhost"),
+      m_sPort("3306"),
+      m_bConnected(false)
+    {
+    }
+
+
+  public:
+    static const std::string m_sName;
+    static const std::string m_sDescr;
+
+    MYSQL m_tConn;
+    std::string m_sHost;
+    std::string m_sPort;
+    std::string m_sDataBase;
+    std::string m_sLogin;
+    std::string m_sPassword;
+    bool m_bConnected;
+  };
+
+  const std::string MySqlProvider::MySqlImpl::m_sName = "staff.das.MySql";
+  const std::string MySqlProvider::MySqlImpl::m_sDescr = "MySql data access provider";
+
+
+  //  ---------------------------------------------------------------
+
+  class MySqlQueryExecutor: public IQueryExecutor
+  {
+  public:
+    MySqlQueryExecutor(MySqlProvider* pProvider):
+      m_pProvider(pProvider), m_pResult(NULL),
+      m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0)
+    {
+    }
+
+    virtual ~MySqlQueryExecutor()
+    {
+      Reset();
+    }
+
+    virtual void Reset()
+    {
+      if (m_pResult)
+      {
+        mysql_free_result(m_pResult);
+        m_pResult = NULL;
+        m_nFieldsCount = 0;
+        m_nRowsCount = 0;
+        m_nCurrentRow = 0;
+      }
+    }
+
+    virtual void Execute(const std::string& sExecute)
+    {
+      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
+
+      Reset();
+
+      int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
+      RISE_ASSERTS(nStatus == 0, "error executing query #" + rise::ToStr(nStatus) + ": \n"
+                  + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                  + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+      if (mysql_field_count(&m_pProvider->m_pImpl->m_tConn) > 0)
+      {
+        m_pResult = mysql_store_result(&m_pProvider->m_pImpl->m_tConn);
+        RISE_ASSERTS(m_pResult, "Cannot retreive result: \n" + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
+
+        m_nFieldsCount = mysql_num_fields(m_pResult);
+        m_nRowsCount = mysql_num_rows(m_pResult);
+      }
+    }
+
+    virtual void GetFieldsNames(StringList& rNames)
+    {
+      if (rNames.size() != m_nFieldsCount)
+      {
+        rNames.resize(m_nFieldsCount);
+      }
+
+      if (m_pResult)
+      {
+        MYSQL_FIELD* pFields = mysql_fetch_fields(m_pResult);
+        const char* szFieldName = NULL;
+        int nField = 0;
+        for (StringList::iterator itItem = rNames.begin();
+            itItem != rNames.end(); ++itItem, ++nField)
+        {
+          szFieldName = pFields[nField].name;
+          RISE_ASSERTS(szFieldName, "Error while getting field name");
+          *itItem = szFieldName;
+        }
+      }
+    }
+
+    virtual bool GetNextResult(StringList& rResult)
+    {
+      if (!m_pResult || m_nCurrentRow == m_nRowsCount)
+      {
+        return false;
+      }
+
+      if (rResult.size() != m_nFieldsCount)
+      {
+        rResult.resize(m_nFieldsCount);
+      }
+
+      MYSQL_ROW pRow = mysql_fetch_row(m_pResult);
+      RISE_ASSERTS(pRow, "Error while fetching row");
+
+      int nField = 0;
+      for (StringList::iterator itResult = rResult.begin();
+          itResult != rResult.end(); ++itResult, ++nField)
+      {
+        *itResult = pRow[nField] ? pRow[nField] : "(NULL)";
+      }
+
+      ++m_nCurrentRow;
+      return true;
+    }
+
+  private:
+    MySqlProvider* m_pProvider;
+    MYSQL_RES* m_pResult;
+    unsigned m_nFieldsCount;
+    unsigned long long m_nRowsCount;
+    unsigned long long m_nCurrentRow;
+  };
+
+
+  MySqlProvider::MySqlProvider()
+  {
+    m_pImpl = new MySqlImpl;
+  }
+
+  MySqlProvider::~MySqlProvider()
+  {
+    delete m_pImpl;
+  }
+
+  void MySqlProvider::Init(const rise::xml::CXMLNode& rConfig)
+  {
+    // initialize connection
+    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+
+    m_pImpl->m_sHost = rConnection["host"].AsString();
+    m_pImpl->m_sPort = rConnection["port"].AsString();
+    m_pImpl->m_sDataBase = rConnection["db"].AsString();
+    m_pImpl->m_sLogin = rConnection["login"].AsString();
+    m_pImpl->m_sPassword = rConnection["password"].AsString();
+
+    RISE_ASSERTS(!m_pImpl->m_bConnected, "Already connected");
+    unsigned short ushPort = 0;
+    rise::FromStr(m_pImpl->m_sPort, ushPort);
+    mysql_init(&m_pImpl->m_tConn);
+    MYSQL* pResult = mysql_real_connect(&m_pImpl->m_tConn,
+                           m_pImpl->m_sHost.c_str(), m_pImpl->m_sLogin.c_str(),
+                           m_pImpl->m_sPassword.c_str(), m_pImpl->m_sDataBase.c_str(),
+                           ushPort, NULL, 0);
+
+    RISE_ASSERTS(pResult, std::string("Failed to connect to db: ") + mysql_error(&m_pImpl->m_tConn));
+
+    m_pImpl->m_bConnected = true;
+
+    int nResult = mysql_set_character_set(&m_pImpl->m_tConn, "UTF8");
+    RISE_ASSERTS(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_pImpl->m_tConn));
+  }
+
+  void MySqlProvider::Deinit()
+  {
+    if (m_pImpl->m_bConnected)
+    {
+      mysql_close(&m_pImpl->m_tConn);
+      m_pImpl->m_bConnected = false;
+    }
+  }
+
+  const std::string& MySqlProvider::GetName() const
+  {
+    return MySqlImpl::m_sName;
+  }
+
+  const std::string& MySqlProvider::GetDescr() const
+  {
+    return MySqlImpl::m_sDescr;
+  }
+
+  PExecutor MySqlProvider::GetExecutor()
+  {
+    return new MySqlQueryExecutor(this);
+  }
+
+}
+}
+
