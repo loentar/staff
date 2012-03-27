@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ "$USER" != "root" ]
+then
+  echo -e "run this script under root:\n  sudo $0\n"
+  exit 1
+else
+  # install user and test database
+  mysql -p -u root mysql < testdas.sql
+fi
+

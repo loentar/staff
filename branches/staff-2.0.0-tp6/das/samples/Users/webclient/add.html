@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Add user</title>
+    <script src="jquery.js" type="text/javascript"></script>
+    <script src="http-form-hook.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <form action="http://localhost/axis2/services/staff.das.samples.Users/AddUser/" method="PUT">
+      <table border="1px black">
+        <tbody>
+          <tr>
+            <td>Name</td>
+            <td><input type="text" name="firstname" /></td>
+          </tr>
+          <tr>
+            <td>Password</td>
+            <td><input type="password" name="lastname" /></td>
+          </tr>
+          <tr>
+            <td>Description</td>
+            <td><input type="text" name="year" /></td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <input type="submit" value="Add"/>
+    </form>
+    <br/>
+  </body>
+</html>
+

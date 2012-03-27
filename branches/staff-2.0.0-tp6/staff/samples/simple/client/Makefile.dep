@@ -1,0 +1,2 @@
+
+samples/simple/client.dep: core/common.dep core/client.dep core/component.dep tools/codegen.dep tools/codegen_parsers/cpp.dep

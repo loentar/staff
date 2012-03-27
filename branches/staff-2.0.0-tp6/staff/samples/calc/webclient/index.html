@@ -1,0 +1,31 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="staff.js"></script>
+  <script type="text/javascript" src="CalcService.js"></script>
+  <script type="text/javascript" src="calc.js"></script>
+</head>
+
+<body>
+  <div>
+    a = <input id="a" value="1"></input><br/>
+    b = <input id="b" value="2"></input><br/>
+    <input type="button" value="add (synchronous)" onclick="javascript:CalcAddSynch($('#a')[0].value, $('#b')[0].value);"></input>
+    <input type="button" value="add (asynchronous)" onclick="javascript:CalcAddAsynch($('#a')[0].value, $('#b')[0].value);"></input>
+  </div>
+
+  <div id="idNotice" style="display: none">
+    <h2 style="color: red">Error while loading necessary component</h2>
+    <h3>To start this client:</h3>
+    <ol>
+      <li>start codegen to produce client proxy from current directory:<br/>
+         <pre>staff_codegen -tjsclient -i../component/src CalcService.h</pre></li>
+      <li>download jQuery from <a href="http://jquery.com/">http://jquery.com/</a> site and put it as jquery.js into this directory</li>
+      <li>copy staff.js from directory staff/bindings/javascript/client into this directory</li>
+      <li>deploy current directory on web server</li>
+    </ol>
+  </div>
+</body>
+</html>

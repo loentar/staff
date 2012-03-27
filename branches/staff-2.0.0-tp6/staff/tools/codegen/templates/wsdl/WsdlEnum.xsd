@@ -1,0 +1,15 @@
+#ifeq($(Enum.Extern),0) // do not serialize/deserialize extern type
+
+      <simpleType name="\
+#ifneq($(Enum.Owner.!dot),)
+$(Enum.Owner.!dot).\
+#ifeqend
+$(Enum.Name.!dot)">
+        <restriction base="string">
+#foreach $(Enum.Members)
+          <enumeration value="$(Member.Value||Member.Name)"/>
+#end
+        </restriction>
+      </simpleType>
+
+#ifeqend //#ifeq($(Enum.Extern),0) // do not serialize extern type

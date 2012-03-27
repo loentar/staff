@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<types>
+  <Role type="struct" descr="Role info">
+    <nId type="int" descr="id"/>
+    <sName type="string" descr="name"/>
+    <sDescr type="string" descr="description"/>
+  </Role>
+  <RolesList type="list" itemtype="Role" descr="Roles list" />
+</types>

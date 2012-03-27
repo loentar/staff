@@ -1,0 +1,26 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title></title>
+
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="staff.js"></script>
+  <script type="text/javascript" src="Echo.js"></script>
+  <script type="text/javascript" src="EchoClient.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <h3>To start this client:</h3>
+    <ol>
+      <li>start codegen to produce client proxy from current directory:<br/>
+         <pre>staff_codegen -tjsclient -i../client_blocking/src Echo.h -dserviceuri=http://localhost/axis2/services/echo</pre></li>
+      <li>download jQuery from <a href="http://jquery.com/">http://jquery.com/</a> site and put it as jquery.js into this directory</li>
+      <li>copy staff.js from directory staff/bindings/javascript/client into this directory</li>
+      <li>deploy current directory on web server</li>
+      <li>click the <input type="button" onclick="javascript:EchoInvoke();" value="invoke"></input> button</li>
+      <li>you should see message box with response from service</li>
+    </ol>
+  </div>
+</body>
+</html>

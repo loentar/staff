@@ -1,0 +1,2 @@
+
+core/sqlite3.dep: core/common.dep

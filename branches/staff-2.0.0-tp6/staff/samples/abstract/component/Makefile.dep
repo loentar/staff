@@ -1,0 +1,2 @@
+
+samples/abstract/component.dep: core/utils.dep core/common.dep core/component.dep tools/codegen.dep tools/codegen_parsers/cpp.dep
