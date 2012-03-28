@@ -25,7 +25,8 @@
 #include <axis2_http_simple_response.h>
 #include <axis2_const.h>
 #include <string>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Exception.h>
 #include "HttpClient.h"
 
 // detect below axis2c-1.7.0
@@ -42,7 +43,7 @@ namespace codegen
     bool bResult = false;
     static axutil_env_t* pEnv =
         axutil_env_create_all("staff_codegen_wsdl_http_client.log", AXIS2_LOG_LEVEL_TRACE);
-    RISE_ASSERTS(pEnv, "Can't create axis2 env");
+    STAFF_ASSERT(pEnv, "Can't create axis2 env");
 
     sResponse.erase();
 
@@ -58,7 +59,7 @@ namespace codegen
     std::string sPath;
     std::string sHost;
     std::string::size_type nPos = sUrl.find("://");
-    RISE_ASSERTS(nPos != std::string::npos, "invalid url: [" + sUrl + "]");
+    STAFF_ASSERT(nPos != std::string::npos, "invalid url: [" + sUrl + "]");
     if (sUrl.substr(0, nPos) != "file")
     { // skip host and port
       std::string::size_type nPosBegin = nPos + 3;
@@ -96,14 +97,15 @@ namespace codegen
       // we have'nt body, and client returns AXIS2_FAILURE
       axis2_http_client_send(pClient, pEnv, pRequest, NULL);
       int nStatus = axis2_http_client_receive_header(pClient, pEnv);
-      rise::LogDebug3() << "Status code: " << nStatus;
+      staff::LogDebug3() << "Status code: " << nStatus;
       if (nStatus == 200) // HTTP 200 OK
       {
         pResponse = axis2_http_client_get_response(pClient, pEnv);
         if (pResponse)
         {
 #ifdef _DEBUG
-          rise::LogDebug2() << "Content Type: " << axis2_http_simple_response_get_content_type(pResponse, pEnv);
+          staff::LogDebug2() << "Content Type: " <<
+                                axis2_http_simple_response_get_content_type(pResponse, pEnv);
 #endif
           axutil_stream_t* pStream = axis2_http_simple_response_get_body(pResponse, pEnv);
 
@@ -111,12 +113,13 @@ namespace codegen
           int nContentLength = axis2_http_simple_response_get_content_length(pResponse, pEnv);
           if (nContentLength != -1)
           {
-            rise::LogDebug2() << "Content Length: " << nContentLength;
+            LogDebug2() << "Content Length: " << nContentLength;
 
             axis2_ssize_t nBodySize = 0;
             szBody = reinterpret_cast<char*>(AXIS2_MALLOC(pEnv->allocator, sizeof(char) * nContentLength));
 
-            while ((nReaded = axutil_stream_read(pStream, pEnv, szBody + nBodySize, nContentLength - nBodySize)) > 0)
+            while ((nReaded = axutil_stream_read(pStream, pEnv,
+                                                 szBody + nBodySize, nContentLength - nBodySize)) > 0)
             {
               nBodySize += nReaded;
             }
@@ -126,7 +129,7 @@ namespace codegen
           else
           {
             // chunked
-            rise::LogDebug2() << "Content Length: Unknown";
+            LogDebug2() << "Content Length: Unknown";
 
             static const int nBuffSize = 1024;
             char szBuffer[nBuffSize];
@@ -150,7 +153,7 @@ namespace codegen
 
     axis2_http_simple_request_free(pRequest, pEnv);
 
-    rise::LogDebug3() << sResponse.size() << " bytes retrieved";
+    staff::LogDebug3() << sResponse.size() << " bytes retrieved";
     return bResult;
   }
 

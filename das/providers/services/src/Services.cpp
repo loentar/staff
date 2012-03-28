@@ -19,11 +19,12 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/console.h>
-#include <rise/xml/XMLDocument.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/string/String.h>
+#include <staff/utils/console.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/stringutils.h>
+#include <staff/xml/Document.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Operation.h>
@@ -50,7 +51,7 @@ namespace das
     virtual void Execute(const std::string& sExecute, const DataObject& rdoContext,
                          const DataType& /*rReturnType*/, DataObject& rdoResult)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pServiceWrapper != NULL, "Not Initialized");
+      STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pServiceWrapper != NULL, "Not Initialized");
 
       std::string::size_type nPosBegin = 0;
       std::string::size_type nPosEnd = 0;
@@ -58,7 +59,7 @@ namespace das
       nPosBegin = sExecute.find('(');
       nPosEnd = sExecute.find_last_of(')');
 
-      RISE_ASSERTS(nPosBegin != std::string::npos && nPosEnd != std::string::npos &&
+      STAFF_ASSERT(nPosBegin != std::string::npos && nPosEnd != std::string::npos &&
                    nPosEnd > nPosBegin, "Invalid execute statement.\nIt should be in form "
                    "\"<execute>ElementName([par0=val, par1=$var1, par2=$[DO_val], ...])</execute>\"");
 
@@ -67,16 +68,16 @@ namespace das
       std::string sElement;
       std::string sArguments = sExecute.substr(nPosBegin + 1, nPosEnd - nPosBegin - 1);
 
-      rise::StrTrim(sArguments);
+      StringTrim(sArguments);
 
       // check for junk
       sElement = sExecute.substr(nPosEnd + 1);
-      rise::StrTrim(sElement);
-      RISE_ASSERTS(sElement.empty(), "Junk at end of operation: [" + sElement + "]");
+      StringTrim(sElement);
+      STAFF_ASSERT(sElement.empty(), "Junk at end of operation: [" + sElement + "]");
 
       // request element name
       sElement = sExecute.substr(0, nPosBegin);
-      rise::StrTrim(sElement);
+      StringTrim(sElement);
 
       // operation name
       staff::Operation tOperation(sElement);
@@ -92,12 +93,12 @@ namespace das
         while (nPosEnd != std::string::npos)
         {
           nPosEnd = sArguments.find('=', nPosBegin);
-          RISE_ASSERTS(nPosEnd != std::string::npos, "Unexpected end of parameter after: ["
+          STAFF_ASSERT(nPosEnd != std::string::npos, "Unexpected end of parameter after: ["
                        + sArguments.substr(nPosBegin) + "]");
 
           // parameter's name
           sParam = sArguments.substr(nPosBegin, nPosEnd - nPosBegin);
-          rise::StrTrim(sParam);
+          StringTrim(sParam);
           nPosBegin = nPosEnd + 1;
 
           // parameter's value
@@ -111,7 +112,7 @@ namespace das
           {
             sValue = sArguments.substr(nPosBegin);
           }
-          rise::StrTrim(sValue);
+          StringTrim(sValue);
 
           if (!sValue.empty() && sValue[0] == '$')
           {
@@ -135,16 +136,16 @@ namespace das
       }
 
 #ifdef _DEBUG
-      rise::LogDebug2() << "Invoking service [" << m_pProvider->m_pServiceWrapper->GetName() << "]: \n"
-                        << rise::ColorInkBlue << rdoRequest.ToString() << rise::ColorDefault;
+      LogDebug2() << "Invoking service [" << m_pProvider->m_pServiceWrapper->GetName() << "]: \n"
+                  << ColorTextBlue << rdoRequest.ToString() << ColorDefault;
 #endif
       // TODO: get SessionId and InstanceId
       // security module can't filter this request 'cause we're inside
       m_pProvider->m_pServiceWrapper->Invoke(tOperation, STAFF_SECURITY_NOBODY_SESSION_ID, "");
 
 #ifdef _DEBUG
-      rise::LogDebug2() << "Service [" << m_pProvider->m_pServiceWrapper->GetName() << "] response: \n"
-                        << rise::ColorInkBlue << rdoResult.ToString() << rise::ColorDefault;
+      LogDebug2() << "Service [" << m_pProvider->m_pServiceWrapper->GetName() << "] response: \n"
+                  << ColorTextBlue << rdoResult.ToString() << ColorDefault;
 #endif
 
       /* example of response:
@@ -165,7 +166,7 @@ namespace das
       {
         std::string sName;
         std::string::size_type nSize = sPath.size();
-        RISE_ASSERTS(nSize > 1, "invalid node name: [" + sPath + "]");
+        STAFF_ASSERT(nSize > 1, "invalid node name: [" + sPath + "]");
 
         std::string::size_type nBegin = 0;
         std::string::size_type nEnd = 0;
@@ -184,7 +185,7 @@ namespace das
           if (sName.empty()) // parent node
           {
             rdoResult = rdoResult.Parent();
-            RISE_ASSERTS(!rdoResult.IsNull(), "parent of root element reached while GetChild[" + sPath + "]");
+            STAFF_ASSERT(!rdoResult.IsNull(), "parent of root element reached while GetChild[" + sPath + "]");
           }
           else
           {
@@ -212,14 +213,14 @@ namespace das
     Deinit();
   }
 
-  void ServicesProvider::Init(const rise::xml::CXMLNode& rConfig)
+  void ServicesProvider::Init(const xml::Element& rConfig)
   {
     // initialize connection
-    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+    const xml::Element& rConnection = rConfig.GetChildElementByName("connection");
 
-    const std::string& sService = rConnection["service"].AsString();
+    const std::string& sService = rConnection.GetChildElementByName("service").GetValue();
     m_pServiceWrapper = SharedContext::Inst().GetService(sService);
-    RISE_ASSERTS(m_pServiceWrapper, "Can't find service: [" + sService + "]");
+    STAFF_ASSERT(m_pServiceWrapper, "Can't find service: [" + sService + "]");
   }
 
   void ServicesProvider::Deinit()

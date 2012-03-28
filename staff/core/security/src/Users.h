@@ -104,11 +104,6 @@ namespace staff
       Users& operator=(const Users&);
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(UsersList) typedef UsersList TUsersList;
-    STAFF_DEPRECATED(User) typedef User SUser;
-    STAFF_DEPRECATED(Users) typedef Users CUsers;
-#endif
   }
 }
 

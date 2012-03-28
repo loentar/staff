@@ -3,7 +3,7 @@
 // DO NOT EDIT
 
 #ifneq($(Interface.Classes.$Count),0)
-#include <rise/common/SharedPtr.h>
+#include <staff/utils/SharedPtr.h>
 #ifeqend
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
@@ -60,7 +60,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
   }
   else
   {
-    rise::CSharedPtr<$(Class.Name)Impl> tpServiceImpl = GetImpl(sSessionId, sInstanceId);
+    staff::SharedPtr<$(Class.Name)Impl> tpServiceImpl = GetImpl(sSessionId, sInstanceId);
 #foreach $(Class.Members)
     if (sOperationName == "$(Member.Options.*requestElement||Member.Name)")
     {
@@ -96,7 +96,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
-#ifneq($(Param.DataType.Name),COperation||Operation)
+#ifneq($(Param.DataType.Name),Operation)
       $(Param.DataType.NsName) $(Param.Name)\
 #ifeq($(Param.DataType.Type),generic)
  = 0\
@@ -154,10 +154,10 @@ tpServiceImpl->$(Member.Name)(\
 #ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
-#ifeq($(Param.DataType.Name),CMessageContext||MessageContext)
+#ifeq($(Param.DataType.Name),MessageContext)
 rOperation.GetMessageContext()\
 #else
-#ifeq($(Param.DataType.Name),COperation||Operation)
+#ifeq($(Param.DataType.Name),Operation)
 rOperation\
 #else
 #ifeq($(Param.DataType.Type),string||dataobject)
@@ -212,7 +212,7 @@ $(Param.Name)\
     else
 #end
     {
-      RISE_THROWS(staff::RemoteException, "Unknown Operation: " + rOperation.GetName());
+      STAFF_THROW(staff::RemoteException, "Unknown Operation: " + rOperation.GetName());
     }
 
 #ifneq($(Class.Options.*targetNamespacePrefix),)

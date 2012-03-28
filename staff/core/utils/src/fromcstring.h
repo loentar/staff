@@ -146,6 +146,42 @@ namespace staff
     return !szEndPtr || *szEndPtr == '\0';
   }
 
+
+  inline bool FromHexCString(const char* szString, unsignedByte& rubtValue)
+  {
+    char* szEndPtr = NULL;
+    rubtValue = static_cast<unsignedByte>(strtoul(szString, &szEndPtr, 16));
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  inline bool FromHexCString(const char* szString, unsigned int& runValue)
+  {
+    char* szEndPtr = NULL;
+    runValue = static_cast<unsigned int>(strtoul(szString, &szEndPtr, 16));
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  inline bool FromHexCString(const char* szString, unsigned short& rushValue)
+  {
+    char* szEndPtr = NULL;
+    rushValue = static_cast<unsigned short>(strtoul(szString, &szEndPtr, 16));
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  inline bool FromHexCString(const char* szString, unsigned long& rulValue)
+  {
+    char* szEndPtr = NULL;
+    rulValue = strtoul(szString, &szEndPtr, 16);
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  inline bool FromHexCString(const char* szString, unsigned long long& rullValue)
+  {
+    char* szEndPtr = NULL;
+    rullValue = staff_strtoull(szString, &szEndPtr, 16);
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
 }
 
 #endif // _STAFF_UTILS_FROMCSTRING_H_

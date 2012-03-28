@@ -25,29 +25,28 @@
 #include <string>
 #include <staff/codegen/Interface.h>
 
-namespace rise 
-{
-  namespace xml
-  {
-    class CXMLNode;
-  }
-}
-
 namespace staff
 {
+namespace xml
+{
+  class Element;
+}
+
 namespace codegen
 {
-  //!  Code generator
+  //! Code generator
   class CodeGen
   {
   public:
-    //!         start code generation
+    //! start code generation
     /*! \param  sTemplateDir - path to templates
         \param  sOutDir - output directory
-        \param  rRootNode - root node, describing project
+        \param  rRootElement - root element, describing project
         \param  bUpdateOnly - true: update files if needed, false: always update files
+        \param  rmEnv - environment
         */
-    void Start(const std::string& sTemplateDir, const std::string& sOutDir, const rise::xml::CXMLNode& rRootNode, bool bUpdateOnly, const StringMap& rmEnv);
+    void Start(const std::string& sTemplateDir, const std::string& sOutDir,
+               const xml::Element& rRootElement, bool bUpdateOnly, const StringMap& rmEnv);
   };
 }
 }

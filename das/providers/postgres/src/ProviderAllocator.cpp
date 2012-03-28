@@ -19,15 +19,15 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/plugin/PluginExport.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/utils/SharedPtr.h>
 #include "Postgres.h"
 
 namespace staff
 {
 namespace das
 {
-  class ProviderAllocatorImpl: public ProviderAllocator
+  class ProviderAllocatorImpl: public IProviderAllocator
   {
   public:
     virtual PProvider Allocate(const std::string& sName)
@@ -38,7 +38,7 @@ namespace das
       }
       else
       {
-        RISE_THROWS(rise::CLogicNoItemException, "Can't instantiate provider: " + sName +
+        STAFF_THROW_ASSERT("Can't instantiate provider: " + sName +
                     "\nAvailable providers are:\n"
                     "  staff.das.Postgres\n"
                     );
@@ -54,5 +54,5 @@ namespace das
 }
 }
 
-RISE_DECLARE_PLUGIN(::staff::das::ProviderAllocatorImpl)
+STAFF_DECLARE_PLUGIN(::staff::das::ProviderAllocatorImpl)
 

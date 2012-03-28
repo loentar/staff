@@ -8,7 +8,7 @@ LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
-LDFLAGS += -lpthread -lpq -lrise -lstaffcommon -lstaffdascommon
+LDFLAGS += -lpq -lstaffutils -lstaffxml -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/SharedPtr.h>
+#include <staff/utils/SharedPtr.h>
 #include <staff/common/Exception.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include "Issuer.h"
@@ -23,7 +23,7 @@ CheckerImpl::~CheckerImpl()
 
 void CheckerImpl::Use(const ticket::Ticket& stTicket)
 {
-  RISE_ASSERTS(Check(stTicket), "Ticket is already used or was not issued");
+  STAFF_ASSERT(Check(stTicket), "Ticket is already used or was not issued");
 
   m_setUsedIds.insert(stTicket.nId);
 }
@@ -31,10 +31,10 @@ void CheckerImpl::Use(const ticket::Ticket& stTicket)
 bool CheckerImpl::Check(const ticket::Ticket& stTicket) const
 {
   bool tResult = false;
-  rise::CSharedPtr<Issuer> pIssuer =
+  staff::SharedPtr<Issuer> pIssuer =
     staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
-  RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
+  STAFF_ASSERT(pIssuer, "Service [samples.calc.Issuer] is not found");
 
   if (pIssuer->WasIssued(stTicket))
   {
@@ -52,10 +52,10 @@ IssuedTicketList CheckerImpl::GetAllTickets() const
 {
   IssuedTicketList lsResult;
 
-  rise::CSharedPtr<Issuer> pIssuer =
+  staff::SharedPtr<Issuer> pIssuer =
     staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.sharedtypes.Issuer");
 
-  RISE_ASSERTS(pIssuer, "Service [samples.calc.Issuer] is not found");
+  STAFF_ASSERT(pIssuer, "Service [samples.calc.Issuer] is not found");
 
   ticket::TicketsList lsTickets = pIssuer->GetAllTickets();
 

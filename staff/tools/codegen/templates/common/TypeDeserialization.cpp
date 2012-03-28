@@ -112,7 +112,7 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
 \
 \
 #ifeq($(.Type),generic||string)                                // ==== generic, anyAttribute ====
-#ifneq($(.Name),Operation||MessageContext||COperation||CMessageContext)
+#ifneq($(.Name),Operation||MessageContext)
 #ifeq($(.Name),anyAttribute)
   for (staff::DataObject::ConstAttributeIterator itAttr = ($($sOptMod)$($sdoParam)).AttributeBegin(),
        itAttrEnd = ($($sOptMod)$($sdoParam)).AttributeEnd(); itAttr != itAttrEnd; ++itAttr)

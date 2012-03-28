@@ -26,26 +26,22 @@
 #include "staffdascommonexport.h"
 #include <string>
 
-namespace rise
-{
-  template <typename Type> class CMutablePtr;
-
-namespace xml
-{
-  class CXMLNode;
-}
-}
-
 namespace staff
 {
   class DataObject;
+  template <typename Type> class SharedPtr;
+
+namespace xml
+{
+  class Element;
+}
 
 namespace das
 {
   struct DataType;
   class DataSource;
   class IProvider;
-  typedef rise::CMutablePtr<IProvider> PProvider;
+  typedef SharedPtr<IProvider> PProvider;
 }
 }
 
@@ -80,13 +76,13 @@ namespace das
         \param rReturnType - return type
         \param rdoResult - result
       */
-    void Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+    void Process(const DataObject& rdoContext, const xml::Element& rScript,
                  const DataType& rReturnType, DataObject& rdoResult);
 
     //! process script
     /*! \param rScript - script to execute
       */
-    void Process(const rise::xml::CXMLNode& rScript);
+    void Process(const xml::Element& rScript);
 
   private:
     class ScriptExecuterImpl;

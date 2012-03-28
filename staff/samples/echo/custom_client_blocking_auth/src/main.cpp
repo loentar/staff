@@ -19,7 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/Log.h>
+#include <string.h>
+#include <iostream>
+#include <staff/utils/Log.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Namespace.h>
 #include <staff/common/Exception.h>
@@ -38,7 +40,8 @@ int main(int nArgs, const char* paszArgs[])
   {
     if (strcmp(paszArgs[1], "-h") == 0)
     {
-      std::cerr << "Usage: " << paszArgs[0] << "(-a [USERNAME] [PASSWORD]) (-p [USERNAME] [PASSWORD]) [ENDPOINT_URL]" << std::endl
+      std::cerr << "Usage: " << paszArgs[0]
+                << "(-a [USERNAME] [PASSWORD]) (-p [USERNAME] [PASSWORD]) [ENDPOINT_URL]" << std::endl
                 << "use -a option for HTTP Authentication" << std::endl
                 << "use -p option for Proxy Authentication" << std::endl;
       return 0;
@@ -195,7 +198,7 @@ int main(int nArgs, const char* paszArgs[])
     // output result
     std::cout << "Result: \n-------\n" << tdoResult.ToString() << "\n------\n";
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

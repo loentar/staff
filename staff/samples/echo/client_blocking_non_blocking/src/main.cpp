@@ -3,8 +3,8 @@
 // Client skeleton
 
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/threading/Thread.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Thread.h>
 #include <staff/common/DataObject.h>
 #include <staff/client/ICallback.h>
 #include <staff/common/Exception.h>
@@ -19,13 +19,13 @@ public:
   virtual void OnComplete(const std::string& tResult)
   {
     // process result here
-    rise::LogInfo() << "EchoString(asynch) result: " << tResult;
+    staff::LogInfo() << "EchoString(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -38,8 +38,8 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     std::auto_ptr< Echo > pEcho1(::staff::ServiceFactory::Inst().GetService< Echo >());
     std::auto_ptr< Echo > pEcho2(::staff::ServiceFactory::Inst().GetService< Echo >());
 
-    RISE_ASSERTS(pEcho1.get(), "Cannot get client for service echo!");
-    RISE_ASSERTS(pEcho2.get(), "Cannot get client for service echo!");
+    STAFF_ASSERT(pEcho1.get(), "Cannot get client for service echo!");
+    STAFF_ASSERT(pEcho2.get(), "Cannot get client for service echo!");
 
     // Invoke Your service here:
     EchoEchoStringCallback tEchoEchoStringCallback;
@@ -47,16 +47,16 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
     // using second client to call service while first client processing request
     std::string tEchoStringResult = pEcho2->EchoString("Hello World! (synch)");
-    rise::LogInfo() << "EchoString result: " << tEchoStringResult;
+    staff::LogInfo() << "EchoString result: " << tEchoStringResult;
 
     // Wait for asynch call is completed
     while (!tEchoEchoStringCallback.IsCompleted())
     {
-      rise::threading::CThread::Sleep(1000);
+      staff::Thread::Sleep(1000);
     }
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

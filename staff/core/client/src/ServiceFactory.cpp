@@ -4,8 +4,9 @@
 
 #include <memory>
 #include <map>
-#include <rise/string/String.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/utils/SharedPtr.h>
 #include "IProxyAllocator.h"
 #include "ServiceFactory.h"
 
@@ -50,7 +51,7 @@ namespace staff
       return NULL;
     }
 
-    const std::string& sBaseUri = sProtocol + "://" + sHost + ":" + rise::ToStr(nPort) + "/axis2/services/";
+    const std::string& sBaseUri = sProtocol + "://" + sHost + ":" + ToString(nPort) + "/axis2/services/";
 
     return itProxyAllocator->second->AllocateProxy(sBaseUri, sServiceName, sSessionId, sInstanceId);
   }

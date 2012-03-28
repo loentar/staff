@@ -26,14 +26,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <rise/common/Log.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/plugin/PluginExport.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/Exception.h>
 #include <staff/codegen/tools.h>
 #include "ProtobufParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::ProtobufParser)
+STAFF_DECLARE_PLUGIN(staff::codegen::ProtobufParser)
 
 namespace staff
 {
@@ -254,7 +254,7 @@ namespace codegen
         return false;
       }
 
-      rise::StrTrim(sComment);
+      StringTrim(sComment);
 
       return true;
     }
@@ -411,7 +411,7 @@ namespace codegen
     }
 
     // datatype
-    void ParseDataType( const std::string& sDataType, DataType& rDataType, const Struct* pstParent = NULL )
+    void ParseDataType(const std::string& sDataType, DataType& rDataType, const Struct* pstParent = NULL)
     {
       std::string sTmp;
 
@@ -482,7 +482,7 @@ namespace codegen
     }
 
     // member
-    void ParseMember( Member& rMember )
+    void ParseMember(Member& rMember)
     {
       std::string sTmp;
 
@@ -513,7 +513,7 @@ namespace codegen
 
       if (!sMessage.empty())
       {
-        rise::StrReplace(sMessage, ".", "::", true);
+        StringReplace(sMessage, ".", "::", true);
 
         Param stParam;
         ParseDataType(sMessage, stParam.stDataType);
@@ -565,7 +565,7 @@ namespace codegen
       CSP_ASSERT(m_tFile.get() == ')', "Error after message type in operation: [" + sOperation + "]",
                  m_stInterface.sFileName, m_nLine);
 
-      rise::StrReplace(sReturn, ".", "::", true);
+      StringReplace(sReturn, ".", "::", true);
 
       ParseDataType(sReturn, rMember.stReturn.stDataType);
       if (rMember.stReturn.stDataType.eType == DataType::TypeStruct)
@@ -574,7 +574,7 @@ namespace codegen
       }
       else
       {
-        rise::LogWarning() << "Return type for " << sOperation << " is not struct";
+        LogWarning() << "Return type for " << sOperation << " is not struct";
       }
 
       SkipWs();
@@ -606,7 +606,7 @@ namespace codegen
     }
 
     // service
-    void ParseClass( Class& rClass )
+    void ParseClass(Class& rClass)
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -626,7 +626,7 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (stMember.sDescr.size() != 0)
@@ -657,7 +657,7 @@ namespace codegen
         if (sTmp == "option")
         { // skip options
           ReadBefore(sTmp, ";");
-          rise::LogDebug() << "Ignoring option" << sTmp;
+          LogDebug() << "Ignoring option" << sTmp;
           m_tFile.ignore();
           continue;
         }
@@ -668,7 +668,7 @@ namespace codegen
       }
     }
 
-    void ParseEnum( Enum& rEnum )
+    void ParseEnum(Enum& rEnum)
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -701,17 +701,17 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             sDescr = sTmp.substr(1);
-            rise::StrTrim(sDescr);
+            StringTrim(sDescr);
           }
           SkipWsOnly();
         }
 
         ReadBefore(stMember.sName, "=;}");
-        rise::StrTrim(stMember.sName);
+        StringTrim(stMember.sName);
         FixId(stMember.sName);
 
         chTmp = m_tFile.peek();
@@ -719,7 +719,7 @@ namespace codegen
         { // read value
           m_tFile.ignore();
           ReadBefore(stMember.sValue, ";}");
-          rise::StrTrim(stMember.sValue);
+          StringTrim(stMember.sValue);
           FixId(stMember.sValue);
           chTmp = m_tFile.peek();
         }
@@ -748,7 +748,7 @@ namespace codegen
       SkipSingleLineComment();
     }
 
-    void ParseStruct( Struct& rStruct )
+    void ParseStruct(Struct& rStruct)
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -782,7 +782,7 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (stParamTmp.sDescr.size() != 0)
@@ -861,7 +861,7 @@ namespace codegen
         if (sToken == "option")
         { // skip options
           ReadBefore(sTmp, ";");
-          rise::LogDebug() << "Ignoring option" << sTmp;
+          LogDebug() << "Ignoring option" << sTmp;
           m_tFile.ignore();
           continue;
         }
@@ -869,7 +869,7 @@ namespace codegen
         if (sToken == "extensions")
         { // skip options
           ReadBefore(sTmp, ";");
-          rise::LogDebug() << "Ignoring extensions " << sTmp;
+          LogDebug() << "Ignoring extensions " << sTmp;
           m_tFile.ignore();
           continue;
         }
@@ -882,7 +882,7 @@ namespace codegen
 
         // data type
         ReadBefore(sToken);
-        rise::StrReplace(sToken, ".", "::", true);
+        StringReplace(sToken, ".", "::", true);
 
         if (bRepeated)
         {
@@ -914,7 +914,7 @@ namespace codegen
 
         SkipWs();
         ReadBefore(sToken); // tag id
-        rise::StrTrim(sToken);
+        StringTrim(sToken);
         CSP_ASSERT(!sToken.empty(), "missing tag id. message: " + rStruct.sName,
                    m_stInterface.sFileName, m_nLine);
 
@@ -938,7 +938,7 @@ namespace codegen
             // option name
             SkipWs();
             ReadBefore(sToken, " \r\n\t=");
-            rise::StrTrim(sToken);
+            StringTrim(sToken);
 
             SkipWs();
             chTmp = m_tFile.peek();
@@ -948,7 +948,7 @@ namespace codegen
 
             SkipWs();
             ReadBefore(sTmp, ",]");
-            rise::StrTrim(sTmp);
+            StringTrim(sTmp);
 
             if (sToken == "default")
             {
@@ -978,7 +978,7 @@ namespace codegen
         SkipWsOnly();
         if (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (stParamTmp.sDescr.size() != 0)
@@ -1034,7 +1034,7 @@ namespace codegen
     {
       ProtobufHeaderParser tProtobufHeaderParser(m_sRootNamespace);
       
-      rise::LogDebug() << "importing file " << sFileName << " from " << m_stInterface.sFileName;
+      LogDebug() << "importing file " << sFileName << " from " << m_stInterface.sFileName;
       const Interface& rInterface = tProtobufHeaderParser.Parse(m_sInDir, sFileName, *m_pProject);
 
       // use extern enums
@@ -1051,7 +1051,7 @@ namespace codegen
       m_stInterface.lsIncludes.push_back(stInclude);
     }
 
-    void ParseHeaderBlock( Interface& rInterface )
+    void ParseHeaderBlock(Interface& rInterface)
     {
       char chData = 0;
       std::string sDescr;
@@ -1062,7 +1062,7 @@ namespace codegen
       SkipWsOnly();
       while (ReadComment(sTmp))
       {
-        rise::StrTrim(sTmp);
+        StringTrim(sTmp);
         if (sTmp.size() != 0)
         {
           if (sDescr.size() != 0)
@@ -1112,7 +1112,7 @@ namespace codegen
           return; // class forward
         }
 
-        rise::LogDebug() << "Using [" << stClass.sName << "] as service class";
+        LogDebug() << "Using [" << stClass.sName << "] as service class";
 
         ParseClass(stClass);
         stClass.sDescr = sDescr;
@@ -1189,8 +1189,8 @@ namespace codegen
       {
         std::string sNamespace;
         ReadBefore(sNamespace, ";");
-        rise::StrTrim(sNamespace);
-        rise::StrReplace(sNamespace, ".", "::", true);
+        StringTrim(sNamespace);
+        StringReplace(sNamespace, ".", "::", true);
         m_sCurrentNamespace = m_sRootNamespace + sNamespace + "::";
 
         SkipWs();
@@ -1202,7 +1202,7 @@ namespace codegen
       if (sTmp == "extend")   // extend -ignore
       {
         ReadBefore(sTmp, "{;");
-        rise::LogDebug() << "Ignoring extend" << sTmp;
+        LogDebug() << "Ignoring extend" << sTmp;
         IgnoreFunction();
         SkipSingleLineComment();
       }
@@ -1215,7 +1215,7 @@ namespace codegen
       if (sTmp == "option")
       { // skip options
         ReadBefore(sTmp, ";");
-        rise::LogDebug() << "Ignoring option" << sTmp;
+        LogDebug() << "Ignoring option" << sTmp;
       }
       else
       {
@@ -1223,7 +1223,7 @@ namespace codegen
       }
     }
 
-    void ParseBracketedBlock( Interface& rInterface )
+    void ParseBracketedBlock(Interface& rInterface)
     {
       char chData = 0;
 
@@ -1255,7 +1255,7 @@ namespace codegen
       CSP_THROW("ParseBracketedBlock: EOF found!", m_stInterface.sFileName, m_nLine);
     }
 
-    void ParseHeader( Interface& rInterface )
+    void ParseHeader(Interface& rInterface)
     {
       char chData = 0;
 
@@ -1330,7 +1330,7 @@ namespace codegen
           {
             if (IsStructUsesAnother(*itThisStruct, *itOtherStruct))
             {
-              rise::LogDebug() << "Moving " << itOtherStruct->sName
+              LogDebug() << "Moving " << itOtherStruct->sName
                   << " to before " << itThisStruct->sName;
               rlsStructs.splice(itThisStruct++, rlsStructs, itOtherStruct);
               // now itThisStruct points to new pos of the itThisStruct
@@ -1356,7 +1356,7 @@ namespace codegen
 
       if (bWasChanged)
       {
-        rise::LogWarning() << "Failed to reorder structures. Build may fail";
+        LogWarning() << "Failed to reorder structures. Build may fail";
       }
 
       return bWasChanged;
@@ -1367,7 +1367,7 @@ namespace codegen
     {
       if (rstDataType.eType == DataType::TypeUnknown)
       {
-        rise::LogDebug() << "2nd pass: fixing datatype: " << rstDataType.sName;
+        LogDebug() << "2nd pass: fixing datatype: " << rstDataType.sName;
         ParseDataType(rstDataType.sNamespace + rstDataType.sName, rstDataType, pstStruct);
       }
       
@@ -1376,8 +1376,8 @@ namespace codegen
         DataType& rstTemplParam = rstDataType.lsParams.front();
         if (rstTemplParam.eType == DataType::TypeUnknown)
         {
-          rise::LogDebug() << "2nd pass fixing datatype: " << rstTemplParam.sName;
-          ParseDataType( rstTemplParam.sNamespace + rstTemplParam.sName, rstTemplParam, pstStruct);
+          LogDebug() << "2nd pass fixing datatype: " << rstTemplParam.sName;
+          ParseDataType(rstTemplParam.sNamespace + rstTemplParam.sName, rstTemplParam, pstStruct);
         }
       }
     }
@@ -1420,7 +1420,7 @@ namespace codegen
 
 
     // Interface
-    const Interface& Parse( const std::string& sInDir, const std::string& sFileName, Project& rProject )
+    const Interface& Parse(const std::string& sInDir, const std::string& sFileName, Project& rProject)
     {
       m_pProject = &rProject;
       m_sInDir = sInDir;
@@ -1449,7 +1449,7 @@ namespace codegen
 
       const std::string& sFilePath = m_sInDir + sFileName;
 
-      rise::LogDebug() << "processing file: " << sFilePath;
+      LogDebug() << "processing file: " << sFilePath;
       m_tFile.open(sFilePath.c_str());
       CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFilePath + ": "
                  + std::string(strerror(errno)), m_stInterface.sFileName, m_nLine);
@@ -1557,13 +1557,13 @@ namespace codegen
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
-      rise::StrReplace(sRootNs, ".", "::", true);
+      StringReplace(sRootNs, ".", "::", true);
     }
 
     for (StringList::const_iterator itFile = rParseSettings.lsFiles.begin();
         itFile != rParseSettings.lsFiles.end(); ++itFile)
     {
-      rise::LogDebug() << "---- " << *itFile << " -------------------------------------------------------";
+      LogDebug() << "---- " << *itFile << " -------------------------------------------------------";
       ProtobufHeaderParser tProtobufHeaderParser(sRootNs);
       const Interface& rInterface = tProtobufHeaderParser.Parse(rParseSettings.sInDir, *itFile, rProject);
       uServicesCount += rInterface.lsClasses.size();
@@ -1573,7 +1573,7 @@ namespace codegen
     if (itComponentNs != rParseSettings.mEnv.end())
     {
       rProject.sNamespace = "::" + itComponentNs->second + "::";
-      rise::StrReplace(rProject.sNamespace, ".", "::", true);
+      StringReplace(rProject.sNamespace, ".", "::", true);
     }
     else
     { // autodetect: take first defined namespace

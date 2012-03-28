@@ -9,7 +9,7 @@ ifeq ($(OS),MINGW)
 endif
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lrise
+LDFLAGS +=
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

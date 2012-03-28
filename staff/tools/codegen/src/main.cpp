@@ -21,15 +21,20 @@
 
 #ifndef WIN32
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 #endif
 #include <iostream>
 #include <fstream>
 #include <list>
-#include <rise/common/Log.h>
-#include <rise/plugin/PluginManager.h>
-#include <rise/tools/FileFind.h>
-#include <rise/xml/XMLDocument.h>
-#include <rise/xml/XMLNode.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/File.h>
+#include <staff/utils/DynamicLibrary.h>
+#include <staff/utils/PluginManager.h>
+#include <staff/utils/CrashHandler.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/Element.h>
+#include <staff/xml/XmlWriter.h>
 #include <staff/codegen/Interface.h>
 #include <staff/codegen/CodegenParser.h>
 #include "CodeGen.h"
@@ -41,7 +46,8 @@
 void Help()
 {
   std::cerr << "Code generator for Staff\n"
-    "staff_codegen [source files][-t<template>][-p<plugin_name>][-i<inputdir>][-i<outputdir>][-c<chagedir>][-u][-e][-n<prj_name>][-x][-v]\n"
+    "staff_codegen [source files][-t<template>][-p<plugin_name>][-i<inputdir>][-i<outputdir>][-c<chagedir>]"
+               "[-u][-e][-n<prj_name>][-x][-v]\n"
     "  -t<template>    - Generate source with template name. Example: -tserviceimpl\n"
     "  -p<plugin_name> - Use parser <plugin_name> to read source file(s). (default is cpp). Example: -pwsdl\n"
     "  -i<inputdir>    - Set input dir\n"
@@ -64,8 +70,11 @@ int main(int nArgs, const char* szArgs[])
     return 1;
   }
 
+  staff::CrashHandler::Enable();
+
   const char* szStaffHome = getenv("STAFF_HOME");
-  const std::string& sCodegenDir = !szStaffHome ? std::string("/usr/lib/staff/codegen") : std::string(szStaffHome) + "/lib/codegen";
+  const std::string& sCodegenDir = !szStaffHome ? std::string("/usr/lib/staff/codegen") :
+                                                  std::string(szStaffHome) + "/lib/codegen";
 
   staff::codegen::ParseSettings stParseSettings;
   staff::codegen::Project stProject;
@@ -75,11 +84,10 @@ int main(int nArgs, const char* szArgs[])
   bool bGenXml = false;
   bool bUpdateOnly = false;
   staff::codegen::StringMap mEnv;
-  int nResult = 0;
 
   const std::string& sTemplatesDir = sCodegenDir + "/templates/";
   const std::string& sPluginsDir = sCodegenDir + "/parsers/";
-  const std::string& sPluginPrefix = RISE_LIBRARY_PREFIX "staffcgparser-";
+  const std::string& sPluginPrefix = STAFF_LIBRARY_PREFIX "staffcgparser-";
 
   stProject.sName = "Project1";
 
@@ -180,7 +188,7 @@ int main(int nArgs, const char* szArgs[])
         {
           staff::codegen::StringList lsTemplates;
 
-          rise::CFileFind::Find(sTemplatesDir, lsTemplates, "*", rise::CFileFind::EFA_DIR);
+          staff::File(sTemplatesDir).List(lsTemplates, "*", staff::File::AttributeDirectory);
           lsTemplates.sort();
 
           std::cout << "Templates:\n";
@@ -197,10 +205,10 @@ int main(int nArgs, const char* szArgs[])
         if (sWhat.empty() || sWhat.find('p') != std::string::npos)
         {
           const std::string::size_type nPluginPrefixSize = sPluginPrefix.size();
-          const std::string::size_type nPluginExtSize = strlen(RISE_LIBRARY_EXT);
+          const std::string::size_type nPluginExtSize = strlen(STAFF_LIBRARY_VEREXT);
           staff::codegen::StringList lsPlugins;
-          rise::CFileFind::Find(sPluginsDir, lsPlugins, sPluginPrefix + "*" RISE_LIBRARY_EXT,
-                                rise::CFileFind::EFA_FILE);
+          staff::File(sPluginsDir).List(lsPlugins, sPluginPrefix + "*" STAFF_LIBRARY_VEREXT,
+                                        staff::File::AttributeAnyFile);
 
           lsPlugins.sort();
 
@@ -219,7 +227,8 @@ int main(int nArgs, const char* szArgs[])
 
       case 'v':
         std::cout << "staff_codegen version " VERSION_FULL "\n\nCopyright 2009-2011 Utkin Dmitry\n\n"
-          "Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0" << std::endl;
+          "Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0"
+                  << std::endl;
         return 0;
 
       default:
@@ -237,24 +246,26 @@ int main(int nArgs, const char* szArgs[])
     }
   }
 
-  if (stParseSettings.sInDir.size() > 0 && stParseSettings.sInDir.substr(stParseSettings.sInDir.size() - 1) != RISE_PATH_SEPARATOR)
+  if (!stParseSettings.sInDir.empty() &&
+      stParseSettings.sInDir.substr(stParseSettings.sInDir.size() - 1) != STAFF_PATH_SEPARATOR)
   {
-    stParseSettings.sInDir += RISE_PATH_SEPARATOR;
+    stParseSettings.sInDir += STAFF_PATH_SEPARATOR;
   }
-  if (stParseSettings.sOutDir.size() > 0 && stParseSettings.sOutDir.substr(stParseSettings.sOutDir.size() - 1) != RISE_PATH_SEPARATOR)
+  if (!stParseSettings.sOutDir.empty() &&
+      stParseSettings.sOutDir.substr(stParseSettings.sOutDir.size() - 1) != STAFF_PATH_SEPARATOR)
   {
-    stParseSettings.sOutDir += RISE_PATH_SEPARATOR;
+    stParseSettings.sOutDir += STAFF_PATH_SEPARATOR;
   }
 
 
   try
   {
     // loading plugin
-    rise::plugin::CPluginManager<staff::codegen::ICodegenParser> tPlugins;
+    staff::PluginManager<staff::codegen::ICodegenParser> tPluginManager;
 
-    const std::string& sFileName = sPluginsDir + sPluginPrefix + sPluginName + RISE_LIBRARY_EXT;
+    const std::string& sFileName = sPluginsDir + sPluginPrefix + sPluginName + STAFF_LIBRARY_VEREXT;
 
-    staff::codegen::ICodegenParser* pCodegenParser = tPlugins.LoadPlugin(sFileName, true);
+    staff::codegen::ICodegenParser* pCodegenParser = tPluginManager.Load(sFileName, true);
 
     if (!pCodegenParser)
     {
@@ -267,31 +278,34 @@ int main(int nArgs, const char* szArgs[])
     pCodegenParser->Process(stParseSettings, stProject);
 
     // Generation
-    rise::xml::CXMLDocument tDoc;
-    tDoc.GetRoot() << stProject;
+    staff::xml::Document tDoc;
+    tDoc.GetRootElement() << stProject;
 
     if (bGenXml)
     {
-      std::string sXmlFileName = stParseSettings.sOutDir + stProject.sName + ".xml";
+      const std::string& sXmlFileName = stParseSettings.sOutDir + stProject.sName + ".xml";
       std::cout << "Generating " << sXmlFileName << std::endl;
-      tDoc.GetDecl().m_sEncoding = "utf-8";
-      tDoc.SaveToFile(sXmlFileName);
+      tDoc.GetDeclaration().SetEncoding("UTF-8");
+
+      staff::xml::XmlFileWriter tXmlWriter(sXmlFileName);
+      tXmlWriter.WriteDocument(tDoc);
     }
 
     if (!sTemplate.empty())
     {
-      rise::LogDebug() << "template: " << sTemplate;
+      staff::LogDebug() << "template: " << sTemplate;
       staff::codegen::CodeGen tGen;
-      tGen.Start(sTemplatesDir + sTemplate + RISE_PATH_SEPARATOR, stParseSettings.sOutDir,
-                  tDoc.GetRoot(), bUpdateOnly, mEnv);
+      tGen.Start(sTemplatesDir + sTemplate + STAFF_PATH_SEPARATOR, stParseSettings.sOutDir,
+                  tDoc.GetRootElement(), bUpdateOnly, mEnv);
     }
+
+    return 0;
   }
   catch (const staff::codegen::ParseException& rException)
   {
-    rise::LogError() << rException;
-    nResult = 1;
+    staff::LogError() << rException;
   }
-  RISE_CATCH_ALL_DESCR_ACTION("", nResult = 1;)
+  STAFF_CATCH_ALL;
 
-  return nResult;
+  return 1;
 }

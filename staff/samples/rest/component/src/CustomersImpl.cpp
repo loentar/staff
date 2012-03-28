@@ -2,7 +2,6 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/exmacros.h>
 #include <staff/common/Exception.h>
 #include "CustomersImpl.h"
 
@@ -44,7 +43,7 @@ void CustomersImpl::Delete(int nId)
     }
   }
 
-  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
+  STAFF_THROW(staff::RemoteException, "Customer with given id does not exists");
 }
 
 void CustomersImpl::Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear)
@@ -61,7 +60,7 @@ void CustomersImpl::Update(int nId, const std::string& sFirstName, const std::st
     }
   }
 
-  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
+  STAFF_THROW(staff::RemoteException, "Customer with given id does not exists");
 }
 
 CustomersList CustomersImpl::List()
@@ -80,7 +79,7 @@ Customer CustomersImpl::Get(int nId)
     }
   }
 
-  RISE_THROWS(staff::RemoteException, "Customer with given id does not exists");
+  STAFF_THROW(staff::RemoteException, "Customer with given id does not exists");
 }
 
 

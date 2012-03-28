@@ -28,25 +28,38 @@
 namespace staff
 {
   class ComponentConfig;
+  class IService;
 
   //! Component config manager
   class STAFF_COMPONENT_EXPORT ComponentConfigManager
   {
   public:
-    //!         get Component config manager instance
+    //! get Component config manager instance
     /*! \return Component config manager instance
     */
     static ComponentConfigManager& Inst();
 
-    //!         get component config (load, if not loaded)
+    //! get component config (load, if not loaded)
     /*! \param  sComponent - component name
         \param  sConfig - config file name
         \param  bCreate - create new config, if given config is not exists
         \return loaded or created component config
         */
-    ComponentConfig& GetComponentConfig(const std::string& sComponent, const std::string& sConfig = "config.xml", 
-      bool bCreate = false);
+    ComponentConfig& GetComponentConfig(const std::string& sComponent,
+                                        const std::string& sConfig = "config.xml",
+                                        bool bCreate = true);
   
+    //! get component config (load, if not loaded)
+    /*! generate config by component/service name: component.name/ServiceName[suffix]
+        \param  pService - service name
+        \param  sSuffix - config suffix name.
+        \param  bCreate - create new config, if given config is not exists
+        \return loaded or created component config
+        */
+    ComponentConfig& GetComponentConfig(const IService* pService,
+                                        const std::string& sSuffix = ".xml",
+                                        bool bCreate = true);
+
   private:
     ComponentConfigManager();
     ~ComponentConfigManager();
@@ -57,10 +70,6 @@ namespace staff
     class ComponentConfigManagerImpl;
     ComponentConfigManagerImpl* m_pImpl;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(ComponentConfigManager) typedef ComponentConfigManager CComponentConfigManager;
-#endif
 
 }
 

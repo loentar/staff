@@ -59,40 +59,40 @@ namespace staff
     class AccountAdmin: public staff::IService
     {
     public:
-      //!        destructor
+      //! destructor
       virtual ~AccountAdmin() {}
 
 
 
-      //!         get user list
+      //! get user list
       /*! \return user list
       */
       virtual UserList GetUsers() = 0;
 
-      //!         get group list
+      //! get group list
       /*! \return group list
       */
       virtual GroupList GetGroups() = 0;
 
-      //!         get user groups
+      //! get user groups
       /*! \return user groups
       */
       virtual IdList GetUserGroups(int nUserId) = 0;
 
 
       
-      //!         adds user
+      //! adds user
       /*! \param  sUserName - user name
           \return id of created user
           */
       virtual int AddUser(const std::string& sUserName, const std::string& sDescription) = 0;
       
-      //!         remove user
+      //! remove user
       /*! \param  nUserId - user id
           */
       virtual void RemoveUser(int nUserId) = 0;
 
-      //!         set user password
+      //! set user password
       /*! \param  nUserId - user id
           \param  sPass - md5sum of user password
           */
@@ -100,38 +100,38 @@ namespace staff
 
 
 
-      //!         add group
+      //! add group
       /*! \param  sGroupName - group name
           \return group id
           */
       virtual int AddGroup(const std::string& sGroupName, const std::string& sDescription) = 0;
       
-      //!         remove group
+      //! remove group
       /*! \param  nGroupId - group id
           */
       virtual void RemoveGroup(int nGroupId) = 0;
 
 
 
-      //!         include user into group
+      //! include user into group
       /*! \param  nUserId - user id
           \param  nGroupId - group id
           */
       virtual void AddUserToGroup(int nUserId, int nGroupId) = 0;
 
-      //!         include user into groups
+      //! include user into groups
       /*! \param  nUserId - user id
           \param  rlsGroupIds - list of groups
           */
       virtual void AddUserToGroups(int nUserId, const IdList& rlsGroupIds) = 0;
 
-      //!         exclude user from group
+      //! exclude user from group
       /*! \param  nUserId - user id
           \param  nGroupId - group id
           */
       virtual void RemoveUserFromGroup(int nUserId, int nGroupId) = 0;
 
-      //!         exclude user from groups
+      //! exclude user from groups
       /*! \param  nUserId - user id
           \param  rlsGroupIds - list of groups
           */

@@ -3,7 +3,7 @@
 // Client skeleton
 
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "NillableService.h"
@@ -34,57 +34,57 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::nillable::NillableService > pNillableService(::staff::ServiceFactory::Inst().GetService< ::samples::nillable::NillableService >());
 
-    RISE_ASSERTS(pNillableService.get(), "Cannot get client for service samples.nillable.NillableService!");
+    STAFF_ASSERT(pNillableService.get(), "Cannot get client for service samples.nillable.NillableService!");
 
     // Invoke Your service here:
 
     ::samples::nillable::Info tInfo;
     pNillableService->Set(tInfo);
-    rise::LogInfo() << "Set called";
+    staff::LogInfo() << "Set called";
 
     ::samples::nillable::Info tGetResult = pNillableService->Get();
-    rise::LogInfo() << "Get result: " << tGetResult;
+    staff::LogInfo() << "Get result: " << tGetResult;
 
 
     tInfo.tNillableInt = 10;
     tInfo.tNillableStr = "test";
     pNillableService->Set(tInfo);
-    rise::LogInfo() << "Set called";
+    staff::LogInfo() << "Set called";
 
     tGetResult = pNillableService->Get();
-    rise::LogInfo() << "Get result: " << tGetResult;
+    staff::LogInfo() << "Get result: " << tGetResult;
 
 
     tInfo.tNillableInt.Reset();
     pNillableService->SetNillableStruct(tInfo);
-    rise::LogInfo() << "SetNillableStruct(NULL) called";
+    staff::LogInfo() << "SetNillableStruct(NULL) called";
 
     staff::Nillable< ::samples::nillable::Info > tGetNillableStructResult = pNillableService->GetNillableStruct();
-    rise::LogInfo() << "GetNillableStruct result: " << tGetNillableStructResult;
+    staff::LogInfo() << "GetNillableStruct result: " << tGetNillableStructResult;
 
 
     pNillableService->SetNillableStruct(::samples::nillable::Info());
-    rise::LogInfo() << "SetNillableStruct(NULL) called";
+    staff::LogInfo() << "SetNillableStruct(NULL) called";
 
     tGetNillableStructResult = pNillableService->GetNillableStruct();
-    rise::LogInfo() << "GetNillableStruct result: " << tGetNillableStructResult;
+    staff::LogInfo() << "GetNillableStruct result: " << tGetNillableStructResult;
 
 
 
     pNillableService->SetNillableInt(10);
-    rise::LogInfo() << "SetNillableInt called";
+    staff::LogInfo() << "SetNillableInt called";
 
     staff::Nillable<int> tGetNillableIntResult = pNillableService->GetNillableInt();
-    rise::LogInfo() << "GetNillableInt result: " << tGetNillableIntResult;
+    staff::LogInfo() << "GetNillableInt result: " << tGetNillableIntResult;
 
     pNillableService->SetNillableInt(staff::Nillable<int>());
-    rise::LogInfo() << "SetNillableInt called";
+    staff::LogInfo() << "SetNillableInt called";
 
     tGetNillableIntResult = pNillableService->GetNillableInt();
-    rise::LogInfo() << "GetNillableInt result: " << tGetNillableIntResult;
+    staff::LogInfo() << "GetNillableInt result: " << tGetNillableIntResult;
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

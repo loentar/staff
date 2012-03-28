@@ -11,7 +11,7 @@ echo "generating file list..."
 find . -type f \
         \( -regex '\(Makefile.*\|codegen.config\|.*\.\(h\|hpp\|c\|cpp\|xml\|js\|htm\|html\|css\|png\|gif\|wsdl\|xsd\|datasources\|datatypes\|java\|proto\)\)' -o \
            -regex '.*/codegen/templates/.*' \) \
-       -a \! -regex '.*/\(deploy\|out\|obj\|\.svn\|.*~\)/.*' | sed 's/^\.\///gm' | sort >staff.files
+       -a \! -regex '.*/\(deploy\|out\|obj\|\..*\|.*~\)/.*' | sed 's/^\.\///gm' | sort >staff.files
 echo "cleanup..."
 cp -f staff.files ../$THISDIR/
 cd ..

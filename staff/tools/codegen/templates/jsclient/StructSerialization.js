@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0) // do not serialize extern type
+#ifeq($(Struct.Extern),false) // do not serialize extern type
 
 // struct $(Struct.NsName.!dot)
 var o$(Struct.NsName.!mangle) = staff.object("$(Struct.NsName.!dot)");
@@ -51,4 +51,4 @@ o$(Struct.NsName.!mangle).deserialize = function(oElement)
 #cginclude "StructSerialization.js"
 #end
 
-#ifeqend //ifeq((Struct.Extern),0) // do not serialize extern type
+#ifeqend //ifeq((Struct.Extern),false) // do not serialize extern type

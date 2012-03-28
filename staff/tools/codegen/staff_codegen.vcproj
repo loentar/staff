@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,10 +66,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
+        AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -128,7 +128,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -149,10 +149,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
+        AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -209,7 +209,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -228,10 +228,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
+        AdditionalLibraryDirectories=""
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -291,7 +291,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -310,10 +310,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;"
+        AdditionalLibraryDirectories=""
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"

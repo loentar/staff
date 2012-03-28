@@ -3,11 +3,11 @@
 // Client skeleton
 
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/threading/Thread.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Thread.h>
 #include <staff/common/DataObject.h>
-#include <staff/client/ICallback.h>
 #include <staff/common/Exception.h>
+#include <staff/client/ICallback.h>
 #include <staff/client/ServiceFactory.h>
 #include "Tasks.h"
 
@@ -56,13 +56,13 @@ public:
   virtual void OnComplete(int tResult)
   {
 //     process result here
-     rise::LogInfo() << "Add(asynch) result: " << tResult;
+     staff::LogInfo() << "Add(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -73,13 +73,13 @@ public:
   virtual void OnComplete()
   {
     // process result here
-    rise::LogInfo() << "UpdateOwner(asynch) result: ";// << tResult;
+    staff::LogInfo() << "UpdateOwner(asynch) result: ";// << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -90,13 +90,13 @@ public:
   virtual void OnComplete(staff::Optional< ::samples::optional::AttachInfo > tResult)
   {
     // process result here
-    rise::LogInfo() << "GetAttachInfo(asynch) result: " << tResult;
+    staff::LogInfo() << "GetAttachInfo(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -107,13 +107,13 @@ public:
   virtual void OnComplete(staff::Optional< std::list<std::string> > tResult)
   {
     // process result here
-    rise::LogInfo() << "EchoOpt(asynch) result: " << tResult;
+    staff::LogInfo() << "EchoOpt(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -124,13 +124,13 @@ public:
   virtual void OnComplete(::samples::optional::TasksList tResult)
   {
     // process result here
-    rise::LogInfo() << "GetAllTasks(asynch) result: " << tResult;
+    staff::LogInfo() << "GetAllTasks(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -142,21 +142,21 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::optional::Tasks > pTasks(::staff::ServiceFactory::Inst().GetService< ::samples::optional::Tasks >());
 
-    RISE_ASSERTS(pTasks.get(), "Cannot get client for service samples.optional.Tasks!");
+    STAFF_ASSERT(pTasks.get(), "Cannot get client for service samples.optional.Tasks!");
 
     // Invoke Your service here:
 
     ::samples::optional::Task rstTask;
     rstTask.sDescr = "only descr";
     int tAddResult = pTasks->Add(rstTask);
-    rise::LogInfo() << "Add result: " << tAddResult;
+    staff::LogInfo() << "Add result: " << tAddResult;
 
     rstTask.tnOwnerId = 123;
     rstTask.sDescr = "with owner id";
     tAddResult = pTasks->Add(rstTask);
-    rise::LogInfo() << "Add result: " << tAddResult;
+    staff::LogInfo() << "Add result: " << tAddResult;
 
-    rise::LogInfo() << "UpdateOwner called";
+    staff::LogInfo() << "UpdateOwner called";
 
     ::samples::optional::AttachInfo stAttachInfo;
     stAttachInfo.sTitle = "some file";
@@ -164,34 +164,34 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     stAttachInfo.nFileSize = 150;
 
     ::samples::optional::TasksList tGetAllTasksResult = pTasks->GetAllTasks();
-    rise::LogInfo() << "GetAllTasks result: \n" << tGetAllTasksResult;
+    staff::LogInfo() << "GetAllTasks result: \n" << tGetAllTasksResult;
 
     pTasks->UpdateAttachInfo(tAddResult, stAttachInfo);
-    rise::LogInfo() << "UpdateAttachInfo called";
+    staff::LogInfo() << "UpdateAttachInfo called";
 
     // staff::Optional< ::samples::optional::AttachInfo > tGetAttachInfoResult = pTasks->GetAttachInfo(nTaskId);
-    // rise::LogInfo() << "GetAttachInfo result: " << tGetAttachInfoResult;
+    // staff::LogInfo() << "GetAttachInfo result: " << tGetAttachInfoResult;
 
     staff::Optional< std::list<std::string> > opt;
     opt->push_back("test");
     staff::Optional< std::list<std::string> > tEchoOptResult = pTasks->EchoOpt(opt);
-    rise::LogInfo() << "EchoOpt result: " << tEchoOptResult;
+    staff::LogInfo() << "EchoOpt result: " << tEchoOptResult;
 
     staff::Optional< std::list<std::string> > tEchoOptResult1 = pTasks->EchoOpt(staff::Optional< std::list<std::string> >());
-    rise::LogInfo() << "EchoOpt(none) result: " << tEchoOptResult1;
+    staff::LogInfo() << "EchoOpt(none) result: " << tEchoOptResult1;
 
 
     std::list< staff::Optional<std::string> > opt2;
     opt2.push_back(staff::Optional<std::string>("test2"));
     std::list< staff::Optional<std::string> > tEcho2OptResult = pTasks->EchoOpt2(opt2);
-    rise::LogInfo() << "EchoOpt2 result: " << tEcho2OptResult;
+    staff::LogInfo() << "EchoOpt2 result: " << tEcho2OptResult;
 
     std::list< staff::Optional<std::string> > tEcho2OptResult1 = pTasks->EchoOpt2(std::list< staff::Optional<std::string> >());
-    rise::LogInfo() << "EchoOpt2(none) result: " << tEcho2OptResult1;
+    staff::LogInfo() << "EchoOpt2(none) result: " << tEcho2OptResult1;
 
 
     tGetAllTasksResult = pTasks->GetAllTasks();
-    rise::LogInfo() << "GetAllTasks result: \n" << tGetAllTasksResult;
+    staff::LogInfo() << "GetAllTasks result: \n" << tGetAllTasksResult;
 
 
     // // Wait for asynch call is completed
@@ -200,7 +200,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // // To call operation while request is processing, please use another copy of client.
     // while (!tTasksAddCallback.IsCompleted())
     // {
-    //   rise::threading::CThread::Sleep(1000);
+    //   staff::Thread::Sleep(1000);
     // }
 
 
@@ -213,12 +213,12 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // // To call operation while request is processing, please use another copy of client.
     // while (!tTasksUpdateOwnerCallback.IsCompleted())
     // {
-    //   rise::threading::CThread::Sleep(1000);
+    //   staff::Thread::Sleep(1000);
     // }
 
 
     // pTasks->UpdateAttachInfo(nTaskId, rtnAttachInfo);
-    // rise::LogInfo() << "UpdateAttachInfo called";
+    // staff::LogInfo() << "UpdateAttachInfo called";
 
     // TasksGetAttachInfoCallback tTasksGetAttachInfoCallback;
     // pTasks->GetAttachInfo(nTaskId, tTasksGetAttachInfoCallback);
@@ -229,7 +229,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // // To call operation while request is processing, please use another copy of client.
     // while (!tTasksGetAttachInfoCallback.IsCompleted())
     // {
-    //   rise::threading::CThread::Sleep(1000);
+    //   staff::Thread::Sleep(1000);
     // }
 
 
@@ -242,7 +242,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
        // To call operation while request is processing, please use another copy of client.
        while (!tTasksEchoOptCallback.IsCompleted())
        {
-         rise::threading::CThread::Sleep(1000);
+         staff::Thread::Sleep(1000);
        }
 
 
@@ -255,11 +255,11 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
        // To call operation while request is processing, please use another copy of client.
        while (!tTasksGetAllTasksCallback.IsCompleted())
        {
-         rise::threading::CThread::Sleep(1000);
+         staff::Thread::Sleep(1000);
        }
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

@@ -25,17 +25,13 @@
 #include "staffcomponentexport.h"
 #include <string>
 
-namespace rise
-{
-  template<typename Type> class CSharedPtr;
-}
-
 namespace staff
 {
+  template<typename Type> class SharedPtr;
   class IService;
   class ServiceWrapper;
 
-  typedef rise::CSharedPtr<IService> PIService; //!< thread-safe counted pointer to service
+  typedef SharedPtr<IService> PIService; //!< thread-safe counted pointer to service
 
   //! service instance manager
   class STAFF_COMPONENT_EXPORT ServiceInstanceManager
@@ -109,10 +105,6 @@ namespace staff
     class ServiceInstanceManagerImpl;
     ServiceInstanceManagerImpl* m_pImpl;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(ServiceInstanceManager) typedef ServiceInstanceManager CServiceInstanceManager;
-#endif
 
 }
 

@@ -23,8 +23,7 @@
 #pragma warning (disable : 4267)
 #endif
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
@@ -41,21 +40,21 @@ namespace staff
         return;
       }
 
-      RISE_ASSERTES(m_pDb == NULL, rise::CLogicAlreadyExistsException, "Staff database is already opened");
+      STAFF_ASSERT(m_pDb == NULL, "Staff database is already opened");
       sqlite3_enable_shared_cache(1);
 
       // open db
       int nResult = sqlite3_open((Runtime::Inst().GetStaffHome() + "/db/staff.db").c_str(), &m_pDb);
-      RISE_ASSERTES(nResult == SQLITE_OK, rise::CFileOpenException, "Failed to open staff database");
+      STAFF_ASSERT(nResult == SQLITE_OK, "Failed to open staff database");
 
       sqlite3_stmt* pVm = NULL;
 
       nResult = sqlite3_prepare_v2(m_pDb, "PRAGMA foreign_keys = ON;", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
 
       try
       {
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to enable foreign keys: "
+        STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to enable foreign keys: "
                      + std::string(sqlite3_errmsg(m_pDb)));
       }
       catch(...)
@@ -64,7 +63,7 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
     void DbConn::Close()
@@ -75,7 +74,7 @@ namespace staff
         return;
       }
 
-      RISE_ASSERTES(m_pDb != NULL, rise::CLogicNoItemException, "Staff database is not opened");
+      STAFF_ASSERT(m_pDb != NULL, "Staff database is not opened");
 
       // free all prepared ops
       sqlite3_stmt* pStmt = NULL;
@@ -86,7 +85,7 @@ namespace staff
 
       // close db
       int nResult = sqlite3_close(m_pDb);
-      RISE_ASSERTES(nResult == SQLITE_OK, rise::CFileCloseException, "Failed to close staff database");
+      STAFF_ASSERT(nResult == SQLITE_OK, "Failed to close staff database");
       m_pDb = NULL;
 
       --m_nCounter;
@@ -97,11 +96,11 @@ namespace staff
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(m_pDb, "BEGIN TRANSACTION", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
 
       try
       {
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to begin transaction: "
+        STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to begin transaction: "
                      + std::string(sqlite3_errmsg(m_pDb)));
       }
       catch(...)
@@ -110,7 +109,7 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
     void DbConn::EndTransaction()
@@ -118,11 +117,11 @@ namespace staff
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(m_pDb, "END TRANSACTION", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
 
       try
       {
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to commit transaction: "
+        STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to commit transaction: "
                      + std::string(sqlite3_errmsg(m_pDb)));
       }
       catch(...)
@@ -131,7 +130,7 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
     void DbConn::RollbackTransaction()
@@ -139,11 +138,11 @@ namespace staff
       sqlite3_stmt* pVm = NULL;
 
       int nResult = sqlite3_prepare_v2(m_pDb, "ROLLBACK TRANSACTION", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(m_pDb));
 
       try
       {
-        RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to rollback transaction: "
+        STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to rollback transaction: "
                      + std::string(sqlite3_errmsg(m_pDb)));
       }
       catch(...)
@@ -152,7 +151,7 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(m_pDb));
     }
 
     sqlite3* DbConn::GetDb()

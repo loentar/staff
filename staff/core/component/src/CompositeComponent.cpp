@@ -19,9 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/SharedPtr.h>
 #include "ServiceWrapper.h"
 #include "CompositeComponent.h"
 
@@ -40,14 +40,14 @@ namespace staff
     return m_sName;
   }
 
-  void CompositeComponent::Compose( Component* pComponent )
+  void CompositeComponent::Compose(Component* pComponent)
   {
-    RISE_ASSERTP(pComponent);
+    STAFF_ASSERT_PARAM(pComponent);
 
     if (m_sName == "")
       m_sName = pComponent->GetName();
     else
-      RISE_ASSERTP(m_sName == pComponent->GetName());
+      STAFF_ASSERT_PARAM(m_sName == pComponent->GetName());
 
     const ServiceWrapperMap& rmComponentServices = pComponent->GetServices();
     for (ServiceWrapperMap::const_iterator itService = rmComponentServices.begin();
@@ -57,12 +57,12 @@ namespace staff
         m_mServices.insert(*itService);
 
       if (!tInsertResult.second)
-        rise::LogWarning() << "Duplicate service: \"" << itService->first 
+        LogWarning() << "Duplicate service: \"" << itService->first 
         << "\": in component: \"" << m_sName << "\".";
     }
   }
 
-  const ServiceWrapper* CompositeComponent::GetService( const std::string& sName ) const
+  const ServiceWrapper* CompositeComponent::GetService(const std::string& sName) const
   {
     ServiceWrapperMap::const_iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
@@ -70,7 +70,7 @@ namespace staff
     return itService->second;
   }
 
-  ServiceWrapper* CompositeComponent::GetService( const std::string& sName )
+  ServiceWrapper* CompositeComponent::GetService(const std::string& sName)
   {
     ServiceWrapperMap::iterator itService = m_mServices.find(sName);
     if (itService == m_mServices.end())
@@ -83,7 +83,7 @@ namespace staff
     return m_mServices;
   }
 
-  void CompositeComponent::AddService( ServiceWrapper* pService )
+  void CompositeComponent::AddService(ServiceWrapper* pService)
   {
     if (pService == NULL)
       return;
@@ -91,7 +91,7 @@ namespace staff
     m_mServices[pService->GetName()] = pService;
   }
 
-  void CompositeComponent::RemoveService( const std::string& sName )
+  void CompositeComponent::RemoveService(const std::string& sName)
   {
     m_mServices.erase(sName);
   }

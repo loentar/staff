@@ -11,8 +11,8 @@ std::string& operator<<(std::string& sResult, const $(Enum.NsName) eEnumValue)
     break;
 #end
   default:
-    RISE_THROWS(rise::CLogicNoItemException,
-       "Value out of range while serializing enum [$(Enum.NsName)]: " + rise::ToStr(eEnumValue));
+    STAFF_THROW_ASSERT("Value out of range while serializing enum [$(Enum.NsName)]: " +
+                       staff::ToString(eEnumValue));
   };
 #else
   sResult = staff::ToString(static_cast<int>(eEnumValue));
@@ -58,8 +58,7 @@ const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumV
   else
 #end
   {
-    RISE_THROWS(rise::CLogicNoItemException,
-       "Value out of range while deserializing enum [$(Enum.NsName)]: [" + sParam + "]");
+    STAFF_THROW_ASSERT("Value out of range while deserializing enum [$(Enum.NsName)]: [" + sParam + "]");
   }
 #else
   int nValue = 0;

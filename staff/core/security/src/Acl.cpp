@@ -23,9 +23,8 @@
 #pragma warning (disable : 4267)
 #endif
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 #include "Objects.h"
@@ -43,24 +42,24 @@ namespace staff
       return tInst;
     }
 
-    void Acl::SetUserAccess(int nObjectId, EAccess eAccess)
+    void Acl::SetUserAccess(int nObjectId, Access eAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      if (eAccess == EAccessInherited)
+      if (eAccess == AccessInherited)
       {
         // remove ace
         int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM objects_to_users_acl WHERE objectid = ? AND userid IS NULL",
                                          -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access(inherit): "
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access(inherit): "
                        + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
@@ -74,17 +73,17 @@ namespace staff
         // add ace
         int nResult = sqlite3_prepare_v2(pDb, "INSERT OR REPLACE INTO objects_to_users_acl(objectid, permit) "
                                                 "VALUES(?, ?)", -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          nResult = sqlite3_bind_int(pVm, 2, eAccess == EAccessGranted ? 1 : 0);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          nResult = sqlite3_bind_int(pVm, 2, eAccess == AccessGranted ? 1 : 0);
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access: " + std::string(sqlite3_errmsg(pDb)));
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access: " + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
         {
@@ -93,30 +92,30 @@ namespace staff
         }
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void Acl::SetUserAccess(int nObjectId, int nUserId, EAccess eAccess)
+    void Acl::SetUserAccess(int nObjectId, int nUserId, Access eAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      if (eAccess == EAccessInherited)
+      if (eAccess == AccessInherited)
       {
         // remove ace
         int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM objects_to_users_acl WHERE objectid = ? AND userid = ?",
                                          -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
           nResult = sqlite3_bind_int(pVm, 2, nUserId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access(inherit): "
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access(inherit): "
                        + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
@@ -130,20 +129,20 @@ namespace staff
         // add ace
         int nResult = sqlite3_prepare_v2(pDb, "INSERT OR REPLACE INTO objects_to_users_acl(objectid, userid, permit) "
                                          "VALUES(?, ?, ?)", -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
           nResult = sqlite3_bind_int(pVm, 2, nUserId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          nResult = sqlite3_bind_int(pVm, 3, eAccess == EAccessGranted ? 1 : 0);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          nResult = sqlite3_bind_int(pVm, 3, eAccess == AccessGranted ? 1 : 0);
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access: " + std::string(sqlite3_errmsg(pDb)));
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set user access: " + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
         {
@@ -152,41 +151,41 @@ namespace staff
         }
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void Acl::GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess)
+    void Acl::GetUserAccess(int nObjectId, int nUserId, Access& reAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      RISE_ASSERTP(nObjectId >= 0);
-      RISE_ASSERTP(nUserId >= 0);
+      STAFF_ASSERT_PARAM(nObjectId >= 0);
+      STAFF_ASSERT_PARAM(nUserId >= 0);
 
-      reAccess = EAccessInherited;
+      reAccess = AccessInherited;
 
       // checking user access only for existing users
       int nResult = sqlite3_prepare_v2(pDb, "SELECT a.permit, a.userid, u.id FROM objects_to_users_acl a, users u WHERE "
                                               "a.objectid = ?1 AND (a.userid = ?2 OR a.userid IS NULL) AND u.id = ?2 "
                                               "ORDER BY userid IS NOT NULL DESC LIMIT 0,1", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_bind_int(pVm, 2, nUserId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_step(pVm);
         if(nResult == SQLITE_ROW)
         {
-          reAccess = sqlite3_column_int(pVm, 0) == 0 ? EAccessDenied : EAccessGranted;
+          reAccess = sqlite3_column_int(pVm, 0) == 0 ? AccessDenied : AccessGranted;
         }
         else
         {
-          RISE_ASSERTS(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
         }
       }
       catch(...)
@@ -195,29 +194,29 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
 
 
-    void Acl::SetGroupAccess(int nObjectId, EAccess eAccess)
+    void Acl::SetGroupAccess(int nObjectId, Access eAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      if (eAccess == EAccessInherited)
+      if (eAccess == AccessInherited)
       {
         // remove ace
         int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM objects_to_groups_acl WHERE objectid = ? AND groupid IS NULL",
                                          -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access(inherit): "
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access(inherit): "
                        + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
@@ -231,17 +230,17 @@ namespace staff
         // add ace
         int nResult = sqlite3_prepare_v2(pDb, "INSERT OR REPLACE INTO objects_to_groups_acl(objectid, permit) "
                                                 "VALUES(?, ?)", -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          nResult = sqlite3_bind_int(pVm, 2, eAccess == EAccessGranted ? 1 : 0);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          nResult = sqlite3_bind_int(pVm, 2, eAccess == AccessGranted ? 1 : 0);
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access: " + std::string(sqlite3_errmsg(pDb)));
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access: " + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
         {
@@ -250,30 +249,30 @@ namespace staff
         }
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void Acl::SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess)
+    void Acl::SetGroupAccess(int nObjectId, int nGroupId, Access eAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      if (eAccess == EAccessInherited)
+      if (eAccess == AccessInherited)
       {
         // remove ace
         int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM objects_to_groups_acl WHERE objectid = ? AND groupid = ?",
                                          -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
           nResult = sqlite3_bind_int(pVm, 2, nGroupId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access(inherit): "
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access(inherit): "
                        + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
@@ -287,20 +286,20 @@ namespace staff
         // add ace
         int nResult = sqlite3_prepare_v2(pDb, "INSERT OR REPLACE INTO objects_to_groups_acl(objectid, groupid, permit) "
                                                 "VALUES(?, ?, ?)", -1, &pVm, NULL);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         try
         {
           nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
           nResult = sqlite3_bind_int(pVm, 2, nGroupId);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          nResult = sqlite3_bind_int(pVm, 3, eAccess == EAccessGranted ? 1 : 0);
-          RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+          nResult = sqlite3_bind_int(pVm, 3, eAccess == AccessGranted ? 1 : 0);
+          STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-          RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access: " + std::string(sqlite3_errmsg(pDb)));
+          STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to set group access: " + std::string(sqlite3_errmsg(pDb)));
         }
         catch(...)
         {
@@ -309,15 +308,15 @@ namespace staff
         }
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void Acl::GetGroupAccess(int nObjectId, int nGroupId, EAccess &reAccess)
+    void Acl::GetGroupAccess(int nObjectId, int nGroupId, Access &reAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      reAccess = EAccessInherited;
+      reAccess = AccessInherited;
 
       // checking group access for existing groups only
       int nResult = sqlite3_prepare_v2(pDb,
@@ -326,24 +325,24 @@ namespace staff
                                        "WHERE a.objectid = ?1 AND (a.groupid = ?2 OR a.groupid IS NULL) "
                                           "AND g.id = ?2 "
                                        "ORDER BY groupid IS NOT NULL DESC LIMIT 0,1", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_bind_int(pVm, 2, nGroupId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_step(pVm);
         if(nResult == SQLITE_ROW)
         {
-          reAccess = sqlite3_column_int(pVm, 0) == 0 ? EAccessDenied : EAccessGranted;
+          reAccess = sqlite3_column_int(pVm, 0) == 0 ? AccessDenied : AccessGranted;
         }
         else
         {
-          RISE_ASSERTS(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
         }
       }
       catch(...)
@@ -352,35 +351,35 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
-    void Acl::GetAnyGroupAccess(int nObjectId, EAccess& reAccess)
+    void Acl::GetAnyGroupAccess(int nObjectId, Access& reAccess)
     {
       sqlite3* pDb = DbConn::GetDb();
       sqlite3_stmt* pVm = NULL;
 
-      reAccess = EAccessInherited;
+      reAccess = AccessInherited;
 
       // checking group access for any group
       int nResult = sqlite3_prepare_v2(pDb,
                                        "SELECT a.permit, g.id FROM objects_to_groups_acl a, groups g "
                                        "WHERE a.objectid = ?1 AND a.groupid IS NULL", -1, &pVm, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
       try
       {
         nResult = sqlite3_bind_int(pVm, 1, nObjectId);
-        RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+        STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
         nResult = sqlite3_step(pVm);
         if(nResult == SQLITE_ROW)
         {
-          reAccess = sqlite3_column_int(pVm, 0) == 0 ? EAccessDenied : EAccessGranted;
+          reAccess = sqlite3_column_int(pVm, 0) == 0 ? AccessDenied : AccessGranted;
         }
         else
         {
-          RISE_ASSERTS(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
+          STAFF_ASSERT(nResult == SQLITE_DONE, sqlite3_errmsg(pDb));
         }
       }
       catch(...)
@@ -389,7 +388,7 @@ namespace staff
         throw;
       }
 
-      RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+      STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
     }
 
 
@@ -401,7 +400,7 @@ namespace staff
       // 3. if access == inherited, object=parent object; goto 1
 
       int nCurrentObjectId = nObjectId;
-      EAccess eAccess = EAccessInherited;
+      Access eAccess = AccessInherited;
       IntList lsGroupIds;
       bool bGroupsGet = false;
 
@@ -410,15 +409,15 @@ namespace staff
         GetUserAccess(nCurrentObjectId, nUserId, eAccess);
 
 #ifdef _DEBUG
-        rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
+        LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
             << ", access = " << eAccess;
 #endif
 
-        if (eAccess != EAccessInherited)
+        if (eAccess != AccessInherited)
         {
-          rise::LogDebug2() << "Rule found to access user " << nUserId << " to object: "
-              << nObjectId << " in object: " << nCurrentObjectId << " = " << ((eAccess == EAccessGranted) ? "Grant" : "Deny");
-          return eAccess == EAccessGranted;
+          LogDebug2() << "Rule found to access user " << nUserId << " to object: "
+              << nObjectId << " in object: " << nCurrentObjectId << " = " << ((eAccess == AccessGranted) ? "Grant" : "Deny");
+          return eAccess == AccessGranted;
         }
 
         if (!bGroupsGet)
@@ -434,16 +433,16 @@ namespace staff
             GetGroupAccess(nCurrentObjectId, *itGroupId, eAccess);
 
 #ifdef _DEBUG
-            rise::LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
+            LogDebug2() << "Object id = " << nCurrentObjectId << ", user id = " << nUserId
                 << ", group id = " << *itGroupId << ", access = " << eAccess;
 #endif
 
-            if (eAccess != EAccessInherited)
+            if (eAccess != AccessInherited)
             {
-              rise::LogDebug2() << "Rule found to access user " << nUserId << " to object: "
+              LogDebug2() << "Rule found to access user " << nUserId << " to object: "
                   << nObjectId << " by entering into group " << *itGroupId <<
-                  " in object: " << nCurrentObjectId << " = " << (eAccess == EAccessGranted);
-              return eAccess == EAccessGranted;
+                  " in object: " << nCurrentObjectId << " = " << (eAccess == AccessGranted);
+              return eAccess == AccessGranted;
             }
           }
         }
@@ -451,12 +450,12 @@ namespace staff
         {
           GetAnyGroupAccess(nCurrentObjectId, eAccess);
 
-          if (eAccess != EAccessInherited)
+          if (eAccess != AccessInherited)
           {
-            rise::LogDebug2() << "Rule found to access user " << nUserId << " to object: "
+            LogDebug2() << "Rule found to access user " << nUserId << " to object: "
                 << nObjectId << ". This user does not belonging to any group: permit="
-                << (eAccess == EAccessGranted);
-            return eAccess == EAccessGranted;
+                << (eAccess == AccessGranted);
+            return eAccess == AccessGranted;
           }
         }
 
@@ -470,7 +469,7 @@ namespace staff
       }
 
       // rule is not found -- using false by default
-      rise::LogDebug2() << "Rule to access user " << nUserId << " to object: "
+      LogDebug2() << "Rule to access user " << nUserId << " to object: "
           << nObjectId << " is not found, using default: false";
       return false;
     }
@@ -483,7 +482,7 @@ namespace staff
       std::string::size_type nBegin = 0;
 
 #ifdef _DEBUG
-      rise::LogDebug2() << "Calculating access to [" << sObjectPath << "] for user id=" << nUserId;
+      LogDebug2() << "Calculating access to [" << sObjectPath << "] for user id=" << nUserId;
 #endif
 
       Objects& rObjects = Objects::Inst();
@@ -493,12 +492,12 @@ namespace staff
       for (;;)
       {
 #ifdef _DEBUG
-          rise::LogDebug2() << "Getting child object [" << sObjectPath.substr(0, nPos) << "]";
+          LogDebug2() << "Getting child object [" << sObjectPath.substr(0, nPos) << "]";
 #endif
         if (!rObjects.GetChildId(nObjectId, sObjectPath.substr(nBegin, nPos - nBegin), nObjectId))
         {
 #ifdef _DEBUG
-          rise::LogDebug2() << "Object [" << sObjectPath.substr(0, nPos)
+          LogDebug2() << "Object [" << sObjectPath.substr(0, nPos)
               << "] is not found. Access will be calculated for [" << sObjectPath.substr(0, nBegin - 1) << "] id=" << nObjectId;
 #endif
           break;
@@ -507,7 +506,7 @@ namespace staff
         if (nPos == std::string::npos)
         {
 #ifdef _DEBUG
-          rise::LogDebug2() << "Object [" << sObjectPath << "] found. id=" << nObjectId;
+          LogDebug2() << "Object [" << sObjectPath << "] found. id=" << nObjectId;
 #endif
           break;
         }

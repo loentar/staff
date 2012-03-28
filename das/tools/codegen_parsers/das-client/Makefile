@@ -5,7 +5,7 @@ LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lstaffcommon -lstaffclient -lrise -lstaffcodegenparser
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffclient -lstaffcodegenparser
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

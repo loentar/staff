@@ -6,7 +6,7 @@
 #end       // foreach Interface.Structs
 \
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0)
+#ifeq($(Typedef.Extern),false)
 #context $(Typedef.DataType)
 #cginclude "DetectTypeInclude.h"
 #contextend

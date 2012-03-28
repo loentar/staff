@@ -23,13 +23,14 @@
 #include <my_global.h>
 #endif
 #include <mysql.h>
-#include <rise/xml/XMLDocument.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/string/String.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/utils/fromstring.h>
+#include <staff/xml/Element.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Executor.h>
 #include "MySql.h"
@@ -97,19 +98,20 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
+      STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
 
       Reset();
 
       int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
-      RISE_ASSERTS(nStatus == 0, "error executing query #" + rise::ToStr(nStatus) + ": \n"
+      STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
                   + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
                   + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
       if (mysql_field_count(&m_pProvider->m_pImpl->m_tConn) > 0)
       {
         m_pResult = mysql_store_result(&m_pProvider->m_pImpl->m_tConn);
-        RISE_ASSERTS(m_pResult, "Cannot retreive result: \n" + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
+        STAFF_ASSERT(m_pResult, "Cannot retreive result: \n"
+                     + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
 
         m_nFieldsCount = mysql_num_fields(m_pResult);
         m_nRowsCount = mysql_num_rows(m_pResult);
@@ -132,7 +134,7 @@ namespace das
             itItem != rNames.end(); ++itItem, ++nField)
         {
           szFieldName = pFields[nField].name;
-          RISE_ASSERTS(szFieldName, "Error while getting field name");
+          STAFF_ASSERT(szFieldName, "Error while getting field name");
           *itItem = szFieldName;
         }
       }
@@ -151,7 +153,7 @@ namespace das
       }
 
       MYSQL_ROW pRow = mysql_fetch_row(m_pResult);
-      RISE_ASSERTS(pRow, "Error while fetching row");
+      STAFF_ASSERT(pRow, "Error while fetching row");
 
       int nField = 0;
       for (StringList::iterator itResult = rResult.begin();
@@ -183,32 +185,32 @@ namespace das
     delete m_pImpl;
   }
 
-  void MySqlProvider::Init(const rise::xml::CXMLNode& rConfig)
+  void MySqlProvider::Init(const xml::Element& rConfig)
   {
     // initialize connection
-    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+    const xml::Element& rConnection = rConfig.GetChildElementByName("connection");
 
-    m_pImpl->m_sHost = rConnection["host"].AsString();
-    m_pImpl->m_sPort = rConnection["port"].AsString();
-    m_pImpl->m_sDataBase = rConnection["db"].AsString();
-    m_pImpl->m_sLogin = rConnection["login"].AsString();
-    m_pImpl->m_sPassword = rConnection["password"].AsString();
+    m_pImpl->m_sHost = rConnection.GetChildElementByName("host").GetTextValue();
+    m_pImpl->m_sPort = rConnection.GetChildElementByName("port").GetTextValue();
+    m_pImpl->m_sDataBase = rConnection.GetChildElementByName("db").GetTextValue();
+    m_pImpl->m_sLogin = rConnection.GetChildElementByName("login").GetTextValue();
+    m_pImpl->m_sPassword = rConnection.GetChildElementByName("password").GetTextValue();
 
-    RISE_ASSERTS(!m_pImpl->m_bConnected, "Already connected");
+    STAFF_ASSERT(!m_pImpl->m_bConnected, "Already connected");
     unsigned short ushPort = 0;
-    rise::FromStr(m_pImpl->m_sPort, ushPort);
+    FromString(m_pImpl->m_sPort, ushPort);
     mysql_init(&m_pImpl->m_tConn);
     MYSQL* pResult = mysql_real_connect(&m_pImpl->m_tConn,
                            m_pImpl->m_sHost.c_str(), m_pImpl->m_sLogin.c_str(),
                            m_pImpl->m_sPassword.c_str(), m_pImpl->m_sDataBase.c_str(),
                            ushPort, NULL, 0);
 
-    RISE_ASSERTS(pResult, std::string("Failed to connect to db: ") + mysql_error(&m_pImpl->m_tConn));
+    STAFF_ASSERT(pResult, std::string("Failed to connect to db: ") + mysql_error(&m_pImpl->m_tConn));
 
     m_pImpl->m_bConnected = true;
 
     int nResult = mysql_set_character_set(&m_pImpl->m_tConn, "UTF8");
-    RISE_ASSERTS(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_pImpl->m_tConn));
+    STAFF_ASSERT(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_pImpl->m_tConn));
   }
 
   void MySqlProvider::Deinit()

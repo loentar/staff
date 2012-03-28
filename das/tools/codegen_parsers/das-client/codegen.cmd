@@ -6,7 +6,7 @@ if "%arch%" == "" (
   exit 1
 )
 SET STAFF_HOME=%cd%\..\..\..\..\staff\deploy\win_%arch%\staff
-set PATH=%cd%\..\..\..\..\rise\deploy\win_%arch%\lib;%STAFF_HOME%\bin;%STAFF_HOME%\lib;%PATH%
+set PATH=%cd%\%STAFF_HOME%\bin;%STAFF_HOME%\lib;%PATH%
 cd src
 staff_codegen -u -tclient DataAccessService.h
 endlocal

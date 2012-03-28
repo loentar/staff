@@ -7,7 +7,7 @@ ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_SECURITY_DLL_EXPORTS=1
 endif
 
-LDFLAGS += -lpthread -lstaffsqlite3 -lstaffcommon -lrise
+LDFLAGS += -lstaffsqlite3 -lstaffcommon -lstaffutils
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

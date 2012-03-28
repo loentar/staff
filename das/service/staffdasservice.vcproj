@@ -46,7 +46,7 @@
 				UseUnicodeResponseFiles="false"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,10 +67,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../rise/deploy/win_$(PlatformName)/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -130,7 +130,7 @@
 				UseUnicodeResponseFiles="false"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -151,10 +151,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../rise/deploy/win_$(PlatformName)/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -211,7 +211,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -230,10 +230,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../rise/deploy/win_$(PlatformName)/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -293,7 +293,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -312,10 +312,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../rise/deploy/win_$(PlatformName)/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

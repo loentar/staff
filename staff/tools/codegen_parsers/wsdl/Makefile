@@ -5,7 +5,7 @@ LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lrise -lstaffcodegenparser -laxis2_http_sender -laxutil
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser -laxis2_http_sender -laxutil
 ifneq ($(OS),MINGW)
   LDFLAGS += -laxis2_http_common
 else

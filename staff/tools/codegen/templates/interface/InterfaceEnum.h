@@ -1,4 +1,4 @@
-#ifeq($(Enum.Extern),0)
+#ifeq($(Enum.Extern),false)
 \
 #var sNewOpeningNs $(Enum.OpeningNs)
 #var sNewEndningNs $(Enum.EndingNs)
@@ -13,7 +13,7 @@ $($sNewOpeningNs)
   /*! $(Enum.Detail) */
 #ifeqend
 #foreach $(Enum.Options)
-  // *$($ThisNodeName): $($ThisNodeValue)
+  // *$($ThisElementName): $($ThisElementValue)
 #end
   enum $(Enum.Name)
   {

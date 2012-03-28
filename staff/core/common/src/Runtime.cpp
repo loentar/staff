@@ -20,7 +20,9 @@
  */
 
 #include <axis2_util.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/File.h>
+#include "Exception.h"
 #include "Runtime.h"
 
 namespace staff
@@ -159,8 +161,7 @@ namespace staff
   std::string Runtime::GetEnv(const std::string& sVariable) const
   {
     const char* szEnv = AXIS2_GETENV(sVariable.c_str());
-    RISE_ASSERTES(szEnv, rise::CLogicNoItemException,
-                  "Environment variable " + sVariable + " not found");
+    STAFF_ASSERT(szEnv, "Environment variable " + sVariable + " not found");
     return szEnv;
   }
 
@@ -182,12 +183,12 @@ namespace staff
 
   std::string Runtime::GetComponentsHome() const
   {
-    return m_pImpl->m_sStaffHome + RISE_PATH_SEPARATOR + std::string("components");
+    return m_pImpl->m_sStaffHome + STAFF_PATH_SEPARATOR + std::string("components");
   }
 
   std::string Runtime::GetComponentHome(const std::string& sComponent) const
   {
-    return GetComponentsHome() + RISE_PATH_SEPARATOR + sComponent;
+    return GetComponentsHome() + STAFF_PATH_SEPARATOR + sComponent;
   }
  
 }

@@ -5,7 +5,7 @@ setlocal
 ::  echo Error: Arch is not set.
 ::  exit 1
 ::)
-::set PATH=%cd%\..\..\..\..\rise\deploy\win_%arch%\lib;%STAFF_HOME\lib%;%STAFF_HOME%\bin;%PATH%
+::set PATH=%cd%\%STAFF_HOME\lib%;%STAFF_HOME%\bin;%PATH%
 cd src
 
 staff_codegen -u -tclient DataAccessService.h

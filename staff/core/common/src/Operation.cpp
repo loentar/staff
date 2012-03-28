@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
+#include "Exception.h"
 #include "QName.h"
 #include "Value.h"
 #include "Operation.h"
@@ -364,7 +364,7 @@ namespace staff
 
   MessageContext& Operation::GetMessageContext()
   {
-    RISE_ASSERTS(m_pMessageContext, "Message context is NULL");
+    STAFF_ASSERT(m_pMessageContext, "Message context is NULL");
     return *m_pMessageContext;
   }
 

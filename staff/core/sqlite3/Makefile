@@ -6,7 +6,7 @@ CFLAGS += -c -DSQLITE_THREADSAFE=1
 ifeq ($(OS),MINGW)
   CFLAGS += -DSQLITE_DLL_EXPORTS=1
 endif
-LFLAGS += $(LDLIB)$(LIBTARGETVER) -lpthread
+LFLAGS += $(LDLIB)$(LIBTARGETVER)
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
   LFLAGS += -ldl

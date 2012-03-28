@@ -4,7 +4,7 @@ INTERFACES := Test135.h
 TARGET = staff_test_regress_$(notdir $(patsubst %/,%,$(dir $(CURDIR))))
 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lstaffclient -lrise -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lstaffclient -L$(DEPLOYDIR)$(LIBDIR)
 
 .NOTPARALLEL: $(CODEGEN_FILES)
 

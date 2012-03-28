@@ -19,9 +19,12 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
-#include <rise/tools/FileFind.h>
-#include <rise/xml/XMLDocument.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/File.h>
+#include <staff/utils/Log.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/Element.h>
+#include <staff/xml/XmlReader.h>
 #include <staff/common/Runtime.h>
 #include <staff/component/Component.h>
 #include <staff/component/SharedContext.h>
@@ -37,7 +40,7 @@ namespace das
   class DataSourceFactory::DataSourceFactoryImpl
   {
   public:
-    typedef rise::CMutablePtr<ProviderComponent> PProviderComponent;
+    typedef SharedPtr<ProviderComponent> PProviderComponent;
     typedef std::list<PProviderComponent> ProviderComponentList;
     typedef std::map<std::string, DataSource> DataSourcesMap;
     typedef std::map<std::string, DataSourcesMap> DataSourcesNamespacesMap;
@@ -46,41 +49,39 @@ namespace das
     void Init()
     {
       const std::string& sDataSourcesDir = staff::Runtime::Inst().GetComponentHome("staff.das") + 
-        RISE_PATH_SEPARATOR "datasources" RISE_PATH_SEPARATOR;
+        STAFF_PATH_SEPARATOR "datasources" STAFF_PATH_SEPARATOR;
 
       StringList lsDataSourcesDirs;
-      rise::CFileFind::Find(sDataSourcesDir, lsDataSourcesDirs, "*", rise::CFileFind::EFA_DIR);
+      File(sDataSourcesDir).List(lsDataSourcesDirs, "*", File::AttributeDirectory);
 
       for (StringList::const_iterator itDir = lsDataSourcesDirs.begin(); itDir != lsDataSourcesDirs.end(); ++itDir)
       {
         const std::string& sDir = sDataSourcesDir + *itDir;
         StringList lsDataSourcesFiles;
-        rise::CFileFind::Find(sDir, lsDataSourcesFiles, "*.datasources", rise::CFileFind::EFA_FILE);
-        for (StringList::const_iterator itFile = lsDataSourcesFiles.begin(); itFile != lsDataSourcesFiles.end(); ++itFile)
+        File(sDir).List(lsDataSourcesFiles, "*.datasources", File::AttributeAnyFile);
+        for (StringList::const_iterator itFile = lsDataSourcesFiles.begin();
+             itFile != lsDataSourcesFiles.end(); ++itFile)
         {
           try
           {
-            rise::xml::CXMLDocument tDoc;
-            const std::string& sFileName = sDir + RISE_PATH_SEPARATOR + *itFile;
+            xml::Document tDoc;
+            const std::string& sFileName = sDir + STAFF_PATH_SEPARATOR + *itFile;
 
-            tDoc.LoadFromFile(sFileName);
+            xml::XmlFileReader(sFileName).ReadDocument(tDoc);
 
-            for (rise::xml::CXMLNode::TXMLNodeIterator itDataSource = tDoc.GetRoot().NodeBegin();
-                itDataSource != tDoc.GetRoot().NodeEnd(); ++itDataSource)
+            for (xml::Element* pDataSource = tDoc.GetRootElement().GetFirstChildElement();
+                pDataSource; pDataSource = pDataSource->GetNextSiblingElement())
             {
-              if (itDataSource->NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-              {
-                DataSource tDataSource;
-                tDataSource.Load(*itDataSource, sFileName);
-                const std::string& sNamespace = tDataSource.GetNamespace();
-                const std::string& sName = tDataSource.GetName();
+              DataSource tDataSource;
+              tDataSource.Load(*pDataSource, sFileName);
+              const std::string& sNamespace = tDataSource.GetNamespace();
+              const std::string& sName = tDataSource.GetName();
 
-                rise::LogDebug2() << "Adding datasource: " << sNamespace << "." << sName;
-                m_mDataSourcesNamespaces[sNamespace][sName] = tDataSource;
-              }
+              LogDebug2() << "Adding datasource: " << sNamespace << "." << sName;
+              m_mDataSourcesNamespaces[sNamespace][sName] = tDataSource;
             }
           }
-          RISE_CATCH_ALL
+          STAFF_CATCH_ALL
         }
       }
 
@@ -122,7 +123,7 @@ namespace das
     {
       m_pImpl->Init();
     }
-    RISE_CATCH_ALL
+    STAFF_CATCH_ALL
   }
 
   DataSourceFactory::~DataSourceFactory()
@@ -155,12 +156,12 @@ namespace das
 
     DataSourceFactoryImpl::DataSourcesNamespacesMap::const_iterator itDataSourceNamespace =
         m_pImpl->m_mDataSourcesNamespaces.find(sDataSourceNamespace);
-    RISE_ASSERTS(itDataSourceNamespace != m_pImpl->m_mDataSourcesNamespaces.end(),
+    STAFF_ASSERT(itDataSourceNamespace != m_pImpl->m_mDataSourcesNamespaces.end(),
                  "Data source with namespace \"" + sDataSourceNamespace + "\" is not found");
 
     DataSourceFactoryImpl::DataSourcesMap::const_iterator itDataSource =
         itDataSourceNamespace->second.find(sDataSourceName);
-    RISE_ASSERTS(itDataSource != itDataSourceNamespace->second.end(),
+    STAFF_ASSERT(itDataSource != itDataSourceNamespace->second.end(),
                  "Data source \"" + sDataSourceName + "\" is not found in namespace \""
                  + sDataSourceNamespace + "\"");
     return itDataSource->second;

@@ -25,7 +25,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include <rise/xml/XMLNode.h>
+#include <staff/xml/Element.h>
 #include "staffdascommonexport.h"
 
 namespace staff
@@ -78,7 +78,7 @@ namespace das
     DataTypesList lsParams;       //!< operation params
     DataType stReturn;            //!< return type
     StringMap mOptions;           //!< operation options
-    rise::xml::CXMLNode tScript;  //!< operation script
+    xml::Element tScript;  //!< operation script
   };
 
   typedef std::list<Operation> OperationsList; //! list of operations
@@ -89,7 +89,7 @@ namespace das
   {
     std::string sName;            //!< provider name
     std::string sId;              //!< provider id
-    rise::xml::CXMLNode tConfig;  //!< provider config
+    xml::Element tConfig;  //!< provider config
   };
 
   typedef std::list<ProviderInfo> ProvidersInfoList; //! list of informations about providers
@@ -109,7 +109,7 @@ namespace das
     /*! \param rDataSourceNode - datasource node
         \param sFileName - datasource's filename
         */
-    void Load(rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName);
+    void Load(xml::Element& rDataSourceNode, const std::string& sFileName);
 
     //! get included data types
     /*! \return included data types
@@ -179,13 +179,13 @@ namespace das
     /*! \param rNode - node to parse
         \param rType - parsed type
       */
-    void ParseType(const rise::xml::CXMLNode& rNode, DataType& rType);
+    void ParseType(const xml::Element& rNode, DataType& rType);
 
     //! parse description
     /*! \param rNode - node to parse
         \param sDescr - parsed description
       */
-    void ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr);
+    void ParseDescr(const xml::Element& rNode, std::string& sDescr);
 
     //! include types
     /*! \param sFileName - types file name
@@ -195,7 +195,7 @@ namespace das
     //! process include directive
     /*! \param sFileName - file name
       */
-    void ProcessIncludes(rise::xml::CXMLNode& rNode);
+    void ProcessIncludes(xml::Element& rNode);
 
   private:
     std::string m_sName;                        //!< datasource name

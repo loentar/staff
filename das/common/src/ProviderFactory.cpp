@@ -19,9 +19,11 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
-#include <rise/tools/FileFind.h>
-#include <rise/plugin/PluginManager.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/File.h>
+#include <staff/utils/DynamicLibrary.h>
+#include <staff/utils/PluginManager.h>
 #include <staff/common/Runtime.h>
 #include "ProviderFactory.h"
 
@@ -32,51 +34,54 @@ namespace das
   class ProviderFactory::ProviderFactoryImpl
   {
   public:
-    typedef std::map<std::string, ProviderAllocator*> ProviderAllocatorMap;
+    typedef std::map<std::string, IProviderAllocator*> ProviderAllocatorMap;
 
   public:
     void Init()
     {
       const std::string sProvidersDir = Runtime::Inst().GetComponentHome("staff.das") 
-        + RISE_PATH_SEPARATOR "providers";
+        + STAFF_PATH_SEPARATOR "providers";
       StringList lsProviderDirs;
 
       // find directories with providers
-      rise::CFileFind::Find(sProvidersDir, lsProviderDirs, "*", rise::CFileFind::EFA_DIR);
+      File(sProvidersDir).List(lsProviderDirs, "*", File::AttributeDirectory);
       if (lsProviderDirs.size() == 0)
       {
-        rise::LogDebug() << "providers is not found";
+        LogDebug() << "providers is not found";
       }
 
       for (StringList::const_iterator itDir = lsProviderDirs.begin();
-                itDir != lsProviderDirs.end(); ++itDir )
+                itDir != lsProviderDirs.end(); ++itDir)
       {
         // finding libraries with providers
         StringList lsProvidersLibs;
         StringList lsProvidersNames;
-        std::string sProviderDir = sProvidersDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
-        rise::CFileFind::Find(sProviderDir, lsProvidersLibs, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
+        const std::string& sProviderDir =
+            sProvidersDir + STAFF_PATH_SEPARATOR + *itDir + STAFF_PATH_SEPARATOR;
+
+        File(sProviderDir).List(lsProvidersLibs, "*" STAFF_LIBRARY_VEREXT, File::AttributeRegularFile);
         for (StringList::const_iterator itProvider = lsProvidersLibs.begin();
-                itProvider != lsProvidersLibs.end(); ++itProvider )
+             itProvider != lsProvidersLibs.end(); ++itProvider)
         {
+          const std::string& sProviderPluginPath = sProviderDir + *itProvider;
           try
           {
             // loading provider
-            rise::LogDebug() << "Loading DAS provider: " << (sProviderDir + *itProvider);
-            ProviderAllocator* pAllocator = m_tPluginManager.LoadPlugin(sProviderDir + *itProvider, true);
-            RISE_ASSERTS(pAllocator, "Can't get allocator for provider: " + *itProvider);
+            LogDebug() << "Loading DAS provider: " << sProviderPluginPath;
+            IProviderAllocator* pAllocator = m_tPluginManager.Load(sProviderPluginPath, true);
+            STAFF_ASSERT(pAllocator, "Can't get allocator for provider: " + *itProvider);
 
             pAllocator->GetProvidersList(lsProvidersNames);
             for (StringList::const_iterator itProviderName = lsProvidersNames.begin();
-                    itProviderName != lsProvidersNames.end(); ++itProviderName )
+                    itProviderName != lsProvidersNames.end(); ++itProviderName)
             {
-              rise::LogDebug1() << "Setting DAS provider: " << *itProviderName;
+              LogDebug1() << "Setting DAS provider: " << *itProviderName;
               m_mAllocators[*itProviderName] = pAllocator;
             }
           }
-          catch(const rise::CException& rEx)
+          catch (const Exception& rEx)
           {
-            rise::LogWarning() << "Can't load provider: " << (sProviderDir + *itProvider) << ": " << rEx.GetString();
+            LogWarning() << "Can't load provider: " << sProviderPluginPath << ": " << rEx.what();
             continue;
           }
         }
@@ -85,7 +90,7 @@ namespace das
 
   public:
     ProviderAllocatorMap m_mAllocators;
-    rise::plugin::CPluginManager<ProviderAllocator> m_tPluginManager;
+    PluginManager<IProviderAllocator> m_tPluginManager;
   };
 
 
@@ -96,7 +101,7 @@ namespace das
     {
       m_pImpl->Init();
     }
-    RISE_CATCH_ALL
+    STAFF_CATCH_ALL
   }
 
   ProviderFactory::~ProviderFactory()
@@ -123,7 +128,7 @@ namespace das
   PProvider ProviderFactory::Allocate(const std::string& sProvider)
   {
     ProviderFactoryImpl::ProviderAllocatorMap::iterator itProvider = m_pImpl->m_mAllocators.find(sProvider);
-    RISE_ASSERTS(itProvider != m_pImpl->m_mAllocators.end(), "Can't get allocator for " + sProvider);
+    STAFF_ASSERT(itProvider != m_pImpl->m_mAllocators.end(), "Can't get allocator for " + sProvider);
     return itProvider->second->Allocate(sProvider);
   }
 

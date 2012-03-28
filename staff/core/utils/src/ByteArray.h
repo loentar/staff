@@ -37,12 +37,14 @@ namespace staff
     ByteArray();
 
     //! construct object and allocate new buffer
-    /*! \param ulDataSize - size of new buffer
+    /*! sets datasize and buffer size equal
+        \param ulDataSize - size of new buffer
       */
     ByteArray(unsigned long ulDataSize);
 
     //! construct object and set buffer
-    /*! \param pBinaryData - pointer to already allocated data
+    /*! sets datasize and buffer size equal
+        \param pBinaryData - pointer to already allocated data
         \param ulDataSize - data size
         \param bOwner - set ByteArray as owner to this buffer (owner frees data when destruct)
       */
@@ -62,12 +64,14 @@ namespace staff
     ~ByteArray();
 
     //! allocate new buffer
-    /*! \param ulDataSize - size of new buffer
+    /*! sets datasize and buffer size equal
+        \param ulDataSize - size of new buffer
       */
     void Set(unsigned long ulDataSize);
 
-    //! set buffer
-    /*! \param pBinaryData - pointer to already allocated data
+    //! set data
+    /*! sets datasize and buffer size equal
+        \param pBinaryData - pointer to already allocated data
         \param ulDataSize - data size
         \param bOwner - set ByteArray as owner to this buffer (owner frees data when destruct)
       */
@@ -77,6 +81,13 @@ namespace staff
     /*! \param bOwner - true - set as owner, false - unset
       */
     void SetOwner(bool bOwner = true);
+
+    //! set new data size
+    /*! does not reallocate buffer, only set datasize to given.
+        ulDataSize can't be greater than buffer size
+        \param  ulDataSize - data size
+      */
+    void SetSize(unsigned long ulDataSize);
 
     //! get ByteArray is owner or not
     /*! \return object is set as owner
@@ -102,6 +113,11 @@ namespace staff
     /*! \return stored data size
       */
     unsigned long GetSize() const;
+
+    //! get buffer size
+    /*! \return buffer size
+      */
+    unsigned long GetBufferSize() const;
 
     //! operator []
     /*! may throw
@@ -133,6 +149,7 @@ namespace staff
   private:
     byte* m_pBinaryData; //!< data
     unsigned long m_ulDataSize; //!< data size
+    unsigned long m_ulBufferSize; //!< buffer size
     bool m_bOwner; //!< is byte array owner
   };
 }

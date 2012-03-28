@@ -79,11 +79,6 @@ namespace staff
       UsersToGroups& operator=(const UsersToGroups&);
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(IntList) typedef IntList TIntList;
-    STAFF_DEPRECATED(UsersToGroups) typedef UsersToGroups CUsersToGroups;
-#endif
-
   }
 }
 

@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include "DepSvc2Impl.h"
 
 namespace samples
@@ -20,7 +20,7 @@ DepSvc2Impl::~DepSvc2Impl()
 
 void DepSvc2Impl::OnCreate()
 {
-  rise::LogInfo() << "Service 2 is loaded";
+  staff::LogInfo() << "Service 2 is loaded";
 }
 
 void DepSvc2Impl::OnDestroy()

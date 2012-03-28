@@ -19,9 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/Log.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 #include "Sessions.h"
@@ -36,7 +35,7 @@ int staff_security_init()
     staff::security::DbConn::Open();
     nResult = 1;
   }
-  RISE_CATCH_ALL;
+  STAFF_CATCH_ALL
 
   return nResult;
 }
@@ -60,20 +59,20 @@ int staff_security_calculate_access_by_session_id(const char* szObjectPath, cons
     int nUserId = -1;
     if (staff::security::Sessions::Inst().GetUserId(szSessionId, nUserId))
     {
-      if( staff::security::Acl::Inst().CalculateUserAccess(szObjectPath, nUserId))
+      if(staff::security::Acl::Inst().CalculateUserAccess(szObjectPath, nUserId))
       {
         *pnAccess = 1;
       }
-      rise::LogDebug() << "calculate access to [" << szObjectPath << "] = " << *pnAccess;
+      ::staff::LogDebug() << "calculate access to [" << szObjectPath << "] = " << *pnAccess;
       nResult = 1;
     }
     else
     {
-      rise::LogWarning() << "Can't get userid for sessionid [" << szSessionId
+      ::staff::LogWarning() << "Can't get userid for sessionid [" << szSessionId
           << "] for access to object [" << szObjectPath << "]";
     }
   }
-  RISE_CATCH_ALL;
+  STAFF_CATCH_ALL;
 
   return nResult;
 }

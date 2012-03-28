@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,10 +65,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
+				AdditionalDependencies="ws2_32.lib staff_sqlite3.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -126,7 +126,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -147,10 +147,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
+				AdditionalDependencies="ws2_32.lib staff_sqlite3.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -206,7 +206,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -225,10 +225,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
+				AdditionalDependencies="ws2_32.lib staff_sqlite3.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -287,7 +287,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -306,10 +306,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib rise.lib staff_sqlite3.lib"
+				AdditionalDependencies="ws2_32.lib staff_sqlite3.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

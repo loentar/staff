@@ -23,13 +23,10 @@
 // Service Implementation
 
 #include <string>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/SharedPtr.h>
-#include <rise/xml/XMLNode.h>
-#include <staff/common/Config.h>
-#include <staff/component/SharedContext.h>
-#include <staff/component/ServiceWrapper.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/common/Exception.h>
+#include <staff/xml/Element.h>
 #include <staff/component/ServiceInstanceManager.h>
 #include <staff/component/ComponentConfig.h>
 #include <staff/component/ComponentConfigManager.h>
@@ -56,29 +53,32 @@ namespace samples
 
     int CalcServiceImpl::Sub(int nA, int nB) const
     {
-      rise::CSharedPtr<SubService> rpSubService =
+      staff::SharedPtr<SubService> rpSubService =
         staff::ServiceInstanceManager::Inst().ServiceInstance(this, "samples.calc.SubService");
 
-      RISE_ASSERTES(rpSubService, rise::CLogicNoItemException,
-          "Cannot get service [samples.calc.SubService]");
+      STAFF_ASSERT(rpSubService, "Cannot get service [samples.calc.SubService]");
 
       return rpSubService->Sub(nA, nB);
     }
 
     void CalcServiceImpl::SetMem(int nMem)
     {
-      m_pConfig->Config()["Mem"] = nMem;
+      m_pConfig->Config().CreateChildElementOnce("Mem").SetValue(nMem);
     }
 
     int CalcServiceImpl::GetMem() const
     {
-      return m_pConfig->Config()["Mem"].AsInt();  // result
+      staff::xml::Element& rMemElement = m_pConfig->Config().CreateChildElementOnce("Mem");
+      if (rMemElement.IsTextNull()) // if there is no saved mem
+      {
+        rMemElement.SetValue(0); // setting default value
+      }
+      return rMemElement.GetValue();
     }
 
     void CalcServiceImpl::OnCreate()
     {
-      m_pConfig = &staff::ComponentConfigManager::Inst().GetComponentConfig("samples.calc", "CalcService.xml", true);
-      RISE_ASSERTS(m_pConfig, "Can't get config");
+      m_pConfig = &staff::ComponentConfigManager::Inst().GetComponentConfig(this);
     }
 
     void CalcServiceImpl::OnDestroy()

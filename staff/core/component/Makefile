@@ -2,13 +2,13 @@ include ../../Makefile.env
 
 TARGET = component
 
-CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_COMPONENT_DLL_EXPORTS=1
 endif
 
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lrise -lstaffcommon -lstaffsecurity
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffsecurity
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

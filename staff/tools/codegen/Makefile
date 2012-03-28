@@ -3,10 +3,10 @@ include ../../Makefile.env
 TARGET = codegen
 TARGETNAME = staff_$(TARGET)
 
-CXXFLAGS += -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
-CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
+CXXFLAGS += -I$(DEPLOYDIR)include
+CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\" -DLIBRARY_VERSION=\"$(LIBRARY_VERSION)\"
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lrise -lstaffcodegenparser
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser
 
 VPATH = $(SRCDIR)
 

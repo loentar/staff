@@ -42,6 +42,7 @@ namespace staff
   {
     char szBuffer[32];
     ToCString(tValue, szBuffer, sizeof(szBuffer));
+    sResult = szBuffer;
     return sResult;
   }
 
@@ -69,6 +70,16 @@ namespace staff
     }
     return sResult;
   }
+
+
+  template<typename Type>
+  std::string ToHexString(Type tValue)
+  {
+    char szBuffer[32];
+    ToHexCString(tValue, szBuffer, sizeof(szBuffer));
+    return szBuffer;
+  }
+
 
 }
 

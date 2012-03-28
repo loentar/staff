@@ -2,8 +2,10 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#include <string.h>
+#include <iostream>
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceClient.h>
 #include <staff/client/Options.h>
@@ -50,11 +52,11 @@ int main(int nArgs, const char* paszArgs[])
   {
     std::auto_ptr< Echo > pEcho(::staff::ServiceFactory::Inst().GetService< Echo >(sAddress));
 
-    RISE_ASSERTS(pEcho.get(), "Cannot get client for service samples.Echo!");
+    STAFF_ASSERT(pEcho.get(), "Cannot get client for service samples.Echo!");
 
     // get service client to set REST method
     staff::ServiceClient* pClient = pEcho->GetClient();
-    RISE_ASSERTS(pClient, "Cannot get ServiceClient");
+    STAFF_ASSERT(pClient, "Cannot get ServiceClient");
     staff::Options& rOptions = pClient->GetOptions();
 
     // setting rest method
@@ -63,9 +65,9 @@ int main(int nArgs, const char* paszArgs[])
     // Invoke Your service here:
 
     std::string tEchoStringResult = pEcho->EchoString("Hello World!");
-    rise::LogInfo() << "EchoString result: " << tEchoStringResult;
+    staff::LogInfo() << "EchoString result: " << tEchoStringResult;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

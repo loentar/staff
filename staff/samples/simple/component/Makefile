@@ -5,8 +5,7 @@ TARGET = $(COMPONENT)
 LIBTARGETVER = $(LIBPREFIX)$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)$(TARGET)$(LIBEXT)
 
-CXXFLAGS += -I$(STAFF_HOME)/include/
-LDFLAGS += -lpthread -lstaffcommon -lstaffcomponent -lrise
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent
 LDFLAGS += -L$(STAFF_HOME)/lib
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 

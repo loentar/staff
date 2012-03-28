@@ -31,11 +31,11 @@ namespace staff
   namespace security
   {
     //! user/group access to object
-    enum EAccess
+    enum Access
     {
-      EAccessDenied,   //!< access is denied
-      EAccessGranted,  //!< access is granted
-      EAccessInherited //!< access is inherited
+      AccessDenied,   //!< access is denied
+      AccessGranted,  //!< access is granted
+      AccessInherited //!< access is inherited
     };
 
     //! access control list
@@ -51,48 +51,48 @@ namespace staff
       /*! \param nObjectId - object id
           \param eAccess - access
           */
-      void SetUserAccess(int nObjectId, EAccess eAccess);
+      void SetUserAccess(int nObjectId, Access eAccess);
 
       //! set access to object for specified user
       /*! \param nObjectId - object id
           \param nUserId - user id
           \param eAccess - access
           */
-      void SetUserAccess(int nObjectId, int nUserId, EAccess eAccess);
+      void SetUserAccess(int nObjectId, int nUserId, Access eAccess);
 
       //! get access to object for specified user
       /*! \param nObjectId - object id
           \param nUserId - user id
           \param reAccess - result: access
           */
-      void GetUserAccess(int nObjectId, int nUserId, EAccess& reAccess);
+      void GetUserAccess(int nObjectId, int nUserId, Access& reAccess);
 
 
       //! set access to object for all groups
       /*! \param nObjectId - object id
           \param eAccess - access
           */
-      void SetGroupAccess(int nObjectId, EAccess eAccess);
+      void SetGroupAccess(int nObjectId, Access eAccess);
 
       //! set access to object for specified group
       /*! \param nObjectId - object id
           \param nGroupId - group id
           \param eAccess - access
           */
-      void SetGroupAccess(int nObjectId, int nGroupId, EAccess eAccess);
+      void SetGroupAccess(int nObjectId, int nGroupId, Access eAccess);
 
       //! get access to object for specified group
       /*! \param nObjectId - object id
           \param nGroupId - group id
           \param reAccess - result: access
           */
-      void GetGroupAccess(int nObjectId, int nGroupId, EAccess& reAccess);
+      void GetGroupAccess(int nObjectId, int nGroupId, Access& reAccess);
 
       //! get access to object for any group
       /*! \param nObjectId - object id
           \param reAccess - result: access
           */
-      void GetAnyGroupAccess(int nObjectId, EAccess& reAccess);
+      void GetAnyGroupAccess(int nObjectId, Access& reAccess);
 
       //! calculate access to object for user
       /*! \param nObjectId - object id
@@ -114,10 +114,6 @@ namespace staff
       Acl(const Acl&);
       Acl& operator=(const Acl&);
     };
-
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(Acl) typedef Acl CAcl;
-#endif
 
   }
 }

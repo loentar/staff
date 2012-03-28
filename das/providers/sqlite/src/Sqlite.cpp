@@ -20,13 +20,14 @@
  */
 
 #include <staff/sqlite3/sqlite3.h>
-#include <rise/xml/XMLDocument.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/string/String.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/xml/Element.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Executor.h>
 #include "Sqlite.h"
@@ -84,12 +85,12 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
+      STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
       int nResult = sqlite3_prepare_v2(m_pProvider->m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &m_pResult, NULL);
-      RISE_ASSERTS(nResult == SQLITE_OK, "error #" + rise::ToStr(nResult) + ": "
+      STAFF_ASSERT(nResult == SQLITE_OK, "error #" + ToString(nResult) + ": "
                    + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
                    + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
 
@@ -100,8 +101,8 @@ namespace das
       }
       else
       {
-        RISE_ASSERTS(m_nLastStepStatus == SQLITE_DONE || m_nLastStepStatus == SQLITE_OK,
-                     "error #" + rise::ToStr(m_nLastStepStatus) + ": "
+        STAFF_ASSERT(m_nLastStepStatus == SQLITE_DONE || m_nLastStepStatus == SQLITE_OK,
+                     "error #" + ToString(m_nLastStepStatus) + ": "
                       + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
                       + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
       }
@@ -109,7 +110,7 @@ namespace das
 
     virtual void GetFieldsNames(StringList& rNames)
     {
-      RISE_ASSERTS(m_pResult, "Execute was not called");
+      STAFF_ASSERT(m_pResult, "Execute was not called");
 
       if (rNames.size() != m_nFieldsCount)
       {
@@ -122,14 +123,14 @@ namespace das
           itItem != rNames.end(); ++itItem, ++nField)
       {
         szFieldName = sqlite3_column_name(m_pResult, nField);
-        RISE_ASSERTS(szFieldName, "Error while getting field name");
+        STAFF_ASSERT(szFieldName, "Error while getting field name");
         *itItem = szFieldName;
       }
     }
 
     virtual bool GetNextResult(StringList& rResult)
     {
-      RISE_ASSERTS(m_pResult, "Execute was not called");
+      STAFF_ASSERT(m_pResult, "Execute was not called");
 
       if (m_nLastStepStatus != SQLITE_ROW)
       {
@@ -174,12 +175,12 @@ namespace das
     delete m_pImpl;
   }
 
-  void SqliteProvider::Init(const rise::xml::CXMLNode& rConfig)
+  void SqliteProvider::Init(const xml::Element& rConfig)
   {
     // initialize connection
-    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+    const xml::Element& rConnection = rConfig.GetChildElementByName("connection");
 
-    m_pImpl->m_sDataBase = rConnection["db"].AsString();
+    m_pImpl->m_sDataBase = rConnection.GetChildElementByName("db").GetTextValue();
 
     // replace env variable to full path
     std::string::size_type nPosStart = 0;
@@ -188,28 +189,28 @@ namespace das
     while ((nPosStart = m_pImpl->m_sDataBase.find("$(", nPosEnd)) != std::string::npos)
     {
       nPosEnd = m_pImpl->m_sDataBase.find(')', nPosStart);
-      RISE_ASSERTS(nPosEnd != std::string::npos, "Invalid Env var declaration: " + m_pImpl->m_sDataBase);
+      STAFF_ASSERT(nPosEnd != std::string::npos, "Invalid Env var declaration: " + m_pImpl->m_sDataBase);
       const std::string& sVar = m_pImpl->m_sDataBase.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
       const std::string& sValue = staff::Runtime::Inst().GetEnv(sVar);
       m_pImpl->m_sDataBase.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
       nPosEnd = nPosStart + sValue.size();
     }
 
-    RISE_ASSERTS(m_pImpl->m_pConn == NULL, "Already connected");
+    STAFF_ASSERT(m_pImpl->m_pConn == NULL, "Already connected");
     sqlite3_enable_shared_cache(1);
 
     // open db
     int nResult = sqlite3_open(m_pImpl->m_sDataBase.c_str(), &m_pImpl->m_pConn);
-    RISE_ASSERTS(nResult == SQLITE_OK, "Failed to open database: " + m_pImpl->m_sDataBase);
+    STAFF_ASSERT(nResult == SQLITE_OK, "Failed to open database: " + m_pImpl->m_sDataBase);
 
     sqlite3_stmt* pStmt = NULL;
 
     nResult = sqlite3_prepare_v2(m_pImpl->m_pConn, "PRAGMA foreign_keys = ON;", -1, &pStmt, NULL);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(m_pImpl->m_pConn));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(m_pImpl->m_pConn));
 
     try
     {
-      RISE_ASSERTS(sqlite3_step(pStmt) == SQLITE_DONE, "Failed to enable foreign keys: "
+      STAFF_ASSERT(sqlite3_step(pStmt) == SQLITE_DONE, "Failed to enable foreign keys: "
                    + std::string(sqlite3_errmsg(m_pImpl->m_pConn)));
     }
     catch(...)
@@ -218,7 +219,7 @@ namespace das
       throw;
     }
 
-    RISE_ASSERTS(sqlite3_finalize(pStmt) == SQLITE_OK, sqlite3_errmsg(m_pImpl->m_pConn));
+    STAFF_ASSERT(sqlite3_finalize(pStmt) == SQLITE_OK, sqlite3_errmsg(m_pImpl->m_pConn));
   }
 
   void SqliteProvider::Deinit()
@@ -236,7 +237,7 @@ namespace das
       int nResult = sqlite3_close(m_pImpl->m_pConn);
       if (nResult != SQLITE_OK)
       {
-        rise::LogWarning() << "Failed to close database";
+        LogWarning() << "Failed to close database";
       }
       m_pImpl->m_pConn = NULL;
     }

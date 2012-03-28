@@ -37,22 +37,22 @@ namespace das
   public:
     ProviderServiceWrapper(Component* pComponent, const DataSource* pDataSource);
 
-    //!         get service name
+    //! get service name
     /*! \return service name
     */
     virtual const std::string& GetName() const;
 
-    //!         get service description
+    //! get service description
     /*! \return service description
     */
     virtual const std::string& GetDescr() const;
 
-    //!         get service operations
+    //! get service operations
     /*! \return service operations
     */
     virtual DataObject GetOperations() const;
 
-    //!         invoke service operation
+    //! invoke service operation
     /*! \param  rOperation - operation
         \param  sSessionId - service session id
         \param  sInstanceId - service instance id
@@ -60,40 +60,40 @@ namespace das
     virtual void Invoke(staff::Operation& rOperation, const std::string& sSessionId,
                         const std::string& sInstanceId);
 
-    //!         get service's component
+    //! get service's component
     /*! \return service's component
     */
     virtual const Component* GetComponent() const;
 
-    //!         get service's component
+    //! get service's component
     /*! \return service's component
     */
     virtual Component* GetComponent();
 
-    //!         get pointer to service implementation
+    //! get pointer to service implementation
     /*! \param  sSessionId - service session id
         \param  sInstanceId - service instance id
         \return pointer to service implementation or NULL, if service non-local
         */
     virtual PIService& GetImpl(const std::string& sSessionId, const std::string& sInstanceId);
 
-    //!         create new service impl
+    //! create new service impl
     /*! \return resulting service impl
       */
     virtual PIService NewImpl();
 
-    //!         load service at startup
+    //! load service at startup
     /*! \return true, if service needed to be loaded at startup
       */
     virtual bool IsLoadAtStartup() const;
 
-    //!         get comma-delimeted list of dependecies
+    //! get comma-delimeted list of dependecies
     /*! \return comma-delimeted list of dependecies
       */
     virtual std::string GetDependencies() const;
 
   private:
-    //!         get service description
+    //! get service description
     /*! \return service description
     */
     virtual DataObject GetServiceDescription() const;

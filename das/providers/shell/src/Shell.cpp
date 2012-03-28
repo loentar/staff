@@ -19,18 +19,13 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef WIN32
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#endif
-#include <rise/xml/XMLDocument.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/string/String.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Process.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/xml/Document.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Operation.h>
@@ -45,185 +40,6 @@ namespace staff
 {
 namespace das
 {
-  static std::string StartProcessAndReadOutput(const std::string& sCommand)
-  {
-    std::string sOutput;
-#ifndef WIN32
-    static const int nMaxArgs = 256;
-    char* aszArgs[nMaxArgs];
-    char chFirst = '\0';
-    std::string::size_type nSize = sCommand.size();
-
-    char* szArgs = reinterpret_cast<char*>(malloc(nSize + 1));
-    RISE_ASSERTS(szArgs, "Memory allocation failed");
-    char* szArgsEnd = szArgs + nSize;
-    char* szPosBegin = szArgs;
-    char* szPosEnd = szArgs;
-    int nArg = 0;
-
-    memcpy(szArgs, sCommand.c_str(), nSize + 1);
-    try
-    {
-      while (szPosBegin < szArgsEnd)
-      {
-        chFirst = *szPosBegin;
-        if (chFirst == '\'' || chFirst == '\"')
-        {
-          ++szPosBegin;
-          RISE_ASSERTS(szPosBegin <= szArgsEnd, "Unexpected end of command in [" + sCommand + "]");
-
-          // find matched quote
-          for (szPosEnd = szPosBegin;; ++szPosEnd)
-          {
-            szPosEnd = strchr(szPosEnd, chFirst);
-            RISE_ASSERTS(szPosEnd, "Unexpected end of command in [" + sCommand + "]");
-            if (*(szPosEnd - 1) != '\\')
-            {
-              break;
-            }
-          }
-        }
-        else
-        {
-          szPosEnd = szPosBegin;
-          while (*szPosEnd && *szPosEnd != ' ' && *szPosEnd != '\t')
-          {
-            ++szPosEnd;
-          }
-
-          if (szPosEnd == szPosBegin)
-          {
-            ++szPosBegin;
-            continue;
-          }
-        }
-
-        *szPosEnd = '\0';
-        aszArgs[nArg++] = szPosBegin;
-        szPosBegin = szPosEnd + 1;
-
-        if (nArg == (nMaxArgs - 1))
-        {
-          break;
-        }
-      }
-
-      aszArgs[nArg++] = NULL;
-
-
-      int anFds[2];
-
-      RISE_ASSERTS(!pipe(anFds), std::string("error while creating pipe: ") + strerror(errno));
-
-      pid_t tPid = fork();
-      switch (tPid)
-      {
-        case -1:
-        {
-          RISE_THROWS(rise::CInternalAssertException,
-                     std::string("error while forking process: ") + strerror(errno));
-        }
-
-        case 0: // child
-        {
-          close(anFds[0]);
-          dup2(anFds[1], 1);
-          close(anFds[1]);
-
-          execvp(aszArgs[0], aszArgs);
-
-          rise::LogError() << "Failed to start [" + sCommand + "]: " + strerror(errno);
-          exit(-1);
-        }
-
-        default: // parent
-        {
-          static const int nBuffSize = 1024;
-          char achBuffer[nBuffSize];
-          ssize_t nReaded = 0;
-
-          close(anFds[1]);
-          while ((nReaded = read(anFds[0], achBuffer, nBuffSize)))
-          {
-            RISE_ASSERTS(nReaded != -1, std::string("Read from child process failed: ") + strerror(errno));
-            sOutput.append(achBuffer, nReaded);
-          }
-
-          int nStatus = 0;
-          RISE_ASSERTS(waitpid(tPid, &nStatus, 0) != -1, std::string("Failed to wait child: ")
-                       + strerror(errno));
-        }
-      }
-
-    }
-    catch(...)
-    {
-      free(szArgs);
-      throw;
-    }
-    free(szArgs);
-#else
-    // WINDOWS
-    static const int nBuffSize = 1024;
-    char szBuffer[1024];
-    SECURITY_ATTRIBUTES tSecurityAttributes;
-    STARTUPINFO tStartupInfo;
-    PROCESS_INFORMATION tProcessInformation;
-    HANDLE hStdOutPipeRead, hStdOutPipeWrite;
-    BOOL bProcessCreated = FALSE;
-    DWORD dwBytesRead = 0;
-
-    tSecurityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
-    tSecurityAttributes.bInheritHandle = TRUE;
-    tSecurityAttributes.lpSecurityDescriptor = NULL;
-
-    CreatePipe(&hStdOutPipeRead, &hStdOutPipeWrite, &tSecurityAttributes, 0);
-
-    memset(&tStartupInfo, 0, sizeof(tStartupInfo));
-    tStartupInfo.cb = sizeof(tStartupInfo);
-    tStartupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-    tStartupInfo.wShowWindow = SW_HIDE;
-    tStartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-    tStartupInfo.hStdOutput = hStdOutPipeWrite;
-    tStartupInfo.hStdError = hStdOutPipeWrite;
-
-    bProcessCreated = CreateProcess(sCommand.c_str(), NULL, NULL, NULL, TRUE, 0, NULL, NULL,
-                                    &tStartupInfo, &tProcessInformation);
-    CloseHandle(hStdOutPipeWrite);
-    RISE_ASSERTS(bProcessCreated, "Failed to create process [" + sCommand + "]");
-
-    // if there was a problem, or the async. operation is still pending.
-    for (;;)
-    {
-      BOOL bResult = ReadFile(hStdOutPipeRead, szBuffer, sizeof(szBuffer) - 1, &dwBytesRead, NULL);
-      if (!bResult)
-      {
-        DWORD dwError = GetLastError();
-        if (dwError == ERROR_HANDLE_EOF || dwError == ERROR_BROKEN_PIPE)
-        {
-          break;
-        }
-
-        Sleep(0);
-      }
-      else
-      {
-        sOutput.append(szBuffer, dwBytesRead);
-      }
-    }
-
-    DWORD dwExitCode = 0;
-    WaitForSingleObject(tProcessInformation.hProcess, INFINITE);
-    BOOL bExitCode = GetExitCodeProcess(tProcessInformation.hProcess, &dwExitCode);
-
-    CloseHandle(tProcessInformation.hThread);
-    CloseHandle(tProcessInformation.hProcess);
-    CloseHandle(hStdOutPipeRead);
-#endif
-
-    return sOutput;
-  }
-
 
   class ShellRawExecutor: public IRawExecutor
   {
@@ -236,9 +52,14 @@ namespace das
     virtual void Execute(const std::string& sExecute, const DataObject& /*rdoContext*/,
                          const DataType& rReturnType, DataObject& rdoResult)
     {
-      RISE_ASSERTS(m_pProvider, "Not Initialized");
+      STAFF_ASSERT(m_pProvider, "Not Initialized");
 
-      const std::string& sResult = StartProcessAndReadOutput(m_pProvider->m_sScriptsDir + sExecute);
+      Process tProc;
+      tProc.Start(m_pProvider->m_sScriptsDir + sExecute, true);
+
+      const std::string& sResult = tProc.ReadAllStdandardOutput();
+      tProc.Wait();
+
       if (rReturnType.eType == DataType::Generic)
       {
         rdoResult.SetText(sResult);
@@ -319,8 +140,8 @@ namespace das
     {
       if (rReturnType.eType == DataType::Struct)
       {
-        RISE_ASSERTS(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
-            rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
+        STAFF_ASSERT(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
+            ToString(lsResult.size()) + " expected: " + ToString(rReturnType.lsChilds.size()));
 
         StringList::const_iterator itResult = lsResult.begin();
         for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
@@ -358,15 +179,15 @@ namespace das
         const DataType& rItemType = rReturnType.lsChilds.front();
         if (rItemType.eType == DataType::Generic) // list of generics
         {
-            RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                         rise::ToStr(lsResult.size()) + " expected: 1");
+            STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
+                         ToString(lsResult.size()) + " expected: 1");
             rdoResult.CreateChild("Item").SetText(lsResult.front());
         }
         else
         if (rItemType.eType == DataType::Struct) // list of structs
         {
-          RISE_ASSERTS(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
-                       rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
+          STAFF_ASSERT(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
+                       ToString(lsResult.size()) + " expected: " + ToString(rItemType.lsChilds.size()));
           staff::DataObject tdoItem = rdoResult.CreateChild("Item");
 
           StringList::const_iterator itResult = lsResult.begin();
@@ -378,7 +199,7 @@ namespace das
         }
         else
         {
-          RISE_THROWS(rise::CLogicNoItemException, "Unsupported list item type: " + rReturnType.sType);
+          STAFF_THROW_ASSERT("Unsupported list item type: " + rReturnType.sType);
         }
       }
     }
@@ -400,41 +221,39 @@ namespace das
     Deinit();
   }
 
-  void ShellProvider::Init(const rise::xml::CXMLNode& rConfig)
+  void ShellProvider::Init(const xml::Element& rConfig)
   {
     // initialize connection
-    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+    const xml::Element& rConnection = rConfig.GetChildElementByName("connection");
 
-    rise::xml::CXMLNode::TXMLNodeConstIterator itNode = rConnection.FindSubnode("scriptsdir");
-    if (itNode != rConnection.NodeEnd())
+    const xml::Element* pElem = rConnection.FindChildElementByName("scriptsdir");
+    if (pElem)
     {
-      m_sScriptsDir = itNode->NodeContent().AsString();
+      m_sScriptsDir = pElem->GetTextValue();
     }
 
-    itNode = rConnection.FindSubnode("colheaders");
-    if (itNode != rConnection.NodeEnd())
+    pElem = rConnection.FindChildElementByName("colheaders");
+    if (pElem)
     {
-      m_bColHeaders = itNode->NodeContent().AsString() == "1"
-          || itNode->NodeContent().AsString() == "true";
+      m_bColHeaders = pElem->GetValue();
     }
 
-    itNode = rConnection.FindSubnode("firstcolcount");
-    if (itNode != rConnection.NodeEnd())
+    pElem = rConnection.FindChildElementByName("firstcolcount");
+    if (pElem)
     {
-      m_bFirstColCount = itNode->NodeContent().AsString() == "1"
-          || itNode->NodeContent().AsString() == "true";
+      m_bFirstColCount = pElem->GetValue();
     }
 
-    itNode = rConnection.FindSubnode("coldelims");
-    if (itNode != rConnection.NodeEnd())
+    pElem = rConnection.FindChildElementByName("coldelims");
+    if (pElem)
     {
-      m_sColDelims = itNode->NodeContent().AsString();
+      m_sColDelims = pElem->GetTextValue();
     }
 
-    itNode = rConnection.FindSubnode("rowdelims");
-    if (itNode != rConnection.NodeEnd())
+    pElem = rConnection.FindChildElementByName("rowdelims");
+    if (pElem)
     {
-      m_sRowDelims = itNode->NodeContent().AsString();
+      m_sRowDelims = pElem->GetTextValue();
     }
   }
 

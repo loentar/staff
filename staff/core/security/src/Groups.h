@@ -92,12 +92,6 @@ namespace staff
       Groups& operator=(const Groups&);
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(GroupsList) typedef GroupsList TGroupsList;
-    STAFF_DEPRECATED(Group) typedef Group SGroup;
-    STAFF_DEPRECATED(Groups) typedef Groups CGroups;
-#endif
-
   }
 }
 

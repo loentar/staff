@@ -23,8 +23,7 @@
 // Service Implementation
 
 #include <staff/common/Exception.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/common/Exception.h>
 #include <staff/security/Sessions.h>
 #include <staff/component/SessionManager.h>
 #include "LoginImpl.h"
@@ -40,8 +39,8 @@ namespace staff
   {
     std::string tResult;
 
-    RISE_ASSERTES(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
-      rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
+    STAFF_ASSERT(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
+      "Cannot login from non-nobody session");
 
     staff::SessionManager::Inst().Login(sUserName, sPassword, tResult);
 
@@ -52,8 +51,8 @@ namespace staff
   {
     std::string tResult;
 
-    RISE_ASSERTES(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
-      rise::CLogicAlreadyExistsException, "Cannot login from non-nobody session");
+    STAFF_ASSERT(IService::GetSessionId() == staff::security::Sessions::sNobodySessionId,
+      "Cannot login from non-nobody session");
 
     staff::SessionManager::Inst().Open(sUserName, sPassword, bCloseExisting, tResult);
 

@@ -20,7 +20,7 @@ STAFF_HOME   = $\$(STAFF_HOME)
   STAFF_CODEGEN   = staff_codegen
 }
 
-LIBS        += -lstaffutils -lstaffcommon -lstaffclient -lrise
+LIBS        += -lstaffutils -lstaffcommon -lstaffclient
 
 #var nLastInterface $(Project.Interfaces.$Count)
 #var nLastInterface $($nLastInterface.!dec)

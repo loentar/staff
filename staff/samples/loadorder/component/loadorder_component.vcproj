@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,10 +69,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -134,7 +134,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -155,10 +155,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -215,7 +215,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -234,10 +234,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -297,7 +297,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SERVICE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -316,10 +316,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib rise.lib"
+				AdditionalDependencies="staff_common.lib staff_component.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

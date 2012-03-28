@@ -37,7 +37,7 @@ namespace das
 
     void AddServiceWrapper(const std::string& sServiceName, ServiceWrapper* pServiceWrapper);
 
-    //!         get component name
+    //! get component name
     /*! \return component name
     */
     virtual const std::string& GetName() const;

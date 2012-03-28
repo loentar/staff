@@ -42,7 +42,7 @@ namespace staff
       //! initialize
       /*! \param rConfig - provider config
         */
-      virtual void Init(const rise::xml::CXMLNode& rConfig);
+      virtual void Init(const xml::Element& rConfig);
 
       //! deinitialize
       virtual void Deinit();

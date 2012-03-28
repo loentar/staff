@@ -32,45 +32,45 @@ namespace staff
   class STAFF_COMPONENT_EXPORT CompositeComponent: public Component
   {
   public:
-    //!        constructor
+    //! constructor
     CompositeComponent();
 
-    //!        destructor
+    //! destructor
     virtual ~CompositeComponent();
 
-    //!         compose component(add partial component to composite)
+    //! compose component(add partial component to composite)
     /*! \param  pComponent - component
         */
     void Compose(Component* pComponent);
 
-    //!         get component name
+    //! get component name
     /*! \return component name
     */
     const std::string& GetName() const;
 
-    //!         get component service
+    //! get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
     const ServiceWrapper* GetService(const std::string& sName) const;
 
-    //!         get component service
+    //! get component service
     /*! \param  sName - service name
         \return pointer to service, NULL if no service found
         */
     ServiceWrapper* GetService(const std::string& sName);
 
-    //!         add service into component
+    //! add service into component
     /*! \param  pService - service
         */
     void AddService(ServiceWrapper* pService);
 
-    //!         remove service from component
+    //! remove service from component
     /*! \param  sName - service name
         */
     void RemoveService(const std::string& sName);
 
-    //!         get services map
+    //! get services map
     /*! \return services map
     */
     const ServiceWrapperMap& GetServices() const;
@@ -79,10 +79,6 @@ namespace staff
     std::string m_sName;        //!<  component name
     ServiceWrapperMap m_mServices;      //!<  services map
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(CompositeComponent) typedef CompositeComponent CCompositeComponent;
-#endif
 
 }
 

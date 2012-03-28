@@ -19,18 +19,20 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <iostream>
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/plugin/PluginExport.h>
-#include <staff/codegen/tools.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/common/Exception.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Exception.h>
+#include <staff/codegen/tools.h>
 #include "DataAccessService.h"
 #include <staff/client/ServiceFactory.h>
 #include "DasParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::DasParser)
+STAFF_DECLARE_PLUGIN(staff::codegen::DasParser)
 
 namespace staff
 {
@@ -53,48 +55,41 @@ namespace codegen
 
   void DasParser::Process(const ParseSettings& rParseSettings, Project& rProject)
   {
-    try
+    std::string sRootNs = "::";
+    StringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
+    if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
-      std::string sRootNs = "::";
-      StringMap::const_iterator itRootNs = rParseSettings.mEnv.find("rootns");
-      if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
-      {
-        sRootNs = "::" + itRootNs->second + "::";
-        rise::StrReplace(sRootNs, ".", "::", true);
-      }
-
-      StringMap::const_iterator itServiceUri = rParseSettings.mEnv.find("serviceuri");
-
-      std::string sServiceUri;
-      if (itServiceUri != rParseSettings.mEnv.end())
-      {
-        sServiceUri = itServiceUri->second;
-      }
-
-      for (StringList::const_iterator itDataSourceName = rParseSettings.lsFiles.begin();
-            itDataSourceName != rParseSettings.lsFiles.end(); ++itDataSourceName)
-      {
-        std::string sDataSource = *itDataSourceName;
-        Interface stInterface;
-
-        std::cout << "Processing DAS: " << *itDataSourceName << std::endl;
-
-        std::auto_ptr<das::DataAccessService> pDataAccessService
-            (ServiceFactory::Inst().GetService<das::DataAccessService>(sServiceUri));
-
-        pDataAccessService->SetDataSource(sDataSource);
-        const DataObject& rdoInterface = pDataAccessService->GetInterface();
-        Parse(rdoInterface, stInterface, rProject, sRootNs);
-        rProject.sNamespace = stInterface.sNamespace;
-
-        pDataAccessService->FreeDataSource();
-
-        rProject.lsInterfaces.push_back(stInterface);
-      }
+      sRootNs = "::" + itRootNs->second + "::";
+      StringReplace(sRootNs, ".", "::", true);
     }
-    catch (const staff::RemoteException& rEx)
+
+    StringMap::const_iterator itServiceUri = rParseSettings.mEnv.find("serviceuri");
+
+    std::string sServiceUri;
+    if (itServiceUri != rParseSettings.mEnv.end())
     {
-      RISE_THROWS(rise::CInternalAssertException, rEx.GetString());
+      sServiceUri = itServiceUri->second;
+    }
+
+    for (StringList::const_iterator itDataSourceName = rParseSettings.lsFiles.begin();
+          itDataSourceName != rParseSettings.lsFiles.end(); ++itDataSourceName)
+    {
+      std::string sDataSource = *itDataSourceName;
+      Interface stInterface;
+
+      std::cout << "Processing DAS: " << *itDataSourceName << std::endl;
+
+      std::auto_ptr<das::DataAccessService> pDataAccessService
+          (ServiceFactory::Inst().GetService<das::DataAccessService>(sServiceUri));
+
+      pDataAccessService->SetDataSource(sDataSource);
+      const DataObject& rdoInterface = pDataAccessService->GetInterface();
+      Parse(rdoInterface, stInterface, rProject, sRootNs);
+      rProject.sNamespace = stInterface.sNamespace;
+
+      pDataAccessService->FreeDataSource();
+
+      rProject.lsInterfaces.push_back(stInterface);
     }
   }
 
@@ -195,7 +190,7 @@ namespace codegen
     rInterface.sName = rdoInterface.GetChildTextByLocalName("Name");
 
     std::string sNamespace = rdoInterface.GetChildTextByLocalName("Namespace");
-    rise::StrReplace(sNamespace, ".", "::", true);
+    StringReplace(sNamespace, ".", "::", true);
     sNamespace = sRootNs + sNamespace + "::";
 
     rInterface.sNamespace = sNamespace;
@@ -229,7 +224,7 @@ namespace codegen
       stInclude.sInterfaceName = sName;
       stInclude.sFileName = sName + ".h";
       stInclude.sNamespace = rdoInclude.GetChildTextByLocalName("Namespace");
-      rise::StrReplace(stInclude.sNamespace, ".", "::", true);
+      StringReplace(stInclude.sNamespace, ".", "::", true);
       stInclude.sNamespace = sRootNs + stInclude.sNamespace + "::";
       rInterface.lsIncludes.push_back(stInclude);
 

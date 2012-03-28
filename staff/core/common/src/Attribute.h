@@ -41,85 +41,85 @@ namespace staff
   class STAFF_COMMON_EXPORT Attribute
   {
   public:
-    //!         constructor
+    //! constructor
     Attribute();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - owner dataobject
         \param  pAxiomAttribute - axiom attribute
         */
     Attribute(DataObject* pDataObject, axiom_attribute_t* pAxiomAttribute);
 
-    //!         ownership transfer constructor
+    //! ownership transfer constructor
     /*! \param  rAttribute - attribute
         */
     Attribute(const Attribute& rAttribute);
 
-    //!         axiom_attribute_t* cast operator
+    //! axiom_attribute_t* cast operator
     operator axiom_attribute_t*();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalNameInit - local name
         \param  szValue - attribute value as text
         */
     explicit Attribute(const std::string& sLocalNameInit, const char* szValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalNameInit - local name
         \param  sValue - attribute value as text
         */
     explicit Attribute(const std::string& sLocalNameInit, const std::string& sValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalNameInit - local name
         \param  tValue - attribute value
         */
     Attribute(const std::string& sLocalNameInit, const Value& tValue);
 
-    //!         destructor
+    //! destructor
     ~Attribute();
 
-    //!         tests if the Attribute is NULL or not
+    //! tests if the Attribute is NULL or not
     /*! \return true if the Attribute is NULL
     */
     bool IsNull() const;
 
-    //!         get ownership flag
+    //! get ownership flag
     /*! \return true - if ownership flag set
         */
     bool IsOwner() const;
 
-    //!         set ownership flag
+    //! set ownership flag
     /*! \param  bOwner - ownership flag
         */
     void SetOwner(bool bOwner);
 
-    //!         get local name
+    //! get local name
     /*! \return local name
     */
     std::string GetLocalName() const;
 
-    //!         set local name
+    //! set local name
     /*! \param  sLocalName - local name
     */
     void SetLocalName(const std::string& sLocalName);
 
-    //!         get attribute value as string
+    //! get attribute value as string
     /*! \return text
     */
     std::string GetText() const;
 
-    //!         set attribute value as string
+    //! set attribute value as string
     /*! \param sText - text
     */
     void SetText(const std::string& sText);
 
-    //!         get attribute value
+    //! get attribute value
     /*! \return value
     */
     Value GetValue() const;
 
-    //!         set attribute value
+    //! set attribute value
     /*! \param  rValue - value
     */
     void SetValue(const Value& rValue);
@@ -141,40 +141,40 @@ namespace staff
     bool GetValue(double& rdValue) const;
     void GetValue(std::string& sValue) const;
 
-    //!         get qname
+    //! get qname
     /*! \return qname
     */
     const QName GetQName() const;
 
-    //!         get qname
+    //! get qname
     /*! \return qname
     */
     QName GetQName();
 
-    //!         ownership transfer operation
+    //! ownership transfer operation
     /*! \param  rAttribute - source attribute
         \return *this
         */
     Attribute& operator=(const Attribute& rAttribute);
 
-    //!         tests a target attribute for equality with a specified attribute
+    //! tests a target attribute for equality with a specified attribute
     /*! \param  rAttribute - attribute
         \return true if the attributes are equal
         */
     bool operator==(const Attribute& rAttribute) const;
 
-    //!         tests a target attribute for inequality with a specified attribute
+    //! tests a target attribute for inequality with a specified attribute
     /*! \param  rAttribute - attribute
         \return true if the attributes are different
         */
     bool operator!=(const Attribute& rAttribute) const;
 
-    //!         member access operator
+    //! member access operator
     /*! \return this
     */
     Attribute* operator->();
     
-    //!         member access operator
+    //! member access operator
     /*! \return this
     */
     const Attribute* operator->() const;
@@ -186,9 +186,6 @@ namespace staff
     static axutil_env_t* m_pEnv; //!<  Axis2/C environment
   };
 
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Attribute) typedef Attribute CAttribute;
-#endif
 } // namespace staff
 
 #endif // _ATTRIBUTE_H_

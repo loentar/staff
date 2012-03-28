@@ -4,7 +4,7 @@
 
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
 #ifeqend
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
@@ -127,7 +127,7 @@ staff::ServiceWrapper& $(Class.Name)Proxy::GetServiceWrapper() const
   if (!m_pWrapper)
   {
     m_pWrapper = staff::SharedContext::Inst().GetService("$(Class.NsName.!dot)");
-    RISE_ASSERTS(m_pWrapper, "Can't get service wrapper for service [$(Class.NsName.!dot)]");
+    STAFF_ASSERT(m_pWrapper, "Can't get service wrapper for service [$(Class.NsName.!dot)]");
   }
 
   return *m_pWrapper;

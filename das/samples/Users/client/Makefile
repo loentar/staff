@@ -8,8 +8,8 @@ SERVICES_HEADERS := $(SRCDIR)Users.h $(SRCDIR)Groups.h $(SRCDIR)Role.h
 
 STAFF_CODEGEN := $(STAFF_HOME)/bin/staff_codegen
 
-CXXFLAGS += -I$(STAFF_HOME)/include/
-LDFLAGS += -L$(STAFF_HOME)/lib -lstaffcommon -lstaffclient -lrise
+CXXFLAGS +=
+LDFLAGS += -L$(STAFF_HOME)/lib -lstaffcommon -lstaffclient
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

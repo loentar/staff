@@ -4,7 +4,8 @@
 
 #ifneq($(Interface.Classes.$Count),0)
 #include <memory>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
 #ifeqend
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
@@ -41,10 +42,7 @@ public:
     {
       staff::ServiceFactory::Inst().RegisterProxyAllocator(typeid($(Class.Name)).name(), *this);
     }
-    catch(...)
-    {
-      rise::LogError() << "Failed to register proxy allocator $(Class.Name)";
-    }
+    STAFF_CATCH_ALL_DESCR("Failed to register proxy allocator $(Class.Name)");
   }
 
   virtual staff::IService* AllocateProxy(const std::string& sServiceUri,
@@ -141,7 +139,7 @@ $(Class.Name)Proxy::~$(Class.Name)Proxy()
   {
     Deinit();
   }
-  RISE_CATCH_ALL;
+  STAFF_CATCH_ALL;
 }
 
 void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string& sSessionId, const std::string& sInstanceId)
@@ -178,8 +176,9 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
-      RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+      STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+      STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " +
+                  tOperation.GetResponse().ToString()); // other fault
     }
     rOptions.SetInstanceId(sInstanceId);
   }
@@ -194,8 +193,9 @@ void $(Class.Name)Proxy::Deinit()
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
-      RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+      STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+      STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " +
+                  tOperation.GetResponse().ToString()); // other fault
     }
   }
 }
@@ -213,7 +213,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var bGenerateBody 1
 #var PutOptions 0
 #foreach $(Member.Options) // check supported options to avoid cpp warning
-#ifeq($($ThisNodeName),soapAction||restEnable||restMethod||wsaAction||wsaTo||wsaFrom||wsaFaultTo||wsaUseSeparateListener||timeout)
+#ifeq($($ThisElementName),soapAction||restEnable||restMethod||wsaAction||wsaTo||wsaFrom||wsaFaultTo||wsaUseSeparateListener||timeout)
 #var PutOptions 1
 #ifeqend
 #end
@@ -297,7 +297,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Return.Name),void)
 #cgerror Error: MEP is set to $(Member.Options.*mep) but return value is not void! In $(Class.Name)::$(Member.Name).
 #ifeqend
-#ifneq($(Member.IsAsynch),0)
+#ifneq($(Member.IsAsynch),false)
 #cgerror Error: MEP is set to $(Member.Options.*mep) but operation is non blocking! Non-blocking operations must be in-out. In $(Class.Name)::$(Member.Name).
 #ifeqend
 #else
@@ -306,7 +306,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifneq($(Member.Return.Name),void)
 #cgerror Error: MEP is set to $(Member.Options.*mep) but return value is not void! In $(Class.Name)::$(Member.Name).
 #ifeqend
-#ifneq($(Member.IsAsynch),0)
+#ifneq($(Member.IsAsynch),false)
 #cgerror Error: MEP is set to $(Member.Options.*mep) but operation is non blocking! Non-blocking operations must be in-out. In $(Class.Name)::$(Member.Name).
 #ifeqend
 #else
@@ -385,8 +385,8 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   tOperation.SetResponse(m_tClient.$($SendMethod)(rdoRequest));
   if (m_tClient.GetLastResponseHasFault())
   {
-    RISE_ASSERTES(!tOperation.IsFault(), staff::RemoteException, tOperation.GetFaultString()); // soap fault
-    RISE_THROW3(staff::RemoteException, "Failed to invoke service", tOperation.GetResponse().ToString()); // other fault
+    STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+    STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " + tOperation.GetResponse().ToString()); // other fault
   }
 #else
   m_tClient.$($SendMethod)(rdoRequest);

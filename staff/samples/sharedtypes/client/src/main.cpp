@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <memory>
-#include <rise/string/String.h>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/console.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/console.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Ticket.h"
@@ -38,11 +38,11 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::sharedtypes::Checker > pChecker(::staff::ServiceFactory::Inst().GetService< ::samples::sharedtypes::Checker >());
 
-    RISE_ASSERTS(pChecker.get(), "Cannot get client for service samples.sharedtypes.Checker!");
+    STAFF_ASSERT(pChecker.get(), "Cannot get client for service samples.sharedtypes.Checker!");
 
     std::auto_ptr< ::samples::sharedtypes::Issuer > pIssuer(::staff::ServiceFactory::Inst().GetService< ::samples::sharedtypes::Issuer >());
 
-    RISE_ASSERTS(pIssuer.get(), "Cannot get client for service samples.sharedtypes.Issuer!");
+    STAFF_ASSERT(pIssuer.get(), "Cannot get client for service samples.sharedtypes.Issuer!");
 
 
     ::samples::ticket::Ticket stTicket = pIssuer->Issue("me");
@@ -70,7 +70,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
       std::cout << "id: " << itTicket->nId << " | type: " << itTicket->eType << " | owner: " << itTicket->sOwner << " | used: " << itTicket->bUsed << std::endl;
     }
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

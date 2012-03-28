@@ -19,16 +19,14 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifdef OS_Darwin
-#include <sys/stat.h>
-#endif
 #include <list>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/SharedPtr.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/tools/FileFind.h>
-#include <rise/plugin/PluginManager.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/File.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/File.h>
+#include <staff/utils/PluginManager.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Exception.h>
@@ -54,16 +52,16 @@ namespace staff
   public:
     void Init()
     {
-rise::LogEntry();
+      LogEntry();
       const std::string sComponentsDir = Runtime::Inst().GetComponentsHome();
       SharedContext& rSharedContext = SharedContext::Inst();
       StringList lsComponentDirs;
       
       // find directories with components
-      rise::CFileFind::Find(sComponentsDir, lsComponentDirs, "*", rise::CFileFind::EFA_DIR);
+      File(sComponentsDir).List(lsComponentDirs, "*", File::AttributeDirectory);
       if (lsComponentDirs.size() == 0)
       {
-        rise::LogDebug() << "components is not found";
+        LogDebug() << "components is not found";
       }
 
       for (StringList::const_iterator itDir = lsComponentDirs.begin();
@@ -71,38 +69,31 @@ rise::LogEntry();
       {
         // finding libraries with components
         StringList lsComponents;
-        std::string sComponentDir = sComponentsDir + RISE_PATH_SEPARATOR + *itDir + RISE_PATH_SEPARATOR;
-        rise::CFileFind::Find(sComponentDir, lsComponents, "*" RISE_LIBRARY_EXT, rise::CFileFind::EFA_FILE);
+        std::string sComponentDir = sComponentsDir + STAFF_PATH_SEPARATOR + *itDir + STAFF_PATH_SEPARATOR;
+        File(sComponentDir).List(lsComponents, "*" STAFF_LIBRARY_EXT, File::AttributeRegularFile);
         for (StringList::const_iterator itComponent = lsComponents.begin();
                 itComponent != lsComponents.end(); ++itComponent)
         {
           const std::string& sComponentPath = sComponentDir + *itComponent;
           try
           {
-#ifdef OS_Darwin
-            struct stat stStat;
-            if (!lstat(sComponentPath.c_str(), &stStat) && ((stStat.st_mode & S_IFLNK) == S_IFLNK))
-            {
-              continue;
-            }
-#endif
             // loading component
-            rise::LogDebug() << "Loading component: " << sComponentPath;
-            Component* pComponent = m_lsComponents.LoadPlugin(sComponentPath, true);
+            LogDebug() << "Loading component: " << sComponentPath;
+            Component* pComponent = m_lsComponents.Load(sComponentPath, true);
             rSharedContext.AddComponent(pComponent);
           }
-          catch(const rise::CException& rEx)
+          catch (const Exception& rEx)
           {
-            rise::LogWarning() << "Can't load component: " << sComponentPath << ": " << rEx.GetString();
+            LogWarning() << "Can't load component: " << sComponentPath << ": " << rEx.what();
           }
-          catch(...)
+          catch (...)
           {
-            rise::LogWarning() << "Can't load component: " << sComponentPath << ": unknown error";
+            LogWarning() << "Can't load component: " << sComponentPath << ": unknown error";
           }
         }
       }
 
-      staff::SessionManager::Inst().Start();
+      SessionManager::Inst().Start();
 
       LoadServices();
 
@@ -119,7 +110,7 @@ rise::LogEntry();
 
     void Deinit()
     {
-      staff::SessionManager::Inst().Stop();
+      SessionManager::Inst().Stop();
 
       SharedContext& rSharedContext = SharedContext::Inst();
       if (m_stEvents.pOnDisconnect != NULL)
@@ -148,7 +139,7 @@ rise::LogEntry();
             itThisDep != rlsLoadOrder.end();)
         {
           DepsMap::const_iterator itThisDeps = rmDeps.find(*itThisDep);
-          RISE_ASSERT(itThisDeps != rmDeps.end()); // should not happen
+          STAFF_ASSERT_PARAM(itThisDeps != rmDeps.end()); // should not happen
 
           const StringList& rlsThisDeps = itThisDeps->second;
           if (!rlsThisDeps.empty())
@@ -170,7 +161,7 @@ rise::LogEntry();
 
               if (bHasDep)
               {
-                rise::LogDebug() << *itThisDep << " => " << *itOtherDep;
+                LogDebug() << *itThisDep << " => " << *itOtherDep;
                 rlsLoadOrder.splice(itThisDep++, rlsLoadOrder, itOtherDep);
                 // now itThisDep points to new pos of the itThisDep
                 bWasChanged = true;
@@ -190,7 +181,7 @@ rise::LogEntry();
 
       if (bWasChanged)
       {
-        rise::LogWarning() << "Failed to reorder services.";
+        LogWarning() << "Failed to reorder services.";
       }
     }
 
@@ -224,7 +215,7 @@ rise::LogEntry();
               std::string sDep = sDeps.substr(nPosBegin,
                 (nPosEnd == std::string::npos) ? std::string::npos : (nPosEnd - nPosBegin));
 
-              rise::StrTrim(sDep);
+              StringTrim(sDep);
               rlsDeps.push_back(sDep);
 
               nPosBegin = nPosEnd + 1;
@@ -242,7 +233,7 @@ rise::LogEntry();
         {
           if (!mDependencies.count(*itDependOn))
           {
-            rise::LogWarning() << "Service [" << itService->first
+            LogWarning() << "Service [" << itService->first
                                << "] has a dependency on unknown service [" << *itDependOn << "]";
           }
         }
@@ -252,17 +243,17 @@ rise::LogEntry();
       ResolveDepsOrder(lsServicesLoadOrder, mDependencies);
 
       // load services in order
-      staff::ServiceInstanceManager& rInstanceManager = staff::ServiceInstanceManager::Inst();
+      ServiceInstanceManager& rInstanceManager = ServiceInstanceManager::Inst();
       for (StringList::const_iterator itService = lsServicesLoadOrder.begin();
           itService != lsServicesLoadOrder.end(); ++itService)
       {
-        rise::LogDebug() << "loading service [" << *itService << "] marked as loadAtStartup";
+        LogDebug() << "loading service [" << *itService << "] marked as loadAtStartup";
         rInstanceManager.CreateServiceInstance(STAFF_SECURITY_NOBODY_SESSION_ID, *itService, "");
       }
     }
 
     ServiceDispatcher::Events m_stEvents;
-    rise::plugin::CPluginManager<Component> m_lsComponents;
+    staff::PluginManager<Component> m_lsComponents;
   };
 
 //////////////////////////////////////////////////////////////////////////
@@ -304,7 +295,7 @@ rise::LogEntry();
 
   void ServiceDispatcher::InvokeSelf(Operation& rOperation)
   {
-    staff::DataObject& rResult = rOperation.Result();
+    DataObject& rResult = rOperation.Result();
 
     SharedContext& rSharedContext = SharedContext::Inst();
     const std::string& sOpName = rOperation.GetName();
@@ -320,16 +311,16 @@ rise::LogEntry();
     else
     if (sOpName == "GetOperations")
     {
-      const staff::DataObject& rRequest = rOperation.Request();
+      const DataObject& rRequest = rOperation.Request();
       const std::string& sServiceName = rRequest.GetChildByLocalName("sServiceName").GetText();
       const ServiceWrapper* pService = rSharedContext.GetService(sServiceName);
-      RISE_ASSERTES(pService, RemoteInternalException, "Service [" + sServiceName + "] is not registered");
+      STAFF_ASSERT(pService, "Service [" + sServiceName + "] is not registered");
 
       rResult = pService->GetOperations();
     }
     else
     {
-      RISE_THROWS(RemoteInternalException, "Operation not found: " + sOpName);
+      STAFF_THROW(RemoteException, "Operation not found: " + sOpName);
     }
   }
 

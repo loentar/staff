@@ -16,7 +16,7 @@ ifeq ($(OS),MINGW) # axis2/c library naming bug?
 else
   LDFLAGS += -laxis2_axiom
 endif
-LDFLAGS += -lstaffcommon -lstaffcomponent -lstaffsecurity -lrise -lpthread -lstdc++
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent -lstaffsecurity -lstdc++
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

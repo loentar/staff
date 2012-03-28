@@ -26,14 +26,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <rise/common/Log.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/plugin/PluginExport.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/utils/Exception.h>
 #include <staff/codegen/tools.h>
 #include "CppParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::CppParser)
+STAFF_DECLARE_PLUGIN(staff::codegen::CppParser)
 
 namespace staff
 {
@@ -232,7 +232,7 @@ namespace codegen
               {
                 m_tFile.ignore();
                 ReadBefore(sDescr, "\n\r");
-                rise::StrTrim(sDescr);
+                StringTrim(sDescr);
               }
             }
             m_tFile.ignore(INT_MAX, '\n');
@@ -308,11 +308,11 @@ namespace codegen
         {
           ReadBefore(sLine, "\n");
           m_tFile.ignore();
-          rise::StrTrim(sLine);
+          StringTrim(sLine);
           if (sLine.size() >= 12 && sLine[0] == '/' && sLine[1] == '/')
           {
             sLine.erase(0, 2);
-            rise::StrTrim(sLine);
+            StringTrim(sLine);
             if (sLine.substr(0, 10) == "*ignoreEnd")
             {
               bResult = true;
@@ -382,18 +382,15 @@ namespace codegen
         rDataType.sNamespace = ""; //"::";
       }
 
-      if (sDataTypeName == "staff::CDataObject" || sDataTypeName == "staff::DataObject" ||
-          ((sDataTypeName == "CDataObject" || sDataTypeName == "DataObject")
-            && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
+      if (sDataTypeName == "staff::DataObject" ||
+          (sDataTypeName == "DataObject" && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
       {
         rDataType.eType = DataType::TypeDataObject;
       }
       else
-      if (sDataTypeName == "staff::CMessageContext" || sDataTypeName == "staff::COperation" ||
-          sDataTypeName == "staff::MessageContext" || sDataTypeName == "staff::Operation" ||
+      if (sDataTypeName == "staff::MessageContext" || sDataTypeName == "staff::Operation" ||
           sDataTypeName == "staff::Optional" ||
-          ((sDataTypeName == "CMessageContext" || sDataTypeName == "COperation" ||
-            sDataTypeName == "MessageContext" || sDataTypeName == "Operation" ||
+          ((sDataTypeName == "MessageContext" || sDataTypeName == "Operation" ||
             sDataTypeName == "Optional")
               && m_sCurrentNamespace.substr(0, 9) == "::staff::"))
       {
@@ -409,16 +406,6 @@ namespace codegen
           sDataTypeName == "float" ||
           sDataTypeName == "double" ||
           sDataTypeName == "void" ||
-
-          sDataTypeName == "rise::byte" ||
-          sDataTypeName == "rise::word" ||
-          sDataTypeName == "rise::ushort" ||
-          sDataTypeName == "rise::dword" ||
-          sDataTypeName == "rise::ulong" ||
-          sDataTypeName == "rise::uint" ||
-          sDataTypeName == "rise::TSize" ||
-
-          sDataTypeName == "staff::CValue" ||
 
           // XML types
           sDataTypeName == "staff::boolean" ||
@@ -448,10 +435,6 @@ namespace codegen
       if (
         sDataTypeName == "std::string" ||
         sDataTypeName == "std::wstring" ||
-
-        sDataTypeName == "rise::CString" ||
-        sDataTypeName == "rise::CStringA" ||
-        sDataTypeName == "rise::CStringW" ||
 
         sDataTypeName == "staff::string" ||
 
@@ -510,7 +493,7 @@ namespace codegen
           {
             nEnd = sDataTypeName.find_first_of(" \t\n\r", nBegin);
             std::string sType = sDataTypeName.substr(nBegin, nEnd - nBegin);
-            rise::StrTrim(sType);
+            StringTrim(sType);
 
             if (sType == "long")
             {
@@ -658,7 +641,7 @@ namespace codegen
           sToken = sTemplate.substr(nBegin, nEnd - nBegin);
         }
 
-        rise::StrTrim(sToken);
+        StringTrim(sToken);
         if (!sToken.empty())
         {
           DataType stTemplParam;
@@ -676,7 +659,7 @@ namespace codegen
     }
 
     // datatype
-    void ParseDataType( const std::string& sDataType, DataType& rDataType, const Struct* pstParent = NULL )
+    void ParseDataType(const std::string& sDataType, DataType& rDataType, const Struct* pstParent = NULL)
     {
       std::string sTmp;
 
@@ -709,7 +692,7 @@ namespace codegen
 
         if (sTmp == "static")
         {
-          rise::LogWarning() << "members must be non-static. Line:" << m_nLine;
+          LogWarning() << "members must be non-static. Line:" << m_nLine;
           CSP_ASSERT(sTypeName.empty(), "static after typename", m_stInterface.sFileName, m_nLine);
         }
         else
@@ -717,7 +700,7 @@ namespace codegen
         {
           rDataType.sPrefix = sTmp;
           sTmp = sDataType.substr(sTmp.size());
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           nEnd = std::string::npos;
         }
 
@@ -810,31 +793,31 @@ namespace codegen
         }
         else
         {
-          rise::LogWarning() << "Can't find type declaration: " << sDataType;
+          LogWarning() << "Can't find type declaration: " << sDataType;
         }
       }
     }
 
     // parameter
-    void ParseParam( Param& rParameter )
+    void ParseParam(Param& rParameter)
     {
       rParameter.sDescr.erase();
 
       // read param type and name
       std::string sParamAndType;
       ReadBefore(sParamAndType, ",)");
-      rise::StrTrim(sParamAndType);
+      StringTrim(sParamAndType);
       std::string::size_type nPos = sParamAndType.find_last_of(" \n\r\t");
       CSP_ASSERT(nPos != std::string::npos, "Can't get param name: [" + sParamAndType + "]", m_stInterface.sFileName, m_nLine);
       std::string sDataType = sParamAndType.substr(0, nPos);
-      rise::StrTrim(sDataType);
+      StringTrim(sDataType);
 
       ParseDataType(sDataType, rParameter.stDataType);
       rParameter.sName = sParamAndType.substr(nPos + 1);
     }
 
     // member
-    void ParseMember( Member& rMember )
+    void ParseMember(Member& rMember)
     {
       Param stParam;
       char chData;
@@ -848,12 +831,12 @@ namespace codegen
       // read return type and operation name
       std::string sOperationAndType;
       ReadBefore(sOperationAndType, "(");
-      rise::StrTrim(sOperationAndType);
+      StringTrim(sOperationAndType);
       std::string::size_type nPos = sOperationAndType.find_last_of(" \n\r\t");
       CSP_ASSERT(nPos != std::string::npos, "Can't get operation name: [" + sOperationAndType + "]",
                  m_stInterface.sFileName, m_nLine);
       std::string sDataType = sOperationAndType.substr(0, nPos);
-      rise::StrTrim(sDataType);
+      StringTrim(sDataType);
 
       ParseDataType(sDataType, rMember.stReturn.stDataType);
 
@@ -880,7 +863,7 @@ namespace codegen
           {
             if (!stParam.stDataType.bIsRef)
             {
-              rise::LogWarning() << "Callback must defined as reference: \n"
+              LogWarning() << "Callback must defined as reference: \n"
                   << "staff::ICallback<ReturnType>& rCallback\n"
                   << " in member: " << rMember.sName
                   << " in " << m_stInterface.sFileName << ":" << m_nLine;
@@ -896,9 +879,9 @@ namespace codegen
           }
           else
           if (stParam.stDataType.bIsRef && !stParam.stDataType.bIsConst &&
-              stParam.stDataType.sName != "COperation" && stParam.stDataType.sName != "Operation")
+              stParam.stDataType.sName != "Operation")
           {
-            rise::LogWarning() << "Non-const reference to " << stParam.stDataType.sName
+            LogWarning() << "Non-const reference to " << stParam.stDataType.sName
                 << " in member: " << rMember.sName
                 << " in " << m_stInterface.sFileName << ":" << m_nLine
                 << " \n(return value cannot be passed over argument)";
@@ -942,7 +925,7 @@ namespace codegen
     }
 
     // class
-    void ParseClass( Class& rClass )
+    void ParseClass(Class& rClass)
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -961,7 +944,7 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (sTmp[0] == '*') // codegen metacomment
@@ -973,8 +956,8 @@ namespace codegen
                 {  // add an option
                   std::string sName = sTmp.substr(1, nPos - 1);
                   std::string sValue = sTmp.substr(nPos + 1);
-                  rise::StrTrim(sName);
-                  rise::StrTrim(sValue);
+                  StringTrim(sName);
+                  StringTrim(sValue);
                   stMember.mOptions[sName] = sValue;
                 }
               }
@@ -983,7 +966,7 @@ namespace codegen
             if (sTmp[0] == '!')
             {
               std::string sDescrTmp = sTmp.substr(1);
-              rise::StrTrim(sDescrTmp);
+              StringTrim(sDescrTmp);
               if (stMember.sDescr.size() != 0)
               {
                 if (stMember.sDetail.size() != 0)
@@ -1015,7 +998,7 @@ namespace codegen
         } else
         if (sTmp == "private:" || sTmp == "protected:")
         {
-          rise::LogWarning() << "all members of interface class must be only public!";
+          LogWarning() << "all members of interface class must be only public!";
         }
         else
         if (sTmp.substr(0, rClass.sName.size()) == rClass.sName)   // constructor-ignore it
@@ -1030,7 +1013,7 @@ namespace codegen
         else
         if (sTmp == "enum")   // enum -ignore
         {
-          rise::LogWarning() << "Enum in service definition: ignored";
+          LogWarning() << "Enum in service definition: ignored";
           IgnoreFunction();
         }
         else
@@ -1058,7 +1041,7 @@ namespace codegen
                 std::string::size_type nPos = sOptionName.find_last_of('-');
                 if (nPos == std::string::npos)
                 {
-                  rise::LogError() << "Invalid param option: " << sOptionName;
+                  LogError() << "Invalid param option: " << sOptionName;
                 }
                 else
                 {
@@ -1089,7 +1072,7 @@ namespace codegen
       }
     }
 
-    void ParseStruct( Struct& rStruct )
+    void ParseStruct(Struct& rStruct)
     {
       bool bHasVirtualDtor = false;
       char chTmp = '\0';
@@ -1123,7 +1106,7 @@ namespace codegen
 
         if (sTmp != "public")
         {
-          rise::LogWarning() << "non-public inheritance: " << rStruct.sName << " => " << sTmp;
+          LogWarning() << "non-public inheritance: " << rStruct.sName << " => " << sTmp;
         }
         else
         {
@@ -1148,7 +1131,7 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (sTmp[0] == '*') // codegen metacomment
@@ -1160,8 +1143,8 @@ namespace codegen
                 {  // add an option
                   std::string sName = sTmp.substr(1, nPos - 1);
                   std::string sValue = sTmp.substr(nPos + 1);
-                  rise::StrTrim(sName);
-                  rise::StrTrim(sValue);
+                  StringTrim(sName);
+                  StringTrim(sValue);
                   stParamTmp.mOptions[sName] = sValue;
                 }
               }
@@ -1170,7 +1153,7 @@ namespace codegen
             if (sTmp[0] == '!') // doxygen metacomment
             {
               stParamTmp.sDescr = sTmp.substr(1);
-              rise::StrTrim(stParamTmp.sDescr);
+              StringTrim(stParamTmp.sDescr);
             }
           }
           SkipWsOnly();
@@ -1179,7 +1162,7 @@ namespace codegen
         bFunction = false;
         std::string sToken;
         ReadBefore(sToken);
-        rise::StrTrim(sToken);
+        StringTrim(sToken);
 
         if (sToken == "enum")
         {
@@ -1242,7 +1225,7 @@ namespace codegen
         }
 
         ReadBefore(sTmp, ";}(");
-        rise::StrTrim(sTmp);
+        StringTrim(sTmp);
 
         chTmp = m_tFile.peek();
         if (chTmp == '}')
@@ -1254,7 +1237,7 @@ namespace codegen
         }
 
         sTmp = sToken + ' ' + sTmp;
-        rise::StrTrim(sTmp);
+        StringTrim(sTmp);
 
         if ((chTmp == '(') || // function
             (sToken == rStruct.sName) ||  // constructor
@@ -1278,7 +1261,7 @@ namespace codegen
           stParamTmp.sName = sTmp.substr(nNameBegin + 1);
 
           sTmp.erase(nNameBegin);
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
 
           ParseDataType(sTmp, stParamTmp.stDataType, &rStruct);
 
@@ -1323,7 +1306,7 @@ namespace codegen
       }
     }
 
-    void ParseEnum( Enum& rEnum )
+    void ParseEnum(Enum& rEnum)
     {
       char chTmp = '\0';
       std::string sTmp;
@@ -1358,7 +1341,7 @@ namespace codegen
         SkipWsOnly();
         while (ReadComment(sTmp))
         {
-          rise::StrTrim(sTmp);
+          StringTrim(sTmp);
           if (sTmp.size() != 0)
           {
             if (sTmp[0] == '*') // codegen metacomment
@@ -1369,11 +1352,11 @@ namespace codegen
                 if (nPos != std::string::npos)
                 {
                   std::string sName = sTmp.substr(1, nPos - 1);
-                  rise::StrTrim(sName);
+                  StringTrim(sName);
                   if (sName == "value")
                   {
                     stMember.sValue = sTmp.substr(nPos + 1);
-                    rise::StrTrim(stMember.sValue);
+                    StringTrim(stMember.sValue);
                   }
                 }
               }
@@ -1423,11 +1406,11 @@ namespace codegen
       SkipSingleLineComment();
     }
 
-    void ParseTypedef( Typedef& rTypedef )
+    void ParseTypedef(Typedef& rTypedef)
     {
       std::string sTmp;
       ReadBefore(sTmp, ";");
-      rise::StrTrim(sTmp);
+      StringTrim(sTmp);
 
       std::string::size_type nNameBegin = sTmp.find_last_of(" \n\r\t");
       CSP_ASSERT(nNameBegin != std::string::npos, "Can't detect typedef name: [" + sTmp + "]",
@@ -1436,7 +1419,7 @@ namespace codegen
       rTypedef.sName = sTmp.substr(nNameBegin + 1);
 
       sTmp.erase(nNameBegin);
-      rise::StrTrim(sTmp);
+      StringTrim(sTmp);
 
       ParseDataType(sTmp, rTypedef.stDataType);
       rTypedef.sNamespace = m_sCurrentNamespace;
@@ -1521,7 +1504,7 @@ namespace codegen
       ++m_nLine;
     }
 
-    void ParseHeaderBlock( Interface& rInterface )
+    void ParseHeaderBlock(Interface& rInterface)
     {
       char chData = 0;
       std::string sDescr;
@@ -1533,7 +1516,7 @@ namespace codegen
       SkipWsOnly();
       while (ReadComment(sTmp))
       {
-        rise::StrTrim(sTmp);
+        StringTrim(sTmp);
         if (sTmp.size() != 0)
         {
           if (sTmp[0] == '*') // codegen metacomment
@@ -1545,8 +1528,8 @@ namespace codegen
               {  // add an option
                 std::string sName = sTmp.substr(1, nPos - 1);
                 std::string sValue = sTmp.substr(nPos + 1);
-                rise::StrTrim(sName);
-                rise::StrTrim(sValue);
+                StringTrim(sName);
+                StringTrim(sValue);
                 if (sName == "engageModule")
                 {
                   lsModules.push_back(sValue);
@@ -1569,7 +1552,7 @@ namespace codegen
           if (sTmp[0] == '!')
           {
             std::string sDescrTmp = sTmp.substr(1);
-            rise::StrTrimLeft(sDescrTmp);
+            StringTrimLeft(sDescrTmp);
             if (sDescr.size() != 0)
             {
               if (sDetail.size() != 0)
@@ -1650,7 +1633,7 @@ namespace codegen
           return;
         }
 
-        rise::LogDebug() << "Using [" << stClass.sName << "] as service class";
+        LogDebug() << "Using [" << stClass.sName << "] as service class";
 
         ParseClass(stClass);
         stClass.sDescr = sDescr;
@@ -1754,7 +1737,7 @@ namespace codegen
       }
     }
 
-    void ParseBracketedBlock( Interface& rInterface )
+    void ParseBracketedBlock(Interface& rInterface)
     {
       char chData = 0;
 
@@ -1792,7 +1775,7 @@ namespace codegen
       CSP_THROW("ParseBracketedBlock: EOF found!", m_stInterface.sFileName, m_nLine);
     }
 
-    void ParseHeader( Interface& rInterface )
+    void ParseHeader(Interface& rInterface)
     {
       char chData = 0;
 
@@ -1818,7 +1801,7 @@ namespace codegen
     }
 
     // Interface
-    const Interface& Parse( const std::string& sInDir, const std::string& sFileName, Project& rProject )
+    const Interface& Parse(const std::string& sInDir, const std::string& sFileName, Project& rProject)
     {
       m_pProject = &rProject;
       m_sInDir = sInDir;
@@ -1907,7 +1890,7 @@ namespace codegen
         m_tFile.ignore();
         m_tFile.get(sbData, '\n');
         std::string sBefore = sbData.str();
-        rise::StrTrim(sBefore);
+        StringTrim(sBefore);
 
         if (!sBefore.empty())
         {
@@ -1966,7 +1949,7 @@ namespace codegen
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
-      rise::StrReplace(sRootNs, ".", "::", true);
+      StringReplace(sRootNs, ".", "::", true);
     }
 
     for (StringList::const_iterator itFile = rParseSettings.lsFiles.begin();
@@ -1981,7 +1964,7 @@ namespace codegen
     if (itComponentNs != rParseSettings.mEnv.end())
     {
       rProject.sNamespace = "::" + itComponentNs->second + "::";
-      rise::StrReplace(rProject.sNamespace, ".", "::", true);
+      StringReplace(rProject.sNamespace, ".", "::", true);
     }
     else
     { // autodetect: take first defined namespace
@@ -2007,7 +1990,7 @@ namespace codegen
 
     if (!uServicesCount && !rParseSettings.bNoServiceWarn && !rProject.lsInterfaces.empty())
     {
-       rise::LogWarning() <<
+       LogWarning() <<
            "No staff service interfaces found. Staff services must inherited from staff::IService.\n"
             "Example:\n----\n#include <staff/common/IService.h>\n\n  class Calc: public staff::IService\n"
             "  {\n  public:\n    virtual int Add(int nA, int nB) = 0;\n  };\n----\n\n";

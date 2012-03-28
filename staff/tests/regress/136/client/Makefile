@@ -4,7 +4,7 @@ INTERFACES := Test136.h Test136Types.h
 TARGET = staff_test_regress_$(notdir $(patsubst %/,%,$(dir $(CURDIR))))
 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lstaffclient -lrise -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lstaffclient -L$(DEPLOYDIR)$(LIBDIR)
 
 CODEGEN_INTERFACES := $(patsubst %.h,$(SRCDIR)%.h,$(INTERFACES))
 CODEGEN_HEADERS := $(patsubst %.h,%Proxy.h,$(CODEGEN_INTERFACES))

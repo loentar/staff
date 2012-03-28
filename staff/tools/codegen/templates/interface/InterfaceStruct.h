@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0)
+#ifeq($(Struct.Extern),false)
 \
 #var sNewOpeningNs $(Struct.OpeningNs)
 #var sNewEndningNs $(Struct.EndingNs)
@@ -13,7 +13,7 @@ $($sNewOpeningNs)
   /*! $(Struct.Detail) */
 #ifeqend
 #foreach $(Struct.Options)
-  // *$($ThisNodeName): $($ThisNodeValue)
+  // *$($ThisElementName): $($ThisElementValue)
 #end
   struct $(Struct.Name)\
 #ifneq($(Struct.ParentName),)
@@ -35,7 +35,7 @@ $($sNewOpeningNs)
 #var bHaveDefaults 0
 #foreach $(Struct.Members)
 #foreach $(Param.Options)
-    // *$($ThisNodeName): $($ThisNodeValue)
+    // *$($ThisElementName): $($ThisElementValue)
 #end
 #ifneq($(Param.Options.*defaultValue),)
 #var bHaveDefaults 1

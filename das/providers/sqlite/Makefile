@@ -6,7 +6,7 @@ LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
-LDFLAGS += -lpthread -lstaffsqlite3 -lrise -lstaffcommon -lstaffdascommon
+LDFLAGS += -lstaffutils -lstaffxml -lstaffsqlite3 -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

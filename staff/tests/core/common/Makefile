@@ -5,7 +5,7 @@ TARGETNAME = staff_test_$(TARGET)
 
 # == 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lpthread -lstaffcommon -lrise -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lstaffcommon -L$(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-	unset RISE_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
+  unset STAFF_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

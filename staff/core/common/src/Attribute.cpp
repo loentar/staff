@@ -68,15 +68,15 @@ namespace staff
   }
 
   Attribute::Attribute(const std::string& sLocalName, const char* szValue):
-      m_bOwner(true),
-      m_pDataObject(NULL)
+    m_bOwner(true),
+    m_pDataObject(NULL)
   {
     m_pAxiomAttribute = axiom_attribute_create(m_pEnv, sLocalName.c_str(), szValue, NULL);
   }
 
   Attribute::Attribute(const std::string& sLocalName, const std::string& sValue):
-      m_bOwner(true),
-      m_pDataObject(NULL)
+    m_bOwner(true),
+    m_pDataObject(NULL)
   {
     m_pAxiomAttribute = axiom_attribute_create(m_pEnv, sLocalName.c_str(), sValue.c_str(), NULL);
   }
@@ -99,41 +99,35 @@ namespace staff
 
   std::string Attribute::GetLocalName() const
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL, DomNoItemException, 
-      "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
-    axis2_char_t* szLocalName = axiom_attribute_get_localname(m_pAxiomAttribute, 
-      m_pEnv);
-    RISE_ASSERTES(szLocalName != NULL, DomNoItemException, "Can\'t get attribute name");
+    axis2_char_t* szLocalName = axiom_attribute_get_localname(m_pAxiomAttribute, m_pEnv);
+    STAFF_ASSERT(szLocalName, "Can\'t get attribute name");
     
     return szLocalName;
   }
 
   void Attribute::SetLocalName(const std::string& sLocalName)
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL, DomNoItemException,
-      "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
     axiom_attribute_set_localname(m_pAxiomAttribute, m_pEnv,
-                                   reinterpret_cast<const axis2_char_t*>(sLocalName.c_str()));
+                                  reinterpret_cast<const axis2_char_t*>(sLocalName.c_str()));
   }
 
   std::string Attribute::GetText() const
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
-    axis2_char_t* szText = axiom_attribute_get_value(m_pAxiomAttribute,
-      m_pEnv);
-    RISE_ASSERTES(szText != NULL, DomNoItemException, "Can\'t get attribute text");
+    axis2_char_t* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
+    STAFF_ASSERT_DOM(szText != NULL, "Can\'t get attribute text");
 
     return szText;
   }
 
   void Attribute::SetText(const std::string& sText)
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
     axiom_attribute_set_value(m_pAxiomAttribute, m_pEnv,
                               reinterpret_cast<const axis2_char_t*>(sText.c_str()));
@@ -141,20 +135,17 @@ namespace staff
 
   Value Attribute::GetValue() const
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
-    axis2_char_t* szValue = axiom_attribute_get_value(m_pAxiomAttribute, 
-      m_pEnv);
-    RISE_ASSERTES(szValue != NULL, DomNoItemException, "Can\'t get attribute text");
+    axis2_char_t* szValue = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
+    STAFF_ASSERT_DOM(szValue != NULL, "Can\'t get attribute text");
 
     return szValue;
   }
 
   void Attribute::SetValue(const Value& rValue)
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
     axiom_attribute_set_value(m_pAxiomAttribute, m_pEnv,
                               reinterpret_cast<const axis2_char_t*>(rValue.AsString().c_str()));
@@ -163,111 +154,111 @@ namespace staff
   // optimized get value functions
   bool Attribute::GetValue(bool& rbValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbValue);
   }
 
   bool Attribute::GetValue(byte& rbtValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbtValue);
   }
 
   bool Attribute::GetValue(int& rnValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rnValue);
   }
 
   bool Attribute::GetValue(short& rshValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rshValue);
   }
 
   bool Attribute::GetValue(long& rlValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rlValue);
   }
 
   bool Attribute::GetValue(long long& rllValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rllValue);
   }
 
   bool Attribute::GetValue(unsignedByte& rubtValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rubtValue);
   }
 
   bool Attribute::GetValue(unsigned int& runValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, runValue);
   }
 
   bool Attribute::GetValue(unsigned short& rushValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rushValue);
   }
 
   bool Attribute::GetValue(unsigned long& rulValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rulValue);
   }
 
   bool Attribute::GetValue(unsigned long long& rullValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rullValue);
   }
 
   bool Attribute::GetValue(float& rfValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rfValue);
   }
 
   bool Attribute::GetValue(double& rdValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTS(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rdValue);
   }
 
   void Attribute::GetValue(std::string& sValue) const
   {
-    RISE_ASSERTES(m_pAxiomAttribute != NULL, DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
     sValue = szText ? szText : "";
   }
@@ -275,11 +266,10 @@ namespace staff
 
   const QName Attribute::GetQName() const
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
     axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTES(pqName != NULL, DomNoItemException, "Can\'t get attribute\'s QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get attribute\'s QName");
     
     QName tqName(pqName);
     return tqName;
@@ -289,11 +279,10 @@ namespace staff
 
   QName Attribute::GetQName()
   {
-    RISE_ASSERTES(m_pDataObject != NULL && m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+    STAFF_ASSERT(m_pDataObject != NULL && m_pAxiomAttribute != NULL, "Not Initialized");
 
     axutil_qname_t* pqName = axiom_attribute_get_qname(m_pAxiomAttribute, m_pEnv);
-    RISE_ASSERTES(pqName != NULL, DomNoItemException, "Can\'t get attribute\'s QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get attribute\'s QName");
 
     QName tqName(pqName);
     return tqName;
@@ -310,9 +299,9 @@ namespace staff
 
   bool Attribute::operator==(const Attribute& rAttribute) const
   {
-    RISE_ASSERTES(m_pDataObject != NULL && rAttribute.m_pDataObject != NULL
+    STAFF_ASSERT(m_pDataObject != NULL && rAttribute.m_pDataObject != NULL
       && m_pAxiomAttribute != NULL && rAttribute.m_pAxiomAttribute != NULL,
-      DomNoItemException, "Not Initialized");
+      "Not Initialized");
 
     //! TODO: compare using AxiOM functions
     return GetLocalName() == rAttribute.GetLocalName() && 

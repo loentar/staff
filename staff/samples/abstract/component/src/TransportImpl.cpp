@@ -48,7 +48,7 @@ TransportInfo TransportImpl::GetTransport(TransportType eTransport)
   }
   else
   {
-    RISE_THROWS(staff::RemoteException, "Invalid transport: " + staff::ToString(eTransport));
+    STAFF_THROW(staff::RemoteException, "Invalid transport: " + staff::ToString(eTransport));
   }
 
   return tResult;  // result

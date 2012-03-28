@@ -24,12 +24,13 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 #include <iostream>
 #include <memory>
-#include <rise/string/String.h>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/console.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/console.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "CalcService.h"
@@ -41,24 +42,24 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // use anonymous account and instance "mycalc"
     std::auto_ptr< ::samples::calc::CalcService > pCalcService(staff::ServiceFactory::Inst().GetService< ::samples::calc::CalcService >("", "", "mycalc"));
 
-    RISE_ASSERTS(pCalcService.get(), "Cannot get client for service calc.CalcService!");
+    STAFF_ASSERT(pCalcService.get(), "Cannot get client for service calc.CalcService!");
 
     // Invoke Your service here:
-    rise::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
+    staff::LogInfo() << "1 + 2 = " << pCalcService->Add(1, 2);
 
-    rise::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
+    staff::LogInfo() << "3 - 1 = " << pCalcService->Sub(3, 1);
 
-    rise::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
+    staff::LogInfo() << "Saved service mem: " << pCalcService->GetMem();
 
     srand(static_cast<unsigned int>(time(NULL)));
     int nNewMem = rand() % 100;
 
-    rise::LogInfo() << "Setting mem: " << nNewMem;
+    staff::LogInfo() << "Setting mem: " << nNewMem;
     pCalcService->SetMem(nNewMem);
-    rise::LogInfo() << pCalcService->GetMem();
-    rise::LogInfo() << "Service mem: " << pCalcService->GetMem();
+    staff::LogInfo() << pCalcService->GetMem();
+    staff::LogInfo() << "Service mem: " << pCalcService->GetMem();
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

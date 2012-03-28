@@ -19,8 +19,8 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
-#include <rise/xml/XMLNode.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/xml/Element.h>
 #include <staff/common/DataObject.h>
 #include "ProviderFactory.h"
 #include "DataSourceFactory.h"
@@ -47,20 +47,20 @@ namespace das
     for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
          itProvider != rlsProviders.end(); ++itProvider)
     {
-      const rise::xml::CXMLNode& rConfigElem = itProvider->tConfig;
-      rise::xml::CXMLNode::TXMLNodeConstIterator itOnCreate = rConfigElem.FindSubnode("oncreate");
-      if (itOnCreate != rConfigElem.NodeEnd())
+      const xml::Element& rConfigElem = itProvider->tConfig;
+      const xml::Element* pOnCreate = rConfigElem.FindChildElementByName("oncreate");
+      if (pOnCreate)
       {
-        rise::xml::CXMLNode::TXMLNodeConstIterator itScript = itOnCreate->FindSubnode("script");
-        if (itScript == itOnCreate->NodeEnd())
+        const xml::Element* pScript = pOnCreate->FindChildElementByName("script");
+        if (!pScript)
         {
-          itScript = itOnCreate->FindSubnode("execute");
+          pScript = pOnCreate->FindChildElementByName("execute");
         }
 
-        if (itScript != itOnCreate->NodeEnd())
+        if (pScript)
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
-          tScriptExecuter.Process(*itScript);
+          tScriptExecuter.Process(*pScript);
         }
       }
     }
@@ -68,27 +68,27 @@ namespace das
 
   void ProviderService::OnDestroy()
   {
-    RISE_ASSERTS(m_pDataSource, "Not initialized");
+    STAFF_ASSERT(m_pDataSource, "Not initialized");
 
     const ProvidersInfoList& rlsProviders = m_pDataSource->GetProviders();
 
     for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
          itProvider != rlsProviders.end(); ++itProvider)
     {
-      const rise::xml::CXMLNode& rConfigElem = itProvider->tConfig;
-      rise::xml::CXMLNode::TXMLNodeConstIterator itOnDestroy = rConfigElem.FindSubnode("ondestroy");
-      if (itOnDestroy != rConfigElem.NodeEnd())
+      const xml::Element& rConfigElem = itProvider->tConfig;
+      const xml::Element* pOnDestroy = rConfigElem.FindChildElementByName("ondestroy");
+      if (pOnDestroy)
       {
-        rise::xml::CXMLNode::TXMLNodeConstIterator itScript = itOnDestroy->FindSubnode("script");
-        if (itScript == itOnDestroy->NodeEnd())
+        const xml::Element* pScript = pOnDestroy->FindChildElementByName("script");
+        if (!pScript)
         {
-          itScript = itOnDestroy->FindSubnode("execute");
+          pScript = pOnDestroy->FindChildElementByName("execute");
         }
 
-        if (itScript != itOnDestroy->NodeEnd())
+        if (pScript)
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
-          tScriptExecuter.Process(*itScript);
+          tScriptExecuter.Process(*pScript);
         }
       }
     }
@@ -96,7 +96,7 @@ namespace das
 
   void ProviderService::Invoke(const DataObject& rdoOperation, DataObject& rdoResult)
   {
-    RISE_ASSERTS(m_pDataSource, "Not initialized");
+    STAFF_ASSERT(m_pDataSource, "Not initialized");
 
     ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
     tScriptExecuter.Process(rdoOperation, rdoResult);
@@ -106,7 +106,7 @@ namespace das
   {
     if (m_stProviders.mProviders.empty())
     {
-      RISE_ASSERTS(m_pDataSource, "Not initialized");
+      STAFF_ASSERT(m_pDataSource, "Not initialized");
 
       const ProvidersInfoList& rlsProviders = m_pDataSource->GetProviders();
 

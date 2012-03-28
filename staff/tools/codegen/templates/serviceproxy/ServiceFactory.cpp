@@ -2,9 +2,9 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/SharedPtr.h>
-#include <rise/plugin/PluginExport.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/PluginExport.h>
 #include <staff/common/IService.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.FilePath)$(Interface.Name)Proxy.h"
@@ -40,7 +40,7 @@ $(Project.OpeningNs)
 #end
 #end
     {
-      RISE_THROWS(rise::CLogicNoItemException, "Service [" + sServiceNsName + "] is not registered");
+      STAFF_THROW_ASSERT("Service [" + sServiceNsName + "] is not registered");
     }
   }
 
@@ -57,7 +57,7 @@ $(Project.OpeningNs)
 #end
 #end
     {
-      RISE_THROWS(rise::CLogicNoItemException, "Service [" + sServiceNsName + "] is not registered");
+      STAFF_THROW_ASSERT("Service [" + sServiceNsName + "] is not registered");
     }
   }
 

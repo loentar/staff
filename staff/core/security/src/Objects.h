@@ -123,11 +123,6 @@ namespace staff
       Objects& operator=(const Objects&);
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(ObjectsList) typedef ObjectsList TObjectList;
-    STAFF_DEPRECATED(Object) typedef Object SObject;
-    STAFF_DEPRECATED(Objects) typedef Objects CObjects;
-#endif
   }
 }
 

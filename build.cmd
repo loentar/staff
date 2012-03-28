@@ -71,14 +71,7 @@ echo %build%ing log... >%buildlog%
 if %VSVERSION% equ 2005 goto skip_upgrade
 
   rem Upgrading solutions for Visual Studio
-  cd rise
-  devenv /upgrade rise.sln >%buildlog%
-  if %ERRORLEVEL% gtr 0 (
-    echo Failed to upgrade solution rise.sln >&2
-    echo Please see build.log >&2
-    goto errexit
-  )
-  cd ..\staff
+  cd staff
   devenv /upgrade staff.sln >%buildlog%
   if %ERRORLEVEL% gtr 0 (
     echo Failed to upgrade solution staff.sln >&2
@@ -101,21 +94,6 @@ echo %build%ing %target% version...
 
 rem VS target
 set ConfigurationName=target
-
-rem ========== rise ===========
-
-echo %build%ing rise...
-echo %build%ing rise... >>%buildlog%
-cd rise
-
-devenv /%build% %target% rise.sln >>%buildlog%
-if %ERRORLEVEL% gtr 0 (
-    echo Error while building rise >&2
-    echo Please see build.log >&2
-    goto errexit
-)
-
-echo rise %build%ing complete
 
 rem ========== staff ===========
 

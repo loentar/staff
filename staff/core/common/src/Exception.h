@@ -19,99 +19,53 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _STAFF_EXCEPTION_H_
-#define _STAFF_EXCEPTION_H_
+#ifndef _STAFF_COMMON_EXCEPTION_H_
+#define _STAFF_COMMON_EXCEPTION_H_
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/excodes.h>
+#include <staff/utils/Exception.h>
 #include "staffcommonexport.h"
+
+//! assert expression and generate DOM exception
+#define STAFF_ASSERT_DOM(EXPRESSION, DESCRIPTION) \
+  if (!(EXPRESSION)) STAFF_THROW(::staff::DomException, DESCRIPTION)
+
+//! assert expression and generate remote exception
+#define STAFF_ASSERT_REMOTE(EXPRESSION, DESCRIPTION) \
+  if (!(EXPRESSION)) STAFF_THROW(::staff::RemoteException, DESCRIPTION)
+
 
 namespace staff
 {
-  //! exception class
-  enum EXCLASS
-  {
-    EXCFIRST = rise::EXCLAST, //!<  first used
-    EXCDOM,                   //!<  DOM exception
-    EXCREMOTE                 //!<  remote exception
-  };
 
-  //! exception code
-  enum EXCODE
-  {
-    EXFIRST = rise::EXTEMPDECISION,  //!<  first used
-    EXPARAM,                         //!<  invalid param
-    EXTYPE,                          //!<  invalid type
-    EXNOITEM,                        //!<  item is not found
-    EXFORMAT,                        //!<  invalid format
-    EXINTERNAL                       //!<  internal
-  };
-
-  //! basic exception for DOM exceptions
-  class STAFF_COMMON_EXPORT DomException: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCDOM))>
+  //! remote exception class
+  class RemoteException: public Exception
   {
   public:
-    virtual ~DomException() throw();
+    //! exception constructor
+    /*! \param  szFileLine - source file name and line number
+        \param  szFunction - function signature
+        \param  sDescr - description
+      */
+    inline RemoteException(const char* szFileLine, const char* szFunction, const std::string& sDescr):
+      Exception(szFileLine, szFunction, sDescr)
+    {
+    }
   };
 
-
-  //! template DOM exception 
-  template<EXCODE CODE>
-  class DomExceptionTemplate: public DomException
+  class DomException: public Exception
   {
   public:
-    //!         get exception code
-    /*! \return exception code
-    */
-    rise::EXCODE GetCode() const throw() { return static_cast<rise::EXCODE>(static_cast<int>(CODE)); }  
+    //! exception constructor
+    /*! \param  szFileLine - source file name and line number
+        \param  szFunction - function signature
+        \param  sDescr - description
+      */
+    inline DomException(const char* szFileLine, const char* szFunction, const std::string& sDescr):
+      Exception(szFileLine, szFunction, sDescr)
+    {
+    }
   };
-
-
-  //! basic exception for remote exceptions
-  class STAFF_COMMON_EXPORT RemoteExceptionBase: public rise::CExceptionTemplate<static_cast<rise::EXCLASS>(static_cast<int>(EXCREMOTE))>
-  {
-  public:
-    virtual ~RemoteExceptionBase() throw();
-  };
-
-
-  //! template remote exception
-  template<EXCODE CODE>
-  class RemoteExceptionTemplate: public RemoteExceptionBase
-  {
-  public:
-    //!         get exception code
-    /*! \return exception code
-    */
-    rise::EXCODE GetCode() const throw() { return static_cast<rise::EXCODE>(static_cast<int>(CODE)); }  
-  };
-
-  //! invalid param
-  typedef DomExceptionTemplate<EXPARAM> DomParamException;
-  //! invalid type
-  typedef DomExceptionTemplate<EXTYPE> DomTypeException;
-  //! item is not found
-  typedef DomExceptionTemplate<EXNOITEM> DomNoItemException;
-  //! invalid format
-  typedef DomExceptionTemplate<EXFORMAT> DomFormatException;
-  //! internal
-  typedef DomExceptionTemplate<EXINTERNAL> DomInternalException;
-
-  //! DOM exception
-  typedef RemoteExceptionTemplate<EXINTERNAL> RemoteException;
-  //! remote exception
-  typedef RemoteExceptionTemplate<EXINTERNAL> RemoteInternalException;
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(DomParamException) typedef DomParamException CDomParamException;
-  STAFF_DEPRECATED(DomTypeException) typedef DomTypeException CDomTypeException;
-  STAFF_DEPRECATED(DomNoItemException) typedef DomNoItemException CDomNoItemException;
-  STAFF_DEPRECATED(DomFormatException) typedef DomFormatException CDomFormatException;
-  STAFF_DEPRECATED(DomInternalException) typedef DomInternalException CDomInternalException;
-  STAFF_DEPRECATED(RemoteException) typedef RemoteException CRemoteException;
-  STAFF_DEPRECATED(RemoteInternalException) typedef RemoteInternalException CRemoteInternalException;
-#endif
 
 }
 
-#endif // _STAFF_EXCEPTION_H_
+#endif // _STAFF_COMMON_EXCEPTION_H_

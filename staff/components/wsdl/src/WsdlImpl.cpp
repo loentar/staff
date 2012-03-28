@@ -4,8 +4,9 @@
 
 #include <fstream>
 #include <sstream>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/File.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/Operation.h>
 #include <staff/common/Attribute.h>
@@ -22,15 +23,15 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, Oper
   const std::string& sHost = rOperation.GetMessageContext().GetPropertyValue("HttpHost");
 
   // check filename
-  RISE_ASSERTS(sFile.find_first_of("/\\") == std::string::npos, "Invalid filename");
-  RISE_ASSERTS(sComponent.find_first_of("/\\") == std::string::npos, "Invalid component");
+  STAFF_ASSERT(sFile.find_first_of("/\\") == std::string::npos, "Invalid filename");
+  STAFF_ASSERT(sComponent.find_first_of("/\\") == std::string::npos, "Invalid component");
 
   // path to file
   const std::string& sFilePath = staff::Runtime::Inst().GetComponentHome(sComponent) +
-                                     RISE_PATH_SEPARATOR + sFile;
+                                     STAFF_PATH_SEPARATOR + sFile;
 
   std::ifstream ifsWsdlFile(sFilePath.c_str());
-  RISE_ASSERTS(ifsWsdlFile.good(), "Can't open [" + sFilePath + "]");
+  STAFF_ASSERT(ifsWsdlFile.good(), "Can't open [" + sFilePath + "]");
 
   staff::DataObject tdoWsdl;
 
@@ -72,12 +73,12 @@ void WsdlImpl::Get(const std::string& sComponent, const std::string& sFile, Oper
               }
               else
               {
-                rise::LogWarning() << "Can't find host end in wsdl";
+                LogWarning() << "Can't find host end in wsdl";
               }
             }
             else
             {
-              rise::LogWarning() << "Can't find protocol specification in wsdl";
+              LogWarning() << "Can't find protocol specification in wsdl";
             }
 
           }

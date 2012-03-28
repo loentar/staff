@@ -1,4 +1,4 @@
-#ifeq($(Enum.Extern),0)
+#ifeq($(Enum.Extern),false)
 \
 #ifneq($(Enum.Description),)
 // $(Enum.Description)
