@@ -22,6 +22,9 @@
 #ifdef WIN32
 #include <Windows.h>
 #else
+#if defined __APPLE__
+#include <libkern/OSAtomic.h>
+#else
 #if !defined _XOPEN_SOURCE || (_XOPEN_SOURCE - 0) < 600
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
@@ -29,6 +32,7 @@
 #include <pthread.h>
 #endif
 #include "Mutex.h"
+#endif
 
 namespace staff
 {
@@ -38,7 +42,15 @@ namespace staff
 #ifdef WIN32
     HANDLE hMutex; //!< mutex handle
 #else
+#ifdef __APPLE__
+    OSSpinLock hMutex; //!< mutex handle
+
+    MutexImpl():
+      hMutex(0)
+    {}
+#else
     pthread_spinlock_t hMutex; //!< mutex handle
+#endif
 #endif
   };
 
@@ -48,7 +60,7 @@ namespace staff
   {
 #ifdef WIN32
     m_pImpl->hMutex = CreateMutex(NULL, FALSE, NULL);
-#else
+#elif !defined __APPLE__
     pthread_spin_init(&m_pImpl->hMutex, 0);
 #endif
   }
@@ -57,7 +69,7 @@ namespace staff
   {
 #ifdef WIN32
     CloseHandle(m_pImpl->hMutex)
-#else
+#elif !defined __APPLE__
     pthread_spin_destroy(&m_pImpl->hMutex);
 #endif
     delete m_pImpl;
@@ -68,7 +80,11 @@ namespace staff
 #ifdef WIN32
     WaitForSingleObject(m_pImpl->hMutex, INFINITE);
 #else
+#ifdef __APPLE__
+    OSSpinLockLock(&m_pImpl->hMutex);
+#else
     pthread_spin_lock(&m_pImpl->hMutex);
+#endif
 #endif
   }
 
@@ -77,7 +93,11 @@ namespace staff
 #ifdef WIN32
     ReleaseMutex(m_pImpl->hMutex);
 #else
+#ifdef __APPLE__
+    OSSpinLockUnlock(&m_pImpl->hMutex);
+#else
     pthread_spin_unlock(&m_pImpl->hMutex);
+#endif
 #endif
   }
 
@@ -86,7 +106,11 @@ namespace staff
 #ifdef WIN32
     return WaitForSingleObject(m_pImpl->hMutex, 0) == WAIT_OBJECT_0;
 #else
+#ifdef __APPLE__
+    return OSSpinLockTry(&m_pImpl->hMutex);
+#else
     return !pthread_spin_trylock(&m_pImpl->hMutex);
+#endif
 #endif
   }
 
