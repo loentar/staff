@@ -26,17 +26,14 @@
 #include <map>
 #include <string>
 
-namespace rise
-{
-  template<typename Type> class CMutablePtr;
-}
-
 namespace staff
 {
   class ServiceWrapper;
 
+  template<typename Type> class SharedPtr;
+
   //! Pointer to service wrapper
-  typedef rise::CMutablePtr<ServiceWrapper> PServiceWrapper;
+  typedef SharedPtr<ServiceWrapper> PServiceWrapper;
 
   //! Service wrappers map
   typedef std::map<std::string, PServiceWrapper> ServiceWrapperMap;
@@ -46,33 +43,33 @@ namespace staff
   class STAFF_COMPONENT_EXPORT Component
   {
   public:
-    //!        destructor
+    //! destructor
     virtual ~Component();
 
-    //!         get component name
+    //! get component name
     /*! \return component name
     */
     virtual const std::string& GetName() const = 0;
 
-    //!         get service with given name
+    //! get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
     const ServiceWrapper* GetService(const std::string& sService) const;
 
-    //!         get service with given name
+    //! get service with given name
     /*! \param  sService - service name
         \return pointer to service or NULL, if no service found
         */
     ServiceWrapper* GetService(const std::string& sService);
 
-    //!         get component's services map
+    //! get component's services map
     /*! \return component's services map
         */
     const ServiceWrapperMap& GetServices() const;
 
   protected:
-    //!         register new service in component
+    //! register new service in component
     /*! \param  sService - full service name
         \param  pWrapper - service wrapper
         */
@@ -81,10 +78,6 @@ namespace staff
   private:
     ServiceWrapperMap m_mServices;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Component) typedef Component CComponent;
-#endif
 
 }
 

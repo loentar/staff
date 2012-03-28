@@ -3,7 +3,7 @@ include ../../../../Makefile.env
 TARGET = staff_test_regress_$(notdir $(patsubst %/,%,$(dir $(CURDIR))))
 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lstaffclient -lrise -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lstaffclient -L$(DEPLOYDIR)$(LIBDIR)
 
 .PHONY: test
 .NOTPARALLEL: $(CODEGEN_FILES)

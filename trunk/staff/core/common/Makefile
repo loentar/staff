@@ -2,11 +2,11 @@ include ../../Makefile.env
 
 TARGET = common
 
-CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_COMMON_DLL_EXPORTS=1 -DAXIS2_DECLARE_EXPORT
 endif
-LDFLAGS += -lrise -laxutil -laxis2_engine
+LDFLAGS += -lstaffutils -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
 else

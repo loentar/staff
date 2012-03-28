@@ -20,10 +20,12 @@
  */
 
 #include <list>
-#include <rise/xml/XMLDocument.h>
-#include <rise/xml/XMLNode.h>
-#include <rise/string/String.h>
-#include <rise/common/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Exception.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/Element.h>
 #include <staff/codegen/Interface.h>
 #include "XmlGen.h"
 
@@ -31,57 +33,50 @@ namespace staff
 {
 namespace codegen
 {
-  using rise::xml::CXMLNode;
 
-  std::ostream& operator<<( std::ostream& rStream, const DataType::Type eDataType )
+  std::string TypeToString(const DataType::Type eType)
   {
-    switch (eDataType)
+    switch (eType)
     {
     case DataType::TypeGeneric:
-      rStream << "generic";
-      break;
+      return "generic";
 
     case DataType::TypeString:
-      rStream << "string";
-      break;
+      return "string";
 
     case DataType::TypeDataObject:
-      rStream << "dataobject";
-      break;
+      return "dataobject";
 
     case DataType::TypeEnum:
-      rStream << "enum";
-      break;
+      return "enum";
 
     case DataType::TypeStruct:
-      rStream << "struct";
-      break;
+      return "struct";
 
     case DataType::TypeTypedef:
-      rStream << "typedef";
-      break;
+      return "typedef";
 
     case DataType::TypeTemplate:
-      rStream << "template";
-      break;
+      return "template";
 
     default:
-      rStream << "unknown";
+      return "unknown";
     }
-
-    return rStream;
   }
 
 
   template<typename Type>
-  CXMLNode& operator<<(CXMLNode& rStream, const std::list<Type>& rList)
+  xml::Element& operator<<(xml::Element& rStream, const std::list<Type>& rList)
   {
     for(typename std::list<Type>::const_iterator it = rList.begin(); it != rList.end(); ++it)
+    {
       rStream << *it;
+    }
     return rStream;
   }
 
-  bool GetDataType(std::string& sOut, const DataType& rDataType, bool bAsUsed = false, bool bNoModifiers = false)
+  bool GetDataType(std::string& sOut, const DataType& rDataType, bool bAsUsed = false,
+                   bool bNoModifiers = false)
   {
     if (!bNoModifiers && rDataType.bIsConst)
     {
@@ -153,7 +148,7 @@ namespace codegen
     return true;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeDataTypes, const DataType& rDataType)
+  xml::Element& operator<<(xml::Element& rNodeDataTypes, const DataType& rDataType)
   {
     std::string sUsedTypedef;
     GetDataType(sUsedTypedef, rDataType, true);
@@ -161,133 +156,139 @@ namespace codegen
     std::string sNsName;
     GetDataType(sNsName, rDataType, false, true);
 
-    rNodeDataTypes.AddSubNode(" Is const ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["IsConst"] = rDataType.bIsConst;
-    rNodeDataTypes.AddSubNode(" Is reference ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["IsRef"] = rDataType.bIsRef;
-    rNodeDataTypes.AddSubNode(" Type name as used ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["UsedName"] = !rDataType.sUsedName.empty() ? rDataType.sUsedName : sUsedTypedef;
-    rNodeDataTypes.AddSubNode(" Type name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["Name"] = rDataType.sName;
-    rNodeDataTypes.AddSubNode(" Type ns name ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["NsName"] = sNsName;
-    rNodeDataTypes.AddSubNode(" Type namespace ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["Namespace"] = rDataType.sNamespace;
-    rNodeDataTypes.AddSubNode(" Type ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["Type"] = rDataType.eType;
+    std::string sType;
+    GetDataType(sType, rDataType);
+    rNodeDataTypes.SetValue(sType);
 
-    rNodeDataTypes.AddSubNode(" Used typedef ", CXMLNode::ENTCOMMENT);
-    rNodeDataTypes["UsedTypedef"] = sUsedTypedef;
+    rNodeDataTypes.CreateChildComment(" Is const ");
+    rNodeDataTypes.CreateChildElement("IsConst", rDataType.bIsConst);
+    rNodeDataTypes.CreateChildComment(" Is reference ");
+    rNodeDataTypes.CreateChildElement("IsRef", rDataType.bIsRef);
+    rNodeDataTypes.CreateChildComment(" Type name as used ");
+    rNodeDataTypes.CreateChildElement("UsedName", !rDataType.sUsedName.empty()
+                                      ? rDataType.sUsedName : sUsedTypedef);
+    rNodeDataTypes.CreateChildComment(" Type name ");
+    rNodeDataTypes.CreateChildElement("Name", rDataType.sName);
+    rNodeDataTypes.CreateChildComment(" Type ns name ");
+    rNodeDataTypes.CreateChildElement("NsName", sNsName);
+    rNodeDataTypes.CreateChildComment(" Type namespace ");
+    rNodeDataTypes.CreateChildElement("Namespace", rDataType.sNamespace);
+    rNodeDataTypes.CreateChildComment(" Type ");
+    rNodeDataTypes.CreateChildElement("Type", TypeToString(rDataType.eType));
 
-    rNodeDataTypes.NodeContent() = "";
-    GetDataType(rNodeDataTypes.NodeContent().AsString(), rDataType);
+    rNodeDataTypes.CreateChildComment(" Used typedef ");
+    rNodeDataTypes.CreateChildElement("UsedTypedef", sUsedTypedef);
 
-    rNodeDataTypes.AddSubNode(" Template params ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeTemplateParams = rNodeDataTypes.AddSubNode("TemplateParams");
+    rNodeDataTypes.CreateChildComment(" Template params ");
+    xml::Element& rNodeTemplateParams = rNodeDataTypes.CreateChildElement("TemplateParams");
     int nNum = 1;
     for(std::list<DataType>::const_iterator it = rDataType.lsParams.begin();
         it != rDataType.lsParams.end(); ++it, ++nNum)
     {
-      rNodeTemplateParams.AddSubNode("TemplateParam" + rise::ToStr(nNum)) << *it;
+      rNodeTemplateParams.CreateChildElement("TemplateParam" + ToString(nNum)) << *it;
     }
 
     if (rDataType.eType == DataType::TypeUnknown)
     {
-      rise::LogWarning() << "Unknown datatype: " << (rDataType.sNamespace + rDataType.sName);
+      LogWarning() << "Unknown datatype: " << (rDataType.sNamespace + rDataType.sName);
     }
 
     return rNodeDataTypes;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeParams, const Param& rParam)
+  xml::Element& operator<<(xml::Element& rNodeParams, const Param& rParam)
   {
     if (rParam.sName.size() != 0 && rParam.stDataType.sName != "void")
     {
-      rNodeParams.AddSubNode(" Parameter ", CXMLNode::ENTCOMMENT);
-      CXMLNode& rNodeParam = rNodeParams.AddSubNode("Param");
+      rNodeParams.CreateChildComment(" Parameter ");
+      xml::Element& rNodeParam = rNodeParams.CreateChildElement("Param", "");
 
-      rNodeParam.AddSubNode(" Parameter name ", CXMLNode::ENTCOMMENT);
-      rNodeParam["Name"] = rParam.sName;
-      rNodeParam.AddSubNode(" Parameter description ", CXMLNode::ENTCOMMENT);
-      rNodeParam["Description"] = rParam.sDescr;
-      rNodeParam.AddSubNode(" Detailed parameter description ", CXMLNode::ENTCOMMENT);
-      rNodeParam["Detail"] = rParam.sDetail;
-      rNodeParam.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-      CXMLNode& rNodeOptions = rNodeParam.AddSubNode("Options");
+      rNodeParam.CreateChildComment(" Parameter name ");
+      rNodeParam.CreateChildElement("Name", rParam.sName);
+      rNodeParam.CreateChildComment(" Parameter description ");
+      rNodeParam.CreateChildElement("Description", rParam.sDescr);
+      rNodeParam.CreateChildComment(" Detailed parameter description ");
+      rNodeParam.CreateChildElement("Detail", rParam.sDetail);
+      rNodeParam.CreateChildComment(" Options ");
+      xml::Element& rNodeOptions = rNodeParam.CreateChildElement("Options");
 
       for (StringMap::const_iterator itOption = rParam.mOptions.begin();
           itOption != rParam.mOptions.end(); ++itOption)
       {
-        rNodeOptions[itOption->first] = itOption->second;
+        rNodeOptions.CreateChildElement(itOption->first, itOption->second);
       }
-      rNodeParam.AddSubNode(" Parameter type ", CXMLNode::ENTCOMMENT);
-      rNodeParam.AddSubNode("DataType") << rParam.stDataType;
+      rNodeParam.CreateChildComment(" Parameter type ");
+      rNodeParam.CreateChildElement("DataType") << rParam.stDataType;
 
-      if (rNodeParams.NodeContent() != "")
-        rNodeParams.NodeContent().AsString() += ", ";
+      std::string sValue = rNodeParams.GetValue();
+      if (!sValue.empty())
+      {
+        sValue += ", ";
+      }
 
-      GetDataType(rNodeParams.NodeContent().AsString(), rParam.stDataType, true);
-      rNodeParams.NodeContent().AsString() += " " + rParam.sName;
+      GetDataType(sValue, rParam.stDataType, true);
+      sValue += " " + rParam.sName;
+      rNodeParams.SetValue(sValue);
     }
 
     return rNodeParams;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeMembers, const Member& rMember)
+  xml::Element& operator<<(xml::Element& rNodeMembers, const Member& rMember)
   {
-    rNodeMembers.AddSubNode(" Operation ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeMember = rNodeMembers.AddSubNode("Member");
+    rNodeMembers.CreateChildComment(" Operation ");
+    xml::Element& rNodeMember = rNodeMembers.CreateChildElement("Member");
 
-    rNodeMember.AddSubNode(" Operation name ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Name"] = rMember.sName;
-    rNodeMember.AddSubNode(" Operation description ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Description"] = rMember.sDescr;
-    rNodeMember.AddSubNode(" Operation detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Detail"] = rMember.sDetail;
+    rNodeMember.CreateChildComment(" Operation name ");
+    rNodeMember.CreateChildElement("Name", rMember.sName);
+    rNodeMember.CreateChildComment(" Operation description ");
+    rNodeMember.CreateChildElement("Description", rMember.sDescr);
+    rNodeMember.CreateChildComment(" Operation detailed description ");
+    rNodeMember.CreateChildElement("Detail", rMember.sDetail);
 
-    rNodeMember.AddSubNode(" Function is non-mutable ", CXMLNode::ENTCOMMENT);
-    rNodeMember["IsConst"] = rMember.bIsConst;
-    rNodeMember["Const"] = rMember.bIsConst ? " const" : "";
-    rNodeMember.AddSubNode(" Function is asynchronous ", CXMLNode::ENTCOMMENT);
-    rNodeMember["IsAsynch"] = rMember.bIsAsynch;
+    rNodeMember.CreateChildComment(" Function is non-mutable ");
+    rNodeMember.CreateChildElement("IsConst", rMember.bIsConst);
+    rNodeMember.CreateChildElement("Const", rMember.bIsConst ? " const" : "");
+    rNodeMember.CreateChildComment(" Function is asynchronous ");
+    rNodeMember.CreateChildElement("IsAsynch", rMember.bIsAsynch);
 
-    rNodeMembers.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeMember.AddSubNode("Options");
+    rNodeMembers.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeMember.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rMember.mOptions.begin();
         itOption != rMember.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
-    rNodeMember.AddSubNode("Params") << rMember.lsParams;
+    rNodeMember.CreateChildElement("Params", "") << rMember.lsParams;
 
-    rNodeMember.AddSubNode(" Return ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeReturn = rNodeMember.AddSubNode("Return");
+    rNodeMember.CreateChildComment(" Return ");
+    xml::Element& rNodeReturn = rNodeMember.CreateChildElement("Return");
     rNodeReturn << rMember.stReturn.stDataType;
-    rNodeReturn.AddSubNode(" Response Name ", CXMLNode::ENTCOMMENT);
-    rNodeReturn["ResponseName"] = rMember.stReturn.sName;
+    rNodeReturn.CreateChildComment(" Response Name ");
+    rNodeReturn.CreateChildElement("ResponseName", rMember.stReturn.sName);
 
     return rNodeMembers;
   }
 
 
-  CXMLNode& operator<<(CXMLNode& rNodeEnumMembers, const Enum::EnumMember& rEnumMember)
+  xml::Element& operator<<(xml::Element& rNodeEnumMembers, const Enum::EnumMember& rEnumMember)
   {
-    rNodeEnumMembers.AddSubNode(" Enum members ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeMember = rNodeEnumMembers.AddSubNode("Member");
+    rNodeEnumMembers.CreateChildComment(" Enum members ");
+    xml::Element& rNodeMember = rNodeEnumMembers.CreateChildElement("Member");
 
-    rNodeMember.AddSubNode(" Operation name ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Name"] = rEnumMember.sName;
-    rNodeMember.AddSubNode(" Value ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Value"] = rEnumMember.sValue;
-    rNodeMember.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
-    rNodeMember["Description"] = rEnumMember.sDescr;
+    rNodeMember.CreateChildComment(" Operation name ");
+    rNodeMember.CreateChildElement("Name", rEnumMember.sName);
+    rNodeMember.CreateChildComment(" Value ");
+    rNodeMember.CreateChildElement("Value", rEnumMember.sValue);
+    rNodeMember.CreateChildComment(" Description ");
+    rNodeMember.CreateChildElement("Description", rEnumMember.sDescr);
 
     return rNodeEnumMembers;
   }
 
-  void WriteCppNamespace(CXMLNode& rNode, const std::string& sNamespace)
+  void WriteCppNamespace(xml::Element& rNode, const std::string& sNamespace)
   {
     std::string sRealNamespace =
       (sNamespace.substr(0, 2) == "::") ? sNamespace.substr(2) : sNamespace;
@@ -304,285 +305,286 @@ namespace codegen
       nPrevPos = nPos;
     }
 
-    rNode.AddSubNode(" Opening namespace ", CXMLNode::ENTCOMMENT);
-    rNode["OpeningNs"] = sOpeningNs;
-    rNode.AddSubNode(" Closing namespace ", CXMLNode::ENTCOMMENT);
-    rNode["EndingNs"] = sEndingNs;
+    rNode.CreateChildComment(" Opening namespace ");
+    rNode.CreateChildElement("OpeningNs", sOpeningNs);
+    rNode.CreateChildComment(" Closing namespace ");
+    rNode.CreateChildElement("EndingNs", sEndingNs);
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeClasses, const Class& rClass)
+  xml::Element& operator<<(xml::Element& rNodeClasses, const Class& rClass)
   {
-    CXMLNode& rNodeClass = rNodeClasses.AddSubNode("Class");
+    xml::Element& rNodeClass = rNodeClasses.CreateChildElement("Class");
     std::string sServiceName =
       (((rClass.sName[0] == 'C' || rClass.sName[0] == 'I') && (toupper(rClass.sName[1]) == rClass.sName[1]))
           ? rClass.sName.substr(1) : rClass.sName);
 
     std::string sServiceNamespace = (rClass.sNamespace.substr(0, 2) == "::") ?
                                     rClass.sNamespace.substr(2) : rClass.sNamespace;
-    rise::StrReplace(sServiceNamespace, "::", ".", true);
+    StringReplace(sServiceNamespace, "::", ".", true);
 
     std::string sServiceNsName = sServiceNamespace + sServiceName;
 
-    rNodeClass.AddSubNode(" Service class name ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Name"] = rClass.sName;
-    rNodeClass.AddSubNode(" Service class namespace ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Namespace"] = rClass.sNamespace;
-    rNodeClass.AddSubNode(" Service class name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeClass["NsName"] = rClass.sNamespace + rClass.sName;
-    rNodeClass.AddSubNode(" Service name ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ServiceName"] = sServiceName;
-    rNodeClass.AddSubNode(" Service name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ServiceNsName"] = sServiceNsName;
-    rNodeClass.AddSubNode(" Service namespace ", CXMLNode::ENTCOMMENT);
-    rNodeClass["ServiceNamespace"] = sServiceNamespace;
-    rNodeClass.AddSubNode(" Service description ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Description"] = rClass.sDescr;
-    rNodeClass.AddSubNode(" Service detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeClass["Detail"] = rClass.sDetail;
+    rNodeClass.CreateChildComment(" Service class name ");
+    rNodeClass.CreateChildElement("Name", rClass.sName);
+    rNodeClass.CreateChildComment(" Service class namespace ");
+    rNodeClass.CreateChildElement("Namespace", rClass.sNamespace);
+    rNodeClass.CreateChildComment(" Service class name with namespace ");
+    rNodeClass.CreateChildElement("NsName", rClass.sNamespace + rClass.sName);
+    rNodeClass.CreateChildComment(" Service name ");
+    rNodeClass.CreateChildElement("ServiceName", sServiceName);
+    rNodeClass.CreateChildComment(" Service name with namespace ");
+    rNodeClass.CreateChildElement("ServiceNsName", sServiceNsName);
+    rNodeClass.CreateChildComment(" Service namespace ");
+    rNodeClass.CreateChildElement("ServiceNamespace", sServiceNamespace);
+    rNodeClass.CreateChildComment(" Service description ");
+    rNodeClass.CreateChildElement("Description", rClass.sDescr);
+    rNodeClass.CreateChildComment(" Service detailed description ");
+    rNodeClass.CreateChildElement("Detail", rClass.sDetail);
 
-    rNodeClass.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeClass.AddSubNode("Options");
+    rNodeClass.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeClass.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rClass.mOptions.begin();
         itOption != rClass.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
-    rNodeClass.AddSubNode(" Axis2/c modules to engage ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeModules = rNodeClass.AddSubNode("Modules");
+    rNodeClass.CreateChildComment(" Axis2/c modules to engage ");
+    xml::Element& rNodeModules = rNodeClass.CreateChildElement("Modules");
 
     for (StringList::const_iterator itModule = rClass.lsModules.begin();
         itModule != rClass.lsModules.end(); ++itModule)
     {
-      rNodeModules["Module"] = *itModule;
+      rNodeModules.CreateChildElement("Module", *itModule);
     }
 
-    rNodeClass.AddSubNode(" Service operations ", CXMLNode::ENTCOMMENT);
-    rNodeClass.AddSubNode("Members") << rClass.lsMembers;
+    rNodeClass.CreateChildComment(" Service operations ");
+    rNodeClass.CreateChildElement("Members") << rClass.lsMembers;
 
     WriteCppNamespace(rNodeClass, rClass.sNamespace);
 
     return rNodeClasses;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeEnums, const Enum& rEnum)
+  xml::Element& operator<<(xml::Element& rNodeEnums, const Enum& rEnum)
   {
-    RISE_ASSERTS(!rEnum.bForward || rEnum.bExtern,
+    STAFF_ASSERT(!rEnum.bForward || rEnum.bExtern,
                 "Enum \"" + rEnum.sName + "\" is not fully declared");
 
-    CXMLNode& rNodeEnum = rNodeEnums.AddSubNode("Enum");
+    xml::Element& rNodeEnum = rNodeEnums.CreateChildElement("Enum");
 
-    rNodeEnum.AddSubNode(" Enum name ", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Name"] = rEnum.sName;
-    rNodeEnum.AddSubNode(" Enum name with namespace", CXMLNode::ENTCOMMENT);
-    rNodeEnum["NsName"] = rEnum.sNamespace + (rEnum.sOwnerName.empty() ? "" : (rEnum.sOwnerName + "::"))
-                          + rEnum.sName;
-    rNodeEnum.AddSubNode(" Enum namespace", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Namespace"] = rEnum.sNamespace;
-    rNodeEnum.AddSubNode(" Enum owner name", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Owner"] = rEnum.sOwnerName;
+    rNodeEnum.CreateChildComment(" Enum name ");
+    rNodeEnum.CreateChildElement("Name", rEnum.sName);
+    rNodeEnum.CreateChildComment(" Enum name with namespace");
+    rNodeEnum.CreateChildElement("NsName", rEnum.sNamespace +
+                                 (rEnum.sOwnerName.empty() ? "" : (rEnum.sOwnerName + "::")) + rEnum.sName);
+    rNodeEnum.CreateChildComment(" Enum namespace");
+    rNodeEnum.CreateChildElement("Namespace", rEnum.sNamespace);
+    rNodeEnum.CreateChildComment(" Enum owner name");
+    rNodeEnum.CreateChildElement("Owner", rEnum.sOwnerName);
 
-    rNodeEnum.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Description"] = rEnum.sDescr;
-    rNodeEnum.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Detail"] = rEnum.sDetail;
+    rNodeEnum.CreateChildComment(" Description ");
+    rNodeEnum.CreateChildElement("Description", rEnum.sDescr);
+    rNodeEnum.CreateChildComment(" Detailed description ");
+    rNodeEnum.CreateChildElement("Detail", rEnum.sDetail);
 
-    rNodeEnum.AddSubNode(" Is defined in other interface ", CXMLNode::ENTCOMMENT);
-    rNodeEnum["Extern"] = rEnum.bExtern;
+    rNodeEnum.CreateChildComment(" Is defined in other interface ");
+    rNodeEnum.CreateChildElement("Extern", rEnum.bExtern);
 
-    rNodeEnum.AddSubNode(" Enum fields ", CXMLNode::ENTCOMMENT);
-    rNodeEnum.AddSubNode("Members") << rEnum.lsMembers;
+    rNodeEnum.CreateChildComment(" Enum fields ");
+    rNodeEnum.CreateChildElement("Members") << rEnum.lsMembers;
 
     WriteCppNamespace(rNodeEnum, rEnum.sNamespace);
 
-    rNodeEnum.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeEnum.AddSubNode("Options");
+    rNodeEnum.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeEnum.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rEnum.mOptions.begin();
         itOption != rEnum.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
     return rNodeEnums;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeStructs, const Struct& rStruct)
+  xml::Element& operator<<(xml::Element& rNodeStructs, const Struct& rStruct)
   {
-    RISE_ASSERTS(!rStruct.bForward || rStruct.bExtern,
+    STAFF_ASSERT(!rStruct.bForward || rStruct.bExtern,
                 "Struct \"" + rStruct.sName + "\" is not fully declared");
 
-    CXMLNode& rNodeStruct = rNodeStructs.AddSubNode("Struct");
+    xml::Element& rNodeStruct = rNodeStructs.CreateChildElement("Struct");
 
-    rNodeStruct.AddSubNode(" Struct name ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Name"] = rStruct.sName;
-    rNodeStruct.AddSubNode(" Struct name with namespace", CXMLNode::ENTCOMMENT);
-    rNodeStruct["NsName"] = rStruct.sNamespace + (rStruct.sOwnerName.empty() ? "" : (rStruct.sOwnerName + "::")) +
-                            rStruct.sName;
-    rNodeStruct.AddSubNode(" Struct namespace", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Namespace"] = rStruct.sNamespace;
-    rNodeStruct.AddSubNode(" Struct owner name", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Owner"] = rStruct.sOwnerName;
+    rNodeStruct.CreateChildComment(" Struct name ");
+    rNodeStruct.CreateChildElement("Name", rStruct.sName);
+    rNodeStruct.CreateChildComment(" Struct name with namespace");
+    rNodeStruct.CreateChildElement("NsName", rStruct.sNamespace +
+                                   (rStruct.sOwnerName.empty() ? "" : (rStruct.sOwnerName + "::")) +
+                                   rStruct.sName);
+    rNodeStruct.CreateChildComment(" Struct namespace");
+    rNodeStruct.CreateChildElement("Namespace", rStruct.sNamespace);
+    rNodeStruct.CreateChildComment(" Struct owner name");
+    rNodeStruct.CreateChildElement("Owner", rStruct.sOwnerName);
 
     // parent
     std::string::size_type nPos = rStruct.sParentName.find_last_of("::");
     const std::string sParentName = nPos != std::string::npos ?
                                     rStruct.sParentName.substr(nPos + 1) : rStruct.sParentName;
-    rNodeStruct.AddSubNode(" Parent struct name ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentName"] = sParentName;
-    rNodeStruct.AddSubNode(" Parent struct name as used by declaration ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentUsedName"] = rStruct.sParentName;
-    rNodeStruct.AddSubNode(" Parent struct actual namespace ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentNamespace"] = rStruct.sParentNamespace;
-    rNodeStruct.AddSubNode(" Parent struct with actual namespace ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["ParentNsName"] = rStruct.sParentNamespace + sParentName;
+    rNodeStruct.CreateChildComment(" Parent struct name ");
+    rNodeStruct.CreateChildElement("ParentName", sParentName);
+    rNodeStruct.CreateChildComment(" Parent struct name as used by declaration ");
+    rNodeStruct.CreateChildElement("ParentUsedName", rStruct.sParentName);
+    rNodeStruct.CreateChildComment(" Parent struct actual namespace ");
+    rNodeStruct.CreateChildElement("ParentNamespace", rStruct.sParentNamespace);
+    rNodeStruct.CreateChildComment(" Parent struct with actual namespace ");
+    rNodeStruct.CreateChildElement("ParentNsName", rStruct.sParentNamespace + sParentName);
 
-    rNodeStruct.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Description"] = rStruct.sDescr;
-    rNodeStruct.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Detail"] = rStruct.sDetail;
+    rNodeStruct.CreateChildComment(" Description ");
+    rNodeStruct.CreateChildElement("Description", rStruct.sDescr);
+    rNodeStruct.CreateChildComment(" Detailed description ");
+    rNodeStruct.CreateChildElement("Detail", rStruct.sDetail);
 
-    rNodeStruct.AddSubNode(" Is defined in other interface ", CXMLNode::ENTCOMMENT);
-    rNodeStruct["Extern"] = rStruct.bExtern;
+    rNodeStruct.CreateChildComment(" Is defined in other interface ");
+    rNodeStruct.CreateChildElement("Extern", rStruct.bExtern);
 
-    rNodeStruct.AddSubNode(" Struct fields ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Members") << rStruct.lsMembers;
+    rNodeStruct.CreateChildComment(" Struct fields ");
+    rNodeStruct.CreateChildElement("Members", "") << rStruct.lsMembers;
 
     WriteCppNamespace(rNodeStruct, rStruct.sNamespace);
 
-    rNodeStruct.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeStruct.AddSubNode("Options");
+    rNodeStruct.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeStruct.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rStruct.mOptions.begin();
         itOption != rStruct.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
-    rNodeStruct.AddSubNode(" Sub enums ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Enums") << rStruct.lsEnums;
+    rNodeStruct.CreateChildComment(" Sub enums ");
+    rNodeStruct.CreateChildElement("Enums") << rStruct.lsEnums;
 
-    rNodeStruct.AddSubNode(" Sub structs ", CXMLNode::ENTCOMMENT);
-    rNodeStruct.AddSubNode("Structs") << rStruct.lsStructs;
+    rNodeStruct.CreateChildComment(" Sub structs ");
+    rNodeStruct.CreateChildElement("Structs") << rStruct.lsStructs;
 
     return rNodeStructs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeTypedefs, const Typedef& rTypedef)
+  xml::Element& operator<<(xml::Element& rNodeTypedefs, const Typedef& rTypedef)
   {
-    CXMLNode& rNodeTypedef = rNodeTypedefs.AddSubNode("Typedef");
+    xml::Element& rNodeTypedef = rNodeTypedefs.CreateChildElement("Typedef");
 
-    rNodeTypedef.AddSubNode(" Typedef name ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["Name"] = rTypedef.sName;
-    rNodeTypedef.AddSubNode(" Typedef name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["NsName"] = rTypedef.sNamespace + rTypedef.sName;
-    rNodeTypedef.AddSubNode(" Typedef namespace ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["Namespace"] = rTypedef.sNamespace;
-    rNodeTypedef.AddSubNode(" Description ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["Description"] = rTypedef.sDescr;
-    rNodeTypedef.AddSubNode(" Detailed description ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["Detail"] = rTypedef.sDetail;
+    rNodeTypedef.CreateChildComment(" Typedef name ");
+    rNodeTypedef.CreateChildElement("Name", rTypedef.sName);
+    rNodeTypedef.CreateChildComment(" Typedef name with namespace ");
+    rNodeTypedef.CreateChildElement("NsName", rTypedef.sNamespace + rTypedef.sName);
+    rNodeTypedef.CreateChildComment(" Typedef namespace ");
+    rNodeTypedef.CreateChildElement("Namespace", rTypedef.sNamespace);
+    rNodeTypedef.CreateChildComment(" Description ");
+    rNodeTypedef.CreateChildElement("Description", rTypedef.sDescr);
+    rNodeTypedef.CreateChildComment(" Detailed description ");
+    rNodeTypedef.CreateChildElement("Detail", rTypedef.sDetail);
 
-    rNodeTypedef.AddSubNode(" Source datatype ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef.AddSubNode("DataType") << rTypedef.stDataType;
+    rNodeTypedef.CreateChildComment(" Source datatype ");
+    rNodeTypedef.CreateChildElement("DataType") << rTypedef.stDataType;
 
-    rNodeTypedef.AddSubNode(" Defined in other interface ", CXMLNode::ENTCOMMENT);
-    rNodeTypedef["Extern"] = rTypedef.bExtern;
+    rNodeTypedef.CreateChildComment(" Defined in other interface ");
+    rNodeTypedef.CreateChildElement("Extern", rTypedef.bExtern);
 
     WriteCppNamespace(rNodeTypedef, rTypedef.sNamespace);
 
-    rNodeTypedef.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeTypedef.AddSubNode("Options");
+    rNodeTypedef.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeTypedef.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rTypedef.mOptions.begin();
         itOption != rTypedef.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
     return rNodeTypedefs;
   }
 
-  CXMLNode& operator<<(CXMLNode& rNodeInterfaces, const Interface& rInterface)
+  xml::Element& operator<<(xml::Element& rNodeInterfaces, const Interface& rInterface)
   {
-    CXMLNode& rNodeInterface = rNodeInterfaces.AddSubNode("Interface");
+    xml::Element& rNodeInterface = rNodeInterfaces.CreateChildElement("Interface");
 
-    rNodeInterface.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["Name"] = rInterface.sName;
+    rNodeInterface.CreateChildComment(" Interface name ");
+    rNodeInterface.CreateChildElement("Name", rInterface.sName);
 
-    rNodeInterface.AddSubNode(" Interface namespace ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["Namespace"] = rInterface.sNamespace;
+    rNodeInterface.CreateChildComment(" Interface namespace ");
+    rNodeInterface.CreateChildElement("Namespace", rInterface.sNamespace);
 
-    rNodeInterface.AddSubNode(" Interface name with namespace ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["NsName"] = rInterface.sNamespace + rInterface.sName;
+    rNodeInterface.CreateChildComment(" Interface name with namespace ");
+    rNodeInterface.CreateChildElement("NsName", rInterface.sNamespace + rInterface.sName);
 
-    rNodeInterface.AddSubNode(" Interface file name ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["FileName"] = rInterface.sFileName;
+    rNodeInterface.CreateChildComment(" Interface file name ");
+    rNodeInterface.CreateChildElement("FileName", rInterface.sFileName);
 
-    rNodeInterface.AddSubNode(" Interface file path ", CXMLNode::ENTCOMMENT);
-    rNodeInterface["FilePath"] = rInterface.sFilePath;
+    rNodeInterface.CreateChildComment(" Interface file path ");
+    rNodeInterface.CreateChildElement("FilePath", rInterface.sFilePath);
 
-    rNodeInterface.AddSubNode(" Options ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeOptions = rNodeInterface.AddSubNode("Options");
+    rNodeInterface.CreateChildComment(" Options ");
+    xml::Element& rNodeOptions = rNodeInterface.CreateChildElement("Options");
 
     for (StringMap::const_iterator itOption = rInterface.mOptions.begin();
         itOption != rInterface.mOptions.end(); ++itOption)
     {
-      rNodeOptions[itOption->first] = itOption->second;
+      rNodeOptions.CreateChildElement(itOption->first, itOption->second);
     }
 
     // included files
-    rNodeInterface.AddSubNode(" Included files ", CXMLNode::ENTCOMMENT);
-    CXMLNode& rNodeIncludes = rNodeInterface.AddSubNode("Includes");
+    rNodeInterface.CreateChildComment(" Included files ");
+    xml::Element& rNodeIncludes = rNodeInterface.CreateChildElement("Includes");
 
     for (std::list<Include>::const_iterator itInclude = rInterface.lsIncludes.begin();
         itInclude != rInterface.lsIncludes.end(); ++itInclude)
     {
       std::string sNamespace = itInclude->sNamespace.substr(0, 2) == "::" ?
                             itInclude->sNamespace.substr(2) : itInclude->sNamespace;
-      rise::StrReplace(sNamespace, "::", ".", true);
+      StringReplace(sNamespace, "::", ".", true);
 
-      CXMLNode& rNodeInclude = rNodeIncludes.AddSubNode("Include");
-      rNodeInclude.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["Name"] = itInclude->sInterfaceName;
-      rNodeInclude.AddSubNode(" Interface name ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["Namespace"] = itInclude->sNamespace;
-      rNodeInclude.AddSubNode(" Interface ns name ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["NsName"] = sNamespace + itInclude->sInterfaceName;
-      rNodeInclude.AddSubNode(" File name ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["FileName"] = itInclude->sFileName;
-      rNodeInclude.AddSubNode(" File path ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["FilePath"] = itInclude->sFilePath;
-      rNodeInclude.AddSubNode(" Target namespace ", CXMLNode::ENTCOMMENT);
-      rNodeInclude["TargetNamespace"] = itInclude->sTargetNs;
+      xml::Element& rNodeInclude = rNodeIncludes.CreateChildElement("Include");
+      rNodeInclude.CreateChildComment(" Interface name ");
+      rNodeInclude.CreateChildElement("Name", itInclude->sInterfaceName);
+      rNodeInclude.CreateChildComment(" Interface name ");
+      rNodeInclude.CreateChildElement("Namespace", itInclude->sNamespace);
+      rNodeInclude.CreateChildComment(" Interface ns name ");
+      rNodeInclude.CreateChildElement("NsName", sNamespace + itInclude->sInterfaceName);
+      rNodeInclude.CreateChildComment(" File name ");
+      rNodeInclude.CreateChildElement("FileName", itInclude->sFileName);
+      rNodeInclude.CreateChildComment(" File path ");
+      rNodeInclude.CreateChildElement("FilePath", itInclude->sFilePath);
+      rNodeInclude.CreateChildComment(" Target namespace ");
+      rNodeInclude.CreateChildElement("TargetNamespace", itInclude->sTargetNs);
     }
 
-    rNodeInterface.AddSubNode(" Interface enums ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Enums") << rInterface.lsEnums;
+    rNodeInterface.CreateChildComment(" Interface enums ");
+    rNodeInterface.CreateChildElement("Enums") << rInterface.lsEnums;
 
-    rNodeInterface.AddSubNode(" Interface structs ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Structs") << rInterface.lsStructs;
+    rNodeInterface.CreateChildComment(" Interface structs ");
+    rNodeInterface.CreateChildElement("Structs") << rInterface.lsStructs;
 
-    rNodeInterface.AddSubNode(" Interface typedefs ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Typedefs") << rInterface.lsTypedefs;
+    rNodeInterface.CreateChildComment(" Interface typedefs ");
+    rNodeInterface.CreateChildElement("Typedefs") << rInterface.lsTypedefs;
 
-    rNodeInterface.AddSubNode(" Interface services ", CXMLNode::ENTCOMMENT);
-    rNodeInterface.AddSubNode("Classes") << rInterface.lsClasses;
+    rNodeInterface.CreateChildComment(" Interface services ");
+    rNodeInterface.CreateChildElement("Classes") << rInterface.lsClasses;
 
     return rNodeInterfaces;
   }
 
-  CXMLNode& operator<<(CXMLNode& rRootNode, const Project& rProject)
+  xml::Element& operator<<(xml::Element& rRootNode, const Project& rProject)
   {
-    rRootNode.NodeName() = "Project";
-    rRootNode["Name"] = rProject.sName;
-    rRootNode.AddSubNode(" Component namespace ", CXMLNode::ENTCOMMENT);
-    rRootNode["Namespace"] = rProject.sNamespace;
+    rRootNode.SetName("Project");
+    rRootNode.CreateChildElement("Name", rProject.sName);
+    rRootNode.CreateChildComment(" Component namespace ");
+    rRootNode.CreateChildElement("Namespace", rProject.sNamespace);
     WriteCppNamespace(rRootNode, rProject.sNamespace);
 
-    rRootNode.AddSubNode(" Project interfaces ", CXMLNode::ENTCOMMENT);
-    rRootNode.AddSubNode("Interfaces") << rProject.lsInterfaces;
+    rRootNode.CreateChildComment(" Project interfaces ");
+    rRootNode.CreateChildElement("Interfaces") << rProject.lsInterfaces;
 
     return rRootNode;
   }

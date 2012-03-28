@@ -19,9 +19,13 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/xml/XMLDocument.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/File.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
+#include <staff/xml/Attribute.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/XmlReader.h>
 #include "DataSource.h"
 
 namespace staff
@@ -42,13 +46,13 @@ namespace das
   {
   }
 
-  void DataSource::Load(rise::xml::CXMLNode& rDataSourceNode, const std::string& sFileName)
+  void DataSource::Load(xml::Element& rDataSourceNode, const std::string& sFileName)
   {
-    rise::LogDebug() << "Loading datasource file: " << sFileName;
+    LogDebug() << "Loading datasource file: " << sFileName;
 
     m_sFileName = sFileName;
 
-    std::string::size_type nPos = sFileName.find_last_of(RISE_PATH_SEPARATOR);
+    std::string::size_type nPos = sFileName.find_last_of(STAFF_PATH_SEPARATOR);
     if (nPos != std::string::npos)
     {
       m_sDataSourcesDir = sFileName.substr(0, nPos + 1);
@@ -58,15 +62,15 @@ namespace das
 
     m_lsProviders.clear();
     std::string sId;
-    rise::xml::CXMLNode::TXMLAttrConstIterator itAttr;
-    rise::xml::CXMLNode::TXMLNodeConstIterator itProvider = rDataSourceNode.NodeBegin();
-    while ((itProvider = rDataSourceNode.FindSubnode("provider", itProvider)) != rDataSourceNode.NodeEnd())
+    const xml::Attribute* pAttr = NULL;
+    const xml::Element* pProvider = rDataSourceNode.GetFirstChildElement();
+    while ((pProvider = rDataSourceNode.FindChildElementByName("provider", pProvider)) != NULL)
     {
-      itAttr = itProvider->FindAttribute("id");
+      pAttr = pProvider->FindAttribute("id");
 
-      if (itAttr != itProvider->AttrEnd())
+      if (pAttr)
       {
-        sId = itAttr->sAttrValue.AsString();
+        sId = pAttr->GetValue();
       }
       else
       {
@@ -79,71 +83,64 @@ namespace das
       }
       else
       {
-        RISE_ASSERTS(!sId.empty(), "When using multiple providers you should set unique id for each");
+        STAFF_ASSERT(!sId.empty(), "When using multiple providers you should set unique id for each");
       }
 
       for (ProvidersInfoList::const_iterator itProv = m_lsProviders.begin();
            itProv != m_lsProviders.end(); ++itProv)
       {
-        RISE_ASSERTS(itProv->sId != sId, "Duplicated provider id: " + sId);
+        STAFF_ASSERT(itProv->sId != sId, "Duplicated provider id: " + sId);
       }
 
       m_lsProviders.push_back(ProviderInfo());
       ProviderInfo& rInfo = m_lsProviders.back();
 
-      rInfo.sName = itProvider->Attribute("name").AsString();
+      rInfo.sName = pProvider->GetAttributeValue("name");
       rInfo.sId = sId;
-      rInfo.tConfig = *itProvider;
-      ++itProvider;
+      rInfo.tConfig = *pProvider;
+      pProvider = pProvider->GetNextSiblingElement();
     }
 
     m_sNamespace.erase();
     m_lsIncludes.clear();
-    rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rDataSourceNode.FindAttribute("namespace");
-    if (itNs != rDataSourceNode.AttrEnd())
+    const xml::Attribute* pNs = rDataSourceNode.FindAttribute("namespace");
+    if (pNs)
     {
-      m_sNamespace = itNs->sAttrValue.AsString();
+      m_sNamespace = pNs->GetValue();
     }
 
-    m_sName = rDataSourceNode.Attribute("name").AsString();
+    m_sName = rDataSourceNode.GetAttributeValue("name");
 
     ParseDescr(rDataSourceNode, m_sDescr);
 
     // options
-    rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rDataSourceNode.FindSubnode("options");
-    if (itOptions != rDataSourceNode.NodeEnd())
+    const xml::Element* pOptions = rDataSourceNode.FindChildElementByName("options");
+    if (pOptions)
     {
-      const rise::xml::CXMLNode& rOptions = *itOptions;
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
-           itOption != rOptions.NodeEnd(); ++itOption)
+      for (const xml::Element* pOption = pOptions->GetFirstChildElement();
+           pOption; pOption = pOption->GetNextSiblingElement())
       {
-        const rise::xml::CXMLNode& rOption = *itOption;
-        if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-        {
-          m_mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
-        }
+        m_mOptions[pOption->GetName()] = pOption->GetTextValue();
       }
     }
 
     // Types
     m_lsTypes.clear();
 
-    rise::xml::CXMLNode::TXMLNodeConstIterator itTypes = rDataSourceNode.FindSubnode("types");
-    if (itTypes != rDataSourceNode.NodeEnd())
+    const xml::Element* pTypes = rDataSourceNode.FindChildElementByName("types");
+    if (pTypes)
     {
-      const rise::xml::CXMLNode& rTypes = *itTypes;
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rTypes.NodeBegin();
-            itType != rTypes.NodeEnd(); ++itType)
+      for (const xml::Element* pType = pTypes->GetFirstChildElement();
+            pType; pType = pType->GetNextSiblingElement())
       {
-        const rise::xml::CXMLNode& rNodeType = *itType;
-        if (rNodeType.NodeName() == "include")
+        if (pType->GetName() == "include")
         { // include
-          IncludeTypes(rNodeType.Attribute("filename").AsString());
+          IncludeTypes(pType->GetAttributeValue("filename"));
         }
         else
         { // type declaration
           DataType stType;
-          ParseType(rNodeType, stType);
+          ParseType(*pType, stType);
           m_lsTypes.push_back(stType);
         }
       }
@@ -151,55 +148,47 @@ namespace das
 
     // Operations
     m_lsOperations.clear();
-    rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    xml::Element& rOperations = rDataSourceNode.GetChildElementByName("operations");
     ProcessIncludes(rOperations);
-    for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
-          itOperation != rOperations.NodeEnd(); ++itOperation)
+    for (const xml::Element* pOperation = rOperations.GetFirstChildElement();
+         pOperation; pOperation = pOperation->GetNextSiblingElement())
     {
-      if (itOperation->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
-          itOperation->NodeName() == "operation")
+      if (pOperation->GetName() == "operation")
       {
-        const rise::xml::CXMLNode& rOperation = *itOperation;
         Operation stOperation;
 
-        stOperation.sName = rOperation.Attribute("name").AsString();
+        stOperation.sName = pOperation->GetAttributeValue("name");
 
         // options
-        rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rOperation.FindSubnode("options");
-        if (itOptions != rOperation.NodeEnd())
+        const xml::Element* pOptions = pOperation->FindChildElementByName("options");
+        if (pOptions)
         {
-          const rise::xml::CXMLNode& rOptions = *itOptions;
-          for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
-               itOption != rOptions.NodeEnd(); ++itOption)
+          for (const xml::Element* pOption = pOptions->GetFirstChildElement();
+               pOption; pOption = pOption->GetNextSiblingElement())
           {
-            const rise::xml::CXMLNode& rOption = *itOption;
-            if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-            {
-              stOperation.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
-            }
+            stOperation.mOptions[pOption->GetName()] = pOption->GetTextValue();
           }
         }
 
-        rise::xml::CXMLNode::TXMLNodeConstIterator itScript = rOperation.FindSubnode("script");
-        if (itScript != rOperation.NodeEnd())
+        const xml::Element* pScript = pOperation->FindChildElementByName("script");
+        if (pScript)
         {
-          stOperation.tScript = *itScript;
+          stOperation.tScript = *pScript;
         }
         else
         {
-          itScript = rOperation.FindSubnode("execute");
-          RISE_ASSERTS(itScript != rOperation.NodeEnd(), "cannot find <script> or <execute> element");
-          stOperation.tScript.NodeName() = "script";
-          stOperation.tScript.AddSubNode("") = *itScript;
+          pScript = pOperation->FindChildElementByName("execute");
+          STAFF_ASSERT(pScript, "cannot find <script> or <execute> element");
+          stOperation.tScript.SetName("script");
+          stOperation.tScript.AppendChild(pScript->CloneElement());
         }
 
-        ParseDescr(rOperation, stOperation.sDescr);
+        ParseDescr(*pOperation, stOperation.sDescr);
 
-        rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
-        if (itReturn != rOperation.NodeEnd())
+        const xml::Element* pReturn = pOperation->FindChildElementByName("return");
+        if (pReturn)
         {
-          const rise::xml::CXMLNode& rNodeReturn = *itReturn;
-          ParseType(rNodeReturn, stOperation.stReturn);
+          ParseType(*pReturn, stOperation.stReturn);
           if (stOperation.stReturn.eType == DataType::List ||
               stOperation.stReturn.eType == DataType::Struct)
           {
@@ -207,13 +196,16 @@ namespace das
           }
         }
 
-        const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
-        for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rParams.NodeBegin();
-              itType != rParams.NodeEnd(); ++itType)
+        const xml::Element* pParams = pOperation->FindChildElementByName("params");
+        if (pParams)
         {
-          DataType stType;
-          ParseType(*itType, stType);
-          stOperation.lsParams.push_back(stType);
+          for (const xml::Element* pType = pParams->GetFirstChildElement();
+                pType; pType = pType->GetNextSiblingElement())
+          {
+            DataType stType;
+            ParseType(*pType, stType);
+            stOperation.lsParams.push_back(stType);
+          }
         }
 
         m_lsOperations.push_back(stOperation);
@@ -226,11 +218,11 @@ namespace das
     return m_lsIncludes;
   }
 
-  void DataSource::ParseType(const rise::xml::CXMLNode& rNode, DataType& rType)
+  void DataSource::ParseType(const xml::Element& rNode, DataType& rType)
   {
-    rType.sName = rNode.NodeName();
+    rType.sName = rNode.GetName();
 
-    const std::string& sType = rNode.Attribute("type");
+    const std::string& sType = rNode.GetAttributeValue("type");
 
     ParseDescr(rNode, rType.sDescr);
 
@@ -239,11 +231,11 @@ namespace das
       rType.eType = DataType::Struct;
       rType.sType = sType;
 
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNode.NodeBegin();
-            itType != rNode.NodeEnd(); ++itType)
+      for (const xml::Element* pType = rNode.GetFirstChildElement();
+            pType; pType = pType->GetNextSiblingElement())
       {
         DataType stType;
-        ParseType(*itType, stType);
+        ParseType(*pType, stType);
         rType.lsChilds.push_back(stType);
       }
     }
@@ -251,15 +243,15 @@ namespace das
     if (sType == "list")
     {
       rType.eType = DataType::List;
-      rType.sType = rNode.Attribute("itemtype").AsString();
+      rType.sType = rNode.GetAttributeValue("itemtype");
 
-      RISE_ASSERTS(rType.sType != "void", "list item cannot be \"void\"");
+      STAFF_ASSERT(rType.sType != "void", "list item cannot be \"void\"");
 
       const DataType* pItemType = FindType(rType.sType);
 
       if (pItemType != NULL)
       { // ref
-        RISE_ASSERTS(pItemType->eType != DataType::List, "list item cannot be \"list\"");
+        STAFF_ASSERT(pItemType->eType != DataType::List, "list item cannot be \"list\"");
         rType.lsChilds.push_back(*pItemType);
       }
       else
@@ -308,21 +300,21 @@ namespace das
 
   void DataSource::IncludeTypes(const std::string& sFileName)
   {
-    rise::xml::CXMLDocument tTypesDoc;
+    xml::Document tTypesDoc;
 
-    rise::LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
-    tTypesDoc.LoadFromFile(m_sDataSourcesDir + sFileName);
+    LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
+    xml::XmlFileReader(m_sDataSourcesDir + sFileName).ReadDocument(tTypesDoc);
 
     m_lsIncludes.push_back(Include());
     Include& rstInclude = m_lsIncludes.back();
     rstInclude.sFileName = sFileName;
 
-    const rise::xml::CXMLNode& rNodeTypes = tTypesDoc.GetRoot();
-    for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNodeTypes.NodeBegin();
-          itType != rNodeTypes.NodeEnd(); ++itType)
+    const xml::Element& rNodeTypes = tTypesDoc.GetRootElement();
+    for (const xml::Element* pType = rNodeTypes.GetFirstChildElement();
+         pType; pType = pType->GetNextSiblingElement())
     {
       DataType stType;
-      ParseType(*itType, stType);
+      ParseType(*pType, stType);
 
       rstInclude.lsTypes.push_back(stType);
       stType.bExtern = true;
@@ -330,12 +322,12 @@ namespace das
     }
   }
 
-  void DataSource::ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr)
+  void DataSource::ParseDescr(const xml::Element& rNode, std::string& sDescr)
   {
-    rise::xml::CXMLNode::TXMLAttrConstIterator itDescr = rNode.FindAttribute("descr");
-    if (itDescr != rNode.AttrEnd())
+    const xml::Attribute* pDescr = rNode.FindAttribute("descr");
+    if (pDescr)
     {
-      sDescr = itDescr->sAttrValue.AsString();
+      sDescr = pDescr->GetValue();
     }
   }
 
@@ -372,18 +364,18 @@ namespace das
   const DataType& DataSource::GetType(const std::string& sTypeName) const
   {
     const DataType* pType = FindType(sTypeName);
-    RISE_ASSERTS(pType, "Type " + sTypeName + " is not found");
+    STAFF_ASSERT(pType, "Type " + sTypeName + " is not found");
     return *pType;
   }
 
   const DataType* DataSource::FindType(const std::string& sTypeName) const
   {
-    DataTypesList::const_iterator itType = m_lsTypes.begin();
-    for (; itType != m_lsTypes.end(); ++itType)
+    DataTypesList::const_iterator pType = m_lsTypes.begin();
+    for (; pType != m_lsTypes.end(); ++pType)
     {
-      if (itType->sName == sTypeName)
+      if (pType->sName == sTypeName)
       {
-        return &*itType;
+        return &*pType;
       }
     }
 
@@ -392,16 +384,16 @@ namespace das
 
   const Operation& DataSource::GetOperation(const std::string& sOperationName) const
   {
-    OperationsList::const_iterator itOperation = m_lsOperations.begin();
-    for (; itOperation != m_lsOperations.end(); ++itOperation)
+    OperationsList::const_iterator pOperation = m_lsOperations.begin();
+    for (; pOperation != m_lsOperations.end(); ++pOperation)
     {
-      if (itOperation->sName == sOperationName)
+      if (pOperation->sName == sOperationName)
       {
-        return *itOperation;
+        return *pOperation;
       }
     }
 
-    RISE_THROWS(rise::CLogicNoItemException, "Operation " + sOperationName + " is not found");
+    STAFF_THROW_ASSERT("Operation " + sOperationName + " is not found");
   }
 
   const DataTypesList& DataSource::GetTypes() const
@@ -414,26 +406,31 @@ namespace das
     return m_lsOperations;
   }
 
-  void DataSource::ProcessIncludes(rise::xml::CXMLNode& rNode)
+  void DataSource::ProcessIncludes(xml::Element& rNode)
   {
-    for (rise::xml::CXMLNode::TXMLNodeIterator itInclude = rNode.FindSubnode("include");
-      itInclude != rNode.NodeEnd(); itInclude = rNode.FindSubnode("include", itInclude))
+    xml::Element* pChildToRemove = NULL;
+    for (xml::Element* pInclude = rNode.FindChildElementByName("include");
+      pInclude; pInclude = pInclude->FindChildElementByName("include", pInclude))
     {
-      const std::string& sFileName = itInclude->Attribute("filename").AsString();
+      const std::string& sFileName = pInclude->GetAttributeValue("filename");
 
-      rise::xml::CXMLDocument tDoc;
+      xml::Document tDoc;
 
-      rise::LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
-      tDoc.LoadFromFile(m_sDataSourcesDir + sFileName);
+      LogDebug() << "Including file: " << (m_sDataSourcesDir + sFileName);
+      xml::XmlFileReader(m_sDataSourcesDir + sFileName).ReadDocument(tDoc);
 
-      const rise::xml::CXMLNode& rNodeTypes = tDoc.GetRoot();
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeTypes.NodeBegin();
-            itChild != rNodeTypes.NodeEnd(); ++itChild)
+      xml::Element& rNodeTypes = tDoc.GetRootElement();
+      xml::Element* pNextChild = NULL;
+      for (xml::Element* pChild = rNodeTypes.GetFirstChildElement();
+            pChild; pChild = pNextChild)
       {
-        rNode.AddSubNode("") = *itChild;
+        pNextChild = pChild->GetNextSiblingElement();
+        rNode.AppendChild(pChild->Detach());
       }
 
-      rNode.DelSubNode(itInclude++);
+      pChildToRemove = pInclude;
+      pInclude = pInclude->GetNextSiblingElement();
+      rNode.RemoveChild(pChildToRemove);
     }
 
   }

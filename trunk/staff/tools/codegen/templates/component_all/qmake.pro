@@ -24,7 +24,7 @@ STAFF_HOME   = $\$(STAFF_HOME)
   INSTALL_PATH    = /usr/lib/staff/components/$$COMPONENT
 }
 
-LIBS        += -lstaffutils -lstaffcommon -lstaffcomponent -lrise
+LIBS        += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
 
 #var nLastInterface $(Project.Interfaces.$Count)
 #var nLastInterface $($nLastInterface.!dec)

@@ -20,13 +20,13 @@
  */
 
 #include <libpq-fe.h>
-#include <rise/xml/XMLDocument.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/string/String.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/tostring.h>
+#include <staff/xml/Element.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
-#include <staff/common/Value.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Executor.h>
 #include "Postgres.h"
@@ -95,7 +95,7 @@ namespace das
 
     virtual void Execute(const std::string& sExecute)
     {
-      RISE_ASSERTS(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
+      STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
@@ -104,7 +104,8 @@ namespace das
       ExecStatusType tQueryStatus = PQresultStatus(m_pResult);
       if (tQueryStatus != PGRES_COMMAND_OK)
       {
-        RISE_ASSERTS(tQueryStatus == PGRES_TUPLES_OK, "error executing query #" + rise::ToStr(tQueryStatus) + ": \n"
+        STAFF_ASSERT(tQueryStatus == PGRES_TUPLES_OK, "error executing query #"
+                     + ToString(tQueryStatus) + ": \n"
                      + std::string(PQerrorMessage(m_pProvider->m_pImpl->m_pConn))
                      + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
@@ -115,7 +116,7 @@ namespace das
 
     virtual void GetFieldsNames(StringList& rNames)
     {
-      RISE_ASSERTS(m_pResult, "Execute was not called");
+      STAFF_ASSERT(m_pResult, "Execute was not called");
 
       if (rNames.size() != m_nFieldsCount)
       {
@@ -128,14 +129,14 @@ namespace das
           itItem != rNames.end(); ++itItem, ++nField)
       {
         szFieldName = PQfname(m_pResult, nField);
-        RISE_ASSERTS(szFieldName, "Error while getting field name");
+        STAFF_ASSERT(szFieldName, "Error while getting field name");
         *itItem = szFieldName;
       }
     }
 
     virtual bool GetNextResult(StringList& rResult)
     {
-      RISE_ASSERTS(m_pResult, "Execute was not called");
+      STAFF_ASSERT(m_pResult, "Execute was not called");
 
       if (m_nCurrentRow == m_nRowsCount)
       {
@@ -178,33 +179,33 @@ namespace das
     delete m_pImpl;
   }
 
-  void PostgresProvider::Init(const rise::xml::CXMLNode& rConfig)
+  void PostgresProvider::Init(const xml::Element& rConfig)
   {
     // initialize connection
-    const rise::xml::CXMLNode& rConnection = rConfig.Subnode("connection");
+    const xml::Element& rConnection = rConfig.GetChildElementByName("connection");
 
-    m_pImpl->m_sHost = rConnection["host"].AsString();
-    m_pImpl->m_sPort = rConnection["port"].AsString();
-    m_pImpl->m_sDataBase = rConnection["db"].AsString();
-    m_pImpl->m_sLogin = rConnection["login"].AsString();
-    m_pImpl->m_sPassword = rConnection["password"].AsString();
+    m_pImpl->m_sHost = rConnection.GetChildElementByName("host").GetTextValue();
+    m_pImpl->m_sPort = rConnection.GetChildElementByName("port").GetTextValue();
+    m_pImpl->m_sDataBase = rConnection.GetChildElementByName("db").GetTextValue();
+    m_pImpl->m_sLogin = rConnection.GetChildElementByName("login").GetTextValue();
+    m_pImpl->m_sPassword = rConnection.GetChildElementByName("password").GetTextValue();
 
-    RISE_ASSERTS(!m_pImpl->m_pConn, "Already connected");
+    STAFF_ASSERT(!m_pImpl->m_pConn, "Already connected");
     m_pImpl->m_pConn = PQsetdbLogin(m_pImpl->m_sHost.c_str(), m_pImpl->m_sPort.c_str(), "", "",
                                     m_pImpl->m_sDataBase.c_str(), m_pImpl->m_sLogin.c_str(),
                                     m_pImpl->m_sPassword.c_str());
 
-    RISE_ASSERTS(m_pImpl->m_pConn, "Failed to set db login");
+    STAFF_ASSERT(m_pImpl->m_pConn, "Failed to set db login");
     if (PQstatus(m_pImpl->m_pConn) != CONNECTION_OK)
     {
       std::string sError = std::string("Failed to login: ") + PQerrorMessage(m_pImpl->m_pConn);
       PQfinish(m_pImpl->m_pConn);
       m_pImpl->m_pConn = NULL;
-      RISE_THROWS(rise::CLogicNoItemException, sError);
+      STAFF_THROW_ASSERT(sError);
     }
 
     int nResult = PQsetClientEncoding(m_pImpl->m_pConn, "UTF8");
-    RISE_ASSERTS(nResult == 0, std::string("error setting encoding: ") + PQerrorMessage(m_pImpl->m_pConn));
+    STAFF_ASSERT(nResult == 0, std::string("error setting encoding: ") + PQerrorMessage(m_pImpl->m_pConn));
   }
 
   void PostgresProvider::Deinit()

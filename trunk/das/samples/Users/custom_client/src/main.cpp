@@ -4,11 +4,11 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <rise/common/SharedPtr.h>
-#include <rise/string/String.h>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/console.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/console.h>
 #include <staff/common/Exception.h>
 #include <staff/common/DataObject.h>
 #include <staff/client/ServiceFactory.h>
@@ -19,10 +19,10 @@ int main(int nArgs, const char* paszArgs[])
   try
   {
     {
-      rise::CSharedPtr< ::staff::das::DataAccessService > pDataAccessService = 
+      SharedPtr< ::staff::das::DataAccessService > pDataAccessService = 
         ::staff::ServiceFactory::Inst().GetService< ::staff::das::DataAccessService >();
 
-      RISE_ASSERTES(pDataAccessService, rise::CLogicNoItemException, "Cannot get client for service staff.das.DataAccessService!");
+      STAFF_ASSERT(pDataAccessService, "Cannot get client for service staff.das.DataAccessService!");
 
       // Invoke Your service here:
       std::cout << "Providers: \n";
@@ -57,9 +57,9 @@ int main(int nArgs, const char* paszArgs[])
   }
   catch(const staff::RemoteException& rEx)
   {
-    rise::LogError() << rEx.GetDescr();
+    LogError() << rEx.GetDescr();
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
   
   return 0;
 }

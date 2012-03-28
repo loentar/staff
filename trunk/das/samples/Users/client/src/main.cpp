@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Users.h"
@@ -31,7 +31,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::staff::das::samples::Users > pUsers(::staff::ServiceFactory::Inst().GetService< ::staff::das::samples::Users >());
 
-    RISE_ASSERTES(pUsers.get() != NULL, rise::CLogicNoItemException, "Cannot get client for service staff.das.samples.Users!");
+    STAFF_ASSERT(pUsers.get(), "Cannot get client for service staff.das.samples.Users!");
 
 
     // cleanup after unclean shutdown
@@ -41,7 +41,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     lsUserNames.push_back("mary");
     for (int nNum = 1; nNum <= 5; ++nNum)
     {
-      lsUserNames.push_back("user_" + rise::ToStr(nNum));
+      lsUserNames.push_back("user_" + staff::ToString(nNum));
     }
 
     pUsers->RemoveByNameList(lsUserNames);
@@ -54,17 +54,17 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     // add 2 new users
-    rise::LogInfo() << "adding john..";
+    LogInfo() << "adding john..";
     int nJohnId = pUsers->Add("john", "secret", "John Smitt");
-    rise::LogInfo() << "john's id: " << nJohnId;
+    LogInfo() << "john's id: " << nJohnId;
 
-    rise::LogInfo() << "adding mary..";
+    LogInfo() << "adding mary..";
     staff::das::samples::UserToAdd stUser;
     stUser.sName = "mary";
     stUser.sPassword = "pwd123";
     stUser.sDescr = "Mary";
     int nMaryId = pUsers->AddStruct(stUser);
-    rise::LogInfo() << "mary's id: " << nMaryId;
+    LogInfo() << "mary's id: " << nMaryId;
 
 
     // get and show users list
@@ -73,15 +73,15 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     std::cout << lsUsers << "\n";
 
 
-    rise::LogInfo() << "adding 5 test users within 1 operation..";
+    LogInfo() << "adding 5 test users within 1 operation..";
     // test multiple users insert
     staff::das::samples::UserToAddList lsUsersToAdd;
     for (int nNum = 1; nNum <= 5; ++nNum)
     {
       staff::das::samples::UserToAdd stUser;
-      stUser.sName = "user_" + rise::ToStr(nNum);
+      stUser.sName = "user_" + staff::ToString(nNum);
       stUser.sPassword = "test_pwd";
-      stUser.sDescr = "Multiple insert test user No " + rise::ToStr(nNum);
+      stUser.sDescr = "Multiple insert test user No " + staff::ToString(nNum);
       lsUsersToAdd.push_back(stUser);
     }
 
@@ -96,25 +96,25 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     // remove users
-    rise::LogInfo() << "getting john's id by name";
+    LogInfo() << "getting john's id by name";
     nJohnId = pUsers->GetUserIdByName("john"); // for test
-    rise::LogInfo() << "removing john";
+    LogInfo() << "removing john";
     pUsers->Remove(nJohnId);
 
-    rise::LogInfo() << "getting mary's id by name";
+    LogInfo() << "getting mary's id by name";
     nMaryId = pUsers->GetUserIdByName("mary"); // for test
-    rise::LogInfo() << "removing mary";
+    LogInfo() << "removing mary";
     pUsers->Remove(nMaryId);
 
 
-    rise::LogInfo() << "removing users list";
+    LogInfo() << "removing users list";
     pUsers->RemoveList(lsInsertedUsersIds);
   }
   catch(const staff::RemoteException& rEx)
   {
-    rise::LogError() << rEx.GetDescr();
+    LogError() << rEx.GetDescr();
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

@@ -30,19 +30,10 @@ if "%AXIS2C_HOME%" == "" (
   goto errexit
 )
 
-set risedeploydir=%cd%\rise\deploy\win_%arch%
 set staffdeploydir=%cd%\staff\deploy\win_%arch%
 set dasdeploydir=%cd%\das\deploy\win_%arch%
 
 if not exist %STAFF_HOME% mkdir %STAFF_HOME%
-
-echo installing rise...
-xcopy /Y /S %risedeploydir% %STAFF_HOME% >install.log
-if %ERRORLEVEL% gtr 0 (
-    echo Failed to install rise >&2
-    echo Please see install.log >&2
-    goto errexit
-)
 
 echo installing axis2/c staff modules and service...
 xcopy /Y /S %staffdeploydir%\axis2 %AXIS2C_HOME% >>install.log

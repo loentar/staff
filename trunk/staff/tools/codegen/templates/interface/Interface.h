@@ -16,14 +16,14 @@
 #ifneq($(Interface.Options.$Count),0)
 
 #foreach $(Interface.Options)
-// *interface.$($ThisNodeName): $($ThisNodeValue)
+// *interface.$($ThisElementName): $($ThisElementValue)
 #end
 #ifeqend
 \
 #ifneq($(Interface.Structs.$Count),0)   //   structs forwarding
 
 #foreach $(Interface.Structs)
-#ifeq($(Struct.Extern),0)
+#ifeq($(Struct.Extern),false)
 \
 #var sNewOpeningNs $(Struct.OpeningNs)
 #var sNewEndningNs $(Struct.EndingNs)
@@ -46,7 +46,7 @@ $($sNewOpeningNs)\
 \
 #ifneq($(Interface.Typedefs.$Count),0)   //  typedefs declaration
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0)
+#ifeq($(Typedef.Extern),false)
 #var sNewOpeningNs $(Typedef.OpeningNs)
 #var sNewEndningNs $(Typedef.EndingNs)
 #ifneq($($sNewOpeningNs),$($sOpeningNs))
@@ -58,7 +58,7 @@ $($sNewOpeningNs)
 
 #ifeqend
 #foreach $(Typedef.Options)
-  // *$($ThisNodeName): $($ThisNodeValue)
+  // *$($ThisElementName): $($ThisElementValue)
 #end
   typedef $(Typedef.DataType.UsedTypedef) $(Typedef.Name);\
 #ifneq($(Typedef.Description),)
@@ -101,7 +101,7 @@ $($sNewOpeningNs)
   /*! $(Class.Detail) */
 #ifeqend
 #foreach $(Class.Options)
-  // *$($ThisNodeName): $($ThisNodeValue)
+  // *$($ThisElementName): $($ThisElementValue)
 #end
   class $(Class.Name): public staff::IService
   {
@@ -117,11 +117,11 @@ $($sNewOpeningNs)
     /*! $(Member.Detail) */
 #ifeqend
 #foreach $(Member.Options)
-    // *$($ThisNodeName): $($ThisNodeValue)
+    // *$($ThisElementName): $($ThisElementValue)
 #end
 #foreach $(Member.Params)
 #foreach $(Param.Options)
-    // *param-$(Param.Name)-$($ThisNodeName): $($ThisNodeValue)
+    // *param-$(Param.Name)-$($ThisElementName): $($ThisElementValue)
 #end
 #end
 #ifneq($($nonblocking),)

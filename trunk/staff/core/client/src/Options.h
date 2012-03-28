@@ -277,10 +277,6 @@ namespace staff
     std::string m_sDefaultNsPrefix;
   };
 
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Options) typedef Options COptions;
-#endif
-
 }
 
 #endif // _OPTIONS_H_

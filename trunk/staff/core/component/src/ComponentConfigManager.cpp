@@ -20,9 +20,9 @@
  */
 
 #include <map>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/common/Exception.h>
+#include <staff/common/IService.h>
 #include "ComponentConfig.h"
 #include "ComponentConfigManager.h"
 
@@ -31,7 +31,7 @@ namespace staff
   class ComponentConfigManager::ComponentConfigManagerImpl
   {
   public:
-    typedef rise::CMutablePtr<ComponentConfig> PComponentConfig;
+    typedef SharedPtr<ComponentConfig> PComponentConfig;
     typedef std::map<std::string, PComponentConfig> ComponentConfigMap;
     ComponentConfigMap m_mConfigs;
   };
@@ -56,16 +56,42 @@ namespace staff
     }
   }
 
-  ComponentConfig& ComponentConfigManager::GetComponentConfig( const std::string& sComponent, const std::string& sConfig /*= "config.xml"*/, bool bCreate /*= false*/ )
+  ComponentConfig& ComponentConfigManager::GetComponentConfig(const std::string& sComponent,
+                                                              const std::string& sConfig /*= "config.xml"*/,
+                                                              bool bCreate /*= true*/)
   {
     ComponentConfigManagerImpl::PComponentConfig& rpComponentConfig = m_pImpl->m_mConfigs[sComponent];
 
-    if (rpComponentConfig.Get() == NULL)
+    if (!rpComponentConfig)
     {
       rpComponentConfig = new ComponentConfig;
       rpComponentConfig->Init(sComponent, sConfig, bCreate);
     }
     return *rpComponentConfig;
+  }
+
+  ComponentConfig& ComponentConfigManager::GetComponentConfig(const IService* pService,
+                                                              const std::string& sSuffix /*= ".xml"*/,
+                                                              bool bCreate /*= true*/)
+  {
+    STAFF_ASSERT_PARAM(pService);
+
+    const std::string& sServiceName = pService->GetServiceName();
+    std::string sComponent;
+    std::string sConfig;
+    std::string::size_type nPos = sServiceName.find_last_of('.');
+    if (nPos != std::string::npos)
+    {
+      sComponent = sServiceName.substr(0, nPos);
+      sConfig = sServiceName.substr(nPos + 1) + sSuffix;
+    }
+    else
+    {
+      sComponent = "default";
+      sConfig = sServiceName + sSuffix;
+    }
+
+    return GetComponentConfig(sComponent, sConfig, bCreate);
   }
 
 }

@@ -21,9 +21,9 @@
 
 #include <limits.h>
 #include <map>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
-#include <rise/threading/Thread.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/Thread.h>
+#include <staff/utils/Log.h>
 #include <staff/security/Sessions.h>
 #include <staff/security/Time.h>
 #include "ServiceInstanceManager.h"
@@ -31,7 +31,7 @@
 
 namespace staff
 {
-  class SessionManager::SessionManagerImpl: public rise::threading::CThread
+  class SessionManager::SessionManagerImpl: public staff::Thread
   {
   public:
     typedef std::map<std::string, staff::security::Session> SessionMap;
@@ -56,10 +56,10 @@ namespace staff
         ServiceInstanceManager::Inst().CreateSession(itSession->sSessionId);
       }
 
-      CThread::Start();
+      Thread::Start();
     }
 
-    virtual void Run(void*)
+    virtual void Run()
     {
       while (!IsStopping())
       {
@@ -83,13 +83,13 @@ namespace staff
           {
             if (itSession->second.nId == -1)
             { // delayed session removal
-              rise::LogDebug1() << "Delayed session removal: [" << itSession->first << "]";
+              LogDebug1() << "Delayed session removal: [" << itSession->first << "]";
               // session already closed in db
             }
             else
             {
               // close expired session
-              rise::LogDebug1() << "Removing expired session: [" << itSession->first
+              LogDebug1() << "Removing expired session: [" << itSession->first
                   << "]: " << itSession->second.nExpires << " <= " << nCurrentTime;
 
               staff::security::Sessions::Inst().Close(itSession->first);
@@ -111,16 +111,14 @@ namespace staff
 
         if (nMinExpires == INT_MAX)
         { // last session was removed
-          rise::LogDebug2() << "last session was removed";
+          LogDebug2() << "last session was removed";
           continue;
         }
 
-#ifdef DEBUG
-        RISE_ASSERT(nCurrentTime <= nMinExpires);
-#endif
+        STAFF_DEBUG_ASSERT(nCurrentTime <= nMinExpires, "Error while calculating interval");
 
         m_nSleepTime = nMinExpires - nCurrentTime;
-        rise::LogDebug2() << "Sleep time: " << m_nSleepTime;
+        LogDebug2() << "Sleep time: " << m_nSleepTime;
         while (--m_nSleepTime > 0)
         { // for delayed session closing
           Sleep(1000);
@@ -157,7 +155,7 @@ namespace staff
 
   void SessionManager::Stop()
   {
-    if (m_pImpl->IsWorking())
+    if (m_pImpl->IsRunning())
     {
       m_pImpl->Stop();
     }
@@ -192,7 +190,7 @@ namespace staff
 
     if (bOldSessionExists)
     {
-      rise::LogDebug2() << "Freeing old session: " << sOldSessionId;
+      LogDebug2() << "Freeing old session: " << sOldSessionId;
       ServiceInstanceManager::Inst().FreeSession(sOldSessionId);
       m_pImpl->m_mSessions.erase(sOldSessionId);
     }
@@ -202,7 +200,7 @@ namespace staff
 
   void SessionManager::Close(const std::string& sSessionId)
   {
-    rise::LogDebug2() << "Closing session [" << sSessionId << "]";
+    LogDebug2() << "Closing session [" << sSessionId << "]";
 
     staff::security::Sessions::Inst().Close(sSessionId);
 
@@ -213,7 +211,7 @@ namespace staff
     SessionManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     if (itSession == m_pImpl->m_mSessions.end())
     {
-      rise::LogWarning() << "Attempt to close non-existing session";
+      LogWarning() << "Attempt to close non-existing session";
     }
     else
     {
@@ -241,7 +239,8 @@ namespace staff
     rSessions.Keepalive(sSessionId);
 
     SessionManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
-    RISE_ASSERT(itSession != m_pImpl->m_mSessions.end());
+    STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session with id [" + sSessionId +
+                 "] does not exists");
 
     itSession->second.nExpires = rSessions.GetExpiresById(itSession->second.nId);
   }

@@ -23,7 +23,7 @@
 #ifndef _STAFF_NILLABLE_H_
 #define _STAFF_NILLABLE_H_
 
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
 
 namespace staff
 {
@@ -126,7 +126,7 @@ namespace staff
     }
 
   private:
-    mutable rise::CMutablePtr<Type> m_tpData;
+    mutable SharedPtr<Type> m_tpData;
   };
 
 } // namespace staff

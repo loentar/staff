@@ -27,7 +27,7 @@
 #define _DataAccessServiceImpl_h_
 
 #include <memory>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Provider.h>
 #include "DataAccessService.h"

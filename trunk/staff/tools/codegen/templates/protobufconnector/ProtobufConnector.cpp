@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Protobuf bridge
 
-//#include <rise/common/ExceptionTemplate.h>
+//#include <staff/common/Exception.h>
 #include "ProtobufConnector.h"
 
 $(Project.OpeningNs)

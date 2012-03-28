@@ -1,4 +1,4 @@
-#ifeq($(Enum.Extern),0) // do not serialize/deserialize extern type
+#ifeq($(Enum.Extern),false) // do not serialize/deserialize extern type
 
       <simpleType name="\
 #ifneq($(Enum.Owner.!dot),)
@@ -12,4 +12,4 @@ $(Enum.Name.!dot)">
         </restriction>
       </simpleType>
 
-#ifeqend //#ifeq($(Enum.Extern),0) // do not serialize extern type
+#ifeqend //#ifeq($(Enum.Extern),false) // do not serialize extern type

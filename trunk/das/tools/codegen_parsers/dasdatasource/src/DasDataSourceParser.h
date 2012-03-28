@@ -25,17 +25,13 @@
 #include <staff/codegen/Interface.h>
 #include <staff/codegen/CodegenParser.h>
 
-namespace rise
+namespace staff
 {
 namespace xml
 {
-  class CXMLNode;
+  class Element;
 }
-}
-
-namespace staff
-{
-  class DataObject;
+class DataObject;
 
 namespace codegen
 {
@@ -50,14 +46,14 @@ namespace codegen
     virtual void Process(const ParseSettings& rParseSettings, Project& rProject);
 
   private:
-    void ParseProject(rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
+    void ParseProject(xml::Element& rDataSourceNode, Project& rProject,
                       const std::string& sRootNs);
     void ImportInterface(Interface& rInterface, const Interface& rImportedInterface);
-    void ParseTypes(const rise::xml::CXMLNode& rNodeTypes, Project& rProject, Interface& rInterface,
+    void ParseTypes(const xml::Element& rNodeTypes, Project& rProject, Interface& rInterface,
                     const std::string& sNamespace);
-    void ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr);
+    void ParseDescr(const xml::Element& rNode, std::string& sDescr);
     bool FixDataType(DataType& rDataType, const Interface& rInterface, const std::string& sNamespace);
-    void ProcessIncludes(rise::xml::CXMLNode& rNode);
+    void ProcessIncludes(xml::Element& rNode);
 
   private:
     static const std::string m_sId;

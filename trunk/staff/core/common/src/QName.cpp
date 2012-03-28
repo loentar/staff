@@ -129,21 +129,21 @@ namespace staff
   std::string QName::GetLocalPart() const
   {
     axis2_char_t* szResult = axutil_qname_get_localpart(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get local part");
+    STAFF_ASSERT_DOM(szResult != NULL, "Can\'t get local part");
     return szResult;
   }
 
   std::string QName::GetNamespaceUri() const
   {
     axis2_char_t* szResult = axutil_qname_get_uri(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get Uri");
+    STAFF_ASSERT_DOM(szResult != NULL, "Can\'t get Uri");
     return szResult;
   }
 
   std::string QName::GetPrefix() const
   {
     axis2_char_t* szResult = axutil_qname_get_prefix(m_pAxutilQName, m_pEnv);
-    RISE_ASSERTES(szResult != NULL, DomFormatException, "Can\'t get prefix");
+    STAFF_ASSERT_DOM(szResult != NULL, "Can\'t get prefix");
     return szResult;
   }
 
@@ -172,7 +172,7 @@ namespace staff
           sLocalPart.c_str(), sNamespaceUri.c_str(), sPrefix.c_str());
     }
 
-    RISE_ASSERTES(pAxutilQName != NULL, DomFormatException, "Can\'t create AxiOM qname");
+    STAFF_ASSERT_DOM(pAxutilQName != NULL, "Can\'t create AxiOM qname");
 
     m_pAxutilQName = pAxutilQName;
     m_bOwner = true;

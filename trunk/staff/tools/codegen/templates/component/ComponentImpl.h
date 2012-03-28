@@ -13,13 +13,13 @@ $(Project.OpeningNs)
   class ComponentImpl: public staff::Component
   {
   public:
-    //!        default constructor
+    //! default constructor
     ComponentImpl();
 
-    //!        destructor
+    //! destructor
     virtual ~ComponentImpl();
 
-    //!         get component name
+    //! get component name
     /*! \return component name
     */
     const std::string& GetName() const;

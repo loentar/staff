@@ -19,8 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
-#include <rise/common/SharedPtr.h>
+#include <staff/utils/SharedPtr.h>
 #include <staff/common/Operation.h>
 #include <staff/common/DataObject.h>
 #include <staff/component/ServiceInstanceManager.h>
@@ -110,8 +109,8 @@ namespace das
     }
     else
     {
-      rise::CSharedPtr<ProviderService> tpService = GetImpl(sSessionId, sInstanceId);
-      RISE_ASSERT(tpService);
+      SharedPtr<ProviderService> tpService = GetImpl(sSessionId, sInstanceId);
+      STAFF_ASSERT(tpService, "Couldn't get service impl");
       tpService->Invoke(rRequest, rOperation.GetResponse());
     }
 

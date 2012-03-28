@@ -2,14 +2,14 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
-#include <rise/plugin/PluginExport.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/utils/SharedPtr.h>
 #foreach $(Project.Interfaces)
 #include "$(Interface.FilePath)$(Interface.Name)Wrapper.h"
 #end
 #include "ComponentImpl.h"
 
-RISE_DECLARE_PLUGIN($(Project.Namespace)ComponentImpl)
+STAFF_DECLARE_PLUGIN($(Project.Namespace)ComponentImpl)
 
 $(Project.OpeningNs)
   ComponentImpl::ComponentImpl()

@@ -3,10 +3,11 @@ include ../Makefile.env
 TARGET = dascommon
 
 CXXFLAGS += -I$(DEPLOYDIR)include
+CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\" -DLIBRARY_VERSION=\"$(LIBRARY_VERSION)\"
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_DAS_COMMON_DLL_EXPORTS
 endif
-LDFLAGS += -lstaffcommon -lstaffcomponent -lrise -lpthread
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

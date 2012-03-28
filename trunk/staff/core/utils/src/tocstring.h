@@ -107,6 +107,43 @@ namespace staff
     return staff_snprintf(szBuffer, nBufferSize, "%f", dValue) < nBufferSize;
   }
 
+
+  inline bool ToHexCString(unsignedByte ubtValue, char* szBuffer, int nBufferSize)
+  {
+    return staff_snprintf(szBuffer, nBufferSize, "0x%x", ubtValue) < nBufferSize;
+  }
+
+  inline bool ToHexCString(unsigned int unValue, char* szBuffer, int nBufferSize)
+  {
+    return staff_snprintf(szBuffer, nBufferSize, "0x%x", unValue) < nBufferSize;
+  }
+
+  inline bool ToHexCString(unsigned short ushValue, char* szBuffer, int nBufferSize)
+  {
+    return staff_snprintf(szBuffer, nBufferSize, "0x%x", ushValue) < nBufferSize;
+  }
+
+  inline bool ToHexCString(unsigned long ulValue, char* szBuffer, int nBufferSize)
+  {
+    return staff_snprintf(szBuffer, nBufferSize, "0x%lx", ulValue) < nBufferSize;
+  }
+
+  inline bool ToHexCString(unsigned long long ullValue, char* szBuffer, int nBufferSize)
+  {
+    return staff_snprintf(szBuffer, nBufferSize, "0x%llx", ullValue) < nBufferSize;
+  }
+
+  inline bool ToHexCString(const void* pAddr, char* szBuffer, int nBufferSize)
+  {
+#if defined _M_X64 || defined __x86_64
+    return staff_snprintf(szBuffer, nBufferSize,
+                          "0x%016lx", reinterpret_cast<const unsigned long>(pAddr)) < nBufferSize;
+#else
+    return staff_snprintf(szBuffer, nBufferSize,
+                          "0x%08x", reinterpret_cast<const unsigned int>(pAddr)) < nBufferSize;
+#endif
+  }
+
 }
 
 #endif // _STAFF_UTILS_TOCSTRING_H_

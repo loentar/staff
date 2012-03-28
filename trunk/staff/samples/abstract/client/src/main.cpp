@@ -3,7 +3,7 @@
 // Client skeleton
 
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Transport.h"
@@ -16,21 +16,21 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::abstract::Transport > pTransport(::staff::ServiceFactory::Inst().GetService< ::samples::abstract::Transport >());
 
-    RISE_ASSERTS(pTransport.get(), "Cannot get client for service samples.abstract.Transport!");
+    STAFF_ASSERT(pTransport.get(), "Cannot get client for service samples.abstract.Transport!");
 
     // Invoke Your service here:
     {
       ::samples::abstract::TransportInfo tTransportCar = pTransport->GetTransport(samples::abstract::TransportTypeCar);
-      rise::LogInfo() << "Resulting type = " << tTransportCar.tpVehicle.GetType();
+      staff::LogInfo() << "Resulting type = " << tTransportCar.tpVehicle.GetType();
       const samples::abstract::Car& rCar = dynamic_cast<const samples::abstract::Car&>(*tTransportCar.tpVehicle);
-      rise::LogInfo() << "Get car. model = " << rCar.sModel;
+      staff::LogInfo() << "Get car. model = " << rCar.sModel;
     }
 
     {
       ::samples::abstract::TransportInfo tTransportPlane = pTransport->GetTransport(samples::abstract::TransportTypePlane);
-      rise::LogInfo() << "Resulting type = " << tTransportPlane.tpVehicle.GetType();
+      staff::LogInfo() << "Resulting type = " << tTransportPlane.tpVehicle.GetType();
       const samples::abstract::Plane& rPlane = dynamic_cast<const samples::abstract::Plane&>(*tTransportPlane.tpVehicle);
-      rise::LogInfo() << "Get Plane. number = " << rPlane.sSerialNumber;
+      staff::LogInfo() << "Get Plane. number = " << rPlane.sSerialNumber;
     }
 
     {
@@ -40,10 +40,10 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
       staff::Abstract<samples::abstract::Vehicle> tPlaneResult = pTransport->Echo(tpReq);
       const samples::abstract::Plane& rPlaneRes = dynamic_cast<const samples::abstract::Plane&>(*tPlaneResult);
-      rise::LogInfo() << "echo. number = " << rPlaneRes.sSerialNumber;
+      staff::LogInfo() << "echo. number = " << rPlaneRes.sSerialNumber;
     }
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

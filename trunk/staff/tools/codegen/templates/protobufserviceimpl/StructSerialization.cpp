@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+#ifeq($(Struct.Extern),false) // do not serialize/deserialize extern type
 #foreach $(Struct.Structs)
 #cginclude "StructSerialization.cpp"
 #end
@@ -13,6 +13,10 @@ $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($
   rLeft << static_cast< const $(Struct.ParentNsName)& >(rstStruct);
 
 #ifeqend
+#ifneq($($protobufEncoding),)
+  // convert string encoding
+  staff::CharsetConverter("$($protobufEncoding)", "UTF-8") tCharsetConverter;
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),generic)
   rLeft.set_$(Param.Name.!tolower)(rRight.$(Param.Name));
@@ -20,8 +24,8 @@ $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($
 #ifeq($(Param.DataType.Type),string)
 \
 #ifneq($($protobufEncoding),)
-  // need to recode string
-  rise::CEncoding::Convert(rRight.$(Param.Name), *rLeft.mutable_$(Param.Name.!tolower)(), rise::CEncoding::ET_UTF_8, rise::CEncoding::ET_$($protobufEncoding));
+  // convert string encoding
+  tCharsetConverter.Convert((rRight.$(Param.Name), *rLeft.mutable_$(Param.Name.!tolower)());
 #else
   rLeft.set_$(Param.Name.!tolower)(rRight.$(Param.Name));
 #ifeqend
@@ -29,7 +33,7 @@ $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($
 #else
 #ifeq($(Param.DataType.Type),struct)
   $(Param.DataType.NsName.!deprefix/$($rootns)/)* pTmp$(Param.Name) = rLeft.mutable_$(Param.Name.!tolower)();
-  RISE_ASSERT(pTmp$(Param.Name));
+  STAFF_ASSERT_PARAM(pTmp$(Param.Name));
   *pTmp$(Param.Name) << rRight.$(Param.Name);
 #else
 #ifeq($(Param.DataType.Type),enum)
@@ -51,9 +55,9 @@ $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
 \
 #ifneq($($protobufEncoding),)
-    // need to recode string
+    // convert string encoding
     std::string sItem$(Param.Name);
-    rise::CEncoding::Convert(*itItem, sItem$(Param.Name), rise::CEncoding::ET_UTF_8, rise::CEncoding::ET_$($protobufEncoding));
+    tCharsetConverter.Convert(*itItem, sItem$(Param.Name));
     rLeft.add_$(Param.Name.!tolower)(sItem$(Param.Name));
 #else
     rLeft.add_$(Param.Name.!tolower)(*itItem);
@@ -62,7 +66,7 @@ $(Struct.NsName.!deprefix/$($rootns)/)& operator<<($(Struct.NsName.!deprefix/$($
 #else
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),struct||enum)
     $(Param.DataType.TemplateParams.TemplateParam1.NsName.!deprefix/$($rootns)/)* pItem = rLeft.add_$(Param.Name.!tolower)();
-    RISE_ASSERT(pItem);
+    STAFF_ASSERT_PARAM(pItem);
     *pItem << *itItem;
 #else
 #cgerror list element type $(Param.DataType.TemplateParams.TemplateParam1.Type) is not supported
@@ -89,6 +93,10 @@ $(Struct.NsName)& operator<<($(Struct.NsName)& rLeft, const $(Struct.NsName.!dep
   rLeft >> static_cast< $(Struct.ParentNsName)& >(rstStruct);
 
 #ifeqend
+#ifneq($($protobufEncoding),)
+  // convert string encoding
+  staff::CharsetConverter("$($protobufEncoding)", "UTF-8") tCharsetConverter;
+#ifeqend
 #foreach $(Struct.Members)
 #ifeq($(Param.DataType.Type),generic)
   rLeft.$(Param.Name) = rRight.$(Param.Name.!tolower)();
@@ -96,8 +104,8 @@ $(Struct.NsName)& operator<<($(Struct.NsName)& rLeft, const $(Struct.NsName.!dep
 #ifeq($(Param.DataType.Type),string)
 \
 #ifneq($($protobufEncoding),)
-  // need to recode string
-  rise::CEncoding::Convert(rRight.$(Param.Name.!tolower)(), rLeft.$(Param.Name), rise::CEncoding::ET_$($protobufEncoding), rise::CEncoding::ET_UTF_8);
+  // convert string encoding
+  tCharsetConverter.Convert(rRight.$(Param.Name.!tolower)(), rLeft.$(Param.Name));
 #else
   rLeft.$(Param.Name) = rRight.$(Param.Name.!tolower)();
 #ifeqend
@@ -120,9 +128,9 @@ $(Struct.NsName)& operator<<($(Struct.NsName)& rLeft, const $(Struct.NsName.!dep
 #ifeq($(Param.DataType.TemplateParams.TemplateParam1.Type),string)
 \
 #ifneq($($protobufEncoding),)
-    // need to recode string
+    // convert string encoding
     std::string sItem$(Param.Name);
-    rise::CEncoding::Convert(rRight.$(Param.Name.!tolower)(nIndex), sItem$(Param.Name), rise::CEncoding::ET_$($protobufEncoding), rise::CEncoding::ET_UTF_8);
+    tCharsetConverter.Convert(rRight.$(Param.Name.!tolower)(nIndex), sItem$(Param.Name));
     rLeft.$(Param.Name).push_back(sItem$(Param.Name));
 #else
     rLeft.$(Param.Name).push_back(rRight.$(Param.Name.!tolower)(nIndex));

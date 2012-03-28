@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0)
+#ifeq($(Struct.Extern),false)
 #ifneq($(Struct.ParentName),)
 #cgerror structure inheritance is not supported by protocol buffers
 #ifeqend

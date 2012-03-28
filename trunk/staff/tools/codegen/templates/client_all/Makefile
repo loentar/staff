@@ -27,7 +27,7 @@ else
   STAFF_CODEGEN = staff_codegen
 endif
 
-LDFLAGS += -lstaffutils -lstaffcommon -lstaffclient -lrise
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffclient
 
 CODEGEN_INTERFACES := \$(patsubst %.h,\$(SRCDIR)%.h,\$(INTERFACES))
 CODEGEN_HEADERS := \$(patsubst %.h,%Proxy.h,\$(CODEGEN_INTERFACES))

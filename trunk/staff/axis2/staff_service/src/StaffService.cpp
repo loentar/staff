@@ -24,7 +24,6 @@
 #pragma warning(disable: 4091)
 #endif
 
-#include <signal.h>
 #include <axis2_svc_skeleton.h>
 #include <axis2_conf.h>
 #include <axutil_array_list.h>
@@ -35,33 +34,21 @@
 #include <axiom_soap_header_block.h>
 #include <axiom_soap_body.h>
 #include <axiom.h>
-#include <exception>
-#include <rise/common/console.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/Log.h>
-#include <rise/threading/Thread.h>
-#include <staff/security/tools.h>
+#include <iostream>
+#include <staff/utils/console.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/StackTracer.h>
+#include <staff/utils/CrashHandler.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/MessageContext.h>
+#include <staff/security/tools.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
 #ifdef _MSC_VER
 #include "version.h"
-#endif
-
-#if defined LINUX_RELEASE_MCBC
-#define sighandler_t __sighandler_t
-#else
-#if defined OS_FreeBSD || defined OS_Darwin
-#define sighandler_t sig_t
-#else
-#ifdef WIN32
-typedef void (*sighandler_t)(int);
-#endif
-#endif
 #endif
 
 class StaffService
@@ -103,7 +90,7 @@ public:
     const axutil_env_t * pEnv, 
     axis2_conf* pConf)
   {
-    m_pPrevSigSegvHandler = signal(SIGSEGV, StaffService::OnSignal);
+    staff::CrashHandler::Enable();
 #if defined WIN32
     // installing handler to process Staff deinitialization before dlls are unloaded
     SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
@@ -119,7 +106,7 @@ public:
 
     if (!bEngaged)
     {
-      rise::LogError() << "staff module is not engaged. Unable to continue.";
+      staff::LogError() << "staff module is not engaged. Unable to continue.";
       exit(1);
     }
 
@@ -130,14 +117,14 @@ public:
 
     if (!bEngaged)
     {
-      rise::LogError() << "staff_security module is not engaged. Unable to continue.";
+      staff::LogError() << "staff_security module is not engaged. Unable to continue.";
       exit(1);
     }
 
     // initialize security
     if (!staff_security_init())
     {
-      rise::LogError() << "Failed to initialize staff::security.";
+      staff::LogError() << "Failed to initialize staff::security.";
       exit(1);
     }
 
@@ -151,17 +138,14 @@ public:
 
       return AXIS2_SUCCESS;
     }
-    RISE_CATCH_ALL_DESCR("Failed to start StaffService dispatcher")
+    STAFF_CATCH_ALL_DESCR("Failed to start StaffService dispatcher")
 
     return AXIS2_FAILURE;
   }
 
   static int AXIS2_CALL Axis2Service_free(axis2_svc_skeleton_t *pSvcSkeleton, const axutil_env_t *pEnv)
   {
-rise::LogEntry();
-#if defined DEBUG || defined _DEBUG
-    rise::LogDebug() << "stopping StaffService";
-#endif
+    staff::LogDebug() << "stopping StaffService";
 
 #if !defined WIN32
     m_bShuttingDown = true;
@@ -176,7 +160,7 @@ rise::LogEntry();
       pSvcSkeleton = NULL;
     }
 
-    signal(SIGSEGV, StaffService::m_pPrevSigSegvHandler);
+    staff::CrashHandler::Disable();
 
     return AXIS2_SUCCESS; 
   }
@@ -201,20 +185,20 @@ rise::LogEntry();
   {
     if (pAxiomNode == NULL)
     {
-      rise::LogError() << "AxiOM node is NULL\n";
+      staff::LogError() << "AxiOM node is NULL\n";
       return NULL;
     }
 
     if (axiom_node_get_node_type(pAxiomNode, pEnv) != AXIOM_ELEMENT)
     {
-      rise::LogError() << "Can't get AxiOM node type";
+      staff::LogError() << "Can't get AxiOM node type";
       return NULL;
     }
 
     axiom_element_t* pAxiomElement = (axiom_element_t*)axiom_node_get_data_element(pAxiomNode, pEnv);
     if (pAxiomElement == NULL)
     {
-      rise::LogError() << "Can't get AxiOM node element\n";
+      staff::LogError() << "Can't get AxiOM node element\n";
       return NULL;
     }
 
@@ -227,32 +211,33 @@ rise::LogEntry();
 
     if (szServiceName == NULL)
     {
-      rise::LogError() << "Cannot process message: Service name is not set by security module.";
+      staff::LogError() << "Cannot process message: Service name is not set by security module.";
       return NULL;
     }
 
     if (szSessionId == NULL)
     {
-      rise::LogError() << "Cannot process message: Session id is not set by security module.";
+      staff::LogError() << "Cannot process message: Session id is not set by security module.";
       return NULL;
     }
 
     if (szInstanceId == NULL)
     {
-      rise::LogError() << "Cannot process message: Instance id is not set by security module.";
+      staff::LogError() << "Cannot process message: Instance id is not set by security module.";
       return NULL;
     }
 
 #ifdef _DEBUG
-    rise::LogDebug1() << "Service name: [" << szServiceName << "]";
-    rise::LogDebug1() << "Session id: [" << szSessionId << "]";
-    rise::LogDebug1() << "Instance id: [" << szInstanceId << "]";
+    staff::LogDebug1() << "Service name: [" << szServiceName << "]";
+    staff::LogDebug1() << "Session id: [" << szSessionId << "]";
+    staff::LogDebug1() << "Instance id: [" << szInstanceId << "]";
 
     {
       axiom_node_t* panBody = axiom_node_get_parent(pAxiomNode, pEnv);
       axiom_node_t* panEnv = axiom_node_get_parent(panBody, pEnv);
 
-      rise::LogDebug2() << "request SOAP Envelope: \n" << rise::ColorInkBlue << staff::DataObject(panEnv).ToString() << "\n" << rise::ColorDefault;
+      staff::LogDebug2() << "request SOAP Envelope: \n" << staff::ColorTextBlue
+                  << staff::DataObject(panEnv).ToString() << "\n" << staff::ColorDefault;
     }
 #endif
 
@@ -275,26 +260,16 @@ rise::LogEntry();
       else
       {
         staff::ServiceWrapper* pServiceWrapper = staff::SharedContext::Inst().GetService(sServiceName);
-        RISE_ASSERTS(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
+        STAFF_ASSERT(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
         pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
       }
     }
-    catch(const staff::RemoteException& rEx)
-    {
-      tOperation.SetFault("server", rEx.GetString(), "Failed to invoke service " + sServiceName
-                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
-    }
-    catch(const rise::CException& rEx)
-    {
-      tOperation.SetFault("server", rEx.GetString(), "Failed to invoke service " + sServiceName
-                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
-    }
-    catch(const std::exception& rEx)
+    catch (const std::exception& rEx)
     {
       tOperation.SetFault("server", rEx.what(), "Failed to invoke service " + sServiceName
                           + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
     }
-    catch(...)
+    catch (...)
     {
       tOperation.SetFault("server", "Unknown exception", "Failed to invoke service " + sServiceName
                           + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
@@ -303,7 +278,7 @@ rise::LogEntry();
     if (tOperation.IsFault())
     {
       m_sLastFaultDetail = tOperation.GetFaultDetail();
-      rise::LogWarning() << "Fault: \n" << tOperation.GetFaultDescr() << "\n";
+      staff::LogWarning() << "Fault: \n" << tOperation.GetFaultDescr() << "\n";
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, static_cast<axis2_char_t*>(axutil_strdup(pEnv, tOperation.GetFaultString().c_str())));
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, static_cast<axutil_error_codes_t>(AXUTIL_ERROR_MAX + 1));
       AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
@@ -320,7 +295,7 @@ rise::LogEntry();
     rResponse.SetOwner(false);
 
 #ifdef _DEBUG
-    rise::LogDebug2() << "Sending Response: \n" <<  rise::ColorInkBlue << rResponse.ToString() << "\n" << rise::ColorDefault;
+    staff::LogDebug2() << "Sending Response: \n" <<  staff::ColorTextBlue << rResponse.ToString() << "\n" << staff::ColorDefault;
 #endif
 
     return rResponse;
@@ -347,18 +322,6 @@ rise::LogEntry();
     return pErrorNode;
   }
 
-  static void OnSignal(int nSignal)
-  {
-    if(nSignal == SIGSEGV)
-    {
-      std::string sTracedStack;
-      rise::tools::CStackTracer::StackTraceStr(sTracedStack);
-      rise::LogError() << "Segmentation fault in thread " << rise::threading::CThread::GetCurrentId()
-          << ".\nTraced stack:\n" << sTracedStack;
-      exit(1);
-    }
-  }
-
 private:
   static axis2_svc_skeleton_ops_t m_stAxis2SkelOps;
   static axis2_svc_t* m_pAxis2Svc;
@@ -366,7 +329,6 @@ private:
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
-  static sighandler_t m_pPrevSigSegvHandler;
 };
 
 
@@ -384,7 +346,6 @@ std::string StaffService::m_sLastFaultDetail;
 const axutil_env_t* StaffService::m_pEnv = NULL;
 axis2_conf* StaffService::m_pConf = NULL;
 bool StaffService::m_bShuttingDown = false;
-sighandler_t StaffService::m_pPrevSigSegvHandler = NULL;
 
 /**
  * Following block distinguish the exposed part of the dll.

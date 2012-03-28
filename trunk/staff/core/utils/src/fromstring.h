@@ -29,20 +29,27 @@ namespace staff
 {
 
   template<typename Type>
-  Type& FromString(const std::string& rString, Type& rValue)
+  inline Type& FromString(const std::string& rString, Type& rValue)
   {
     FromCString(rString.c_str(), rValue);
     return rValue;
   }
 
   template<typename Type>
-  Type& FromString(const std::string& rString, Type& rValue, bool* pbIsOk)
+  inline Type& FromString(const std::string& rString, Type& rValue, bool* pbIsOk)
   {
     bool bIsOk = FromCString(rString.c_str(), rValue);
     if (pbIsOk)
     {
       *pbIsOk = bIsOk;
     }
+    return rValue;
+  }
+
+  template<typename Type>
+  inline Type& FromHexString(const std::string& rString, Type& rValue)
+  {
+    FromHexCString(rString.c_str(), rValue);
     return rValue;
   }
 

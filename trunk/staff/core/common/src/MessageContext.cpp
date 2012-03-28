@@ -22,7 +22,7 @@
 #include <axis2_msg_ctx.h>
 #include <axis2_http_header.h>
 #include <axis2_http_transport.h>
-#include <rise/common/ExceptionTemplate.h>
+#include "Exception.h"
 #include "MessageContext.h"
 
 namespace staff
@@ -41,40 +41,34 @@ namespace staff
   std::string MessageContext::GetFaultToAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(pHeaders, "Can't get Headers");
+    STAFF_ASSERT(pHeaders, "Can't get Headers");
     axis2_endpoint_ref_t* pEndpoint = axis2_msg_info_headers_get_fault_to(pHeaders, m_pEnv);
-    RISE_ASSERTS(pEndpoint, "Can't get endpoint");
+    STAFF_ASSERT(pEndpoint, "Can't get endpoint");
     const axis2_char_t* szAddr = axis2_endpoint_ref_get_address(pEndpoint, m_pEnv);
-    RISE_ASSERTS(szAddr, "Can't get address");
+    STAFF_ASSERT(szAddr, "Can't get address");
     return szAddr;
   }
 
   std::string MessageContext::GetFromAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(pHeaders, "Can't get Headers");
+    STAFF_ASSERT(pHeaders, "Can't get Headers");
     axis2_endpoint_ref_t* pEndpoint = axis2_msg_info_headers_get_from(pHeaders, m_pEnv);
-    RISE_ASSERTS(pEndpoint, "Can't get endpoint");
+    STAFF_ASSERT(pEndpoint, "Can't get endpoint");
     const axis2_char_t* szAddr = axis2_endpoint_ref_get_address(pEndpoint, m_pEnv);
-    RISE_ASSERTS(szAddr, "Can't get address");
+    STAFF_ASSERT(szAddr, "Can't get address");
     return szAddr;
 
-
-//    axis2_endpoint_ref_t* pEndpoint = axis2_msg_ctx_get_from(m_pMsgCtx, m_pEnv);
-//    RISE_ASSERTS(pEndpoint, "Can't get endpoint");
-//    const axis2_char_t* szAddr = axis2_endpoint_ref_get_address(pEndpoint, m_pEnv);
-//    RISE_ASSERTS(szAddr, "Can't get address");
-//    return szAddr;
   }
 
   std::string MessageContext::GetToAddress() const
   {
     axis2_msg_info_headers_t* pHeaders = axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(pHeaders, "Can't get Headers");
+    STAFF_ASSERT(pHeaders, "Can't get Headers");
     axis2_endpoint_ref_t* pEndpoint = axis2_msg_info_headers_get_to(pHeaders, m_pEnv);
-    RISE_ASSERTS(pEndpoint, "Can't get endpoint");
+    STAFF_ASSERT(pEndpoint, "Can't get endpoint");
     const axis2_char_t* szAddr = axis2_endpoint_ref_get_address(pEndpoint, m_pEnv);
-    RISE_ASSERTS(szAddr, "Can't get address");
+    STAFF_ASSERT(szAddr, "Can't get address");
     return szAddr;
   }
 
@@ -82,21 +76,6 @@ namespace staff
   {
     return axis2_msg_ctx_get_in_fault_flow(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
-
-  //CMessageContext::GetSoapEnvelope() const
-  //{
-  //  axis2_msg_ctx_get_soap_envelope(m_pMsgCtx, m_pEnv);
-  //}
-
-  //CMessageContext::GetResponseSoapEnvelope() const
-  //{
-  //  axis2_msg_ctx_get_response_soap_envelope
-  //}
-
-  //CMessageContext::GetFaultSoapEnvelope() const
-  //{
-  //  axis2_msg_ctx_get_fault_soap_envelope
-  //}
 
   std::string MessageContext::GetMsgId() const
   {
@@ -108,16 +87,6 @@ namespace staff
   {
     return axis2_msg_ctx_get_process_fault(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
-
-  //CMessageContext::GetRelatesTo() const
-  //{
-  //  axis2_msg_ctx_get_relates_to()
-  //}
-
-  //CMessageContext::GetReplyTo() const
-  //{
-  //  axis2_msg_ctx_get_reply_to()
-  //}
 
   bool MessageContext::GetServerSide() const
   {
@@ -132,21 +101,16 @@ namespace staff
   std::string MessageContext::GetWsaAction() const
   {
     const axis2_char_t* szMsgId = axis2_msg_ctx_get_wsa_action(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(szMsgId, "Can't get wsa action");
+    STAFF_ASSERT(szMsgId, "Can't get wsa action");
     return szMsgId;
   }
 
   std::string MessageContext::GetWsaMessageId() const
   {
     const axis2_char_t* szMsgId = axis2_msg_ctx_get_wsa_message_id(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(szMsgId, "Can't get wsa msgid");
+    STAFF_ASSERT(szMsgId, "Can't get wsa msgid");
     return szMsgId;
   }
-
-//  MessageContext::GetMsgInfoHeaders() const
-//  {
-//    axis2_msg_ctx_get_msg_info_headers(m_pMsgCtx, m_pEnv);
-//  }
 
   bool MessageContext::IsKeepAlive() const
   {
@@ -165,31 +129,6 @@ namespace staff
     return szSvcCtxId ? szSvcCtxId : "";
   }
 
-  //CMessageContext::GetConfCtx() const
-  //{
-  //  axis2_msg_ctx_get_conf_ctx()
-  //}
-
-  //CMessageContext::GetSvcCtx() const
-  //{
-  //  axis2_msg_ctx_get_svc_ctx(m_pMsgCtx, m_pEnv);
-  //}
-
-  //CMessageContext::GetParameter() const
-  //{
-  //  axis2_msg_ctx_get_parameter()
-  //}
-
-  //CMessageContext::GetModuleParameter() const
-  //{
-  //  axis2_msg_ctx_get_module_parameter
-  //}
-
-  //CMessageContext::GetProperty() const
-  //{
-  //  axis2_msg_ctx_get_property
-  //}
-
   std::string MessageContext::GetPropertyValue(const std::string& sName) const
   {
     const axis2_char_t* szValue = reinterpret_cast<const char*>
@@ -202,12 +141,6 @@ namespace staff
     const axutil_string_t* psName = axis2_msg_ctx_get_paused_handler_name(m_pMsgCtx, m_pEnv);
     return std::string(axutil_string_get_buffer(psName, m_pEnv), axutil_string_get_length(psName, m_pEnv));
   }
-
-  //std::string MessageContext::GetPausedPhaseName() const
-  //{
-  //  const char* szName = static_cast<const char*>(axis2_msg_ctx_get_paused_phase_name(m_pMsgCtx, m_pEnv));
-  //  return szName ? szName : "";
-  //}
 
   std::string MessageContext::GetSoapAction() const
   {
@@ -240,11 +173,6 @@ namespace staff
     return axis2_msg_ctx_get_is_soap_11(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
   }
 
-  //CMessageContext::GetOptions() const
-  //{
-  //  axis2_msg_ctx_get_options()
-  //}
-
   bool MessageContext::IsPaused() const
   {
     return axis2_msg_ctx_is_paused(m_pMsgCtx, m_pEnv) != AXIS2_FALSE;
@@ -254,11 +182,6 @@ namespace staff
   {
     return axis2_msg_ctx_get_flow(m_pMsgCtx, m_pEnv);
   }
-
-  //CMessageContext::GetSupportedRestHttpMethods() const
-  //{
-  //  axis2_msg_ctx_get_supported_rest_http_methods
-  //}
 
   std::string MessageContext::GetCharsetEncoding() const
   {
@@ -271,26 +194,10 @@ namespace staff
     return axis2_msg_ctx_get_status_code(m_pMsgCtx, m_pEnv);
   }
 
-  //CMessageContext::GetOutTransportInfo() const
-  //{
-  //  axis2_msg_ctx_get_out_transport_info
-  //}
-
-  //CMessageContext::ResetOutTransportInfo() const
-  //{
-  //  axis2_msg_ctx_reset_out_transport_info
-  //}
-
-  //CMessageContext::GetTransportHeaders() const
-  //{
-  //  axis2_msg_ctx_get_transport_headers
-
-  //}
-
   bool MessageContext::GetTransportHeaderValue(const std::string& sHeader, std::string& sValue) const
   {
     axutil_hash_t* pHashHeaders = axis2_msg_ctx_get_transport_headers(m_pMsgCtx, m_pEnv);
-    RISE_ASSERTS(pHashHeaders, "Can't get transport headers");
+    STAFF_ASSERT(pHashHeaders, "Can't get transport headers");
 
     axis2_http_header_t* pHostHeader = reinterpret_cast<axis2_http_header_t*>
         (axutil_hash_get(pHashHeaders, sHeader.c_str(), AXIS2_HASH_KEY_STRING));
@@ -312,11 +219,6 @@ namespace staff
 
     return true;
   }
-
-  //CMessageContext::ExtractTransportHeaders() const
-  //{
-  //  axis2_msg_ctx_extract_transport_headers
-  //}
 
   std::string MessageContext::GetTransportUrl() const
   {

@@ -21,9 +21,14 @@
 
 #include <string>
 #include <map>
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/tostring.h>
+#include <staff/utils/stringutils.h>
 #include <staff/common/Attribute.h>
 #include <staff/common/DataObject.h>
+#include <staff/xml/Attribute.h>
+#include <staff/xml/Element.h>
 #include "DataSource.h"
 #include "Executor.h"
 #include "Provider.h"
@@ -55,78 +60,69 @@ namespace das
     {
     }
 
-    void ProcessSequence(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+    void ProcessSequence(const DataObject& rdoContext, const xml::Element& rScript,
                                          const DataType& rReturnType, DataObject& rdoResult)
     {
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperator = rScript.NodeBegin();
-          itOperator != rScript.NodeEnd(); ++itOperator)
+      for (const xml::Element* pOperator = rScript.GetFirstChildElement();
+          pOperator && !m_bReturn; pOperator = pOperator->GetNextSiblingElement())
       {
-        const rise::xml::CXMLNode& rNodeOperator = *itOperator;
-        if (rNodeOperator.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
+        const std::string& sOperator = pOperator->GetName();
+
+        if (sOperator == "var")
         {
-          if (m_bReturn)
-          {
-            return;
-          }
-
-          const std::string& sOperator = rNodeOperator.NodeName();
-
-          if (sOperator == "var")
-          {
-            ProcessVar(rdoContext, rNodeOperator);
-          }
-          else
-          if (sOperator == "foreach")
-          {
-            ProcessForeach(rdoContext, rNodeOperator, rReturnType, rdoResult);
-          }
-          else
-          if (sOperator == "ifeq")
-          {
-            ProcessIfeq(rdoContext, rNodeOperator, rReturnType, rdoResult, true);
-          }
-          else
-          if (sOperator == "ifneq")
-          {
-            ProcessIfeq(rdoContext, rNodeOperator, rReturnType, rdoResult, false);
-          }
-          else
-          if (sOperator == "return")
-          {
-            ProcessReturn(rdoContext, rNodeOperator, rReturnType, rdoResult);
-            m_bReturn = true;
-            return;
-          }
-          else
-          if (sOperator == "execute")
-          {
-            ProcessExecute(rdoContext, rNodeOperator, rReturnType, rdoResult);
-          }
-          else
-          if (sOperator == "log")
-          {
-            ProcessLog(rdoContext, rNodeOperator);
-          }
-          else
-          if (sOperator == "fault")
-          {
-            ProcessFault(rdoContext, rNodeOperator);
-          }
-          else
-          {
-            RISE_THROWS(rise::CLogicNoItemException, "Invalid operator: [" + sOperator + "]");
-          }
+          ProcessVar(rdoContext, *pOperator);
+        }
+        else
+        if (sOperator == "foreach")
+        {
+          ProcessForeach(rdoContext, *pOperator, rReturnType, rdoResult);
+        }
+        else
+        if (sOperator == "ifeq")
+        {
+          ProcessIfeq(rdoContext, *pOperator, rReturnType, rdoResult, true);
+        }
+        else
+        if (sOperator == "ifneq")
+        {
+          ProcessIfeq(rdoContext, *pOperator, rReturnType, rdoResult, false);
+        }
+        else
+        if (sOperator == "return")
+        {
+          ProcessReturn(rdoContext, *pOperator, rReturnType, rdoResult);
+          m_bReturn = true;
+          return;
+        }
+        else
+        if (sOperator == "execute")
+        {
+          ProcessExecute(rdoContext, *pOperator, rReturnType, rdoResult);
+        }
+        else
+        if (sOperator == "log")
+        {
+          ProcessLog(rdoContext, *pOperator);
+        }
+        else
+        if (sOperator == "fault")
+        {
+          ProcessFault(rdoContext, *pOperator);
+        }
+        else
+        {
+          STAFF_THROW_ASSERT("Invalid operator: [" + sOperator + "]");
         }
       }
     }
 
-    const std::string& GetProviderId(const rise::xml::CXMLNode& rScript) const
+    const std::string& GetProviderId(const xml::Element& rScript) const
     {
-      const rise::xml::CXMLNode* pElem = &rScript;
-      rise::xml::CXMLNode::TXMLAttrConstIterator itAttr;
+      const xml::Element* pElem = &rScript;
+      const xml::Attribute* pAttr = NULL;
       while (pElem)
       {
-        const std::string& sNodeName = pElem->NodeName();
+        const std::string& sNodeName = pElem->GetName();
         if (sNodeName == "operation")
         {
           break;
@@ -134,19 +130,19 @@ namespace das
         else
         if (sNodeName == "execute" || sNodeName == "script")
         {
-          itAttr = pElem->FindAttribute("providerid");
-          if (itAttr != pElem->AttrEnd())
+          pAttr = pElem->FindAttribute("providerid");
+          if (pAttr)
           {
-            return itAttr->sAttrValue.AsString();
+            return pAttr->GetValue();
           }
         }
         else
         if (sNodeName == "provider")
         {
-          itAttr = pElem->FindAttribute("id");
-          if (itAttr != pElem->AttrEnd())
+          pAttr = pElem->FindAttribute("id");
+          if (pAttr)
           {
-            return itAttr->sAttrValue.AsString();
+            return pAttr->GetValue();
           }
         }
         pElem = pElem->GetParent();
@@ -155,14 +151,14 @@ namespace das
       return m_rstProviders.sDefaultId;
     }
 
-    void ProcessExecute(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+    void ProcessExecute(const DataObject& rdoContext, const xml::Element& rScript,
                         const DataType& rReturnType, DataObject& rdoResult)
     {
-      std::string sExecute = rScript.NodeContent().AsString();
-      rise::LogDebug1() << "Query is [" + sExecute + "]";
+      std::string sExecute = rScript.GetValue();
+      LogDebug1() << "Query is [" + sExecute + "]";
 
       sExecute = Eval(rdoContext, sExecute);
-      rise::LogDebug1() << "Query with params [" + sExecute + "]";
+      LogDebug1() << "Query with params [" + sExecute + "]";
 
       const std::string& sProviderId = GetProviderId(rScript);
 
@@ -170,11 +166,11 @@ namespace das
       if (!rpExec.Get())
       {
         ProvidersMap::iterator itProvider = m_rstProviders.mProviders.find(sProviderId);
-        RISE_ASSERTS(itProvider != m_rstProviders.mProviders.end(), "Provider with id=["
+        STAFF_ASSERT(itProvider != m_rstProviders.mProviders.end(), "Provider with id=["
                      + sProviderId + "] does not exists");
 
         rpExec = itProvider->second->GetExecutor();
-        RISE_ASSERT(rpExec.Get());
+        STAFF_ASSERT(rpExec.Get(), "Couldn't get Executor");
       }
 
       switch (rpExec->GetType())
@@ -198,8 +194,8 @@ namespace das
           {
             if (pExec->GetNextResult(lsResult))
             {
-              RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                  rise::ToStr(lsResult.size()) + " expected: 1");
+              STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
+                  ToString(lsResult.size()) + " expected: 1");
               rdoResult.SetText(lsResult.front());
             }
           }
@@ -208,8 +204,8 @@ namespace das
           {
             if (pExec->GetNextResult(lsResult))
             {
-              RISE_ASSERTS(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
-                  rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rReturnType.lsChilds.size()));
+              STAFF_ASSERT(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
+                  ToString(lsResult.size()) + " expected: " + ToString(rReturnType.lsChilds.size()));
 
               StringList::const_iterator itResult = lsResult.begin();
               for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
@@ -244,8 +240,8 @@ namespace das
             {
               if (pExec->GetNextResult(lsResult))
               {
-                RISE_ASSERTS(lsResult.size() == 1, "Fields count does not match: " +
-                             rise::ToStr(lsResult.size()) + " expected: 1");
+                STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
+                             ToString(lsResult.size()) + " expected: 1");
                 do
                 {
                   rdoResult.CreateChild("Item").SetText(lsResult.front());
@@ -258,8 +254,8 @@ namespace das
             {
               if (pExec->GetNextResult(lsResult))
               {
-                RISE_ASSERTS(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
-                             rise::ToStr(lsResult.size()) + " expected: " + rise::ToStr(rItemType.lsChilds.size()));
+                STAFF_ASSERT(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
+                             ToString(lsResult.size()) + " expected: " + ToString(rItemType.lsChilds.size()));
                 do
                 {
                   staff::DataObject tdoItem = rdoResult.CreateChild("Item");
@@ -276,38 +272,38 @@ namespace das
             }
             else
             {
-              RISE_THROWS(rise::CLogicNoItemException, "Unsupported list item type: " + rReturnType.sType);
+              STAFF_THROW_ASSERT("Unsupported list item type: " + rReturnType.sType);
             }
           }
           else
           if (rReturnType.eType != DataType::Void)
           {
-            RISE_THROWS(rise::CLogicNoItemException, "Unsupported return type: " + rReturnType.sType);
+            STAFF_THROW_ASSERT("Unsupported return type: " + rReturnType.sType);
           }
           break;
         }
 
         default:
-          RISE_THROWS(rise::CLogicNoItemException, "Unknown executor type");
+          STAFF_THROW_ASSERT("Unknown executor type");
       }
 
     }
 
-    void ProcessVar(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    void ProcessVar(const DataObject& rdoContext, const xml::Element& rScript)
     {
-      const std::string& sVarName = rScript.Attribute("name").AsString();
+      const std::string& sVarName = rScript.GetAttributeValue("name");
 
       Var& rVar = m_mVars[sVarName];
 
       // get var type
-      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrType = rScript.FindAttribute("type");
-      if (itAttrType != rScript.AttrEnd())
+      const xml::Attribute* pAttrType = rScript.FindAttribute("type");
+      if (pAttrType)
       {
-        const std::string& sType = itAttrType->sAttrValue.AsString();
+        const std::string& sType = pAttrType->GetValue();
 
         const DataType* pType = m_rDataSource.FindType(sType);
 
-        if (pType != NULL)
+        if (pType)
         { // datasource's type
           rVar.tType = *pType;
         }
@@ -327,10 +323,10 @@ namespace das
       }
 
 
-      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrValue = rScript.FindAttribute("value");
-      if (itAttrValue != rScript.AttrEnd())
+      const xml::Attribute* pAttrValue = rScript.FindAttribute("value");
+      if (pAttrValue)
       {
-        rVar.sValue = Eval(rdoContext, itAttrValue->sAttrValue.AsString());
+        rVar.sValue = Eval(rdoContext, pAttrValue->GetValue());
         if (rVar.tType.eType == DataType::Void)
         {
           rVar.tType.eType = DataType::Generic;
@@ -350,22 +346,22 @@ namespace das
           rVar.tdoValue.Detach();
           if (rVar.tType.sType != "string")
           {
-            rise::StrTrim(rVar.sValue);
+            StringTrim(rVar.sValue);
           }
         }
       }
     }
 
 
-    void ProcessForeach(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
-                         const DataType& rReturnType, DataObject& rdoResult)
+    void ProcessForeach(const DataObject& rdoContext, const xml::Element& rScript,
+                        const DataType& rReturnType, DataObject& rdoResult)
     {
       DataObject tdoElement = rdoContext;
 
-      rise::xml::CXMLNode::TXMLAttrConstIterator itAttrElementName = rScript.FindAttribute("element");
-      if (itAttrElementName != rScript.AttrEnd())
+      const xml::Attribute* pAttrElementName = rScript.FindAttribute("element");
+      if (pAttrElementName)
       {
-        GetChild(tdoElement, itAttrElementName->sAttrValue.AsString(), tdoElement);
+        GetChild(tdoElement, pAttrElementName->GetValue(), tdoElement);
       }
 
       for (DataObject::Iterator itChild = tdoElement.Begin(); itChild != tdoElement.End(); ++itChild)
@@ -374,25 +370,25 @@ namespace das
       }
     }
 
-    void ProcessIfeq(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+    void ProcessIfeq(const DataObject& rdoContext, const xml::Element& rScript,
                      const DataType& rReturnType, DataObject& rdoResult, bool bEqual)
     {
-      if ((Eval(rdoContext, rScript.Attribute("expr1").AsString()) ==
-           Eval(rdoContext, rScript.Attribute("expr2").AsString())) == bEqual)
+      if ((Eval(rdoContext, rScript.GetAttributeValue("expr1")) ==
+           Eval(rdoContext, rScript.GetAttributeValue("expr2"))) == bEqual)
       {
         ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
       }
     }
 
 
-    void ProcessReturn(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+    void ProcessReturn(const DataObject& rdoContext, const xml::Element& rScript,
                        const DataType& rReturnType, DataObject& rdoResult)
     {
-      rise::xml::CXMLNode::TXMLAttrConstIterator itVar = rScript.FindAttribute("var");
-      if (itVar != rScript.AttrEnd())
+      const xml::Attribute* pVar = rScript.FindAttribute("var");
+      if (pVar)
       {
-        const std::string& sVarName = itVar->sAttrValue.AsString();
-        RISE_ASSERTS(!sVarName.empty(), "variable name is empty");
+        const std::string& sVarName = pVar->GetValue();
+        STAFF_ASSERT(!sVarName.empty(), "variable name is empty");
         if (sVarName[0] == '$')
         {
           const std::string& sValue = Eval(rdoContext, sVarName);
@@ -401,9 +397,9 @@ namespace das
         else
         {
           VarMap::const_iterator itVar = m_mVars.find(sVarName);
-          RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
+          STAFF_ASSERT(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
           const Var& rVar = itVar->second;
-          RISE_ASSERTS(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
+          STAFF_ASSERT(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
 
           if (rReturnType.eType == DataType::Generic)
           {
@@ -417,7 +413,7 @@ namespace das
       }
       else
       {
-        rdoResult.SetText(Eval(rdoContext, rScript.NodeContent()));
+        rdoResult.SetText(Eval(rdoContext, rScript.GetValue()));
       }
     }
 
@@ -434,11 +430,11 @@ namespace das
         std::string::size_type nSize = sResult.size();
         bool bIsRequest = false;
 
-        RISE_ASSERTS((nBegin + 1) < nSize, "Unexpected '$' at end in [" + sResult + "]");
+        STAFF_ASSERT((nBegin + 1) < nSize, "Unexpected '$' at end in [" + sResult + "]");
         if (sResult[nBegin + 1] == '(') // request field
         {
           nEnd = sResult.find(')', nBegin);
-          RISE_ASSERTS(nEnd != std::string::npos, "Unexpected end of expression declaration: [" + sResult
+          STAFF_ASSERT(nEnd != std::string::npos, "Unexpected end of expression declaration: [" + sResult
                       + "] while processing [" + sResult.substr(nBegin));
           nNameBegin = nBegin + 2;
           nNameEnd = nEnd;
@@ -449,7 +445,7 @@ namespace das
         if (sResult[nBegin + 1] == '{') // long variable name
         {
           nEnd = sResult.find('}', nBegin + 2);
-          RISE_ASSERTS(nEnd != std::string::npos, "Unexpected end of expression declaration: [" + sResult
+          STAFF_ASSERT(nEnd != std::string::npos, "Unexpected end of expression declaration: [" + sResult
                       + "] while processing [" + sResult.substr(nBegin));
           nNameBegin = nBegin + 2;
           nNameEnd = nEnd;
@@ -480,7 +476,7 @@ namespace das
         { // request
           DataObject tdoResult;
           GetChild(rdoContext, sPath, tdoResult);
-          RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
+          STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
           sValue = tdoResult.GetText();
         }
         else
@@ -497,7 +493,7 @@ namespace das
             sVarName = sPath;
           }
 
-          RISE_ASSERTS(!sVarName.empty(), "Invalid var name: [" + sPath + "]");
+          STAFF_ASSERT(!sVarName.empty(), "Invalid var name: [" + sPath + "]");
 
           if (sVarName == "nodeValue")
           {
@@ -511,10 +507,10 @@ namespace das
           else
           {
             VarMap::const_iterator itVar = m_mVars.find(sVarName);
-            RISE_ASSERTS(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
+            STAFF_ASSERT(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
 
             const Var& rVar = itVar->second;
-            RISE_ASSERTS(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
+            STAFF_ASSERT(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
                          + "] while evaluating expression [" + sExpr + "]");
 
             if (rVar.tType.eType == DataType::Generic)
@@ -528,7 +524,7 @@ namespace das
                 DataObject tdoResult;
                 GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
                 const_cast<DataObject&>(rVar.tdoValue).SetOwner(true);
-                RISE_ASSERTS(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
+                STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
                 sValue = tdoResult.GetText();
               }
               else
@@ -546,16 +542,16 @@ namespace das
       return sResult;
     }
 
-    void ProcessLog(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    void ProcessLog(const DataObject& rdoContext, const xml::Element& rScript)
     {
-      rise::LogInfo() << m_rDataSource.GetName() << ": " << Eval(rdoContext, rScript.NodeContent());
+      LogInfo() << m_rDataSource.GetName() << ": " << Eval(rdoContext, rScript.GetValue());
     }
 
-    void ProcessFault(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript)
+    void ProcessFault(const DataObject& rdoContext, const xml::Element& rScript)
     {
-      RISE_THROWS(rise::CInternalAssertException, "Error while invoking Operation [" + rdoContext.GetLocalName() +
+      STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
                   "] in datasource [" + m_rDataSource.GetName() +
-                  "]: " + Eval(rdoContext, rScript.NodeContent()));
+                  "]: " + Eval(rdoContext, rScript.GetValue()));
     }
 
     void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult)
@@ -565,7 +561,7 @@ namespace das
       if (!sChildPath.empty())
       {
         std::string::size_type nSize = sChildPath.size();
-        RISE_ASSERTS(nSize > 1, "invalid node name: [" + sChildPath + "]");
+        STAFF_ASSERT(nSize > 1, "invalid node name: [" + sChildPath + "]");
 
         std::string sPath =
             (sChildPath[0] == '$' && sChildPath[1] == '(' && sChildPath[nSize - 1] == ')') ?
@@ -589,7 +585,7 @@ namespace das
           if (sName.empty()) // parent node
           {
             rdoResult = rdoResult.Parent();
-            RISE_ASSERTS(!rdoResult.IsNull(), "parent of root element reached while GetChild[" + sChildPath + "]");
+            STAFF_ASSERT(!rdoResult.IsNull(), "parent of root element reached while GetChild[" + sChildPath + "]");
           }
           else
           {
@@ -630,21 +626,21 @@ namespace das
 
     if (pOperation->stReturn.eType == DataType::Generic)
     {
-      RISE_ASSERTS(!rdoResult.IsTextNull(), "Empty result for generic type!");
+      STAFF_ASSERT(!rdoResult.IsTextNull(), "Empty result for generic type!");
     }
   }
 
-  void ScriptExecuter::Process(const DataObject& rdoContext, const rise::xml::CXMLNode& rScript,
+  void ScriptExecuter::Process(const DataObject& rdoContext, const xml::Element& rScript,
                                const DataType& rReturnType, DataObject& rdoResult)
   {
     m_pImpl->ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
     if (rReturnType.eType == DataType::Generic)
     {
-      RISE_ASSERTS(!rdoResult.IsTextNull(), "Empty result for generic type!");
+      STAFF_ASSERT(!rdoResult.IsTextNull(), "Empty result for generic type!");
     }
   }
 
-  void ScriptExecuter::Process(const rise::xml::CXMLNode& rScript)
+  void ScriptExecuter::Process(const xml::Element& rScript)
   {
     staff::DataObject doResult;
     m_pImpl->ProcessSequence(staff::DataObject(), rScript, DataType(), doResult);

@@ -19,8 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/Log.h>
-#include <rise/threading/Thread.h>
+#include <iostream>
+#include <staff/utils/Log.h>
+#include <staff/utils/Thread.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Namespace.h>
 #include <staff/common/Exception.h>
@@ -39,7 +40,7 @@ public:
 
   virtual void OnFault(const staff::DataObject& rFault)
   {
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -91,11 +92,11 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     // Wait for asynch call is completed
     while (!tEchoCallback.IsCompleted())
     {
-      rise::threading::CThread::Sleep(1000);
+      staff::Thread::Sleep(1000);
     }
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

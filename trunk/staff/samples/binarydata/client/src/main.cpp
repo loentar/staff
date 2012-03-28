@@ -2,9 +2,10 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#include <iostream>
 #include <memory>
 #include <iomanip>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/utils/ByteArray.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
@@ -24,7 +25,7 @@ void OutputData(const staff::ByteArray& rByteArray)
   std::cout << "printable chars: [";
   for (unsigned long ulPos = 0; ulPos < ulDataSize; ++ulPos, ++pData)
   {
-    std::cout << ((*pData >= ' ' && *pData <= '~') ? *pData : '.' );
+    std::cout << ((*pData >= ' ' && *pData <= '~') ? *pData : '.');
   }
   std::cout << "]" << std::endl;
 
@@ -44,30 +45,30 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::binarydata::KeyGenerator > pKeyGenerator(::staff::ServiceFactory::Inst().GetService< ::samples::binarydata::KeyGenerator >());
 
-    RISE_ASSERTS(pKeyGenerator.get(), "Cannot get client for service samples.binarydata.KeyGenerator!");
+    STAFF_ASSERT(pKeyGenerator.get(), "Cannot get client for service samples.binarydata.KeyGenerator!");
 
     // Invoke Your service here:
 
 
     staff::hexBinary tHexKey = pKeyGenerator->GenerateHexKey(0x12345678);
-    rise::LogInfo() << "Generated HexKey: " << tHexKey.ToString();
-    rise::LogInfo() << "HexKey is valid: " << pKeyGenerator->ValidateHexKey(tHexKey);
+    staff::LogInfo() << "Generated HexKey: " << tHexKey.ToString();
+    staff::LogInfo() << "HexKey is valid: " << pKeyGenerator->ValidateHexKey(tHexKey);
 
     // do some actions with binary data here
-    rise::LogInfo() << "dump of HexKey:";
+    staff::LogInfo() << "dump of HexKey:";
     OutputData(tHexKey.GetBytes());
 
     // do the same with base64
     staff::base64Binary tBase64Key = pKeyGenerator->GenerateBase64Key(0x12345678);
-    rise::LogInfo() << "GenerateBase64Key result: " << tBase64Key.ToString();
-    rise::LogInfo() << "Base64Key is valid: " << pKeyGenerator->ValidateBase64Key(tBase64Key);
+    staff::LogInfo() << "GenerateBase64Key result: " << tBase64Key.ToString();
+    staff::LogInfo() << "Base64Key is valid: " << pKeyGenerator->ValidateBase64Key(tBase64Key);
 
     // do some actions with binary data here
-    rise::LogInfo() << "dump of Base64Key:";
+    staff::LogInfo() << "dump of Base64Key:";
     OutputData(tBase64Key.GetBytes());
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

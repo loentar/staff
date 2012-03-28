@@ -5,7 +5,7 @@
 #ifndef _AccountsImpl_h_
 #define _AccountsImpl_h_
 
-#include <rise/common/SharedPtr.h>
+#include <staff/utils/SharedPtr.h>
 #include "Accounts.h"
 
 namespace staff
@@ -48,7 +48,7 @@ namespace services
     virtual Role GetUser(int nId);
     virtual Role GetUserSvc(int nId);
   private:
-    rise::CSharedPtr<staff::das::samples::Users> m_tpUsersDatasource;
+    SharedPtr<staff::das::samples::Users> m_tpUsersDatasource;
   };
 }
 }

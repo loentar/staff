@@ -35,10 +35,10 @@ namespace staff
   class STAFF_CLIENT_EXPORT ServiceFactory
   {
   public:
-    //!         get instance of service factory
+    //! get instance of service factory
     static ServiceFactory& Inst();
 
-    //!         allocate new object for work with service
+    //! allocate new object for work with service
     /*! examples:
         std::auto_ptr<Calculator> pCalculator(staff::ServiceFactory::Inst().GetService<Calculator>("http://localhost:9090/axis2/services/Calculator"));
         std::auto_ptr<Calculator> pCalculator(staff::ServiceFactory::Inst().GetService<Calculator>("", "", "mycalc"));
@@ -57,7 +57,7 @@ namespace staff
                                                                       sServiceUri, sSessionId, sInstanceId));
     }
 
-    //!         allocate new object for work with service
+    //! allocate new object for work with service
     /*! \param  sHost - service host
         \param  nPort - service port
         \param  sProtocol - protocol
@@ -103,9 +103,6 @@ namespace staff
     ServiceFactoryImpl* m_pImpl;
   };
 
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(ServiceFactory) typedef ServiceFactory CServiceFactory;
-#endif
 }
 
 #endif // _SERVICEFACTORY_H_

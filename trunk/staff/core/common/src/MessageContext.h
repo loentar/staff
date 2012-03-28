@@ -31,68 +31,164 @@ typedef struct axutil_env axutil_env_t;
 
 namespace staff
 {
+  //! message context class
   class STAFF_COMMON_EXPORT MessageContext
   {
   public:
     MessageContext(const axutil_env_t* pEnv, axis2_msg_ctx_t* pMsgCtx);
 
+    //! get axis2 message context
+    /*! \return axis2 message context
+      */
     operator axis2_msg_ctx_t*();
 
+    //! get fault to address
+    /*! \return fault to address
+      */
     std::string GetFaultToAddress() const;
+
+    //! get from address
+    /*! \return from address
+      */
     std::string GetFromAddress() const;
+
+    //! get to address
+    /*! \return to address
+      */
     std::string GetToAddress() const;
+
+    //! get in fault flow
+    /*! \return in fault flow
+      */
     bool GetInFaultFlow() const;
-    //GetSoapEnvelope() const;
-    //GetResponseSoapEnvelope() const;
-    //GetFaultSoapEnvelope() const;
+
+    //! get msg id
+    /*! \return msg id
+      */
     std::string GetMsgId() const;
+
+    //! get process fault
+    /*! \return process fault
+      */
     bool GetProcessFault() const;
-    //GetRelatesTo() const;
-    //GetReplyTo() const;
+
+    //! get server side
+    /*! \return server side
+      */
     bool GetServerSide() const;
+
+    //! get new thread required
+    /*! \return new thread required
+      */
     bool GetNewThreadRequired() const;
+
+    //! get wsa action
+    /*! \return wsa action
+      */
     std::string GetWsaAction() const;
+
+    //! get wsa message id
+    /*! \return wsa message id
+      */
     std::string GetWsaMessageId() const;
-  //  GetMsgInfoHeaders() const;
+
+    //! is keep alive
+    /*! \return keep alive
+      */
     bool IsKeepAlive() const;
+
+    //! get rest http method
+    /*! \return rest http method
+      */
     std::string GetRestHttpMethod() const;
+
+    //! get service context id
+    /*! \return service context id
+      */
     std::string GetServiceContextId() const;
-    //GetConfCtx() const;
-    //GetSvcCtx() const;
-    //GetParameter() const;
-    //GetModuleParameter() const;
-    //GetProperty() const;
+
+    //! get property value
+    /*! \param  sName - name
+        \return property value
+      */
     std::string GetPropertyValue(const std::string& sName) const;
+
+    //! get paused handler name
+    /*! \return paused handler name
+      */
     std::string GetPausedHandlerName() const;
-    //std::string GetPausedPhaseName() const;
+
+    //! get soap action
+    /*! \return soap action
+      */
     std::string GetSoapAction() const;
+
+    //! get doing mtom
+    /*! \return doing mtom
+      */
     bool GetDoingMtom() const;
+
+    //! get doing rest
+    /*! \return doing rest
+      */
     bool GetDoingRest() const;
+
+    //! get do rest through post
+    /*! \return do rest through post
+      */
     bool GetDoRestThroughPost() const;
+
+    //! get manage session
+    /*! \return manage session
+      */
     bool GetManageSession() const;
+
+    //! get is soap11
+    /*! \return is soap11
+      */
     bool GetIsSoap11() const;
-    //GetOptions() const;
+
+    //! is paused
+    /*! \return
+      */
     bool IsPaused() const;
+
+    //! get flow
+    /*! \return flow
+      */
     int GetFlow() const;
-    //GetSupportedRestHttpMethods() const;
+
+    //! get charset encoding
+    /*! \return charset encoding
+      */
     std::string GetCharsetEncoding() const;
+
+    //! get status code
+    /*! \return status code
+      */
     int GetStatusCode() const;
-    //GetOutTransportInfo() const;
-    //ResetOutTransportInfo() const;
-    //GetTransportHeaders() const;
+
+    //! get transport header value
+    /*! \param  sHeader - header
+        \param  sValue - value
+        \return transport header value
+      */
     bool GetTransportHeaderValue(const std::string& sHeader, std::string& sValue) const;
-    //ExtractTransportHeaders() const;
+
+    //! get transport url
+    /*! \return transport url
+      */
     std::string GetTransportUrl() const;
+
+    //! get no content
+    /*! \return no content
+      */
     bool GetNoContent() const;
 
   private:
-    const axutil_env_t* m_pEnv;
-    mutable axis2_msg_ctx_t* m_pMsgCtx;
+    const axutil_env_t* m_pEnv; //!< axis2 environment
+    mutable axis2_msg_ctx_t* m_pMsgCtx; //!< message context
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(MessageContext) typedef MessageContext CMessageContext;
-#endif
 
 } // namespace staff
 

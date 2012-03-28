@@ -19,12 +19,12 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/Log.h>
-#include <rise/common/Exception.h>
-#include <rise/common/exmacros.h>
-#include <rise/string/String.h>
-#include <rise/xml/XMLNode.h>
-#include <rise/xml/XMLDocument.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/xml/Element.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/XmlReader.h>
+#include <staff/xml/XmlWriter.h>
 #include <staff/common/Runtime.h>
 #include "ComponentConfig.h"
 
@@ -37,7 +37,7 @@ namespace staff
     std::string m_sComponent;
     std::string m_sConfig;
     std::string m_sFileName;
-    rise::xml::CXMLDocument m_tConfig;
+    xml::Document m_tXmlConfig;
   };
 
   ComponentConfig::ComponentConfig():
@@ -64,18 +64,19 @@ namespace staff
     return m_pImpl->m_sConfig;
   }
 
-  rise::xml::CXMLNode& ComponentConfig::ReloadConfig( bool bCreate /*= false*/ )
+  xml::Element& ComponentConfig::ReloadConfig(bool bCreate /*= false*/)
   {
     try
     {
-      m_pImpl->m_tConfig.LoadFromFile(m_pImpl->m_sFileName);
+      xml::XmlFileReader tXmlReader(m_pImpl->m_sFileName);
+      tXmlReader.ReadDocument(m_pImpl->m_tXmlConfig);
     }
     catch(...)
     {
       if (bCreate)
       {
-        rise::LogDebug() << "Creating new configuration for: " << m_pImpl->m_sComponent << ":" 
-              << m_pImpl->m_sConfig;
+        LogDebug() << "Creating new configuration for: "
+                   << m_pImpl->m_sComponent << ":" << m_pImpl->m_sConfig;
       }
       else
       {
@@ -83,30 +84,31 @@ namespace staff
       }
     }
 
-    return m_pImpl->m_tConfig.GetRoot();
+    return m_pImpl->m_tXmlConfig.GetRootElement();
   }
 
   void ComponentConfig::SaveConfig()
   {
-    if (m_pImpl->m_tConfig.GetRoot().NodeName() == "")
+    if (m_pImpl->m_tXmlConfig.GetRootElement().GetName().empty())
     {
-      m_pImpl->m_tConfig.GetRoot().NodeName() = "Config";
+      m_pImpl->m_tXmlConfig.GetRootElement().SetName("Config");
     }
 
-    m_pImpl->m_tConfig.SaveToFile(m_pImpl->m_sFileName);
+    xml::XmlFileWriter tXmlWriter(m_pImpl->m_sFileName);
+    tXmlWriter.WriteDocument(m_pImpl->m_tXmlConfig);
   }
 
-  rise::xml::CXMLNode& ComponentConfig::Config()
+  xml::Element& ComponentConfig::Config()
   {
-    return m_pImpl->m_tConfig.GetRoot();
+    return m_pImpl->m_tXmlConfig.GetRootElement();
   }
 
-  const rise::xml::CXMLNode& ComponentConfig::Config() const
+  const xml::Element& ComponentConfig::Config() const
   {
-    return m_pImpl->m_tConfig.GetRoot();
+    return m_pImpl->m_tXmlConfig.GetRootElement();
   }
 
-  void ComponentConfig::Init( const std::string& sComponent, const std::string& sConfig, bool bCreate )
+  void ComponentConfig::Init(const std::string& sComponent, const std::string& sConfig, bool bCreate)
   {
     m_pImpl->m_sComponent = sComponent;
     m_pImpl->m_sConfig = sConfig;

@@ -22,26 +22,24 @@
 #ifndef _XMLGEN_H_
 #define _XMLGEN_H_
 
-namespace rise 
-{
-  namespace xml
-  {
-    class CXMLNode;
-  }
-}
 
 namespace staff
 {
+namespace xml
+{
+  class Element;
+}
+
 namespace codegen
 {
   struct Project;
 
-  //!         process project struct into xml
+  //! process project struct into xml
   /*! \param  rRootNode - resulting xml-project node
       \param  rProject - project
       \return resulting xml-project node
       */
-  rise::xml::CXMLNode& operator<<(rise::xml::CXMLNode& rRootNode, const Project& rProject);
+  xml::Element& operator<<(xml::Element& rRootNode, const Project& rProject);
 }
 }
 

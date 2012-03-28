@@ -47,7 +47,7 @@ ifneq ($(DEBUG),)
 endif
 
 ifneq ($(STAFF_HOME),)
-  CXXFLAGS += -I$(STAFF_HOME)/include/
+  CXXFLAGS +=
   LDFLAGS += -L$(STAFF_HOME)/lib
   STAFF_CODEGEN = $(STAFF_HOME)/bin/staff_codegen
   INSTALLDIR = $(STAFF_HOME)/components/
@@ -59,7 +59,7 @@ endif
 
 TARGETNAME = $(LIBPREFIX)$(COMPONENT)$(LIBEXT)
 
-LDFLAGS += -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent
 LDFLAGS += $(LDLIB)$(TARGETNAME)
 
 DATASOURCES = Users.datasources

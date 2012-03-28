@@ -44,20 +44,20 @@ namespace staff
     };
 
   public:
-    //!         get reference to dispatcher instance
+    //! get reference to dispatcher instance
     /*! \return reference to dispatcher instance
     */
     static ServiceDispatcher& Inst();
 
-    //!         initialize dispatcher
+    //! initialize dispatcher
     /*! \param  stEvents - events struct
         */
     void Init(const Events& stEvents);
 
-    //!         deinitialize dispatcher
+    //! deinitialize dispatcher
     void Deinit();
 
-    //!         invoke dispatcher's function
+    //! invoke dispatcher's function
     /*! \param  rOperation - operation
         */
     void InvokeSelf(Operation& rOperation);

@@ -19,8 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
+#include <staff/common/Exception.h>
 #include <axiom_soap_const.h>
 #include <axis2_options.h>
 #include <staff/common/Runtime.h>
@@ -61,17 +60,17 @@ namespace staff
 
   std::string Options::GetAction() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     const axis2_char_t* szAction = axis2_options_get_action(m_pOptions, m_pEnv);
-    RISE_ASSERTS(szAction, "Can't get action");
+    STAFF_ASSERT(szAction, "Can't get action");
 
     return reinterpret_cast<const char*>(szAction);
   }
 
   void Options::SetAction(const std::string& sAction)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_action(m_pOptions, m_pEnv, sAction.c_str());
   }
@@ -79,106 +78,106 @@ namespace staff
 
   std::string Options::GetFromAddress() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_options_get_from(m_pOptions, m_pEnv);
-    RISE_ASSERTS(pEndpointRef, "Can't get WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't get WSA endpoint");
 
     const axis2_char_t* szAddress = axis2_endpoint_ref_get_address(pEndpointRef, m_pEnv);
-    RISE_ASSERTS(szAddress, "Can't get WSA from address");
+    STAFF_ASSERT(szAddress, "Can't get WSA from address");
 
     return reinterpret_cast<const char*>(szAddress);
   }
 
   void Options::SetFromAddress(const std::string& sAddress)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_endpoint_ref_create(m_pEnv, sAddress.c_str());
-    RISE_ASSERTS(pEndpointRef, "Can't create WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't create WSA endpoint");
 
     axis2_options_set_from(m_pOptions, m_pEnv, pEndpointRef);
   }
 
   std::string Options::GetToAddress() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_options_get_to(m_pOptions, m_pEnv);
-    RISE_ASSERTS(pEndpointRef, "Can't get WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't get WSA endpoint");
 
     const axis2_char_t* szAddress = axis2_endpoint_ref_get_address(pEndpointRef, m_pEnv);
-    RISE_ASSERTS(szAddress, "Can't get WSA to address");
+    STAFF_ASSERT(szAddress, "Can't get WSA to address");
 
     return reinterpret_cast<const char*>(szAddress);
   }
 
   void Options::SetToAddress(const std::string& sAddress)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_endpoint_ref_create(m_pEnv, sAddress.c_str());
-    RISE_ASSERTS(pEndpointRef, "Can't create WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't create WSA endpoint");
 
     axis2_options_set_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
   std::string Options::GetReplyToAddress() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_options_get_reply_to(m_pOptions, m_pEnv);
-    RISE_ASSERTS(pEndpointRef, "Can't get WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't get WSA endpoint");
 
     const axis2_char_t* szAddress = axis2_endpoint_ref_get_address(pEndpointRef, m_pEnv);
-    RISE_ASSERTS(szAddress, "Can't get WSA reply to address");
+    STAFF_ASSERT(szAddress, "Can't get WSA reply to address");
 
     return reinterpret_cast<const char*>(szAddress);
   }
 
   void Options::SetReplyToAddress(const std::string& sAddress)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_endpoint_ref_create(m_pEnv, sAddress.c_str());
-    RISE_ASSERTS(pEndpointRef, "Can't create WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't create WSA endpoint");
 
     axis2_options_set_reply_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
   std::string Options::GetFaultToAddress() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_options_get_fault_to(m_pOptions, m_pEnv);
-    RISE_ASSERTS(pEndpointRef, "Can't get WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't get WSA endpoint");
 
     const axis2_char_t* szAddress = axis2_endpoint_ref_get_address(pEndpointRef, m_pEnv);
-    RISE_ASSERTS(szAddress, "Can't get WSA address");
+    STAFF_ASSERT(szAddress, "Can't get WSA address");
 
     return reinterpret_cast<const char*>(szAddress);
   }
 
   void Options::SetFaultToAddress(const std::string& sAddress)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_endpoint_ref_t* pEndpointRef = axis2_endpoint_ref_create(m_pEnv, sAddress.c_str());
-    RISE_ASSERTS(pEndpointRef, "Can't create WSA endpoint");
+    STAFF_ASSERT(pEndpointRef, "Can't create WSA endpoint");
 
     axis2_options_set_fault_to(m_pOptions, m_pEnv, pEndpointRef);
   }
 
   void Options::UseSeparateListener(bool bUseSeparateListener)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_use_separate_listener(m_pOptions, m_pEnv, bUseSeparateListener ? AXIS2_TRUE : AXIS2_FALSE);
   }
 
   bool Options::IsUsingSeparateListener()
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     return axis2_options_get_use_separate_listener(m_pOptions, m_pEnv) == AXIS2_TRUE;
   }
@@ -187,16 +186,16 @@ namespace staff
   void Options::SetHttpAuthInfo(const std::string& sUserName, const std::string& sPassword,
                                 const std::string& sAuthType)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_status_t nResult = axis2_options_set_http_auth_info(m_pOptions, m_pEnv,
                                sUserName.c_str(), sPassword.c_str(), sAuthType.c_str());
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup http auth info");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Failed to setup http auth info");
   }
 
   void Options::SetTestHttpAuth(bool bAuth)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_test_http_auth(m_pOptions, m_pEnv, bAuth ? AXIS2_TRUE : AXIS2_FALSE);
   }
@@ -205,16 +204,16 @@ namespace staff
   void Options::SetProxyAuthInfo(const std::string& sUserName, const std::string& sPassword,
                                 const std::string& sAuthType)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_status_t nResult = axis2_options_set_proxy_auth_info(m_pOptions, m_pEnv,
                                sUserName.c_str(), sPassword.c_str(), sAuthType.c_str());
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to setup proxy auth info");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Failed to setup proxy auth info");
   }
 
   void Options::SetTestProxyAuth(bool bAuth)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_test_proxy_auth(m_pOptions, m_pEnv, bAuth ? AXIS2_TRUE : AXIS2_FALSE);
   }
@@ -222,31 +221,31 @@ namespace staff
 
   void Options::SetTimeout(long lTimeout)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_timeout_in_milli_seconds(m_pOptions, m_pEnv, lTimeout);
   }
 
   std::string Options::GetSoapVersionUri() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     const axis2_char_t* szUri = axis2_options_get_soap_version_uri(m_pOptions, m_pEnv);
-    RISE_ASSERTS(szUri, "Can't get SOAP version URI");
+    STAFF_ASSERT(szUri, "Can't get SOAP version URI");
 
     return reinterpret_cast<const char*>(szUri);
   }
 
   void Options::SetSoapVersionUri(const std::string& sSoapVersionUri)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_soap_version_uri(m_pOptions, m_pEnv, sSoapVersionUri.c_str());
   }
 
   Options::SoapVersion Options::GetSoapVersion() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     int nVersion = axis2_options_get_soap_version(m_pOptions, m_pEnv);
     switch (nVersion)
@@ -264,7 +263,7 @@ namespace staff
 
   void Options::SetSoapVersion(SoapVersion nSoapVersion)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     int nAxiomSoapVersion = 0;
     switch (nSoapVersion)
@@ -286,17 +285,17 @@ namespace staff
 
   std::string Options::GetSoapAction() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     const axutil_string_t* psAction = axis2_options_get_soap_action(m_pOptions, m_pEnv);
-    RISE_ASSERTS(psAction, "Can't get SOAP action");
+    STAFF_ASSERT(psAction, "Can't get SOAP action");
 
     return reinterpret_cast<const char*>(axutil_string_get_buffer(psAction, m_pEnv));
   }
 
   void Options::SetSoapAction(const std::string& sSoapAction)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axutil_string_t* psSoapAction = axutil_string_create(m_pEnv, sSoapAction.c_str());
     axis2_options_set_soap_action(m_pOptions, m_pEnv, psSoapAction);
@@ -306,14 +305,14 @@ namespace staff
 
   void Options::EnableRest(bool bEnable)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_enable_rest(m_pOptions, m_pEnv, bEnable ? AXIS2_TRUE : AXIS2_FALSE);
   }
 
   void Options::SetHttpMethod(const std::string& sHttpMethod)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_http_method(m_pOptions, m_pEnv, sHttpMethod.c_str());
   }
@@ -321,14 +320,14 @@ namespace staff
 
   bool Options::IsMtomEnabled() const
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     return axis2_options_get_enable_mtom(m_pOptions, m_pEnv) == AXIS2_TRUE;
   }
 
   void Options::EnableMtom(bool bEnable)
   {
-    RISE_ASSERTS(m_pOptions, "Options is not initialized");
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_enable_mtom(m_pOptions, m_pEnv, bEnable ? AXIS2_TRUE : AXIS2_FALSE);
   }

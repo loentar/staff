@@ -26,8 +26,6 @@
 #include <axiom_element.h>
 #include <axiom_attribute.h>
 #include <axiom_namespace.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/exmacros.h>
 #include <staff/utils/tocstring.h>
 #include <staff/utils/fromcstring.h>
 #include "Exception.h"
@@ -531,13 +529,13 @@ namespace staff
   {
     Detach();
 
-    RISE_ASSERTP(pAxiomNode);
-    RISE_ASSERTES(axiom_node_get_node_type(pAxiomNode, m_pEnv) == AXIOM_ELEMENT, 
-      DomTypeException, "Given node is not a element");
+    STAFF_ASSERT_PARAM(pAxiomNode);
+    STAFF_ASSERT_DOM(axiom_node_get_node_type(pAxiomNode, m_pEnv) == AXIOM_ELEMENT,
+      "Given node is not a element");
 
     axiom_element_t* pAxiomElement = 
       reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pAxiomNode, m_pEnv));
-    RISE_ASSERTES(pAxiomElement != NULL, DomNoItemException, "Can\'t get data element");
+    STAFF_ASSERT_DOM(pAxiomElement != NULL, "Can\'t get data element");
 
     m_pAxiomNode = pAxiomNode;
     m_pAxiomElement = pAxiomElement;
@@ -593,10 +591,10 @@ namespace staff
 
   QName DataObject::GetQName()
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, DomFormatException, "Can\'t get node's QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get node's QName");
 
     QName tqName(pqName);
     return tqName;
@@ -604,20 +602,20 @@ namespace staff
 
   void DataObject::SetQName(const QName& stQName) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_element_set_localname(m_pAxiomElement, m_pEnv, stQName.GetLocalPart().c_str());
 
     axiom_namespace_t* pNewNamespace = axiom_namespace_create(m_pEnv, stQName.GetNamespaceUri().c_str(), 
       stQName.GetPrefix().c_str());
-    RISE_ASSERTES(pNewNamespace != NULL, DomFormatException, "Can\'t create namespace");
+    STAFF_ASSERT_DOM(pNewNamespace != NULL, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
 
   void DataObject::GetLocalName(std::string& sLocalName) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     const axis2_char_t* szLocalName = axiom_element_get_localname(m_pAxiomElement, m_pEnv);
 
@@ -626,7 +624,7 @@ namespace staff
 
   std::string DataObject::GetLocalName() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     const axis2_char_t* szLocalName = axiom_element_get_localname(m_pAxiomElement, m_pEnv);
 
@@ -635,11 +633,11 @@ namespace staff
 
   void DataObject::SetLocalName(const char* szLocalName) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axis2_status_t nResult =
         axiom_element_set_localname(m_pAxiomElement, m_pEnv, szLocalName);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Can't set local name")
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Can't set local name");
   }
 
   void DataObject::SetLocalName(const std::string& sLocalName) const
@@ -649,11 +647,11 @@ namespace staff
 
   void DataObject::GetPrefix(std::string& sPrefix) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axutil_qname_t* pqName =
         axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, DomFormatException, "Can\'t get node's QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get node's QName");
 
     const axis2_char_t* szPrefix = axutil_qname_get_prefix(pqName, m_pEnv);
 
@@ -662,10 +660,10 @@ namespace staff
 
   std::string DataObject::GetPrefix() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axutil_qname_t* pqName = axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, DomFormatException, "Can\'t get node's QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get node's QName");
 
     const axis2_char_t* szPrefix = axutil_qname_get_prefix(pqName, m_pEnv);
 
@@ -674,7 +672,7 @@ namespace staff
 
   void DataObject::SetPrefix(const char* szPrefix)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_namespace_t* pNewNamespace = NULL;
     axiom_namespace_t* pOldNamespace =
@@ -687,7 +685,7 @@ namespace staff
     }
 
     pNewNamespace = axiom_namespace_create(m_pEnv, szUri != NULL ? szUri : "", szPrefix);
-    RISE_ASSERTES(pNewNamespace != NULL, DomFormatException, "Can\'t create namespace");
+    STAFF_ASSERT_DOM(pNewNamespace != NULL, "Can\'t create namespace");
 
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNewNamespace, m_pAxiomNode);
   }
@@ -699,11 +697,11 @@ namespace staff
 
   void DataObject::GetNamespaceUri(std::string& sNamespaceUri) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axutil_qname_t* pqName =
         axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, DomFormatException, "Can\'t get node's QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get node's QName");
 
     const axis2_char_t* szUri = axutil_qname_get_uri(pqName, m_pEnv);
 
@@ -712,11 +710,11 @@ namespace staff
 
   std::string DataObject::GetNamespaceUri() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axutil_qname_t* pqName =
         axiom_element_get_qname(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTES(pqName != NULL, DomFormatException, "Can\'t get node's QName");
+    STAFF_ASSERT_DOM(pqName != NULL, "Can\'t get node's QName");
 
     const axis2_char_t* szUri = axutil_qname_get_uri(pqName, m_pEnv);
 
@@ -726,25 +724,25 @@ namespace staff
 
   void DataObject::SetNamespaceUri(const char* szUri) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_namespace_t* pNamespace = axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     if (!pNamespace)
     {
       pNamespace = axiom_namespace_create(m_pEnv, szUri, "");
-      RISE_ASSERTES(pNamespace, DomInternalException, "Can't create axiom namespace");
+      STAFF_ASSERT_DOM(pNamespace, "Can't create axiom namespace");
       axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNamespace, m_pAxiomNode);
     }
     else
     {
       axutil_string_t* pStrUri = axutil_string_create(m_pEnv, szUri);
-      RISE_ASSERTES(pStrUri, DomInternalException, "Can't create axuil_string");
+      STAFF_ASSERT_DOM(pStrUri, "Can't create axuil_string");
 
       axis2_status_t nResult = axiom_namespace_set_uri_str(pNamespace, m_pEnv, pStrUri);
       if (nResult != AXIS2_SUCCESS)
       {
         axutil_string_free(pStrUri, m_pEnv);
-        RISE_THROWS(DomInternalException, "Failed to axiom_namespace_set_uri_str");
+        STAFF_THROW_ASSERT("Failed to axiom_namespace_set_uri_str");
       }
 
       axutil_string_free(pStrUri, m_pEnv);
@@ -762,7 +760,7 @@ namespace staff
     static const axis2_ssize_t uDefPrefixSize = 2;
     static const axis2_char_t szDefPrefix[uDefPrefixSize + 1] = "ns";
 
-    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
 
     // find top element
     axiom_node_t* pTopNode = m_pAxiomNode;
@@ -773,13 +771,13 @@ namespace staff
       pTopNode = pCurrNode;
     }
 
-    RISE_ASSERTS(axiom_node_get_node_type(pTopNode, m_pEnv) == AXIOM_ELEMENT,
+    STAFF_ASSERT(axiom_node_get_node_type(pTopNode, m_pEnv) == AXIOM_ELEMENT,
                  "Top node is not an element!");
 
     axiom_element_t* pTopElement =
       reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pTopNode, m_pEnv));
 
-    RISE_ASSERT(pTopElement);
+    STAFF_ASSERT_DOM(pTopElement, "Can't get data element");
 
     axiom_namespace_t* pNamespace =
         axiom_element_find_declared_namespace(pTopElement, m_pEnv, szUri, NULL);
@@ -828,12 +826,12 @@ namespace staff
 
       static const axis2_ssize_t nPrefixSize = uDefPrefixSize + NUM_TO_STR_BUFF_SIZE;
       axis2_char_t szPrefix[nPrefixSize];
-      RISE_ASSERT(static_cast<axis2_ssize_t>(
+      STAFF_ASSERT(static_cast<axis2_ssize_t>(
                     staff_snprintf(szPrefix, nPrefixSize, "%s%d", szDefPrefix, nLastUsedIndex)) <
-                  nPrefixSize);
+                   nPrefixSize, "Buffer overrun");
 
       pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
-      RISE_ASSERT(pNamespace);
+      STAFF_ASSERT_DOM(pNamespace, "Failed to create namespace");
 
       // adding new namespace without finding in declarations
       axiom_element_declare_namespace_assume_param_ownership(pTopElement, m_pEnv, pNamespace);
@@ -871,7 +869,7 @@ namespace staff
     if (!m_pAxiomElement)
     {
       m_pAxiomNode = NULL;
-      RISE_THROWS(DomInternalException, "Failed to create axiom element");
+      STAFF_THROW_ASSERT("Failed to create axiom element");
     }
 
     m_bOwner = true;
@@ -885,7 +883,7 @@ namespace staff
     if (!m_pAxiomElement)
     {
       m_pAxiomNode = NULL;
-      RISE_THROWS(DomInternalException, "Failed to create axiom element");
+      STAFF_THROW_ASSERT("Failed to create axiom element");
     }
 
     m_bOwner = true;
@@ -904,7 +902,7 @@ namespace staff
     if (!m_pAxiomElement)
     {
       m_pAxiomNode = NULL;
-      RISE_THROWS(DomInternalException, "Failed to create axiom element");
+      STAFF_THROW_ASSERT("Failed to create axiom element");
     }
 
     m_bOwner = true;
@@ -1113,14 +1111,14 @@ namespace staff
     if (!m_pAxiomElement)
     {
       m_pAxiomNode = NULL;
-      RISE_THROWS(DomInternalException, "Failed to create axiom element");
+      STAFF_THROW_ASSERT("Failed to create axiom element");
     }
 
     m_bOwner = true;
 
     axis2_status_t nResult =
         axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
   void DataObject::Create(const std::string& sLocalName, const char* szText)
@@ -1155,9 +1153,9 @@ namespace staff
 
   DataObject& DataObject::DetachNode()
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL, "Not initialized");
 
-    RISE_ASSERTES(axiom_node_detach(m_pAxiomNode, m_pEnv), DomNoItemException,
+    STAFF_ASSERT_DOM(axiom_node_detach(m_pAxiomNode, m_pEnv),
       "Error while node detaching");
     m_bOwner = true;
     return *this;
@@ -1165,7 +1163,7 @@ namespace staff
 
   DataObject& DataObject::ReplaceNode(DataObject& rNewNode)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL, "Not initialized");
     axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
 
     DetachNode();
@@ -1343,7 +1341,7 @@ namespace staff
 
   DataObject& DataObject::Clone(const DataObject& rDataObject)
   {
-    RISE_ASSERTS(rDataObject.m_pAxiomNode != NULL && rDataObject.m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(rDataObject.m_pAxiomNode != NULL && rDataObject.m_pAxiomElement != NULL, "Not initialized");
 
     axiom_node_t* pNode = Clone(const_cast<DataObject&>(rDataObject).m_pAxiomNode, NULL);
     Attach(pNode);
@@ -1358,7 +1356,7 @@ namespace staff
 
   DataObject DataObject::Parent()
   {
-    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
     return axiom_node_get_parent(m_pAxiomNode, m_pEnv);
   }
 
@@ -1447,7 +1445,7 @@ namespace staff
   {
     axiom_node_t* pAxiomNode = NULL;
     axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, NULL, "", NULL, &pAxiomNode);
-    RISE_ASSERTES(pAxiomElement, DomInternalException, "Failed to create axiom element");
+    STAFF_ASSERT_DOM(pAxiomElement, "Failed to create axiom element");
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, pAxiomNode);
 
@@ -1464,7 +1462,7 @@ namespace staff
   {
     axiom_node_t* pAxiomNode = NULL;
     axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, m_pAxiomNode, szLocalName, NULL, &pAxiomNode);
-    RISE_ASSERTES(pAxiomElement, DomInternalException, "Failed to create axiom element");
+    STAFF_ASSERT_DOM(pAxiomElement, "Failed to create axiom element");
 
     if (m_bElemFormDefaultQualified)
     {
@@ -1683,15 +1681,15 @@ namespace staff
 
   DataObject DataObject::CreateChild(const char* szLocalName, const char* szText)
   {
-    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
 
     axiom_node_t* pAxiomNode = NULL;
     axiom_element_t* pAxiomElement = axiom_element_create(m_pEnv, m_pAxiomNode, szLocalName, NULL, &pAxiomNode);
-    RISE_ASSERTES(pAxiomElement, DomInternalException, "Failed to create axiom element");
+    STAFF_ASSERT_DOM(pAxiomElement, "Failed to create axiom element");
 
     axis2_status_t nResult =
         axiom_element_set_text(pAxiomElement, m_pEnv, szText, pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "can't set text");
 
     if (m_bElemFormDefaultQualified)
     {
@@ -1747,8 +1745,8 @@ namespace staff
 
   DataObject DataObject::AppendChild(DataObject& rDataObject)
   {
-    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
-    RISE_ASSERTS(rDataObject.m_pAxiomNode, "Child is not initialized");
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
+    STAFF_ASSERT(rDataObject.m_pAxiomNode, "Child is not initialized");
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, rDataObject.m_pAxiomNode);
     rDataObject.m_bOwner = false;
@@ -1758,8 +1756,8 @@ namespace staff
 
   DataObject DataObject::AppendChild(const DataObject& rDataObject)
   {
-    RISE_ASSERTS(m_pAxiomNode, "Not initialized");
-    RISE_ASSERTS(rDataObject.m_pAxiomNode, "Child is not initialized");
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
+    STAFF_ASSERT(rDataObject.m_pAxiomNode, "Child is not initialized");
 
     axiom_node_add_child(m_pAxiomNode, m_pEnv, const_cast<DataObject&>(rDataObject).m_pAxiomNode);
     const_cast<DataObject&>(rDataObject).m_bOwner = false;
@@ -1769,18 +1767,18 @@ namespace staff
 
   DataObject DataObject::DetachChild(Iterator& itChild)
   {
-    RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
-      DomNoItemException, "Iterator is not bound to current dataobject");
-    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, DomNoItemException, "Iterator == End()");
+    STAFF_ASSERT_DOM(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itChild.m_pAxiomNode != NULL, "Iterator == End()");
 
     return DataObject(axiom_node_detach(itChild.m_pAxiomNode, m_pEnv));
   }
 
   void DataObject::RemoveChild(Iterator& itChild)
   {
-    RISE_ASSERTES(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this, 
-      DomNoItemException, "Iterator is not bound to current dataobject");
-    RISE_ASSERTES(itChild.m_pAxiomNode != NULL, DomNoItemException, "Iterator == End()");
+    STAFF_ASSERT_DOM(itChild.m_pDataObject != NULL && *(itChild.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itChild.m_pAxiomNode != NULL, "Iterator == End()");
 
     axiom_node_free_tree(itChild.m_pAxiomNode, m_pEnv);
   }
@@ -1922,8 +1920,8 @@ namespace staff
     const std::string& sPrefix = rQName.GetPrefix();
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      DomNoItemException, "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
 
     for (axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -1974,8 +1972,8 @@ namespace staff
     const std::string& sPrefix = rQName.GetPrefix();
     const std::string& sNamespaceUri = rQName.GetNamespaceUri();
 
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this, 
-      DomNoItemException, "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
 
     for (axiom_node_t* pNode = itStart.m_pAxiomNode;
       pNode != NULL;
@@ -2016,7 +2014,7 @@ namespace staff
 
   bool DataObject::FindChildByLocalName(const char* szLocalName, axiom_node_t** ppNode, axiom_element_t** ppElement) const
   {
-    RISE_ASSERTP(ppNode != NULL);
+    STAFF_ASSERT_PARAM(ppNode != NULL);
 
     axiom_element_t* pElem = NULL;
     const axis2_char_t* szCurrentLocalName = NULL;
@@ -2052,7 +2050,7 @@ namespace staff
   bool DataObject::FindChildByLocalName(const char* szLocalName, axiom_node_t* pNodeStart,
                                          axiom_node_t** ppNode, axiom_element_t** ppElement) const
   {
-    RISE_ASSERTP(ppNode != NULL);
+    STAFF_ASSERT_PARAM(ppNode != NULL);
 
     if (pNodeStart)
     {
@@ -2113,8 +2111,8 @@ namespace staff
 
   DataObject::Iterator DataObject::FindChildByLocalName(const char* szLocalName, const Iterator& itStart)
   {
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
-      DomNoItemException, "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
 
     axiom_node_t* pNode = NULL;
     FindChildByLocalName(szLocalName, itStart.m_pAxiomNode, &pNode);
@@ -2129,8 +2127,8 @@ namespace staff
   DataObject::ConstIterator DataObject::FindChildByLocalName(const char* szLocalName,
                                                                const ConstIterator& itStart) const
   {
-    RISE_ASSERTES(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
-      DomNoItemException, "Iterator is not bound to current dataobject");
+    STAFF_ASSERT_DOM(itStart.m_pDataObject != NULL && *(itStart.m_pDataObject) == *this,
+      "Iterator is not bound to current dataobject");
 
     axiom_node_t* pNode = NULL;
     FindChildByLocalName(szLocalName, itStart.m_pAxiomNode, &pNode);
@@ -2146,14 +2144,14 @@ namespace staff
   DataObject DataObject::GetChildByQName(const QName& stQName)
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, DomNoItemException, "Child item \"" + stQName.ToString() + "\" is not found");
+    STAFF_ASSERT_DOM(pNode != NULL, "Child item \"" + stQName.ToString() + "\" is not found");
     return DataObject(pNode);
   }
 
   const DataObject DataObject::GetChildByQName(const QName& stQName) const
   {
     axiom_node_t* pNode = FindChildByQName(stQName).m_pAxiomNode;
-    RISE_ASSERTES(pNode != NULL, DomNoItemException, "Child item \"" + stQName.ToString() + "\" is not found");
+    STAFF_ASSERT_DOM(pNode != NULL, "Child item \"" + stQName.ToString() + "\" is not found");
     return DataObject(pNode);
   }
 
@@ -2161,7 +2159,7 @@ namespace staff
   {
     axiom_node_t* pNode = NULL;
     axiom_element_t* pElement = NULL;
-    RISE_ASSERTES(FindChildByLocalName(szLocalName, &pNode, &pElement), DomNoItemException,
+    STAFF_ASSERT_DOM(FindChildByLocalName(szLocalName, &pNode, &pElement),
                   "Child item \"" + std::string(szLocalName) + "\" is not found");
     return DataObject(pNode, pElement);
   }
@@ -2170,7 +2168,7 @@ namespace staff
   {
     axiom_node_t* pNode = NULL;
     axiom_element_t* pElement = NULL;
-    RISE_ASSERTES(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement), DomNoItemException,
+    STAFF_ASSERT_DOM(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement),
                   "Child item \"" + sLocalName + "\" is not found");
     return DataObject(pNode, pElement);
   }
@@ -2179,7 +2177,7 @@ namespace staff
   {
     axiom_node_t* pNode = NULL;
     axiom_element_t* pElement = NULL;
-    RISE_ASSERTES(FindChildByLocalName(szLocalName, &pNode, &pElement), DomNoItemException,
+    STAFF_ASSERT_DOM(FindChildByLocalName(szLocalName, &pNode, &pElement),
                   "Child item \"" + std::string(szLocalName) + "\" is not found");
     return DataObject(pNode, pElement);
   }
@@ -2188,7 +2186,7 @@ namespace staff
   {
     axiom_node_t* pNode = NULL;
     axiom_element_t* pElement = NULL;
-    RISE_ASSERTES(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement), DomNoItemException,
+    STAFF_ASSERT_DOM(FindChildByLocalName(sLocalName.c_str(), &pNode, &pElement),
                   "Child item \"" + sLocalName + "\" is not found");
     return DataObject(pNode, pElement);
   }
@@ -2324,7 +2322,7 @@ namespace staff
   {
     axis2_status_t nResult =
         axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set node value");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "can't set node value");
   }
 
   void DataObject::SetValue(const std::string& sText)
@@ -2342,91 +2340,91 @@ namespace staff
   bool DataObject::GetValue(bool& rbValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbValue);
   }
 
   bool DataObject::GetValue(byte& rbtValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbtValue);
   }
 
   bool DataObject::GetValue(int& rnValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rnValue);
   }
 
   bool DataObject::GetValue(short& rshValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rshValue);
   }
 
   bool DataObject::GetValue(long& rlValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rlValue);
   }
 
   bool DataObject::GetValue(long long& rllValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rllValue);
   }
 
   bool DataObject::GetValue(unsignedByte& rubtValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rubtValue);
   }
 
   bool DataObject::GetValue(unsigned int& runValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, runValue);
   }
 
   bool DataObject::GetValue(unsigned short& rushValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rushValue);
   }
 
   bool DataObject::GetValue(unsigned long& rulValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rulValue);
   }
 
   bool DataObject::GetValue(unsigned long long& rullValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rullValue);
   }
 
   bool DataObject::GetValue(float& rfValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rfValue);
   }
 
   bool DataObject::GetValue(double& rdValue) const
   {
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rdValue);
   }
 
@@ -2480,19 +2478,19 @@ namespace staff
   {
     axis2_status_t nResult =
         axiom_element_set_text(m_pAxiomElement, m_pEnv, szText, m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
   void DataObject::SetText(const std::string& sText)
   {
     axis2_status_t nResult =
         axiom_element_set_text(m_pAxiomElement, m_pEnv, sText.c_str(), m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "can't set text");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "can't set text");
   }
 
   bool DataObject::IsTextNull()
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     bool bResult = true;
 
     for (axiom_node_t* pNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
@@ -2510,7 +2508,7 @@ namespace staff
 
   void DataObject::SetTextNull()
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL, "Not initialized");
 
     axiom_node_t* pTempNode = NULL;
     axiom_node_t* pNextNode = axiom_node_get_first_child(m_pAxiomNode, m_pEnv);
@@ -2528,91 +2526,91 @@ namespace staff
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, bool& rbValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, byte& rbtValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rbtValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, int& rnValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rnValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, short& rshValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rshValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, long& rlValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rlValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, long long& rllValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rllValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsignedByte& rubtValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rubtValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned int& runValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, runValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned short& rushValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rushValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned long& rulValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rulValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, unsigned long long& rullValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rullValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, float& rfValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rfValue);
   }
 
   bool DataObject::GetChildValueByLocalName(const char* szLocalName, double& rdValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
-    RISE_ASSERTS(szText, "value of node [" + GetLocalName() + "] is NULL");
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rdValue);
   }
 
@@ -2724,10 +2722,10 @@ namespace staff
 
   const char* DataObject::GetChildTextByLocalNameC(const char* szLocalName) const
   {
-    RISE_ASSERTP(szLocalName);
+    STAFF_ASSERT_PARAM(szLocalName);
     axiom_node_t* pChildNode = NULL;
     axiom_element_t* pChildElement = NULL;
-    RISE_ASSERTS(FindChildByLocalName(szLocalName, &pChildNode, &pChildElement),
+    STAFF_ASSERT(FindChildByLocalName(szLocalName, &pChildNode, &pChildElement),
                  "Child element [" + std::string(szLocalName) + "] does not exists");
     return axiom_element_get_text(pChildElement, m_pEnv, pChildNode);
   }
@@ -2749,7 +2747,7 @@ namespace staff
 
   bool DataObject::GetInstanceTypeOpt(std::string& sInstanceType) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode,
                                                           g_szXsiSchemaUrl, NULL);
@@ -2775,7 +2773,7 @@ namespace staff
 
   void DataObject::RemoveInstanceType()
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     const std::string& sXsiPrefix = GetNamespacePrefixByUri(g_szXsiSchemaUrl);
     axiom_attribute_t* pAttr =
         GetAxiomAttributeByLocalName((sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type").c_str());
@@ -2793,7 +2791,7 @@ namespace staff
 
   bool DataObject::IsNil() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode,
                                                           g_szXsiSchemaUrl, NULL);
     if (!pNs)
@@ -2830,7 +2828,7 @@ namespace staff
 
   Namespace DataObject::GetDefaultNamespace() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 #ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     Namespace tNs(axiom_element_get_default_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
 #else
@@ -2842,12 +2840,12 @@ namespace staff
 
   void DataObject::DeclareDefaultNamespace(const char* szUri)
   {
-    RISE_ASSERT(m_pAxiomElement);
+    STAFF_ASSERT_PARAM(m_pAxiomElement);
 #ifndef AXIS2_VERSION_1_7_0_AND_ABOVE
     axiom_element_declare_default_namespace(m_pAxiomElement, m_pEnv, const_cast<axis2_char_t*>(szUri));
 #else
     axiom_namespace_t* pAxiomNamespace = axiom_namespace_create(m_pEnv, szUri, "");
-    RISE_ASSERTS(pAxiomNamespace, "Failed to create axiom_namespace");
+    STAFF_ASSERT(pAxiomNamespace, "Failed to create axiom_namespace");
     axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, pAxiomNamespace);
 #endif
   }
@@ -2859,23 +2857,23 @@ namespace staff
 
   Namespace DataObject::GetNamespace() const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     Namespace tNs(axiom_element_get_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode));
     return tNs;
   }
 
   void DataObject::DeclareNamespace(Namespace& rNamespace)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, rNamespace);
     rNamespace.SetDataObject(this);
   }
 
   void DataObject::DeclareNamespace(const char* szUri, const char* szPrefix /*= ""*/)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_namespace_t* pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
-    RISE_ASSERTS(pNamespace, "Failed to create namespace");
+    STAFF_ASSERT(pNamespace, "Failed to create namespace");
     axiom_element_declare_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, pNamespace);
   }
 
@@ -2886,16 +2884,16 @@ namespace staff
 
   void DataObject::SetNamespace(Namespace& rNamespace)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, rNamespace, m_pAxiomNode);
     rNamespace.SetDataObject(this);
   }
 
   void DataObject::SetNamespace(const char* szUri, const char* szPrefix /*= ""*/)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_namespace_t* pNamespace = axiom_namespace_create(m_pEnv, szUri, szPrefix);
-    RISE_ASSERTS(pNamespace, "Failed to create namespace");
+    STAFF_ASSERT(pNamespace, "Failed to create namespace");
     axiom_element_set_namespace(m_pAxiomElement, m_pEnv, pNamespace, m_pAxiomNode);
   }
 
@@ -2906,9 +2904,9 @@ namespace staff
 
   std::string DataObject::GetNamespacePrefixByUri(const char* szUri) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, szUri, NULL);
-    RISE_ASSERTS(pNs, "Can't find prefix for uri: [" + std::string(szUri) + "]");
+    STAFF_ASSERT(pNs, "Can't find prefix for uri: [" + std::string(szUri) + "]");
     const char* pPrefix = static_cast<const char*>(axiom_namespace_get_prefix(pNs, m_pEnv));
     return pPrefix ? pPrefix : "";
   }
@@ -2920,35 +2918,35 @@ namespace staff
 
   Namespace DataObject::FindNamespace(const std::string& sUri)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     Namespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), NULL));
     return tNs;
   }
 
   Namespace DataObject::FindNamespace(const std::string& sUri, const std::string& sPrefix)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     Namespace tNs(axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, sUri.c_str(), sPrefix.c_str()));
     return tNs;
   }
 
   Namespace DataObject::FindDeclaredNamespace(const std::string& sUri)
   {
-    RISE_ASSERTS(m_pAxiomElement, "Not initialized");
+    STAFF_ASSERT(m_pAxiomElement, "Not initialized");
     Namespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), NULL));
     return tNs;
   }
 
   Namespace DataObject::FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix)
   {
-    RISE_ASSERTS(m_pAxiomElement, "Not initialized");
+    STAFF_ASSERT(m_pAxiomElement, "Not initialized");
     Namespace tNs(axiom_element_find_declared_namespace(m_pAxiomElement, m_pEnv, sUri.c_str(), sPrefix.c_str()));
     return tNs;
   }
 
   Namespace DataObject::FindNamespaceUri(const std::string& sPrefix) const
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     Namespace tNs(axiom_element_find_namespace_uri(m_pAxiomElement, m_pEnv,
       const_cast<axis2_char_t*>(sPrefix.c_str()), m_pAxiomNode));
     return tNs;
@@ -3163,15 +3161,15 @@ namespace staff
 
   void DataObject::CreateAttribute(const char* szAttrName, const char* szAttrText)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axiom_attribute_t* pAxiomAttribute =
         axiom_attribute_create(m_pEnv, szAttrName, szAttrText, NULL);
-    RISE_ASSERTS(pAxiomAttribute, "Failed to create axiom attribute");
+    STAFF_ASSERT(pAxiomAttribute, "Failed to create axiom attribute");
 
     axis2_status_t nResult =
         axiom_element_add_attribute(m_pAxiomElement, m_pEnv, pAxiomAttribute, m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
 
     if (m_bAttrFormDefaultQualified)
     {
@@ -3207,17 +3205,17 @@ namespace staff
 
   void DataObject::AppendAttribute(Attribute& rAttribute)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
     axis2_status_t nResult =
         axiom_element_add_attribute(m_pAxiomElement, m_pEnv, rAttribute, m_pAxiomNode);
-    RISE_ASSERTS(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
+    STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Failed to add axiom attribute");
     rAttribute.SetOwner(false);
   }
 
   void DataObject::RemoveAttribute(AttributeIterator& itAttribute)
   {
-    RISE_ASSERTS(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
     axiom_element_remove_attribute(m_pAxiomElement, m_pEnv, *itAttribute);
   }
 
@@ -3409,28 +3407,28 @@ namespace staff
   Attribute DataObject::GetAttributeByLocalName(const char* szLocalName)
   {
     axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(szLocalName);
-    RISE_ASSERTS(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
+    STAFF_ASSERT(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
     return Attribute(this, pAttr);
   }
 
   Attribute DataObject::GetAttributeByLocalName(const std::string& sLocalName)
   {
     axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(sLocalName.c_str());
-    RISE_ASSERTS(pAttr, "Attribute [" + sLocalName + "] is not found");
+    STAFF_ASSERT(pAttr, "Attribute [" + sLocalName + "] is not found");
     return Attribute(this, pAttr);
   }
 
   const Attribute DataObject::GetAttributeByLocalName(const char* szLocalName) const
   {
     axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(szLocalName);
-    RISE_ASSERTS(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
+    STAFF_ASSERT(pAttr, "Attribute [" + std::string(szLocalName) + "] is not found");
     return Attribute(const_cast<DataObject*>(this), pAttr);
   }
 
   const Attribute DataObject::GetAttributeByLocalName(const std::string& sLocalName) const
   {
     axiom_attribute_t* pAttr = GetAxiomAttributeByLocalName(sLocalName.c_str());
-    RISE_ASSERTS(pAttr, "Attribute [" + sLocalName + "] is not found");
+    STAFF_ASSERT(pAttr, "Attribute [" + sLocalName + "] is not found");
     return Attribute(const_cast<DataObject*>(this), pAttr);
   }
 
@@ -3515,7 +3513,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rbValue);
   }
 
@@ -3523,7 +3521,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rbtValue);
   }
 
@@ -3531,7 +3529,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rnValue);
   }
 
@@ -3539,7 +3537,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rshValue);
   }
 
@@ -3547,7 +3545,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rlValue);
   }
 
@@ -3555,7 +3553,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rllValue);
   }
 
@@ -3563,7 +3561,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rubtValue);
   }
 
@@ -3571,7 +3569,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, runValue);
   }
 
@@ -3579,7 +3577,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rushValue);
   }
 
@@ -3587,7 +3585,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rulValue);
   }
 
@@ -3595,7 +3593,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rullValue);
   }
 
@@ -3603,7 +3601,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rfValue);
   }
 
@@ -3611,7 +3609,7 @@ namespace staff
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
                                                              const_cast<char*>(szLocalName));
-    RISE_ASSERTS(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
     return FromCString(szText, rdValue);
   }
 
@@ -3858,7 +3856,7 @@ namespace staff
 
   DataObject& DataObject::FromString(const char* szXml)
   {
-    RISE_ASSERTS(szXml, "szXml is NULL");
+    STAFF_ASSERT(szXml, "szXml is NULL");
     return FromString(szXml, strlen(szXml));
   }
 
@@ -3874,12 +3872,12 @@ namespace staff
       nSize,
       static_cast<const axis2_char_t*>("UTF-8"),
       AXIS2_XML_PARSER_TYPE_BUFFER);
-    RISE_ASSERTES(pAxiomXmlReader != NULL, DomInternalException, "No Axis XML Reader");
+    STAFF_ASSERT_DOM(pAxiomXmlReader != NULL, "No Axis XML Reader");
 
     try
     {
       pStaxBuilder = axiom_stax_builder_create(m_pEnv, pAxiomXmlReader);
-      RISE_ASSERTES(pStaxBuilder != NULL, DomInternalException, "No Stax Builder");
+      STAFF_ASSERT_DOM(pStaxBuilder != NULL, "No Stax Builder");
     }
     catch (...)
     {
@@ -3890,7 +3888,7 @@ namespace staff
     try
     {
       axiom_document_t* pAxiomDoc = axiom_stax_builder_get_document(pStaxBuilder, m_pEnv);
-      RISE_ASSERTES(pAxiomDoc != NULL, DomFormatException, "No Axis Document");
+      STAFF_ASSERT_DOM(pAxiomDoc != NULL, "No Axis Document");
 
 #ifdef AXIS2_VERSION_1_7_0_AND_ABOVE
       // on Axis2/C-1.7.0 we should call axiom_document_get_root_element
@@ -3898,7 +3896,7 @@ namespace staff
       axiom_document_get_root_element(pAxiomDoc, m_pEnv);
 #endif
       pAxiomNode = axiom_document_build_all(pAxiomDoc, m_pEnv);
-      RISE_ASSERTES(pAxiomNode != NULL, DomFormatException, "No Root Element in the pAxiomDoc");
+      STAFF_ASSERT_DOM(pAxiomNode != NULL, "No Root Element in the pAxiomDoc");
 
     }
     catch (...)
@@ -3936,7 +3934,7 @@ namespace staff
   void DataObject::ToString(std::string& sResult) const
   {
     char* szXml = axiom_node_to_string(m_pAxiomNode, m_pEnv);
-    RISE_ASSERTES(szXml != NULL, DomFormatException, "cannot convert DataObject to string");
+    STAFF_ASSERT_DOM(szXml != NULL, "cannot convert DataObject to string");
     sResult = szXml;
     AXIS2_FREE(m_pEnv->allocator, szXml);
   }
@@ -3988,7 +3986,7 @@ namespace staff
 
   DataObject::Iterator& DataObject::Iterator::operator--()
   {
-    RISE_ASSERT(m_pDataObject);
+    STAFF_ASSERT_DOM(m_pDataObject, "Can't --DataObject.End()");
     
     axiom_node_t* pNode = m_pAxiomNode;
 
@@ -4011,15 +4009,15 @@ namespace staff
         (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     }
     
-    RISE_ASSERTES(pNode != NULL, DomNoItemException, "Attempt to --begin()");
+    STAFF_ASSERT_DOM(pNode != NULL, "Attempt to --begin()");
     m_pAxiomNode = pNode;
     return *this;
   }
 
   DataObject::Iterator& DataObject::Iterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAxiomNode != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAxiomNode != NULL, "Attempt to ++end()");
 
     axiom_node_t* pNode = m_pAxiomNode;
     
@@ -4113,8 +4111,8 @@ namespace staff
 
   DataObject::ConstIterator& DataObject::ConstIterator::operator--()
   {
-    RISE_ASSERT(m_pDataObject);
-    
+    STAFF_ASSERT_DOM(m_pDataObject, "Can't --DataObject.End()");
+
     axiom_node_t* pNode = m_pAxiomNode;
 
     if (pNode == NULL) // iterator == end()
@@ -4136,15 +4134,15 @@ namespace staff
         (axiom_node_get_node_type(pNode, m_pDataObject->m_pEnv) != AXIOM_ELEMENT));
     }
     
-    RISE_ASSERTES(pNode != NULL, DomNoItemException, "Attempt to --begin()");
+    STAFF_ASSERT_DOM(pNode != NULL, "Attempt to --begin()");
     m_pAxiomNode = pNode;
     return *this;
   }
 
   DataObject::ConstIterator& DataObject::ConstIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAxiomNode != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAxiomNode != NULL, "Attempt to ++end()");
 
     axiom_node_t* pNode = m_pAxiomNode;
     
@@ -4227,8 +4225,8 @@ namespace staff
 
   DataObject::NamespaceIterator& DataObject::NamespaceIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "++ operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "++ operator after end");
 
     m_pNamespaceIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pNamespaceIndex);
     return *this;
@@ -4254,13 +4252,13 @@ namespace staff
 
   Namespace DataObject::NamespaceIterator::operator*()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "* operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "* operator after end");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Cannot get namespace");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Cannot get namespace");
 
     Namespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), m_pDataObject);
     return tNs;
@@ -4268,13 +4266,13 @@ namespace staff
 
   Namespace DataObject::NamespaceIterator::operator->()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "-> operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "-> operator after end");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Cannot get namespace");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Cannot get namespace");
 
     Namespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), m_pDataObject);
     return tNs;
@@ -4313,8 +4311,8 @@ namespace staff
 
   DataObject::ConstNamespaceIterator& DataObject::ConstNamespaceIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "++ operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "++ operator after end");
 
     m_pNamespaceIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pNamespaceIndex);
     return *this;
@@ -4340,13 +4338,13 @@ namespace staff
 
   const Namespace DataObject::ConstNamespaceIterator::operator*() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "* operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "* operator after end");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Cannot get namespace");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Cannot get namespace");
 
     Namespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), const_cast<DataObject*>(m_pDataObject));
     return tNs;
@@ -4354,13 +4352,13 @@ namespace staff
 
   const Namespace DataObject::ConstNamespaceIterator::operator->() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pNamespaceIndex != NULL, DomNoItemException, "-> operator after end");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pNamespaceIndex != NULL, "-> operator after end");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pNamespaceIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Cannot get namespace");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Cannot get namespace");
 
     Namespace tNs(reinterpret_cast<axiom_namespace_t*>(pHashValue), const_cast<DataObject*>(m_pDataObject));
     return tNs;
@@ -4400,8 +4398,8 @@ namespace staff
 
   DataObject::AttributeIterator& DataObject::AttributeIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     m_pAttributeIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pAttributeIndex);
     return *this;
@@ -4427,13 +4425,13 @@ namespace staff
 
   Attribute DataObject::AttributeIterator::operator*()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Can\'t get attribute");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Can\'t get attribute");
 
     Attribute tAttr(m_pDataObject, reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;
@@ -4441,13 +4439,13 @@ namespace staff
 
   Attribute DataObject::AttributeIterator::operator->()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Can\'t get attribute");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Can\'t get attribute");
 
     Attribute tAttr(m_pDataObject, reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;
@@ -4486,8 +4484,8 @@ namespace staff
 
   DataObject::ConstAttributeIterator& DataObject::ConstAttributeIterator::operator++()
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     m_pAttributeIndex = axutil_hash_next(m_pDataObject->m_pEnv, m_pAttributeIndex);
     return *this;
@@ -4513,13 +4511,13 @@ namespace staff
 
   const Attribute DataObject::ConstAttributeIterator::operator*() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Can\'t get attribute");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Can\'t get attribute");
 
     //!!! const HACK
     Attribute tAttr(const_cast<DataObject*>(m_pDataObject), reinterpret_cast<axiom_attribute_t*>(pHashValue));
@@ -4528,13 +4526,13 @@ namespace staff
 
   const Attribute DataObject::ConstAttributeIterator::operator->() const
   {
-    RISE_ASSERTS(m_pDataObject != NULL, "Iterator is not iterable");
-    RISE_ASSERTES(m_pAttributeIndex != NULL, DomNoItemException, "Attempt to ++end()");
+    STAFF_ASSERT(m_pDataObject != NULL, "Iterator is not iterable");
+    STAFF_ASSERT_DOM(m_pAttributeIndex != NULL, "Attempt to ++end()");
 
     void* pHashValue = NULL;
 
     axutil_hash_this(m_pAttributeIndex, NULL, NULL, &pHashValue);
-    RISE_ASSERTES(pHashValue != NULL, DomNoItemException, "Can\'t get attribute");
+    STAFF_ASSERT_DOM(pHashValue != NULL, "Can\'t get attribute");
 
     Attribute tAttr(const_cast<DataObject*>(m_pDataObject), reinterpret_cast<axiom_attribute_t*>(pHashValue));
     return tAttr;
@@ -4551,34 +4549,5 @@ namespace staff
     rDataObject.GetText(rValue);
     return rDataObject;
   }
-
-#ifndef STAFF_NO_DEPRECATED
-  // obsolete class
-  CDataObject::CDataObject(axiom_node_t* pAxiomNode /*= NULL*/):
-    DataObject(pAxiomNode)
-  {
-  }
-
-  CDataObject::CDataObject(const DataObject& rDataObject):
-    DataObject(rDataObject)
-  {
-  }
-
-  CDataObject::CDataObject(const std::string& sLocalName):
-    DataObject(sLocalName)
-  {
-  }
-
-  CDataObject::CDataObject(const std::string& sLocalName, const Value& rValue):
-    DataObject(sLocalName, rValue)
-  {
-  }
-
-  CDataObject::CDataObject(const QName& rQName):
-    DataObject(rQName)
-  {
-  }
-
-#endif
 
 }

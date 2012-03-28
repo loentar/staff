@@ -5,8 +5,8 @@ TARGETNAME = $(TARGET)
 
 HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
-CXXFLAGS += -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
-LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient -lrise
+CXXFLAGS += -I$(DEPLOYDIR)include
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

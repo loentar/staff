@@ -21,20 +21,21 @@
 
 #include <memory>
 #include <algorithm>
-#include <rise/common/Log.h>
-#include <rise/common/MutablePtr.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/plugin/PluginExport.h>
-#include <rise/xml/XMLNode.h>
-#include <staff/codegen/tools.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/utils/stringutils.h>
+#include <staff/common/Exception.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Exception.h>
+#include <staff/xml/Element.h>
+#include <staff/codegen/tools.h>
 #include <staff/das/common/ProviderFactory.h>
 #include <staff/das/common/Provider.h>
 #include <staff/das/common/Executor.h>
 #include "DasDumpDb.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::DasDumpDb)
+STAFF_DECLARE_PLUGIN(staff::codegen::DasDumpDb)
 
 namespace staff
 {
@@ -62,22 +63,22 @@ namespace codegen
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
-      rise::StrReplace(sRootNs, ".", "::", true);
+      StringReplace(sRootNs, ".", "::", true);
     }
 
     StringMap::const_iterator itProvider = rParseSettings.mEnv.find("provider");
-    RISE_ASSERTS(itProvider != rParseSettings.mEnv.end() && !itProvider->second.empty(),
+    STAFF_ASSERT(itProvider != rParseSettings.mEnv.end() && !itProvider->second.empty(),
                  "provider is not set");
     const std::string& sProvider = itProvider->second;
 
-    rise::xml::CXMLNode tProviderConfig("provider");
-    rise::xml::CXMLNode& rNodeConn = tProviderConfig.AddSubNode("connection");
+    xml::Element tProviderConfig("provider");
+    xml::Element& rNodeConn = tProviderConfig.CreateChildElement("connection");
     for (StringMap::const_iterator itVar = rParseSettings.mEnv.begin();
          itVar != rParseSettings.mEnv.end(); ++itVar)
     {
       if (itVar->first != "rootns" && itVar->first != "provider")
       {
-        rNodeConn.AddSubNode(itVar->first).NodeContent() = itVar->second;
+        rNodeConn.CreateChildElement(itVar->first, itVar->second);
       }
     }
 
@@ -90,7 +91,7 @@ namespace codegen
       Interface stInterface;
       const std::string& sDb = rParseSettings.sInDir + *itDbName;
 
-      rNodeConn.GetOrAddSubNode("db").NodeContent() = sDb;
+      rNodeConn.CreateChildElementOnce("db").SetValue(sDb);
 
       pProvider->Deinit();
       pProvider->Init(tProviderConfig);
@@ -104,7 +105,7 @@ namespace codegen
       }
 
       das::PExecutor pExecutor = pProvider->GetExecutor();
-      RISE_ASSERTS(pExecutor->GetType() == das::IExecutor::TypeQuery, "Executor for provider ["
+      STAFF_ASSERT(pExecutor->GetType() == das::IExecutor::TypeQuery, "Executor for provider ["
                    + sProvider + "] is not Query type");
       das::IQueryExecutor* pExec = static_cast<das::IQueryExecutor*>(pExecutor.Get());
 
@@ -144,7 +145,7 @@ namespace codegen
     }
     else
     {
-      RISE_THROWS(rise::CInternalAssertException, "Provider [" + sProvider + "] is not supported.");
+      STAFF_THROW_ASSERT("Provider [" + sProvider + "] is not supported.");
     }
   }
 
@@ -158,7 +159,7 @@ namespace codegen
 
     while (rpExecutor.GetNextResult(lsResult))
     {
-      RISE_ASSERTS(lsResult.size() == 2, "Invalid result");
+      STAFF_ASSERT(lsResult.size() == 2, "Invalid result");
 
       std::string sSql = *(++lsResult.begin());
 
@@ -169,11 +170,11 @@ namespace codegen
       std::string::size_type nPos = sSql.find('(');
       std::string::size_type nPos1 = 0;
 
-      RISE_ASSERTS(nPos != std::string::npos, "can't find '('");
+      STAFF_ASSERT(nPos != std::string::npos, "can't find '('");
       sSql = sSql.substr(nPos + 1);
       sSql.resize(sSql.size() - 1); // remove last ')'
       NormalizeString(sSql);
-      rise::StrTrim(sSql);
+      StringTrim(sSql);
 
       std::string::size_type nPosBegin = 0;
       std::string::size_type nPosEnd = 0;
@@ -187,13 +188,13 @@ namespace codegen
         sCol = sSql.substr(nPosBegin, nPosEnd - nPosBegin);
         nPosBegin = nPosEnd + 1;
 
-        rise::StrTrim(sCol);
+        StringTrim(sCol);
 
         nPos = sCol.find("--");
         if (nPos != std::string::npos)
         {
           stParam.sDescr = sCol.substr(nPos + 2);
-          rise::StrTrim(stParam.sDescr);
+          StringTrim(stParam.sDescr);
           nPos1 = sCol.find('\n', nPos);
           if (nPos1 != std::string::npos)
           {
@@ -215,10 +216,10 @@ namespace codegen
         stParam.mOptions["pk"] = (sColUp.find("PRIMARY KEY") != std::string::npos) ? "true" : "false";
 
         nPos = sCol.find(" ");
-        RISE_ASSERTS(nPos != std::string::npos, "failed to get field name [" + sCol + "]");
+        STAFF_ASSERT(nPos != std::string::npos, "failed to get field name [" + sCol + "]");
         stParam.sName = sCol.substr(0, nPos);
         sCol.erase(0, nPos);
-        rise::StrTrimLeft(sCol);
+        StringTrimLeft(sCol);
 
         nPos = sCol.find_first_of(" ,(");
         if (nPos != std::string::npos)
@@ -269,7 +270,7 @@ namespace codegen
       while (rpExecutor.GetNextResult(lsResult))
       {
         Param stParam;
-        RISE_ASSERTS(lsResult.size() == 2, "Invalid columns count");
+        STAFF_ASSERT(lsResult.size() == 2, "Invalid columns count");
         stParam.sName = lsResult.front();
         stParam.stDataType.sName = *(++lsResult.begin());
         FixSqlType(stParam.stDataType);
@@ -309,7 +310,7 @@ namespace codegen
       while (rpExecutor.GetNextResult(lsResult))
       {
         Param stParam;
-        RISE_ASSERTS(lsResult.size() == 2, "Invalid columns count");
+        STAFF_ASSERT(lsResult.size() == 2, "Invalid columns count");
         stParam.sName = lsResult.front();
         stParam.stDataType.sName = *(++lsResult.begin());
         FixSqlType(stParam.stDataType);

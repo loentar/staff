@@ -16,9 +16,10 @@
 
 /*
  *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
+#include "Exception.h"
 #include "ByteArray.h"
 #include "HexBinary.h"
 
@@ -69,12 +70,12 @@ namespace staff
       return (chHex - 'a' + 0x0a);
     }
 
-    RISE_THROWS(rise::CLogicFormatException, "Invalid char [" + std::string(chHex, 1) + "] in hex string");
+    STAFF_THROW_ASSERT("Invalid char [" + std::string(chHex, 1) + "] in hex string");
   }
 
   void HexBinary::Decode(const std::string& sEncodedData, ByteArray& rDecodedData)
   {
-    RISE_ASSERTS(!(sEncodedData.size() % 2), "buffer has odd size");
+    STAFF_ASSERT(!(sEncodedData.size() % 2), "buffer has odd size");
 
     const unsigned long ulEncodedDataSize = sEncodedData.size();
 
@@ -117,7 +118,7 @@ namespace staff
   void HexBinary::Encode(const byte* pBinaryData, unsigned long ulDataSize, std::string& sEncodedData)
   {
     byte btTmp;
-    RISE_ASSERTP(pBinaryData);
+    STAFF_ASSERT_PARAM(pBinaryData);
     sEncodedData.resize(ulDataSize * 2);
     for (unsigned long ulIndex = 0; ulIndex < (ulDataSize * 2); ulIndex += 2, ++pBinaryData)
     {

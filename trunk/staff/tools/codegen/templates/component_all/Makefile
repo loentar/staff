@@ -80,7 +80,7 @@ endif
 
 TARGETNAME = \$(LIBPREFIX)\$(COMPONENT)\$(LIBEXT)
 
-LDFLAGS += -lpthread -lstaffutils -lstaffcommon -lstaffcomponent -lrise
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
 LDFLAGS += \$(LDLIB)\$(TARGETNAME)
 
 #ifneq($($bFromInterface),)

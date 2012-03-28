@@ -4,7 +4,7 @@ namespace staff
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // enums
 #foreach $(Interface.Enums)
-#ifeq($(Enum.Extern),0) // do not serialize extern type
+#ifeq($(Enum.Extern),false) // do not serialize extern type
 #cginclude "EnumSerialization.cpp"
 #ifeqend
 #end
@@ -22,7 +22,7 @@ namespace staff
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef serializators
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeq($(Typedef.Extern),false) // do not serialize extern type
 
 DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, const $(Typedef.NsName)& rtType)
 {
@@ -59,14 +59,14 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
   return rdoParam;
 }
 
-#ifeqend //ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeqend //ifeq($(Typedef.Extern),false) // do not serialize extern type
 #end // foreach $(Interface.Structs)
 #ifeqend
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedef deserializators
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0)
+#ifeq($(Typedef.Extern),false)
 const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
 (const DataObject& rdoParam, $(Typedef.NsName)& rtType)
 {
@@ -83,6 +83,6 @@ const DataObject& DeserializeTypedef_$(Typedef.NsName.!mangle)\
   return rdoParam;
 }
 
-#ifeqend // ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeqend // ifeq($(Typedef.Extern),false) // do not serialize extern type
 #end
 }

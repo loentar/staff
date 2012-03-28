@@ -18,9 +18,9 @@
 #ifeqend
 \
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #ifneq($($HasAsynchOps),)
-#include <rise/threading/Thread.h>
+#include <staff/utils/Thread.h>
 #include <staff/common/DataObject.h>
 #include <staff/client/ICallback.h>
 #ifeqend
@@ -62,14 +62,14 @@ $($sCallbackType) tResult\
   {
     // process result here
 #ifneq($($sCallbackType),void)
-    // rise::LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
+    // LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
 #ifeqend
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    LogError() << rFault.ToString();
   }
 };
 
@@ -90,7 +90,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 #foreach $(Interface.Classes)
     std::auto_ptr< $(Class.NsName) > p$(Class.ServiceName)(::staff::ServiceFactory::Inst().GetService< $(Class.NsName) >());
 
-    RISE_ASSERTS(p$(Class.ServiceName).get(), "Cannot get client for service $(Class.ServiceNsName)!");
+    STAFF_ASSERT(p$(Class.ServiceName).get(), "Cannot get client for service $(Class.ServiceNsName)!");
 
     // Invoke Your service here:
 #foreach $(Class.Members)
@@ -126,9 +126,9 @@ $(Param.Name)\
 #end // Member.Params
 );
 #ifneq($(Member.Return.Name),void)
-    // rise::LogInfo() << "$(Member.Name) result: " << $($sResult);
+    // LogInfo() << "$(Member.Name) result: " << $($sResult);
 #else
-    // rise::LogInfo() << "$(Member.Name) called";
+    // LogInfo() << "$(Member.Name) called";
 #ifeqend
 #else // non blocking call
     // $(Class.Name)$(Member.Name)Callback t$(Class.Name)$(Member.Name)Callback;
@@ -154,7 +154,7 @@ $(Param.Name)\
     // // To call operation while request is processing, please use another copy of client.
     // while (!t$(Class.Name)$(Member.Name)Callback.IsCompleted())
     // {
-    //   rise::threading::CThread::Sleep(1000);
+    //   staff::threading::Thread::Sleep(1000);
     // }
 
 #ifeqend // blocking call
@@ -163,7 +163,7 @@ $(Param.Name)\
 #ifeqend // (Interface.Classes.Count),0
 #end // Project.Interfaces
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

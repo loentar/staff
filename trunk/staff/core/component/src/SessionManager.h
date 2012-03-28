@@ -31,25 +31,25 @@ namespace staff
   class STAFF_COMPONENT_EXPORT SessionManager
   {
   public:
-    //!         get session manager instance
+    //! get session manager instance
     /*! \return session manager instance
     */
     static SessionManager& Inst();
 
-    //!         start sessions watching
+    //! start sessions watching
     void Start();
 
-    //!         stop sessions watching
+    //! stop sessions watching
     void Stop();
 
-    //!         login user and create session, get existing session if user alredy logged in
+    //! login user and create session, get existing session if user alredy logged in
     /*! \param  sUserName - user name
         \param  sPassword - user password
         \param  sSessionId - resulting session id
         */
     void Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId);
 
-    //!         login and create session
+    //! login and create session
     /*! \param  sUserName - user name
         \param  sPassword - user password
         \param  bCloseExisting - close existing session if exists, else throw exception
@@ -57,22 +57,22 @@ namespace staff
         */
     void Open(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting, std::string& sSessionId);
 
-    //!         close session
+    //! close session
     /*! \param  sSessionId - session id
       */
     void Close(const std::string& sSessionId);
 
-    //!         is session opened
+    //! is session opened
     /*! \param  sSessionId - session id
         */
     bool IsOpened(const std::string& sSessionId);
 
-    //!         validate session (using db query)
+    //! validate session (using db query)
     /*! \param  sSessionId - session id
         */
     bool Validate(const std::string& sSessionId);
 
-    //!         keepalive session
+    //! keepalive session
     /*! \param  sSessionId - session id
         */
     void Keepalive(const std::string& sSessionId);
@@ -87,10 +87,6 @@ namespace staff
     class SessionManagerImpl;
     SessionManagerImpl* m_pImpl;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(SessionManager) typedef SessionManager CSessionManager;
-#endif
 
 }
 

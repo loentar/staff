@@ -3,7 +3,7 @@
 // Client skeleton
 
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Echo.h"
@@ -14,14 +14,14 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< ::samples::simple::Echo > pEcho(::staff::ServiceFactory::Inst().GetService< ::samples::simple::Echo >());
 
-    RISE_ASSERTS(pEcho.get(), "Cannot get client for service samples.simple.Echo!");
+    STAFF_ASSERT(pEcho.get(), "Cannot get client for service samples.simple.Echo!");
 
     // Invoke Your service here:
 
     std::string tEchoStringResult = pEcho->EchoString("Hello world!");
-    rise::LogInfo() << "EchoString result: " << tEchoStringResult;
+    staff::LogInfo() << "EchoString result: " << tEchoStringResult;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

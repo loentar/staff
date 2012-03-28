@@ -26,13 +26,9 @@
 #include <string>
 #include "staffdascommonexport.h"
 
-namespace rise
-{
-  template <typename Type> class CMutablePtr;
-}
-
 namespace staff
 {
+  template <typename Type> class SharedPtr;
   class DataObject;
 
   namespace das
@@ -63,7 +59,7 @@ namespace staff
     };
 
     //! smart pointer to executor object
-    typedef rise::CMutablePtr<IExecutor> PExecutor;
+    typedef SharedPtr<IExecutor> PExecutor;
 
 
 
@@ -102,7 +98,7 @@ namespace staff
     };
 
     //! smart pointer to Query executor object
-    typedef rise::CMutablePtr<IQueryExecutor> PQueryExecutor;
+    typedef SharedPtr<IQueryExecutor> PQueryExecutor;
 
 
 
@@ -120,13 +116,16 @@ namespace staff
 
       //! execute query
       /*! \param  sExecute - query to execute
+          \param  rdoContext - context
+          \param  rReturnType - return type
+          \param  rdoResult - result
         */
       virtual void Execute(const std::string& sExecute, const DataObject& rdoContext,
                            const DataType& rReturnType, DataObject& rdoResult) = 0;
     };
 
     //! smart pointer to RawExecutor object
-    typedef rise::CMutablePtr<IRawExecutor> PRawExecutor;
+    typedef SharedPtr<IRawExecutor> PRawExecutor;
 
   }
 }

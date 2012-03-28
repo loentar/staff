@@ -1,5 +1,5 @@
 #foreach $(Interface.Enums)
-#ifeq($(Enum.Extern),0) // do not serialize extern type
+#ifeq($(Enum.Extern),false) // do not serialize extern type
 #cginclude "EnumSerialization.js"
 #ifeqend
 #end
@@ -7,7 +7,7 @@
 #cginclude "StructSerialization.js"
 #end
 #foreach $(Interface.Typedefs)
-#ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeq($(Typedef.Extern),false) // do not serialize extern type
 
 // typedef $(Typedef.NsName.!dot)
 var o$(Typedef.NsName.!mangle) = staff.object("$(Typedef.NsName.!dot)");
@@ -32,5 +32,5 @@ o$(Typedef.NsName.!mangle).deserialize = function(oElement)
   return oType;
 }
 
-#ifeqend //ifeq($(Typedef.Extern),0) // do not serialize extern type
+#ifeqend //ifeq($(Typedef.Extern),false) // do not serialize extern type
 #end // foreach $(Interface.Structs)

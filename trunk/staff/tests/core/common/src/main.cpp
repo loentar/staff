@@ -1,7 +1,6 @@
 #include <iostream>
-#include <rise/common/exmacros.h>
-#include <rise/common/Exception.h>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
 #include <staff/common/DataObject.h>
 
 int main()
@@ -13,12 +12,12 @@ int main()
   {\
     if (EXPR)\
     {\
-       rise::LogInfo() << TEXT": " << #EXPR << rise::LogResultSuccess;\
+       staff::LogInfo() << TEXT": " << #EXPR << staff::LogResultSuccess;\
       ++nSuccessed;\
     }\
     else\
     {\
-      rise::LogInfo() << TEXT": " << #EXPR << rise::LogResultFailed;\
+      staff::LogInfo() << TEXT": " << #EXPR << staff::LogResultFailed;\
       ++nFailed;\
     }\
   }
@@ -121,9 +120,9 @@ int main()
     }
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
-  rise::LogInfo() << "\n\n\033[1mTests successed: " << nSuccessed << "\nTests failed: " << nFailed << "\033[0m";
+  staff::LogInfo() << "\n\n\033[1mTests successed: " << nSuccessed << "\nTests failed: " << nFailed << "\033[0m";
 
   return 0;
 }

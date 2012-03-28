@@ -8,7 +8,7 @@ LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/mysql
-LDFLAGS += -lpthread -lmysqlclient -lrise -lstaffcommon -lstaffdascommon
+LDFLAGS += -lmysqlclient -lstaffutils -lstaffxml -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)

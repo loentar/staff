@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_COMPONENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,10 +65,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -126,7 +126,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_COMPONENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -147,10 +147,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -206,7 +206,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_COMPONENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -225,10 +225,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -287,7 +287,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_COMPONENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -306,10 +306,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib rise.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\rise\deploy\win_$(PlatformName)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

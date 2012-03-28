@@ -53,7 +53,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="5"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
+        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -80,10 +80,10 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
+				AdditionalDependencies="staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
+        AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
 				IgnoreDefaultLibraryNames="LIBCMT.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -153,7 +153,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
+        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -176,10 +176,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
+				AdditionalDependencies="staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
+        AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
 				IgnoreDefaultLibraryNames="LIBCMT.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -237,7 +237,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
+        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -256,10 +256,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
+				AdditionalDependencies="staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
+        AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
 				IgnoreDefaultLibraryNames="LIBCMT.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -320,7 +320,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
+        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../deploy/win_$(PlatformName)/staff/include&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/include&quot;;&quot;$(MYSQL_HOME)\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -339,10 +339,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rise.lib staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
+				AdditionalDependencies="staff_common.lib staff_dascommon.lib mysqlclient.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../rise/deploy/win_$(PlatformName)/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
+        AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(MYSQL_HOME)\lib\opt\&quot;"
 				IgnoreDefaultLibraryNames="LIBCMT.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"

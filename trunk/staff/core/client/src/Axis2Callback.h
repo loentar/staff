@@ -61,9 +61,6 @@ namespace staff
     axutil_env_t* m_pEnv; //!< Axis2/C env
   };
 
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Axis2Callback) typedef Axis2Callback CAxis2Callback;
-#endif
 }
 
 #endif // _AXIS2CALLBACK_H_

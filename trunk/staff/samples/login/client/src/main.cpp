@@ -25,10 +25,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <memory>
-#include <rise/string/String.h>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/console.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/console.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Login.h"
@@ -41,7 +41,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     {
       std::auto_ptr<staff::Login> pLogin(staff::ServiceFactory::Inst().GetService<staff::Login>());
 
-      RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
+      STAFF_ASSERT(pLogin.get(), "Cannot get client for service Login!");
 
       // Invoke login service
       std::cout << "Session expiration = ";
@@ -61,7 +61,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     {
       std::auto_ptr<staff::Login> pLogin(staff::ServiceFactory::Inst().GetService<staff::Login>("", sSessionId));
 
-      RISE_ASSERTS(pLogin.get(), "Cannot get client for service Login!");
+      STAFF_ASSERT(pLogin.get(), "Cannot get client for service Login!");
 
       std::cout << "Validating session ";
       bool bSessionValid = pLogin->ValidateSession();
@@ -84,7 +84,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
       {
         std::cout << "Validating closed session ";
         bSessionValid = pLogin->ValidateSession();
-        RISE_THROW(rise::CLogicNoItemException);
+        STAFF_THROW(staff::Exception, "Failed to check closed session validation");
 //        std::cout << (!bSessionValid ? ": Success" : ": Error") << std::endl;
       }
       catch(const staff::RemoteException& /*rEx*/)
@@ -93,12 +93,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
       }
     }
   }
-  catch(const staff::RemoteException& rEx)
-  {
-    std::cout << ": Error" << std::endl;
-    rise::LogError() << rEx.GetDescr();
-  }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

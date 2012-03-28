@@ -26,7 +26,7 @@
 namespace staff
 {
   Value::Value():
-    m_eType(ET_NOTINIT), m_ePrevType(ET_NOTINIT), m_bChanged(false)
+    m_eType(TypeUnknown), m_ePrevType(TypeUnknown), m_bChanged(false)
   {
   }
 
@@ -124,7 +124,7 @@ namespace staff
   Value& Value::operator=(const std::string& sValue)
   {
     m_bChanged = true;
-    m_eType = ET_TEXT;
+    m_eType = TypeText;
     m_ePrevType = m_eType;
     m_sValue = sValue;
     return *this;
@@ -133,7 +133,7 @@ namespace staff
   Value& Value::operator=(const char* szValue)
   {
     m_bChanged = true;
-    m_eType = ET_TEXT;
+    m_eType = TypeText;
     m_ePrevType = m_eType;
     if (szValue == NULL)
       m_sValue = "";
@@ -145,7 +145,7 @@ namespace staff
   Value& Value::operator=(float fValue)
   {
     m_bChanged = true;
-    m_eType = ET_FLOAT;
+    m_eType = TypeFloat;
     m_ePrevType = m_eType;
     m_uValue.fValue = fValue;
     return *this;
@@ -154,7 +154,7 @@ namespace staff
   Value& Value::operator=(double dValue)
   {
     m_bChanged = true;
-    m_eType = ET_DOUBLE;
+    m_eType = TypeDouble;
     m_ePrevType = m_eType;
     m_uValue.dValue = dValue;
     return *this;
@@ -163,7 +163,7 @@ namespace staff
   Value& Value::operator=(byte btValue)
   {
     m_bChanged = true;
-    m_eType = ET_BYTE;
+    m_eType = TypeByte;
     m_ePrevType = m_eType;
     m_uValue.btValue = btValue;
     return *this;
@@ -172,7 +172,7 @@ namespace staff
   Value& Value::operator=(int nValue)
   {
     m_bChanged = true;
-    m_eType = ET_INT;
+    m_eType = TypeInt;
     m_ePrevType = m_eType;
     m_uValue.nValue = nValue;
     return *this;
@@ -181,7 +181,7 @@ namespace staff
   Value& Value::operator=(short shValue)
   {
     m_bChanged = true;
-    m_eType = ET_SHORT;
+    m_eType = TypeShort;
     m_ePrevType = m_eType;
     m_uValue.shValue = shValue;
     return *this;
@@ -190,7 +190,7 @@ namespace staff
   Value& Value::operator=(long lValue)
   {
     m_bChanged = true;
-    m_eType = ET_LONG;
+    m_eType = TypeLong;
     m_ePrevType = m_eType;
     m_uValue.lValue = lValue;
     return *this;
@@ -199,7 +199,7 @@ namespace staff
   Value& Value::operator=(long long llValue)
   {
     m_bChanged = true;
-    m_eType = ET_LONGLONG;
+    m_eType = TypeLongLong;
     m_ePrevType = m_eType;
     m_uValue.llValue = llValue;
     return *this;
@@ -208,7 +208,7 @@ namespace staff
   Value& Value::operator=(unsignedByte ubtValue)
   {
     m_bChanged = true;
-    m_eType = ET_UBYTE;
+    m_eType = TypeUByte;
     m_ePrevType = m_eType;
     m_uValue.ubtValue = ubtValue;
     return *this;
@@ -217,7 +217,7 @@ namespace staff
   Value& Value::operator=(unsigned int unValue)
   {
     m_bChanged = true;
-    m_eType = ET_UINT;
+    m_eType = TypeUInt;
     m_ePrevType = m_eType;
     m_uValue.unValue = unValue;
     return *this;
@@ -226,7 +226,7 @@ namespace staff
   Value& Value::operator=(unsigned short ushValue)
   {
     m_bChanged = true;
-    m_eType = ET_USHORT;
+    m_eType = TypeUShort;
     m_ePrevType = m_eType;
     m_uValue.ushValue = ushValue;
     return *this;
@@ -235,7 +235,7 @@ namespace staff
   Value& Value::operator=(unsigned long ulValue)
   {
     m_bChanged = true;
-    m_eType = ET_ULONG;
+    m_eType = TypeULong;
     m_ePrevType = m_eType;
     m_uValue.ulValue = ulValue;
     return *this;
@@ -244,7 +244,7 @@ namespace staff
   Value& Value::operator=(unsigned long long ullValue)
   {
     m_bChanged = true;
-    m_eType = ET_ULONGLONG;
+    m_eType = TypeULongLong;
     m_ePrevType = m_eType;
     m_uValue.ullValue = ullValue;
     return *this;
@@ -253,7 +253,7 @@ namespace staff
   Value& Value::operator=(bool bValue)
   {
     m_bChanged = true;
-    m_eType = ET_BOOL;
+    m_eType = TypeBool;
     m_ePrevType = m_eType;
     m_uValue.bValue = bValue;
     return *this;
@@ -264,7 +264,7 @@ namespace staff
     m_eType = rValue.m_eType;
     m_ePrevType = rValue.m_ePrevType;
     m_bChanged = rValue.m_bChanged;
-    if (m_eType == ET_TEXT)
+    if (m_eType == TypeText)
     {
       m_sValue = rValue.m_sValue;
     } else
@@ -279,918 +279,903 @@ namespace staff
   Value::operator std::string&()
   {
     m_bChanged = true;
-    SyncTo(ET_TEXT);
+    SyncTo(TypeText);
     return m_sValue;
   }
 
   Value::operator float&()
   {
     m_bChanged = true;
-    SyncTo(ET_FLOAT);
+    SyncTo(TypeFloat);
     return m_uValue.fValue;
   }
 
   Value::operator double&()
   {
     m_bChanged = true;
-    SyncTo(ET_DOUBLE);
+    SyncTo(TypeDouble);
     return m_uValue.dValue;
   }
 
   Value::operator byte&()
   {
     m_bChanged = true;
-    SyncTo(ET_BYTE);
+    SyncTo(TypeByte);
     return m_uValue.btValue;
   }
 
   Value::operator int&()
   {
     m_bChanged = true;
-    SyncTo(ET_INT);
+    SyncTo(TypeInt);
     return m_uValue.nValue;
   }
 
   Value::operator short&()
   {
     m_bChanged = true;
-    SyncTo(ET_SHORT);
+    SyncTo(TypeShort);
     return m_uValue.shValue;
   }
 
   Value::operator long&()
   {
     m_bChanged = true;
-    SyncTo(ET_LONG);
+    SyncTo(TypeLong);
     return m_uValue.lValue;
   }
 
   Value::operator long long&()
   {
     m_bChanged = true;
-    SyncTo(ET_LONGLONG);
+    SyncTo(TypeLongLong);
     return m_uValue.llValue;
   }
 
   Value::operator unsignedByte&()
   {
     m_bChanged = true;
-    SyncTo(ET_UBYTE);
+    SyncTo(TypeUByte);
     return m_uValue.ubtValue;
   }
 
   Value::operator unsigned int&()
   {
     m_bChanged = true;
-    SyncTo(ET_UINT);
+    SyncTo(TypeUInt);
     return m_uValue.unValue;
   }
 
   Value::operator unsigned short&()
   {
     m_bChanged = true;
-    SyncTo(ET_USHORT);
+    SyncTo(TypeUShort);
     return m_uValue.ushValue;
   }
 
   Value::operator unsigned long&()
   {
     m_bChanged = true;
-    SyncTo(ET_ULONG);
+    SyncTo(TypeULong);
     return m_uValue.ulValue;
   }
 
   Value::operator unsigned long long&()
   {
     m_bChanged = true;
-    SyncTo(ET_ULONGLONG);
+    SyncTo(TypeULongLong);
     return m_uValue.ullValue;
   }
 
   Value::operator bool&()
   {
     m_bChanged = true;
-    SyncTo(ET_BOOL);
+    SyncTo(TypeBool);
     return m_uValue.bValue;
   }
 
 
   Value::operator const std::string&() const
   {
-    SyncTo(ET_TEXT);
+    SyncTo(TypeText);
     return m_sValue;
   }
 
   Value::operator float() const
   {
-    SyncTo(ET_FLOAT);
+    SyncTo(TypeFloat);
     return m_uValue.fValue;
   }
 
   Value::operator double() const
   {
-    SyncTo(ET_DOUBLE);
+    SyncTo(TypeDouble);
     return m_uValue.dValue;
   }
 
   Value::operator byte() const
   {
-    SyncTo(ET_BYTE);
+    SyncTo(TypeByte);
     return m_uValue.btValue;
   }
 
   Value::operator int() const
   {
-    SyncTo(ET_INT);
+    SyncTo(TypeInt);
     return m_uValue.nValue;
   }
 
   Value::operator short() const
   {
-    SyncTo(ET_SHORT);
+    SyncTo(TypeShort);
     return m_uValue.shValue;
   }
 
   Value::operator long() const
   {
-    SyncTo(ET_LONG);
+    SyncTo(TypeLong);
     return m_uValue.lValue;
   }
 
   Value::operator long long() const
   {
-    SyncTo(ET_LONGLONG);
+    SyncTo(TypeLongLong);
     return m_uValue.llValue;
   }
 
   Value::operator unsignedByte() const
   {
-    SyncTo(ET_UBYTE);
+    SyncTo(TypeUByte);
     return m_uValue.ubtValue;
   }
 
   Value::operator unsigned int() const
   {
-    SyncTo(ET_UINT);
+    SyncTo(TypeUInt);
     return m_uValue.unValue;
   }
 
   Value::operator unsigned short() const
   {
-    SyncTo(ET_USHORT);
+    SyncTo(TypeUShort);
     return m_uValue.ushValue;
   }
 
   Value::operator unsigned long() const
   {
-    SyncTo(ET_ULONG);
+    SyncTo(TypeULong);
     return m_uValue.ulValue;
   }
 
   Value::operator unsigned long long() const
   {
-    SyncTo(ET_ULONGLONG);
+    SyncTo(TypeULongLong);
     return m_uValue.ullValue;
   }
 
   Value::operator bool() const
   {
-    SyncTo(ET_BOOL);
+    SyncTo(TypeBool);
     return m_uValue.bValue;
   }
 
 
-  void Value::Sync(EType eTypeFrom, EType eTypeTo) const
+  void Value::Sync(Type eTypeFrom, Type eTypeTo) const
   {
     switch(eTypeTo)
     {
-    case ET_TEXT:
+    case TypeText:
         switch(eTypeFrom)
         {
-        case ET_TEXT:
+        case TypeText:
           break;
-        case ET_FLOAT:
+        case TypeFloat:
           ToString(m_uValue.fValue, m_sValue);
           break;
-        case ET_DOUBLE:
+        case TypeDouble:
           ToString(m_uValue.dValue, m_sValue);
           break;
-        case ET_BYTE:
+        case TypeByte:
           ToString(m_uValue.btValue, m_sValue);
           break;
-        case ET_INT:
+        case TypeInt:
           ToString(m_uValue.nValue, m_sValue);
           break;
-        case ET_SHORT:
+        case TypeShort:
           ToString(m_uValue.shValue, m_sValue);
           break;
-        case ET_LONG:
+        case TypeLong:
           ToString(m_uValue.lValue, m_sValue);
           break;
-        case ET_LONGLONG:
+        case TypeLongLong:
           ToString(m_uValue.llValue, m_sValue);
           break;
-        case ET_UBYTE:
+        case TypeUByte:
           ToString(m_uValue.ubtValue, m_sValue);
           break;
-        case ET_UINT:
+        case TypeUInt:
           ToString(m_uValue.unValue, m_sValue);
           break;
-        case ET_USHORT:
+        case TypeUShort:
           ToString(m_uValue.ushValue, m_sValue);
           break;
-        case ET_ULONG:
+        case TypeULong:
           ToString(m_uValue.ulValue, m_sValue);
           break;
-        case ET_ULONGLONG:
+        case TypeULongLong:
           ToString(m_uValue.ullValue, m_sValue);
           break;
-        case ET_BOOL:
+        case TypeBool:
           m_sValue = m_uValue.bValue ? "true" : "false"; 
           break;
-        case ET_NOTINIT:
-        case ET_UNKNOWN:
+        case TypeUnknown:
           break;
         }
         break;
       
-    case ET_FLOAT:
+    case TypeFloat:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.fValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.fValue = static_cast<float>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.fValue = static_cast<float>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.fValue = static_cast<float>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.fValue = static_cast<float>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.fValue = static_cast<float>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.fValue = static_cast<float>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.fValue = static_cast<float>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.fValue = static_cast<float>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.fValue = static_cast<float>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.fValue = static_cast<float>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.fValue = static_cast<float>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.fValue = m_uValue.bValue ? 1.0f : 0.0f;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
       
-    case ET_DOUBLE:
+    case TypeDouble:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.dValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.dValue = static_cast<double>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.dValue = static_cast<double>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.dValue = static_cast<double>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.dValue = static_cast<double>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.dValue = static_cast<double>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.dValue = static_cast<double>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.dValue = static_cast<double>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.dValue = static_cast<double>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.dValue = static_cast<double>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.dValue = static_cast<double>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.dValue = static_cast<double>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.dValue = m_uValue.bValue ? 1.0 : 0.0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
       
-    case ET_BYTE:
+    case TypeByte:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         m_uValue.btValue = m_sValue.size() > 0 ? m_sValue[0] : 0;
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.btValue = static_cast<byte>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.btValue = static_cast<byte>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.btValue = static_cast<byte>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.btValue = static_cast<byte>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.btValue = static_cast<byte>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.btValue = static_cast<byte>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.btValue = static_cast<byte>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.btValue = static_cast<byte>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.btValue = static_cast<byte>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.btValue = static_cast<byte>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.btValue = static_cast<byte>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.btValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
       
-    case ET_INT:
+    case TypeInt:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.nValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.nValue = static_cast<int>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.nValue = static_cast<int>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.nValue = static_cast<int>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.nValue = static_cast<int>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.nValue = static_cast<int>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.nValue = static_cast<int>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.nValue = static_cast<int>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.nValue = static_cast<int>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.nValue = static_cast<int>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.nValue = static_cast<int>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.nValue = static_cast<int>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.nValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
       
-    case ET_SHORT:
+    case TypeShort:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.shValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.shValue = static_cast<short>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.shValue = static_cast<short>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.shValue = static_cast<short>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.shValue = static_cast<short>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.shValue = static_cast<short>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.shValue = static_cast<short>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.shValue = static_cast<short>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.shValue = static_cast<short>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.shValue = static_cast<short>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.shValue = static_cast<short>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.shValue = static_cast<short>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.shValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_LONG:
+    case TypeLong:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.lValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.lValue = static_cast<long>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.lValue = static_cast<long>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.lValue = static_cast<long>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.lValue = static_cast<long>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.lValue = static_cast<long>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.lValue = static_cast<long>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.lValue = static_cast<long>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.lValue = static_cast<long>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.lValue = static_cast<long>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.lValue = static_cast<long>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.lValue = static_cast<long>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.lValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_LONGLONG:
+    case TypeLongLong:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.llValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.llValue = static_cast<long long>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.llValue = static_cast<long long>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.llValue = static_cast<long long>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.llValue = static_cast<long long>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.llValue = static_cast<long long>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.llValue = static_cast<long long>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.llValue = static_cast<long long>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.llValue = static_cast<long long>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.llValue = static_cast<long long>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.llValue = static_cast<long long>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.llValue = static_cast<long long>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.llValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_UBYTE:
+    case TypeUByte:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         m_sValue = m_uValue.ubtValue;
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.ubtValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_UINT:
+    case TypeUInt:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.unValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.unValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
       
-    case ET_USHORT:
+    case TypeUShort:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.ushValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.ushValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_ULONG:
+    case TypeULong:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.ulValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.ullValue);
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.ulValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_ULONGLONG:
+    case TypeULongLong:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         FromString(m_sValue, m_uValue.ullValue);
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.fValue);
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.dValue);
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.btValue);
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.nValue);
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.shValue);
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.lValue);
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.llValue);
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.ubtValue);
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.unValue);
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.ushValue);
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.ulValue);
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         break;
-      case ET_BOOL:
+      case TypeBool:
         m_uValue.ullValue = m_uValue.bValue ? 1 : 0;
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_BOOL:
+    case TypeBool:
       switch(eTypeFrom)
       {
-      case ET_TEXT:
+      case TypeText:
         m_uValue.bValue = m_sValue == "True" || m_sValue == "true" || m_sValue == "TRUE" || m_sValue == "1";
         break;
-      case ET_FLOAT:
+      case TypeFloat:
         m_uValue.bValue = m_uValue.fValue != 0;
         break;
-      case ET_DOUBLE:
+      case TypeDouble:
         m_uValue.bValue = m_uValue.dValue != 0;
         break;
-      case ET_BYTE:
+      case TypeByte:
         m_uValue.bValue = m_uValue.btValue != 0;
         break;
-      case ET_INT:
+      case TypeInt:
         m_uValue.bValue = m_uValue.nValue != 0;
         break;
-      case ET_SHORT:
+      case TypeShort:
         m_uValue.bValue = m_uValue.shValue != 0;
         break;
-      case ET_LONG:
+      case TypeLong:
         m_uValue.bValue = m_uValue.lValue != 0;
         break;
-      case ET_LONGLONG:
+      case TypeLongLong:
         m_uValue.bValue = m_uValue.llValue != 0;
         break;
-      case ET_UBYTE:
+      case TypeUByte:
         m_uValue.bValue = m_uValue.ubtValue != 0;
         break;
-      case ET_UINT:
+      case TypeUInt:
         m_uValue.bValue = m_uValue.unValue != 0;
         break;
-      case ET_USHORT:
+      case TypeUShort:
         m_uValue.bValue = m_uValue.ushValue != 0;
         break;
-      case ET_ULONG:
+      case TypeULong:
         m_uValue.bValue = m_uValue.ulValue != 0;
         break;
-      case ET_ULONGLONG:
+      case TypeULongLong:
         m_uValue.bValue = m_uValue.ullValue != 0;
         break;
-      case ET_BOOL:
+      case TypeBool:
         break;
-      case ET_NOTINIT:
-      case ET_UNKNOWN:
+      case TypeUnknown:
         break;
       }
       break;
 
-    case ET_NOTINIT:
-    case ET_UNKNOWN:
+    case TypeUnknown:
       break;
     }
   }
 
-  void Value::SyncTo(EType eTypeTo) const
+  void Value::SyncTo(Type eTypeTo) const
   {
     Sync(m_eType, eTypeTo);
     m_ePrevType = eTypeTo;
   }
 
-  Value::EType Value::GetType() const
+  Value::Type Value::GetType() const
   {
     return m_eType;
   }
 
   const std::string& Value::AsString() const
   {
-    SyncTo(ET_TEXT);
+    SyncTo(TypeText);
     return m_sValue;
   }
 
   std::string& Value::AsString()
   {
-    SyncTo(ET_TEXT);
+    SyncTo(TypeText);
     return m_sValue;
   }
 
@@ -1199,9 +1184,9 @@ namespace staff
     return IsNumber(m_eType);
   }
 
-  bool Value::IsNumber(EType eType) const
+  bool Value::IsNumber(Type eType) const
   {
-    return eType >= ET_FLOAT && eType <= ET_BOOL;
+    return eType >= TypeFloat && eType <= TypeBool;
   }
 
   bool Value::operator==(const Value& rValue) const
@@ -1211,64 +1196,63 @@ namespace staff
 
     switch(m_eType)
     {
-    case ET_TEXT:
+    case TypeText:
       if (m_sValue == rValue.m_sValue)
         return true;
       break;
-    case ET_FLOAT:
+    case TypeFloat:
       if (m_uValue.fValue == rValue.m_uValue.fValue)
         return true;
       break;
-    case ET_DOUBLE:
+    case TypeDouble:
       if (m_uValue.dValue == rValue.m_uValue.dValue)
         return true;
       break;
-    case ET_BYTE:
+    case TypeByte:
       if (m_uValue.btValue == rValue.m_uValue.btValue)
         return true;
       break;
-    case ET_INT:
+    case TypeInt:
       if (m_uValue.nValue == rValue.m_uValue.nValue)
         return true;
       break;
-    case ET_SHORT:
+    case TypeShort:
       if (m_uValue.shValue == rValue.m_uValue.shValue)
         return true;
       break;
-    case ET_LONG:
+    case TypeLong:
       if (m_uValue.lValue == rValue.m_uValue.lValue)
         return true;
       break;
-    case ET_LONGLONG:
+    case TypeLongLong:
       if (m_uValue.llValue == rValue.m_uValue.llValue)
         return true;
       break;
-    case ET_UBYTE:
+    case TypeUByte:
       if (m_uValue.ubtValue == rValue.m_uValue.ubtValue)
         return true;
       break;
-    case ET_UINT:
+    case TypeUInt:
       if (m_uValue.unValue == rValue.m_uValue.unValue)
         return true;
       break;
-    case ET_USHORT:
+    case TypeUShort:
       if (m_uValue.ushValue == rValue.m_uValue.ushValue)
         return true;
       break;
-    case ET_ULONG:
+    case TypeULong:
       if (m_uValue.ulValue == rValue.m_uValue.ulValue)
         return true;
       break;
-    case ET_ULONGLONG:
+    case TypeULongLong:
       if (m_uValue.ullValue == rValue.m_uValue.ullValue)
         return true;
       break;
-    case ET_BOOL:
+    case TypeBool:
       if (m_uValue.bValue == rValue.m_uValue.bValue)
         return true;
       break;
-    case ET_NOTINIT:
-    case ET_UNKNOWN:
+    case TypeUnknown:
       return true;
       break;
     }

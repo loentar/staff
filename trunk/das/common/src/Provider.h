@@ -27,91 +27,88 @@
 #include <map>
 #include "staffdascommonexport.h"
 
-namespace rise
-{
-  template <typename Type> class CMutablePtr;
-  namespace xml
-  {
-    class CXMLNode;
-  }
-}
-
 namespace staff
 {
-  namespace das
+  template <typename Type> class SharedPtr;
+  namespace xml
   {
-
-    class IExecutor;
-    typedef rise::CMutablePtr<IExecutor> PExecutor;
-
-    //! string list
-    typedef std::list<std::string> StringList;
-
-
-    //! DAS provider interface
-    class IProvider
-    {
-    public:
-      //! destructor
-      virtual ~IProvider() {}
-
-      //! initialize provider
-      /*! \param rConfig - provider's config
-        */
-      virtual void Init(const rise::xml::CXMLNode& rConfig) = 0;
-
-      //! deinitialize provider
-      virtual void Deinit() = 0;
-
-      //! get provider name
-      /*! \return provider name
-        */
-      virtual const std::string& GetName() const = 0;
-
-      //! get provider description
-      /*! \return provider description
-        */
-      virtual const std::string& GetDescr() const = 0;
-
-      //! create new executor object to execute query
-      /*! \return new executor
-        */
-      virtual PExecutor GetExecutor() = 0;
-    };
-
-    //! pointer to provider wrapper
-    typedef rise::CMutablePtr<IProvider> PProvider;
-
-    //! map of providers
-    typedef std::map<std::string, PProvider> ProvidersMap;
-
-    //! providers
-    struct Providers
-    {
-      std::string sDefaultId;  //!< default provider id
-      ProvidersMap mProviders; //!< map of providers
-    };
-
-
-    //! provider allocator
-    class ProviderAllocator
-    {
-    public:
-      //! virtual destructor
-      virtual ~ProviderAllocator() {}
-
-      //! create new provider instance
-      /*! \return new provider instance
-        */
-      virtual PProvider Allocate(const std::string& sName) = 0;
-
-      //! get providers list
-      /*! \param rlsProvidersList - resulting providers list
-        */
-      virtual void GetProvidersList(StringList& rlsProvidersList) = 0;
-    };
-
+    class Element;
   }
+
+namespace das
+{
+
+  class IExecutor;
+  typedef SharedPtr<IExecutor> PExecutor;
+
+  //! string list
+  typedef std::list<std::string> StringList;
+
+
+  //! DAS provider interface
+  class IProvider
+  {
+  public:
+    //! destructor
+    virtual ~IProvider() {}
+
+    //! initialize provider
+    /*! \param rConfig - provider's config
+      */
+    virtual void Init(const xml::Element& rConfig) = 0;
+
+    //! deinitialize provider
+    virtual void Deinit() = 0;
+
+    //! get provider name
+    /*! \return provider name
+      */
+    virtual const std::string& GetName() const = 0;
+
+    //! get provider description
+    /*! \return provider description
+      */
+    virtual const std::string& GetDescr() const = 0;
+
+    //! create new executor object to execute query
+    /*! \return new executor
+      */
+    virtual PExecutor GetExecutor() = 0;
+  };
+
+  //! pointer to provider wrapper
+  typedef SharedPtr<IProvider> PProvider;
+
+  //! map of providers
+  typedef std::map<std::string, PProvider> ProvidersMap;
+
+  //! providers
+  struct Providers
+  {
+    std::string sDefaultId;  //!< default provider id
+    ProvidersMap mProviders; //!< map of providers
+  };
+
+
+  //! provider allocator
+  class IProviderAllocator
+  {
+  public:
+    //! virtual destructor
+    virtual ~IProviderAllocator() {}
+
+    //! create new provider instance
+    /*! \return new provider instance
+      */
+    virtual PProvider Allocate(const std::string& sName) = 0;
+
+    //! get providers list
+    /*! \param rlsProvidersList - resulting providers list
+      */
+    virtual void GetProvidersList(StringList& rlsProvidersList) = 0;
+  };
+
+}
 }
 
 #endif // _PROVIDER_H_

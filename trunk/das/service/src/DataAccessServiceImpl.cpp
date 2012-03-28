@@ -23,8 +23,8 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/Log.h>
 #include <staff/common/DataObject.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/DataSourceFactory.h>
@@ -45,7 +45,7 @@ namespace das
       // initialize datasources and create virtual components and services
       DataSourceFactory::Inst();
     }
-    RISE_CATCH_ALL
+    STAFF_CATCH_ALL
   }
 
   DataAccessServiceImpl::~DataAccessServiceImpl()
@@ -156,7 +156,7 @@ namespace das
 
     default:
       {
-        rise::LogWarning() << "Can't write type " << rType.eType;
+        LogWarning() << "Can't write type " << rType.eType;
       }
     }
 
@@ -219,7 +219,7 @@ namespace das
   //  get project!
   DataObject DataAccessServiceImpl::GetInterface() const
   {
-    RISE_ASSERTS(m_pDataSource, "Data Source is not set");
+    STAFF_ASSERT(m_pDataSource, "Data Source is not set");
 
     staff::DataObject tdoInterface("Interface");
     tdoInterface.CreateChild("Name").SetText(m_pDataSource->GetName());
@@ -288,7 +288,7 @@ namespace das
 
   DataObject DataAccessServiceImpl::Invoke(const DataObject& rdoOperation)
   {
-    RISE_ASSERTS(m_pDataSource, "Not initialized");
+    STAFF_ASSERT(m_pDataSource, "Not initialized");
 
     ScriptExecuter tScriptExecuter(*m_pDataSource, m_stProviders);
     DataObject tdoResult(rdoOperation.GetLocalName() + "Result");

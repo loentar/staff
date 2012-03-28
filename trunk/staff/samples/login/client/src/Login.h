@@ -31,7 +31,7 @@ namespace staff
   class Login: public IService
   {
   public:
-    //!         login user and create session, get existing session if user alredy logged in
+    //! login user and create session, get existing session if user alredy logged in
     /*! this operation must be called from guest session
         \param  sUserName - username
         \param  sPassword - password
@@ -39,7 +39,7 @@ namespace staff
         */
     virtual std::string LoginUser(const std::string& sUserName, const std::string& sPassword) = 0;
 
-    //!         login and create session
+    //! login and create session
     /*! this operation must be called from guest session
         \param  sUserName - username
         \param  sPassword - password
@@ -48,28 +48,28 @@ namespace staff
         */
     virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting) = 0;
 
-    //!         logout and close session
+    //! logout and close session
     virtual void Logout() = 0;
 
-    //!         keepalive session
+    //! keepalive session
     virtual void KeepAliveSession() = 0;
 
-    //!         validate session
+    //! validate session
     /*! \return true - session is valid
         */
     virtual bool ValidateSession() = 0;
 
-    //!         get current user name
+    //! get current user name
     /*! \return current user name
         */
     virtual std::string GetUserName() = 0;
 
-    //!         get current user id
+    //! get current user id
     /*! \return current user id
         */
     virtual int GetUserId() = 0;
 
-    //!         get session expiration time
+    //! get session expiration time
     /*! \return session expiration time in minutes
         */
     virtual int GetSessionExpiration() const = 0;

@@ -2,10 +2,10 @@
 // For more information please visit: http://code.google.com/p/staff/
 // DO NOT EDIT
 
-#include <rise/threading/Event.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/Event.h>
+#include <staff/common/Exception.h>
 #ifneq($($protobufEncoding),)
-#include <rise/string/Encoding.h>
+#include <staff/utils/CharsetConverter.h>
 #ifeqend
 #include "ProtobufConnector.h"
 #foreach $(Interface.Includes)
@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // enums
 #foreach $(Interface.Enums)
-#ifeq($(Enum.Extern),0) // do not serialize extern type
+#ifeq($(Enum.Extern),false) // do not serialize extern type
 #cginclude "EnumSerialization.cpp"
 #ifeqend
 #end
@@ -67,21 +67,21 @@ $(Member.Return.UsedName) $(Class.Name)Impl::$(Member.Name)($(Member.Params))$(M
   ::google::protobuf::RpcController* pProtobufController = tProtobufConnector.GetController();
   ::google::protobuf::RpcChannel* pProtobufChannel = tProtobufConnector.GetChannel();
 
-  RISE_ASSERTS(pProtobufController, "Protobuf controller is not initialized");
-  RISE_ASSERTS(pProtobufChannel, "Protobuf channel is not initialized");
+  STAFF_ASSERT(pProtobufController, "Protobuf controller is not initialized");
+  STAFF_ASSERT(pProtobufChannel, "Protobuf channel is not initialized");
 
   $(Class.NsName.!deprefix/$($rootns)/)::Stub tProtobufService(pProtobufChannel);
 
   // make request
-  ::rise::threading::CEvent tEvent;
+  ::staff::Event tEvent;
   $(Member.Params.Param.DataType.NsName.!deprefix/$($rootns)/) tProtoRequest;
   $(Member.Return.NsName.!deprefix/$($rootns)/) tProtoResponse;
 
   tProtoRequest << request;
 
   tProtobufService.$(Member.Name)(pProtobufController, &tProtoRequest, &tProtoResponse,
-      ::google::protobuf::NewCallback(&tEvent, &rise::threading::CEvent::Signal));
-  RISE_ASSERTS(tEvent.Wait($(Project.Namespace)ProtobufConnector::ProtobufRequestTimeout),
+      ::google::protobuf::NewCallback(&tEvent, &staff::Event::Signal));
+  STAFF_ASSERT(tEvent.Wait($(Project.Namespace)ProtobufConnector::ProtobufRequestTimeout),
                "Timeout while waiting response from protobuf service");
 
   tResult << tProtoResponse;

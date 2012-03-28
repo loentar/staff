@@ -19,9 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/common/Log.h>
-#include <rise/common/MutablePtr.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/SharedPtr.h>
 #include "ServiceWrapper.h"
 #include "SharedContext.h"
 
@@ -41,7 +41,7 @@ namespace staff
     return tInst;
   }
 
-  void SharedContext::AddComponent( Component* pComponent )
+  void SharedContext::AddComponent(Component* pComponent)
   {
     CompositeComponentMap::iterator itFind = m_mComponents.find(pComponent->GetName());
     if (itFind == m_mComponents.end())
@@ -63,7 +63,7 @@ namespace staff
       itExistingWrapper = m_mServiceWrappers.find(itWrapper->first);
       if (itExistingWrapper != m_mServiceWrappers.end())
       {
-        rise::LogError() << "Service [" << itWrapper->second->GetName()
+        LogError() << "Service [" << itWrapper->second->GetName()
           << "] from component [" << pComponent->GetName()
           << "] already registered in component ["
           << itWrapper->second->GetComponent()->GetName() << "].";
@@ -75,7 +75,7 @@ namespace staff
     }
   }
 
-  CompositeComponent* SharedContext::GetComponent( const std::string& sName )
+  CompositeComponent* SharedContext::GetComponent(const std::string& sName)
   {
     CompositeComponentMap::iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -83,7 +83,7 @@ namespace staff
     return itFind->second;
   }
 
-  const CompositeComponent* SharedContext::GetComponent( const std::string& sName ) const
+  const CompositeComponent* SharedContext::GetComponent(const std::string& sName) const
   {
     CompositeComponentMap::const_iterator itFind = m_mComponents.find(sName);
     if (itFind == m_mComponents.end())
@@ -96,7 +96,7 @@ namespace staff
     return m_mComponents;
   }
 
-  const ServiceWrapper* SharedContext::GetService( const std::string& sName ) const
+  const ServiceWrapper* SharedContext::GetService(const std::string& sName) const
   {
     ServiceWrapperMap::const_iterator itExistingWrapper =
         m_mServiceWrappers.find(sName);
@@ -109,10 +109,9 @@ namespace staff
     return NULL;
   }
 
-  ServiceWrapper* SharedContext::GetService( const std::string& sName )
+  ServiceWrapper* SharedContext::GetService(const std::string& sName)
   {
-    ServiceWrapperMap::const_iterator itExistingWrapper =
-        m_mServiceWrappers.find(sName);
+    ServiceWrapperMap::iterator itExistingWrapper = m_mServiceWrappers.find(sName);
 
     if (itExistingWrapper != m_mServiceWrappers.end())
     {

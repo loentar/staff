@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+#ifeq($(Struct.Extern),false) // do not serialize/deserialize extern type
   DataObject& operator<<(DataObject& rdoParam, const struct $(Struct.NsName)& rstStruct);
   const DataObject& operator>>(const DataObject& rdoParam, struct $(Struct.NsName)& rstStruct);
 #foreach $(Struct.Enums)

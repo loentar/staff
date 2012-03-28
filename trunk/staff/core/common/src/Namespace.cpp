@@ -101,7 +101,7 @@ namespace staff
 
   std::string Namespace::GetPrefix() const
   {
-    RISE_ASSERTES(m_pAxiomNamespace != NULL, DomNoItemException, "Uninitialized namespace");
+    STAFF_ASSERT_DOM(m_pAxiomNamespace != NULL, "Namespace is not initialized");
 
     axis2_char_t* szPrefix = axiom_namespace_get_prefix(m_pAxiomNamespace, m_pEnv);
     return szPrefix == NULL ? "" : szPrefix;
@@ -109,10 +109,10 @@ namespace staff
 
   std::string Namespace::GetUri() const
   {
-    RISE_ASSERTES(m_pAxiomNamespace != NULL, DomNoItemException, "Uninitialized namespace");
+    STAFF_ASSERT_DOM(m_pAxiomNamespace != NULL, "Namespace is not initialized");
 
     axis2_char_t* szUri = axiom_namespace_get_uri(m_pAxiomNamespace, m_pEnv);
-    RISE_ASSERTES(szUri != NULL, DomNoItemException, "Error while getting namespace URI");
+    STAFF_ASSERT_DOM(szUri != NULL, "Error while getting namespace URI");
 
     return szUri;
   }

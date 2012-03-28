@@ -2,8 +2,10 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#include <string.h>
+#include <iostream>
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceClient.h>
 #include <staff/client/Options.h>
@@ -25,7 +27,8 @@ int main(int nArgs, const char* paszArgs[])
   {
     if (strcmp(paszArgs[1], "-h") == 0)
     {
-      std::cerr << "Usage: " << paszArgs[0] << "(-a [USERNAME] [PASSWORD]) (-p [USERNAME] [PASSWORD]) [ENDPOINT_URL]" << std::endl
+      std::cerr << "Usage: " << paszArgs[0]
+                << "(-a [USERNAME] [PASSWORD]) (-p [USERNAME] [PASSWORD]) [ENDPOINT_URL]" << std::endl
                 << "use -a option for HTTP Authentication" << std::endl
                 << "use -p option for Proxy Authentication" << std::endl;
       return 0;
@@ -87,11 +90,11 @@ int main(int nArgs, const char* paszArgs[])
   {
     std::auto_ptr< Echo > pEcho(::staff::ServiceFactory::Inst().GetService< Echo >(sAddress));
 
-    RISE_ASSERTS(pEcho.get(), "Cannot get client for service samples.Echo!");
+    STAFF_ASSERT(pEcho.get(), "Cannot get client for service samples.Echo!");
 
     // get service client to set REST method
     staff::ServiceClient* pClient = pEcho->GetClient();
-    RISE_ASSERTS(pClient, "Cannot get ServiceClient");
+    STAFF_ASSERT(pClient, "Cannot get ServiceClient");
     staff::Options& rOptions = pClient->GetOptions();
 
 
@@ -146,8 +149,10 @@ int main(int nArgs, const char* paszArgs[])
     rOptions.SetTestProxyAuth(false);
 
     // print whether authentication was required
-    std::cout << "HTTP Authentication " << (bHttpAuthRequired ? "info" : "is not") << " required." << std::endl;
-    std::cout << "Proxy Authentication " << (bProxyAuthRequired ? "info" : "is not") << " required." << std::endl;
+    std::cout << "HTTP Authentication " << (bHttpAuthRequired ? "info" : "is not")
+              << " required." << std::endl;
+    std::cout << "Proxy Authentication " << (bProxyAuthRequired ? "info" : "is not")
+              << " required." << std::endl;
 
     // disabling REST for SOAP request
     rOptions.EnableRest(false);
@@ -157,9 +162,9 @@ int main(int nArgs, const char* paszArgs[])
     // sending request
 
     std::string tEchoStringResult = pEcho->EchoString("Hello World!");
-    rise::LogInfo() << "EchoString result: " << tEchoStringResult;
+    staff::LogInfo() << "EchoString result: " << tEchoStringResult;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

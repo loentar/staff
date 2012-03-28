@@ -2,8 +2,9 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#include <iostream>
 #include <memory>
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Customers.h"
@@ -12,7 +13,8 @@
 
 std::ostream& operator<<(std::ostream& rStream, const ::samples::rest::Customer& rCustomer)
 {
-  return rStream << rCustomer.nId << "\t\t" << rCustomer.sFirstName << "\t\t" << rCustomer.sLastName << "\t\t" << rCustomer.nYear << std::endl;
+  return rStream << rCustomer.nId << "\t\t" << rCustomer.sFirstName << "\t\t"
+                 << rCustomer.sLastName << "\t\t" << rCustomer.nYear << std::endl;
 }
 
 
@@ -20,7 +22,8 @@ std::ostream& operator<<(std::ostream& rStream, const ::samples::rest::Customers
 {
   std::cout << std::endl << "id\t\tf. name\t\tl. name\t\tyear" << std::endl;
 
-  for (::samples::rest::CustomersList::const_iterator itCustomer = rlsCustomers.begin(); itCustomer != rlsCustomers.end(); ++itCustomer)
+  for (::samples::rest::CustomersList::const_iterator itCustomer = rlsCustomers.begin();
+       itCustomer != rlsCustomers.end(); ++itCustomer)
   {
     rStream << *itCustomer;
   }
@@ -31,51 +34,52 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-    std::auto_ptr< ::samples::rest::Customers > pCustomers(::staff::ServiceFactory::Inst().GetService< ::samples::rest::Customers >());
+    std::auto_ptr< ::samples::rest::Customers > pCustomers(
+          ::staff::ServiceFactory::Inst().GetService< ::samples::rest::Customers >());
 
-    RISE_ASSERTS(pCustomers.get(), "Cannot get client for service samples.rest.Customers!");
+    STAFF_ASSERT(pCustomers.get(), "Cannot get client for service samples.rest.Customers!");
 
     // Invoke Your service here:
 
     int nId1 = pCustomers->Add("John", "Smith", 1970);
-    rise::LogInfo() << "Add result: " << nId1;
+    staff::LogInfo() << "Add result: " << nId1;
 
     int nId2 = pCustomers->Add("Mary", "Brown", 1975);
-    rise::LogInfo() << "Add result: " << nId2;
+    staff::LogInfo() << "Add result: " << nId2;
 
 
     ::samples::rest::CustomersList tListResult = pCustomers->List();
-    rise::LogInfo() << "List result: \n" << tListResult;
+    staff::LogInfo() << "List result: \n" << tListResult;
 
 
-    rise::LogInfo() << "updating #" << nId2;
+    staff::LogInfo() << "updating #" << nId2;
     pCustomers->Update(nId2, "Mary", "Brown", 1980);
-    rise::LogInfo() << "Update called";
+    staff::LogInfo() << "Update called";
 
 
     ::samples::rest::Customer tGetResult = pCustomers->Get(nId2);
-    rise::LogInfo() << "Get result: \n" << tGetResult;
+    staff::LogInfo() << "Get result: \n" << tGetResult;
 
 
-    rise::LogInfo() << "deleting #" << nId1;
+    staff::LogInfo() << "deleting #" << nId1;
     try
     {
       pCustomers->Delete(nId1);
-      rise::LogInfo() << "Delete called";
+      staff::LogInfo() << "Delete called";
     }
     catch(...)
     {
-      rise::LogWarning() << "THIS OPERATION MAY NOT WORK DUE TO AXIS2/C PROBLEM:\nhttps://issues.apache.org/jira/browse/AXIS2C-1418\n"
+      staff::LogWarning() << "THIS OPERATION MAY NOT WORK DUE TO AXIS2/C PROBLEM:\nhttps://issues.apache.org/jira/browse/AXIS2C-1418\n"
         "\nTo fix the problem install the patch from http://code.google.com/p/staff/downloads/detail?name=http_transport_utils.c.REST_DELETE.patch";
       throw;
     }
 
 
     tListResult = pCustomers->List();
-    rise::LogInfo() << "Now list is: " << tListResult;
+    staff::LogInfo() << "Now list is: " << tListResult;
 
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

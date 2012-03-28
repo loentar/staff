@@ -2,12 +2,28 @@ include ../../Makefile.env
 
 TARGET = utils
 
-CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_UTILS_DLL_EXPORTS=1
 endif
-LDFLAGS += -lrise
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
+ifneq ($(OS),FreeBSD)
+ifneq ($(OS),MINGW)
+  LDFLAGS += -ldl -lbfd
+endif
+endif
+
+ifeq ($(LINUX_RELEASE),MCBC)
+  PTHREAD_VERSION := $(shell readlink /lib/libpthread.so.0 | sed 's/.*-\([\.0-9]*\)\..*/\1/')
+  PTHREAD_VERSION_MAJOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f1)
+  PTHREAD_VERSION_MINOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f2)
+  CXXFLAGS += -DPTHREAD_VERSION_MAJOR=$(PTHREAD_VERSION_MAJOR) -DPTHREAD_VERSION_MINOR=$(PTHREAD_VERSION_MINOR)
+endif
+
+
+# detect iconv usability
+WITH_ICONV := $(shell echo "\#include <iconv.h>" | LANG=C `gcc -print-prog-name=cc1plus` >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
+CXXFLAGS += $(WITH_ICONV)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

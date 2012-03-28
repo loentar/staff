@@ -23,10 +23,9 @@
 #ifndef _ABSTRACT_H_
 #define _ABSTRACT_H_
 
-#include <typeinfo>
 #include <string>
-#include <staff/utils/fromstring.h>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/utils/Reflector.h>
+#include "Exception.h"
 
 namespace staff
 {
@@ -36,24 +35,24 @@ namespace staff
   class Abstract
   {
   public:
-    Abstract():
+    inline Abstract():
       m_pType(NULL), m_bOwner(false)
     {
     }
 
     template<typename DerivedType>
-    Abstract(DerivedType* pType):
+    inline Abstract(DerivedType* pType):
       m_pType(pType), m_bOwner(true)
     {
     }
 
-    Abstract(const Abstract<Type>& rOther):
+    inline Abstract(const Abstract<Type>& rOther):
       m_pType(rOther.m_pType), m_bOwner(rOther.m_bOwner)
     {
       rOther.m_bOwner = false;
     }
 
-    ~Abstract()
+    inline ~Abstract()
     {
       Destroy();
     }
@@ -113,107 +112,31 @@ namespace staff
 
     inline Type& operator*()
     {
-      RISE_ASSERTS(m_pType, "Abstract pointer is NULL");
+      STAFF_ASSERT(m_pType, "Abstract pointer is NULL");
       return *m_pType;
     }
 
     inline const Type& operator*() const
     {
-      RISE_ASSERTS(m_pType, "Abstract pointer is NULL");
+      STAFF_ASSERT(m_pType, "Abstract pointer is NULL");
       return *m_pType;
     }
 
     inline Type* operator->()
     {
-      RISE_ASSERTS(m_pType, "Abstract pointer is NULL");
+      STAFF_ASSERT(m_pType, "Abstract pointer is NULL");
       return m_pType;
     }
 
     inline const Type* operator->() const
     {
-      RISE_ASSERTS(m_pType, "Abstract pointer is NULL");
+      STAFF_ASSERT(m_pType, "Abstract pointer is NULL");
       return m_pType;
     }
 
-    std::string GetType() const
+    inline std::string GetType() const
     {
-      RISE_ASSERTS(m_pType, "Abstract pointer is NULL");
-      std::string sTypeOut;
-      Demangle(typeid(*m_pType).name(), sTypeOut);
-      return sTypeOut;
-    }
-
-  private:
-    static void Demangle(const std::string& sIn, std::string& sOut)
-    {
-#if defined __GNUC__
-      // "N1a3bbb5ChildE"
-      static const char* szNumbers = "0123456789";
-      std::string::size_type nPos = 0;
-      std::string::size_type nPosEnd = 0;
-      std::string::size_type nNumLen = 0;
-      std::string::size_type nSize = sIn.size();
-
-      if (sIn[nPos] == 'N')
-      { // namespace
-        ++nPos;
-      }
-
-      while (nPos < nSize)
-      {
-        if (nNumLen > 0)
-        {
-          sOut += sIn.substr(nPos, nNumLen);
-          nPos += nNumLen;
-        }
-        nPosEnd = sIn.find_first_not_of(szNumbers, nPos);
-        if (nPosEnd == nPos) // E
-        {
-          RISE_ASSERTS(sIn[nPos] == 'E', "Failed to demangle string [" + sIn + "]");
-          break;
-        }
-
-        if (nPosEnd != std::string::npos)
-        {
-          if (nNumLen > 0)
-          {
-            sOut += '.';
-          }
-          staff::FromString(sIn.substr(nPos, nPosEnd - nPos), nNumLen);
-          nPos = nPosEnd;
-        }
-      }
-#elif defined _MSC_VER
-      // "struct a::bbb::Child"
-      std::string::size_type nPos = sIn.find(' ', 1);
-      std::string::size_type nPosEnd = 0;
-      sOut.reserve(sIn.size());
-
-      RISE_ASSERTS(nPos != std::string::npos, "Failed to demangle string [" + sIn + "]");
-
-      nPos = sIn.find_first_not_of(' ', nPos);
-      RISE_ASSERTS(nPos != std::string::npos, "Failed to demangle string [" + sIn + "]");
-
-      while (nPos != std::string::npos)
-      {
-        nPosEnd = sIn.find("::", nPos);
-        if (!sOut.empty())
-        {
-          sOut += '.';
-        }
-
-        if (nPosEnd == std::string::npos)
-        {
-          sOut += sIn.substr(nPos);
-          break;
-        }
-
-        sOut += sIn.substr(nPos, nPosEnd - nPos);
-        nPos = nPosEnd + 2;
-      }
-#else
-#error Unsupported compiler
-#endif
+      return Reflector::GetTypeName(m_pType);
     }
 
   private:

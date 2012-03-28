@@ -38,9 +38,6 @@ namespace staff
       static int Get();
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(Time) typedef Time CTime;
-#endif
   }
 }
 

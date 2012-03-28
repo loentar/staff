@@ -23,7 +23,7 @@
 // Service Implementation
 
 #include <string>
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/common/Exception.h>
 #include "SubServiceImpl.h"
 
 namespace samples

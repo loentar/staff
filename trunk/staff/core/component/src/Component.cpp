@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
 #include "ServiceWrapper.h"
 #include "Component.h"
 
@@ -30,7 +30,7 @@ namespace staff
   {
   }
 
-  const ServiceWrapper* Component::GetService( const std::string& sService ) const
+  const ServiceWrapper* Component::GetService(const std::string& sService) const
   {
     staff::ServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
@@ -41,9 +41,9 @@ namespace staff
     return itService->second;
   }
 
-  ServiceWrapper* Component::GetService( const std::string& sService )
+  ServiceWrapper* Component::GetService(const std::string& sService)
   {
-    staff::ServiceWrapperMap::const_iterator itService = m_mServices.find(sService);
+    staff::ServiceWrapperMap::iterator itService = m_mServices.find(sService);
     if (itService == m_mServices.end())
     {
       return NULL;

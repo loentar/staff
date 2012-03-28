@@ -2,10 +2,11 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
+#include <sstream>
+#include <staff/utils/Log.h>
 #include <staff/utils/ByteArray.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
-#include <rise/common/StreamBuffer.h>
 #include "KeyGeneratorImpl.h"
 
 namespace samples
@@ -37,7 +38,7 @@ staff::hexBinary KeyGeneratorImpl::GenerateHexKey(unsigned uSourceKey)
   GenerateKey(uSourceKey, baData);
 
   staff::hexBinary tResult(baData);
-  rise::LogInfo() << "Generated new hex key: [" << tResult.ToString() << "]";
+  staff::LogInfo() << "Generated new hex key: [" << tResult.ToString() << "]";
   return tResult;  // result
 }
 
@@ -47,7 +48,7 @@ staff::base64Binary KeyGeneratorImpl::GenerateBase64Key(unsigned uSourceKey)
   GenerateKey(uSourceKey, baData);
 
   staff::base64Binary tResult(baData);
-  rise::LogInfo() << "Generated new base64 key: [" << tResult.ToString() << "]";
+  staff::LogInfo() << "Generated new base64 key: [" << tResult.ToString() << "]";
   return tResult;  // result
 }
 
@@ -63,19 +64,21 @@ bool KeyGeneratorImpl::ValidateBase64Key(const staff::base64Binary& rKey)
 
 void KeyGeneratorImpl::GenerateKey(unsigned uSourceKey, staff::ByteArray& rResult)
 {
-  rise::CStreamBuffer tKeyBuffer;
+  std::ostringstream tKeyBuffer(std::ios_base::out | std::ios_base::binary);
 
   // put signature and source key
   tKeyBuffer << m_sSignature << uSourceKey;
 
   // calculate simple 2 byte checksum
-  short shCheckSum = Checksum(reinterpret_cast<const staff::byte*>(tKeyBuffer.GetData()), tKeyBuffer.GetSize());
+  const std::string& sData = tKeyBuffer.str();
+  short shCheckSum = Checksum(sData.data(), sData.size());
 
   // set checksum
   tKeyBuffer << shCheckSum;
 
-  rResult.Set(tKeyBuffer.GetSize());
-  tKeyBuffer.Get(reinterpret_cast<rise::PBuffer>(rResult.GetData()), tKeyBuffer.GetSize());
+  const std::string& sResultData = tKeyBuffer.str();
+  rResult.Set(sResultData.size());
+  sResultData.copy(rResult.GetData(), rResult.GetSize());
 }
 
 bool KeyGeneratorImpl::ValidateKey(const staff::ByteArray& rKey)
@@ -83,8 +86,8 @@ bool KeyGeneratorImpl::ValidateKey(const staff::ByteArray& rKey)
   // calculate checksum to check excluding existing checksum
   short shCheckSum = Checksum(rKey.GetData(), rKey.GetSize() - sizeof(short));
 
-  rise::CStreamBuffer tKeyBuffer;
-  tKeyBuffer.Put(reinterpret_cast<rise::PCBuffer>(rKey.GetData()), rKey.GetSize());
+  std::istringstream tKeyBuffer(std::string(rKey.GetData(), rKey.GetSize()),
+                                std::ios_base::in | std::ios_base::binary);
 
   std::string sSig;
   unsigned uSourceKey = 0;

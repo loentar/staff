@@ -1,4 +1,4 @@
-#ifeq($(Enum.Extern),0) // do not serialize extern type
+#ifeq($(Enum.Extern),false) // do not serialize extern type
 #cginclude <common/StringTypes>
 
 // enum $(Enum.NsName.!mangle)
@@ -52,4 +52,4 @@ o$(Enum.NsName.!mangle).deserialize = function(oElement)
 #ifeqend
 }
 
-#ifeqend //ifeq((Enum.Extern),0) // do not serialize extern type
+#ifeqend //ifeq((Enum.Extern),false) // do not serialize extern type

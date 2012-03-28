@@ -2,12 +2,12 @@ include ../../Makefile.env
 
 TARGET = client
 
-CXXFLAGS += -c -I$(DEPLOYDIR)include -I$(STAFF_HOME)/include/
+CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_CLIENT_DLL_EXPORTS=1
 endif
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffcommon -lrise -laxutil -laxis2_engine
+LDFLAGS += -lstaffutils -lstaffcommon -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
 else

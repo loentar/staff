@@ -160,12 +160,6 @@ namespace staff
       int m_nSessionExpiration; //!< session expiration
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(SessionsList) typedef SessionsList TSessionsList;
-    STAFF_DEPRECATED(Session) typedef Session SSession;
-    STAFF_DEPRECATED(Sessions) typedef Sessions CSessions;
-#endif
-
   }
 }
 

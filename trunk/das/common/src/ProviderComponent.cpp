@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/MutablePtr.h>
+#include <staff/utils/SharedPtr.h>
 #include <staff/component/ServiceWrapper.h>
 #include "ProviderComponent.h"
 

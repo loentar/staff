@@ -60,9 +60,6 @@ namespace staff
       static int m_nCounter; //!< Open/Close counter
     };
 
-#ifndef STAFF_NO_DEPRECATED
-    STAFF_DEPRECATED(DbConn) typedef DbConn CDbConn;
-#endif
   }
 }
 

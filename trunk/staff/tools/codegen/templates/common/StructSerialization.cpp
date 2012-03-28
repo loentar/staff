@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0) // do not serialize/deserialize extern type
+#ifeq($(Struct.Extern),false) // do not serialize/deserialize extern type
 #foreach $(Struct.Structs)
 #cginclude "StructSerialization.cpp"
 #end
@@ -42,7 +42,7 @@ DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >&
 #ifeqend
 #end
   {
-    RISE_THROWS(rise::CLogicNoItemException, "Can't serialize dynamic type [" + sInstanceType + "]");
+    STAFF_THROW_ASSERT("Can't serialize dynamic type [" + sInstanceType + "]");
   }
   rdoParam.SetInstanceType(sInstanceType);
   return rdoParam;
@@ -63,7 +63,7 @@ const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsNa
 #ifeqend
 #end
   {
-    RISE_THROWS(rise::CLogicNoItemException, "Can't deserialize dynamic type [" + sInstanceType + "]");
+    STAFF_THROW_ASSERT("Can't deserialize dynamic type [" + sInstanceType + "]");
   }
   return rdoParam;
 }

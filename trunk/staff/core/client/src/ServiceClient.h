@@ -200,9 +200,6 @@ namespace staff
     bool m_bInit;
   };
 
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(ServiceClient) typedef ServiceClient CServiceClient;
-#endif
 }
 
 #endif // _SERVICECLIENT_H_

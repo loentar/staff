@@ -16,32 +16,43 @@
 
 /*
  *  This file is part of the WSF Staff project.
+ *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <rise/common/ExceptionTemplate.h>
+#include "Exception.h"
 #include "ByteArray.h"
 
 namespace staff
 {
 
   ByteArray::ByteArray():
-    m_pBinaryData(NULL), m_ulDataSize(0), m_bOwner(false)
+    m_pBinaryData(NULL),
+    m_ulDataSize(0),
+    m_ulBufferSize(0),
+    m_bOwner(false)
   {
   }
 
   ByteArray::ByteArray(unsigned long ulDataSize):
-    m_pBinaryData(new byte[ulDataSize]), m_ulDataSize(ulDataSize), m_bOwner(true)
+    m_pBinaryData(new byte[ulDataSize]),
+    m_ulDataSize(ulDataSize),
+    m_ulBufferSize(ulDataSize),
+    m_bOwner(true)
   {
   }
 
   ByteArray::ByteArray(byte* pBinaryData, unsigned long ulDataSize, bool bOwner /*= true*/):
-    m_pBinaryData(pBinaryData), m_ulDataSize(ulDataSize), m_bOwner(bOwner)
+    m_pBinaryData(pBinaryData),
+    m_ulDataSize(ulDataSize),
+    m_ulBufferSize(ulDataSize),
+    m_bOwner(bOwner)
   {
   }
 
   ByteArray::ByteArray(ByteArray& rByteArray):
     m_pBinaryData(rByteArray.m_pBinaryData),
     m_ulDataSize(rByteArray.m_ulDataSize),
+    m_ulBufferSize(rByteArray.m_ulDataSize),
     m_bOwner(rByteArray.m_bOwner)
   {
     rByteArray.m_bOwner = false;
@@ -50,6 +61,7 @@ namespace staff
   ByteArray::ByteArray(const ByteArray& rByteArray):
     m_pBinaryData(rByteArray.m_pBinaryData),
     m_ulDataSize(rByteArray.m_ulDataSize),
+    m_ulBufferSize(rByteArray.m_ulDataSize),
     m_bOwner(false)
   {
   }
@@ -65,6 +77,7 @@ namespace staff
     Release();
     m_pBinaryData = new byte[ulDataSize];
     m_ulDataSize = ulDataSize;
+    m_ulBufferSize = ulDataSize;
     m_bOwner = true;
   }
 
@@ -73,12 +86,19 @@ namespace staff
     Release();
     m_pBinaryData = pBinaryData;
     m_ulDataSize = ulDataSize;
+    m_ulBufferSize = ulDataSize;
     m_bOwner = bOwner;
   }
 
   void ByteArray::SetOwner(bool bOwner /*= true*/)
   {
     m_bOwner = bOwner;
+  }
+
+  void ByteArray::SetSize(unsigned long ulDataSize)
+  {
+    STAFF_ASSERT_PARAM(ulDataSize <= m_ulBufferSize);
+    m_ulDataSize = ulDataSize;
   }
 
   bool ByteArray::IsOwner()
@@ -96,6 +116,7 @@ namespace staff
       }
       m_pBinaryData = NULL;
       m_ulDataSize = 0;
+      m_ulBufferSize = 0;
       m_bOwner = false;
     }
   }
@@ -115,17 +136,22 @@ namespace staff
     return m_ulDataSize;
   }
 
+  unsigned long ByteArray::GetBufferSize() const
+  {
+    return m_ulBufferSize;
+  }
+
   byte& ByteArray::operator[](unsigned long ulPos)
   {
-    RISE_ASSERTS(ulPos < m_ulDataSize, "Invalid position");
-    RISE_ASSERTS(m_pBinaryData, "Buffer is NULL");
+    STAFF_ASSERT_PARAM(ulPos < m_ulDataSize);
+    STAFF_ASSERT(m_pBinaryData, "Buffer is NULL");
     return m_pBinaryData[ulPos];
   }
 
   byte ByteArray::operator[](unsigned long ulPos) const
   {
-    RISE_ASSERTS(ulPos < m_ulDataSize, "Invalid position");
-    RISE_ASSERTS(m_pBinaryData, "Buffer is NULL");
+    STAFF_ASSERT_PARAM(ulPos < m_ulDataSize);
+    STAFF_ASSERT(m_pBinaryData, "Buffer is NULL");
     return m_pBinaryData[ulPos];
   }
 
@@ -137,6 +163,7 @@ namespace staff
     }
     m_pBinaryData = rByteArray.m_pBinaryData;
     m_ulDataSize = rByteArray.m_ulDataSize;
+    m_ulBufferSize = rByteArray.m_ulBufferSize;
     m_bOwner = rByteArray.m_bOwner;
     rByteArray.m_bOwner = false;
     return *this;
@@ -144,7 +171,7 @@ namespace staff
 
   bool ByteArray::operator!() const
   {
-    return m_pBinaryData == NULL;
+    return !m_pBinaryData;
   }
 
 }

@@ -63,19 +63,19 @@ namespace staff
     class STAFF_COMMON_EXPORT ConstAttributeIterator;
 
   public:
-    //!        default constructor
+    //! default constructor
     DataObject(axiom_node_t* pAxiomNode = NULL);
 
-    //!        constructor with ownership transfer
+    //! constructor with ownership transfer
     /*! \sa Clone */
     DataObject(const DataObject& rDataObject);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  szLocalName - local name for creating node (C-string)
     */
     explicit DataObject(const char* szLocalName);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalName - local name for creating node
     */
     explicit DataObject(const std::string& sLocalName);
@@ -109,51 +109,51 @@ namespace staff
     DataObject(const std::string& sLocalName, float fValue);
     DataObject(const std::string& sLocalName, double dValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  szLocalName - local name for creating node(C-string)
         \param  szText - node value(C-string)
     */
     explicit DataObject(const char* szLocalName, const char* szText);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalName - local name for creating node
         \param  szText - node value(C-string)
     */
     explicit DataObject(const std::string& sLocalName, const char* szText);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  szLocalName - local name for creating node(C-string)
         \param  sText - node value
     */
     explicit DataObject(const char* szLocalName, const std::string& sText);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalName - local name for creating node
         \param  sText - node value(string)
     */
     explicit DataObject(const std::string& sLocalName, const std::string& sText);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  szLocalName - local name for creating node(C-string)
         \param  rValue - node value
     */
     DataObject(const char* szLocalName, const Value& rValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sLocalName - local name for creating node
         \param  rValue - node value
     */
     DataObject(const std::string& sLocalName, const Value& rValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  rQName - node qname
     */
     DataObject(const QName& rQName);
 
-    //!        destructor
+    //! destructor
     ~DataObject();
 
-    //!         attach AxiOM node to DataObject
+    //! attach AxiOM node to DataObject
     /*! to attach child node to node tree use AttachNode
         \sa Detach
         \param  pAxiomNode - AxiOM Node
@@ -161,38 +161,38 @@ namespace staff
         */
     void Attach(axiom_node_t* pAxiomNode, bool bOwner = false);
 
-    //!         detach DataObject from AxiOM node
+    //! detach DataObject from AxiOM node
     /*! if this DataObject ownerships AxiOM node, AxiOM node will be freed
         to detach nodes from tree use DetachNode 
         \sa DetachNode */
     void Detach();
 
-    //!         get ownership flag
+    //! get ownership flag
     /*! \return true - if ownership flag set
         */
     bool IsOwner() const;
 
-    //!         set ownership flag
+    //! set ownership flag
     /*! \param  bOwner - ownership flag
         */
     void SetOwner(bool bOwner);
 
-    //!         type cast operator to AxiOM node
+    //! type cast operator to AxiOM node
     /*! \return AxiOM node
     */
     operator axiom_node_t*();
 
-    //!         type cast operator to AxiOM element
+    //! type cast operator to AxiOM element
     /*! \return AxiOM element
     */
     operator axiom_element_t*();
 
-    //!         tests if the DataObject is NULL or not
+    //! tests if the DataObject is NULL or not
     /*! \return true if the DataObject is NULL
     */
     bool IsNull() const;
 
-    //!         tests if the DataObject is initialized or not
+    //! tests if the DataObject is initialized or not
     /*! \return true if the DataObject is initialized
     */
     bool IsInit() const;
@@ -200,78 +200,78 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // Node properties
 
-    //!         get QName
+    //! get QName
     /*! \return QName
     */
     QName GetQName();
 
     
-    //!         set QName
+    //! set QName
     /*! \param  rQName - QName
         */
     void SetQName(const QName& rQName) const;
 
-    //!         get local name
+    //! get local name
     /*! \return local name
     */
     std::string GetLocalName() const;
 
-    //!         get local name
+    //! get local name
     /*! \param  sLocalName - resulting local name
     */
     void GetLocalName(std::string& sLocalName) const;
 
-    //!         set local name
+    //! set local name
     /*! \param  szLocalName - local name(C-string)
         */
     void SetLocalName(const char* szLocalName) const;
 
-    //!         set local name
+    //! set local name
     /*! \param  sLocalName - local name
         */
     void SetLocalName(const std::string& sLocalName) const;
 
-    //!         get prefix
+    //! get prefix
     /*! \param  sPrefix - prefix
     */
     void GetPrefix(std::string& sPrefix) const;
 
-    //!         get prefix
+    //! get prefix
     /*! \return prefix
     */
     std::string GetPrefix() const;
     
-    //!         set prefix
+    //! set prefix
     /*! \param  szPrefix - prefix(C-string)
         */
     void SetPrefix(const char* szPrefix);
 
-    //!         set prefix
+    //! set prefix
     /*! \param  sPrefix - prefix
         */
     void SetPrefix(const std::string& sPrefix);
 
-    //!         get default namespace URI
+    //! get default namespace URI
     /*! \param sNamespaceUri - resulting namespace URI
     */
     void GetNamespaceUri(std::string& sNamespaceUri) const;
 
-    //!         get default namespace URI
+    //! get default namespace URI
     /*! \return namespace URI
     */
     std::string GetNamespaceUri() const;
 
-    //!         set namespace URI
+    //! set namespace URI
     /*! \param  szUri - namespace URI(C-string)
         */
     void SetNamespaceUri(const char* szUri) const;
 
-    //!         set namespace URI
+    //! set namespace URI
     /*! \param  sUri - namespace URI
         */
     void SetNamespaceUri(const std::string& sUri) const;
 
-    //!         set namespace uri and generate prefix for it in top node
+    //! set namespace uri and generate prefix for it in top node
     /*! \param  szUri - namespace uri (C-string)
         \param  bChildsOnly - apply namespace only to newly created child elements and
                                 do not apply it to current element
@@ -280,7 +280,7 @@ namespace staff
     void SetNamespaceUriGenPrefix(const char* szUri, bool bChildsOnly = false,
                                   std::string* psPrefix = NULL);
 
-    //!         set namespace uri and generate prefix for it in top node
+    //! set namespace uri and generate prefix for it in top node
     /*! \param  sUri - namespace uri
         \param  bChildsOnly - apply namespace only to newly created child elements and
                                 do not apply it to current element
@@ -292,20 +292,20 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // node management
 
-    //!         create unnamed node and set ownership flag
+    //! create unnamed node and set ownership flag
     void Create();
 
-    //!         create named node and set ownership flag
+    //! create named node and set ownership flag
     /*! \param  szLocalName - node name(C-string)
         */
     void Create(const char* szLocalName);
 
-    //!         create named node and set ownership flag
+    //! create named node and set ownership flag
     /*! \param  sLocalName - node name
         */
     void Create(const std::string& sLocalName);
 
-    //!         create node with QName and set ownership flag
+    //! create node with QName and set ownership flag
     /*! \param  rQName - QName
         */
     void Create(const QName& rQName);
@@ -341,81 +341,81 @@ namespace staff
     void Create(const std::string& sLocalName, double dValue);
     void Create(const std::string& sLocalName, const QName& rstQName);
 
-    //!         create named node, set ownership flag, set node value(string)
+    //! create named node, set ownership flag, set node value(string)
     /*! \param  szLocalName - node name(C-string)
         \param  szText - node value(C-string)
     */
     void Create(const char* szLocalName, const char* szText);
 
-    //!         create named node, set ownership flag, set node value(string)
+    //! create named node, set ownership flag, set node value(string)
     /*! \param  sLocalName - node name
         \param  szText - node value(C-string)
     */
     void Create(const std::string& sLocalName, const char* szText);
 
-    //!         create named node, set ownership flag, set node value(string)
+    //! create named node, set ownership flag, set node value(string)
     /*! \param  szLocalName - node name(C-string)
         \param  sText - node value(string)
     */
     void Create(const char* szLocalName, const std::string& sText);
 
-    //!         create named node, set ownership flag, set node value(string)
+    //! create named node, set ownership flag, set node value(string)
     /*! \param  sLocalName - node name
         \param  sText - node value(string)
     */
     void Create(const std::string& sLocalName, const std::string& sText);
 
-    //!         create named node, set ownership flag, set node value
+    //! create named node, set ownership flag, set node value
     /*! \param  sLocalName - node name
         \param  rValue - node value
     */
     void Create(const std::string& sLocalName, const Value& rValue);
 
-    //!         free node tree
+    //! free node tree
     /*!         forced node tree freeing, even if owner flag is not set */
     void Free();
 
-    //!         detach current node from existing node tree and set owner to true
+    //! detach current node from existing node tree and set owner to true
     /*! \return reference to current node
     */
     DataObject& DetachNode();
 
-    //!         replace current node with given    
+    //! replace current node with given    
     DataObject& ReplaceNode(DataObject& rNewNode);
 
-    //!         create deep copy of the axiom tree
+    //! create deep copy of the axiom tree
     /*! sets ownership flag for newly created tree
         \param  rDataObject - source DataObject
         \return reference to current node
         */
     DataObject& Clone(const DataObject& rDataObject);
 
-    //!         create deep copy of the axiom tree
+    //! create deep copy of the axiom tree
     /*! sets ownership flag for newly created tree
         \return cloned DataObject
         */
     DataObject Clone() const;
 
-    //!         get parent element
+    //! get parent element
     /*! \return parent element
       */
     DataObject Parent();
 
-    //!         get next sibling element
+    //! get next sibling element
     /*! \return next sibling element
       */
     DataObject NextSibling();
 
-    //!         get previous sibling element
+    //! get previous sibling element
     /*! \return previous sibling element
       */
     DataObject PreviousSibling();
 
-    //!         move to the next sibling element
+    //! move to the next sibling element
     /*! to check for DataObject for validaty please use IsInit() */
     void SetNextSibling();
 
-    //!         move to the previous sibling element
+    //! move to the previous sibling element
     /*! to check for DataObject for validaty please use IsInit() */
     void SetPreviousSibling();
 
@@ -423,54 +423,54 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // child nodes management
 
-    //!         use qualified form while creating childs
+    //! use qualified form while creating childs
     /*! \param  bQualified - true - use qualified form, false - use unqualified form
       */
     void SetElementFormDefaultQualified(bool bQualified = true);
 
-    //!         get default element form while creating childs
+    //! get default element form while creating childs
     /*! \return true - using qualified form, false - using unqualified form
       */
     bool IsElementFromDefaultQualified() const;
 
-    //!         get first child element
+    //! get first child element
     /*! \return first child element
       */
     DataObject FirstChild();
 
-    //!         get first child elemen (const)t
+    //! get first child elemen (const)t
     /*! \return first child element
       */
     const DataObject FirstChild() const;
 
-    //!         get last child element
+    //! get last child element
     /*! \return last child element
       */
     DataObject LastChild();
 
-    //!         get last child element (const)
+    //! get last child element (const)
     /*! \return last child element
       */
     const DataObject LastChild() const;
 
-    //!         create unnamed child node
+    //! create unnamed child node
     /*! \return created child
         */
     DataObject CreateChild();
 
-    //!         create child node with QName
+    //! create child node with QName
     /*! \param  rQName - QName
         \return created child
         */
     DataObject CreateChild(const QName& rQName);
 
-    //!         create child node with local name
+    //! create child node with local name
     /*! \param  szLocalName - child's local name(C-string)
         \return created child
         */
     DataObject CreateChild(const char* szLocalName);
 
-    //!         create child node with local name
+    //! create child node with local name
     /*! \param  sLocalName - child's local name
         \return created child
         */
@@ -507,125 +507,125 @@ namespace staff
     DataObject CreateChild(const std::string& sLocalName, double dValue);
     DataObject CreateChild(const std::string& sLocalName, const QName& rstQName);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  szLocalName - child's local name(C-string)
         \param  szText - child's text value(C-string)
         \return created child
         */
     DataObject CreateChild(const char* szLocalName, const char* szText);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  sLocalName - child's local name
         \param  szText - child's text value(C-string)
         \return created child
         */
     DataObject CreateChild(const std::string& sLocalName, const char* szText);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  szLocalName - child's local name(C-string)
         \param  sText - child's text value(string)
         \return created child
         */
     DataObject CreateChild(const char* szLocalName, const std::string& sText);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  sLocalName - child's local name
         \param  sText - child's text value(string)
         \return created child
         */
     DataObject CreateChild(const std::string& sLocalName, const std::string& sText);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  szLocalName - child's local name(C-string)
         \param  rValue - child's value
         \return created child
         */
     DataObject CreateChild(const char* szLocalName, const Value& rValue);
 
-    //!         create child node with local name and value
+    //! create child node with local name and value
     /*! \param  sLocalName - child's local name
         \param  rValue - child's value
         \return created child
         */
     DataObject CreateChild(const std::string& sLocalName, const Value& rValue);
 
-    //!         create child with given local name if no child nodes with given name exists
+    //! create child with given local name if no child nodes with given name exists
     /*! \param  szLocalName - child's local name
         \return created or already existing child
         */
     DataObject CreateChildOnce(const char* szLocalName);
 
-    //!         create child with given local name if no child nodes with given name exists
+    //! create child with given local name if no child nodes with given name exists
     /*! \param  sLocalName - child's local name
         \return created or already existing child
         */
     DataObject CreateChildOnce(const std::string& sLocalName);
 
-    //!         add given tree as child node
+    //! add given tree as child node
     /*! resets rDataObject's ownership flag
         \param  rDataObject - tree node to add
         \return appended child
         */
     DataObject AppendChild(DataObject& rDataObject);
     
-    //!         add given tree as child node
+    //! add given tree as child node
     /*! resets rDataObject's ownership flag
         \param  rDataObject - tree node to add
         \return appended child
         */
     DataObject AppendChild(const DataObject& rDataObject);
     
-    //!         detach child tree
+    //! detach child tree
     /*! \param  itChild - child iterator
         \return detached child
         */
     DataObject DetachChild(Iterator& itChild);
 
-    //!         detach and free child tree
+    //! detach and free child tree
     /*! \param  itChild - child iterator
         */
     void RemoveChild(Iterator& itChild);
 
-    //!         detach and free child tree
+    //! detach and free child tree
     /*! \param  szLocalName - child name(C-string)
         */
     void RemoveChildByLocalName(const char* szLocalName);
 
-    //!         detach and free child tree
+    //! detach and free child tree
     /*! \param  sLocalName - child name
         */
     void RemoveChildByLocalName(const std::string& sLocalName);
 
-    //!         remove all child nodes
+    //! remove all child nodes
     void RemoveAllChildren();
 
-    //!         find child node by QName
+    //! find child node by QName
     /*! \param  rQName - QName
         \return iterator to found child node or End()
         */
     Iterator FindChildByQName(const QName& rQName);
 
-    //!         find child node by QName
+    //! find child node by QName
     /*! \param  rQName - QName
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByQName(const QName& rQName) const;
 
-    //!         find child node by QName
+    //! find child node by QName
     /*! \param  rQName - QName
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     Iterator FindChildByQName(const QName& rQName, const Iterator& itStart);
 
-    //!         find child node by QName
+    //! find child node by QName
     /*! \param  rQName - QName
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByQName(const QName& rQName, const ConstIterator& itStart) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \param  ppNode - resulting pointer to node
         \param  ppElement - resulting pointer to element
@@ -634,7 +634,7 @@ namespace staff
     bool FindChildByLocalName(const char* szLocalName,
                               axiom_node_t** ppNode, axiom_element_t** ppElement = NULL) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \param  pNodeStart - node to search from
         \param  ppNode - resulting pointer to node
@@ -644,95 +644,95 @@ namespace staff
     bool FindChildByLocalName(const char* szLocalName, axiom_node_t* pNodeStart,
                               axiom_node_t** ppNode, axiom_element_t** ppElement = NULL) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const char* szLocalName);
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  sLocalName - local name
         \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const std::string& sLocalName);
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const char* szLocalName) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  sLocalName - local name
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const std::string& sLocalName) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const char* szLocalName, const Iterator& itStart);
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  sLocalName - local name
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     Iterator FindChildByLocalName(const std::string& sLocalName, const Iterator& itStart);
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  szLocalName - local name(C-string)
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const char* szLocalName, const ConstIterator& itStart) const;
 
-    //!         find child node by local name
+    //! find child node by local name
     /*! \param  sLocalName - local name
         \param  itStart - child's iterator to start with
         \return iterator to found child node or End()
         */
     ConstIterator FindChildByLocalName(const std::string& sLocalName, const ConstIterator& itStart) const;
 
-    //!         get child node by QName
+    //! get child node by QName
     /*! \param  rQName - QName
         \return child node
         */
     DataObject GetChildByQName(const QName& rQName);
 
-    //!         get child node by QName
+    //! get child node by QName
     /*! \param  rQName - QName
         \return child node
         */
     const DataObject GetChildByQName(const QName& rQName) const;
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! \param  szLocalName - local name(C-string)
         \return child node
         */
     DataObject GetChildByLocalName(const char* szLocalName);
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! \param  sLocalName - local name
         \return child node
         */
     DataObject GetChildByLocalName(const std::string& sLocalName);
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! \param  szLocalName - local name(C-string)
         \return child node
         */
     const DataObject GetChildByLocalName(const char* szLocalName) const;
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! \param  sLocalName - local name
         \return child node
         */
     const DataObject GetChildByLocalName(const std::string& sLocalName) const;
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! does not throws an exception if child does not exists
         to check is returned dataobject is valid please use !DataObject.IsNull()
         \param  szLocalName - local name(C-string)
@@ -740,7 +740,7 @@ namespace staff
         */
     DataObject GetChildByLocalNameOpt(const char* szLocalName);
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! does not throws an exception if child does not exists
         to check is returned dataobject is valid please use !DataObject.IsNull()
         \param  sLocalName - local name
@@ -748,7 +748,7 @@ namespace staff
         */
     DataObject GetChildByLocalNameOpt(const std::string& sLocalName);
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! does not throws an exception if child does not exists
         to check is returned dataobject is valid please use !DataObject.IsNull()
         \param  szLocalName - local name(C-string)
@@ -756,7 +756,7 @@ namespace staff
         */
     const DataObject GetChildByLocalNameOpt(const char* szLocalName) const;
 
-    //!         get child node by local name
+    //! get child node by local name
     /*! does not throws an exception if child does not exists
         to check is returned dataobject is valid please use !DataObject.IsNull()
         \param  sLocalName - local name
@@ -804,47 +804,47 @@ namespace staff
     void GetValue(std::string& sValue) const;
     void GetValue(QName& rstQName) const;
 
-    //!         get node value(copy)
+    //! get node value(copy)
     /*! \return node value(copy)
         */
     Value GetValue() const;
 
-    //!         set node value
+    //! set node value
     /*! \param  rValue - node value
     */
     void SetValue(const Value& rValue);
 
-    //!         get node value(string)
+    //! get node value(string)
     /*! \return node value(string)
     */
     std::string GetText() const;
     
-    //!         get node value(string)
+    //! get node value(string)
     /*! alias for GetValue(std::string)
         \sa GetValue
         \param sText - resulting node value(string)
     */
     void GetText(std::string& sText) const;
 
-    //!         set node value(string)
+    //! set node value(string)
     /*! alias for SetValue(char*)
         \sa SetValue
         \param  szText - node value(string)
         */
     void SetText(const char* szText);
 
-    //!         set node value(string)
+    //! set node value(string)
     /*! alias for SetValue(std::string)
         \sa SetValue
         \param  sText - node value(string)
         */
     void SetText(const std::string& sText);
 
-    //!         get is text node null or not
+    //! get is text node null or not
     /*! \return true, if text node is null */
     bool IsTextNull();
 
-    //!         set text node to null
+    //! set text node to null
     void SetTextNull();
 
 
@@ -925,80 +925,80 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // namespace management
 
-    //!         get the namespace
+    //! get the namespace
     /*! \return namespace
         */
     Namespace GetDefaultNamespace() const;
 
-    //!         declare default namespace for element
+    //! declare default namespace for element
     /*! \param  szUri - default namespace(C-string)
         */
     void DeclareDefaultNamespace(const char* szUri);
 
-    //!         declare default namespace for element
+    //! declare default namespace for element
     /*! \param  sUri - default namespace
         */
     void DeclareDefaultNamespace(const std::string& sUri);
 
-    //!         get the namespace
+    //! get the namespace
     /*! \return namespace
         */
     Namespace GetNamespace() const;
 
-    //!         declare new namespace in element scope
+    //! declare new namespace in element scope
     /*! \param  rNamespace - namespace
         */
     void DeclareNamespace(Namespace& rNamespace);
 
-    //!         declare new namespace in element scope
+    //! declare new namespace in element scope
     /*! \param  szUri - uri (C-string)
         \param  szPrefix - prefix (C-string)
         */
     void DeclareNamespace(const char* szUri, const char* szPrefix /*= ""*/);
 
-    //!         declare new namespace in element scope
+    //! declare new namespace in element scope
     /*! \param  sUri - uri
         \param  sPrefix - prefix
         */
     void DeclareNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/);
 
-    //!         set namespace for element
+    //! set namespace for element
     /*! \param  rNamespace - namespace
         */
     void SetNamespace(Namespace& rNamespace);
 
-    //!         set namespace for element
+    //! set namespace for element
     /*! \param  szUri - uri (C-string)
         \param  szPrefix - prefix (C-string)
         */
     void SetNamespace(const char* szUri, const char* szPrefix /*= ""*/);
 
-    //!         set namespace for element
+    //! set namespace for element
     /*! \param  sUri - uri
         \param  sPrefix - prefix
         */
     void SetNamespace(const std::string& sUri, const std::string& sPrefix /*= ""*/);
 
-    //!         get namespace prefix by uri
+    //! get namespace prefix by uri
     /*! \param  szUri - uri (C-string)
         \return prefix
         */
     std::string GetNamespacePrefixByUri(const char* szUri) const;
 
-    //!         get namespace prefix by uri
+    //! get namespace prefix by uri
     /*! \param  sUri - uri
         \return prefix
         */
     std::string GetNamespacePrefixByUri(const std::string& sUri) const;
 
-    //!         find a namespace in the scope of the document.
+    //! find a namespace in the scope of the document.
     /*!         Start to find from the given node and go up the hierarchy.
         \param  sUri - namespace URI
         \return found namespace.
         */
     Namespace FindNamespace(const std::string& sUri);
 
-    //!         find a namespace in the scope of the document.
+    //! find a namespace in the scope of the document.
     /*! \param  sUri - namespace URI
         \param  sPrefix - prefix
         \return found namespace.
@@ -1006,20 +1006,20 @@ namespace staff
     Namespace FindNamespace(const std::string& sUri, const std::string& sPrefix);
 
     
-    //!         finds a namespace in current element's scope, by uri
+    //! finds a namespace in current element's scope, by uri
     /*! \param  sUri - namespace URI
         \return found namespace.
         */
     Namespace FindDeclaredNamespace(const std::string& sUri);
 
-    //!         finds a namespace in current element's scope, by uri and prefix
+    //! finds a namespace in current element's scope, by uri and prefix
     /*! \param  sUri - namespace URI
         \param  sPrefix - prefix
         \return found namespace.
         */
     Namespace FindDeclaredNamespace(const std::string& sUri, const std::string& sPrefix);
 
-    //!         Find namespace URI in current element's scope by prefix
+    //! Find namespace URI in current element's scope by prefix
     /*! \param  sPrefix - prefix
         \return found namespace
         */
@@ -1028,12 +1028,12 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // attribute management
 
-    //!         use qualified form while creating attributes
+    //! use qualified form while creating attributes
     /*! \param  bQualified - true - use qualified form, false - use unqualified form
       */
     void SetAttributeFormDefaultQualified(bool bQualified = true);
 
-    //!         get default element form while creating attributes
+    //! get default element form while creating attributes
     /*! \return true - using qualified form, false - using unqualified form
       */
     bool IsAttributeFromDefaultQualified() const;
@@ -1069,132 +1069,132 @@ namespace staff
     void CreateAttribute(const std::string& sAttrName, double dValue);
     void CreateAttribute(const std::string& sAttrName, const QName& rstQName);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  szAttrName - attribute name (C-string)
         \param  szAttrText - attribute text (C-string)
         */
     void CreateAttribute(const char* szAttrName, const char* szAttrText);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  sAttrName - attribute name
         \param  szAttrText - attribute text (C-string)
         */
     void CreateAttribute(const std::string& sAttrName, const char* szAttrText);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  szAttrName - attribute name (C-string)
         \param  sAttrText - attribute text
         */
     void CreateAttribute(const char* szAttrName, const std::string& sAttrText);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  sAttrName - attribute name
         \param  sAttrText - attribute text
         */
     void CreateAttribute(const std::string& sAttrName, const std::string& sAttrText);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  szAttrName - attribute name (C-string)
         \param  rValue - attribute value
         */
     void CreateAttribute(const char* szAttrName, const Value& rValue);
 
-    //!         create and add attribute
+    //! create and add attribute
     /*! \param  sAttrName - attribute name
         \param  rValue - attribute value
         */
     void CreateAttribute(const std::string& sAttrName, const Value& rValue);
 
-    //!         add attribute
+    //! add attribute
     /*! resets rAttribute's owner flag
         \param  rAttribute - attribute
         */
     void AppendAttribute(Attribute& rAttribute);
 
     
-    //!         remove attribute
+    //! remove attribute
     /*! \param  itAttribute - attribute's iterator
         */
     void RemoveAttribute(AttributeIterator& itAttribute);
 
-    //!         remove all attributes
+    //! remove all attributes
     void RemoveAllAttributes();
 
-    //!         find attribute by QName
+    //! find attribute by QName
     /*! \param  rQName - QName
         \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByQName(const QName& rQName);
 
-    //!         find attribute by QName
+    //! find attribute by QName
     /*! \param  rQName - QName
         \param  itStart - iterator to attribute to start with
         \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByQName(const QName& rQName, const AttributeIterator& itStart);
 
-    //!         find attribute by local name
+    //! find attribute by local name
     /*! \param  sLocalName - attribute's local name
         \return iterator to found attribute or AttributeEnd()
         */
     AttributeIterator FindAttributeByLocalName(const std::string& sLocalName);
 
-    //!         find attribute by QName
+    //! find attribute by QName
     /*! \param  rQName - QName
         \return iterator to found attribute or AttributeEnd()
         */
     ConstAttributeIterator FindAttributeByQName(const QName& rQName) const;
 
-    //!         find attribute by QName
+    //! find attribute by QName
     /*! \param  rQName - QName
         \param  itStart - iterator to attribute to start with
         \return iterator to found attribute or AttributeEnd()
         */
     ConstAttributeIterator FindAttributeByQName(const QName& rQName, const ConstAttributeIterator& itStart) const;
 
-    //!         find attribute by local name
+    //! find attribute by local name
     /*! \param  sLocalName - attribute's local name
         \return iterator to found attribute or AttributeEnd()
         */
     ConstAttributeIterator FindAttributeByLocalName(const std::string& sLocalName) const;
 
-    //!         get attribute by QName
+    //! get attribute by QName
     /*! \param  rQName - attribute's QName
         \return attribute
         */
     Attribute GetAttributeByQName(const QName& rQName);
 
-    //!         get attribute by QName
+    //! get attribute by QName
     /*! \param  rQName - attribute's QName
         \return attribute
         */
     const Attribute GetAttributeByQName(const QName& rQName) const;
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! \param  szLocalName - attribute's local name (C-string)
         \return attribute
         */
     Attribute GetAttributeByLocalName(const char* szLocalName);
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! \param  sLocalName - attribute's local name
         \return attribute
         */
     Attribute GetAttributeByLocalName(const std::string& sLocalName);
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! \param  szLocalName - attribute's local name
         \return attribute
         */
     const Attribute GetAttributeByLocalName(const char* szLocalName) const;
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! \param  sLocalName - attribute's local name
         \return attribute
         */
     const Attribute GetAttributeByLocalName(const std::string& sLocalName) const;
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! does not throws an exception if attribute does not exists
         to check is returned attribute is valid please use !Attribute.IsNull()
         \param  szLocalName - attribute's local name (C-string)
@@ -1202,7 +1202,7 @@ namespace staff
         */
     Attribute GetAttributeByLocalNameOpt(const char* szLocalName);
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! does not throws an exception if attribute does not exists
         to check is returned attribute is valid please use !Attribute.IsNull()
         \param  sLocalName - attribute's local name
@@ -1210,7 +1210,7 @@ namespace staff
         */
     Attribute GetAttributeByLocalNameOpt(const std::string& sLocalName);
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! does not throws an exception if attribute does not exists
         to check is returned attribute is valid please use !Attribute.IsNull()
         \param  szLocalName - attribute's local name (C-string)
@@ -1218,7 +1218,7 @@ namespace staff
         */
     const Attribute GetAttributeByLocalNameOpt(const char* szLocalName) const;
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! does not throws an exception if attribute does not exists
         to check is returned attribute is valid please use !Attribute.IsNull()
         \param  sLocalName - attribute's local name
@@ -1226,37 +1226,37 @@ namespace staff
         */
     const Attribute GetAttributeByLocalNameOpt(const std::string& sLocalName) const;
 
-    //!         get attribute by local name
+    //! get attribute by local name
     /*! \param  szLocalName - attribute's local name
         \return found attribute or NULL
         */
     axiom_attribute_t* GetAxiomAttributeByLocalName(const char *szLocalName) const;
 
-    //!         get attribute value by name
+    //! get attribute value by name
     /*! \param  szLocalName - attribute's local name(C-string)
         \return attribute's value
         */
     Value GetAttributeValueByName(const char* szLocalName) const;
 
-    //!         get attribute value by name
+    //! get attribute value by name
     /*! \param  sLocalName - attribute's local name
         \return attribute's value
         */
     Value GetAttributeValueByName(const std::string& sLocalName) const;
 
-    //!         get attribute text by name
+    //! get attribute text by name
     /*! \param  sLocalName - attribute's local name
         \return attribute's text
         */
     std::string GetAttributeTextByName(const std::string& sLocalName) const;
 
-    //!         get attribute text by name
+    //! get attribute text by name
     /*! \param  sLocalName - attribute's local name
         \param  sText - resulting attribute's text
         */
     void GetAttributeTextByName(const std::string& sLocalName, std::string& sText) const;
 
-    //!         get attribute text by name
+    //! get attribute text by name
     /*! \param  szLocalName - attribute's local name(C-string)
         \param  sText - resulting attribute's text
         */
@@ -1301,62 +1301,62 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // iteration
 
-    //!         get iterator to the first child node
+    //! get iterator to the first child node
     /*! \return iterator to the first child node
     */
     Iterator Begin();
 
-    //!         get iterator to the first child node
+    //! get iterator to the first child node
     /*! \return iterator to the first child node
     */
     ConstIterator Begin() const;
 
-    //!         get iterator to the next by last child node
+    //! get iterator to the next by last child node
     /*! \return iterator to the next by last child node
     */
     Iterator End();
 
-    //!         get iterator to the next by last child node
+    //! get iterator to the next by last child node
     /*! \return iterator to the next by last child node
     */
     ConstIterator End() const;
 
-    //!         get iterator to the first node's attribute
+    //! get iterator to the first node's attribute
     /*! \return iterator to the first node's attribute
     */
     AttributeIterator AttributeBegin();
 
-    //!         get iterator to the next by last node's attribute
+    //! get iterator to the next by last node's attribute
     /*! \return iterator to the next by last node's attribute
     */
     AttributeIterator AttributeEnd();
 
-    //!         get iterator to the first node's attribute
+    //! get iterator to the first node's attribute
     /*! \return iterator to the first node's attribute
     */
     ConstAttributeIterator AttributeBegin() const;
 
-    //!         get iterator to the next by last node's attribute
+    //! get iterator to the next by last node's attribute
     /*! \return iterator to the next by last node's attribute
     */
     ConstAttributeIterator AttributeEnd() const;
 
-    //!         get iterator to the first node's namespace
+    //! get iterator to the first node's namespace
     /*! \return iterator to the first node's namespace
     */
     NamespaceIterator NamespaceBegin();
 
-    //!         get iterator to the next by last node's namespace
+    //! get iterator to the next by last node's namespace
     /*! \return iterator to the next by last node's namespace
     */
     NamespaceIterator NamespaceEnd();
 
-    //!         get iterator to the first node's namespace
+    //! get iterator to the first node's namespace
     /*! \return iterator to the first node's namespace
     */
     ConstNamespaceIterator NamespaceBegin() const;
 
-    //!         get iterator to the next by last node's namespace
+    //! get iterator to the next by last node's namespace
     /*! \return iterator to the next by last node's namespace
     */
     ConstNamespaceIterator NamespaceEnd() const;
@@ -1364,14 +1364,14 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // support operators
 
-    //!         initializing operator
+    //! initializing operator
     /*! ownership flag sets to false
         \param  pAxiomNode - axiom node
         \return current DataObject
         */
     DataObject& operator=(axiom_node_t* pAxiomNode);
 
-    //!         transfer ownership operator
+    //! transfer ownership operator
     /*! for tree copying use Clone
         \param  rDataObject - source DataObject
         \return current DataObject
@@ -1379,59 +1379,59 @@ namespace staff
         */
     DataObject& operator=(const DataObject& rDataObject);
     
-    //!         tests two DataObjects to equality
+    //! tests two DataObjects to equality
     /*! \param  rDataObject - other DataObject
         \return true - if both DataObjects points to the same AxiOM node
         */
     bool operator==(const DataObject& rDataObject) const;
     
-    //!         tests two DataObjects to inequality
+    //! tests two DataObjects to inequality
     /*! \param  rDataObject - other DataObject
         \return true - if DataObjects points to the different AxiOM nodes
         */
     bool operator!=(const DataObject& rDataObject) const;
 
-    //!         returns DataObject representation in XML
+    //! returns DataObject representation in XML
     /*! \return DataObject representation in XML
     */
     std::string ToString() const;
 
-    //!         get DataObject representation in XML
+    //! get DataObject representation in XML
     /*! \param  sResult - resulting DataObject representation in XML
     */
     void ToString(std::string& sResult) const;
 
-    //!         create DataObject from an XML
+    //! create DataObject from an XML
     /*! \param  szXml - XML-string (C-string)
         \return reference to current DataObject
         */
     DataObject& FromString(const char* szXml);
 
-    //!         create DataObject from an XML
+    //! create DataObject from an XML
     /*! \param  szXml - XML-string (C-string)
         \param  nSize - XML-string size
         \return reference to current DataObject
         */
     DataObject& FromString(const char* szXml, int nSize);
 
-    //!         create DataObject from an XML
+    //! create DataObject from an XML
     /*! \param  sXml - XML-string
         \return reference to current DataObject
         */
     DataObject& FromString(const std::string& sXml);
 
-    //!         member access operator
+    //! member access operator
     /*! \return this
     */
     DataObject* operator->();
 
-    //!         member access operator
+    //! member access operator
     /*! \return this
     */
     const DataObject* operator->() const;
 
   private:
-    //!         internal clone function
+    //! internal clone function
     /*! \param  pNodeIn - source node
         \param  pNodeOutParent - parent node
         \return copied result
@@ -1464,77 +1464,77 @@ namespace staff
   class DataObject::Iterator
   {
   public:
-    //!         constructor
+    //! constructor
     Iterator();
     
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - iterator's DataObject
         \param  pAxiomNode - current AxiOM node
         */
     Iterator(DataObject* pDataObject, axiom_node_t* pAxiomNode);
     
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - other iterator
         */
     Iterator(const Iterator& rIter);
     
-    //!         destructor
+    //! destructor
     ~Iterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - other iterator
         \return current iterator
         */
     Iterator& operator=(const Iterator& rIter);
     
-    //!         predecrement operator
+    //! predecrement operator
     /*! \return new value
     */
     Iterator& operator--();
 
-    //!         preincrement operator
+    //! preincrement operator
     /*! \return new value
     */
     Iterator& operator++();
 
-    //!         postdecrement operator
+    //! postdecrement operator
     /*! \return new value
     */
     Iterator operator--(int);
 
-    //!         postincrement operator
+    //! postincrement operator
     /*! \return new value
     */
     Iterator operator++(int);
     
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const Iterator& rIter) const;
 
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are different
         */
     bool operator!=(const Iterator& rIter) const;
 
-    //!         object access operator
+    //! object access operator
     /*! \return DataObject
     */
     DataObject operator*();
 
-    //!         object access operator
+    //! object access operator
     /*! \return DataObject
     */
     const DataObject operator*() const;
 
-    //!         object members access operator
+    //! object members access operator
     /*! \return DataObject
     */
     DataObject operator->();
 
-    //!         object members access operator
+    //! object members access operator
     /*! \return DataObject
     */
     const DataObject operator->() const;
@@ -1549,67 +1549,67 @@ namespace staff
   class DataObject::ConstIterator
   {
   public:
-    //!         constructor
+    //! constructor
     ConstIterator();
     
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - iterator's DataObject
         \param  pAxiomNode - current AxiOM node
         */
     ConstIterator(const DataObject* pDataObject, axiom_node_t* pAxiomNode);
     
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - other iterator
         */
     ConstIterator(const ConstIterator& rIter);
     
-    //!         destructor
+    //! destructor
     ~ConstIterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - other iterator
         \return current iterator
         */
     ConstIterator& operator=(const ConstIterator& rIter);
     
-    //!         predecrement operator
+    //! predecrement operator
     /*! \return new value
     */
     ConstIterator& operator--();
 
-    //!         preincrement operator
+    //! preincrement operator
     /*! \return new value
     */
     ConstIterator& operator++();
 
-    //!         postdecrement operator
+    //! postdecrement operator
     /*! \return new value
     */
     ConstIterator operator--(int);
 
-    //!         postincrement operator
+    //! postincrement operator
     /*! \return new value
     */
     ConstIterator operator++(int);
 
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const ConstIterator& rIter) const;
     
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are different
         */
     bool operator!=(const ConstIterator& rIter) const;
 
-    //!         object access operator
+    //! object access operator
     /*! \return DataObject
     */
     const DataObject operator*() const;
 
-    //!         object members access operator
+    //! object members access operator
     /*! \return DataObject
     */
     const DataObject operator->() const;
@@ -1624,57 +1624,57 @@ namespace staff
   class DataObject::NamespaceIterator
   {
   public:
-    //!         constructor
+    //! constructor
     NamespaceIterator();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - DataObject
         \param  pNamespaceIndex - AxiOM namespace index
         */
     NamespaceIterator(DataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
 
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - iterator
     */
     NamespaceIterator(const NamespaceIterator& rIter);
 
-    //!         destructor
+    //! destructor
     ~NamespaceIterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - source iterator
         \return ref to current iterator
         */
     NamespaceIterator& operator=(const NamespaceIterator& rIter);
 
-    //!         preincrement
+    //! preincrement
     /*! \return ref to current iterator
         */
     NamespaceIterator& operator++();
 
-    //!         postincrement
+    //! postincrement
     /*! \return copy of old iterator
         */
     NamespaceIterator operator++(int);
 
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const NamespaceIterator& rIter) const;
 
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
         \return true if the iterators are different
         */
     bool operator!=(const NamespaceIterator& rIter) const;
 
-    //!         namespace access operator
+    //! namespace access operator
     /*! \return namespace
     */
     Namespace operator*();
 
-    //!         namespace members access operator
+    //! namespace members access operator
     /*! \return namespace
     */
     Namespace operator->();
@@ -1689,57 +1689,57 @@ namespace staff
   class DataObject::ConstNamespaceIterator
   {
   public:
-    //!         constructor
+    //! constructor
     ConstNamespaceIterator();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - dataobject
         \param  pNamespaceIndex - AxiOM namespace index
         */
     ConstNamespaceIterator(const DataObject* pDataObject, axutil_hash_index_t* pNamespaceIndex);
 
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - iterator
     */
     ConstNamespaceIterator(const ConstNamespaceIterator& rIter);
 
-    //!         destructor
+    //! destructor
     ~ConstNamespaceIterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - source iterator
         \return ref to current iterator
         */
     ConstNamespaceIterator& operator=(const ConstNamespaceIterator& rIter);
 
-    //!         preincrement
+    //! preincrement
     /*! \return ref to current iterator
         */
     ConstNamespaceIterator& operator++();
 
-    //!         postincrement
+    //! postincrement
     /*! \return copy of old iterator
         */
     ConstNamespaceIterator operator++(int);
 
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const ConstNamespaceIterator& rIter) const;
 
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
         \return true if the iterators are different
         */
     bool operator!=(const ConstNamespaceIterator& rIter) const;
 
-    //!         namespace access operator
+    //! namespace access operator
     /*! \return namespace
     */
     const Namespace operator*() const;
 
-    //!         namespace members access operator
+    //! namespace members access operator
     /*! \return namespace
     */
     const Namespace operator->() const;
@@ -1755,57 +1755,57 @@ namespace staff
   class DataObject::AttributeIterator
   {
   public:
-    //!         constructor
+    //! constructor
     AttributeIterator();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - DataObject
         \param  pAttributeIndex - AxiOM attribute index
         */
     AttributeIterator(DataObject* pDataObject, axutil_hash_index_t* pAttributeIndex);
 
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - iterator
     */
     AttributeIterator(const AttributeIterator& rIter);
 
-    //!         destructor
+    //! destructor
     ~AttributeIterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - source iterator
         \return ref to current iterator
         */
     AttributeIterator& operator=(const AttributeIterator& rIter);
 
-    //!         preincrement
+    //! preincrement
     /*! \return ref to current iterator
         */
     AttributeIterator& operator++();
 
-    //!         postincrement
+    //! postincrement
     /*! \return copy of old iterator
     */
     AttributeIterator operator++(int);
 
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const AttributeIterator& rIter) const;
 
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
         \return true if the iterators are different
         */
     bool operator!=(const AttributeIterator& rIter) const;
 
-    //!         attribute access operator
+    //! attribute access operator
     /*! \return attribute
     */
     Attribute operator*();
 
-    //!         attribute members access operator
+    //! attribute members access operator
     /*! \return attribute
     */
     Attribute operator->();
@@ -1820,57 +1820,57 @@ namespace staff
   class DataObject::ConstAttributeIterator
   {
   public:
-    //!         constructor
+    //! constructor
     ConstAttributeIterator();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  pDataObject - DataObject
         \param  pAttributeIndex - AxiOM attribute index
         */
     ConstAttributeIterator(const DataObject* pDataObject, axutil_hash_index_t* pAttributeIndex);
 
-    //!         copy constructor
+    //! copy constructor
     /*! \param  rIter - iterator
     */
     ConstAttributeIterator(const ConstAttributeIterator& rIter);
 
-    //!         destructor
+    //! destructor
     ~ConstAttributeIterator();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rIter - source iterator
         \return ref to current iterator
         */
     ConstAttributeIterator& operator=(const ConstAttributeIterator& rIter);
 
-    //!         preincrement
+    //! preincrement
     /*! \return ref to current iterator
     */
     ConstAttributeIterator& operator++();
 
-    //!         postincrement
+    //! postincrement
     /*! \return copy of old iterator
     */
     ConstAttributeIterator operator++(int);
 
-    //!         test target iterator for equality with specified iterator
+    //! test target iterator for equality with specified iterator
     /*! \param  rIter - other iterator
         \return true if the iterators are the same
         */
     bool operator==(const ConstAttributeIterator& rIter) const;
 
-    //!         test target iterator for inequality with specified iterator
+    //! test target iterator for inequality with specified iterator
     /*! \param  rIter - iterator
         \return true if the iterators are different
         */
     bool operator!=(const ConstAttributeIterator& rIter) const;
 
-    //!         attribute access operator
+    //! attribute access operator
     /*! \return attribute
     */
     const Attribute operator*() const;
 
-    //!         attribute members access operator
+    //! attribute members access operator
     /*! \return attribute
     */
     const Attribute operator->() const;
@@ -1881,37 +1881,6 @@ namespace staff
     friend class DataObject;
   };
 
-  //!         put value to DataObject's value
-  /*! \param  rDataObject - DataObject
-      \param  rValue - value
-      \return DataObject
-      */
-  STAFF_DEPRECATED(DataObject.SetValue) STAFF_COMMON_EXPORT DataObject& operator<<(DataObject& rDataObject, const Value& rValue);
-
-  //!         get value from DataObject
-  /*! \param  rDataObject - DataObject
-      \param  rValue - value
-      \return DataObject
-      */
-  STAFF_DEPRECATED(DataObject.GetValue) STAFF_COMMON_EXPORT const DataObject& operator>>(const DataObject& rDataObject, Value& rValue);
-
-
-#ifndef STAFF_NO_DEPRECATED
-//  typedef DataObject CDataObject STAFF_DEPRECATED(DataObject);
-// many implementation can forward CDataObject declaration like
-// namespace staff { class CDataObject; }
-// so we create inherited class to support deprecated api
-
-  class STAFF_DEPRECATED(DataObject) STAFF_COMMON_EXPORT CDataObject: public DataObject
-  {
-  public:
-    CDataObject(axiom_node_t* pAxiomNode = NULL);
-    CDataObject(const DataObject& rDataObject);
-    CDataObject(const std::string& sLocalName);
-    CDataObject(const std::string& sLocalName, const Value& rValue);
-    CDataObject(const QName& rQName);
-  };
-#endif
 }
 
 #endif // _DATAOBJECT_H_

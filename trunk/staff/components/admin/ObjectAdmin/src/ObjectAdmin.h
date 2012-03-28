@@ -47,37 +47,37 @@ namespace staff
     public:
       virtual ~ObjectAdmin() {}
 
-      //!         get object by id
+      //! get object by id
       /*! \param  nId - object id
           \return object
           */
       virtual Object GetById(int nId) = 0;
 
-      //!         get object by name
+      //! get object by name
       /*! \param  sPathName - full object name (for example: components.samples.calc.Calculator.Add)
           \return object
           */
       virtual Object GetByPathName(const std::string& sPathName) = 0;
 
-      //!         get childs list
+      //! get childs list
       /*! \param  nId - object id
           \return objectid list
       */
       virtual ObjecstList GetChilds(int nId) = 0;
 
-      //!         add new object
+      //! add new object
       /*! Object::nObjectId is ignored
           \param  pstObject - new object
           \return added object id
           */
       virtual int Add(const Object& rstObject) = 0;
 
-      //!         remove object by id
+      //! remove object by id
       /*! \param  nObjectId - object id
           */
       virtual void Remove(int nObjectId) = 0;
 
-      //!         set object description
+      //! set object description
       /*! \param  nObjectId - object id
           \param  sName - new object description
           */

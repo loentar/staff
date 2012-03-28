@@ -29,7 +29,6 @@ $(MAKECMDGOALS):
 else
 ifeq ($(MAKECMDGOALS),test)
 $(MAKECMDGOALS):
-	$(MAKE) -C rise/test/rise_test test
 	$(MAKE) -C staff/tests test
 else
 ifeq ($(MAKECMDGOALS),distrib)

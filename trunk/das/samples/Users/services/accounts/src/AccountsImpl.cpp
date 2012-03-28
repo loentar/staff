@@ -2,7 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <rise/common/ExceptionTemplate.h>
+#include <staff/common/Exception.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 #include "ServiceFactory.h"
@@ -44,7 +44,7 @@ void AccountsImpl::OnDestroy()
   sqlite3_stmt* pVm = NULL;
 
   int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM groups", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
@@ -54,7 +54,7 @@ void AccountsImpl::OnDestroy()
       Role stUser;
       stUser.nId = sqlite3_column_int(pVm, 0);
       const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
-      RISE_ASSERTS(szTmp, "Failed to get user name");
+      STAFF_ASSERT(szTmp, "Failed to get user name");
       stUser.sName = szTmp;
 
       szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
@@ -68,7 +68,7 @@ void AccountsImpl::OnDestroy()
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return tResult;  // result
 }
 
@@ -80,7 +80,7 @@ void AccountsImpl::OnDestroy()
   sqlite3_stmt* pVm = NULL;
 
   int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM users", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
@@ -90,7 +90,7 @@ void AccountsImpl::OnDestroy()
       Role stUser;
       stUser.nId = sqlite3_column_int(pVm, 0);
       const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
-      RISE_ASSERTS(szTmp, "Failed to get user name");
+      STAFF_ASSERT(szTmp, "Failed to get user name");
       stUser.sName = szTmp;
 
       szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
@@ -104,7 +104,7 @@ void AccountsImpl::OnDestroy()
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return tResult;  // result
 }
 
@@ -116,20 +116,20 @@ Role AccountsImpl::GetGroupById(int nId)
 
   int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM groups "
                                    "WHERE id=?", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_int(pVm, 1, nId);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
     // get data
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "User with id is not found");
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_ROW, "User with id is not found");
 
     stUser.nId = sqlite3_column_int(pVm, 0);
 
     const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
-    RISE_ASSERTS(szTmp, "Failed to get user name");
+    STAFF_ASSERT(szTmp, "Failed to get user name");
     stUser.sName = szTmp;
 
     szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
@@ -141,7 +141,7 @@ Role AccountsImpl::GetGroupById(int nId)
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return stUser;
 }
 
@@ -155,20 +155,20 @@ int AccountsImpl::AddUser(const std::string& sName, const std::string& sPassword
   // add user
   int nResult = sqlite3_prepare_v2(pDb, "INSERT INTO users(name, password, description) VALUES(?, ?, ?)",
                                    -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_text(pVm, 1, sName.c_str(), sName.size(), SQLITE_STATIC);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
     nResult = sqlite3_bind_text(pVm, 2, sPassword.c_str(), sPassword.size(), SQLITE_STATIC);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
     nResult = sqlite3_bind_text(pVm, 3, sDescr.c_str(), sDescr.size(), SQLITE_STATIC);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to create user: " + std::string(sqlite3_errmsg(pDb)));
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to create user: " + std::string(sqlite3_errmsg(pDb)));
 
     // get inserted user id
     tResult = static_cast<int>(sqlite3_last_insert_rowid(pDb));
@@ -179,7 +179,7 @@ int AccountsImpl::AddUser(const std::string& sName, const std::string& sPassword
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
 
   return tResult;  // result
 }
@@ -203,14 +203,14 @@ void AccountsImpl::RemoveUser(int nId)
 
   // remove user
   int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM users WHERE id=?", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_int(pVm, 1, nId);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to remove user: " + std::string(sqlite3_errmsg(pDb)));
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to remove user: " + std::string(sqlite3_errmsg(pDb)));
   }
   catch(...)
   {
@@ -218,7 +218,7 @@ void AccountsImpl::RemoveUser(int nId)
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
 }
 
 void AccountsImpl::RemoveUserByName(const std::string& sName)
@@ -228,14 +228,14 @@ void AccountsImpl::RemoveUserByName(const std::string& sName)
 
   // remove user
   int nResult = sqlite3_prepare_v2(pDb, "DELETE FROM users WHERE name=?", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_text(pVm, 1, sName.c_str(), sName.size(), SQLITE_STATIC);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_DONE, "Failed to remove user: " + std::string(sqlite3_errmsg(pDb)));
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_DONE, "Failed to remove user: " + std::string(sqlite3_errmsg(pDb)));
   }
   catch(...)
   {
@@ -243,7 +243,7 @@ void AccountsImpl::RemoveUserByName(const std::string& sName)
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
 }
 
 int AccountsImpl::GetUserIdByName(const std::string& sName)
@@ -253,15 +253,15 @@ int AccountsImpl::GetUserIdByName(const std::string& sName)
   sqlite3_stmt* pVm = NULL;
 
   int nResult = sqlite3_prepare_v2(pDb, "SELECT id FROM users WHERE name=?", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_text(pVm, 1, sName.c_str(), sName.size(), SQLITE_STATIC);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
     // get data
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "User with name is not found");
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_ROW, "User with name is not found");
 
     nId = sqlite3_column_int(pVm, 0);
   }
@@ -271,7 +271,7 @@ int AccountsImpl::GetUserIdByName(const std::string& sName)
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return nId;
 }
 
@@ -283,20 +283,20 @@ Role AccountsImpl::GetUser(int nId)
 
   int nResult = sqlite3_prepare_v2(pDb, "SELECT id, name, description FROM users "
                                    "WHERE id=?", -1, &pVm, NULL);
-  RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
   try
   {
     nResult = sqlite3_bind_int(pVm, 1, nId);
-    RISE_ASSERTS(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
+    STAFF_ASSERT(nResult == SQLITE_OK, sqlite3_errmsg(pDb));
 
     // get data
-    RISE_ASSERTS(sqlite3_step(pVm) == SQLITE_ROW, "User with id is not found");
+    STAFF_ASSERT(sqlite3_step(pVm) == SQLITE_ROW, "User with id is not found");
 
     stUser.nId = sqlite3_column_int(pVm, 0);
 
     const char* szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 1));
-    RISE_ASSERTS(szTmp, "Failed to get user name");
+    STAFF_ASSERT(szTmp, "Failed to get user name");
     stUser.sName = szTmp;
 
     szTmp = reinterpret_cast<const char*>(sqlite3_column_text(pVm, 2));
@@ -308,7 +308,7 @@ Role AccountsImpl::GetUser(int nId)
     throw;
   }
 
-  RISE_ASSERTS(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
+  STAFF_ASSERT(sqlite3_finalize(pVm) == SQLITE_OK, sqlite3_errmsg(pDb));
   return stUser;
 }
 
@@ -322,7 +322,7 @@ Role AccountsImpl::GetUserSvc(int nId)
     m_tpUsersDatasource = staff::das::samples::ServiceFactory::Inst().GetService("staff.das.samples.Users", this);
   }
 
-  RISE_ASSERTS(!m_tpUsersDatasource.IsNull(), "failed to get datasource");
+  STAFF_ASSERT(!m_tpUsersDatasource.IsNull(), "failed to get datasource");
 
   staff::das::samples::User stUser = m_tpUsersDatasource->GetUser(nId);
 

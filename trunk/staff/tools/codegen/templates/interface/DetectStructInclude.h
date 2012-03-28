@@ -1,4 +1,4 @@
-#ifeq($(Struct.Extern),0)
+#ifeq($(Struct.Extern),false)
 #foreach $(Struct.Members)
 #context $(Param.DataType)
 #cginclude "DetectTypeInclude.h"

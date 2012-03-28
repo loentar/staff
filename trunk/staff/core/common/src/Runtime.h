@@ -34,62 +34,62 @@ namespace staff
   class STAFF_COMMON_EXPORT Runtime
   {
   public:
-    //!         get instance
+    //! get instance
     /*! \return ref to instance
     */
     static Runtime& Inst();
 
-    //!         get Axis2/C env for staff component
+    //! get Axis2/C env for staff component
     /*! \return Axis2/C env
     */
     axutil_env_t* GetAxis2Env();
 
-    //!         get Axis2/C env for given component
+    //! get Axis2/C env for given component
     /*! \param  szLogName - log name(C-string), for example: client.log
         \return Axis2/C env
     */
     axutil_env_t* CreateAxis2Env(const char* szLogName);
 
-    //!         get Axis2/C env for given component
+    //! get Axis2/C env for given component
     /*! \param  sLogName - log name, for example: client.log
         \return Axis2/C env
     */
     axutil_env_t* CreateAxis2Env(const std::string& sLogName);
 
-    //!         free Axis2/C env
+    //! free Axis2/C env
     /*! \param  pEnv - Axis2/C environment created by CreateAxis2Env
     */
     void FreeAxis2Env(axutil_env_t* pEnv);
 
-    //!         get Axis2/C home dir
+    //! get Axis2/C home dir
     /*! \return Axis2/C home dir
     */
     const std::string& GetAxis2Home() const;
 
-    //!         get staff home dir
+    //! get staff home dir
     /*! \return staff home dir
     */
     const std::string& GetStaffHome() const;
 
-    //!         get home dir for staff components
+    //! get home dir for staff components
     /*! \return home dir for staff components
     */
     std::string GetComponentsHome() const;
 
-    //!         get home dir for given component
+    //! get home dir for given component
     /*! \param  sComponent - component
         \return home dir for given component
         */
     std::string GetComponentHome(const std::string& sComponent) const;
 
-    //!         get environment variable value
+    //! get environment variable value
     /*! throws exception, when variable is not found
         \param  sVariable - environment variable
         \return environment variable value
         */
     std::string GetEnv(const std::string& sVariable) const;
 
-    //!         get environment variable value
+    //! get environment variable value
     /*! \param  sVariable - environment variable
         \return environment variable value, or empty, if no variable found
         */
@@ -105,10 +105,6 @@ namespace staff
     class RuntimeImpl;
     RuntimeImpl* m_pImpl;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Runtime) typedef Runtime CRuntime;
-#endif
 
 }
 

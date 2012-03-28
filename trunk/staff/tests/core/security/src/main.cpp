@@ -21,9 +21,8 @@
 
 #include <iostream>
 #include <list>
-#include <rise/common/exmacros.h>
-#include <rise/common/Exception.h>
-#include <rise/common/Log.h>
+#include <staff/common/Exception.h>
+#include <staff/utils/Log.h>
 #include <staff/security/DbConn.h>
 #include <staff/security/Sessions.h>
 #include <staff/security/Users.h>
@@ -101,12 +100,12 @@ int main()
   #define Test(TEXT, EXPR) \
     if (EXPR)\
     {\
-       rise::LogInfo() << TEXT": " << #EXPR << rise::LogResultSuccess;\
+       staff::LogInfo() << TEXT": " << #EXPR << staff::LogResultSuccess;\
       ++nSuccessed;\
     }\
     else\
     {\
-      rise::LogInfo() << TEXT": " << #EXPR << rise::LogResultFailed;\
+      staff::LogInfo() << TEXT": " << #EXPR << staff::LogResultFailed;\
       ++nFailed;\
     }
 
@@ -127,7 +126,7 @@ int main()
 /*      rSessions.GetById(0, stSession);
       Test("GetById", stSession.sSessionId == Sessions::sNobodySessionId);*/
 
-//      rise::LogDebug3() << stSession;
+//      staff::LogDebug3() << stSession;
 
 //      Test("Validate nobody", rSessions.Validate(stSession.sSessionId));
       Test("Validate nobody", rSessions.Validate(Sessions::sNobodySessionId));
@@ -137,18 +136,18 @@ int main()
       unSessionsCount = lsSessions.size();
       Test("Get list 1", unSessionsCount != 0);
 
-      rise::LogDebug3() << lsSessions;*/
+      staff::LogDebug3() << lsSessions;*/
 
       std::string sSessionId;
       rSessions.Open("user", "user", true, sSessionId);
       Test("Open session", sSessionId.size() != 0);
 
-      rise::LogDebug3() << "opened sessid: " << sSessionId;
+      staff::LogDebug3() << "opened sessid: " << sSessionId;
 
 /*      rSessions.GetList(lsSessions);
       Test("Get list 2", lsSessions.size() == (unSessionsCount + 1));
 
-      rise::LogDebug3() << lsSessions;
+      staff::LogDebug3() << lsSessions;
 
       rSessions.GetBySessionId(sSessionId, stSession);
       Test("GetBySessionId", sSessionId == stSession.sSessionId);*/
@@ -169,7 +168,7 @@ int main()
 
 /*      rSessions.GetList(lsSessions);
       Test("Get list 3", lsSessions.size() == unSessionsCount);
-      rise::LogDebug3() << lsSessions;*/
+      staff::LogDebug3() << lsSessions;*/
     }
 
     ////////////////////////////////////////////////////////////////
@@ -191,24 +190,24 @@ int main()
       rUsers.Add("test", "test", "test user", nUserId);
       Test("Add user", nUserId > 0);
 
-      rise::LogDebug3() << "created user id: " << nUserId;
+      staff::LogDebug3() << "created user id: " << nUserId;
 
       rUsers.GetById(nUserId, stUser);
       Test("GetById", (nUserId == stUser.nId) && (stUser.sName == "test") && (stUser.sDescription == "test user"));
 
-      rise::LogDebug3() << "User: " << stUser;
+      staff::LogDebug3() << "User: " << stUser;
 
       rUsers.SetDescription(nUserId, "descr");
 
       rUsers.GetById(nUserId, stUser);
       Test("SetDescription&GetById", (nUserId == stUser.nId) && (stUser.sName == "test") && (stUser.sDescription == "descr"));
 
-      rise::LogDebug3() << "User: " << stUser;
+      staff::LogDebug3() << "User: " << stUser;
 
       rUsers.GetList(lsUsers);
       Test("GetList", lsUsers.size() > 0);
 
-      rise::LogDebug3() << "Users:\n\n" << lsUsers;
+      staff::LogDebug3() << "Users:\n\n" << lsUsers;
 
       ////////////////////////////////////////////////////////////////
       // groups
@@ -225,14 +224,14 @@ int main()
       rGroups.GetById(nGroupId, stGroup);
       Test("GetById", (nGroupId == stGroup.nId) && (stGroup.sName == "test") && (stGroup.sDescription == "test group"));
 
-      rise::LogDebug3() << "Group: " << stGroup;
+      staff::LogDebug3() << "Group: " << stGroup;
 
       rGroups.SetDescription(nGroupId, "descr");
 
       rGroups.GetById(nGroupId, stGroup);
       Test("SetDescription&GetById", (nGroupId == stGroup.nId) && (stGroup.sName == "test") && (stGroup.sDescription == "descr"));
 
-      rise::LogDebug3() << "Group: " << stGroup;
+      staff::LogDebug3() << "Group: " << stGroup;
 
       rGroups.GetList(lsGroups);
       Test("GetList", lsGroups.size() > 0);
@@ -306,7 +305,7 @@ int main()
       rObjects.GetByPathName("component.samples.calc.Calculator", stObject);
       Test("GetByPathName", stObject.nId > 0 && stObject.nParentId > 0 && stObject.sName == "Calculator");
 
-      rise::LogDebug3() << "object: " << stObject;
+      staff::LogDebug3() << "object: " << stObject;
 
       int nObjId = -1;
 
@@ -320,12 +319,12 @@ int main()
       rObjects.GetByPathName("component.samples.Test", stObject);
       Test("Add&GetByPathName", (stObject.nId == nObjId) && (stObject.nParentId == nSamplesId) && (stObject.sName == "Test"));
 
-      rise::LogDebug3() << "Added object: " << stObject;
+      staff::LogDebug3() << "Added object: " << stObject;
 
       rObjects.GetChilds(0, lsObjects);
       Test("GetChilds", lsObjects.size() > 0);
 
-      rise::LogDebug3() << "Objects: " << lsObjects;
+      staff::LogDebug3() << "Objects: " << lsObjects;
 
       rObjects.Remove(nObjId);
     }
@@ -338,7 +337,7 @@ int main()
 
       Acl& rAcl = Acl::Inst();
 
-      EAccess eAccess = EAccessInherited;
+      Access eAccess = AccessInherited;
       bool bAccess = false;
       int nUserId = 2; // 'user'
       int nGroupId = 2; // 'user'
@@ -351,39 +350,39 @@ int main()
 
       // users acl
       rAcl.GetUserAccess(0, 0, eAccess);
-      Test("Acl user 'nobody' to root object(multiple users)", eAccess == EAccessInherited);
+      Test("Acl user 'nobody' to root object(multiple users)", eAccess == AccessInherited);
       rAcl.GetUserAccess(0, nUserId, eAccess);
-      Test("Acl user 'user' to root object(multiple users)", eAccess == EAccessInherited);
+      Test("Acl user 'user' to root object(multiple users)", eAccess == AccessInherited);
 
       rAcl.GetUserAccess(1, 0, eAccess);
-      Test("Acl user 'nobody' to component object", eAccess == EAccessGranted);
+      Test("Acl user 'nobody' to component object", eAccess == AccessGranted);
       rAcl.GetUserAccess(1, nUserId, eAccess);
-      Test("Acl user 'user' to component object", eAccess == EAccessGranted);
+      Test("Acl user 'user' to component object", eAccess == AccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc user 'user' to inherited object", bAccess);
 
 
-      rAcl.SetUserAccess(nObjectId, nUserId, EAccessDenied);
+      rAcl.SetUserAccess(nObjectId, nUserId, AccessDenied);
       rAcl.GetUserAccess(nObjectId, 0, eAccess);
-      Test("Acl user 'nobody' to inherited object(rule do not touch other users)", eAccess == EAccessInherited);
+      Test("Acl user 'nobody' to inherited object(rule do not touch other users)", eAccess == AccessInherited);
       rAcl.GetUserAccess(nObjectId, nUserId, eAccess);
-      Test("Acl user 'user' to denied object", eAccess == EAccessDenied);
+      Test("Acl user 'user' to denied object", eAccess == AccessDenied);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc user 'user' to inherited object", !bAccess);
 
-      rAcl.SetUserAccess(nObjectId, nUserId, EAccessGranted);
+      rAcl.SetUserAccess(nObjectId, nUserId, AccessGranted);
       rAcl.GetUserAccess(nObjectId, nUserId, eAccess);
-      Test("Acl user 'user' to granted object", eAccess == EAccessGranted);
+      Test("Acl user 'user' to granted object", eAccess == AccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc user 'user' to inherited object", bAccess);
 
 
-      rAcl.SetUserAccess(nObjectId, nUserId, EAccessInherited);
+      rAcl.SetUserAccess(nObjectId, nUserId, AccessInherited);
       rAcl.GetUserAccess(nObjectId, nUserId, eAccess);
-      Test("Acl user 'user' to inherited object", eAccess == EAccessInherited);
+      Test("Acl user 'user' to inherited object", eAccess == AccessInherited);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc user 'user' to inherited object", bAccess);
@@ -391,41 +390,41 @@ int main()
 
       // groups acl
       rAcl.GetGroupAccess(0, nGroupId, eAccess);
-      Test("Acl group 'user' to root object(multiple groups)", eAccess == EAccessInherited);
+      Test("Acl group 'user' to root object(multiple groups)", eAccess == AccessInherited);
 
       rAcl.GetGroupAccess(1, nGroupId, eAccess);
-      Test("Acl group 'user' to inherited object", eAccess == EAccessInherited);
+      Test("Acl group 'user' to inherited object", eAccess == AccessInherited);
 
 
       rAcl.GetAnyGroupAccess(4, eAccess);
-      Test("Acl user 'nobody' without group to admin object", eAccess == EAccessDenied);
+      Test("Acl user 'nobody' without group to admin object", eAccess == AccessDenied);
       rAcl.GetGroupAccess(4, nGroupId, eAccess);
-      Test("Acl group 'user' to admin object", eAccess == EAccessDenied);
+      Test("Acl group 'user' to admin object", eAccess == AccessDenied);
       rAcl.GetGroupAccess(4, 1, eAccess);
-      Test("Acl user 'admin' to admin object", eAccess == EAccessGranted);
+      Test("Acl user 'admin' to admin object", eAccess == AccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc group 'user' to inherited object", bAccess);
 
-      rAcl.SetGroupAccess(nObjectId, nGroupId, EAccessDenied);
+      rAcl.SetGroupAccess(nObjectId, nGroupId, AccessDenied);
       rAcl.GetGroupAccess(nObjectId, nGroupId, eAccess);
-      Test("Acl group 'user' to denied object", eAccess == EAccessDenied);
+      Test("Acl group 'user' to denied object", eAccess == AccessDenied);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc group 'user' to inherited object", !bAccess);
 
 
-      rAcl.SetGroupAccess(nObjectId, nGroupId, EAccessGranted);
+      rAcl.SetGroupAccess(nObjectId, nGroupId, AccessGranted);
       rAcl.GetGroupAccess(nObjectId, nGroupId, eAccess);
-      Test("Acl group 'user' to granted object", eAccess == EAccessGranted);
+      Test("Acl group 'user' to granted object", eAccess == AccessGranted);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc group 'user' to inherited object", bAccess);
 
 
-      rAcl.SetGroupAccess(nObjectId, nGroupId, EAccessInherited);
+      rAcl.SetGroupAccess(nObjectId, nGroupId, AccessInherited);
       rAcl.GetGroupAccess(nObjectId, nGroupId, eAccess);
-      Test("Acl group 'user' to inherited object", eAccess == EAccessInherited);
+      Test("Acl group 'user' to inherited object", eAccess == AccessInherited);
 
       bAccess = rAcl.CalculateUserAccess(nObjectId, nUserId);
       Test("Calc group 'user' to inherited object", bAccess);
@@ -434,11 +433,11 @@ int main()
     rObjects.Remove(nSamplesId);
 
     Header("Results");
-    rise::LogInfo() << "\n\n\033[1mTests successed: " << nSuccessed << "\nTests failed: " << nFailed << "\033[0m";
+    staff::LogInfo() << "\n\n\033[1mTests successed: " << nSuccessed << "\nTests failed: " << nFailed << "\033[0m";
 
     DbConn::Close();
   }
-  RISE_CATCH_ALL;
+  STAFF_CATCH_ALL;
 
   return 0;
 }

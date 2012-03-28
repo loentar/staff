@@ -32,361 +32,360 @@ namespace staff
   class STAFF_COMMON_EXPORT Value
   {
   public:
-    enum EType      //!  value type
+    enum Type      //!  value type
     {
-      ET_NOTINIT,   //!<  not initialized
-      ET_UNKNOWN,   //!<  unknown
-      ET_TEXT,      //!<  text
+      TypeUnknown,   //!<  unknown
+      TypeText,      //!<  text
 
-      ET_FLOAT,     //!<  float
-      ET_DOUBLE,    //!<  double
+      TypeFloat,     //!<  float
+      TypeDouble,    //!<  double
 
-      ET_BYTE,      //!<  byte
-      ET_INT,       //!<  int
-      ET_SHORT,     //!<  short
-      ET_LONG,      //!<  long
-      ET_LONGLONG,  //!<  long long
+      TypeByte,      //!<  byte
+      TypeInt,       //!<  int
+      TypeShort,     //!<  short
+      TypeLong,      //!<  long
+      TypeLongLong,  //!<  long long
 
-      ET_UBYTE,     //!<  unsigned byte
-      ET_UINT,      //!<  unsigned int
-      ET_USHORT,    //!<  unsigned short
-      ET_ULONG,     //!<  unsigned long
-      ET_ULONGLONG, //!<  unsigned long long
+      TypeUByte,     //!<  unsigned byte
+      TypeUInt,      //!<  unsigned int
+      TypeUShort,    //!<  unsigned short
+      TypeULong,     //!<  unsigned long
+      TypeULongLong, //!<  unsigned long long
 
-      ET_BOOL       //!<  bool
+      TypeBool       //!<  bool
     };
 
   public:
-    //!         default constructor
+    //! default constructor
     Value();
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  sValue - value
         */
     Value(const std::string& sValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  szValue - value
     */
     Value(const char* szValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  fValue - value
     */
     Value(float fValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  dValue - value
         */
     Value(double dValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  btValue - value
     */
     Value(byte btValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  nValue - value
         */
     Value(int nValue);
     
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  shValue - value
     */
     Value(short shValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  lValue - value
         */
     Value(long lValue);
     
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  llValue - value
     */
     Value(long long llValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  ubtValue - value
     */
     Value(unsignedByte ubtValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  unValue - value
     */
     Value(unsigned int unValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  ushValue - value
     */
     Value(unsigned short ushValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  ulValue - value
     */
     Value(unsigned long ulValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  ullValue - value
     */
     Value(unsigned long long ullValue);
 
-    //!         initializing constructor
+    //! initializing constructor
     /*! \param  bValue - value
         */
     Value(bool bValue);
 
-    //!         destructor
+    //! destructor
     ~Value();
 
-    //!         copy operator
+    //! copy operator
     /*! \param  rValue - value
         */
     Value& operator=(const Value& rValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  sValue - value
         */
     Value& operator=(const std::string& sValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  szValue - value
         */
     Value& operator=(const char* szValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  fValue - value
         */
     Value& operator=(float fValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  dValue - value
         */
     Value& operator=(double dValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  btValue - value
     */
     Value& operator=(byte btValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  nValue - value
     */
     Value& operator=(int nValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  shValue - value
     */
     Value& operator=(short shValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  lValue - value
     */
     Value& operator=(long lValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  llValue - value
     */
     Value& operator=(long long llValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  ubtValue - value
         */
     Value& operator=(unsignedByte ubtValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  unValue - value
         */
     Value& operator=(unsigned int unValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  ushValue - value
         */
     Value& operator=(unsigned short ushValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  ulValue - value
         */
     Value& operator=(unsigned long ulValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  ulValue - value
     */
     Value& operator=(unsigned long long ulValue);
 
-    //!         copy operator
+    //! copy operator
     /*! \param  bValue - value
         */
     Value& operator=(bool bValue);
 
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator const std::string&() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator float() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator double() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator byte() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator int() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator short() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator long() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator long long() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator unsignedByte() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator unsigned int() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator unsigned short() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator unsigned long() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator unsigned long long() const;
 
-    //!         const value cast operator
+    //! const value cast operator
     /*! \return casted const value
         */
     operator bool() const;
 
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator std::string&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator float&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator double&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator byte&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator int&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator short&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator long&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator long long&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator unsignedByte&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator unsigned int&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator unsigned short&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator unsigned long&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator unsigned long long&();
 
-    //!         value cast operator
+    //! value cast operator
     /*! \return casted value
         */
     operator bool&();
 
-    //!         explicit conversion to const string
+    //! explicit conversion to const string
     /*! \return const string value
         */
     const std::string& AsString() const;
 
-    //!         explicit conversion to string
+    //! explicit conversion to string
     /*! \return string value
         */
     std::string& AsString();
 
-    //!         get stored value type
+    //! get stored value type
     /*! \return stored value type
         */
-    EType GetType() const;
+    Type GetType() const;
 
-    //!         is stored type number
+    //! is stored type number
     /*! \return true - stored type is number
     */
     bool IsNumber() const;
 
-    //!         is given type number
+    //! is given type number
     /*! \param  eType - type
         \return true - given type is number
         */
-    bool IsNumber(EType eType) const;
+    bool IsNumber(Type eType) const;
 
-    //!         test target value for equality with specified value
+    //! test target value for equality with specified value
     /*! \param  rValue - other value
         \return true, if values are equals
         */
@@ -414,29 +413,25 @@ namespace staff
     };
 
   private:
-    //!         synchronize types
+    //! synchronize types
     /*! \param  eTypeFrom - source type
         \param  eTypeTo - destination type
         */
-    void Sync(EType eTypeFrom, EType eTypeTo) const;
+    void Sync(Type eTypeFrom, Type eTypeTo) const;
 
-    //!         synchronize type to
+    //! synchronize type to
     /*! \param  eTypeTo - convert to type
         */
-    void SyncTo(EType eTypeTo) const;
+    void SyncTo(Type eTypeTo) const;
 
   private:
-    mutable EType m_eType;                //!<  current type
-    mutable EType m_ePrevType;            //!<  previous type
+    mutable Type m_eType;                //!<  current type
+    mutable Type m_ePrevType;            //!<  previous type
 
     mutable std::string m_sValue;         //!<  string value
     mutable UValue m_uValue;              //!<  numeral value
     bool m_bChanged;                      //!<  is value was changed
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(Value) typedef Value CValue;
-#endif
 
 }
 

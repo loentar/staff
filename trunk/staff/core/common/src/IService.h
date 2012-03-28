@@ -25,13 +25,10 @@
 #include "staffcommonexport.h"
 #include <string>
 
-namespace rise
-{
-  template<typename Type> class CSharedPtr;
-}
-
 namespace staff
 {
+  template<typename Type> class SharedPtr;
+
   class ServiceClient;
 
   //! base class for services
@@ -82,7 +79,7 @@ namespace staff
     std::string m_sInstanceId;  //!< instance id
   };
 
-  typedef rise::CSharedPtr<IService> PIService; //!< smart pointer to service
+  typedef SharedPtr<IService> PIService; //!< smart pointer to service
 }
 
 #endif // ISERVICE_H

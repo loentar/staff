@@ -20,14 +20,18 @@
  */
 
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/common/ExceptionTemplate.h>
-#include <rise/plugin/PluginExport.h>
-#include <rise/xml/XMLDocument.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/stringutils.h>
+#include <staff/utils/PluginExport.h>
+#include <staff/common/Exception.h>
+#include <staff/xml/Document.h>
+#include <staff/xml/Attribute.h>
+#include <staff/xml/Element.h>
+#include <staff/xml/XmlReader.h>
 #include <staff/codegen/tools.h>
 #include "DasDataSourceParser.h"
 
-RISE_DECLARE_PLUGIN(staff::codegen::DasDataSourceParser)
+STAFF_DECLARE_PLUGIN(staff::codegen::DasDataSourceParser)
 
 namespace staff
 {
@@ -55,7 +59,7 @@ namespace codegen
     if (itRootNs != rParseSettings.mEnv.end() && !itRootNs->second.empty())
     {
       sRootNs = "::" + itRootNs->second + "::";
-      rise::StrReplace(sRootNs, ".", "::", true);
+      StringReplace(sRootNs, ".", "::", true);
     }
 
     for (StringList::const_iterator itFile = rParseSettings.lsFiles.begin();
@@ -65,12 +69,12 @@ namespace codegen
 
       m_sDir = sFileName.substr(0, sFileName.find_last_of('/') + 1);
 
-      rise::xml::CXMLDocument tDocDataSources;
-      tDocDataSources.LoadFromFile(sFileName);
+      xml::Document tDocDataSources;
+      xml::XmlFileReader(sFileName).ReadDocument(tDocDataSources);
 
-      rise::xml::CXMLNode& rNodeDataSources = tDocDataSources.GetRoot();
+      xml::Element& rNodeDataSources = tDocDataSources.GetRootElement();
 
-      if (rNodeDataSources.NodeName() == "types")
+      if (rNodeDataSources.GetName() == "types")
       {
         Interface stInterface;
 
@@ -88,13 +92,13 @@ namespace codegen
         }
 
         std::string sNamespace;
-        rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rNodeDataSources.FindAttribute("namespace");
-        if (itNs != rNodeDataSources.AttrEnd())
+        const xml::Attribute* pNs = rNodeDataSources.FindAttribute("namespace");
+        if (pNs)
         {
-          sNamespace = itNs->sAttrValue.AsString();
+          sNamespace = pNs->GetValue();
         }
 
-        rise::StrReplace(sNamespace, ".", "::", true);
+        StringReplace(sNamespace, ".", "::", true);
         sNamespace = sRootNs + sNamespace + "::";
 
         stInterface.sNamespace = sNamespace;
@@ -104,12 +108,14 @@ namespace codegen
         rProject.lsInterfaces.push_back(stInterface);
       }
       else
-      for (rise::xml::CXMLNode::TXMLNodeIterator itNodeDataSource = rNodeDataSources.NodeBegin();
-          itNodeDataSource != rNodeDataSources.NodeEnd(); ++itNodeDataSource)
       {
-        if (itNodeDataSource->NodeName() == "datasource")
+        for (xml::Element* pNodeDataSource = rNodeDataSources.GetFirstChildElement();
+            pNodeDataSource; pNodeDataSource = pNodeDataSource->GetNextSiblingElement())
         {
-          ParseProject(*itNodeDataSource, rProject, sRootNs);
+          if (pNodeDataSource->GetName() == "datasource")
+          {
+            ParseProject(*pNodeDataSource, rProject, sRootNs);
+          }
         }
       }
 
@@ -146,17 +152,16 @@ namespace codegen
 
   }
 
-  void DasDataSourceParser::ParseTypes(const rise::xml::CXMLNode& rNodeTypes, Project& rProject,
+  void DasDataSourceParser::ParseTypes(const xml::Element& rNodeTypes, Project& rProject,
                                         Interface& rInterface, const std::string& sNamespace)
   {
-    for (rise::xml::CXMLNode::TXMLNodeConstIterator itType = rNodeTypes.NodeBegin();
-          itType != rNodeTypes.NodeEnd(); ++itType)
+    for (const xml::Element* pType = rNodeTypes.GetFirstChildElement();
+          pType; pType = pType->GetNextSiblingElement())
     {
-      const rise::xml::CXMLNode& rNodeType = *itType;
-      const std::string& sName = rNodeType.NodeName();
+      const std::string& sName = pType->GetName();
       if (sName == "include")
       {
-        const std::string& sFileName = rNodeType.Attribute("filename");
+        const std::string& sFileName = pType->GetAttributeValue("filename");
 
         std::string::size_type nPos = sFileName.find_last_of("/\\");
         const std::string& sInterfaceFileName = (nPos != std::string::npos) ?
@@ -197,10 +202,10 @@ namespace codegen
           stInterface.sFilePath = sInterfaceFilePath;
           stInterface.sNamespace = sNamespace;
 
-          rise::LogDebug() << "including " << sFileName;
-          rise::xml::CXMLDocument tTypesDoc;
-          tTypesDoc.LoadFromFile(m_sDir + sFileName);
-          const rise::xml::CXMLNode& rNodeTypes = tTypesDoc.GetRoot();
+          LogDebug() << "including " << sFileName;
+          xml::Document tTypesDoc;
+          xml::XmlFileReader(m_sDir + sFileName).ReadDocument(tTypesDoc);
+          const xml::Element& rNodeTypes = tTypesDoc.GetRootElement();
           ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
 
           ImportInterface(rInterface, stInterface);
@@ -210,10 +215,10 @@ namespace codegen
       }
       else
       {
-        const std::string& sType = rNodeType.Attribute("type");
+        const std::string& sType = pType->GetAttributeValue("type");
         std::string sDescr;
 
-        ParseDescr(rNodeType, sDescr);
+        ParseDescr(*pType, sDescr);
 
         if (sType == "struct")
         {
@@ -223,16 +228,15 @@ namespace codegen
           stStruct.sDescr = sDescr;
           stStruct.bForward = false;
 
-          for (rise::xml::CXMLNode::TXMLNodeConstIterator itMember = itType->NodeBegin();
-                itMember != itType->NodeEnd(); ++itMember)
+          for (const xml::Element* pMember = pType->GetFirstChildElement();
+                pMember; pMember = pMember->GetNextSiblingElement())
           {
-            const rise::xml::CXMLNode& rMember = *itMember;
             Param stMember;
 
-            stMember.sName = rMember.NodeName();
-            ParseDescr(rMember, stMember.sDescr);
+            stMember.sName = pMember->GetName();
+            ParseDescr(*pMember, stMember.sDescr);
 
-            stMember.stDataType.sName = rMember.Attribute("type").AsString();
+            stMember.stDataType.sName = pMember->GetAttributeValue("type");
             FixDataType(stMember.stDataType, rInterface, sNamespace);
             stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
             OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
@@ -252,10 +256,10 @@ namespace codegen
           stTypedef.stDataType.sNamespace = "std::";
           stTypedef.stDataType.sUsedName = "std::list";
           stTypedef.stDataType.eType = DataType::TypeTemplate;
-          ParseDescr(rNodeType, stTypedef.sDescr);
+          ParseDescr(*pType, stTypedef.sDescr);
 
           DataType stItemDataType;
-          stItemDataType.sName = rNodeType.Attribute("itemtype").AsString();
+          stItemDataType.sName = pType->GetAttributeValue("itemtype");
           FixDataType(stItemDataType, rInterface, sNamespace);
           stItemDataType.sUsedName = stItemDataType.sNamespace + stItemDataType.sName;
           OptimizeCppNs(stItemDataType.sUsedName, stTypedef.sNamespace);
@@ -267,11 +271,11 @@ namespace codegen
         else
         {
           Typedef stTypedef;
-          stTypedef.sName = rNodeType.Attribute("type").AsString();
+          stTypedef.sName = pType->GetAttributeValue("type");
           stTypedef.sNamespace = sNamespace;
           stTypedef.stDataType.sName = sName;
           FixDataType(stTypedef.stDataType, rInterface, sNamespace);
-          ParseDescr(rNodeType, stTypedef.sDescr);
+          ParseDescr(*pType, stTypedef.sDescr);
           stTypedef.stDataType.sUsedName = stTypedef.stDataType.sNamespace + stTypedef.stDataType.sName;
           OptimizeCppNs(stTypedef.stDataType.sNamespace, stTypedef.sNamespace);
 
@@ -282,29 +286,29 @@ namespace codegen
   }
 
 
-  void DasDataSourceParser::ParseProject(rise::xml::CXMLNode& rDataSourceNode, Project& rProject,
+  void DasDataSourceParser::ParseProject(xml::Element& rDataSourceNode, Project& rProject,
                                          const std::string& sRootNs)
   {
     Interface stInterface;
 
     ProcessIncludes(rDataSourceNode);
 
-    stInterface.sName = rDataSourceNode.Attribute("name").AsString();
+    stInterface.sName = rDataSourceNode.GetAttributeValue("name");
 
     std::string sNamespace;
-    rise::xml::CXMLNode::TXMLAttrConstIterator itNs = rDataSourceNode.FindAttribute("namespace");
-    if (itNs != rDataSourceNode.AttrEnd())
+    const xml::Attribute* pNs = rDataSourceNode.FindAttribute("namespace");
+    if (pNs)
     {
-      sNamespace = itNs->sAttrValue.AsString();
+      sNamespace = pNs->GetValue();
     }
 
-    rise::StrReplace(sNamespace, ".", "::", true);
+    StringReplace(sNamespace, ".", "::", true);
     sNamespace = sRootNs + sNamespace + "::";
 
     stInterface.sNamespace = sNamespace;
 
     // Types
-    const rise::xml::CXMLNode& rNodeTypes = rDataSourceNode.Subnode("types");
+    const xml::Element& rNodeTypes = rDataSourceNode.GetChildElementByName("types");
     ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
 
 
@@ -316,57 +320,45 @@ namespace codegen
     ParseDescr(rDataSourceNode, stClass.sDescr);
 
     // Options
-    rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rDataSourceNode.FindSubnode("options");
-    if (itOptions != rDataSourceNode.NodeEnd())
+    xml::Element* pOptions = rDataSourceNode.FindChildElementByName("options");
+    if (pOptions)
     {
-      const rise::xml::CXMLNode& rOptions = *itOptions;
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
-           itOption != rOptions.NodeEnd(); ++itOption)
+      for (xml::Element* pOption = pOptions->GetFirstChildElement();
+           pOption; pOption = pOption->GetNextSiblingElement())
       {
-        const rise::xml::CXMLNode& rOption = *itOption;
-        if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-        {
-          stInterface.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
-        }
+        stInterface.mOptions[pOption->GetName()] = pOption->GetTextValue();
       }
     }
 
     // Operations
-    rise::xml::CXMLNode& rOperations = rDataSourceNode.Subnode("operations");
+    xml::Element& rOperations = rDataSourceNode.GetChildElementByName("operations");
     ProcessIncludes(rOperations);
-    for (rise::xml::CXMLNode::TXMLNodeConstIterator itOperation = rOperations.NodeBegin();
-          itOperation != rOperations.NodeEnd(); ++itOperation)
+    for (xml::Element* pOperation = rOperations.GetFirstChildElement();
+          pOperation; pOperation = pOperation->GetNextSiblingElement())
     {
-      if (itOperation->NodeType() == rise::xml::CXMLNode::ENTGENERIC &&
-          itOperation->NodeName() == "operation")
+      if (pOperation->GetName() == "operation")
       {
-        const rise::xml::CXMLNode& rOperation = *itOperation;
         Member stMember;
 
-        stMember.sName = rOperation.Attribute("name").AsString();
+        stMember.sName = pOperation->GetAttributeValue("name");
 
-        ParseDescr(rOperation, stMember.sDescr);
+        ParseDescr(*pOperation, stMember.sDescr);
 
         // Options
-        rise::xml::CXMLNode::TXMLNodeConstIterator itOptions = rOperation.FindSubnode("options");
-        if (itOptions != rOperation.NodeEnd())
+        xml::Element* pOptions = pOperation->FindChildElementByName("options");
+        if (pOptions)
         {
-          const rise::xml::CXMLNode& rOptions = *itOptions;
-          for (rise::xml::CXMLNode::TXMLNodeConstIterator itOption = rOptions.NodeBegin();
-               itOption != rOptions.NodeEnd(); ++itOption)
+          for (xml::Element* pOption = pOptions->GetFirstChildElement();
+               pOption; pOption = pOption->GetNextSiblingElement())
           {
-            const rise::xml::CXMLNode& rOption = *itOption;
-            if (rOption.NodeType() == rise::xml::CXMLNode::ENTGENERIC)
-            {
-              stMember.mOptions[rOption.NodeName()] = rOption.NodeContent().AsString();
-            }
+            stMember.mOptions[pOption->GetName()] = pOption->GetTextValue();
           }
         }
 
-        rise::xml::CXMLNode::TXMLNodeConstIterator itReturn = rOperation.FindSubnode("return");
-        if (itReturn != rOperation.NodeEnd())
+        xml::Element* pReturn = pOperation->FindChildElementByName("return");
+        if (pReturn)
         {
-          stMember.stReturn.stDataType.sName = itReturn->Attribute("type").AsString();
+          stMember.stReturn.stDataType.sName = pReturn->GetAttributeValue("type");
           FixDataType(stMember.stReturn.stDataType, stInterface, sNamespace);
           stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
                                                    + stMember.stReturn.stDataType.sName;
@@ -377,14 +369,14 @@ namespace codegen
           stMember.stReturn.stDataType.sName = "void";
         }
 
-        const rise::xml::CXMLNode& rParams = rOperation.Subnode("params");
-        for (rise::xml::CXMLNode::TXMLNodeConstIterator itParam = rParams.NodeBegin();
-              itParam != rParams.NodeEnd(); ++itParam)
+        const xml::Element& rParams = pOperation->GetChildElementByName("params");
+        for (const xml::Element* pParam = rParams.GetFirstChildElement();
+              pParam; pParam = pParam->GetNextSiblingElement())
         {
           Param stParam;
-          stParam.sName = itParam->NodeName();
+          stParam.sName = pParam->GetName();
 
-          stParam.stDataType.sName = itParam->Attribute("type").AsString();
+          stParam.stDataType.sName = pParam->GetAttributeValue("type");
 
           FixDataType(stParam.stDataType, stInterface, sNamespace);
           stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
@@ -411,12 +403,12 @@ namespace codegen
     rProject.lsInterfaces.push_back(stInterface);
   }
 
-  void DasDataSourceParser::ParseDescr(const rise::xml::CXMLNode& rNode, std::string& sDescr)
+  void DasDataSourceParser::ParseDescr(const xml::Element& rNode, std::string& sDescr)
   {
-    rise::xml::CXMLNode::TXMLAttrConstIterator itDescr = rNode.FindAttribute("descr");
-    if (itDescr != rNode.AttrEnd())
+    const xml::Attribute* pDescr = rNode.FindAttribute("descr");
+    if (pDescr)
     {
-      sDescr = itDescr->sAttrValue.AsString();
+      sDescr = pDescr->GetValue();
     }
   }
 
@@ -468,26 +460,31 @@ namespace codegen
     return false;
   }
 
-  void DasDataSourceParser::ProcessIncludes(rise::xml::CXMLNode& rNode)
+  void DasDataSourceParser::ProcessIncludes(xml::Element& rNode)
   {
-    for (rise::xml::CXMLNode::TXMLNodeIterator itInclude = rNode.FindSubnode("include");
-      itInclude != rNode.NodeEnd(); itInclude = rNode.FindSubnode("include", itInclude))
+    xml::Element* pChildToRemove = NULL;
+    for (xml::Element* pInclude = rNode.FindChildElementByName("include");
+      pInclude; pInclude = rNode.FindChildElementByName("include", pInclude))
     {
-      const std::string& sFileName = itInclude->Attribute("filename").AsString();
+      const std::string& sFileName = pInclude->GetAttributeValue("filename");
 
-      rise::xml::CXMLDocument tDoc;
+      xml::Document tDoc;
 
-      rise::LogDebug() << "Including file: " << (m_sDir + sFileName);
-      tDoc.LoadFromFile(m_sDir + sFileName);
+      LogDebug() << "Including file: " << (m_sDir + sFileName);
+      xml::XmlFileReader(m_sDir + sFileName).ReadDocument(tDoc);
 
-      const rise::xml::CXMLNode& rNodeTypes = tDoc.GetRoot();
-      for (rise::xml::CXMLNode::TXMLNodeConstIterator itChild = rNodeTypes.NodeBegin();
-            itChild != rNodeTypes.NodeEnd(); ++itChild)
+      xml::Element& rNodeTypes = tDoc.GetRootElement();
+      xml::Element* pNextChild = NULL;
+      for (xml::Element* pChild = rNodeTypes.GetFirstChildElement();
+            pChild; pChild = pNextChild)
       {
-        rNode.AddSubNode("") = *itChild;
+        pNextChild = pChild->GetNextSiblingElement();
+        rNode.AppendChild(pChild->Detach());
       }
 
-      rNode.DelSubNode(itInclude++);
+      pChildToRemove = pInclude;
+      pInclude = pInclude->GetNextSiblingElement();
+      rNode.RemoveChild(pChildToRemove);
     }
 
   }

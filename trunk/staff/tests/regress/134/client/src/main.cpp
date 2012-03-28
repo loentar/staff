@@ -2,29 +2,15 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
-#include <signal.h>
-#include <execinfo.h>
 #include <memory>
 #include <axutil_thread.h>
 #include <axis2_util.h>
-#include <rise/common/Log.h>
-#include <rise/tools/StackTracer.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/CrashHandler.h>
 #include <staff/common/DataObject.h>
-#include <staff/client/ICallback.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Echo.h"
-
-static void OnSignal(int nSignal)
-{
-  if (nSignal == SIGSEGV || nSignal == SIGABRT)
-  {
-    std::string sTracedStack;
-    rise::tools::CStackTracer::StackTraceStr(sTracedStack);
-    rise::LogError() << "Segmentation fault.\nTraced stack:\n" << sTracedStack;
-    exit(1);
-  }
-}
 
 void* Run(axutil_thread_t*, void*)
 {
@@ -33,10 +19,10 @@ void* Run(axutil_thread_t*, void*)
     for (int i = 0; i < 30; ++i)
     {
       std::auto_ptr< Echo > pEcho(::staff::ServiceFactory::Inst().GetService< Echo >());
-      RISE_ASSERTS(pEcho.get(), "Cannot get client for service echo!");
+      STAFF_ASSERT(pEcho.get(), "Cannot get client for service echo!");
     }
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return NULL;
 }
@@ -47,9 +33,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   static const int nThreadCount = 30;
   axutil_thread_t* pThread[nThreadCount];
 
-  signal(SIGSEGV, OnSignal);
-  signal(SIGABRT, OnSignal);
-
+  staff::CrashHandler::Enable();
 
   axutil_env_t *env = NULL;
   env = axutil_env_create_all("echo_blocking_test.log", AXIS2_LOG_LEVEL_TRACE);
@@ -70,7 +54,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     axutil_thread_join(pThread[nTh]);
   }
 
-  rise::LogInfo() << "Done";
+  staff::LogInfo() << "Done";
   AXIS2_SLEEP(1);
 
   return 0;

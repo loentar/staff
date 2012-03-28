@@ -25,58 +25,54 @@
 #include "staffcomponentexport.h"
 #include <string>
 
-namespace rise
+namespace staff
 {
   namespace xml
   {
-    class CXMLNode;
+    class Element;
   }
-}
 
-
-namespace staff
-{
   //!  Component config
   class STAFF_COMPONENT_EXPORT ComponentConfig
   {
   public:
-    //!         destructor
+    //! destructor
     ~ComponentConfig();
 
-    //!         get component name
+    //! get component name
     /*! \return component name
     */
     const std::string& GetComponent() const;
 
-    //!         get config file name
+    //! get config file name
     /*! \return config file name
     */
     const std::string& GetConfig() const;
 
-    //!         reload config
+    //! reload config
     /*! \param  bCreate - create new config, if no config found
         \return xml-config
         */
-    rise::xml::CXMLNode& ReloadConfig(bool bCreate = false);
+    xml::Element& ReloadConfig(bool bCreate = false);
     
-    //!         save config
+    //! save config
     void SaveConfig();
 
-    //!         get config
+    //! get config
     /*! \return config
     */
-    rise::xml::CXMLNode& Config();
+    xml::Element& Config();
     
-    //!         get config
+    //! get config
     /*! \return config
     */
-    const rise::xml::CXMLNode& Config() const;
+    const xml::Element& Config() const;
 
   protected:
-    //!         protected constructor
+    //! protected constructor
     ComponentConfig();
 
-    //!         internal initialization
+    //! internal initialization
     void Init(const std::string& sComponent, const std::string& sConfig, bool bCreate);
 
   private:
@@ -87,10 +83,6 @@ namespace staff
     ComponentConfigImpl* m_pImpl;
     friend class ComponentConfigManager;
   };
-
-#ifndef STAFF_NO_DEPRECATED
-  STAFF_DEPRECATED(ComponentConfig) typedef ComponentConfig CComponentConfig;
-#endif
 
 }
 
