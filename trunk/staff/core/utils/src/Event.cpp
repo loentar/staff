@@ -95,7 +95,7 @@ namespace staff
       }
 
 #if defined __APPLE__ || defined __FreeBSD__
-      while ((nResult = sem_trywait(pThreadEvent) == -1) &&
+      while ((nResult = sem_trywait(&m_pImpl->hEvent) == -1) &&
              (errno == EINTR || errno == EAGAIN) && (ulTimeout != 0))
       {
         usleep(1000 * ulTimeout);

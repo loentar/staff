@@ -20,10 +20,16 @@ ifeq ($(LINUX_RELEASE),MCBC)
   CXXFLAGS += -DPTHREAD_VERSION_MAJOR=$(PTHREAD_VERSION_MAJOR) -DPTHREAD_VERSION_MINOR=$(PTHREAD_VERSION_MINOR)
 endif
 
+ICONV_INCLUDE="\#include <iconv.h>"
 
 # detect iconv usability
-WITH_ICONV := $(shell echo "\#include <iconv.h>" | LANG=C `gcc -print-prog-name=cc1plus` >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
+WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
+ifeq ($(OS),FreeBSD)
+ifneq ($(WITH_ICONV),)
+LDFLAGS += -liconv
+endif
+endif
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

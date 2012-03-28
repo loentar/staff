@@ -21,7 +21,6 @@
 
 
 #if defined __linux__
-
 #include <dlfcn.h>
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -31,7 +30,6 @@
 #include <bfd.h>
 #include <limits.h>
 #include <string.h>
-//#include "DynamicLibrary.h"
 #elif defined WIN32
 #include <windows.h>
 #include <imagehlp.h>
@@ -379,7 +377,7 @@ namespace staff
 
   void StackTracer::GetStackTraceStr(std::string& sResult, unsigned nMaxDepth, unsigned nSkip)
   {
-#ifndef WIN32
+#if defined __linux__
     Dl_info tDlInfo;
     void** pAddresses = new void*[nMaxDepth];
     unsigned nAddressesSize = backtrace(pAddresses, nMaxDepth);
@@ -560,8 +558,6 @@ namespace staff
     {
       free(pContext);
     }
-#else
-#error unsupported arch
 #endif
 
     LogDebug3() << "done tracing stack(list)";
