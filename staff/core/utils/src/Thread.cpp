@@ -153,26 +153,18 @@ namespace staff
 
   unsigned long Thread::GetCurrentId()
   {
-#ifndef __FreeBSD__
-    return static_cast<unsigned long>(
+    return reinterpret_cast<unsigned long>(
 #ifdef WIN32
       GetCurrentThread()
 #else
       pthread_self()
 #endif
     );
-#else
-    return reinterpret_cast<unsigned long>(pthread_self());
-#endif
   }
 
   unsigned long Thread::GetId() const
   {
-#ifndef __FreeBSD__
-    return static_cast<unsigned long>(m_pImpl->hThread);
-#else
-    return reinterpret_cast<unsigned long>(pthread_self());
-#endif
+    return reinterpret_cast<unsigned long>(m_pImpl->hThread);
   }
 
   void Thread::Exit()

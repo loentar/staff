@@ -82,7 +82,7 @@ namespace staff
         if (!IsDots(pstDirent->d_name) &&
             !fnmatch(sMask.c_str(), pstDirent->d_name, 0) &&
             !lstat(((m_sPath + "/") + pstDirent->d_name).c_str(), &stStat) &&
-            (stStat.st_mode & nMask) != 0)
+            (stStat.st_mode & nMask) == stStat.st_mode)
         {
           rList.push_back(pstDirent->d_name);
         }

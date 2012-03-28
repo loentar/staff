@@ -9,7 +9,10 @@ endif
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
-  LDFLAGS += -ldl -lbfd
+  LDFLAGS += -ldl
+ifneq ($(OS),Darwin)
+  LDFLAGS += -lbfd
+endif
 endif
 endif
 
@@ -25,8 +28,11 @@ ICONV_INCLUDE="\#include <iconv.h>"
 # detect iconv usability
 WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
-ifeq ($(OS),FreeBSD)
 ifneq ($(WITH_ICONV),)
+ifeq ($(OS),FreeBSD)
+LDFLAGS += -liconv
+endif
+ifeq ($(OS),Darwin)
 LDFLAGS += -liconv
 endif
 endif

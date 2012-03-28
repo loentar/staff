@@ -87,10 +87,10 @@ namespace staff
       return false;
     }
 
-#if defined _LIBICONV_VERSION
-    const char* szSrc = const_cast<char*>(szSource);
+#if defined _LIBICONV_VERSION && _LIBICONV_VERSION >= 0x010D
+    const char* szSrc = szSource;
 #else
-    char* szSrc = szSource;
+    char* szSrc = const_cast<char*>(szSource);
 #endif
     size_t nSrcSize = static_cast<size_t>(nSourceSize);
     size_t nOut = nResultSize;
@@ -125,7 +125,7 @@ namespace staff
     char szOutBuff[nOutBuffSize];
     size_t nOut = nOutBuffSize;
 
-#if defined _LIBICONV_VERSION
+#if defined _LIBICONV_VERSION && _LIBICONV_VERSION >= 0x010D
     const char* szSrc = sSource.data();
     const char* szSrcCurr = NULL;
 #else
