@@ -19,7 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifndef WIN32
 #include <dlfcn.h>
+#endif
 #include "Exception.h"
 #include "Error.h"
 #include "DynamicLibrary.h"

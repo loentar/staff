@@ -87,7 +87,11 @@ namespace staff
       return false;
     }
 
-    char* szSrc = const_cast<char*>(szSource);
+#if defined _LIBICONV_VERSION
+    const char* szSrc = const_cast<char*>(szSource);
+#else
+    char* szSrc = szSource;
+#endif
     size_t nSrcSize = static_cast<size_t>(nSourceSize);
     size_t nOut = nResultSize;
     size_t nRet = iconv(m_pIconv, &szSrc, &nSrcSize, &szResult, &nOut);
@@ -121,8 +125,13 @@ namespace staff
     char szOutBuff[nOutBuffSize];
     size_t nOut = nOutBuffSize;
 
+#if defined _LIBICONV_VERSION
+    const char* szSrc = sSource.data();
+    const char* szSrcCurr = NULL;
+#else
     char* szSrc = const_cast<char*>(sSource.data());
     char* szSrcCurr = NULL;
+#endif
     size_t nSrcSize = sSource.size();
     size_t nSrcPos = 0;
     size_t nSrcCurrSize = 0;
