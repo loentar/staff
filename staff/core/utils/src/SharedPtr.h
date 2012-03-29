@@ -93,6 +93,17 @@ namespace staff
       return *this;
     }
 
+    //! initializer to other type
+    /*! \param  pData - data
+        \return
+      */
+    template <typename OtherType>
+    inline SharedPtr<Type>& operator=(OtherType* pData)
+    {
+      Set(static_cast<Type*>(pData));
+      return *this;
+    }
+
     inline SharedPtr& operator=(const SharedPtr& rPtr)
     {
       Set(rPtr.m_pData, rPtr.m_pCounter);

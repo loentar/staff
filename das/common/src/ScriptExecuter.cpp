@@ -21,6 +21,7 @@
 
 #include <string>
 #include <map>
+#include <exception>
 #include <staff/utils/Log.h>
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/tostring.h>
@@ -108,6 +109,11 @@ namespace das
         if (sOperator == "fault")
         {
           ProcessFault(rdoContext, *pOperator);
+        }
+        else
+        if (sOperator == "trycatch")
+        {
+          ProcessTryCatch(rdoContext, *pOperator, rReturnType, rdoResult);
         }
         else
         {
@@ -553,6 +559,30 @@ namespace das
                   "] in datasource [" + m_rDataSource.GetName() +
                   "]: " + Eval(rdoContext, rScript.GetValue()));
     }
+
+    void ProcessTryCatch(const DataObject& rdoContext, const xml::Element& rScript,
+                         const DataType& rReturnType, DataObject& rdoResult)
+    {
+      const xml::Element& rTry = rScript.GetChildElementByName("try");
+      const xml::Element& rCatch = rScript.GetChildElementByName("catch");
+
+      try
+      {
+        ProcessSequence(rdoContext, rTry, rReturnType, rdoResult);
+      }
+      catch (const std::exception& rEx)
+      {
+        const xml::Attribute* pAttrVar = rCatch.FindAttribute("var");
+        if (pAttrVar)
+        {
+          Var& rVar = m_mVars[pAttrVar->GetValue()];
+          rVar.tType.eType = DataType::Generic;
+          rVar.sValue = rEx.what();
+        }
+        ProcessSequence(rdoContext, rCatch, rReturnType, rdoResult);
+      }
+    }
+
 
     void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult)
     {

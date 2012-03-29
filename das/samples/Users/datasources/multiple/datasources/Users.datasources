@@ -156,6 +156,25 @@
         <execute>GetUserSvc(nId=$(nId))</execute>
       </operation>
 
+      <operation name="GetUserIdByName_1" descr="get user id returning -1 on error">
+        <params>
+          <sName type="string" />
+        </params>
+        <return type="int" />
+        <script>
+          <trycatch>
+            <try>
+              <execute>GetUserIdByName(sName=$(sName))</execute>
+            </try>
+            <!-- variable name is optional -->
+            <catch var="ex">
+              <log>exception occured: "${ex}". Returning 1 as result</log>
+              <return>-1</return>
+            </catch>
+          </trycatch>
+        </script>
+      </operation>
+
       <operation name="GetAllUsers">
         <params/>
         <return type="UsersList" />

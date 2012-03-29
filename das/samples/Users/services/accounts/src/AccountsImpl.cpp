@@ -317,12 +317,12 @@ Role AccountsImpl::GetUserSvc(int nId)
   Role stResult;
 
   // get datasource's proxy
-  if (m_tpUsersDatasource.IsNull())
+  if (!m_tpUsersDatasource)
   {
     m_tpUsersDatasource = staff::das::samples::ServiceFactory::Inst().GetService("staff.das.samples.Users", this);
   }
 
-  STAFF_ASSERT(!m_tpUsersDatasource.IsNull(), "failed to get datasource");
+  STAFF_ASSERT(m_tpUsersDatasource, "failed to get datasource");
 
   staff::das::samples::User stUser = m_tpUsersDatasource->GetUser(nId);
 

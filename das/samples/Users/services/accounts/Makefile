@@ -47,7 +47,7 @@ ifneq ($(DEBUG),)
 endif
 
 ifneq ($(STAFF_HOME),)
-  CXXFLAGS +=
+  CXXFLAGS += -I$(STAFF_HOME)/include
   LDFLAGS += -L$(STAFF_HOME)/lib
   STAFF_CODEGEN = $(STAFF_HOME)/bin/staff_codegen
   INSTALLDIR = $(STAFF_HOME)/components/
