@@ -28,7 +28,7 @@ namespace binarydata
   protected:
     void GenerateKey(unsigned uSourceKey, staff::ByteArray& rResult);
     bool ValidateKey(const staff::ByteArray& rResult);
-    short Checksum(const staff::byte* pData, unsigned long ulSize);
+    short Checksum(const std::string& sBuffer);
 
   private:
     static const std::string m_sSignature;

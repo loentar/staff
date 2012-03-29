@@ -70,7 +70,7 @@ ifeq ($(LINUX_VERSION),debian)
 	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 	test -z "$(DEBUG)" || rm -f /tmp/axis2services_debug_*.log
-	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart
+	-/etc/init.d/apache2 status >/dev/null 2>&1 && /etc/init.d/apache2 restart &
 else
 ifeq ($(APXS),/www/bin/apxs)
 	mkdir -p /www/conf/mods-enabled/

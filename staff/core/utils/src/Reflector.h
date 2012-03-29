@@ -57,6 +57,17 @@ namespace staff
       return DecodeTypeName(typeid(tType).name());
     }
 
+    //! get allocated type name
+    /*! returns allocated type name, that may be inherited from base type
+        \param  pType - pointer to base type, can't be NULL
+        \return decoded type name. Namespace is delimited by dot
+      */
+    template <typename Type>
+    inline static std::string GetTypeName(Type* pType)
+    {
+      return DecodeTypeName(typeid(*pType).name());
+    }
+
     //! decode type name
     /*! \param  szName - name
         \return decoded type name. Namespace is delimited by dot

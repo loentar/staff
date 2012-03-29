@@ -23,6 +23,7 @@
 #if defined __GNUC__
 #include <cxxabi.h>
 #endif
+#include <string.h>
 #include "Reflector.h"
 #include "Exception.h"
 
@@ -37,13 +38,11 @@ namespace staff
     int nStatus = 0;
     char* szDemangled = abi::__cxa_demangle(szName, 0, 0, &nStatus);
     STAFF_ASSERT(!nStatus && szDemangled, "Symbol demangling failed: [" + std::string(szName) + "]");
-#if defined __MINGW32__
     char* szEnd = strchr(szDemangled, '*');
     if (szEnd)
     {
       *szEnd = '\0';
     }
-#endif
     sResult = szDemangled;
     delete szDemangled;
 #elif defined _MSC_VER
