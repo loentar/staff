@@ -67,9 +67,18 @@ int main(int, char**)
   {
     STAFF_ASSERT_PARAM(staff::File(".").GetAttributes() == staff::File::AttributeDirectory);
     STAFF_ASSERT_PARAM(staff::File("src").GetAttributes() == staff::File::AttributeDirectory);
-    STAFF_ASSERT_PARAM(staff::File("Makefile").GetAttributes() == staff::File::AttributeFile);
-    STAFF_ASSERT_PARAM(staff::File("Makefile").GetAttributes() == staff::File::AttributeRegularFile);
+    STAFF_ASSERT_PARAM((staff::File("Makefile").GetAttributes() & staff::File::AttributeAnyFile) == staff::File::AttributeRegularFile);
+    STAFF_ASSERT_PARAM((staff::File("Makefile").GetAttributes() & staff::File::AttributeRegularFile) == staff::File::AttributeRegularFile);
     STAFF_ASSERT_PARAM(staff::File("non exsiting file or dir").GetAttributes() == staff::File::AttributeNone);
+
+    staff::File("src").List(lsFiles, "*", staff::File::AttributeRegularFile);
+    STAFF_ASSERT_PARAM(!lsFiles.empty());
+
+    staff::File("src").List(lsFiles, "_*", staff::File::AttributeDirectory);
+    STAFF_ASSERT_PARAM(lsFiles.empty());
+
+    staff::File(".").List(lsFiles, "*", staff::File::AttributeDirectory);
+    STAFF_ASSERT_PARAM(!lsFiles.empty());
   }
   STAFF_CATCH_ALL;
 

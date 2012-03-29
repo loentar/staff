@@ -56,12 +56,12 @@ namespace staff
       const std::string sComponentsDir = Runtime::Inst().GetComponentsHome();
       SharedContext& rSharedContext = SharedContext::Inst();
       StringList lsComponentDirs;
-      
+
       // find directories with components
       File(sComponentsDir).List(lsComponentDirs, "*", File::AttributeDirectory);
-      if (lsComponentDirs.size() == 0)
+      if (lsComponentDirs.empty())
       {
-        LogDebug() << "components is not found";
+        LogDebug() << "no components found";
       }
 
       for (StringList::const_iterator itDir = lsComponentDirs.begin();
@@ -70,7 +70,11 @@ namespace staff
         // finding libraries with components
         StringList lsComponents;
         std::string sComponentDir = sComponentsDir + STAFF_PATH_SEPARATOR + *itDir + STAFF_PATH_SEPARATOR;
+#if defined __APPLE__
         File(sComponentDir).List(lsComponents, "*" STAFF_LIBRARY_EXT, File::AttributeRegularFile);
+#else
+        File(sComponentDir).List(lsComponents, "*" STAFF_LIBRARY_EXT, File::AttributeAnyFile);
+#endif
         for (StringList::const_iterator itComponent = lsComponents.begin();
                 itComponent != lsComponents.end(); ++itComponent)
         {
