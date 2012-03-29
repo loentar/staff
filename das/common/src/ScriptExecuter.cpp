@@ -293,6 +293,30 @@ namespace das
           STAFF_THROW_ASSERT("Unknown executor type");
       }
 
+      const xml::Attribute* pAttr = rScript.FindAttribute("result");
+      if (pAttr)
+      {
+        const std::string& sValue = pAttr->GetValue();
+        if (sValue == "required")
+        {
+          STAFF_ASSERT(!rdoResult.IsTextNull() || !rdoResult.FirstChild().IsNull(),
+                       "Empty result, when result is required");
+        }
+        else
+        {
+          STAFF_ASSERT(sValue == "optional", "Invalid \"result\" attribute value. "
+                       "Valid values are: \"optional\"(default), \"required\"");
+        }
+      }
+
+      pAttr = rScript.FindAttribute("trim");
+      if (pAttr && pAttr->GetValue() == "true" && !rdoResult.IsTextNull())
+      {
+        std::string sText = rdoResult.GetText();
+        StringTrim(sText);
+        rdoResult.SetText(sText);
+      }
+
     }
 
     void ProcessVar(const DataObject& rdoContext, const xml::Element& rScript)
