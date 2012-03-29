@@ -19,11 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef WIN32
-#include <errno.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
-#endif
 #include <iostream>
 #include <fstream>
 #include <list>

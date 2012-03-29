@@ -4,7 +4,7 @@ TARGET = echo_custom_client_blocking_auth
 TARGETNAME = $(TARGET)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
-LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffcommon -lstaffclient
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
