@@ -79,14 +79,14 @@ namespace staff
       unsigned nMask =
           ((nAttrs & AttributeDirectory) ? S_IFDIR : 0) |
           ((nAttrs & AttributeRegularFile) ? S_IFREG : 0) |
-          ((nAttrs & AttributeOtherFile) ? (~(S_IFREG | S_IFDIR)) : 0);
+          ((nAttrs & AttributeOtherFile) ? (S_IFMT & (~(S_IFREG | S_IFDIR))) : 0);
 
       while((pstDirent = readdir(pDir)) != NULL)
       {
         if (!IsDots(pstDirent->d_name) &&
             !fnmatch(sMask.c_str(), pstDirent->d_name, 0) &&
             !lstat(((m_sPath + "/") + pstDirent->d_name).c_str(), &stStat) &&
-            (stStat.st_mode & nMask) == stStat.st_mode)
+            (stStat.st_mode & nMask) == (stStat.st_mode & S_IFMT))
         {
           rList.push_back(pstDirent->d_name);
         }
