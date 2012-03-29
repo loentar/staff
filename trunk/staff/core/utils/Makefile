@@ -36,6 +36,9 @@ ifeq ($(OS),Darwin)
 LDFLAGS += -liconv
 endif
 endif
+ifeq ($(OS),MINGW)
+LDFLAGS += -limagehlp
+endif
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

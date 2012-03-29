@@ -21,6 +21,7 @@
 
 #include <sys/stat.h>
 #include <errno.h>
+#include <string.h>
 #ifdef WIN32
 #include <direct.h>
 #include <io.h>
@@ -28,7 +29,6 @@
 #include <unistd.h>
 #include <fnmatch.h>
 #include <dirent.h>
-#include <string.h>
 #endif
 #include "Exception.h"
 #include "File.h"

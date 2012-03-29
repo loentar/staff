@@ -67,7 +67,11 @@ namespace staff
 
   inline bool ToCString(long long llValue, char* szBuffer, int nBufferSize)
   {
+#ifdef WIN32
+    return staff_snprintf(szBuffer, nBufferSize, "%I64d", llValue) < nBufferSize;
+#else
     return staff_snprintf(szBuffer, nBufferSize, "%lld", llValue) < nBufferSize;
+#endif
   }
 
 
@@ -93,7 +97,11 @@ namespace staff
 
   inline bool ToCString(unsigned long long ullValue, char* szBuffer, int nBufferSize)
   {
+#ifdef WIN32
+    return staff_snprintf(szBuffer, nBufferSize, "%I64u", ullValue) < nBufferSize;
+#else
     return staff_snprintf(szBuffer, nBufferSize, "%llu", ullValue) < nBufferSize;
+#endif
   }
 
 
@@ -130,7 +138,11 @@ namespace staff
 
   inline bool ToHexCString(unsigned long long ullValue, char* szBuffer, int nBufferSize)
   {
+#ifdef WIN32
+    return staff_snprintf(szBuffer, nBufferSize, "0x%I64x", ullValue) < nBufferSize;
+#else
     return staff_snprintf(szBuffer, nBufferSize, "0x%llx", ullValue) < nBufferSize;
+#endif
   }
 
   inline bool ToHexCString(const void* pAddr, char* szBuffer, int nBufferSize)

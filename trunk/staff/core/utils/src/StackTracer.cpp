@@ -300,13 +300,7 @@ namespace staff
       IMAGEHLP_LINE stLine;
       IMAGEHLP_MODULE stModule;
 
-#if defined _WIN64
-      LogError() << szAddrHex, sizeof(szAddrHex), "0x%016x", reinterpret_cast<DWORD64>(pAddr);
-#elif defined WIN32
-      LogError() << szAddrHex, sizeof(szAddrHex), "0x%08x", pAddr;
-#else
-#error unsupported arch
-#endif
+      ToCString(pAddr, szAddrHex, sizeof(szAddrHex));
       sResult.append(szAddrHex).append(" ");
 
       // context
@@ -544,7 +538,7 @@ namespace staff
     while (StackWalk(machType, hProc, hThread, &tStackFrame, pContext, NULL,
                       SymFunctionTableAccess, SymGetModuleBase, NULL))
     {
-      if (nSkip >= 0)
+      if (nSkip > 0)
       {
         --nSkip;
       }

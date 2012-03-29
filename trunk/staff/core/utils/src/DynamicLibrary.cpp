@@ -88,7 +88,11 @@ namespace staff
 
       void* pSym =
 #ifdef WIN32
+#ifdef __MINGW32__
+        reinterpret_cast<void*>(GetProcAddress(reinterpret_cast<HMODULE>(m_pDynLib), sSymName.c_str()));
+#else
         GetProcAddress(reinterpret_cast<HMODULE>(m_pDynLib), sSymName.c_str());
+#endif
 #else
         dlsym(m_pDynLib, sSymName.c_str());
 #endif

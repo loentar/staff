@@ -7,7 +7,7 @@ HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
 
 CXXFLAGS += -I$(DEPLOYDIR)include
-LDFLAGS += -L$(DEPLOYDIR)lib -lstaffcommon -lstaffclient
+LDFLAGS += -L$(DEPLOYDIR)lib -lstaffutils -lstaffcommon -lstaffclient
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
