@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_utils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -147,7 +147,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_utils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -186,7 +186,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -225,7 +225,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_utils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -266,7 +266,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -306,7 +306,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib"
+				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_utils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -356,19 +356,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Config.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\DataObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DataObjectHelper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Exception.cpp"
 				>
 			</File>
 			<File
@@ -414,15 +402,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Config.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\DataObject.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DataObjectHelper.h"
 				>
 			</File>
 			<File

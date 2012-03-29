@@ -19,6 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include <iostream>
 #include "console.h"
 

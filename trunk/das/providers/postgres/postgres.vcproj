@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -80,7 +80,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -126,7 +126,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -214,7 +214,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -254,7 +254,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -295,7 +295,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -336,7 +336,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"

@@ -23,11 +23,13 @@
 #ifndef _STAFF_UTILS_CRASHHANDLER_H_
 #define _STAFF_UTILS_CRASHHANDLER_H_
 
+#include "staffutilsexport.h"
+
 namespace staff
 {
   
   //! crash handler class
-  class CrashHandler
+  class STAFF_UTILS_EXPORT CrashHandler
   {
   public:
     //! enable stack tracing on crash

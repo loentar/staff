@@ -35,13 +35,15 @@
 namespace staff
 {
 
+#ifdef WIN32
+#define HThread HANDLE
+#else
+#define HThread pthread_t
+#endif
+
   struct Thread::ThreadImpl
   {
-#ifdef WIN32
-    HANDLE hThread;
-#else
-    pthread_t hThread;
-#endif
+    HThread hThread;
     Mutex tMutex;
     bool bStopping;
 
@@ -51,7 +53,7 @@ namespace staff
     }
 
 #ifdef WIN32
-    static DWORD InternalRun(LPVOID pParam)
+    static DWORD WINAPI InternalRun(LPVOID pParam)
 #else
     static void* InternalRun(void* pParam)
 #endif
@@ -130,7 +132,7 @@ namespace staff
     m_pImpl->bStopping = false;
 #ifdef WIN32
     DWORD dwTreadId;
-    m_pImpl->hThread = CreateThread(NULL, 0, ThreadImpl::InternalRun, this, 0, &dwTreadId);
+    m_pImpl->hThread = CreateThread(NULL, 0, &ThreadImpl::InternalRun, this, 0, &dwTreadId);
     return m_pImpl->hThread != 0;
 #else
     pthread_attr_t tAttr;
@@ -199,7 +201,7 @@ namespace staff
 
   void Thread::Join()
   {
-    pthread_t hThread = 0;
+    HThread hThread = 0;
     {
       ScopedLock tLock(m_pImpl->tMutex);
       if (!m_pImpl->IsRunning())
@@ -219,7 +221,7 @@ namespace staff
   bool Thread::Wait(unsigned long ulTimeout)
   {
     m_pImpl->tMutex.Lock();
-    pthread_t hThread = m_pImpl->hThread; // this handle is always valid
+    HThread hThread = m_pImpl->hThread; // this handle is always valid
     m_pImpl->tMutex.Unlock();
 
     if (!hThread)
@@ -284,7 +286,7 @@ namespace staff
   void Thread::Sleep(unsigned long ulTimeout)
   {
 #ifdef WIN32
-    Sleep(ulTimeout);
+    ::Sleep(ulTimeout);
 #else
     usleep(ulTimeout * 1000);
 #endif

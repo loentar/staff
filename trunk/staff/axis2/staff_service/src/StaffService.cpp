@@ -24,6 +24,9 @@
 #pragma warning(disable: 4091)
 #endif
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include <axis2_svc_skeleton.h>
 #include <axis2_conf.h>
 #include <axutil_array_list.h>

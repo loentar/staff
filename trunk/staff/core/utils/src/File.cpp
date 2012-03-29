@@ -19,18 +19,23 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <sys/stat.h>
+#include <errno.h>
 #ifdef WIN32
+#include <direct.h>
 #include <io.h>
 #else
-#include <sys/stat.h>
 #include <unistd.h>
 #include <fnmatch.h>
 #include <dirent.h>
 #include <string.h>
-#include <errno.h>
 #endif
 #include "Exception.h"
 #include "File.h"
+
+#ifdef WIN32
+#define stat _stat
+#endif
 
 namespace staff
 {
@@ -52,12 +57,11 @@ namespace staff
     {
       unsigned nMask =
           ((nAttrs & AttributeDirectory) ? _A_SUBDIR : 0) |
-          ((nAttrs & AttributeRegularFile) ? _A_FILE : 0) |
-          ((nAttrs & AttributeOtherFile) ? (~(_A_FILE | _A_SUBDIR)) : 0);
+          ((nAttrs & AttributeAnyFile) ? ~_A_SUBDIR : 0);
 
       do
       {
-        if (!IsDots(pstDirent->d_name) && ((stSearchData.attrib & nMask) != 0))
+        if (!IsDots(stSearchData.name) && ((stSearchData.attrib & nMask) != 0))
         {
           rList.push_back(stSearchData.name);
         }

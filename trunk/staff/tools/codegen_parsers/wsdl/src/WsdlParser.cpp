@@ -1958,9 +1958,9 @@ namespace codegen
     void WriteAttributesToStruct(const std::list<Attribute>& rlsAttrs, Struct& rstStruct,
                                  const std::string& sGroupName = "")
     {
-      for (std::list<Attribute>::const_iterator pAttr = rlsAttrs.begin(); pAttr != rlsAttrs.end(); ++pAttr)
+      for (std::list<Attribute>::const_iterator itAttr = rlsAttrs.begin(); itAttr != rlsAttrs.end(); ++itAttr)
       {
-        const Attribute* pAttr = &*pAttr;
+        const Attribute* pAttr = &*itAttr;
         bool bIsAttrOptional = pAttr->bIsOptional;
         while (pAttr->bIsRef)
         {
@@ -2464,10 +2464,10 @@ namespace codegen
 
         WriteAttributesToStruct(rComplexType.lsAttributes, *pstStruct);
 
-        for (std::list<AttributeGroup>::const_iterator pAttrGroup = rComplexType.lsAttributeGroups.begin();
-          pAttrGroup != rComplexType.lsAttributeGroups.end(); ++pAttrGroup)
+        for (std::list<AttributeGroup>::const_iterator itAttrGroup = rComplexType.lsAttributeGroups.begin();
+          itAttrGroup != rComplexType.lsAttributeGroups.end(); ++itAttrGroup)
         {
-          const AttributeGroup* pAttrGroup = &*pAttrGroup;
+          const AttributeGroup* pAttrGroup = &*itAttrGroup;
           while (pAttrGroup->bIsRef)
           {
             AttributeGroupMap::const_iterator itTargetElem =

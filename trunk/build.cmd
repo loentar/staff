@@ -66,7 +66,7 @@ if "%VSINSTALLDIR%" == "" (
   )
 )
 
-echo %build%ing log... >%buildlog%
+echo Build type: "%build%" >%buildlog%
 
 if %VSVERSION% equ 2005 goto skip_upgrade
 
@@ -99,7 +99,7 @@ rem ========== staff ===========
 
 echo %build%ing staff...
 echo %build%ing staff... >>%buildlog%
-cd ..\staff
+cd staff
 
 devenv /%build% %target% staff.sln >>%buildlog%
 if %ERRORLEVEL% gtr 0 (
