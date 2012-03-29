@@ -33,7 +33,7 @@
       <operation name="GetUname" descr="get certain system information">
         <params/>
         <return type="string" />
-        <execute>uname -a</execute>
+        <execute trim="true">uname -a</execute>
       </operation>
 
       <operation name="GetMemStat" descr="get memory status">

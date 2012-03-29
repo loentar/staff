@@ -161,7 +161,7 @@
           <nId type="int" />
         </params>
         <return type="User" />
-        <execute>SELECT "id", "name", "description" FROM "users" WHERE "id" = $(nId)</execute>
+        <execute result="required">SELECT "id", "name", "description" FROM "users" WHERE "id" = $(nId)</execute>
       </operation>
 
       <operation name="GetAllUsers">
