@@ -225,77 +225,77 @@ namespace xml
 
   Value::operator double() const
   {
-    float dValue = 0;
+    double dValue = 0;
     FromString(m_sValue, dValue);
     return dValue;
   }
 
   Value::operator byte() const
   {
-    float btValue = 0;
+    byte btValue = 0;
     FromString(m_sValue, btValue);
     return btValue;
   }
 
   Value::operator int() const
   {
-    float nValue = 0;
+    int nValue = 0;
     FromString(m_sValue, nValue);
     return nValue;
   }
 
   Value::operator short() const
   {
-    float shValue = 0;
+    short shValue = 0;
     FromString(m_sValue, shValue);
     return shValue;
   }
 
   Value::operator long() const
   {
-    float lValue = 0;
+    long lValue = 0;
     FromString(m_sValue, lValue);
     return lValue;
   }
 
   Value::operator long long() const
   {
-    float llValue = 0;
+    long long llValue = 0;
     FromString(m_sValue, llValue);
     return llValue;
   }
 
   Value::operator unsignedByte() const
   {
-    float ubtValue = 0;
+    unsignedByte ubtValue = 0;
     FromString(m_sValue, ubtValue);
     return ubtValue;
   }
 
   Value::operator unsigned int() const
   {
-    float unValue = 0;
+    unsigned int unValue = 0;
     FromString(m_sValue, unValue);
     return unValue;
   }
 
   Value::operator unsigned short() const
   {
-    float ushValue = 0;
+    unsigned short ushValue = 0;
     FromString(m_sValue, ushValue);
     return ushValue;
   }
 
   Value::operator unsigned long() const
   {
-    float ulValue = 0;
+    unsigned long ulValue = 0;
     FromString(m_sValue, ulValue);
     return ulValue;
   }
 
   Value::operator unsigned long long() const
   {
-    float ullValue = 0;
+    unsigned long long ullValue = 0;
     FromString(m_sValue, ullValue);
     return ullValue;
   }

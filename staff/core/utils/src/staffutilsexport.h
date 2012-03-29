@@ -27,10 +27,13 @@
     #pragma warning(disable: 4786 4251 4521)
   #endif
 
+  #define STAFF_DLL_EXPORT __declspec(dllexport)
+  #define STAFF_DLL_IMPORT __declspec(dllimport) 
+
   #ifdef STAFF_UTILS_DLL_EXPORTS
-    #define STAFF_UTILS_EXPORT __declspec(dllexport)
+    #define STAFF_UTILS_EXPORT STAFF_DLL_EXPORT
   #else
-    #define STAFF_UTILS_EXPORT __declspec(dllimport)
+    #define STAFF_UTILS_EXPORT STAFF_DLL_IMPORT
   #endif
 #else
   #define STAFF_UTILS_EXPORT 

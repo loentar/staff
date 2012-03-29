@@ -301,9 +301,9 @@ namespace staff
       IMAGEHLP_MODULE stModule;
 
 #if defined _WIN64
-      _snLogError() << szAddrHex, sizeof(szAddrHex), "0x%016x", reinterpret_cast<DWORD64>(pAddr);
+      LogError() << szAddrHex, sizeof(szAddrHex), "0x%016x", reinterpret_cast<DWORD64>(pAddr);
 #elif defined WIN32
-      _snLogError() << szAddrHex, sizeof(szAddrHex), "0x%08x", pAddr;
+      LogError() << szAddrHex, sizeof(szAddrHex), "0x%08x", pAddr;
 #else
 #error unsupported arch
 #endif
@@ -539,7 +539,7 @@ namespace staff
     tStackFrame.AddrFrame.Mode = AddrModeFlat;
     tStackFrame.AddrStack.Offset = tesp;
     tStackFrame.AddrFrame.Offset = tebp;
-    tStackFrame.AddrPC.Offset = reinterpret_cast<DWORD>(&StackTrace) + 0x08c;
+    tStackFrame.AddrPC.Offset = reinterpret_cast<DWORD>(&GetStackTraceStr) + 0x08c;
 
     while (StackWalk(machType, hProc, hThread, &tStackFrame, pContext, NULL,
                       SymFunctionTableAccess, SymGetModuleBase, NULL))

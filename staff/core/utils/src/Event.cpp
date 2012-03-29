@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <errno.h>
+#else
+#include <Windows.h>
 #endif
 #include "Error.h"
 #include "Exception.h"
@@ -45,7 +47,7 @@ namespace staff
     m_pImpl(new EventImpl)
   {
 #ifdef WIN32
-    m_pImpl->hEvent = CreatEvent(NULL, TRUE, FALSE, NULL);
+    m_pImpl->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 #else
     sem_init(&m_pImpl->hEvent, 0, 0);
 #endif
@@ -64,8 +66,8 @@ namespace staff
   bool Event::Wait(unsigned long ulTimeout /*= STAFF_EVENT_WAIT_INFINITE*/)
   {
 #ifdef WIN32
-    DWORD dwWaitResult = WaitForSingleObject(pThreadEvent, ulTimeout != STAFF_EVENT_WAIT_INFINITE ?
-                                                           ulTimeout : INFINITE);
+    DWORD dwWaitResult = WaitForSingleObject(m_pImpl->hEvent, 
+                            ulTimeout != STAFF_EVENT_WAIT_INFINITE ? ulTimeout : INFINITE);
 
     switch (dwWaitResult)
     {

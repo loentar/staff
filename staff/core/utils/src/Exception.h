@@ -91,7 +91,7 @@ namespace staff
 {
 
   //! base staff exception class
-  class Exception: public std::exception
+  class STAFF_UTILS_EXPORT Exception: public std::exception
   {
   public:
     //! exception constructor

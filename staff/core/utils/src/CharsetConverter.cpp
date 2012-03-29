@@ -23,7 +23,9 @@
 #include <iconv.h>
 #else
 #ifdef _MSC_VER
-#pragma message(Warning: building without iconv support)
+#define STAFF_STRINGIZE(x) #x
+#define STAFF_TO_STRING(x) STAFF_STRINGIZE(x)
+#pragma message(__FILE__ "(" STAFF_TO_STRING(__LINE__) ") : warning: building without iconv support")
 #else
 #warning Warning: building without iconv support
 #endif

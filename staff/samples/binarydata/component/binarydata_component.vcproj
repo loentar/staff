@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			BuildLogFile="$(IntDir)\BuildLog_service.htm"
 			>
 			<Tool
@@ -108,7 +108,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			BuildLogFile="$(IntDir)\BuildLog_service.htm"
 			>
 			<Tool
@@ -194,7 +194,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -275,7 +275,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool

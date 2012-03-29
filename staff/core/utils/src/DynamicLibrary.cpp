@@ -21,6 +21,8 @@
 
 #ifndef WIN32
 #include <dlfcn.h>
+#else
+#include <Windows.h>
 #endif
 #include "Exception.h"
 #include "Error.h"
@@ -86,7 +88,7 @@ namespace staff
 
       void* pSym =
 #ifdef WIN32
-        GetProcAddress(m_pDynLib, sSymName.c_str());
+        GetProcAddress(reinterpret_cast<HMODULE>(m_pDynLib), sSymName.c_str());
 #else
         dlsym(m_pDynLib, sSymName.c_str());
 #endif
@@ -99,7 +101,7 @@ namespace staff
     {
       STAFF_ASSERT(m_pDynLib, "Library is not loaded");
 #ifdef WIN32
-      FreeLibrary(m_pDynLib);
+      FreeLibrary(reinterpret_cast<HMODULE>(m_pDynLib));
 #else
       dlclose(m_pDynLib);
 #endif

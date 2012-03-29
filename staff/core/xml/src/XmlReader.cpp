@@ -24,6 +24,8 @@
 #include <staff/utils/CharsetConverter.h>
 #include "Exception.h"
 #include "Document.h"
+#include "Attribute.h"
+#include "Namespace.h"
 #include "Element.h"
 #include "Node.h"
 #include "XmlReader.h"

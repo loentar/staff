@@ -20,6 +20,9 @@
  */
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "AtomicCounter.h"
 
 namespace staff

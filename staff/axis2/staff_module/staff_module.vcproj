@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			BuildLogFile="$(IntDir)\BuildLog_module.htm"
 			>
 			<Tool
@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MODULE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,7 +69,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-        AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -105,7 +105,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			BuildLogFile="$(IntDir)\BuildLog_module.htm"
 			>
 			<Tool
@@ -128,7 +128,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MODULE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -152,7 +152,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-        AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -188,7 +188,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -208,7 +208,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MODULE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -230,7 +230,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-        AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -268,7 +268,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -290,7 +290,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MODULE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -312,7 +312,7 @@
 				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib staff_common.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-        AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

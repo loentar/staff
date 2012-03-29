@@ -65,10 +65,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies=" imagehlp.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=";&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -147,10 +147,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies=" imagehlp.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=";&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -186,7 +186,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -225,10 +225,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies=" imagehlp.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=";&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -266,7 +266,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -306,10 +306,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies=" imagehlp.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=";&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -352,6 +352,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\src\AtomicCounter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Base64Binary.cpp"
 				>
 			</File>
@@ -360,7 +364,67 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\CharsetConverter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\console.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CrashHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DynamicLibrary.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Error.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Event.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Exception.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\File.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\HexBinary.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\LogStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Mutex.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Process.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Reflector.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\StackTracer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Thread.cpp"
 				>
 			</File>
 		</Filter>
@@ -370,11 +434,47 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\src\AtomicCounter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Base64Binary.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\ByteArray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CharsetConverter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\CrashHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DynamicLibrary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Error.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Event.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Exception.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\File.h"
 				>
 			</File>
 			<File
@@ -390,7 +490,51 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\LogStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Mutex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\PluginExport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\PluginManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Process.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Reflector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\SharedPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\StackTracer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\staffutilsexport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\stringutils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Thread.h"
 				>
 			</File>
 			<File

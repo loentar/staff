@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -53,7 +53,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="5"
 				Optimization="0"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;STAFF_DAS_COMMON_DLL_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -79,10 +79,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-        AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -125,7 +125,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -151,7 +151,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;STAFF_DAS_COMMON_DLL_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -173,10 +173,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-        AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -212,7 +212,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -233,7 +233,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_DAS_COMMON_DLL_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -252,10 +252,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-        AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -293,7 +293,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -315,7 +315,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-        AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)/include&quot;;&quot;../../staff/deploy/win_$(PlatformName)/staff/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_DAS_COMMON_DLL_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -334,10 +334,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-        AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

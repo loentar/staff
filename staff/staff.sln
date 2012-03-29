@@ -34,23 +34,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.Login", "components\L
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "core\client\staff_client.vcproj", "{B98F5740-E61D-40B9-AE1E-0C150A248937}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_client", "core\client\staff_client.vcproj", "{B98F5740-E61D-40B9-AE1E-0C150A248937}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "core\common\staffcommon.vcproj", "{31DFC1BC-999D-474D-9F2F-415231BA2271}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_common", "core\common\staffcommon.vcproj", "{31DFC1BC-999D-474D-9F2F-415231BA2271}"
 	ProjectSection(ProjectDependencies) = postProject
 		{17EBD752-DD05-4154-A1D8-C65F0C424957} = {17EBD752-DD05-4154-A1D8-C65F0C424957}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "component", "core\component\staffcomponent.vcproj", "{9B56D490-8915-402F-AC6D-96C5111DA67A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_component", "core\component\staffcomponent.vcproj", "{9B56D490-8915-402F-AC6D-96C5111DA67A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0} = {F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "security", "core\security\staff_security.vcproj", "{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_security", "core\security\staff_security.vcproj", "{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 		{9AF8F9C4-D049-417A-817A-08017076274C} = {9AF8F9C4-D049-417A-817A-08017076274C}
@@ -87,7 +87,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-wsdl", "tools
 		{6D6790A9-B950-4A74-9206-FE2EDCDD7138} = {6D6790A9-B950-4A74-9206-FE2EDCDD7138}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite3", "core\sqlite3\staff_sqlite3.vcproj", "{9AF8F9C4-D049-417A-817A-08017076274C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_sqlite3", "core\sqlite3\staff_sqlite3.vcproj", "{9AF8F9C4-D049-417A-817A-08017076274C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-protobuf", "tools\codegen_parsers\protobuf\staffcgparser-protobuf.vcproj", "{8F4E2088-4FB4-4009-BB5E-385A2F6A50BE}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -102,7 +102,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.Wsdl", "components\ws
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcodegenparser", "tools\codegenparser\staffcodegenparser.vcproj", "{6D6790A9-B950-4A74-9206-FE2EDCDD7138}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utils", "core\utils\staffutils.vcproj", "{17EBD752-DD05-4154-A1D8-C65F0C424957}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_utils", "core\utils\staffutils.vcproj", "{17EBD752-DD05-4154-A1D8-C65F0C424957}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_xml", "core\xml\staffxml.vcproj", "{4C29138F-6FC8-4521-A732-729283672D79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -256,6 +258,14 @@ Global
 		{17EBD752-DD05-4154-A1D8-C65F0C424957}.Release|Win32.Build.0 = Release|Win32
 		{17EBD752-DD05-4154-A1D8-C65F0C424957}.Release|x64.ActiveCfg = Release|x64
 		{17EBD752-DD05-4154-A1D8-C65F0C424957}.Release|x64.Build.0 = Release|x64
+		{4C29138F-6FC8-4521-A732-729283672D79}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4C29138F-6FC8-4521-A732-729283672D79}.Debug|Win32.Build.0 = Debug|Win32
+		{4C29138F-6FC8-4521-A732-729283672D79}.Debug|x64.ActiveCfg = Debug|x64
+		{4C29138F-6FC8-4521-A732-729283672D79}.Debug|x64.Build.0 = Debug|x64
+		{4C29138F-6FC8-4521-A732-729283672D79}.Release|Win32.ActiveCfg = Release|Win32
+		{4C29138F-6FC8-4521-A732-729283672D79}.Release|Win32.Build.0 = Release|Win32
+		{4C29138F-6FC8-4521-A732-729283672D79}.Release|x64.ActiveCfg = Release|x64
+		{4C29138F-6FC8-4521-A732-729283672D79}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -274,6 +284,7 @@ Global
 		{B98F5740-E61D-40B9-AE1E-0C150A248937} = {7F9751B9-F37A-42E1-9633-48A011B114ED}
 		{9AF8F9C4-D049-417A-817A-08017076274C} = {7F9751B9-F37A-42E1-9633-48A011B114ED}
 		{17EBD752-DD05-4154-A1D8-C65F0C424957} = {7F9751B9-F37A-42E1-9633-48A011B114ED}
+		{4C29138F-6FC8-4521-A732-729283672D79} = {7F9751B9-F37A-42E1-9633-48A011B114ED}
 		{2F182FEC-9149-4670-A7C0-1665830EB6EA} = {156FF2FF-B691-4F8B-9327-10FE0F0C4BED}
 		{1CD70DE6-7105-4356-B5D6-F79D24DEC446} = {156FF2FF-B691-4F8B-9327-10FE0F0C4BED}
 		{EFCDBF3C-645D-4533-AE62-57796546B25E} = {156FF2FF-B691-4F8B-9327-10FE0F0C4BED}

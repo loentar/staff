@@ -24,6 +24,7 @@
 #define _STAFF_UTILS_CHARSETCONVERTOR_H_
 
 #include <string>
+#include "staffutilsexport.h"
 
 extern "C"
 {
@@ -32,7 +33,7 @@ extern "C"
 
 namespace staff
 {
-  class CharsetConverter
+  class STAFF_UTILS_EXPORT CharsetConverter
   {
   public:
     //! constructor

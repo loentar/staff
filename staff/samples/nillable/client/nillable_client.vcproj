@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -123,7 +123,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -208,7 +208,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -248,7 +248,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -289,7 +289,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -330,7 +330,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"

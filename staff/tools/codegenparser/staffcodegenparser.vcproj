@@ -23,7 +23,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -68,7 +68,7 @@
 				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -104,7 +104,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -150,7 +150,7 @@
 				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -186,7 +186,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -228,7 +228,7 @@
 				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -267,7 +267,7 @@
 			OutputDirectory="$(InputDir)$(PlatformName)_$(ConfigurationName)\"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -310,7 +310,7 @@
 				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"

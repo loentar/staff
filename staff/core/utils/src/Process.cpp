@@ -28,6 +28,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#else
+#include <Windows.h>
 #endif
 #include "Log.h"
 #include "Error.h"
@@ -222,7 +224,9 @@ namespace staff
 #ifndef WIN32
     return !kill(m_pImpl->tPid, 0);
 #else
-#error not implemented
+    DWORD dwRetCode = 0;
+    GetExitCodeProcess(m_pImpl->tProcessInformation.hProcess, &dwRetCode);
+    return dwRetCode == STILL_ACTIVE;
 #endif
   }
 
@@ -231,7 +235,7 @@ namespace staff
 #ifndef WIN32
     kill(m_pImpl->tPid, 9);
 #else
-#error not implemented
+    TerminateProcess(m_pImpl->tProcessInformation.hProcess, 1); 
 #endif
   }
 
@@ -249,7 +253,7 @@ namespace staff
 #ifndef WIN32
     return static_cast<unsigned long>(m_pImpl->tPid);
 #else
-    return static_cast<unsigned long>(m_pImpl->tProcessInformation.hProcess);
+    return reinterpret_cast<unsigned long>(m_pImpl->tProcessInformation.hProcess);
 #endif
   }
 

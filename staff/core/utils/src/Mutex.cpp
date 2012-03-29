@@ -31,8 +31,8 @@
 #endif
 #include <pthread.h>
 #endif
-#include "Mutex.h"
 #endif
+#include "Mutex.h"
 
 namespace staff
 {
@@ -68,7 +68,7 @@ namespace staff
   Mutex::~Mutex()
   {
 #ifdef WIN32
-    CloseHandle(m_pImpl->hMutex)
+    CloseHandle(m_pImpl->hMutex);
 #elif !defined __APPLE__
     pthread_spin_destroy(&m_pImpl->hMutex);
 #endif
