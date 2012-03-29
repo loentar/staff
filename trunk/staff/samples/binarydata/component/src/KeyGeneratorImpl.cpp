@@ -2,17 +2,49 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Service Implementation
 
-#include <sstream>
 #include <staff/utils/Log.h>
 #include <staff/utils/ByteArray.h>
 #include <staff/utils/HexBinary.h>
 #include <staff/utils/Base64Binary.h>
+#include <staff/utils/tostring.h>
+#include <staff/common/Exception.h>
 #include "KeyGeneratorImpl.h"
 
 namespace samples
 {
 namespace binarydata
 {
+
+std::string& operator<<(std::string& rString, const std::string& sData)
+{
+  return rString.append(sData).append(1, '\0');
+}
+
+std::string& operator>>(std::string& rString, std::string& sData)
+{
+  sData.erase();
+  std::string::size_type nPos = rString.find('\0');
+  if (nPos != std::string::npos)
+  {
+    sData = rString.substr(0, nPos);
+    rString.erase(0, sData.size() + 1);
+  }
+  return rString;
+}
+
+template <typename Type>
+std::string& operator<<(std::string& rString, Type tType)
+{
+  return rString.append(reinterpret_cast<const char*>(&tType), sizeof(Type));
+}
+
+template <typename Type>
+std::string& operator>>(std::string& rString, Type& tType)
+{
+  rString.copy(reinterpret_cast<char*>(&tType), sizeof(Type));
+  rString.erase(0, sizeof(Type));
+  return rString;
+}
 
 KeyGeneratorImpl::KeyGeneratorImpl()
 {
@@ -64,47 +96,48 @@ bool KeyGeneratorImpl::ValidateBase64Key(const staff::base64Binary& rKey)
 
 void KeyGeneratorImpl::GenerateKey(unsigned uSourceKey, staff::ByteArray& rResult)
 {
-  std::ostringstream tKeyBuffer(std::ios_base::out | std::ios_base::binary);
+  std::string sKeyBuffer;
 
   // put signature and source key
-  tKeyBuffer << m_sSignature << uSourceKey;
+  sKeyBuffer << m_sSignature << uSourceKey;
 
   // calculate simple 2 byte checksum
-  const std::string& sData = tKeyBuffer.str();
-  short shCheckSum = Checksum(sData.data(), sData.size());
+  short shCheckSum = Checksum(sKeyBuffer);
 
   // set checksum
-  tKeyBuffer << shCheckSum;
+  sKeyBuffer << shCheckSum;
 
-  const std::string& sResultData = tKeyBuffer.str();
-  rResult.Set(sResultData.size());
-  sResultData.copy(rResult.GetData(), rResult.GetSize());
+  rResult.Set(sKeyBuffer.size());
+  sKeyBuffer.copy(rResult.GetData(), rResult.GetSize());
 }
 
 bool KeyGeneratorImpl::ValidateKey(const staff::ByteArray& rKey)
 {
-  // calculate checksum to check excluding existing checksum
-  short shCheckSum = Checksum(rKey.GetData(), rKey.GetSize() - sizeof(short));
+  STAFF_ASSERT(rKey.GetSize() >= sizeof(short), "Invalid data size: " +
+               staff::ToString(rKey.GetSize()));
 
-  std::istringstream tKeyBuffer(std::string(rKey.GetData(), rKey.GetSize()),
-                                std::ios_base::in | std::ios_base::binary);
+  // calculate checksum to check excluding existing checksum
+  short shCheckSum = Checksum(std::string(rKey.GetData(), rKey.GetSize() - sizeof(short)));
+
+  std::string sKeyBuffer(rKey.GetData(), rKey.GetSize());
 
   std::string sSig;
   unsigned uSourceKey = 0;
   short shExistingCheckSum = 0;
 
-  tKeyBuffer >> sSig >> uSourceKey >> shExistingCheckSum;
+  sKeyBuffer >> sSig >> uSourceKey >> shExistingCheckSum;
 
   return sSig == m_sSignature && shExistingCheckSum == shCheckSum;
 }
 
-short KeyGeneratorImpl::Checksum(const staff::byte* pData, unsigned long ulSize)
+short KeyGeneratorImpl::Checksum(const std::string& sBuffer)
 {
+  const char* pBuffer = reinterpret_cast<const char*>(sBuffer.data());
   short shCheckSum = 0;
 
-  for (; ulSize; --ulSize, ++pData)
+  for (std::string::size_type nSize = sBuffer.size(); nSize; --nSize, ++pBuffer)
   {
-    shCheckSum += *pData;
+    shCheckSum += *pBuffer;
   }
   return shCheckSum;
 }

@@ -141,10 +141,11 @@ namespace staff
 
   void Base64Binary::Encode(const byte* pBinaryData, unsigned long ulDataSize, std::string& sEncodedData)
   {
+    const unsigned char* pData = reinterpret_cast<const unsigned char*>(pBinaryData);
     static const char sEncodeTable[65] =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    STAFF_ASSERT_PARAM(pBinaryData);
+    STAFF_ASSERT_PARAM(pData);
 
     unsigned long ulRest = ulDataSize % 3;
     unsigned long ulPos = 0;
@@ -155,23 +156,23 @@ namespace staff
 
     for (; ulPos < ulDataSize - ulRest; ulPos += 3)
     {
-      *itRes = sEncodeTable[ pBinaryData[ulPos] >> 2 ];
-      *(++itRes) = sEncodeTable[ ((pBinaryData[ulPos] & 0x03) << 4)
-          | ((pBinaryData[ulPos + 1] & 0xf0) >> 4) ];
-      *(++itRes) = sEncodeTable[ ((pBinaryData[ulPos + 1] & 0x0f) << 2)
-          | ((pBinaryData[ulPos + 2] & 0xc0) >> 6) ];
-      *(++itRes) = sEncodeTable[ pBinaryData[ulPos + 2] & 0x3f ];
+      *itRes = sEncodeTable[ pData[ulPos] >> 2 ];
+      *(++itRes) = sEncodeTable[ ((pData[ulPos] & 0x03) << 4)
+          | ((pData[ulPos + 1] & 0xf0) >> 4) ];
+      *(++itRes) = sEncodeTable[ ((pData[ulPos + 1] & 0x0f) << 2)
+          | ((pData[ulPos + 2] & 0xc0) >> 6) ];
+      *(++itRes) = sEncodeTable[ pData[ulPos + 2] & 0x3f ];
       ++itRes;
     }
 
     if (ulRest > 0)
     {
-      *itRes = sEncodeTable[ pBinaryData[ulPos] >> 2 ];
-      *(++itRes) = sEncodeTable[ ((pBinaryData[ulPos] & 0x03) << 4)
-          | (ulRest > 1 ? ((pBinaryData[ulPos + 1] & 0xf0) >> 4) : 0) ];
-      *(++itRes) = ulRest > 1 ? sEncodeTable[ ((pBinaryData[ulPos + 1] & 0x0f) << 2)
-                                  | (ulRest > 2 ? ((pBinaryData[ulPos + 2] & 0xc0) >> 6) : 0) ] : '=';
-      *(++itRes) = ulRest > 2 ? sEncodeTable[ pBinaryData[ulPos + 2] & 0x3f ] : '=';
+      *itRes = sEncodeTable[ pData[ulPos] >> 2 ];
+      *(++itRes) = sEncodeTable[ ((pData[ulPos] & 0x03) << 4)
+          | (ulRest > 1 ? ((pData[ulPos + 1] & 0xf0) >> 4) : 0) ];
+      *(++itRes) = ulRest > 1 ? sEncodeTable[ ((pData[ulPos + 1] & 0x0f) << 2)
+                                  | (ulRest > 2 ? ((pData[ulPos + 2] & 0xc0) >> 6) : 0) ] : '=';
+      *(++itRes) = ulRest > 2 ? sEncodeTable[ pData[ulPos + 2] & 0x3f ] : '=';
     }
 
     if(itRes != sEncodedData.end())

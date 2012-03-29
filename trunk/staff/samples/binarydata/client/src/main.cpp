@@ -34,7 +34,7 @@ void OutputData(const staff::ByteArray& rByteArray)
   std::cout << "hex data: [ " << std::setfill('0') << std::hex;
   for (unsigned long ulPos = 0; ulPos < ulDataSize; ++ulPos, ++pData)
   {
-    std::cout << "0x" << std::setw(2) << (static_cast<short>(*pData) & 0xff) << " ";
+    std::cout << std::setw(2) << (static_cast<short>(*pData) & 0xff) << " ";
   }
   std::cout << "]" << std::dec << std::endl;
 }
