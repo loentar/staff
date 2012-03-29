@@ -218,9 +218,9 @@ namespace staff
     }
 
 #ifdef WIN32
-    WaitForSingleObject(m_pImpl->hThread, INFINITE);
+    WaitForSingleObject(hThread, INFINITE);
 #else
-    pthread_join(m_pImpl->hThread, NULL);
+    pthread_join(hThread, NULL);
 #endif
   }
 
