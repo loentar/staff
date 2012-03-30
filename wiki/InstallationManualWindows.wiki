@@ -85,7 +85,6 @@ _Note: If You using VS2008 or greater, after opening this solution "Visual Studi
 
 To compile from the IDE Visual Studio:
 
-Open rise.sln from the directory rise, then build the solution (menu Build->Build Solution).
 Open staff.sln from the directory staff, then build the solution (menu Build->Build Solution).
 
 To install open command prompt from staff directory and start:
@@ -110,8 +109,8 @@ axis2_http_server
 To start Axis2/C in debug mode:
 {{{
 cd %AXIS2C_HOME%\bin
-set RISE_LOG_LEVEL=DEBUG3
-set RISE_EXCEPTION_STACKTRACING=1
+set STAFF_LOG_LEVEL=DEBUG3
+set STAFF_EXCEPTION_STACKTRACING=1
 axis2_http_server
 }}}
 

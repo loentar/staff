@@ -77,8 +77,8 @@ axis2_http_server
 To start Axis2/C in debug mode:
 {{{
 cd %AXIS2C_HOME%\bin
-set RISE_LOG_LEVEL=DEBUG3
-set RISE_EXCEPTION_STACKTRACING=1
+set STAFF_LOG_LEVEL=DEBUG3
+set STAFF_EXCEPTION_STACKTRACING=1
 axis2_http_server
 }}}
 

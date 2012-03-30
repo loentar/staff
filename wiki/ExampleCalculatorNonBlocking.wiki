@@ -26,7 +26,7 @@ Now edit `main.cpp` to implement client.
 
 Uncomment next lines in !CalculatorAddCallback class function !OnComplete:
 {{{
-rise::LogInfo() << "Add(asynch) result: " << tResult;
+staff::LogInfo() << "Add(asynch) result: " << tResult;
 }}}
 
 Uncomment next lines in function main:
@@ -36,7 +36,7 @@ pCalculator->Add(nA, nB, tCalculatorAddCallback);
 
 while (!tCalculatorAddCallback.IsCompleted())
 {
-  rise::threading::CThread::Sleep(1000);
+  staff::Thread::Sleep(1000);
 }
 }}}
 

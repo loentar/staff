@@ -99,7 +99,7 @@ cd $AXIS2C_HOME/bin
 Чтобы запустить сервер приложений axis2/c в отладочном режиме, введите команды:
 {{{
 cd $AXIS2C_HOME/bin
-RISE_LOG_LEVEL=DEBUG3 RISE_EXCEPTION_STACKTRACING=1 ./axis2_http_server
+STAFF_LOG_LEVEL=DEBUG3 STAFF_EXCEPTION_STACKTRACING=1 ./axis2_http_server
 }}}
 
 

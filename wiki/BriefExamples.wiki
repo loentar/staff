@@ -89,8 +89,8 @@ public:
 {{{
 // calc_client_non_blocking.cpp
 #include <memory>
-#include <rise/common/Log.h>
-#include <rise/threading/Thread.h>
+#include <staff/utils/Log.h>
+#include <staff/utils/Thread.h>
 #include <staff/common/DataObject.h>
 #include <staff/client/ICallback.h>
 #include <staff/common/Exception.h>
@@ -104,31 +104,35 @@ public:
   virtual void OnComplete(int tResult)
   {
     // process result here
-    rise::LogInfo() << "Add(asynch) result: " << tResult;
+    staff::LogInfo() << "Add(asynch) result: " << tResult;
   }
 
   void OnFault(const staff::CDataObject& rFault)
   {
     // process error here
-    rise::LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
 int main(int, const char**)
 {
-  std::auto_ptr< Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService<Calculator>());
-
-  RISE_ASSERTES(pCalculator.get(), rise::CLogicNoItemException, "Cannot get client for service Calculator!");
-
-  // Invoking the service
-
-  CalculatorAddCallback tCalculatorAddCallback;
-  pCalculator->Add(1, 2, tCalculatorAddCallback);
-
-  while (!tCalculatorAddCallback.IsCompleted())
+  try
   {
-    rise::threading::CThread::Sleep(1000);
+    std::auto_ptr< Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService<Calculator>());
+
+    STAFF_ASSERT(pCalculator.get(), "Cannot get client for service Calculator!");
+
+    // Invoking the service
+
+    CalculatorAddCallback tCalculatorAddCallback;
+    pCalculator->Add(1, 2, tCalculatorAddCallback);
+
+    while (!tCalculatorAddCallback.IsCompleted())
+    {
+      staff::Thread::Sleep(1000);
+    }
   }
+  STAFF_CATCH_ALL
 
   return 0;
 }
@@ -501,7 +505,7 @@ staff::Abstract<Vehicle> TransportImpl::GetTransport(TransportType eTransport)
     }
     
     default:
-      RISE_THROWS(staff::RemoteException, "Invalid transport: " + staff::ToString(eTransport));
+      STAFF_THROW(staff::RemoteException, "Invalid transport: " + staff::ToString(eTransport));
   }
   
   return tpResult;

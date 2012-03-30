@@ -82,7 +82,6 @@ _Замечание: Если Вы используете VS2008 или выше
 
 Для компиляции из IDE Visual Studio:
 
-Откройте файл rise.sln из каталога rise, затем откомпилируйте библиотеку (меню Build -> Build Solution).
 Откройте файл staff.sln из каталога staff. Откомпилируйте проектное решение (меню Build -> Build Solution).
 
 Когда сборка будет завершена, откройте командную строку из каталога staff и введите для установки:
@@ -107,8 +106,8 @@ axis2_http_server
 Чтобы запустить сервер приложений Axis2/С в отладочном режиме, введите команды:
 {{{
 cd %AXIS2C_HOME%\bin
-set RISE_LOG_LEVEL=DEBUG3
-set RISE_EXCEPTION_STACKTRACING=1
+set STAFF_LOG_LEVEL=DEBUG3
+set STAFF_EXCEPTION_STACKTRACING=1
 axis2_http_server
 }}}
 

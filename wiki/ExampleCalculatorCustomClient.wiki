@@ -30,7 +30,7 @@ Open generated project in your preferred IDE.
 
 Open `src/main.cpp` and replace it's content to:
 {{{
-#include <rise/common/Log.h>
+#include <staff/utils/Log.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceClient.h>
@@ -64,7 +64,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     tdoResult.GetChildValueByLocalName("addResult", nResult);
     std::cout << "Result: " << nResult << std::endl;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

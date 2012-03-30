@@ -84,16 +84,15 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< StockQuote > pStockQuote(::staff::ServiceFactory::Inst().GetService< StockQuote >());
 
-    RISE_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
+    STAFF_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
 
     // Invoke Your service here:
 
-    staff::Optional<std::string> symbol;
-    symbol = "IBM";
+    staff::Optional<std::string> symbol("IBM");
     const std::string& GetQuoteResponse = pStockQuote->GetQuote(symbol);
-    rise::LogInfo() << "GetQuote result: " << GetQuoteResponse;
+    staff::LogInfo() << "GetQuote result: " << GetQuoteResponse;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

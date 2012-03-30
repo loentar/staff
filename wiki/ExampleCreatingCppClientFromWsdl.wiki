@@ -72,9 +72,9 @@ Open your favorite text editor and open file `main.cpp` from src directory of yo
 
 Uncomment source code below the "Invoke Your service here:" comment.
 
-Add a line below "`staff::Optional<std::string> symbol`":
+Change line "`staff::Optional<std::string> symbol;`" to:
 {{{
-symbol = "IBM";
+staff::Optional<std::string> symbol("IBM");
 }}}
 
 Now your main function of !StockQuote service client should look like:
@@ -86,16 +86,15 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< StockQuote > pStockQuote(::staff::ServiceFactory::Inst().GetService< StockQuote >());
 
-    RISE_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
+    STAFF_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
 
     // Invoke Your service here:
 
-    staff::Optional<std::string> symbol;
-    symbol = "IBM";
-    const std::string& GetQuoteResponse = pStockQuote->GetQuote(symbol);
-    rise::LogInfo() << "GetQuote result: " << GetQuoteResponse;
+    staff::Optional<std::string> symbol("IBM");
+    const staff::Optional<std::string>& GetQuoteResponse = pStockQuote->GetQuote(symbol);
+    staff::LogInfo() << "GetQuote result: " << GetQuoteResponse;
   }
-  RISE_CATCH_ALL
+  STAFF_CATCH_ALL
 
   return 0;
 }

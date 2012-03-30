@@ -166,7 +166,7 @@ Click "Apply".
 
 In the "Configuration properties" tree open "Linker" subtree and click "Input". Fill in the "Additional Dependencies" field as follows:
 {{{
-staff_client.lib staff_common.lib rise.lib
+staff_client.lib staff_common.lib staff_utils.lib
 }}}
 Click "Apply".
 
