@@ -32,16 +32,16 @@ namespace staff
   class Nillable
   {
   public:
-    Nillable()
+    inline Nillable()
     {
     }
 
-    Nillable(const Type& rData):
+    inline Nillable(const Type& rData):
       m_tpData(new Type(rData))
     {
     }
 
-    Nillable(const Nillable& rOpt):
+    inline Nillable(const Nillable& rOpt):
       m_tpData(const_cast< Nillable<Type>& >(rOpt).m_tpData)
     {
     }

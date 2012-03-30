@@ -122,6 +122,7 @@ staff/core/common/src/DataObject.h
 staff/core/common/src/Exception.h
 staff/core/common/src/IService.cpp
 staff/core/common/src/IService.h
+staff/core/common/src/logoperators.h
 staff/core/common/src/MessageContext.cpp
 staff/core/common/src/MessageContext.h
 staff/core/common/src/Namespace.cpp
