@@ -41,7 +41,11 @@
 \
 #var sCallbackType
 #ifneq($($nonblocking),)
-#var sCallbackType $(Member.Return.NsName)
+#ifeq($(Member.Return.Type),struct||typedef||template||string)
+#var sCallbackType const $(Member.Return.UsedName)&
+#else
+#var sCallbackType $(Member.Return.UsedName)
+#ifeqend
 #ifeqend
 \
 #foreach $(Member.Params)
@@ -155,7 +159,7 @@ $(Param.Name)\
     // // To call operation while request is processing, please use another copy of client.
     // while (!t$(Class.Name)$(Member.Name)Callback.IsCompleted())
     // {
-    //   staff::threading::Thread::Sleep(1000);
+    //   staff::Thread::Sleep(1000);
     // }
 
 #ifeqend // blocking call
