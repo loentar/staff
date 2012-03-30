@@ -601,12 +601,14 @@ namespace codegen
 
     std::string::size_type ParseTemplate(const std::string& sTemplate, DataType& rDataType, const Struct* pstParent)
     {
+      const std::string::size_type nTemplateSize = sTemplate.size();
       std::string::size_type nResult = 0;
+      std::string::size_type nTmp = 0;
       std::string sToken;
       for (std::string::size_type nBegin = 0, nEnd = 0;
            nEnd != std::string::npos; nBegin = nEnd + 1)
       {
-        nEnd = sTemplate.find_first_of(",<>", nBegin);
+        nEnd = sTemplate.find_first_of(",<>&", nBegin);
         if (nEnd == std::string::npos)
         {
           sToken = sTemplate.substr(nBegin);
@@ -635,6 +637,16 @@ namespace codegen
                 --nRecurse;
               }
 
+            }
+
+            // detect '&'
+            if ((nEnd + 1) < nTemplateSize)
+            {
+              nTmp = sTemplate.find_first_of(",>", nEnd + 1);
+              if (nTmp != std::string::npos)
+              {
+                nEnd = nTmp;
+              }
             }
           }
 
