@@ -7,17 +7,37 @@
 
 == Notice ==
 
-You should keep STAFF_HOME and AXIS2C_HOME environment variables unsettled while you using WSF Staff installed from PPA.
+You should keep {{{STAFF_HOME}}} environment variable unsettled while you using WSF Staff installed from PPA.
+
+You should set {{{AXIS2C_HOME}}} to {{{/usr/lib/axis2}}} else you won't be able to use any client based on Axis2/C.
+
+To set it up you could add this line into {{{/etc/environment}}} file:
+{{{
+AXIS2C_HOME="/usr/lib/axis2"
+}}}
+
+You should re-login after you set that variable.
+
 
 == Adding PPA to your system ==
 
+There is two ppa available: stable and trunk.
+
 To add PPA to your system open terminal and enter:
 {{{
-sudo apt-add-repository ppa:loentar/ppa
+sudo apt-add-repository ppa:loentar/<PPA>
 sudo apt-get update
 }}}
 
-More info about this PPA: https://launchpad.net/~loentar/+archive/ppa
+Where {{{<PPA>}}} is one of:
+  * {{{wsf-staff-stable}}} - for stable version;
+  * {{{wsf-staff-trunk}}} - for current developing(trunk) version.
+
+You could get more info about that PPAs:
+
+https://launchpad.net/~loentar/+archive/wsf-staff-stable
+
+https://launchpad.net/~loentar/+archive/wsf-staff-trunk
 
 
 == Installing WSF Staff ==
@@ -59,15 +79,17 @@ sudo apt-get install apache2-mpm-prefork
 
 == Testing your installation ==
 
-Before you start Axis2/C or staff_codegen you should ensure that your STAFF_HOME and AXIS2C_HOME environment variables is not set.
+Before you start Axis2/C or staff_codegen you should ensure that your STAFF_HOME environment variable is not set.
 
 {{{
-env | grep -qE '(STAFF|AXIS2C)_HOME' || echo OK
+env | grep -qE 'STAFF_HOME' || echo OK
 }}}
 
-You should see 'OK' message. Else you should unset those variables:
+You should see 'OK' message. 
+
+Else you should unset this variable and remove it from all environment files (like {{{/etc/environment}}}, {{{~/.bashrc}}}, {{{~/.profile}}}, etc..):
 {{{
-unset STAFF_HOME AXIS2C_HOME
+unset STAFF_HOME
 }}}
 
 === Testing main package installation ===
@@ -93,12 +115,12 @@ You should see codegen's template and parser lists.
 
 2. Check headers:
 {{{
-ls -d /usr/include/{staff,rise}
+ls -d /usr/include/staff
 }}}
 
 You should see:
 {{{
-/usr/include/rise  /usr/include/staff
+/usr/include/staff
 }}}
 
 3. Now you can try to create some [http://code.google.com/p/staff/wiki/ExampleCreatingCppClientFromWsdl client] or [http://code.google.com/p/staff/wiki/ExampleCalculatorService service].
