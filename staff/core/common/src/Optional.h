@@ -32,16 +32,16 @@ namespace staff
   class Optional
   {
   public:
-    Optional()
+    inline Optional()
     {
     }
 
-    Optional(const Type& rData):
+    inline Optional(const Type& rData):
       m_tpData(new Type(rData))
     {
     }
 
-    Optional(const Optional& rOpt):
+    inline Optional(const Optional& rOpt):
       m_tpData(const_cast< Optional<Type>& >(rOpt).m_tpData)
     {
     }

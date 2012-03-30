@@ -210,7 +210,7 @@ namespace xml
         if (Test("/"))
         {
           ReadStringBeforeChr(sName);
-          STAFF_XML_ASSERT(sName == rElement.GetName(), "Invalid name of element end."
+          STAFF_XML_ASSERT(sName == rElement.GetPrefixName(), "Invalid name of element end."
                        " Found: [" + sName + "] expected [" + rElement.GetName() + "]",
                        m_sFileName, m_nLine);
           SkipWhitespace();

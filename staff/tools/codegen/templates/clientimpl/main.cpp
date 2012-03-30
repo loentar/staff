@@ -24,6 +24,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/client/ICallback.h>
 #ifeqend
+#include <staff/common/logoperators.h>
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #foreach $(Project.Interfaces)
@@ -62,14 +63,14 @@ $($sCallbackType) tResult\
   {
     // process result here
 #ifneq($($sCallbackType),void)
-    // LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
+    // staff::LogInfo() << "$(Member.Name)(asynch) result: " << tResult;
 #ifeqend
   }
 
   void OnFault(const staff::DataObject& rFault)
   {
     // process error here
-    LogError() << rFault.ToString();
+    staff::LogError() << rFault.ToString();
   }
 };
 
@@ -104,7 +105,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 ;
 #ifeqend
 #end // Member.Params
-#ifeq($(Member.IsAsynch)$($nonblocking),0) // blocking call
+#ifeq($(Member.IsAsynch)$($nonblocking),false) // blocking call
 #var sResult $(Member.Options.*responseElement||Member.Options.*resultElement||"t$(Member.Name)Result")
     // \
 #ifneq($(Member.Return.Name),void)
@@ -126,9 +127,9 @@ $(Param.Name)\
 #end // Member.Params
 );
 #ifneq($(Member.Return.Name),void)
-    // LogInfo() << "$(Member.Name) result: " << $($sResult);
+    // staff::LogInfo() << "$(Member.Name) result: " << $($sResult);
 #else
-    // LogInfo() << "$(Member.Name) called";
+    // staff::LogInfo() << "$(Member.Name) called";
 #ifeqend
 #else // non blocking call
     // $(Class.Name)$(Member.Name)Callback t$(Class.Name)$(Member.Name)Callback;

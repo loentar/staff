@@ -524,19 +524,23 @@ namespace xml
 
   const Element* Element::FindChildElementByName(const std::string& sName, const Element* pBegin) const
   {
-    STAFF_ASSERT_PARAM(pBegin);
-    STAFF_ASSERT(pBegin->GetParent() == this, "This child node belong to the different parent");
+    if (pBegin)
+    {
+      STAFF_ASSERT(pBegin->GetParent() == this, "This child node belong to the different parent");
 
-    for (; pBegin && pBegin->m_sName != sName; pBegin = pBegin->GetNextSiblingElement());
+      for (; pBegin && pBegin->m_sName != sName; pBegin = pBegin->GetNextSiblingElement());
+    }
     return pBegin;
   }
 
   Element* Element::FindChildElementByName(const std::string& sName, Element* pBegin)
   {
-    STAFF_ASSERT_PARAM(pBegin);
-    STAFF_ASSERT(pBegin->GetParent() == this, "This child node belong to the different parent");
+    if (pBegin)
+    {
+      STAFF_ASSERT(pBegin->GetParent() == this, "This child node belong to the different parent");
 
-    for (; pBegin && pBegin->m_sName != sName; pBegin = pBegin->GetNextSiblingElement());
+      for (; pBegin && pBegin->m_sName != sName; pBegin = pBegin->GetNextSiblingElement());
+    }
     return pBegin;
   }
 
@@ -893,7 +897,7 @@ namespace xml
 
     for (; pElement; pElement = pElement->GetParent())
     {
-      pNamespace = FindNamespaceByPrefix(sPrefix);
+      pNamespace = pElement->FindNamespaceByPrefix(sPrefix);
       if (pNamespace)
       {
         break;

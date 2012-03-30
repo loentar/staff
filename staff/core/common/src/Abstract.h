@@ -134,8 +134,14 @@ namespace staff
       return m_pType;
     }
 
+    inline bool operator!() const
+    {
+      return m_pType != NULL;
+    }
+
     inline std::string GetType() const
     {
+      STAFF_ASSERT(m_pType, "Abstract pointer is NULL");
       return Reflector::GetTypeName(m_pType);
     }
 
