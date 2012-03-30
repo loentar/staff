@@ -18,8 +18,18 @@ AXIS2C_HOME="/usr/lib/axis2"
 
 You should re-login after you set that variable.
 
+== Removing PPA and packages from your system == 
+
+To remove ppa and packages open terminal and enter:
+{{{
+sudo apt-get purge staff-libs libapache2-mod-staff-axis2services
+sudo rm /etc/apt/sources.list.d/loentar-*.list
+sudo apt-get update
+}}}
 
 == Adding PPA to your system ==
+
+*Notice:* To switch from another ppa, for example from old ppa:loentar/ppa or between stable and trunk versions, you should remove previous ppa and previous packages first as described above.
 
 There is two ppa available: stable and trunk.
 
@@ -31,7 +41,7 @@ sudo apt-get update
 
 Where {{{<PPA>}}} is one of:
   * {{{wsf-staff-stable}}} - for stable version;
-  * {{{wsf-staff-trunk}}} - for current developing(trunk) version.
+  * {{{wsf-staff-trunk}}} - for current developing (trunk) version.
 
 You could get more info about that PPAs:
 
