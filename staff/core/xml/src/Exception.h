@@ -51,7 +51,8 @@ namespace xml
       */
     inline XmlException(const char* szFileLine, const char* szFunction, std::string sDescr,
                         const std::string& sXmlFile, int nXmlLine):
-      Exception(szFileLine, szFunction, sDescr.append(sXmlFile).append(":").append(ToString(nXmlLine)))
+      Exception(szFileLine, szFunction,
+                sDescr.append(": ").append(sXmlFile).append(":").append(ToString(nXmlLine)))
     {
     }
   };

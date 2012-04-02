@@ -444,9 +444,8 @@ namespace xml
 
     //! declare default namespace
     /*! \param  sUri - namespace uri
-        \param  bRecursive - set namespace for childs too
         */
-    Namespace& DeclareDefaultNamespace(const std::string& sUri, bool bRecursive = true);
+    Namespace& DeclareDefaultNamespace(const std::string& sUri);
 
     //! declare new namespace / modify existing
     /*! \param  sUri - namespace uri
