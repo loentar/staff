@@ -85,7 +85,7 @@ int main()
       // iterate childs
       for (staff::xml::Node* pNode = rRootElement.GetFirstChild(); pNode; pNode = pNode->GetNextSibling())
       {
-        staff::LogInfo() << "Node. Type = " << pNode->GetType() << ", value=[" << pNode->GetValue() << "]";
+        staff::LogInfo() << "Node. Type = " << pNode->GetType() << ", value=[" << pNode->GetValue().AsString() << "]";
       }
     }
 

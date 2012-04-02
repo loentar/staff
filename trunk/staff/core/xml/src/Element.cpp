@@ -723,9 +723,9 @@ namespace xml
 
   // namespaces management
 
-  Namespace& Element::DeclareDefaultNamespace(const std::string& sUri, bool bRecursive)
+  Namespace& Element::DeclareDefaultNamespace(const std::string& sUri)
   {
-    return SetNamespace(sUri, "", bRecursive);
+    return DeclareNamespace(sUri, "");
   }
 
   Namespace& Element::DeclareNamespace(const std::string& sUri, const std::string& sPrefix)

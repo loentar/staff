@@ -81,8 +81,8 @@ namespace xml
     }
     else
     {
-      m_sName.assign(sName, nPos, std::string::npos);
-      m_sPrefix.assign(sName, 0, nPos - 1);
+      m_sName.assign(sName, nPos + 1, std::string::npos);
+      m_sPrefix.assign(sName, 0, nPos);
     }
   }
 

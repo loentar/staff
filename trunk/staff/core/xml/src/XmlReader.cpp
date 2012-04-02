@@ -22,6 +22,7 @@
 #include <streambuf>
 #include <staff/utils/fromcstring.h>
 #include <staff/utils/CharsetConverter.h>
+#include <staff/utils/Error.h>
 #include "Exception.h"
 #include "Document.h"
 #include "Attribute.h"
@@ -40,6 +41,7 @@ namespace xml
     XmlReaderImpl(std::istream& rStream, bool bStripWhitespace):
       m_rStream(rStream),
       m_bStripWhitespace(bStripWhitespace),
+      m_nLine(0),
       m_pCharsetConvertor(NULL)
     {
     }
@@ -554,25 +556,39 @@ namespace xml
 
   void XmlReader::ReadDocument(Document& rDocument)
   {
-    m_pImpl->m_rStream.exceptions(std::ios::failbit | std::ios::badbit);
-    m_pImpl->ReadDeclaration(rDocument.GetDeclaration());
-    if (!m_pImpl->m_sEncoding.empty())
+    try
     {
-      rDocument.GetDeclaration().SetEncoding(m_pImpl->m_sEncoding);
-    }
-    else
-    {
-      m_pImpl->m_sEncoding = rDocument.GetDeclaration().GetEncoding();
-    }
-    m_pImpl->SkipWhitespace();
-    std::string sComment;
-    // skip comments before root element node
-    while (m_pImpl->Test("<!--"))
-    {
-      m_pImpl->ReadStringWithStr(sComment, "-->");
+      m_pImpl->m_nLine = 0;
+      m_pImpl->m_rStream.exceptions(std::ios::failbit | std::ios::badbit);
+      m_pImpl->m_nLine = 1;
+      m_pImpl->ReadDeclaration(rDocument.GetDeclaration());
+      if (!m_pImpl->m_sEncoding.empty())
+      {
+        rDocument.GetDeclaration().SetEncoding(m_pImpl->m_sEncoding);
+      }
+      else
+      {
+        m_pImpl->m_sEncoding = rDocument.GetDeclaration().GetEncoding();
+      }
       m_pImpl->SkipWhitespace();
+      std::string sComment;
+      // skip comments before root element node
+      while (m_pImpl->Test("<!--"))
+      {
+        m_pImpl->ReadStringWithStr(sComment, "-->");
+        m_pImpl->SkipWhitespace();
+      }
+      m_pImpl->ReadElement(rDocument.GetRootElement());
     }
-    m_pImpl->ReadElement(rDocument.GetRootElement());
+    catch (const Exception&)
+    {
+      throw;
+    }
+    catch (const std::exception& rEx)
+    {
+      STAFF_XML_THROW("Error while parsing file: " + Error::GetLastErrorStr() + "(" +
+                      std::string(rEx.what()) + ")", m_pImpl->m_sFileName, m_pImpl->m_nLine);
+    }
   }
 
   void XmlReader::ReadDeclaration(Declaration& rDeclaration)

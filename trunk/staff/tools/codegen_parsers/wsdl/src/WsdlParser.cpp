@@ -687,7 +687,7 @@ namespace codegen
           {
             Enum::EnumMember stMember;
             const std::string& sValue = rSubChild.GetAttributeValue("value");
-            const xml::Attribute* pCppEnumAttr = rSubChild.FindAttribute("cpp:enum");
+            const xml::Attribute* pCppEnumAttr = rSubChild.FindAttribute("enum");
             if (pCppEnumAttr)
             {
               stMember.sName = pCppEnumAttr->GetValue();
@@ -3192,7 +3192,6 @@ namespace codegen
       {
         // says to import given namespace into current namespace
         m_setNsAliases.insert(sImportNs);
-        return;
       }
       sSchemaLocation = pLocation->GetValue();
     }
@@ -3230,7 +3229,7 @@ namespace codegen
       xml::Element* pElemDefinitions = &rElemImport;
       for (; pElemDefinitions != NULL; pElemDefinitions = pElemDefinitions->GetParent())
       {
-        if (pElemDefinitions->GetName() == "definitions")
+        if (pElemDefinitions->GetName() == "definitions" || pElemDefinitions->GetName() == "schema")
         {
           break;
         }
