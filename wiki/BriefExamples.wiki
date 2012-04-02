@@ -61,7 +61,7 @@ int CalculatorImpl::Add(int a, int b)
 int main(int, const char**)
 {
   // get Calculator service by default url
-  std::auto_ptr<Calculator> calc = staff::CServiceFactory::Inst().GetService<Calculator>();
+  std::auto_ptr<Calculator> calc = staff::ServiceFactory::Inst().GetService<Calculator>();
 
   // execute Add operation
   int result = calc->Add(1, 2);
@@ -107,7 +107,7 @@ public:
     staff::LogInfo() << "Add(asynch) result: " << tResult;
   }
 
-  void OnFault(const staff::CDataObject& rFault)
+  void OnFault(const staff::DataObject& rFault)
   {
     // process error here
     staff::LogError() << rFault.ToString();
@@ -118,7 +118,7 @@ int main(int, const char**)
 {
   try
   {
-    std::auto_ptr< Calculator > pCalculator(::staff::CServiceFactory::Inst().GetService<Calculator>());
+    std::auto_ptr< Calculator > pCalculator(::staff::ServiceFactory::Inst().GetService<Calculator>());
 
     STAFF_ASSERT(pCalculator.get(), "Cannot get client for service Calculator!");
 
@@ -274,7 +274,7 @@ std::ostream& operator<<(std::ostream& out, const User& user)
 int main(int, const char**)
 {
   // get Users service by default url
-  std::auto_ptr<Users> users = staff::CServiceFactory::Inst().GetService<Users>();
+  std::auto_ptr<Users> users = staff::ServiceFactory::Inst().GetService<Users>();
 
   // execute operations
   // add users
