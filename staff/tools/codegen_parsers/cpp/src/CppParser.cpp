@@ -639,14 +639,15 @@ namespace codegen
 
             }
 
-            // detect '&'
-            if ((nEnd + 1) < nTemplateSize)
+          }
+
+          // detect '&'
+          if ((nEnd + 1) < nTemplateSize)
+          {
+            nTmp = sTemplate.find_first_of(",>", nEnd + 1);
+            if (nTmp != std::string::npos)
             {
-              nTmp = sTemplate.find_first_of(",>", nEnd + 1);
-              if (nTmp != std::string::npos)
-              {
-                nEnd = nTmp;
-              }
+              nEnd = nTmp;
             }
           }
 
