@@ -63,6 +63,15 @@
         <execute>ps -C $(sProcessName) o pid,time,command</execute>
       </operation>
 
+      <operation name="Add" descr="calculate sum for A and B">
+        <params>
+          <nA type="int"/>
+          <nB type="int"/>
+        </params>
+        <return type="int" />
+        <execute>echo \$(($(nA) + $(nB)))</execute>
+      </operation>
+
     </operations>
 
   </datasource>

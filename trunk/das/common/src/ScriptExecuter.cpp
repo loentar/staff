@@ -457,6 +457,13 @@ namespace das
 
       while ((nBegin = sResult.find('$', nEnd)) != std::string::npos)
       {
+        if (nBegin > 0 && sResult[nBegin - 1] == '\\')
+        {
+          sResult.erase(nBegin - 1, 1);
+          nEnd = nBegin;
+          continue;
+        }
+
         std::string::size_type nSize = sResult.size();
         bool bIsRequest = false;
 
