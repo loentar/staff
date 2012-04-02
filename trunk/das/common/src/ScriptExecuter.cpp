@@ -321,7 +321,15 @@ namespace das
 
     void ProcessVar(const DataObject& rdoContext, const xml::Element& rScript)
     {
-      const std::string& sVarName = rScript.GetAttributeValue("name");
+      std::string sVarName = rScript.GetAttributeValue("name");
+      std::string sVarPath;
+
+      std::string::size_type nPos = sVarName.find_first_of('.');
+      if (nPos != std::string::npos)
+      {
+        sVarPath = sVarName.substr(nPos + 1);
+        sVarName.erase(nPos);
+      }
 
       Var& rVar = m_mVars[sVarName];
 
@@ -360,6 +368,15 @@ namespace das
         if (rVar.tType.eType == DataType::Void)
         {
           rVar.tType.eType = DataType::Generic;
+        }
+        else
+        if (rVar.tType.eType == DataType::DataObject ||
+            rVar.tType.eType == DataType::Struct ||
+            rVar.tType.eType == DataType::List)
+        {
+          DataObject doChild;
+          GetChild(rVar.tdoValue, sVarPath, doChild, true);
+          doChild.SetText(rVar.sValue);
         }
       }
       else
@@ -615,7 +632,8 @@ namespace das
     }
 
 
-    void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult)
+    void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult,
+                  bool bCreate = false)
     {
       rdoResult = rdoContext;
 
@@ -651,7 +669,14 @@ namespace das
           else
           {
             rdoResult.SetOwner(false);
-            rdoResult = rdoResult.GetChildByLocalName(sName);
+            if (!bCreate)
+            {
+              rdoResult = rdoResult.GetChildByLocalName(sName);
+            }
+            else
+            {
+              rdoResult = rdoResult.CreateChildOnce(sName);
+            }
           }
 
           nBegin = nEnd + 1;
