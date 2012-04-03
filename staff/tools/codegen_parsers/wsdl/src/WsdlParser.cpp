@@ -1445,6 +1445,7 @@ namespace codegen
         Class& rClass = rInterface.lsClasses.back();
         const xml::Element& rService = *pElemService;
         rClass.sName = rService.GetAttributeValue("name");
+        FixId(rClass.sName);
 
         StringMap::const_iterator itTns = rInterface.mOptions.find("targetNamespace");
         if (itTns != rInterface.mOptions.end())
