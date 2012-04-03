@@ -25,6 +25,7 @@
 #include <staff/utils/Log.h>
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/tostring.h>
+#include <staff/utils/fromstring.h>
 #include <staff/utils/stringutils.h>
 #include <staff/common/Attribute.h>
 #include <staff/common/DataObject.h>
@@ -87,6 +88,11 @@ namespace das
         if (sOperator == "ifneq")
         {
           ProcessIfeq(rdoContext, *pOperator, rReturnType, rdoResult, false);
+        }
+        else
+        if (sOperator == "if")
+        {
+          ProcessIf(rdoContext, *pOperator, rReturnType, rdoResult);
         }
         else
         if (sOperator == "return")
@@ -424,6 +430,106 @@ namespace das
            Eval(rdoContext, rScript.GetAttributeValue("expr2"))) == bEqual)
       {
         ProcessSequence(rdoContext, rScript, rReturnType, rdoResult);
+      }
+    }
+
+
+    void ProcessIf(const DataObject& rdoContext, const xml::Element& rScript,
+                   const DataType& rReturnType, DataObject& rdoResult)
+    {
+      bool bProcess = false;
+
+      const std::string& sOp = Eval(rdoContext, rScript.GetAttributeValue("op"));
+      const std::string& sValue1 = Eval(rdoContext, rScript.GetAttributeValue("expr1"));
+      const std::string& sValue2 = Eval(rdoContext, rScript.GetAttributeValue("expr2"));
+
+      if (sOp == "seq")
+      {
+        bProcess = sValue1 > sValue2;
+      }
+      else
+      if (sOp == "sgt")
+      {
+        bProcess = sValue1 > sValue2;
+      }
+      else
+      if (sOp == "slt")
+      {
+        bProcess = sValue1 < sValue2;
+      }
+      else
+      if (sOp == "sge")
+      {
+        bProcess = sValue1 >= sValue2;
+      }
+      else
+      if (sOp == "sle")
+      {
+        bProcess = sValue1 <= sValue2;
+      }
+      else
+      if (sOp == "sne")
+      {
+        bProcess = sValue1 != sValue2;
+      }
+      else
+      {
+        double dValue1 = 0;
+        double dValue2 = 0;
+
+        FromString(sValue1, dValue1);
+        FromString(sValue2, dValue2);
+
+        if (sOp == "eq")
+        {
+          bProcess = dValue1 > dValue2;
+        }
+        else
+        if (sOp == "gt")
+        {
+          bProcess = dValue1 > dValue2;
+        }
+        else
+        if (sOp == "lt")
+        {
+          bProcess = dValue1 < dValue2;
+        }
+        else
+        if (sOp == "ge")
+        {
+          bProcess = dValue1 >= dValue2;
+        }
+        else
+        if (sOp == "le")
+        {
+          bProcess = dValue1 <= dValue2;
+        }
+        else
+        if (sOp == "ne")
+        {
+          bProcess = dValue1 != dValue2;
+        }
+        else
+        {
+          STAFF_THROW_ASSERT("Invalid op: [" + sOp + "]");
+        }
+      }
+
+      if (bProcess)
+      {
+        const xml::Element* pThen = rScript.FindChildElementByName("then");
+        if (pThen)
+        {
+          ProcessSequence(rdoContext, *pThen, rReturnType, rdoResult);
+        }
+      }
+      else
+      {
+        const xml::Element* pElse = rScript.FindChildElementByName("else");
+        if (pElse)
+        {
+          ProcessSequence(rdoContext, *pElse, rReturnType, rdoResult);
+        }
       }
     }
 

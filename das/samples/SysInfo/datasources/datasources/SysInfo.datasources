@@ -91,6 +91,44 @@
         <execute>sh -c 'echo -n \$(($(nA) + $(nB)))'</execute>
       </operation>
 
+      <!-- example for "if" -->
+      <operation name="Min" descr="calculate min for A and B">
+        <params>
+          <nA type="int"/>
+          <nB type="int"/>
+        </params>
+        <return type="int" />
+        <script>
+          <if expr1="$(nA)" expr2="$(nB)" op="lt">
+            <then>
+              <return>$(nA)</return>
+            </then>
+            <else>
+              <return>$(nB)</return>
+            </else>
+          </if>
+        </script>
+      </operation>
+
+      <!-- example for "if" -->
+      <operation name="MinStr" descr="calculate min for A and B">
+        <params>
+          <nA type="string"/>
+          <nB type="string"/>
+        </params>
+        <return type="int" />
+        <script>
+          <if expr1="$(nA)" expr2="$(nB)" op="slt">
+            <then>
+              <return>$(nA)</return>
+            </then>
+            <else>
+              <return>$(nB)</return>
+            </else>
+          </if>
+        </script>
+      </operation>
+
     </operations>
 
   </datasource>
