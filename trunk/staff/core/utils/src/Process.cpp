@@ -31,6 +31,13 @@
 #else
 #include <Windows.h>
 #endif
+#include <limits.h>
+#ifdef __FreeBSD__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#elif defined __APPLE__
+#include <mach-o/dyld.h>
+#endif
 #include "Log.h"
 #include "Error.h"
 #include "Exception.h"
@@ -314,5 +321,55 @@ namespace staff
     return static_cast<int>(dwExitCode);
 #endif
   }
+
+  std::string Process::GetCurrentExecPath()
+  {
+#ifdef WIN32
+    char szPath[MAX_PATH];
+
+    if (!GetModuleFileName(NULL, szPath, MAX_PATH))
+#else
+    char szPath[PATH_MAX];
+#ifdef __FreeBSD__
+    size_t nPathSize = PATH_MAX;
+    int anMib[4];
+    anMib[0] = CTL_KERN;
+    anMib[1] = KERN_PROC;
+    anMib[2] = KERN_PROC_PATHNAME;
+    anMib[3] = -1;
+    sysctl(anMib, 4, szPath, &nPathSize, NULL, 0);
+
+    if(nPathSize > 0)
+    {
+      szPath[nPathSize] = '\0';
+    }
+    else
+#else
+#ifdef __APPLE__
+    uint32_t nPathSize = PATH_MAX;
+    _NSGetExecutablePath(szPath, &nPathSize);
+    if(nPathSize > 0)
+    {
+      szPath[nPathSize] = '\0';
+    }
+    else
+#else
+    int nReaded = readlink("/proc/self/exe", szPath, PATH_MAX);
+
+    if(nReaded > 0)
+    {
+      szPath[nReaded] = '\0';
+    }
+    else
+#endif
+#endif
+#endif
+    {
+      return "";
+    }
+
+    return szPath;
+  }
+
 
 }
