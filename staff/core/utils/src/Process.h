@@ -75,6 +75,11 @@ namespace staff
       */
     int Wait();
 
+    //! get current exec path
+    /*! \return filename of executable with path
+      */
+    static std::string GetCurrentExecPath();
+
   private:
     struct ProcessImpl;
     ProcessImpl* m_pImpl;

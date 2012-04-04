@@ -39,6 +39,7 @@
 #include <map>
 #include "tostring.h"
 #include "File.h"
+#include "Process.h"
 #include "Error.h"
 #include "Log.h"
 #include "StackTracer.h"
@@ -400,6 +401,10 @@ namespace staff
           *szFunction = '\0';
           ++szFunction;
           szEnd = strchr(szFunction, '+');
+          if (!szEnd)
+          {
+            szEnd = strchr(szFunction, ')');
+          }
           if (szEnd)
           {
             *szEnd = '\0';
@@ -416,9 +421,17 @@ namespace staff
 
         if (dladdr(pAddr, &tDlInfo))
         {
-          szContext = reinterpret_cast<const char*>(tDlInfo.dli_fname);
-          pAddr = reinterpret_cast<const void*>(reinterpret_cast<long>(pAddr) -
-                                                reinterpret_cast<long>(tDlInfo.dli_fbase));
+          if (tDlInfo.dli_sname) // shared library
+          {
+            szContext = reinterpret_cast<const char*>(tDlInfo.dli_fname);
+            pAddr = reinterpret_cast<const void*>(reinterpret_cast<long>(pAddr) -
+                                                  reinterpret_cast<long>(tDlInfo.dli_fbase));
+          }
+          else
+          {
+            static const std::string& sExecPath = Process::GetCurrentExecPath();
+            szContext = sExecPath.c_str();
+          }
         }
 
         if (!ToHexCString(pAddr, szAddress, sizeof(szAddress)))
