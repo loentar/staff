@@ -361,7 +361,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
 #ifeq($(Param.Options.*useParentElement||Member.Options.*inlineRequestElement),)
-#var sdoParam rdoRequest.CreateChild("$(Param.Name)")
+#var sdoParam rdoRequest.CreateChild("$(Param.Options.*elementName||Param.Name)")
 #var sElementName
 #else
 #var sdoParam rdoRequest

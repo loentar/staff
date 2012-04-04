@@ -1237,6 +1237,10 @@ namespace codegen
 
         Param stParam;
         stParam.sName = StripPrefix(sPartName);
+        if (FixId(stParam.sName))
+        {
+          stParam.mOptions["elementName"] = StripPrefix(sPartName);
+        }
 
         const std::string& sName = StripPrefix(sType);
         const std::string& sPrefix = GetPrefix(sType);
