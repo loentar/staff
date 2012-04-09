@@ -155,6 +155,7 @@ namespace xml
         STAFF_XML_ASSERT(chTmp == '"' || chTmp == '\'', "quote expected while reading attribute/namespace ["
                          + sName + "]", m_sFileName, m_nLine);
         ReadStringWithChr(sValue, chTmp);
+        UnescapeString(sValue);
 
         if (sName == "xmlns")
         {
@@ -182,6 +183,7 @@ namespace xml
       {
         // text node child
         ReadStringWithChr(sValue, '<');
+        UnescapeString(sValue);
 
         if (!sValue.empty())
         {

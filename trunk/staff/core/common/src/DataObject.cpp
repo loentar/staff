@@ -1354,6 +1354,17 @@ namespace staff
     return tdoClone.Clone(*this);
   }
 
+  DataObject DataObject::Copy() const
+  {
+    DataObject tdoResult;
+    tdoResult.m_pAxiomNode = m_pAxiomNode;
+    tdoResult.m_pAxiomElement = m_pAxiomElement;
+    tdoResult.m_pChildNs = m_pChildNs;
+    tdoResult.m_bElemFormDefaultQualified = m_bElemFormDefaultQualified;
+    tdoResult.m_bAttrFormDefaultQualified = m_bAttrFormDefaultQualified;
+    return *this;
+  }
+
   DataObject DataObject::Parent()
   {
     STAFF_ASSERT(m_pAxiomNode, "Not initialized");

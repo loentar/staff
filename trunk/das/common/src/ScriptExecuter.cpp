@@ -95,6 +95,11 @@ namespace das
           ProcessIf(rdoContext, *pOperator, rReturnType, rdoResult);
         }
         else
+        if (sOperator == "switch")
+        {
+          ProcessSwitch(rdoContext, *pOperator, rReturnType, rdoResult);
+        }
+        else
         if (sOperator == "return")
         {
           ProcessReturn(rdoContext, *pOperator, rReturnType, rdoResult);
@@ -534,6 +539,44 @@ namespace das
     }
 
 
+    void ProcessSwitch(const DataObject& rdoContext, const xml::Element& rScript,
+                       const DataType& rReturnType, DataObject& rdoResult)
+    {
+      const std::string& sSwitchValue = Eval(rdoContext, rScript.GetAttributeValue("expr"));
+      const xml::Element* pElemCase = rScript.GetFirstChildElement();
+
+      for (; pElemCase; pElemCase = pElemCase->GetNextSiblingElement())
+      {
+        if (pElemCase->GetName() == "default")
+        {
+          continue;
+        }
+
+        if (pElemCase->GetName() != "case")
+        {
+          LogError() << "Invalid element name: [" << pElemCase->GetName() << "] ignored.";
+          continue;
+        }
+
+        const std::string& sCaseValue = Eval(rdoContext, pElemCase->GetAttributeValue("expr"));
+        if (sSwitchValue == sCaseValue)
+        {
+          break;
+        }
+      }
+
+      if (!pElemCase)
+      {
+        pElemCase = rScript.FindChildElementByName("default");
+      }
+
+      if (pElemCase)
+      {
+        ProcessSequence(rdoContext, *pElemCase, rReturnType, rdoResult);
+      }
+    }
+
+
     void ProcessReturn(const DataObject& rdoContext, const xml::Element& rScript,
                        const DataType& rReturnType, DataObject& rdoResult)
     {
@@ -660,7 +703,7 @@ namespace das
             sValue = rdoContext.GetText();
           }
           else
-          if (sVarName == "nodeValue")
+          if (sVarName == "nodeName")
           {
             sValue = rdoContext.GetLocalName();
           }
@@ -741,17 +784,48 @@ namespace das
     void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult,
                   bool bCreate = false)
     {
-      rdoResult = rdoContext;
+      rdoResult = rdoContext.Copy();
 
       if (!sChildPath.empty())
       {
         std::string::size_type nSize = sChildPath.size();
         STAFF_ASSERT(nSize > 1, "invalid node name: [" + sChildPath + "]");
 
-        std::string sPath =
-            (sChildPath[0] == '$' && sChildPath[1] == '(' && sChildPath[nSize - 1] == ')') ?
-            sChildPath.substr(2, nSize - 3) :
-            sChildPath;
+        std::string sPath;
+        if (sChildPath[0] == '$')
+        {
+          if (sChildPath[1] == '[' && sChildPath[nSize - 1] == ']')
+          {
+            sPath = sChildPath.substr(2, nSize - 3);
+            std::string::size_type nPos = sPath.find('.');
+            if (nPos == std::string::npos)
+            {
+              rdoResult = m_mVars[sPath].tdoValue.Copy();
+              return;
+            }
+            else
+            {
+              rdoResult = m_mVars[sPath.substr(0, nPos)].tdoValue.Copy();
+              sPath.erase(0, nPos + 1);
+            }
+          }
+          else
+          if (sChildPath[1] == '(' && sChildPath[nSize - 1] == ')')
+          {
+            sPath = sChildPath.substr(2, nSize - 3);
+          }
+          else
+          {
+            LogError() << "Invalid path: [" << sChildPath << "]";
+            return;
+          }
+        }
+        else
+        {
+          sPath = sChildPath;
+        }
+
+
         std::string::size_type nBegin = 0;
         std::string::size_type nEnd = 0;
         std::string sName;
@@ -774,7 +848,6 @@ namespace das
           }
           else
           {
-            rdoResult.SetOwner(false);
             if (!bCreate)
             {
               rdoResult = rdoResult.GetChildByLocalName(sName);

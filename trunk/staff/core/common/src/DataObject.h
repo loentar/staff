@@ -396,6 +396,11 @@ namespace staff
         */
     DataObject Clone() const;
 
+    //! return DataObject copy without losing owner flag
+    /*! \return copy of this object
+      */
+    DataObject Copy() const;
+
     //! get parent element
     /*! \return parent element
       */
