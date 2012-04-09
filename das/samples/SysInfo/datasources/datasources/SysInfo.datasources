@@ -129,6 +129,62 @@
         </script>
       </operation>
 
+      <!-- example for "switch/case" -->
+      <operation name="GetProcessState" descr="get process state by pid">
+        <params>
+          <nPid type="int"/>
+        </params>
+        <return type="string" />
+        <script>
+          <var name="result" type="string" />
+          <var name="stat" type="DataObject">
+            <!-- first echo - to set column name -->
+            <execute trim="true">sh -c 'echo stat; ps -p $(nPid) -ostat= | sed "s/./&amp;\n/g"'</execute>
+          </var>
+          <foreach element="$[stat]">
+            <switch expr="$(stat)">
+              <case expr="D">
+                <var name="result" value="$result Uninterruptible" />
+              </case>
+              <case expr="R">
+                <var name="result" value="$result Running" />
+              </case>
+              <case expr="S">
+                <var name="result" value="$result Sleeping" />
+              </case>
+              <case expr="T">
+                <var name="result" value="$result Stopped" />
+              </case>
+              <case expr="Z">
+                <var name="result" value="$result Zombie" />
+              </case>
+              <case expr="&lt;">
+                <var name="result" value="$result high-priority" />
+              </case>
+              <case expr="N">
+                <var name="result" value="$result low-priority" />
+              </case>
+              <case expr="L">
+                <var name="result" value="$result has-pages-locked" />
+              </case>
+              <case expr="s">
+                <var name="result" value="$result session-leader" />
+              </case>
+              <case expr="l">
+                <var name="result" value="$result multi-threaded" />
+              </case>
+              <case expr="+">
+                <var name="result" value="$result foreground" />
+              </case>
+              <default>
+                <var name="result" value="$result unknown[$(stat)]" />
+              </default>
+            </switch>
+          </foreach>
+          <return>$result</return>
+        </script>
+      </operation>
+
     </operations>
 
   </datasource>
