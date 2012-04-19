@@ -190,17 +190,18 @@ namespace xml
       {
         m_pParent->m_pLastChild = m_pPreviousSibling;
       }
+      m_pParent = NULL;
     }
     if (m_pNextSibling)
     {
       m_pNextSibling->m_pPreviousSibling = m_pPreviousSibling;
+      m_pNextSibling = NULL;
     }
     if (m_pPreviousSibling)
     {
       m_pPreviousSibling->m_pNextSibling = m_pNextSibling;
+      m_pPreviousSibling = NULL;
     }
-    m_pNextSibling = NULL;
-    m_pPreviousSibling = NULL;
 
     return this;
   }
