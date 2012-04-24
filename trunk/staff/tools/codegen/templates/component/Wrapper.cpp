@@ -5,6 +5,7 @@
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/utils/SharedPtr.h>
 #ifeqend
+#include <staff/utils/Log.h>
 #include <staff/utils/fromstring.h>
 #include <staff/utils/tostring.h>
 #include <staff/utils/HexBinary.h>

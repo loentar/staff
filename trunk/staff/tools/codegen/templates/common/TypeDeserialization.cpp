@@ -158,6 +158,11 @@ $($doName).FirstChild()\
 #else
 \
 \
+#ifeq($(.Namespace)$(.Name),staff::Array)    // ### soapArray ###
+#var bSoapEncPrefix
+#cginclude "ArrayDeserialization.cpp"
+#else
+\
 #ifeq($(.Type),template)                                       // ==== template ====
   for (staff::DataObject tdoItem = $($sdoParam).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
@@ -254,7 +259,8 @@ $($doName).FirstChild()\
   }
 
 #else
-#cgerror unknown type($(.Type)) of sParamName: $(Struct.NsName)::$(.Name)
+#cgerror unknown type($(.Type)) of sParamName: $(.Namespace)::$(.Name)
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend

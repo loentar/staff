@@ -95,6 +95,10 @@
 #else
 \
 \
+#ifeq($(.Namespace)$(.Name),staff::Array)                      // ### soapArray ###
+#cginclude "ArraySerialization.cpp"
+#else
+\
 #ifeq($(.Type),template)                                       // ==== template ====
   for ($(.NsName)::const_iterator itItem = ($($sOptMod)$($sParam)).begin(), itItemEnd = ($($sOptMod)$($sParam)).end();
        itItem != itItemEnd; ++itItem)
@@ -160,6 +164,7 @@
 
 #else
 #cgerror unknown type($(.Type)) of sParamName: $(Struct.NsName)::$(.Name)
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
