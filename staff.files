@@ -115,6 +115,7 @@ staff/core/client/src/ServiceFactory.cpp
 staff/core/client/src/ServiceFactory.h
 staff/core/client/src/staffclientexport.h
 staff/core/common/src/Abstract.h
+staff/core/common/src/Array.h
 staff/core/common/src/Attribute.cpp
 staff/core/common/src/Attribute.h
 staff/core/common/src/DataObject.cpp
@@ -250,6 +251,9 @@ staff/samples/abstract/client/src/Transport.h
 staff/samples/abstract/component/src/Transport.h
 staff/samples/abstract/component/src/TransportImpl.cpp
 staff/samples/abstract/component/src/TransportImpl.h
+staff/samples/array/component/src/SoapArrayService.h
+staff/samples/array/component/src/SoapArrayServiceImpl.cpp
+staff/samples/array/component/src/SoapArrayServiceImpl.h
 staff/samples/binarydata/client/src/KeyGenerator.h
 staff/samples/binarydata/client/src/main.cpp
 staff/samples/binarydata/component/src/KeyGenerator.h
@@ -393,6 +397,9 @@ staff/tools/codegen/templates/client/codegen.config
 staff/tools/codegen/templates/clientimpl/main.cpp
 staff/tools/codegen/templates/client/Proxy.cpp
 staff/tools/codegen/templates/client/Proxy.h
+staff/tools/codegen/templates/common/ArrayDeserialization.cpp
+staff/tools/codegen/templates/common/ArraySerialization.cpp
+staff/tools/codegen/templates/common/ArrayType.cpp
 staff/tools/codegen/templates/common/EnumSerialization.cpp
 staff/tools/codegen/templates/common/Serialization.cpp
 staff/tools/codegen/templates/common/Serialization.h

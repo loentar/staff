@@ -659,6 +659,14 @@ namespace codegen
         sFunction.erase(0, nPosWhat + 1);
       }
       else
+      if (sFunction.substr(0, 5) == "trunc")
+      {
+        double dTmp = 0;
+        FromString(sResult, dTmp);
+        ToString(static_cast<long>(dTmp), sResult);
+        sFunction.erase(0, 5);
+      }
+      else
       {
         STAFF_THROW_ASSERT("function " + sFunction + " is undefined");
       }
@@ -745,6 +753,18 @@ namespace codegen
           xml::Element tVarElement(sValue);
           tVarElement.SetValue(sValue);
           sValue = GetValue(sValue + sName.substr(17), tVarElement);
+        }
+        else
+        if (sName.substr(0, 16) == "$ThisElementPath")
+        {
+          sValue = GetElementPath(&rElement);
+          if (sName.size() == 16)
+          {
+            return;
+          }
+          xml::Element tVarElement(sValue);
+          tVarElement.SetValue(sValue);
+          sValue = GetValue(sValue + sName.substr(16), tVarElement);
         }
         else
         {
@@ -1395,6 +1415,17 @@ namespace codegen
         if (sLine.substr(0, 10) == "#cgpopvars")
         {
           m_tmVariables.pop();
+        }
+        else
+        if (sLine.substr(0, 11) == "#cgdumpvars")
+        {
+          const StringMap& rmVars = m_tmVariables.top();
+          sLine = "variables dump:";
+          for (StringMap::const_iterator itVar = rmVars.begin(); itVar != rmVars.end(); ++itVar)
+          {
+            sLine += "\n" + itVar->first + "=\"" + itVar->second + "\"";
+          }
+          fsOut << sLine << "\n";
         }
         else
         {
