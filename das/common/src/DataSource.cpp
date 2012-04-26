@@ -410,7 +410,7 @@ namespace das
   {
     xml::Element* pChildToRemove = NULL;
     for (xml::Element* pInclude = rNode.FindChildElementByName("include");
-      pInclude; pInclude = pInclude->FindChildElementByName("include", pInclude))
+      pInclude; pInclude = rNode.FindChildElementByName("include", pInclude))
     {
       const std::string& sFileName = pInclude->GetAttributeValue("filename");
 
