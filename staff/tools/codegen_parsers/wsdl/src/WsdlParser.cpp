@@ -1465,6 +1465,7 @@ namespace codegen
           {
             rClass.mOptions["serviceUri"] = pElemAddress->GetAttributeValue("location");
           }
+          rClass.mOptions["soapVersion"] = "1.1";
 
           const std::string& sBindingName = StripPrefix(pElemPort->GetAttributeValue("binding"));
 
