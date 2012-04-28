@@ -562,7 +562,8 @@ namespace staff
       axis2_svc_client_add_header(m_pSvcClient, m_pEnv, pNodeInstanceId);
     }
 
-    if (!m_pOptions->GetDefaultNamespaceUri().empty())
+    if (!m_pOptions->GetDefaultNamespaceUri().empty() &&
+        !m_pOptions->GetDefaultNamespacePrefix().empty())
     {
       axiom_namespace_t* pNamespace =
           axiom_namespace_create(m_pEnv, m_pOptions->GetDefaultNamespaceUri().c_str(),

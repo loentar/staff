@@ -574,12 +574,25 @@ namespace xml
       }
       m_pImpl->SkipWhitespace();
       std::string sComment;
+      bool bSkip = false;
       // skip comments before root element node
-      while (m_pImpl->Test("<!--"))
+      do
       {
-        m_pImpl->ReadStringWithStr(sComment, "-->");
+        bSkip = false;
+        if (m_pImpl->Test("<!--"))
+        {
+          m_pImpl->ReadStringWithStr(sComment, "-->");
+          bSkip = true;
+        }
+        m_pImpl->SkipWhitespace();
+        if (m_pImpl->Test("<?"))
+        {
+          m_pImpl->ReadStringWithStr(sComment, "?>");
+          bSkip = true;
+        }
         m_pImpl->SkipWhitespace();
       }
+      while (bSkip);
       m_pImpl->ReadElement(rDocument.GetRootElement());
     }
     catch (const Exception&)
