@@ -1236,11 +1236,6 @@ namespace codegen
         const std::string& sType = pType->GetValue();
 
         Param stParam;
-        stParam.sName = StripPrefix(sPartName);
-        if (FixId(stParam.sName))
-        {
-          stParam.mOptions["elementName"] = StripPrefix(sPartName);
-        }
 
         const std::string& sName = StripPrefix(sType);
         const std::string& sPrefix = GetPrefix(sType);
@@ -1251,12 +1246,19 @@ namespace codegen
 
         if (!bIsResponse)
         {
+          stParam.sName = StripPrefix(sPartName);
+          if (FixId(stParam.sName))
+          {
+            stParam.mOptions["elementName"] = StripPrefix(sPartName);
+          }
+
           FixParamDataType(stParam.stDataType);
           rMember.lsParams.push_back(stParam);
         }
         else
         {
           rMember.stReturn = stParam;
+          rMember.mOptions["resultElement"] = StripPrefix(sPartName);
         }
       }
     }
@@ -1275,6 +1277,7 @@ namespace codegen
     void ParseResponse(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
     {
       ParsePart(rMember, rMessage.GetChildElementByName("part"), rWsdlTypes, true, false);
+      rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
     }
 
     void ParseFault(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
