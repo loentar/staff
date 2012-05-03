@@ -30,7 +30,7 @@ $($sNewOpeningNs)
  = $(Member.Value)\
 #ifeqend
 #ifeqend
-#ifneq($($nEnumMembers),$(Member.$Num))
+#ifneq($($nEnumMembers.!trunc),$(Member.$Num))
 ,\
 #ifeqend
 #ifneq($(Member.Description),)
