@@ -199,7 +199,6 @@ namespace xml
         if (Test("!--"))
         {
           ReadStringWithStr(sValue, "-->");
-          UnescapeString(sValue);
           rElement.CreateChildComment(sValue);
         }
         else

@@ -1276,8 +1276,12 @@ namespace codegen
 
     void ParseResponse(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
     {
-      ParsePart(rMember, rMessage.GetChildElementByName("part"), rWsdlTypes, true, false);
-      rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
+      const xml::Element& rPart = rMessage.GetChildElementByName("part");
+      ParsePart(rMember, rPart, rWsdlTypes, true, false);
+      if (!rPart.IsAttributeExists("element"))
+      {
+        rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
+      }
     }
 
     void ParseFault(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
