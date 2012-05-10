@@ -787,7 +787,7 @@ LOGLABEL;
       {
         LOG1("Failed to open apache2 pid file: %s", strerror(errno));
       }
-      return;
+      return APR_EGENERAL;
     }
 
     nError = read(nLockFileId, szPid, sizeof(szPid) - 1);
@@ -800,7 +800,7 @@ LOGLABEL;
       if (nAxis2Pid <= 0)
       {
         LOG1("Invalid PID: %d", nAxis2Pid);
-        return;
+        return APR_EGENERAL;
       }
 
       nError = kill(nAxis2Pid, SIGINT);
@@ -813,7 +813,7 @@ LOGLABEL;
         else
         {
           LOG2("Failed to stop Axis2 (PID=%d): %s", nAxis2Pid, strerror(errno));
-          return;
+          return APR_EGENERAL;
         }
       }
       else
