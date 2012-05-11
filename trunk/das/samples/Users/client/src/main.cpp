@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <memory>
+#include <staff/utils/tostring.h>
 #include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Exception.h>
@@ -54,17 +55,17 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     // add 2 new users
-    LogInfo() << "adding john..";
+    staff::LogInfo() << "adding john..";
     int nJohnId = pUsers->Add("john", "secret", "John Smitt");
-    LogInfo() << "john's id: " << nJohnId;
+    staff::LogInfo() << "john's id: " << nJohnId;
 
-    LogInfo() << "adding mary..";
+    staff::LogInfo() << "adding mary..";
     staff::das::samples::UserToAdd stUser;
     stUser.sName = "mary";
     stUser.sPassword = "pwd123";
     stUser.sDescr = "Mary";
     int nMaryId = pUsers->AddStruct(stUser);
-    LogInfo() << "mary's id: " << nMaryId;
+    staff::LogInfo() << "mary's id: " << nMaryId;
 
 
     // get and show users list
@@ -73,7 +74,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     std::cout << lsUsers << "\n";
 
 
-    LogInfo() << "adding 5 test users within 1 operation..";
+    staff::LogInfo() << "adding 5 test users within 1 operation..";
     // test multiple users insert
     staff::das::samples::UserToAddList lsUsersToAdd;
     for (int nNum = 1; nNum <= 5; ++nNum)
@@ -96,23 +97,19 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     // remove users
-    LogInfo() << "getting john's id by name";
+    staff::LogInfo() << "getting john's id by name";
     nJohnId = pUsers->GetUserIdByName("john"); // for test
-    LogInfo() << "removing john";
+    staff::LogInfo() << "removing john";
     pUsers->Remove(nJohnId);
 
-    LogInfo() << "getting mary's id by name";
+    staff::LogInfo() << "getting mary's id by name";
     nMaryId = pUsers->GetUserIdByName("mary"); // for test
-    LogInfo() << "removing mary";
+    staff::LogInfo() << "removing mary";
     pUsers->Remove(nMaryId);
 
 
-    LogInfo() << "removing users list";
+    staff::LogInfo() << "removing users list";
     pUsers->RemoveList(lsInsertedUsersIds);
-  }
-  catch(const staff::RemoteException& rEx)
-  {
-    LogError() << rEx.GetDescr();
   }
   STAFF_CATCH_ALL
 

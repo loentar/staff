@@ -24,6 +24,7 @@
 #include <staff/utils/Log.h>
 #include <staff/utils/stringutils.h>
 #include <staff/utils/tostring.h>
+#include <staff/utils/File.h>
 #include <staff/xml/Element.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
@@ -92,6 +93,7 @@ namespace das
       int nResult = sqlite3_prepare_v2(m_pProvider->m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &m_pResult, NULL);
       STAFF_ASSERT(nResult == SQLITE_OK, "error #" + ToString(nResult) + ": "
                    + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
+                   + "; db: \"" + m_pProvider->m_pImpl->m_sDataBase + "\""
                    + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
 
       m_nLastStepStatus = sqlite3_step(m_pResult);
@@ -104,6 +106,7 @@ namespace das
         STAFF_ASSERT(m_nLastStepStatus == SQLITE_DONE || m_nLastStepStatus == SQLITE_OK,
                      "error #" + ToString(m_nLastStepStatus) + ": "
                       + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
+                     + "; db: \"" + m_pProvider->m_pImpl->m_sDataBase + "\""
                       + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
       }
     }
@@ -198,6 +201,11 @@ namespace das
 
     STAFF_ASSERT(m_pImpl->m_pConn == NULL, "Already connected");
     sqlite3_enable_shared_cache(1);
+
+    if (!File(m_pImpl->m_sDataBase).IsAnyFile())
+    {
+      LogWarning() << "Database file does not exists: \"" << m_pImpl->m_sDataBase << "\"";
+    }
 
     // open db
     int nResult = sqlite3_open(m_pImpl->m_sDataBase.c_str(), &m_pImpl->m_pConn);
