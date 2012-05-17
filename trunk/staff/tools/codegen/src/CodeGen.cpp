@@ -479,7 +479,7 @@ namespace codegen
         sFunction.erase(0, nPosEnd + 1);
         ReplaceToValue(sWhat, rElement);
 
-        sResult = rElement.GetTextValue() + sWhat;
+        sResult += sWhat;
       }
       else
       if (sFunction.substr(0, 8) == "prepend/")
@@ -490,7 +490,7 @@ namespace codegen
         sFunction.erase(0, nPosEnd + 1);
         ReplaceToValue(sWhat, rElement);
 
-        sResult = sWhat + rElement.GetTextValue();
+        sResult = sWhat + sResult;
       }
       else
       if (sFunction.substr(0, 9) == "deprefix/")
