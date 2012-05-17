@@ -176,7 +176,8 @@ void $(Class.Name)Proxy::Init(const std::string& sServiceUri, const std::string&
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+      STAFF_ASSERT_SOAPFAULT(!tOperation.IsFault(), tOperation.GetFaultCode(),
+                             tOperation.GetFaultString(), tOperation.GetFaultDetail()); // soap fault
       STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " +
                   tOperation.GetResponse().ToString()); // other fault
     }
@@ -193,7 +194,8 @@ void $(Class.Name)Proxy::Deinit()
     tOperation.SetResponse(m_tClient.Invoke(tOperation.Request()));
     if (m_tClient.GetLastResponseHasFault())
     {
-      STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+      STAFF_ASSERT_SOAPFAULT(!tOperation.IsFault(), tOperation.GetFaultCode(),
+                             tOperation.GetFaultString(), tOperation.GetFaultDetail()); // soap fault
       STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " +
                   tOperation.GetResponse().ToString()); // other fault
     }
@@ -385,7 +387,8 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   tOperation.SetResponse(m_tClient.$($SendMethod)(rdoRequest));
   if (m_tClient.GetLastResponseHasFault())
   {
-    STAFF_ASSERT_REMOTE(!tOperation.IsFault(), tOperation.GetFaultString()); // soap fault
+    STAFF_ASSERT_SOAPFAULT(!tOperation.IsFault(), tOperation.GetFaultCode(),
+                           tOperation.GetFaultString(), tOperation.GetFaultDetail()); // soap fault
     STAFF_THROW(::staff::RemoteException, "Failed to invoke service: " + tOperation.GetResponse().ToString()); // other fault
   }
 #else

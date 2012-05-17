@@ -404,6 +404,12 @@ namespace staff
 #endif
 
     axiom_node_t* pAxiomResponseNode = axis2_svc_client_send_receive(m_pSvcClient, m_pEnv, rdoPayload);
+
+    if (m_pEnv->error->status_code == AXIS2_ERROR_RESPONSE_TIMED_OUT)
+    {
+      STAFF_THROW(TimeoutException, "Axis2/C client send receive failed. error: " + GetLastErrorStr())
+    }
+
     STAFF_ASSERT(pAxiomResponseNode, "Axis2/C client send receive failed. error: " + GetLastErrorStr());
 
 #ifdef _DEBUG
