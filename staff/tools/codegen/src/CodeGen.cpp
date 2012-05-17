@@ -797,7 +797,7 @@ namespace codegen
 
       while((nPosStart = sString.find("$(", nPosEnd)) != std::string::npos)
       {
-        if (nPosStart > 0 && sString[nPosStart - 1] == '\\')
+        if (nPosStart > 0 && sString[nPosStart - 1] == '\\' && nPosEnd != nPosStart)
         {
           sString.erase(nPosStart - 1, 1);
           nPosEnd = nPosStart + 1;
