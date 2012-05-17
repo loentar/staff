@@ -33,9 +33,31 @@
 #define STAFF_ASSERT_REMOTE(EXPRESSION, DESCRIPTION) \
   if (!(EXPRESSION)) STAFF_THROW(::staff::RemoteException, DESCRIPTION)
 
+#define STAFF_THROW_SOAPFAULT(CODE, STRING, DETAIL) \
+  throw ::staff::SoapFaultException(STAFF_FILE_LINE, __FUNCTION__, CODE, STRING, DETAIL);
+
+//! assert expression and generate remote exception
+#define STAFF_ASSERT_SOAPFAULT(EXPRESSION, CODE, STRING, DETAIL) \
+  if (!(EXPRESSION)) STAFF_THROW_SOAPFAULT(CODE, STRING, DETAIL)
+
 
 namespace staff
 {
+
+  //! timeout exception class
+  class TimeoutException: public Exception
+  {
+  public:
+    //! exception constructor
+    /*! \param  szFileLine - source file name and line number
+        \param  szFunction - function signature
+        \param  sDescr - description
+      */
+    inline TimeoutException(const char* szFileLine, const char* szFunction, const std::string& sDescr):
+      Exception(szFileLine, szFunction, sDescr)
+    {
+    }
+  };
 
   //! remote exception class
   class RemoteException: public Exception
@@ -50,6 +72,59 @@ namespace staff
       Exception(szFileLine, szFunction, sDescr)
     {
     }
+  };
+
+  //! soap fault exception class
+  class SoapFaultException: public RemoteException
+  {
+  public:
+    //! exception constructor
+    /*! \param  szFileLine - source file name and line number
+        \param  szFunction - function signature
+        \param  sCode - soap fault code
+        \param  sString - soap fault string
+        \param  sDetail - soap fault detail
+      */
+    inline SoapFaultException(const char* szFileLine, const char* szFunction, const std::string& sCode,
+                              const std::string& sString, const std::string& sDetail):
+      RemoteException(szFileLine, szFunction, sString),
+      m_sCode(sCode), m_sString(sString), m_sDetail(sDetail)
+    {
+    }
+
+    //! destructor
+    inline virtual ~SoapFaultException() throw()
+    {
+    }
+
+    //! get soap fault code
+    /*! \return soap fault code
+      */
+    inline const std::string& GetCode() const throw()
+    {
+      return m_sCode;
+    }
+
+    //! get soap fault string
+    /*! \return soap fault string
+      */
+    inline const std::string& GetString() const throw()
+    {
+      return m_sString;
+    }
+
+    //! get soap fault detail
+    /*! \return soap fault detail
+      */
+    inline const std::string& GetDetail() const throw()
+    {
+      return m_sDetail;
+    }
+
+  private:
+    std::string m_sCode;
+    std::string m_sString;
+    std::string m_sDetail;
   };
 
   class DomException: public Exception
