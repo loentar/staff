@@ -29,7 +29,7 @@ copy /Y %target%\*.dll %componentdir%\ >nul
 #foreach $(Interface.Classes)
 copy /Y \
 #ifneq($($bFromInterface),)
-$($SRCDIR)\
+$($SRCDIR.!replace/\//\\/)\
 #ifneq($(Class.Namespace.!dot),)
 $(Class.Namespace.!dot).\
 #ifeqend
@@ -44,7 +44,7 @@ xsd\
 wsdl\
 #ifeqend
 #ifneq($($bFromInterface),)
- \$(INSTALLDIR)\$(COMDIR)\$(COMPONENT)/\
+ %componentdir%\\
 #ifeqend
  >nul
 #end
