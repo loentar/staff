@@ -15,5 +15,9 @@ set PATH=%STAFF_HOME%\lib;%STAFF_HOME%\bin;%PATH%
 #foreach $(Project.Interfaces)
  $(Interface.Name).h\
 #end
+%STAFF_HOME%\bin\staff_codegen -u -twsdl -c$($SRCDIR.!trim/\//.!replace/\//\\/)\
+#foreach $(Project.Interfaces)
+ $(Interface.Name).h\
+#end
 
 endlocal
