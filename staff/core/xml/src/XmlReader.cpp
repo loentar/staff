@@ -214,7 +214,7 @@ namespace xml
         {
           ReadStringBeforeChr(sName);
           STAFF_XML_ASSERT(sName == rElement.GetPrefixName(), "Invalid name of element end."
-                       " Found: [" + sName + "] expected [" + rElement.GetName() + "]",
+                       " Found: [" + sName + "] expected [" + rElement.GetPrefixName() + "]",
                        m_sFileName, m_nLine);
           SkipWhitespace();
           STAFF_XML_ASSERT(Test(">"), "'>' Expected", m_sFileName, m_nLine);
