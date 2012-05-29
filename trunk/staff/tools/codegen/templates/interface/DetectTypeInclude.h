@@ -17,7 +17,7 @@
 #else
 #ifeq($(.Namespace),staff::)
 \
-#ifeq($(.Name),DataObject||Abstract||Attribute||QName||Operation||ICallback)
+#ifeq($(.Name),DataObject||Abstract||Attribute||QName||Operation||ICallback||Array)
 #ifneq($($aStaffIncludes.!match/$(.Name).h/),true)
 #var aStaffIncludes $($aStaffIncludes)[staff/common/$(.Name).h]
 #ifeqend

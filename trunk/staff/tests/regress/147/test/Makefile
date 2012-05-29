@@ -23,8 +23,8 @@ clean:
 
 # == test ===========================================
 test:
-	mkdir -p test; cp -f test.wsdl test/; cd test && staff_codegen -tclient_all -pwsdl test.wsdl
-	$(MAKE) -C test
+	mkdir -p test_client; cp -f staff.tests.Test147.wsdl test_client/; cd test_client && staff_codegen -tclient_all -pwsdl staff.tests.Test147.wsdl
+	$(MAKE) -C test_client
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

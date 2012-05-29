@@ -165,6 +165,7 @@ namespace codegen
     bool bHasAnyAttribute;
     bool bIsAbstract;
     bool bIsInlineArray;
+    bool bIsSoapArray;
 
     ComplexType();
     ComplexType& Parse(const xml::Element& rElemComplexType);
@@ -665,6 +666,14 @@ namespace codegen
 
     ReadDoc(rElemSimpleType, sDescr, sDetail);
 
+    const xml::Attribute* pAttrBase = rElemSimpleType.FindAttribute("base");
+    if (pAttrBase)
+    {
+      stBaseType.sPrefix = GetPrefix(pAttrBase->GetValue());
+      stBaseType.sName = StripPrefix(pAttrBase->GetValue());
+      stBaseType.sNamespace = FindNamespaceUri(rElemSimpleType, stBaseType.sPrefix);
+    }
+
     for (const xml::Element* pChild = rElemSimpleType.GetFirstChildElement();
       pChild; pChild = pChild->GetNextSiblingElement())
     {
@@ -748,7 +757,8 @@ namespace codegen
   //////////////////////////////////////////////////////////////////////////
   ComplexType::ComplexType():
     bIsExtern(false), bIsMessagePart(false), bIsSimpleContent(false),
-    bHasAnyAttribute(false), bIsAbstract(false), bIsInlineArray(false), nLastChoiceId(0)
+    bHasAnyAttribute(false), bIsAbstract(false), bIsInlineArray(false), bIsSoapArray(false),
+    nLastChoiceId(0)
   {
   }
 
@@ -769,6 +779,25 @@ namespace codegen
     GetTns(rElemComplexType, sNamespace, sPrefix);
 
     ReadDoc(rElemComplexType, sDescr, sDetail);
+
+    const xml::Attribute* pAttrBase = rElemComplexType.FindAttribute("base");
+    if (pAttrBase)
+    {
+      const std::string& sBaseName = StripPrefix(pAttrBase->GetValue());
+      const std::string& sBaseNs = FindNamespaceUri(rElemComplexType, GetPrefix(pAttrBase->GetValue()));
+
+      if (sBaseName == "Array" && sBaseNs == "http://schemas.xmlsoap.org/soap/encoding/")
+      { // soap array
+        bIsSoapArray = true;
+        ParseSequence(rElemComplexType);
+        return *this;
+      }
+      else
+      {
+        sParentName = sBaseName;
+        sParentNs = sBaseNs;
+      }
+    }
 
     for (const xml::Element* pChild = rElemComplexType.GetFirstChildElement();
       pChild; pChild = pChild->GetNextSiblingElement())
@@ -953,11 +982,29 @@ namespace codegen
         const std::string& sBaseNs = FindNamespaceUri(*pElemRestriction, GetPrefix(sBase));
         if (sBaseName == "Array" && sBaseNs == "http://schemas.xmlsoap.org/soap/encoding/")
         {
-          // soap array
-          // TODO: implement SOAP Array support
-          sParentName = "DataObject";
-          sDescr = "Soap Array";
-          bIsSimpleContent = true;
+          bIsSoapArray = true;
+          const xml::Element* pElemAttr = pElemRestriction->FindChildElementByName("attribute");
+          if (pElemAttr)
+          {
+            const xml::Attribute* pAttr = pElemAttr->FindAttribute("arrayType");
+            if (pAttr)
+            {
+              lsAttributes.push_back(Attribute());
+              Attribute& rAttr = lsAttributes.back();
+              rAttr.sName = pAttr->GetName();
+              rAttr.stType.sName = StripPrefix(pAttr->GetValue());
+              rAttr.stType.sPrefix = GetPrefix(pAttr->GetValue());
+              rAttr.stType.sNamespace = FindNamespaceUri(rElemComplexContent, rAttr.stType.sPrefix);
+            }
+            else
+            {
+              LogWarning() << "Could not find arrayType attribute";
+            }
+          }
+          else
+          {
+            ParseSequence(*pElemRestriction);
+          }
         }
         else
         {
@@ -1659,7 +1706,8 @@ namespace codegen
     {
       STAFF_ASSERT_PARAM(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
-      bool bRemote = sFileUri.find("://") != std::string::npos;
+      std::string::size_type nProtocolPos = sFileUri.find("://");
+      bool bRemote = nProtocolPos != std::string::npos;
       std::string sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
                                               sFileUri.substr(0, nPos + 1) : "";
       std::string sInterfaceFileName = (nPos != std::string::npos) ? sFileUri.substr(nPos + 1) : sFileUri;
@@ -1670,6 +1718,13 @@ namespace codegen
         {
           sInterfaceFilePath.erase(0, nSize);
         }
+      }
+
+      if (bRemote && sInterfaceFileName.empty())
+      {
+        sInterfaceFileName = sFileUri.substr(nProtocolPos + 3, sFileUri.size() - nProtocolPos - 4);
+        StringReplace(sInterfaceFileName, "/", "_", true);
+        StringReplace(sInterfaceFileName, ".", "_", true);
       }
 
       nPos = sInterfaceFileName.find('?'); // remove GET parameters from interface file name
@@ -1894,25 +1949,25 @@ namespace codegen
           std::string sTypedefName = rSimpleType.sName;
           bool bNameFixed = FixId(sTypedefName);
 
-          std::list<Typedef>::iterator pTypedef = m_stInterface.lsTypedefs.begin();
-          for (; pTypedef != m_stInterface.lsTypedefs.end(); ++pTypedef)
+          std::list<Typedef>::iterator itTypedef = m_stInterface.lsTypedefs.begin();
+          for (; itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
           {
-            if (pTypedef->sName == sTypedefName)
+            if (itTypedef->sName == sTypedefName)
             {
               break;
             }
           }
 
-          if (pTypedef != m_stInterface.lsTypedefs.end() && !pTypedef->bForward)
+          if (itTypedef != m_stInterface.lsTypedefs.end() && !itTypedef->bForward)
           {
             stDataType.eType = DataType::TypeTypedef;
-            stDataType.sName = pTypedef->sName;
-            stDataType.sNamespace = pTypedef->sNamespace;
+            stDataType.sName = itTypedef->sName;
+            stDataType.sNamespace = itTypedef->sNamespace;
           }
           else
           {
             Typedef* pstTypedef = NULL;
-            if (pTypedef == m_stInterface.lsTypedefs.end())
+            if (itTypedef == m_stInterface.lsTypedefs.end())
             {
               Typedef stTypedef;
               stTypedef.sName = sTypedefName;
@@ -1930,7 +1985,7 @@ namespace codegen
             }
             else
             {
-              pstTypedef = &*pTypedef;
+              pstTypedef = &*itTypedef;
             }
 
             stDataType.eType = DataType::TypeTypedef;
@@ -2147,39 +2202,91 @@ namespace codegen
         return stDataType;
       }
 
-      // single type array without any attributes. optimize to list with given element name
-//      if (rComplexType.lsElements.size() == 1 &&
-//          rComplexType.lsAttributes.empty() &&
-//          !rComplexType.bHasAnyAttribute &&
-//          !HasDerivedTypes(rComplexType.sName, rWsdlTypes))
-//      {
-//        const Element& rElem = rComplexType.lsElements.front();
-//        if (rElem.bIsArray)
-//        {
-//          Typedef stTypedef;
-//          stTypedef.bExtern = rComplexType.bIsExtern;
-//          stTypedef.sName = stDataType.sName;
-//          stTypedef.sNamespace = stDataType.sNamespace;
-//          stTypedef.sDescr = rComplexType.sDescr;
-//          stTypedef.sDetail = rComplexType.sDetail;
+      if (rComplexType.bIsSoapArray)
+      {
+        Typedef stTypedef;
+        stTypedef.bForward = false;
+        stTypedef.bExtern = rComplexType.bIsExtern;
+        stTypedef.sName = stDataType.sName;
+        stTypedef.sNamespace = stDataType.sNamespace;
+        stTypedef.sDescr = rComplexType.sDescr;
+        stTypedef.sDetail = rComplexType.sDetail;
 
-//          ElementToData(rElem, stTypedef.stDataType, rWsdlTypes);
+        // restriction method
+        if (rComplexType.lsElements.empty())
+        {
+          const Attribute* pAttrArrayType = NULL;
+          for (std::list<Attribute>::const_iterator itAttr = rComplexType.lsAttributes.begin();
+               itAttr != rComplexType.lsAttributes.end(); ++itAttr)
+          {
+            if (itAttr->sName == "arrayType")
+            {
+              pAttrArrayType = &*itAttr;
+              break;
+            }
+          }
 
-//          if (!rElem.sName.empty())
-//          {
-//            stTypedef.mOptions["elementName"] = rElem.sName;
-//          }
+          STAFF_ASSERT(pAttrArrayType, "Couldn't find arrayType attribute for soap array type: ["
+                       + rComplexType.sName + "]");
 
-//          m_stInterface.lsTypedefs.push_back(stTypedef);
+          std::string::size_type nPos = pAttrArrayType->stType.sName.find_first_of('[');
+          STAFF_ASSERT(nPos != std::string::npos, "Can't find array type declaration in: ["
+                       + pAttrArrayType->stType.sName + "]");
+          const std::string& sArrayBounds = pAttrArrayType->stType.sName.substr(nPos);
+          const std::string& sArrayTypeName = pAttrArrayType->stType.sName.substr(0, nPos);
 
-//          DataType stResDataType;
-//          stResDataType.eType = DataType::TypeTypedef;
-//          stResDataType.sName = stTypedef.sName;
-//          stResDataType.sNamespace = stTypedef.sNamespace;
+          DataType stArrayDataType;
+          DataTypeFromName(sArrayTypeName, pAttrArrayType->stType.sNamespace,
+                           stArrayDataType, m_stWsdlTypes);
 
-//          return stResDataType;
-//        }
-//      }
+          std::string::size_type nBounds = 0;
+          while ((nBounds = sArrayBounds.find('[', nBounds + 1)) != std::string::npos)
+          {
+            DataType stDataTypeTmp = stArrayDataType;
+            stArrayDataType.sName = "Array";
+            stArrayDataType.sNamespace = "staff::";
+            stArrayDataType.eType = DataType::TypeTemplate;
+            stArrayDataType.lsParams.resize(1);
+            stArrayDataType.lsParams.front() = stDataTypeTmp;
+          }
+
+          stTypedef.mOptions["arrayBounds"] = sArrayBounds;
+
+          stTypedef.stDataType.lsParams.push_back(stArrayDataType);
+        }
+        else // array as sub element
+        {
+          if (rComplexType.lsElements.size() > 1)
+          {
+            LogWarning() << "Size of elements in SOAP Array > 1. Only first will be used.";
+          }
+
+          const Element& rArrayElement = rComplexType.lsElements.front();
+          STAFF_ASSERT(rArrayElement.bIsArray, "SOAP Array element should have "
+                       "maxOccurs=\"unbounded\" attribute");
+
+          ElementToData(rArrayElement, stTypedef.stDataType, m_stWsdlTypes);
+
+          if (!rArrayElement.sName.empty())
+          {
+            stTypedef.mOptions["elementName"] = rArrayElement.sName;
+          }
+        }
+
+        // also rewrite std::list after sub element declaration
+        stTypedef.stDataType.sName = "Array";
+        stTypedef.stDataType.sNamespace = "staff::";
+        stTypedef.stDataType.eType = DataType::TypeTemplate;
+
+        m_stInterface.lsTypedefs.push_back(stTypedef);
+
+        DataType stResDataType;
+        stResDataType.eType = DataType::TypeTypedef;
+        stResDataType.sName = stTypedef.sName;
+        stResDataType.sNamespace = stTypedef.sNamespace;
+
+        return stResDataType;
+      }
 
       if (rComplexType.bIsSimpleContent &&
           rComplexType.lsAttributes.empty() &&
@@ -3319,7 +3426,7 @@ namespace codegen
         stTypedef.sName = pTypedef->sName;
         stTypedef.sNamespace = pTypedef->sNamespace;
         stTypedef.sDescr = pTypedef->sDescr;
-        stTypedef.sDetail= pTypedef->sDetail;
+        stTypedef.sDetail = pTypedef->sDetail;
         stTypedef.bExtern = true;
         rInterface.lsTypedefs.push_back(stTypedef);
       }
