@@ -29,6 +29,7 @@
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/PluginExport.h>
 #include <staff/utils/Exception.h>
+#include <staff/utils/File.h>
 #include <staff/xml/Document.h>
 #include <staff/xml/Element.h>
 #include <staff/xml/Attribute.h>
@@ -1702,15 +1703,39 @@ namespace codegen
       }
     }
 
-    Interface& Parse(const std::string& sFileUri, Project& rProject)
+    Interface& Parse(std::string sFileUri, Project& rProject, const Interface* pParentInterface = NULL)
     {
       STAFF_ASSERT_PARAM(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
       std::string::size_type nProtocolPos = sFileUri.find("://");
       bool bRemote = nProtocolPos != std::string::npos;
+
       std::string sInterfaceFilePath = (nPos != std::string::npos && !bRemote) ?
                                               sFileUri.substr(0, nPos + 1) : "";
       std::string sInterfaceFileName = (nPos != std::string::npos) ? sFileUri.substr(nPos + 1) : sFileUri;
+
+      if (pParentInterface)
+      {
+        StringMap::const_iterator itUri = pParentInterface->mOptions.find("url");
+        if (itUri != pParentInterface->mOptions.end())
+        {
+          if (!bRemote) // relative path to included schema/wsdl
+          {
+            std::string sParentUriPath = itUri->second;
+            nPos = sParentUriPath.find_last_of('/');
+            if (nPos != std::string::npos)
+            {
+              sParentUriPath.erase(nPos + 1);
+            }
+
+            sFileUri.insert(0, sParentUriPath);
+            sInterfaceFilePath.erase();
+            bRemote = true;
+          }
+
+          nProtocolPos = sFileUri.find("://");
+        }
+      }
 
       {
         const std::string::size_type nSize = m_pParseSettings->sInDir.size();
@@ -1751,10 +1776,16 @@ namespace codegen
 
         if (bRemote)
         {
-          std::ifstream ifStream(sInterfaceFileName.c_str());
+          static const std::string sCacheDir = ".staff_codegen_cache" STAFF_PATH_SEPARATOR;
+          std::string sCachedName = sFileUri;
+          StringReplace(sCachedName, "/", "_", true);
+          StringReplace(sCachedName, ":", "_", true);
+          sCachedName.insert(0, sCacheDir);
+
+          std::ifstream ifStream(sCachedName.c_str());
           if (ifStream.good())
           {
-            std::cout << "Using cached [" << sInterfaceFileName << "] for " << sFileUri << std::endl;
+            std::cout << "Using cached [" << sCachedName << "] for " << sFileUri << std::endl;
             xml::XmlReader(ifStream).ReadDocument(tWsdlDoc);
             ifStream.close();
           }
@@ -1765,11 +1796,12 @@ namespace codegen
             STAFF_ASSERT(HttpClient::Get(sFileUri, sFileData), "Can't download file: " + sFileUri);
             if (!m_pParseSettings->mEnv.count("do_not_save_wsdl"))
             {
-              std::cout << "Saving [" << sInterfaceFileName << "]" << std::endl;
-              std::ofstream ofStream(sInterfaceFileName.c_str());
+              File(sCacheDir).Mkdirs();
+              std::cout << "Saving [" << sCachedName << "]" << std::endl;
+              std::ofstream ofStream(sCachedName.c_str());
               if (!ofStream.good())
               {
-                LogWarning() << "Can't save [" << sInterfaceFileName << "]";
+                LogWarning() << "Can't save [" << sCachedName << "]";
               }
               else
               {
@@ -1780,6 +1812,7 @@ namespace codegen
             std::istringstream issData(sFileData);
             xml::XmlReader(issData).ReadDocument(tWsdlDoc);
           }
+          m_stInterface.mOptions["url"] = sFileUri;
         }
         else
         {
@@ -3379,7 +3412,8 @@ namespace codegen
     if (!rWsdlParser.IsInit())
     {
       rWsdlParser.Init(m_pParser->GetParseSettings());
-      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation, rProject);
+      pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation,
+                                         rProject, &rInterface);
     }
     else
     {
