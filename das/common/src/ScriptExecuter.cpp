@@ -213,7 +213,15 @@ namespace das
             {
               STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
                   ToString(lsResult.size()) + " expected: 1");
-              rdoResult.SetText(lsResult.front());
+              const std::string& sValue = lsResult.front();
+              if (sValue == STAFF_DAS_NULL_VALUE)
+              {
+                rdoResult.SetNil();
+              }
+              else
+              {
+                rdoResult.SetText(sValue);
+              }
             }
           }
           else
@@ -228,7 +236,14 @@ namespace das
               for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
                   itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
               {
-                rdoResult.CreateChild(itType->sName).SetText(*itResult);
+                if (*itResult == STAFF_DAS_NULL_VALUE)
+                {
+                  rdoResult.CreateChild(itType->sName).SetNil();
+                }
+                else
+                {
+                  rdoResult.CreateChild(itType->sName).SetText(*itResult);
+                }
               }
             }
           }
@@ -245,7 +260,14 @@ namespace das
               for (StringList::const_iterator itResult = lsResult.begin(), itName = lsFieldsNames.begin();
                    itResult != lsResult.end(); ++itResult, ++itName)
               {
-                tdoItem.CreateChild(*itName).SetText(*itResult);
+                if (*itResult == STAFF_DAS_NULL_VALUE)
+                {
+                  tdoItem.CreateChild(*itName).SetNil();
+                }
+                else
+                {
+                  tdoItem.CreateChild(*itName).SetText(*itResult);
+                }
               }
             }
           }
@@ -261,7 +283,15 @@ namespace das
                              ToString(lsResult.size()) + " expected: 1");
                 do
                 {
-                  rdoResult.CreateChild("Item").SetText(lsResult.front());
+                  const std::string& sResult = lsResult.front();
+                  if (sResult == STAFF_DAS_NULL_VALUE)
+                  {
+                    rdoResult.CreateChild("Item").SetNil();
+                  }
+                  else
+                  {
+                    rdoResult.CreateChild("Item").SetText(sResult);
+                  }
                 }
                 while (pExec->GetNextResult(lsResult));
               }
@@ -281,7 +311,14 @@ namespace das
                   for (DataTypesList::const_iterator itType = rItemType.lsChilds.begin();
                       itType != rItemType.lsChilds.end(); ++itType, ++itResult)
                   {
-                    tdoItem.CreateChild(itType->sName).SetText(*itResult);
+                    if (*itResult == STAFF_DAS_NULL_VALUE)
+                    {
+                      tdoItem.CreateChild(itType->sName).SetNil();
+                    }
+                    else
+                    {
+                      tdoItem.CreateChild(itType->sName).SetText(*itResult);
+                    }
                   }
                 }
                 while (pExec->GetNextResult(lsResult));
@@ -448,6 +485,13 @@ namespace das
       const std::string& sValue1 = Eval(rdoContext, rScript.GetAttributeValue("expr1"));
       const std::string& sValue2 = Eval(rdoContext, rScript.GetAttributeValue("expr2"));
 
+      if (sOp == "null")
+      {
+        bool bNull = false;
+        FromString(sValue2, bNull);
+        bProcess = (sValue1 == STAFF_DAS_NULL_VALUE) ^ bNull;
+      }
+      else
       if (sOp == "seq")
       {
         bProcess = sValue1 > sValue2;
@@ -680,7 +724,14 @@ namespace das
           DataObject tdoResult;
           GetChild(rdoContext, sPath, tdoResult);
           STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
-          sValue = tdoResult.GetText();
+          if (tdoResult.IsNil())
+          {
+            sValue = STAFF_DAS_NULL_VALUE;
+          }
+          else
+          {
+            sValue = tdoResult.GetText();
+          }
         }
         else
         { // variable
@@ -728,11 +779,25 @@ namespace das
                 GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
                 const_cast<DataObject&>(rVar.tdoValue).SetOwner(true);
                 STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
-                sValue = tdoResult.GetText();
+                if (tdoResult.IsNil())
+                {
+                  sValue = STAFF_DAS_NULL_VALUE;
+                }
+                else
+                {
+                  sValue = tdoResult.GetText();
+                }
               }
               else
               {
-                sValue = rVar.tdoValue.GetText();
+                if (rVar.tdoValue.IsNil())
+                {
+                  sValue = STAFF_DAS_NULL_VALUE;
+                }
+                else
+                {
+                  sValue = rVar.tdoValue.GetText();
+                }
               }
             }
           }

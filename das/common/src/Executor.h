@@ -36,6 +36,8 @@ namespace staff
     typedef std::list<std::string> StringList; //!< string list
     struct STAFF_DAS_COMMON_EXPORT DataType;
 
+#define STAFF_DAS_NULL_VALUE "(_STAFF_DAS_NULL_VALUE_)"
+
     //! Executor interface
     class IExecutor
     {

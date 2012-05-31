@@ -154,7 +154,7 @@ namespace das
           itResult != rResult.end(); ++itResult, ++nField)
       {
         szResult = PQgetvalue(m_pResult, m_nCurrentRow, nField);
-        *itResult = szResult ? szResult : "(NULL)";
+        *itResult = szResult ? szResult : STAFF_DAS_NULL_VALUE;
       }
 
       ++m_nCurrentRow;

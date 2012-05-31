@@ -151,7 +151,7 @@ namespace das
           itItem != rResult.end(); ++itItem, ++nField)
       {
         szResult = reinterpret_cast<const char*>(sqlite3_column_text(m_pResult, nField));
-        *itItem = szResult ? szResult : "(NULL)";
+        *itItem = szResult ? szResult : STAFF_DAS_NULL_VALUE;
       }
 
       m_nLastStepStatus = sqlite3_step(m_pResult);

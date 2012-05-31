@@ -12,7 +12,7 @@
       <Group type="struct" descr="Group info">
         <nId type="int" descr="Group id"/>
         <sName type="string" descr="Group name"/>
-        <sDescr type="string" descr="Group description"/>
+        <sDescr type="string" nillable="true" descr="Group description"/>
       </Group>
       <GroupsList type="list" itemtype="Group" descr="Groups list" />
     </types>
