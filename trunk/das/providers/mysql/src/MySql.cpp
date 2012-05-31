@@ -159,7 +159,7 @@ namespace das
       for (StringList::iterator itResult = rResult.begin();
           itResult != rResult.end(); ++itResult, ++nField)
       {
-        *itResult = pRow[nField] ? pRow[nField] : "(NULL)";
+        *itResult = pRow[nField] ? pRow[nField] : STAFF_DAS_NULL_VALUE;
       }
 
       ++m_nCurrentRow;

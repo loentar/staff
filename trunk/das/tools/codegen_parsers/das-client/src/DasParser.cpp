@@ -111,6 +111,7 @@ namespace codegen
         stStruct.bExtern = bExtern;
 
         const DataObject& rdoMembers = rdoType.GetChildByLocalName("Members");
+        bool bNillable = false;
 
         for (DataObject::ConstIterator itChildType = rdoMembers.Begin();
             itChildType != rdoMembers.End(); ++itChildType)
@@ -120,7 +121,7 @@ namespace codegen
           stMember.sName = rdoChildType.GetChildTextByLocalName("Name");
           stMember.stDataType.sName = rdoChildType.GetChildTextByLocalName("DataType");
           stMember.sDescr = rdoChildType.GetChildTextByLocalName("Descr");
-
+          rdoChildType.GetChildValueByLocalName("Nillable", bNillable);
 //          const std::string& sType = rdoChildType.GetChildTextByLocalName("Type");
 //          if (sType == "struct")
 //          {
@@ -133,8 +134,21 @@ namespace codegen
 //          }
 
           FixDataType(stMember.stDataType, rInterface, sNamespace);
-          stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-          OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+
+          if (bNillable)
+          {
+            stMember.stDataType.lsParams.push_front(stMember.stDataType);
+            stMember.stDataType.lsParams.resize(1);
+            stMember.stDataType.sName = "Nillable";
+            stMember.stDataType.sNamespace = "staff::";
+            stMember.stDataType.eType = DataType::TypeTemplate;
+            stMember.stDataType.sUsedName.erase();
+          }
+          else
+          {
+            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+            OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+          }
 
           stStruct.lsMembers.push_back(stMember);
         }

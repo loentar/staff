@@ -222,6 +222,7 @@ namespace codegen
 
         if (sType == "struct")
         {
+          const xml::Attribute* pAttrNillable = NULL;
           Struct stStruct;
           stStruct.sName = sName;
           stStruct.sNamespace = sNamespace;
@@ -238,8 +239,22 @@ namespace codegen
 
             stMember.stDataType.sName = pMember->GetAttributeValue("type");
             FixDataType(stMember.stDataType, rInterface, sNamespace);
-            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-            OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+
+            pAttrNillable = pMember->FindAttribute("nillable");
+            if (pAttrNillable && pAttrNillable->GetValue() == "true")
+            {
+              stMember.stDataType.lsParams.push_front(stMember.stDataType);
+              stMember.stDataType.lsParams.resize(1);
+              stMember.stDataType.sName = "Nillable";
+              stMember.stDataType.sNamespace = "staff::";
+              stMember.stDataType.eType = DataType::TypeTemplate;
+              stMember.stDataType.sUsedName.erase();
+            }
+            else
+            {
+              stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
+              OptimizeCppNs(stMember.stDataType.sUsedName, stStruct.sNamespace);
+            }
 
             stStruct.lsMembers.push_back(stMember);
           }

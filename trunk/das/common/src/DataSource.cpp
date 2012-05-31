@@ -33,7 +33,7 @@ namespace staff
 namespace das
 {
   DataType::DataType():
-    eType(Void), bExtern(false)
+    eType(Void), bExtern(false), bNillable(false)
   {
   }
 
@@ -295,6 +295,8 @@ namespace das
         rType.eType = DataType::Generic;
       }
       rType.sType = sType;
+      const xml::Attribute* pAttrNillable = rNode.FindAttribute("nillable");
+      rType.bNillable = pAttrNillable && pAttrNillable->GetValue() == "true";
     }
   }
 

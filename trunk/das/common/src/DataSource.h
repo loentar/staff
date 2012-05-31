@@ -57,6 +57,7 @@ namespace das
     std::string sDescr;      //!< description
     DataTypesList lsChilds;  //!< struct fields
     bool bExtern;            //!< defined in external file
+    bool bNillable;
 
     DataType();
   };

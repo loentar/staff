@@ -73,6 +73,7 @@ INSERT INTO users(id, name, password, description) VALUES (3, 'guest', 'guest', 
 INSERT INTO groups(id, name, description) VALUES (0, 'admin', 'Administrators');
 INSERT INTO groups(id, name, description) VALUES (1, 'user', 'Users');
 INSERT INTO groups(id, name, description) VALUES (2, 'guest', 'Guests');
+INSERT INTO groups(id, name, description) VALUES (3, 'none', NULL);
 
 ---------------------------------------------
 -- users to groups

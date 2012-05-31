@@ -109,6 +109,7 @@ namespace das
       {
         tdoType.CreateChild("Type").SetText("generic");
         tdoType.CreateChild("DataType").SetText(rType.sType);
+        tdoType.CreateChild("Nillable").SetValue(rType.bNillable);
         break;
       }
 

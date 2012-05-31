@@ -16,7 +16,7 @@ CREATE TABLE `users`
 (
   `id` INTEGER NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(32) NOT NULL UNIQUE,
-  `password` VARCHAR(32) NOT NULL,
+  `password` VARCHAR(32) NULL,
   `description` VARCHAR(64) NOT NULL,
   PRIMARY KEY (`id`)
 )
@@ -56,7 +56,7 @@ CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 INSERT INTO `users`(`id`, `name`, `password`, `description`) VALUES
 (0, 'admin', 'admin', 'Administrator'),
-(1, 'nobody', '', 'System user'),
+(1, 'nobody', NULL, 'System user'),
 (2, 'guest', 'guest', 'Guest'),
 (3, 'user', 'user', 'User');
 
@@ -64,7 +64,8 @@ INSERT INTO `users`(`id`, `name`, `password`, `description`) VALUES
 INSERT INTO `groups` VALUES
 (0, 'admin', 'Administrators'),
 (1, 'guest', 'Guests'),
-(2, 'user', 'Users');
+(2, 'user', 'Users'),
+(3, 'none', NULL);
 
 
 INSERT INTO `users_to_groups` VALUES

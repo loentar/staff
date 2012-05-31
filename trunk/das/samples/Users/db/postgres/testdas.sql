@@ -66,6 +66,7 @@ COPY groups (id, name, description) FROM stdin;
 0	admin	Admistrators
 1	guest	Guests
 2	user	Users
+3	none	\N
 \.
 
 
