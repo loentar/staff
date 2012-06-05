@@ -20,7 +20,7 @@
  */
 
 
-#if defined __linux__
+#if defined __linux__ && defined WITH_BFD
 #include <dlfcn.h>
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -47,7 +47,7 @@
 namespace staff
 {
 
-#if defined __linux__
+#if defined __linux__ && defined WITH_BFD
 // compat with old bfd.h
 #ifndef bfd_get_section_size
 #define bfd_get_section_size(ptr) ((ptr)->_raw_size)
@@ -372,7 +372,7 @@ namespace staff
 
   void StackTracer::GetStackTraceStr(std::string& sResult, unsigned nMaxDepth, unsigned nSkip)
   {
-#if defined __linux__
+#if defined __linux__ && defined WITH_BFD
     Dl_info tDlInfo;
     void** pAddresses = new void*[nMaxDepth];
     unsigned nAddressesSize = backtrace(pAddresses, nMaxDepth);
