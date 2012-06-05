@@ -370,14 +370,29 @@ namespace codegen
           }
         }
 
+        const xml::Attribute* pAttrNillable = NULL;
+
         xml::Element* pReturn = pOperation->FindChildElementByName("return");
         if (pReturn)
         {
           stMember.stReturn.stDataType.sName = pReturn->GetAttributeValue("type");
           FixDataType(stMember.stReturn.stDataType, stInterface, sNamespace);
-          stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
-                                                   + stMember.stReturn.stDataType.sName;
-          OptimizeCppNs(stMember.stReturn.stDataType.sUsedName, stClass.sNamespace);
+          pAttrNillable = pOperation->FindAttribute("nillable");
+          if (pAttrNillable && pAttrNillable->GetValue() == "true")
+          {
+            stMember.stReturn.stDataType.lsParams.push_front(stMember.stReturn.stDataType);
+            stMember.stReturn.stDataType.lsParams.resize(1);
+            stMember.stReturn.stDataType.sName = "Nillable";
+            stMember.stReturn.stDataType.sNamespace = "staff::";
+            stMember.stReturn.stDataType.eType = DataType::TypeTemplate;
+            stMember.stReturn.stDataType.sUsedName.erase();
+          }
+          else
+          {
+            stMember.stReturn.stDataType.sUsedName = stMember.stReturn.stDataType.sNamespace
+                                                     + stMember.stReturn.stDataType.sName;
+            OptimizeCppNs(stMember.stReturn.stDataType.sUsedName, stClass.sNamespace);
+          }
         }
         else
         {
@@ -394,13 +409,28 @@ namespace codegen
           stParam.stDataType.sName = pParam->GetAttributeValue("type");
 
           FixDataType(stParam.stDataType, stInterface, sNamespace);
-          stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
-                                                   + stParam.stDataType.sName;
-          OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
+
+          pAttrNillable = pParam->FindAttribute("nillable");
+          if (pAttrNillable && pAttrNillable->GetValue() == "true")
+          {
+            stParam.stDataType.lsParams.push_front(stParam.stDataType);
+            stParam.stDataType.lsParams.resize(1);
+            stParam.stDataType.sName = "Nillable";
+            stParam.stDataType.sNamespace = "staff::";
+            stParam.stDataType.eType = DataType::TypeTemplate;
+            stParam.stDataType.sUsedName.erase();
+          }
+          else
+          {
+            stParam.stDataType.sUsedName = stParam.stDataType.sNamespace
+                                                     + stParam.stDataType.sName;
+            OptimizeCppNs(stParam.stDataType.sUsedName, sNamespace);
+          }
 
           if (stParam.stDataType.eType == DataType::TypeString ||
               stParam.stDataType.eType == DataType::TypeStruct ||
-              stParam.stDataType.eType == DataType::TypeTypedef)
+              stParam.stDataType.eType == DataType::TypeTypedef||
+              stParam.stDataType.eType == DataType::TypeTemplate)
           {
             stParam.stDataType.bIsConst = true;
             stParam.stDataType.bIsRef = true;

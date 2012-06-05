@@ -27,7 +27,7 @@
           <nId type="int" />
         </params>
         <return type="Group" />
-        <execute>SELECT "id", "name", "description" FROM "groups" WHERE "id" = $nId</execute>
+        <execute>SELECT "id", "name", "description" FROM "groups" WHERE "id" = $(nId)</execute>
       </operation>
 
       <operation name="GetAllGroups">
@@ -41,8 +41,15 @@
         <return type="RolesList" />
         <execute>SELECT "id", "name", "description" FROM "groups"</execute>
       </operation>
-    </operations>
 
+      <operation name="AddGroup">
+        <params>
+          <sName type="string"/>
+          <sDescr type="string" nillable="true"/>
+        </params>
+        <execute>INSERT INTO "groups"("name", "description") VALUES($(sName), $(sDescr))</execute>
+      </operation>
+    </operations>
   </datasource>
 </datasources>
 

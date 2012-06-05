@@ -93,13 +93,65 @@ namespace das
       }
     }
 
-    virtual void Execute(const std::string& sExecute)
+    virtual void Execute(const std::string& sExecute, const StringList& rlsParams)
     {
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
-      m_pResult = PQexec(m_pProvider->m_pImpl->m_pConn, sExecute.c_str());
+      std::string sExecuteParams = sExecute;
+      int nIndex = 1;
+      std::string sIndex;
+      unsigned nCount = 0;
+      std::string::size_type nPos = 0;
+      while ((nPos = sExecuteParams.find("?", nPos)) != std::string::npos)
+      {
+        ToString(nIndex, sIndex);
+        sExecuteParams.replace(nPos, 1, "$" + sIndex);
+        nPos += sIndex.size() + 1;
+        ++nCount;
+        ++nIndex;
+      }
+
+      STAFF_ASSERT(nCount == rlsParams.size(), "Params count mismatch");
+
+      int* panParamLengths = new int[nCount];
+      int* panParamFormats = new int[nCount];
+      char** paszParamValues = new char*[nCount];
+
+      try
+      {
+        unsigned nPos = 0;
+        for (StringList::const_iterator itParam = rlsParams.begin();
+             itParam != rlsParams.end(); ++itParam, ++nPos)
+        {
+          panParamFormats[nPos] = 0;
+          if (*itParam == STAFF_DAS_NULL_VALUE)
+          {
+            panParamLengths[nPos] = 0;
+            paszParamValues[nPos] = NULL;
+          }
+          else
+          {
+            panParamLengths[nPos] = itParam->size();
+            paszParamValues[nPos] = const_cast<char*>(itParam->c_str());
+          }
+        }
+
+        m_pResult = PQexecParams(m_pProvider->m_pImpl->m_pConn,
+          sExecuteParams.c_str(), nCount, NULL, paszParamValues, panParamLengths, panParamFormats, 0);
+
+        delete[] paszParamValues;
+        delete[] panParamFormats;
+        delete[] panParamLengths;
+      }
+      catch(...)
+      {
+        delete[] paszParamValues;
+        delete[] panParamFormats;
+        delete[] panParamLengths;
+        throw;
+      }
 
       ExecStatusType tQueryStatus = PQresultStatus(m_pResult);
       if (tQueryStatus != PGRES_COMMAND_OK)
@@ -153,8 +205,15 @@ namespace das
       for (StringList::iterator itResult = rResult.begin();
           itResult != rResult.end(); ++itResult, ++nField)
       {
-        szResult = PQgetvalue(m_pResult, m_nCurrentRow, nField);
-        *itResult = szResult ? szResult : STAFF_DAS_NULL_VALUE;
+        if (PQgetisnull(m_pResult, m_nCurrentRow, nField))
+        {
+          *itResult = STAFF_DAS_NULL_VALUE;
+        }
+        else
+        {
+          szResult = PQgetvalue(m_pResult, m_nCurrentRow, nField);
+          *itResult = szResult ? szResult : STAFF_DAS_NULL_VALUE;
+        }
       }
 
       ++m_nCurrentRow;

@@ -84,17 +84,39 @@ namespace das
       }
     }
 
-    virtual void Execute(const std::string& sExecute)
+    virtual void Execute(const std::string& sExecute, const StringList& rlsParams)
     {
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_pConn != NULL, "Not Initialized");
 
       Reset();
 
-      int nResult = sqlite3_prepare_v2(m_pProvider->m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(), &m_pResult, NULL);
+      int nResult = sqlite3_prepare_v2(m_pProvider->m_pImpl->m_pConn, sExecute.c_str(), sExecute.size(),
+                                       &m_pResult, NULL);
       STAFF_ASSERT(nResult == SQLITE_OK, "error #" + ToString(nResult) + ": "
                    + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
                    + "; db: \"" + m_pProvider->m_pImpl->m_sDataBase + "\""
-                   + "\nWhile executing query: \n----------\n" + sExecute + "\n----------\n");
+                   + "\nWhile building query: \n----------\n" + sExecute + "\n----------\n");
+
+      int nPos = 1;
+      for (StringList::const_iterator itParam = rlsParams.begin();
+           itParam != rlsParams.end(); ++itParam, ++nPos)
+      {
+
+        if (*itParam == STAFF_DAS_NULL_VALUE)
+        {
+          nResult = sqlite3_bind_null(m_pResult, nPos);
+        }
+        else
+        {
+          nResult = sqlite3_bind_text(m_pResult, nPos, itParam->c_str(), itParam->size(), SQLITE_STATIC);
+        }
+
+        STAFF_ASSERT(nResult == SQLITE_OK, "error #" + ToString(nResult) + ": "
+                     + std::string(sqlite3_errmsg(m_pProvider->m_pImpl->m_pConn))
+                     + "; db: \"" + m_pProvider->m_pImpl->m_sDataBase + "\""
+                     + "\nWhile binding query value: \n----------\n" + sExecute + "\n----------\n");
+      }
+
 
       m_nLastStepStatus = sqlite3_step(m_pResult);
       if (m_nLastStepStatus == SQLITE_ROW)

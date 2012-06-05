@@ -58,7 +58,7 @@
         </params>
         <return type="int" />
         <script>
-          <execute>INSERT INTO "users"("name", "password", "description") VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+          <execute>INSERT INTO "users"("name", "password", "description") VALUES($(sName), $(sPassword), $(sDescr))</execute>
           <execute>SELECT last_insert_rowid()</execute>
         </script>
       </operation>
@@ -69,7 +69,7 @@
         </params>
         <return type="int" />
         <script>
-          <execute>INSERT INTO "users"("name", "password", "description") VALUES('$(stUser.sName)', '$(stUser.sPassword)', '$(stUser.sDescr)')</execute>
+          <execute>INSERT INTO "users"("name", "password", "description") VALUES($(stUser.sName), $(stUser.sPassword), $(stUser.sDescr))</execute>
           <execute>SELECT last_insert_rowid()</execute>
         </script>
       </operation>
@@ -83,7 +83,7 @@
           <!-- transaction significantly increases bulk insertion speed -->
           <execute>BEGIN TRANSACTION</execute>
           <foreach element="$(lsUsers)">
-            <execute>INSERT INTO "users"("name", "password", "description") VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+            <execute>INSERT INTO "users"("name", "password", "description") VALUES($(sName), $(sPassword), $(sDescr))</execute>
             <execute>SELECT last_insert_rowid()</execute>
           </foreach>
           <execute>COMMIT</execute>
@@ -108,7 +108,7 @@
           <sName type="string" />
         </params>
         <script>
-          <execute>DELETE FROM "users" WHERE "name" = '$(sName)'</execute>
+          <execute>DELETE FROM "users" WHERE "name" = $(sName)</execute>
         </script>
       </operation>
 
@@ -149,7 +149,7 @@
           <sName type="string" />
         </params>
         <return type="int" />
-        <execute>SELECT "id" FROM "users" WHERE "name" = '$(sName)'</execute>
+        <execute>SELECT "id" FROM "users" WHERE "name" = $(sName)</execute>
       </operation>
 
       <operation name="GetUser" descr="get user info by user id">
