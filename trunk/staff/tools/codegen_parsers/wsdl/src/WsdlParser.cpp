@@ -1207,7 +1207,7 @@ namespace codegen
                   (!bIsResponse ||
                     (pElement->lsComplexTypes.front().lsAttributes.empty() &&
                     pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
-                  pstStruct && pstStruct->sParentName.empty() &&
+                  pstStruct && pstStruct->sParentName.empty() && !pstStruct->bExtern &&
                   (pstStruct->lsMembers.empty() || !pstStruct->lsMembers.front().mOptions.count("choice")) &&
                   (pstStruct->mOptions.empty() ||
                     (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
@@ -1218,7 +1218,7 @@ namespace codegen
           if (bIsResponse) // response
           {
             rMember.mOptions["responseElement"] = pElement->sName;
-            if (!!pstStruct && pstStruct->lsMembers.empty())
+            if (!!pstStruct && !pstStruct->bExtern && pstStruct->lsMembers.empty())
             {
               rMember.stReturn.stDataType.sName = "void";
               pstStruct->mOptions["hidden"];
