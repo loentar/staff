@@ -47,6 +47,21 @@ namespace das
     staff::DataObject tdoValue;
   };
 
+  template <typename Type>
+  LogStream& operator<<(LogStream& rStream, const std::list<Type>& rList)
+  {
+    typename std::list<Type>::const_iterator itItem = rList.begin();
+    if (itItem != rList.end())
+    {
+      rStream << *itItem;
+      ++itItem;
+      for (; itItem != rList.end(); ++itItem)
+      {
+        rStream << ", " << *itItem;
+      }
+    }
+    return rStream;
+  }
 
   class ScriptExecuter::ScriptExecuterImpl
   {
@@ -174,9 +189,6 @@ namespace das
       std::string sExecute = rScript.GetValue();
       LogDebug1() << "Query is [" + sExecute + "]";
 
-      sExecute = Eval(rdoContext, sExecute);
-      LogDebug1() << "Query with params [" + sExecute + "]";
-
       const std::string& sProviderId = GetProviderId(rScript);
 
       PExecutor& rpExec = m_mExec[sProviderId];
@@ -194,6 +206,9 @@ namespace das
       {
         case IExecutor::TypeRaw:
         {
+          sExecute = Eval(rdoContext, sExecute);
+          LogDebug1() << "Query with params [" + sExecute + "]";
+
           IRawExecutor* pExec = static_cast<IRawExecutor*>(rpExec.Get());
           pExec->Execute(sExecute, rdoContext, rReturnType, rdoResult);
           break;
@@ -201,9 +216,13 @@ namespace das
 
         case IExecutor::TypeQuery:
         {
+          StringList lsParams;
+          sExecute = Eval(rdoContext, sExecute, &lsParams);
+          LogDebug1() << "Query with params [" + sExecute + "]; Params: (" << lsParams << ")";
+
           IQueryExecutor* pExec = static_cast<IQueryExecutor*>(rpExec.Get());
 
-          pExec->Execute(sExecute);
+          pExec->Execute(sExecute, lsParams);
 
           StringList lsResult;
 
@@ -657,7 +676,10 @@ namespace das
       }
     }
 
-    std::string Eval(const DataObject& rdoContext, const std::string& sExpr)
+    // if plsParamsResult == NULL, evaluate string completely
+    // if plsParamsResult != NULL, return string with placeholders and put params into plsParamsResult
+    std::string Eval(const DataObject& rdoContext, const std::string& sExpr,
+                     StringList* plsParamsResult = NULL)
     {
       std::string sResult = sExpr;
       std::string::size_type nBegin = 0;
@@ -803,8 +825,17 @@ namespace das
           }
         } // if request
 
-        sResult.replace(nBegin, nEnd - nBegin, sValue);
-        nEnd = nBegin + sValue.size();
+        if (plsParamsResult)
+        {
+          plsParamsResult->push_back(sValue);
+          sResult.replace(nBegin, nEnd - nBegin, "?");
+          nEnd = nBegin + 1;
+        }
+        else
+        {
+          sResult.replace(nBegin, nEnd - nBegin, sValue);
+          nEnd = nBegin + sValue.size();
+        }
       } // while find '$'
 
       return sResult;

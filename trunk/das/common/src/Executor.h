@@ -81,9 +81,11 @@ namespace staff
       virtual void Reset() = 0;
 
       //! execute query
-      /*! \param  sExecute - query to execute
+      /*! \param  sExecute - query to execute, may contain sql params placeholders
+          \param  rlsParams - query parameters
         */
-      virtual void Execute(const std::string& sExecute) = 0;
+      virtual void Execute(const std::string& sExecute,
+                           const StringList& rlsParams = StringList()) = 0;
 
       //! get fields names
       /*! \sa Execute

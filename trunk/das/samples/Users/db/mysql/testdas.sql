@@ -17,7 +17,7 @@ CREATE TABLE `users`
   `id` INTEGER NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(32) NOT NULL UNIQUE,
   `password` VARCHAR(32) NULL,
-  `description` VARCHAR(64) NOT NULL,
+  `description` VARCHAR(64) NULL,
   PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB
@@ -28,7 +28,7 @@ CREATE TABLE `groups`
 (
   `id` INTEGER NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(32) NOT NULL UNIQUE,
-  `description` VARCHAR(64) NOT NULL,
+  `description` VARCHAR(64) NULL,
   PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB

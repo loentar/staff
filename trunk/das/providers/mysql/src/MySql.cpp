@@ -96,16 +96,84 @@ namespace das
       }
     }
 
-    virtual void Execute(const std::string& sExecute)
+    virtual void Execute(const std::string& sExecute, const StringList& rlsParams)
     {
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
 
       Reset();
+      MYSQL_BIND* paBind = NULL;
+      unsigned long* paSizes = NULL;
 
-      int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
-      STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
-                  + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
-                  + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+      MYSQL_STMT* pStmt = mysql_stmt_init(&m_pProvider->m_pImpl->m_tConn);
+      STAFF_ASSERT(pStmt, "Can't init STMT: "
+                   + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                   + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+      try
+      {
+        paBind = reinterpret_cast<MYSQL_BIND*>(malloc(sizeof(MYSQL_BIND) * rlsParams.size()));
+        STAFF_ASSERT(paBind, "Memory allocation failed!");
+        memset(paBind, 0, sizeof(MYSQL_BIND) * rlsParams.size());
+
+        paSizes = reinterpret_cast<unsigned long*>(malloc(sizeof(unsigned long) * rlsParams.size()));
+        STAFF_ASSERT(paSizes, "Memory allocation failed!");
+        memset(paSizes, 0, sizeof(unsigned long) * rlsParams.size());
+
+        int nStatus = mysql_stmt_prepare(pStmt, sExecute.c_str(), sExecute.size());
+        STAFF_ASSERT(nStatus == 0, "Failed to prepare STMT: "
+                     + std::string(mysql_stmt_error(pStmt))
+                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+        unsigned long nParamCount = mysql_stmt_param_count(pStmt);
+        STAFF_ASSERT(nParamCount == rlsParams.size(), "STMT count != params count: "
+                     + ToString(nParamCount) + " != " + ToString(rlsParams.size()) );
+
+
+        int nPos = 0;
+        static my_bool bNull = 1;
+        static my_bool bNotNull = 0;
+
+        for (StringList::const_iterator itParam = rlsParams.begin();
+             itParam != rlsParams.end(); ++itParam, ++nPos)
+        {
+          MYSQL_BIND* pBind = &paBind[nPos];
+          pBind->buffer_type = MYSQL_TYPE_STRING;
+
+          if (*itParam == STAFF_DAS_NULL_VALUE)
+          {
+            pBind->is_null = &bNull;
+          }
+          else
+          {
+            pBind->is_null = &bNotNull;
+            pBind->buffer = const_cast<void*>(reinterpret_cast<const void*>(itParam->c_str()));
+            pBind->buffer_length = itParam->size();
+            paSizes[nPos] = pBind->buffer_length + 1;
+            pBind->length = &paSizes[nPos];
+          }
+        }
+
+        STAFF_ASSERT(mysql_stmt_bind_param(pStmt, paBind) == 0,
+                     "Failed to bind param: #" + ToString(nStatus) + ": \n"
+                     + std::string(mysql_stmt_error(pStmt))
+                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+        nStatus = mysql_stmt_execute(pStmt);
+        STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
+                    + std::string(mysql_stmt_error(pStmt))
+                    + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+
+        mysql_stmt_close(pStmt);
+        free(paBind);
+        free(paSizes);
+      }
+      catch (...)
+      {
+        mysql_stmt_close(pStmt);
+        free(paBind);
+        free(paSizes);
+        throw;
+      }
 
       if (mysql_field_count(&m_pProvider->m_pImpl->m_tConn) > 0)
       {

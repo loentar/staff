@@ -51,7 +51,7 @@
         </params>
         <return type="int" />
         <script>
-          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES($(sName), $(sPassword), $(sDescr))</execute>
           <execute>SELECT LAST_INSERT_ID()</execute>
         </script>
       </operation>
@@ -62,7 +62,7 @@
         </params>
         <return type="int" />
         <script>
-          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(stUser.sName)', '$(stUser.sPassword)', '$(stUser.sDescr)')</execute>
+          <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES($(stUser.sName), $(stUser.sPassword), $(stUser.sDescr))</execute>
           <execute>SELECT LAST_INSERT_ID()</execute>
         </script>
       </operation>
@@ -74,7 +74,7 @@
         <return type="IntList" />
         <script>
           <foreach element="$(lsUsers)">
-            <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES('$(sName)', '$(sPassword)', '$(sDescr)')</execute>
+            <execute>INSERT INTO `users`(`name`, `password`, `description`) VALUES($(sName), $(sPassword), $(sDescr))</execute>
             <execute>SELECT LAST_INSERT_ID()</execute>
           </foreach>
         </script>
@@ -98,7 +98,7 @@
           <sName type="string" />
         </params>
         <script>
-          <execute>DELETE FROM `users` WHERE `name` = '$(sName)'</execute>
+          <execute>DELETE FROM `users` WHERE `name` = $(sName)</execute>
         </script>
       </operation>
 
@@ -139,7 +139,7 @@
           <sName type="string" />
         </params>
         <return type="int" />
-        <execute>SELECT `id` FROM `users` WHERE `name` = '$(sName)'</execute>
+        <execute>SELECT `id` FROM `users` WHERE `name` = $(sName)</execute>
       </operation>
 
       <operation name="GetUser" descr="get user info by user id">

@@ -4,3 +4,5 @@ deploy/x86_64/usr/local/staff/include
 deploy/i686/usr/local/staff/include
 /usr/include/apache2
 /usr/include/apr-1.0
+/usr/include/mysql
+/usr/include/postgresql
