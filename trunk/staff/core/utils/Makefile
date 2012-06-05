@@ -7,15 +7,6 @@ ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_UTILS_DLL_EXPORTS=1
 endif
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
-ifneq ($(OS),FreeBSD)
-ifneq ($(OS),MINGW)
-  LDFLAGS += -ldl
-ifneq ($(OS),Darwin)
-  LDFLAGS += -lbfd
-endif
-endif
-endif
-
 ifeq ($(LINUX_RELEASE),MCBC)
   PTHREAD_VERSION := $(shell readlink /lib/libpthread.so.0 | sed 's/.*-\([\.0-9]*\)\..*/\1/')
   PTHREAD_VERSION_MAJOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f1)
@@ -23,9 +14,8 @@ ifeq ($(LINUX_RELEASE),MCBC)
   CXXFLAGS += -DPTHREAD_VERSION_MAJOR=$(PTHREAD_VERSION_MAJOR) -DPTHREAD_VERSION_MINOR=$(PTHREAD_VERSION_MINOR)
 endif
 
-ICONV_INCLUDE="\#include <iconv.h>"
-
 # detect iconv usability
+ICONV_INCLUDE="\#include <iconv.h>"
 WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
 ifneq ($(WITH_ICONV),)
@@ -36,8 +26,24 @@ ifeq ($(OS),Darwin)
 LDFLAGS += -liconv
 endif
 endif
+
 ifeq ($(OS),MINGW)
 LDFLAGS += -limagehlp
+endif
+
+ifneq ($(OS),FreeBSD)
+ifneq ($(OS),MINGW)
+  LDFLAGS += -ldl
+ifneq ($(OS),Darwin)
+# detect bfd usability
+BFD_INCLUDE="\#include <bfd.h>"
+WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
+CXXFLAGS += $(WITH_BFD)
+ifneq ($(WITH_BFD),)
+  LDFLAGS += -lbfd
+endif
+endif
+endif
 endif
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
