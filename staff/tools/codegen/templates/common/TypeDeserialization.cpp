@@ -99,10 +99,11 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
 #ifeqend
 #else
 #ifeq($(.Type),enum)
+  $($sOptMod)$($sParam) = ::staff::DeserializeEnum_$(.NsName.!mangle)_FromString(\
 #ifneq($($sOptMod),) // is optional
-  rAttr$($sParamName).GetText() >> $($sOptMod)$($sParam);
+rAttr$($sParamName).GetText());
 #else
-  $($sdoParam).GetAttributeTextByName("$(.Options.*elementName||$sParamName)") >> $($sOptMod)$($sParam);
+$($sdoParam).GetAttributeTextByName("$(.Options.*elementName||$sParamName)"));
 #ifeqend
 #else
 #cgerror Cannot deserialize type $(.Type) to attribute value. $($sParamName)

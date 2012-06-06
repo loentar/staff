@@ -1,23 +1,21 @@
 #cginclude "StringTypes"
 
-std::string& operator<<(std::string& sResult, const $(Enum.NsName) eEnumValue)
+std::string SerializeEnum_$(Enum.NsName.!mangle)_ToString(const $(Enum.NsName) eEnumValue)
 {
 #ifeq($(Enum.Options.*baseType),$($sStringTypes))
   switch (eEnumValue)
   {
 #foreach $(Enum.Members)
   case $(Enum.Namespace)$(Member.Name):
-    sResult = "$(Member.Value||Member.Name)";
-    break;
+    return "$(Member.Value||Member.Name)";
 #end
   default:
     STAFF_THROW_ASSERT("Value out of range while serializing enum [$(Enum.NsName)]: " +
                        staff::ToString(eEnumValue));
   };
 #else
-  sResult = staff::ToString(static_cast<int>(eEnumValue));
+  return ToString(static_cast<int>(eEnumValue));
 #ifeqend
-  return sResult;
 }
 
 DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
@@ -42,18 +40,17 @@ DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 #ifeqend
 #ifeqend
 \
-  std::string sParam;
-  rdoParam.SetText(sParam << eEnumValue);
+  rdoParam.SetText(SerializeEnum_$(Enum.NsName.!mangle)_ToString(eEnumValue));
   return rdoParam;
 }
 
-const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumValue)
+$(Enum.NsName) DeserializeEnum_$(Enum.NsName.!mangle)_FromString(const std::string& sParam)
 {
 #ifeq($(Enum.Options.*baseType),$($sStringTypes))
 #foreach $(Enum.Members)
   if (sParam == "$(Member.Value||Member.Name)")
   {
-    reEnumValue = $(Enum.Namespace)$(Member.Name);
+    return $(Enum.Namespace)$(Member.Name);
   }
   else
 #end
@@ -62,14 +59,13 @@ const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumV
   }
 #else
   int nValue = 0;
-  staff::FromString(sParam, nValue);
-  reEnumValue = static_cast< $(Enum.NsName) >(nValue);
+  FromString(sParam, nValue);
+  return static_cast< $(Enum.NsName) >(nValue);
 #ifeqend
-  return sParam;
 }
 
 const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue)
 {
-  rdoParam.GetText() >> reEnumValue;
+  reEnumValue = DeserializeEnum_$(Enum.NsName.!mangle)_FromString(rdoParam.GetText());
   return rdoParam;
 }
