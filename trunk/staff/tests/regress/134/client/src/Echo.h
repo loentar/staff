@@ -24,6 +24,7 @@
 
 #include <string>
 #include <staff/common/IService.h>
+#include <staff/client/ICallback.h>
 
   //! echo service
   // *serviceUri: http://localhost:9090/axis2/services/echo

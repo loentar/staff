@@ -46,8 +46,8 @@
   $($sdoParam).CreateAttribute("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #else
 #ifeq($(.Type),enum)
-  std::string sParam$($sParamName);
-  $($sdoParam).CreateAttribute("$(.Options.*elementName||$sParamName)", sParam$($sParamName) << $($sOptMod)$($sParam));
+  $($sdoParam).CreateAttribute("$(.Options.*elementName||$sParamName)", \
+::staff::SerializeEnum_$(.NsName.!mangle)_ToString($($sOptMod)$($sParam)));
 #else
 #cgerror Cannot serialize type $(.Type) to attribute value. $($sParamName)
 #ifeqend

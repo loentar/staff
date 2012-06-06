@@ -5,8 +5,8 @@ namespace staff
 #ifeq($(Enum.Extern),false) // do not serialize/deserialize extern type
   DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue);
   const DataObject& operator>>(const DataObject& rdoParam, $(Enum.NsName)& reEnumValue);
-  std::string& operator<<(std::string& sResult, const $(Enum.NsName) eEnumValue);
-  const std::string& operator>>(const std::string& sParam, $(Enum.NsName)& reEnumValue);
+  std::string SerializeEnum_$(Enum.NsName.!mangle)_ToString(const $(Enum.NsName) eEnumValue);
+  $(Enum.NsName) DeserializeEnum_$(Enum.NsName.!mangle)_FromString(const std::string& sParam);
 #ifeqend
 #end
 #foreach $(Interface.Structs)
