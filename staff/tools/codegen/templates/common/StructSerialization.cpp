@@ -106,6 +106,7 @@ rstStruct\
 
 #ifeqend
 \
+#var bFirstChoiceArray 1
 #foreach $(Struct.Members)
 #context $(Param.DataType)
 #var sParam rstStruct.$(Param.Name)
@@ -120,9 +121,13 @@ rstStruct\
 #ifeqend
 #ifeqend
 #ifeq($(Struct.Options.*choiceArrayItem),true||1)
-#ifneq($(Param.$Num),0)
 #ifneq($(Param.Options.*isAttribute),true||1)
+#ifneq($(Param.Options.*choiceId),)
+#ifeq($($bFirstChoiceArray),1)
+#var bFirstChoiceArray 0
+#else
   else
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
