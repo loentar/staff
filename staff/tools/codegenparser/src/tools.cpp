@@ -19,6 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#include <staff/utils/tostring.h>
 #include "Interface.h"
 #include "tools.h"
 #include <set>
@@ -261,6 +262,58 @@ namespace codegen
     }
   }
 
+  void MangleCharInString(std::string::size_type& rnPos, std::string& sResult)
+  {
+    static std::map<char, std::string> mapChars;
+    if (mapChars.empty())
+    {
+      mapChars['!'] = "_exclam_";
+      mapChars['"'] = "_dquote_";
+      mapChars['#'] = "_number_";
+      mapChars['$'] = "_dollar_";
+      mapChars['%'] = "_percent_";
+      mapChars['&'] = "_amp_";
+      mapChars['\''] = "_quote_";
+      mapChars['('] = "_lpar_";
+      mapChars[')'] = "_rpar_";
+      mapChars['*'] = "_asterisk_";
+      mapChars['+'] = "_plus_";
+      mapChars[','] = "_comma_";
+      mapChars['-'] = "_minus_";
+      mapChars['.'] = "_period_";
+      mapChars['/'] = "_slash_";
+      mapChars[':'] = "_colon_";
+      mapChars[';'] = "_semicolon_";
+      mapChars['<'] = "_lt_";
+      mapChars['='] = "_equal_";
+      mapChars['>'] = "_gt_";
+      mapChars['?'] = "_question_";
+      mapChars['@'] = "_at_";
+      mapChars['['] = "_lsbracket_";
+      mapChars['\\'] = "_backslash_";
+      mapChars[']'] = "_rsbracket_";
+      mapChars['^'] = "_caret_";
+      mapChars['`'] = "_grave_";
+      mapChars['{'] = "_lcbrace_";
+      mapChars['|'] = "_vbar_";
+      mapChars['}'] = "_rcbrace_";
+      mapChars['~'] = "_tilde_";
+    }
+
+    std::map<char, std::string>::const_iterator itSym = mapChars.find(sResult[rnPos]);
+    if (itSym != mapChars.end())
+    {
+      sResult.replace(rnPos, 1, itSym->second);
+      rnPos += itSym->second.size();
+    }
+    else
+    {
+      const std::string& sHex = '_' + ToHexString(static_cast<unsignedByte>(sResult[rnPos]));
+      sResult.replace(rnPos, 1, sHex);
+      rnPos += sHex.size();
+    }
+  }
+
   bool FixId(std::string& sId, bool bIgnoreBool /*= false*/)
   {
     static const char* szIdChars = "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -273,9 +326,9 @@ namespace codegen
     }
 
     std::string::size_type nPos = 0;
-    while ((nPos = sId.find_first_not_of(szIdChars)) != std::string::npos)
+    while ((nPos = sId.find_first_not_of(szIdChars, nPos)) != std::string::npos)
     {
-      sId[nPos] = '_';
+      MangleCharInString(nPos, sId);
       bChanged = true;
     }
 
