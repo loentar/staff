@@ -40,7 +40,7 @@ BFD_INCLUDE="\#include <bfd.h>"
 WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_BFD)
 ifneq ($(WITH_BFD),)
-  LDFLAGS += -lbfd
+  LDFLAGS += -lbfd -liberty
 endif
 endif
 endif
