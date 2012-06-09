@@ -15,7 +15,8 @@
 #end
     targetNamespace="$($TargetNamespace)"
     xmlns:ns_$(Interface.Namespace.!mangle)="$($TargetNamespace)"
-    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
 #ifneq($(Interface.Includes.$Count),0)
 
       <!-- imports -->

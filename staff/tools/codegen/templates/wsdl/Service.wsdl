@@ -13,6 +13,7 @@
 #ifeqend
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
     xmlns:$($TnsPrefix)="$($TargetNamespace)"
 #foreach $(Interface) // generate all top-level namespaces
 #ifeq($($ThisNodeName),Includes||Classes||Structs||Typedefs||Enums)
@@ -67,6 +68,24 @@
           <sequence>
 #foreach $(Member.Params)
             <element name="$(Param.Name)"\
+#ifeq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Array)
+>
+#ifneq($(Param.Description),)
+              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+              <complexType>
+                <complexContent>
+                  <restriction base="soapenc:Array">
+                    <attribute ref="soapenc:arrayType" wsdl:arrayType="\
+#context $(Param.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlArrayType.xsd"
+#contextend
+"/>
+                  </restriction>
+                </complexContent>
+              </complexType>
+            </element>
+#else
 #ifeq($(Param.DataType.Name),Optional||Nillable)
 #ifeq($(Param.DataType.Name),Nillable)
  nillable="true"\
@@ -117,6 +136,7 @@
 #ifeqend      // dataobject
 #contextend   // abstract
 #contextend   // optional
+#ifeqend      // array
 #end  // foreach member.params
           </sequence>
         </complexType>
@@ -155,6 +175,21 @@
 #ifeqend
 \
       <element name="$($sResult)"\
+#ifeq($(Member.Return.Namespace)$(Member.Return.Name),staff::Array)
+>
+        <complexType>
+          <complexContent>
+            <restriction base="soapenc:Array">
+              <attribute ref="soapenc:arrayType" wsdl:arrayType="\
+#context $(Member.Return.TemplateParams.TemplateParam1)
+#cginclude "WsdlArrayType.xsd"
+#contextend
+"/>
+            </restriction>
+          </complexContent>
+        </complexType>
+      </element>
+#else
 #ifeq($(Member.Return.Name),Optional||Nillable)
 #ifeq($(Member.Return.Name),Nillable)
  nillable="true"\
@@ -219,6 +254,7 @@
 \
 #contextend // abstract
 #contextend // optional
+#ifeqend // array
 #end // #foreach $(Class.Members)
 #end // foreach Interface.Classes
     </schema>
