@@ -1,0 +1,19 @@
+#ifeq($($WsdlArrayRecursion),)
+#var WsdlArrayRecursion 0
+#ifeqend
+#ifeq($($WsdlArrayRecursion),0)
+#var WsdlArrayBounds
+#ifeqend
+\
+#var WsdlArrayBounds $($WsdlArrayBounds)[]
+#ifeq($(.Namespace)$(.Name),staff::Array)
+#context $(.TemplateParams.TemplateParam1)
+#var WsdlArrayRecursion $($WsdlArrayRecursion.!inc.!trunc)
+#cginclude "WsdlArrayType.xsd"
+#var WsdlArrayRecursion $($WsdlArrayRecursion.!dec.!trunc)
+#contextend
+\
+#else
+#cginclude "WsdlDataType.xsd"
+$(.Options.*arrayBounds||"$($WsdlArrayBounds)")\
+#ifeqend

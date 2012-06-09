@@ -367,7 +367,11 @@ staff/tests/regress/136/client/src/main.cpp
 staff/tests/regress/136/client/src/Test136.h
 staff/tests/regress/136/client/src/Test136Types.h
 staff/tests/regress/140/client/test.wsdl
-staff/tests/regress/147/test/test.wsdl
+staff/tests/regress/147/test/staff.tests.Test147.wsdl
+staff/tests/regress/169/client/test.wsdl
+staff/tests/regress/170/client/test.wsdl
+staff/tests/regress/171/test/src/main.cpp
+staff/tests/regress/171/test/src/test.h
 staff/tools/codegen_parsers/cpp/src/CppParser.cpp
 staff/tools/codegen_parsers/cpp/src/CppParser.h
 staff/tools/codegen_parsers/protobuf/src/ProtobufParser.cpp
@@ -465,6 +469,7 @@ staff/tools/codegen/templates/serviceproxy/ServiceFactory.h
 staff/tools/codegen/templates/wsdl/codegen.config
 staff/tools/codegen/templates/wsdl/Service.wsdl
 staff/tools/codegen/templates/wsdl/Types.xsd
+staff/tools/codegen/templates/wsdl/WsdlArrayType.xsd
 staff/tools/codegen/templates/wsdl/WsdlDataType.xsd
 staff/tools/codegen/templates/wsdl/WsdlEnum.xsd
 staff/tools/codegen/templates/wsdl/WsdlStruct.xsd

@@ -1207,7 +1207,8 @@ namespace codegen
                   (!bIsResponse ||
                     (pElement->lsComplexTypes.front().lsAttributes.empty() &&
                     pElement->lsComplexTypes.front().lsAttributeGroups.empty())) &&
-                  pstStruct && pstStruct->sParentName.empty() && !pstStruct->bExtern &&
+                  pstStruct && pstStruct->sParentName.empty()
+                      && (!pstStruct->bExtern || !!pstStruct->mOptions.count("hidden")) &&
                   (pstStruct->lsMembers.empty() || !pstStruct->lsMembers.front().mOptions.count("choice")) &&
                   (pstStruct->mOptions.empty() ||
                     (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
@@ -1218,7 +1219,8 @@ namespace codegen
           if (bIsResponse) // response
           {
             rMember.mOptions["responseElement"] = pElement->sName;
-            if (!!pstStruct && !pstStruct->bExtern && pstStruct->lsMembers.empty())
+            if (!!pstStruct && (!pstStruct->bExtern || !!pstStruct->mOptions.count("hidden"))
+                && pstStruct->lsMembers.empty())
             {
               rMember.stReturn.stDataType.sName = "void";
               pstStruct->mOptions["hidden"];
@@ -2269,8 +2271,14 @@ namespace codegen
           const std::string& sArrayTypeName = pAttrArrayType->stType.sName.substr(0, nPos);
 
           DataType stArrayDataType;
-          DataTypeFromName(sArrayTypeName, pAttrArrayType->stType.sNamespace,
-                           stArrayDataType, m_stWsdlTypes);
+          GetCppType(sArrayTypeName, pAttrArrayType->stType.sNamespace,
+                           stArrayDataType);
+
+          if (stArrayDataType.eType == DataType::TypeUnknown)
+          {
+            DataTypeFromName(sArrayTypeName, pAttrArrayType->stType.sNamespace,
+                             stArrayDataType, m_stWsdlTypes);
+          }
 
           std::string::size_type nBounds = 0;
           while ((nBounds = sArrayBounds.find('[', nBounds + 1)) != std::string::npos)

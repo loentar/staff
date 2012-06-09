@@ -38,6 +38,24 @@
 #var sChoiceId $(Param.Options.*choiceId)
 #ifeqend
           <element name="$(.Options.*elementName||Param.Name)"\
+#ifeq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Array)
+>
+#ifneq($(Param.Description),)
+            <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+            <complexType>
+              <complexContent>
+                <restriction base="soapenc:Array">
+                  <attribute ref="soapenc:arrayType" wsdl:arrayType="\
+#context $(Param.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlArrayType.xsd"
+#contextend
+"/>
+                </restriction>
+              </complexContent>
+            </complexType>
+          </element>
+#else
 #ifeq($(Param.DataType.Name),Optional||Nillable)
 #ifeq($(Param.DataType.Name),Nillable)
  nillable="true"\
@@ -101,11 +119,12 @@
           </element>
 #else
 />
-#ifeqend
+#ifeqend // use parent element
 #ifeqend // template
 #ifeqend
 #contextend   // abstract
 #contextend   // optional
+#ifeqend // array
 #ifeqend // not attribute
 #end // #foreach $(Struct.Members) -- elements
 #ifeq($($bChoiceClosed),0)
