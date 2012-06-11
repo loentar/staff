@@ -335,8 +335,8 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 );
   staff::DataObject& rdoRequest = tOperation.Request();
-#ifneq($(Interface.Options.*targetNamespace),)
-  rdoRequest.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+#ifneq($(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace),)
+  rdoRequest.SetNamespaceUriGenPrefix("$(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace)");
 #ifeqend
 \
 #ifneq($(Interface.Options.*elementFormDefault),)
