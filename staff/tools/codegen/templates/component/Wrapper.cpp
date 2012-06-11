@@ -205,8 +205,17 @@ $(Param.Name)\
 #ifeq($(Member.Options.*dontSetResultNamespace),true)
       return;
 #else
+#ifneq($(Member.Options.*responseTargetNamespace),)
+#ifneq($(Class.Options.*targetNamespacePrefix),)
+    rOperation.GetResponse().SetNamespace("$(Member.Options.*responseTargetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
+#else
+    rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Member.Options.*responseTargetNamespace)");
+#ifeqend
+      return;
+#else
 #ifeq($(Member.Options.*mep),in-only)
       return;
+#ifeqend
 #ifeqend
 #ifeqend
     }

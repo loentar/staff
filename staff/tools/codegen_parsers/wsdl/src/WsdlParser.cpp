@@ -1218,6 +1218,10 @@ namespace codegen
 
           if (bIsResponse) // response
           {
+            if (pElement->bIsExtern)
+            {
+              rMember.mOptions["responseTargetNamespace"] = pElement->sNamespace;
+            }
             rMember.mOptions["responseElement"] = pElement->sName;
             if (!!pstStruct && (!pstStruct->bExtern || !!pstStruct->mOptions.count("hidden"))
                 && pstStruct->lsMembers.empty())
@@ -1246,9 +1250,13 @@ namespace codegen
           }
           else // request
           {
+            if (pElement->bIsExtern)
+            {
+              rMember.mOptions["requestTargetNamespace"] = pElement->sNamespace;
+            }
+            rMember.mOptions["requestElement"] = pElement->sName;
             if (bUnwrapStruct)
             {
-              rMember.mOptions["requestElement"] = pElement->sName;
               for (std::list<Param>::const_iterator itParam = pstStruct->lsMembers.begin();
                    itParam != pstStruct->lsMembers.end(); ++itParam)
               {
