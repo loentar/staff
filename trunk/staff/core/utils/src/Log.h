@@ -129,7 +129,7 @@ namespace staff
       LogVerbosityFunction  = (1 << 2), //!< function name
       LogVerbosityDateTime  = (1 << 3), //!< date time
       LogVerbosityPid       = (1 << 4), //!< process id
-      LogVerbosityThread    = (1 << 4), //!< process thread id
+      LogVerbosityThread    = (1 << 5), //!< process thread id
 
       LogVerbosityDefault   = LogVerbosityLevel | //!< default
                               LogVerbosityFileLine | LogVerbosityFunction | LogVerbosityDateTime,
