@@ -19,13 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more infor mation.
  */
 
-//#ifndef WIN32
-//#include <sys/types.h>
-//#include <unistd.h>
+#include <sys/timeb.h>
 #include <stdlib.h>
-//#else
-//#include <Windows.h>
-//#endif
+#include <time.h>
 #include <string.h>
 #include <iostream>
 #include <fstream>
@@ -221,6 +217,28 @@ namespace staff
     default:
       if ((m_nVerbosity & LogVerbosityLevel)) *m_pStream << "UNKNOWN ";
     }
+
+    if ((m_nVerbosity & LogVerbosityDateTime))
+    {
+      static const int nBuffSize = 32;
+      char szBuff[nBuffSize];
+      struct timeb tTimeb;
+      struct tm tLocal;
+
+      ftime(&tTimeb);
+#ifdef WIN32
+      localtime_s(&lt, &tTimeb.time);
+#else
+      localtime_r(&tTimeb.time, &tLocal);
+#endif
+
+      snprintf(szBuff, nBuffSize, "%02d-%02d-%02d %02d:%02d:%02d.%03d ",
+               tLocal.tm_mday, tLocal.tm_mon + 1, tLocal.tm_year + 1900,
+               tLocal.tm_hour, tLocal.tm_min, tLocal.tm_sec, tTimeb.millitm);
+
+      *m_pStream << szBuff;
+    }
+
 
     if ((m_nVerbosity & LogVerbosityPid))
     {

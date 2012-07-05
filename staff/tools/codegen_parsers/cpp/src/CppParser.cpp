@@ -1835,11 +1835,11 @@ namespace codegen
         }
       }
 
-      rProject.lsInterfaces.push_back(m_stInterface);
-      Interface& rProjectThisInterface = rProject.lsInterfaces.back();
-
       m_stInterface.sFileName = sInterfaceFileName;
       m_stInterface.sFilePath = sInterfaceFilePath;
+
+      rProject.lsInterfaces.push_back(m_stInterface);
+      Interface& rProjectThisInterface = rProject.lsInterfaces.back();
 
       m_tFile.open((m_sInDir + sFileName).c_str());
       CSP_ASSERT(m_tFile.good(), std::string("can't open file: ") + sFileName + ": "
