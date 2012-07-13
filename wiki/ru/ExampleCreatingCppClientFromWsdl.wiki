@@ -84,7 +84,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
   {
     std::auto_ptr< StockQuote > pStockQuote(::staff::ServiceFactory::Inst().GetService< StockQuote >());
 
-    STAFF_ASSERTS(pStockQuote.get(), "Cannot get client for service StockQuote!");
+    STAFF_ASSERT(pStockQuote.get(), "Cannot get client for service StockQuote!");
 
     // Invoke Your service here:
 
