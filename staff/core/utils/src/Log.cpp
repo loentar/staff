@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#if defined __MINGW32__
+#include <pthread.h> // for localtime_r
+#endif
 #include <iostream>
 #include <fstream>
+#include "tocstring.h"
 #include "Thread.h"
 #include "Process.h"
 #include "console.h"
@@ -226,15 +230,15 @@ namespace staff
       struct tm tLocal;
 
       ftime(&tTimeb);
-#ifdef WIN32
-      localtime_s(&lt, &tTimeb.time);
+#if defined WIN32 && !defined __MINGW32__
+      localtime_s(&tLocal, &tTimeb.time);
 #else
       localtime_r(&tTimeb.time, &tLocal);
 #endif
 
-      snprintf(szBuff, nBuffSize, "%02d-%02d-%02d %02d:%02d:%02d.%03d ",
-               tLocal.tm_mday, tLocal.tm_mon + 1, tLocal.tm_year + 1900,
-               tLocal.tm_hour, tLocal.tm_min, tLocal.tm_sec, tTimeb.millitm);
+      staff_snprintf(szBuff, nBuffSize, "%02d-%02d-%02d %02d:%02d:%02d.%03d ",
+                     tLocal.tm_mday, tLocal.tm_mon + 1, tLocal.tm_year + 1900,
+                     tLocal.tm_hour, tLocal.tm_min, tLocal.tm_sec, tTimeb.millitm);
 
       *m_pStream << szBuff;
     }
