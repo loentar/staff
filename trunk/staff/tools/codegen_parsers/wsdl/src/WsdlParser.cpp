@@ -1232,7 +1232,8 @@ namespace codegen
             }
             else
             {
-              if (bUnwrapStruct)
+              // unwrap result only if response have a single child element
+              if (bUnwrapStruct && pstStruct->lsMembers.size() == 1 && !m_pParseSettings->mEnv.count("dontunwrapresponse"))
               {
                 const Param& rParam = pstStruct->lsMembers.front();
                 // check result element name because it may be renamed
