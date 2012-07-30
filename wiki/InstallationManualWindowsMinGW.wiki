@@ -21,7 +21,36 @@ If you need to compile Staff against Qt version of MinGW you can select "MSYS Ba
 
 It is not possible to compile Axis2/C under MinGW at current moment. So we will use Axis2/C compiled with VS2005 compiler with special options (with undecorated names). This is compatible with gcc.
 
-You can compile Axis2/C yourself but better is to use precompiled version from [http://code.google.com/p/staff/downloads/list?q=gcc4 download section].
+To compile Axis2/C from source code follow the 1.2.1.
+
+*Or* to compile Axis2/C from source code follow the 1.2.2.
+
+==== 1.2.1 Building Axis2/C from source code ====
+
+You can compile Axis2/C that is compatible with GCC. 
+
+Download Axis2/C source code [http://www.sai.msu.su/apache//ws/axis2/c/1_6_0/axis2c-src-1.6.0.zip here], unpack it and apply the patch located [http://code.google.com/p/staff/downloads/detail?name=axis2c-src-1.6.0-mingw.patch here].
+
+If you have no patch utility install it using MinGW installer.
+
+To apply the patch start bash and enter:
+{{{
+cd axis2c-src-1.6.0
+patch -d. -p1 <../axis2c-src-1.6.0-mingw.patch 
+}}}
+
+Next start Visual Studio command prompt, cd to the `axis2c-src-1.6.0\build\win32` directory and start:
+
+{{{
+nmake install
+}}}
+
+Axis2/C deploy will be produced in `axis2c-src-1.6.0\build\deploy` directory.
+Copy it's contents into `c:\ws\axis2c`.
+
+==== 1.2.2 Using prebuilt version of Axis2/C ====
+
+Or you can use precompiled version from [http://code.google.com/p/staff/downloads/list?q=gcc4 download section].
 
 Unpack `axis2c` directory from downloaded tarball into `c:\ws\`.
 
@@ -110,4 +139,3 @@ INFO main.cpp[58]: main: Setting mem: 46
 INFO main.cpp[60]: main: 46
 INFO main.cpp[61]: main: Service mem: 46
 }}}
-
