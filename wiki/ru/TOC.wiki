@@ -38,6 +38,7 @@
       * [CodegenCommandLine Описание коммандной строки]
       * [CodegenPlugins Подключаемые модули]
       * [CodegenTemplates Шаблоны]
+      * [CodegenTemplateLanguage Язык шаблонов]
     * DAS
       * [DasScriptProgramming Программирование скриптов DAS]
       * [DasProviders Список провайдеров]

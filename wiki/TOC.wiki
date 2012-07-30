@@ -38,6 +38,7 @@
       * [CodegenCommandLine Codegen command line description]
       * [CodegenPlugins Codegen plugins]
       * [CodegenTemplates Codegen templates]
+      * [CodegenTemplateLanguage Codegen template language]
     * DAS
       * [DasScriptProgramming DAS script programming]
       * [DasProviders DAS providers list]

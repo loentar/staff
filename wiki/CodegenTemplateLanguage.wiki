@@ -1,0 +1,98 @@
+#summary Short description of codegen's template language
+
+= Introduction =
+
+This document is a *draft* description of codegen's template language.
+
+
+= Details =
+
+== Accessors: ==
+Start codegen with -x parameter to produce internal xml that represents current project structure. You could get access to xml elements by using `$(Node.Child)` operator.
+
+Some examples:
+  * `$(Project.Name)` - obtain name of project;
+  * `$(Project.Interfaces.$Count)` - get count of project interfaces;
+...
+
+Special accessors list:
+|| *Name* ||  *Description* ||
+|| !ThisElementName || returns name of current element ||
+|| !ThisElementValue || returns value of current element ||
+|| !ThisElementPath || returns full path of element in dot notation ||
+|| Count || returns child count ||
+|| Num || returns current element number by order ||
+
+== Variables ==
+
+Declare a variable:
+{{{
+#var myvar 10
+// get access to variable
+myvar = $($myvar)
+}}}
+
+== Processing functions ==
+
+To execute processing function append `.!functionname` to accessor or variable.
+
+Example: convert interface's file name to lower case:
+{{{
+$(Interface.FileName.!tolower)
+// "SomeFileName.H" -> "somefilename.h"
+}}}
+
+Processing functions list: 
+|| *Name* ||  *Description* ||
+|| mangledot || replace dots to underscores `"." => "_"` ||
+|| mangle || replace 2 colons to underscores `"::" => "_"` ||
+|| dot || replace 2 colons to dots `"::" => "."`  ||
+|| match/ || returns true if current context has substring ||
+|| replace/ || replace matches in string to given value ||
+|| replacenotof/ || replace all unmatched chars in string to given value ||
+|| trim/ || remove leading and trailing symbols ||
+|| trimleft/ || remove leading symbols ||
+|| trimright/ || remove trailing symbols ||
+|| trim || remove leading and trailing whitespaces ||
+|| trimleft || remove leading whitespaces ||
+|| trimright || remove trailing whitespaces ||
+|| tolower || convert text to lower case ||
+|| toupper || convert text to upper case ||
+|| append/ || append a string ||
+|| prepend/ || prepend a string ||
+|| deprefix/ || remove prefix from string ||
+|| depostfix/ || remove postfix from string ||
+|| token/ || returns first token ||
+|| lasttoken/ || returns last token ||
+|| cut/ || cuts the string with given substring and gets first occurrence ||
+|| cutlast/ || cuts the string with given substring and gets last occurrence ||
+|| inc || increment number ||
+|| dec || decrement number ||
+|| add/ || add to number ||
+|| sub/ || subtract from number ||
+|| trunc || truncate float value to integer ||
+
+
+== Preprocessor blocks: ==
+
+Short description of preprocessor blocks available:
+|| *Name* ||  *Description*                              || *Example* ||
+|| var    || declare a variable || `#var a this is a text variable`<br>`#var b 123` ||
+|| ifeq<br>ifneq<br>else<br>ifeqend || Process conditional block || `#ifeq($($a),1)`<br>`code if variable a is equal 1`<br>`#else`<br>`code if variable a is not equal 1`<br>`#ifeqend`<br> ||
+|| foreach<br>end || process child nodes || `#foreach $(Interface.Structs)`<br>`Current struct is "$(.Namespace)$(.Name)"`<br>`#end`||
+|| context<br>contextend || Switch current context to given child || `#context $(Project.Interfaces.Interface.Structs)`<br>`count of structs in first interface = $(.$Count)`<br>`#contextend` ||
+|| cginclude || include given file || `#cginclude "somefile"` ||
+|| indent || set indentation || `#indent +2` ||
+|| fileopen || create a file and put all output into that file || `#fileopen my.cpp` ||
+|| fileclose || close previously opened file || `#fileclose` ||
+|| mkdir || create a directory || `#mkdir src` ||
+|| cgwarning || write warning message || `#cgwarning invalid parameter` ||
+|| cgerror || write error message and stop generation || `#cgerror some critical error description` ||
+|| cgpushvars<br>cgpopvars || push or pop variables into/from stack ||  ||
+|| cgdumpvars || output current variables with values (debug purposes only) || `#cgdumpvars` ||
+
+
+
+== Complete example ==
+
+TODO
