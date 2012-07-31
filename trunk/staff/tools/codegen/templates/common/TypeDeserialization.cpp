@@ -126,13 +126,13 @@ $($sdoParam).GetAttributeTextByName("$(.Options.*elementName||$sParamName)"));
 #ifneq($($bUseParentElem),)
 $($sdoParam).GetText()\
 #else
-$($sdoParam).GetChildTextByLocalName("$($sParamName)")\
+$($sdoParam).GetChildTextByLocalName("$($sElementName||.Options.*elementName||$sParamName)")\
 #ifeqend  // param optimization
 #else
 #ifneq($($bUseParentElem),)
   $($sdoParam).GetValue($($sOptMod)$($sParam));
 #else
-  $($sdoParam).GetChildValueByLocalName("$($sParamName)", $($sOptMod)$($sParam));
+  $($sdoParam).GetChildValueByLocalName("$($sElementName||.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #ifeqend  // param optimization
 #ifeqend // lvalue
 #ifeqend // anyAttribute
