@@ -23,7 +23,7 @@ It is not possible to compile Axis2/C under MinGW at current moment. So we will 
 
 To compile Axis2/C from source code follow the 1.2.1.
 
-*Or* to compile Axis2/C from source code follow the 1.2.2.
+*Or* to use prebuilt version of Axis2/C follow the 1.2.2.
 
 ==== 1.2.1 Building Axis2/C from source code ====
 
