@@ -117,7 +117,7 @@ rstStruct\
 #ifeq($(Param.Options.*isAttribute),true||1)      // serialize to attribute
 #var sdoParam rdoParam
 #else
-#var sdoParam rdoParam.CreateChild("$(Param.Name)")
+#var sdoParam rdoParam.CreateChild("$(Param.Options.*elementName||Param.Name)")
 #ifeqend
 #ifeqend
 #ifeq($(Struct.Options.*choiceArrayItem),true||1)
@@ -134,7 +134,7 @@ rstStruct\
 #ifeq($(Param.Options.*useParentElement),)
 #var sElementName
 #else
-#var sElementName $(Param.Name)
+#var sElementName $(Param.Options.*elementName||Param.Name)
 #ifeqend
 #cginclude "TypeSerialization.cpp"
 #contextend
@@ -166,14 +166,14 @@ rstStruct\
 #ifneq($(Param.$Num),0)
   else
 #ifeqend
-  if (rdoParam.GetLocalName() == "$(Param.Name)")
+  if (rdoParam.GetLocalName() == "$(Param.Options.*elementName||Param.Name)")
   {
 #indent +
 #ifeqend
 #ifeq($(Param.Options.*useParentElement),)
 #var sElementName
 #else
-#var sElementName $(Param.Name)
+#var sElementName $(Param.Options.*elementName||Param.Name)
 #ifeqend
 #var sParam rstStruct.$(Param.Name)
 #var sdoParam rdoParam
