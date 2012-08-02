@@ -49,7 +49,7 @@ namespace staff
       if (bRawName)
       {
 #ifdef WIN32
-        m_pDynLib = LoadLibrary(sLibName.c_str());
+        m_pDynLib = LoadLibraryA(sLibName.c_str());
 #else
         m_pDynLib = dlopen(sLibName.c_str(), RTLD_LAZY);
 #endif
@@ -57,7 +57,7 @@ namespace staff
       else
       {
 #ifdef WIN32
-        m_pDynLib = LoadLibrary((sLibName + STAFF_LIBRARY_EXT).c_str());
+        m_pDynLib = LoadLibraryA((sLibName + STAFF_LIBRARY_EXT).c_str());
 #else
         std::string::size_type nPos = sLibName.find_last_of('/');
         if (nPos == std::string::npos)
