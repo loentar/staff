@@ -15,13 +15,27 @@ if '%target%' == '' (
 
 if not '%target%' == 'Release' (
 if not '%target%' == 'Debug' (
+if not '%target%' == 'Release-Unicode' (
+if not '%target%' == 'Debug-Unicode' (
 if not '%target%' == '"Release|Win32"' (
 if not '%target%' == '"Debug|Win32"' (
 if not '%target%' == '"Release|x64"' (
 if not '%target%' == '"Debug|x64"' (
+if not '%target%' == '"Release-Unicode|Win32"' (
+if not '%target%' == '"Debug-Unicode|Win32"' (
+if not '%target%' == '"Release-Unicode|x64"' (
+if not '%target%' == '"Debug-Unicode|x64"' (
   echo.
   echo Error: Invalid target set.
   goto errhelp
+)
+)
+)
+)
+)
+)
+)
+)
 )
 )
 )
@@ -170,6 +184,12 @@ set arch=x64
 if '%target%' == '"Debug|x64"' (
 set arch=x64
 )
+if '%target%' == '"Release-Unicode|x64"' (
+set arch=x64
+)
+if '%target%' == '"Debug-Unicode|x64"' (
+set arch=x64
+)
 
 echo.
 echo.
@@ -183,6 +203,7 @@ echo.
 echo Start this script as
 echo  %0% TARGET BUILD
 echo where TARGET is one of `Release`, `Debug`, `"Release|Win32"`, `"Debug|Win32"`, `"Release|x64"`, `"Debug|x64"`
+echo `Release-Unicode`, `Debug-Unicode`, `"Release-Unicode|Win32"`, `"Debug-Unicode|Win32"`, `"Release-Unicode|x64"`, `"Debug-Unicode|x64"`
 echo and BUILD is `build`, `rebuild`, `clean` or empty ^(defaults is rebuild^)
 goto errexit
 

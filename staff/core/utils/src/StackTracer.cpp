@@ -301,7 +301,7 @@ namespace staff
       IMAGEHLP_LINE stLine;
       IMAGEHLP_MODULE stModule;
 
-      ToCString(pAddr, szAddrHex, sizeof(szAddrHex));
+      ToHexCString(pAddr, szAddrHex, sizeof(szAddrHex));
       sResult.append(szAddrHex).append(" ");
 
       // context
@@ -510,7 +510,7 @@ namespace staff
 #endif
 
     // Get image filename of the main executable
-    dwFilepathLen = GetModuleFileName(NULL, szFilePath, sizeof(szFilePath));
+    dwFilepathLen = GetModuleFileNameA(NULL, szFilePath, sizeof(szFilePath));
     if (dwFilepathLen)
     {
       LogError() << "NtStackTrace: Failed to get pathname for program\n";

@@ -190,7 +190,7 @@ namespace staff
     free(szArgs);
 #else
     // WINDOWS
-    STARTUPINFO tStartupInfo;
+    STARTUPINFOA tStartupInfo;
     HANDLE hStdOutPipeWrite;
     BOOL bProcessCreated = FALSE;
 
@@ -216,8 +216,8 @@ namespace staff
       tStartupInfo.hStdError = hStdOutPipeWrite;
     }
 
-    bProcessCreated = CreateProcess(sCommandLine.c_str(), NULL, NULL, NULL, TRUE, 0, NULL, NULL,
-                                    &tStartupInfo, &m_pImpl->tProcessInformation);
+    bProcessCreated = CreateProcessA(sCommandLine.c_str(), NULL, NULL, NULL, TRUE, 0, NULL, NULL,
+                                     &tStartupInfo, &m_pImpl->tProcessInformation);
     STAFF_ASSERT(bProcessCreated, "Failed to create process [" + sCommandLine + "]");
     if (bReadOutput)
     {
@@ -327,7 +327,7 @@ namespace staff
 #ifdef WIN32
     char szPath[MAX_PATH];
 
-    if (!GetModuleFileName(NULL, szPath, MAX_PATH))
+    if (!GetModuleFileNameA(NULL, szPath, MAX_PATH))
 #else
     char szPath[PATH_MAX];
 #ifdef __FreeBSD__

@@ -35,9 +35,9 @@ namespace staff
   {
   #ifdef WIN32
     LPVOID lpMsgBuf = NULL;
-    DWORD dwChars = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                                    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, lErrorNo, 0,
-                                    reinterpret_cast<LPTSTR>(&lpMsgBuf), 0, NULL);
+    DWORD dwChars = ::FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                                     FORMAT_MESSAGE_IGNORE_INSERTS, NULL, lErrorNo, 0,
+                                     reinterpret_cast<LPSTR>(&lpMsgBuf), 0, NULL);
 
     if (!dwChars || !lpMsgBuf)
     {
@@ -45,7 +45,7 @@ namespace staff
     }
     else
     {
-      std::string sError(reinterpret_cast<LPCTSTR>(lpMsgBuf),
+      std::string sError(reinterpret_cast<LPCSTR>(lpMsgBuf),
                          static_cast<std::string::size_type>(dwChars));
       LocalFree(lpMsgBuf);
       return sError;
