@@ -472,7 +472,7 @@ namespace staff
 #if defined _WIN64
      typedef USHORT (WINAPI *PCaptureStackBackTrace)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
      PCaptureStackBackTrace pCaptureStackBackTrace =
-       (PCaptureStackBackTrace)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+       (PCaptureStackBackTrace)(GetProcAddress(LoadLibraryA("kernel32.dll"), "RtlCaptureStackBackTrace"));
 
     if (pCaptureStackBackTrace)
     {
