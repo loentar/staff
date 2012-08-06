@@ -46,6 +46,7 @@
 #include <staff/utils/stringutils.h>
 #include <staff/utils/Exception.h>
 #include <staff/xml/Element.h>
+#include <staff/codegen/tools.h>
 #include "CodeGen.h"
 
 namespace staff
@@ -612,6 +613,12 @@ namespace codegen
         {
           sResult.erase();
         }
+      }
+      else
+      if (sFunction.substr(0, 8) == "fixid")
+      {
+        sFunction.erase(0, 8);
+        FixId(sResult);
       }
       else
       if (sFunction.substr(0, 3) == "inc")
