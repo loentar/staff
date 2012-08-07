@@ -82,7 +82,11 @@ $(Param.Name)("$(Param.Options.*defaultValue)")\
 #ifeq($($sDefValueTypeName),char)
 $(Param.Name)('$(Param.Options.*defaultValue)')\
 #else
+#ifeq($($sDefValueDataType),enum)
 $(Param.Name)($(Param.Options.defaultValue.!fixid))\
+#else
+$(Param.Name)($(Param.Options.defaultValue))\
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
