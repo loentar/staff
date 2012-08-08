@@ -406,6 +406,9 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 ;
 #ifeqend
 \
+#ifeq($(Member.Return.Type)-$(Member.Options.*useParentElement),dataobject-true||dataobject-1)
+  return rdoResult;
+#else
 #ifeq($(Member.Return.Type),string||dataobject)
   return \
 #ifeqend
@@ -422,6 +425,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #else
 #ifneq($(Member.Return.Type),string||dataobject)
 #cgerror "Member.Return.Name = $(Member.Return.Name);"
+#ifeqend
 #ifeqend
 #ifeqend
 ;
