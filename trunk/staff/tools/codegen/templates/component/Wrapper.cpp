@@ -65,11 +65,13 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #foreach $(Class.Members)
     if (sOperationName == "$(Member.Options.*requestElement||Member.Name)")
     {
+#ifneq($(Member.Return.Type)-$(Member.Options.*useParentElement),dataobject-true||dataobject-1)
 #ifneq($(Member.Options.*responseElement),)
       rOperation.SetResponseName("$(Member.Options.*responseElement)");
 #else
 #ifneq($(Member.Return.ResponseName),)
       rOperation.SetResponseName("$(Member.Return.ResponseName)");
+#ifeqend
 #ifeqend
 #ifeqend
 \
@@ -143,7 +145,11 @@ $(Member.Return.NsName) tResult = \
 rOperation.Result().SetValue(\
 #else
 #ifeq($(Member.Return.Type),dataobject) // !!dataobject!!
+#ifeq($(Member.Options.*useParentElement),true||1)
+rOperation.Result() = \
+#else
 rOperation.Result().AppendChild(\
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -186,8 +192,14 @@ $(Param.Name)\
 #end // end of function param list
 \
 #ifneq($(Member.Return.Name),void)
-#ifeq($(Member.Return.Type),generic||string||dataobject)
+#ifeq($(Member.Return.Type),generic||string)
 )\
+#else
+#ifeq($(Member.Return.Type),dataobject)
+#ifneq($(Member.Options.*useParentElement),true||1)
+)\
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 );
@@ -201,6 +213,15 @@ $(Param.Name)\
 #cginclude <common/TypeSerialization.cpp>
 #indent -2
 #contextend
+#ifeqend
+#ifeq($(Member.Return.Type)-$(Member.Options.*useParentElement),dataobject-true||dataobject-1)
+#ifneq($(Member.Options.*responseElement),)
+      rOperation.SetResponseName("$(Member.Options.*responseElement)");
+#else
+#ifneq($(Member.Return.ResponseName),)
+      rOperation.SetResponseName("$(Member.Return.ResponseName)");
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeq($(Member.Options.*dontSetResultNamespace),true)
       return;
