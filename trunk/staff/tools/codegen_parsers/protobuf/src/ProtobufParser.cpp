@@ -720,7 +720,6 @@ namespace codegen
           m_tFile.ignore();
           ReadBefore(stMember.sValue, ";}");
           StringTrim(stMember.sValue);
-          FixId(stMember.sValue);
           chTmp = m_tFile.peek();
         }
 
