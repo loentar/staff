@@ -330,15 +330,7 @@ namespace codegen
           sDataTypeName == "uint32" ||
           sDataTypeName == "sint32" ||
           sDataTypeName == "fixed32" ||
-          sDataTypeName == "sfixed32"
-          )
-      {
-        rDataType.eType = DataType::TypeGeneric;
-        rDataType.sName = "int";
-        rDataType.sUsedName = rDataType.sName;
-      }
-      else
-      if (
+          sDataTypeName == "sfixed32" ||
           sDataTypeName == "int64" ||
           sDataTypeName == "uint64" ||
           sDataTypeName == "sint64" ||
@@ -347,7 +339,28 @@ namespace codegen
           )
       {
         rDataType.eType = DataType::TypeGeneric;
-        rDataType.sName = "long";
+        const std::string& sBitness = sDataTypeName.substr(sDataTypeName.size() - 2);
+        const std::string& sSign = sDataTypeName.substr(0, 4);
+
+        if (sBitness == "32")
+        {
+          rDataType.sName = "int";
+        }
+        else
+        {
+          rDataType.sName = "long long";
+        }
+
+        if (sSign == "sint")
+        {
+          rDataType.sName = "signed " + rDataType.sName;
+        }
+        else
+        if (sSign == "uint")
+        {
+          rDataType.sName = "unsigned " + rDataType.sName;
+        }
+
         rDataType.sUsedName = rDataType.sName;
       }
       else
@@ -362,7 +375,7 @@ namespace codegen
         rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
       }
       else
-      if(ParseCompositeDataType(m_stInterface.lsStructs, rDataType))
+      if (ParseCompositeDataType(m_stInterface.lsStructs, rDataType))
       {
         rDataType.eType = DataType::TypeStruct;
       }
