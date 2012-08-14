@@ -967,13 +967,19 @@ namespace codegen
               if (stParamTmp.stDataType.eType == DataType::TypeEnum)
               {
                 // fix owner and namespace
-                if (!sOwnerName.empty())
-                {
-                  sTmp = sOwnerName + "::" + sTmp;
-                }
-                sTmp = stParamTmp.stDataType.sNamespace + sTmp;
+                const Enum* pEnum =
+                    static_cast<const Enum*>(GetBaseType(stParamTmp.stDataType.sNamespace +
+                                                         stParamTmp.stDataType.sName,
+                                                         m_stInterface,
+                                                         BaseType::TypeEnum, &rStruct));
+                STAFF_ASSERT(pEnum, "Unable to find enum type " + stParamTmp.stDataType.sNamespace +
+                             stParamTmp.stDataType.sName);
 
-                OptimizeCppNs(sTmp, rStruct.sNamespace + sOwnerName);
+                if (!pEnum->sOwnerName.empty())
+                {
+                  sTmp = pEnum->sOwnerName + "::" + sTmp;
+                }
+                sTmp = pEnum->sNamespace + sTmp;
               }
               else
               if (stParamTmp.stDataType.eType == DataType::TypeString)
