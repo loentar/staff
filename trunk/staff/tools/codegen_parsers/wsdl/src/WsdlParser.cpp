@@ -2641,7 +2641,7 @@ namespace codegen
           while (pAttrGroup->bIsRef)
           {
             AttributeGroupMap::const_iterator itTargetElem =
-                m_stWsdlTypes.mAttributeGroups.find(pAttrGroup->GetNsName());
+                m_stWsdlTypes.mAttributeGroups.find(pAttrGroup->sNamespace + ":" + pAttrGroup->sName);
 
             STAFF_ASSERT(itTargetElem != m_stWsdlTypes.mAttributeGroups.end(),
                          "Can't find attribute group declaration for: [" + pAttrGroup->GetNsName()
@@ -3227,7 +3227,7 @@ namespace codegen
       {
         AttributeGroup stAttrGroup;
         stAttrGroup.Parse(*pType);
-        mAttributeGroups[stAttrGroup.GetNsName()] = stAttrGroup;
+        mAttributeGroups[stAttrGroup.sNamespace + ":" + stAttrGroup.sName] = stAttrGroup;
       }
       else
       if (sType == "group")
