@@ -83,7 +83,8 @@ $(Param.Name)("$(Param.Options.*defaultValue)")\
 $(Param.Name)('$(Param.Options.*defaultValue)')\
 #else
 #ifeq($($sDefValueDataType),enum)
-$(Param.Name)($(Param.Options.defaultValue.!fixid))\
+#var enumName $(Param.Options.defaultValue.!lasttoken/:/)
+$(Param.Name)($(Param.Options.defaultValue.!depostfix/$($enumName)/)$($enumName.!fixid))\
 #else
 $(Param.Name)($(Param.Options.defaultValue))\
 #ifeqend
