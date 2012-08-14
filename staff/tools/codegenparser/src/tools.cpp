@@ -341,7 +341,7 @@ namespace codegen
 
     if (setCppReservedWords.empty())
     {
-      const unsigned nCppReservedWordsCount = 80;
+      const unsigned nCppReservedWordsCount = 79;
       const char* aszCppReservedWords[nCppReservedWordsCount] =
       {
         "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "_Bool", "break", "case", "catch",
@@ -352,7 +352,7 @@ namespace codegen
         "reinterpret_cast", "restrict", "return", "short", "signed", "sizeof", "static", "static_cast",
         "struct", "switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename",
         "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
-        "time", "typeid"
+        "typeid"
       };
       for (unsigned nIndex = 0; nIndex < nCppReservedWordsCount; ++nIndex)
       {
