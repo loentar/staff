@@ -61,5 +61,9 @@
       * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD
       * [InstallationManualFreeBSD Install staff from source code]
-  * [http://code.google.com/p/staff/wiki/ToDo TODO plans]
+  * Misc
+    * [StaffDetails WSF Staff details]
+    * [SoaApplicationStruct SOA Application structure]
+    * [WsfCodegensOverview WSFs Codegens overview]
+    * [ToDo TODO plans]
   * [SupportPage Support page]

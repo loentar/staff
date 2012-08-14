@@ -61,5 +61,10 @@
       * [InstallationManualMacOSX Установка staff из исходного кода]
     * FreeBSD
       * [InstallationManualFreeBSD Установка staff из исходного кода]
+  * Разное
+    * [StaffDetails Описание WSF Staff]
+    * [SoaApplicationStruct Структура SOA-Приложения]
+    * [WsfCodegensOverview Генераторы кода WSF]
+    * [ToDo TODO]
   * [SupportPage Поддержка]
 
