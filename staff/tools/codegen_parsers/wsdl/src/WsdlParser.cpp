@@ -3358,11 +3358,13 @@ namespace codegen
     else
     {
       pLocation = rElemImport.FindAttribute("schemaLocation");
-      if (pLocation)
+      if (!pLocation)
       {
-        // says to import given namespace into current namespace
-        m_setNsAliases.insert(sImportNs);
+        return;
       }
+
+      // says to import given namespace into current namespace
+      m_setNsAliases.insert(sImportNs);
       sSchemaLocation = pLocation->GetValue();
     }
 
