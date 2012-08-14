@@ -953,16 +953,25 @@ namespace codegen
             {
               if (stParamTmp.stDataType.eType == DataType::TypeEnum)
               {
-                // fix namespace
-                FixId(sTmp);
+                // fix owner and namespace
+                if (!sOwnerName.empty())
+                {
+                  sTmp = sOwnerName + "::" + sTmp;
+                }
                 sTmp = stParamTmp.stDataType.sNamespace + sTmp;
+
                 OptimizeCppNs(sTmp, rStruct.sNamespace + sOwnerName);
               }
               else
+              if (stParamTmp.stDataType.eType == DataType::TypeString)
               {
-                FixId(sTmp, true);
+                if (sTmp.size() >= 2)
+                {
+                  sTmp.erase(sTmp.size() - 1);
+                  sTmp.erase(0, 1);
+                }
               }
-              
+
               stParamTmp.mOptions["defaultValue"] = sTmp;
             }
           }
