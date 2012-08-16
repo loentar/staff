@@ -40,6 +40,8 @@
 #include <iostream>
 #include <staff/utils/console.h>
 #include <staff/utils/Log.h>
+#include <staff/utils/Thread.h>
+#include <staff/utils/Mutex.h>
 #include <staff/utils/StackTracer.h>
 #include <staff/utils/CrashHandler.h>
 #include <staff/common/Exception.h>
@@ -280,7 +282,9 @@ public:
 
     if (tOperation.IsFault())
     {
-      m_sLastFaultDetail = tOperation.GetFaultDetail();
+      staff::ScopedLock tLock(m_tFaultDetailsMutex);
+
+      m_mFaultDetails[staff::Thread::GetCurrentId()] = tOperation.GetFaultDetail();
       staff::LogWarning() << "Fault: \n" << tOperation.GetFaultDescr() << "\n";
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, static_cast<axis2_char_t*>(axutil_strdup(pEnv, tOperation.GetFaultString().c_str())));
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, static_cast<axutil_error_codes_t>(AXUTIL_ERROR_MAX + 1));
@@ -319,16 +323,32 @@ public:
     const axutil_env_t* pEnv,
     axiom_node_t* /*pNode*/)
   {
+    staff::ScopedLock tLock(m_tFaultDetailsMutex);
+
+    std::map<unsigned long, std::string>::iterator itFault =
+        m_mFaultDetails.find(staff::Thread::GetCurrentId());
+
     axiom_node_t* pErrorNode = NULL;
     axiom_element_t* pErrorElement = axiom_element_create(pEnv, NULL, "Exception", NULL, &pErrorNode);
-    axiom_element_set_text(pErrorElement, pEnv, m_sLastFaultDetail.c_str(), pErrorNode);
+
+    if (itFault != m_mFaultDetails.end())
+    {
+      axiom_element_set_text(pErrorElement, pEnv, itFault->second.c_str(), pErrorNode);
+      m_mFaultDetails.erase(itFault);
+    }
+    else
+    {
+      axiom_element_set_text(pErrorElement, pEnv, "No fault details", pErrorNode);
+    }
+
     return pErrorNode;
   }
 
 private:
   static axis2_svc_skeleton_ops_t m_stAxis2SkelOps;
   static axis2_svc_t* m_pAxis2Svc;
-  static std::string m_sLastFaultDetail;
+  static staff::Mutex m_tFaultDetailsMutex;
+  static std::map<unsigned long, std::string> m_mFaultDetails;
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
@@ -345,7 +365,8 @@ axis2_svc_skeleton_ops_t StaffService::m_stAxis2SkelOps =
 };
 
 axis2_svc_t* StaffService::m_pAxis2Svc = NULL;
-std::string StaffService::m_sLastFaultDetail;
+staff::Mutex StaffService::m_tFaultDetailsMutex;
+std::map<unsigned long, std::string> StaffService::m_mFaultDetails;
 const axutil_env_t* StaffService::m_pEnv = NULL;
 axis2_conf* StaffService::m_pConf = NULL;
 bool StaffService::m_bShuttingDown = false;

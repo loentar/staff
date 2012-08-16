@@ -28,6 +28,7 @@
 #include <staff/common/Exception.h>
 #include <staff/utils/Log.h>
 #include <staff/utils/SharedPtr.h>
+#include <staff/utils/Mutex.h>
 #include <staff/common/IService.h>
 #include "SharedContext.h"
 #include "ServiceWrapper.h"
@@ -76,6 +77,8 @@ namespace staff
 
     void Destroy()
     {
+      ScopedLock tLock(m_tMutex);
+
       // generate OnDestroy event for all services
       for (ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_mSessions.begin();
            itSession != m_mSessions.end(); ++itSession)
@@ -100,6 +103,7 @@ namespace staff
     }
 
     SessionMap m_mSessions;
+    Mutex m_tMutex;
   };
 
   ServiceInstanceManager& ServiceInstanceManager::Inst()
@@ -124,11 +128,15 @@ namespace staff
 
   void ServiceInstanceManager::CreateSession(const std::string& sSessionId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     m_pImpl->m_mSessions[sSessionId];
   }
 
   void ServiceInstanceManager::FreeSession(const std::string& sSessionId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session does not exists: " + sSessionId);
 
@@ -158,6 +166,8 @@ namespace staff
 
   PIService& ServiceInstanceManager::ServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session does not exists: " + sSessionId);
 
@@ -178,6 +188,8 @@ namespace staff
 
   PIService& ServiceInstanceManager::CreateServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session does not exists: " + sSessionId);
 
@@ -186,6 +198,8 @@ namespace staff
 
   void ServiceInstanceManager::FreeServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session does not exists: " + sSessionId);
 
@@ -206,6 +220,8 @@ namespace staff
 
   PIService& ServiceInstanceManager::GetServiceInstance(const std::string& sSessionId, const std::string& sServiceName, const std::string& sInstanceId)
   {
+    ScopedLock tLock(m_pImpl->m_tMutex);
+
     ServiceInstanceManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
     STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session does not exists: " + sSessionId);
 
@@ -214,7 +230,7 @@ namespace staff
     {
       // lazy creation of default instance
       STAFF_ASSERT(sInstanceId.empty(), "Service does not exists: " + sServiceName);
-      return CreateServiceInstance(sSessionId, sServiceName, sInstanceId);
+      return m_pImpl->CreateServiceInstance(itSession->second, sSessionId, sServiceName, sInstanceId);
     }
 
     ServiceInstanceManagerImpl::InstanceMap::iterator itInstance = itService->second.find(sInstanceId);
@@ -222,7 +238,7 @@ namespace staff
     {
       // lazy creation of default instance if non default is already created
       STAFF_ASSERT(sInstanceId.empty(), "Instance does not exists: " + sInstanceId);
-      return CreateServiceInstance(sSessionId, sServiceName, sInstanceId);
+      return m_pImpl->CreateServiceInstance(itSession->second, sSessionId, sServiceName, sInstanceId);
     }
 
     return itInstance->second;
