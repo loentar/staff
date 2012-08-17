@@ -245,6 +245,8 @@ staff/core/xml/src/XmlReader.cpp
 staff/core/xml/src/XmlReader.h
 staff/core/xml/src/XmlWriter.cpp
 staff/core/xml/src/XmlWriter.h
+staff/modules/axis2services/conf/axis2services.conf
+staff/modules/axis2services/conf/axis2services.load
 staff/modules/axis2services/mod_axis2services.c
 staff/samples/abstract/client/src/main.cpp
 staff/samples/abstract/client/src/Transport.h

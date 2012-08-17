@@ -73,6 +73,11 @@ static const char* g_szHost = "127.0.0.1";
 static unsigned g_uPort = 9090;
 static const char* g_szAxis2Cmd = NULL;
 static const char* g_szPidFile = "/var/run/axis2.pid";
+static const char* g_szAxis2ServicesLocation = "/axis2/services";
+static const char* g_szModuleLocation = NULL;
+static int g_bLocationsEqual = 0;
+static int g_nAxis2PathOffset = 1;
+static int g_nModuleLocationLength = 0;
 static int g_bClientInitialized = 0;
 
 #define ASSERT(EXPRESSION, TEXT) if (!(EXPRESSION)) { LOG("ERROR: " TEXT); return 1; }
@@ -248,8 +253,32 @@ int axis2services_process_request(request_rec* pReq, int nSockId, int* pnHttpSta
 
     // process HTTP Header
 LOGLABEL;
-    nHttpHeaderLength = snprintf(szBuffer, nBufferSize,
-      "%s %s HTTP/1.1\r\n", pReq->method,  pReq->unparsed_uri);
+    if (g_bLocationsEqual)
+    {
+      // leaving location unchanged
+      nHttpHeaderLength = snprintf(szBuffer, nBufferSize,
+        "%s %s HTTP/1.1\r\n", pReq->method, pReq->unparsed_uri);
+    }
+    else
+    {
+      LOG1("URI: [%s]" , pReq->unparsed_uri);
+
+      if (!strncmp(pReq->unparsed_uri, g_szModuleLocation, g_nModuleLocationLength))
+      {
+        nHttpHeaderLength = snprintf(szBuffer, nBufferSize, "%s %s/%s HTTP/1.1\r\n",
+                                     pReq->method, g_szAxis2ServicesLocation,
+                                     pReq->unparsed_uri + g_nModuleLocationLength + g_nAxis2PathOffset);
+      }
+      else
+      {
+        LOG2("WARNING: Can't change module's location [%s] in path [%s]. using original",
+             g_szModuleLocation, pReq->unparsed_uri);
+
+        nHttpHeaderLength = snprintf(szBuffer, nBufferSize,
+          "%s %s HTTP/1.1\r\n", pReq->method, pReq->unparsed_uri);
+      }
+    }
+
     ASSERT(nHttpHeaderLength < nBufferSize, "Buffer overflow");
 
     nHttpHeaderLength += snprintf(szBuffer + nHttpHeaderLength, nBufferSize - nHttpHeaderLength,
@@ -847,6 +876,8 @@ static int axis2services_post_config(apr_pool_t* pConfPool, apr_pool_t* pLogPool
     axis2services_start_axis2(g_szAxis2Cmd);
   }
 
+  g_bLocationsEqual = !strcmp(g_szAxis2ServicesLocation, g_szModuleLocation);
+
   g_bClientInitialized = 1;
 
   return 0;
@@ -900,12 +931,49 @@ static const char* axis2services_set_axis2_cmd(cmd_parms* pCmdParams, void* pCon
   return NULL;
 }
 
+static const char* axis2services_set_axis2_svcloc(cmd_parms* pCmdParams, void* pConfig, const char* szSvcLoc)
+{
+  (void)(pCmdParams);
+  (void)(pConfig);
+
+  LOG1("Using Axis2 services location: [%s]", szSvcLoc);
+  g_szAxis2ServicesLocation = szSvcLoc;
+
+  return NULL;
+}
+
+static const char* axis2services_set_axis2_modloc(cmd_parms* pCmdParams, void* pConfig, const char* szLocation)
+{
+  (void)(pCmdParams);
+  (void)(pConfig);
+
+  if (!strcmp(szLocation, "axis2services"))
+  {
+    ap_directive_t* pDirective = pCmdParams->directive;
+    char* szEndPos = ap_strchr(pDirective->parent->args, '>');
+    if (szEndPos)
+    {
+      g_nModuleLocationLength = szEndPos - pDirective->parent->args;
+      g_szModuleLocation = StrDupN(pCmdParams->pool, pDirective->parent->args, g_nModuleLocationLength);
+      if (!strcmp(g_szModuleLocation, "/"))
+      {
+        g_nAxis2PathOffset = 0;
+      }
+      LOG1("Using module location: [%s]", g_szModuleLocation);
+    }
+  }
+
+  return NULL;
+}
+
 
 static const command_rec axis2services_config_commands[] =
 {
-  AP_INIT_RAW_ARGS("Axis2Host", axis2services_set_axis2_host, NULL, RSRC_CONF, "Set Axis2 host"),
-  AP_INIT_RAW_ARGS("Axis2Port", axis2services_set_axis2_port, NULL, RSRC_CONF, "Set Axis2 port"),
-  AP_INIT_RAW_ARGS("Axis2Cmd",  axis2services_set_axis2_cmd,  NULL, RSRC_CONF, "Set Axis2 start cmd"),
+  AP_INIT_RAW_ARGS("Axis2Host",  axis2services_set_axis2_host,   NULL, RSRC_CONF, "Set Axis2 host"),
+  AP_INIT_RAW_ARGS("Axis2Port",  axis2services_set_axis2_port,   NULL, RSRC_CONF, "Set Axis2 port"),
+  AP_INIT_RAW_ARGS("Axis2Cmd",   axis2services_set_axis2_cmd,    NULL, RSRC_CONF, "Set Axis2 start cmd"),
+  AP_INIT_RAW_ARGS("Axis2Loc",   axis2services_set_axis2_svcloc, NULL, RSRC_CONF, "Set Axis2 svc base url"),
+  AP_INIT_RAW_ARGS("SetHandler", axis2services_set_axis2_modloc, NULL,  OR_LIMIT, "Set Axis2 module location"),
   {NULL}
 };
 
