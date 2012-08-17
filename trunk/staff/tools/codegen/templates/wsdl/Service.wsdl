@@ -63,10 +63,17 @@
 "/>
 #else           //  not inline 
       <element name="$(Member.Options.*requestElement||Member.Name)">
-#ifneq($(Member.Params.$Count),0)
+#var paramsCount 0
+#foreach $(Member.Params)
+#ifneq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Operation||staff::MessageContext)
+#var paramsCount $($paramsCount.!inc)
+#ifeqend
+#end
+#ifneq($($paramsCount),0)
         <complexType>
           <sequence>
 #foreach $(Member.Params)
+#ifneq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Operation||staff::MessageContext)
             <element name="$(Param.Name)"\
 #ifeq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Array)
 >
@@ -137,6 +144,7 @@
 #contextend   // abstract
 #contextend   // optional
 #ifeqend      // array
+#ifeqend      // MessageContext||Operation
 #end  // foreach member.params
           </sequence>
         </complexType>
