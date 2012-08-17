@@ -2,6 +2,7 @@
 
 THISDIR=$(basename $PWD)
 
+rm -Rf ../staff-tmplist
 echo "copying..."
 cp -R . ../staff-tmplist
 cd  ../staff-tmplist
@@ -9,7 +10,7 @@ echo "cleaning copy..."
 make distclean >/dev/null 2>&1
 echo "generating file list..."
 find . -type f \
-        \( -regex '\(Makefile.*\|codegen.config\|.*\.\(h\|hpp\|c\|cpp\|xml\|js\|htm\|html\|css\|png\|gif\|wsdl\|xsd\|datasources\|datatypes\|java\|proto\)\)' -o \
+        \( -regex '\(Makefile.*\|codegen.config\|.*\.\(h\|hpp\|c\|cpp\|xml\|js\|htm\|html\|css\|png\|gif\|wsdl\|xsd\|datasources\|datatypes\|java\|proto\|conf\|load\)\)' -o \
            -regex '.*/codegen/templates/.*' \) \
        -a \! -regex '.*/\(deploy\|out\|obj\|\..*\|.*~\)/.*' | sed 's/^\.\///gm' | sort >staff.files
 echo "cleanup..."
