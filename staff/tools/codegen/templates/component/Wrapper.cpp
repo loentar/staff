@@ -99,7 +99,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #foreach $(Member.Params)
 #ifeq($(Param.DataType.Type),struct||typedef||template||generic||enum)
-#ifneq($(Param.DataType.Name),Operation)
+#ifneq($(Param.DataType.Name),Operation||MessageContext)
       $(Param.DataType.NsName) $(Param.Name)\
 #ifeq($(Param.DataType.Type),generic)
  = 0\
