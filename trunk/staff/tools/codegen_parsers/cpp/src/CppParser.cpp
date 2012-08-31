@@ -1872,7 +1872,7 @@ namespace codegen
           for (std::list<Struct>::const_iterator itStruct = m_stInterface.lsStructs.begin();
               itStruct != m_stInterface.lsStructs.end(); ++itStruct)
           {
-            if (!itStruct->sNamespace.empty())
+            if (!itStruct->sNamespace.empty() && !itStruct->bExtern)
             {
               m_stInterface.sNamespace = itStruct->sNamespace;
               break;
@@ -1885,9 +1885,22 @@ namespace codegen
           for (std::list<Typedef>::const_iterator itTypedef = m_stInterface.lsTypedefs.begin();
               itTypedef != m_stInterface.lsTypedefs.end(); ++itTypedef)
           {
-            if (!itTypedef->sNamespace.empty())
+            if (!itTypedef->sNamespace.empty() && !itTypedef->bExtern)
             {
               m_stInterface.sNamespace = itTypedef->sNamespace;
+              break;
+            }
+          }
+        }
+
+        if (m_stInterface.sNamespace.empty())
+        {
+          for (std::list<Enum>::const_iterator itEnum = m_stInterface.lsEnums.begin();
+               itEnum != m_stInterface.lsEnums.end(); ++itEnum)
+          {
+            if (!itEnum->sNamespace.empty() && !itEnum->bExtern)
+            {
+              m_stInterface.sNamespace = itEnum->sNamespace;
               break;
             }
           }
