@@ -466,6 +466,19 @@ namespace codegen
         sFunction.erase(0, 7);
       }
       else
+      if (sFunction.substr(0, 11) == "tocamelcase")
+      {
+        sFunction.erase(0, 11);
+        std::string::size_type nPos = 0;
+        while ((nPos = sResult.find('_', nPos)) != std::string::npos)
+        {
+          if ((nPos + 1) < sResult.size())
+          {
+            sResult.replace(nPos, 2, 1, ::toupper(sResult[nPos + 1]));
+          }
+        }
+      }
+      else
       if (sFunction.substr(0, 9) == "trimright")
       {
         StringTrimRight(sResult);
