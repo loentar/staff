@@ -63,10 +63,10 @@ namespace staff
   {
     char szBuffer[32];
     bool bIsOk = ToCString(tValue, szBuffer, sizeof(szBuffer));
-    if (bIsOk)
+    if (pbIsOk)
     {
       sResult = szBuffer;
-      pbIsOk = bIsOk;
+      *pbIsOk = bIsOk;
     }
     return sResult;
   }
