@@ -3583,6 +3583,20 @@ namespace codegen
         LogDebug() << *itFileName << " already processed";
       }
     }
+
+    for (std::list<Interface>::iterator itInterface = rProject.lsInterfaces.begin();
+         itInterface != rProject.lsInterfaces.end(); ++itInterface)
+    {
+      for (std::list<Class>::iterator itClass = itInterface->lsClasses.begin();
+           itClass != itInterface->lsClasses.end(); ++itClass)
+      {
+        // check service class name for clashes with datatypes defined
+        while (GetBaseType(itClass->sName, *itInterface))
+        {
+          itClass->sName += "_";
+        }
+      }
+    }
   }
 
   const std::string WsdlParser::m_sId = "wsdl";
