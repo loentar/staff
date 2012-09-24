@@ -24,6 +24,7 @@
 #else
 #include <pthread.h>
 #include <signal.h>
+#include <unistd.h>
 #endif
 #include <string>
 #include "Exception.h"
