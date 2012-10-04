@@ -58,6 +58,7 @@ namespace staff
     private:
       static sqlite3* m_pDb; //!< pointer to db object
       static int m_nCounter; //!< Open/Close counter
+      static int m_nBusyTimeout; //!< sqlite3 busy timeout
     };
 
   }

@@ -146,6 +146,13 @@ namespace staff
     return !szEndPtr || *szEndPtr == '\0';
   }
 
+  template <typename Type>
+  inline Type FromCStringDefault(const char* szString, Type tDefaultValue)
+  {
+    Type tResult = 0;
+    return FromCString(szString, tResult) ? tResult : tDefaultValue;
+  }
+
 
   inline bool FromHexCString(const char* szString, unsignedByte& rubtValue)
   {
@@ -180,6 +187,13 @@ namespace staff
     char* szEndPtr = NULL;
     rullValue = staff_strtoull(szString, &szEndPtr, 16);
     return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  template <typename Type>
+  inline Type FromHexCStringDefault(const char* szString, Type tDefaultValue)
+  {
+    Type tResult = 0;
+    return FromHexCString(szString, tResult) ? tResult : tDefaultValue;
   }
 
 }
