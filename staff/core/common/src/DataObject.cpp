@@ -3465,6 +3465,8 @@ namespace staff
 
   axiom_attribute_t* DataObject::GetAxiomAttributeByLocalName(const char *szLocalName) const
   {
+    STAFF_ASSERT(m_pAxiomElement, "Not initialized");
+
     axutil_hash_t* pAttrHash = axiom_element_get_all_attributes(m_pAxiomElement, m_pEnv);
     if (pAttrHash)
     {
