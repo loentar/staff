@@ -1316,6 +1316,7 @@ namespace codegen
         }
         else
         {
+          FixAbstractDataType(stParam.stDataType);
           rMember.stReturn = stParam;
           rMember.mOptions["resultElement"] = StripPrefix(sPartName);
         }
@@ -1337,10 +1338,10 @@ namespace codegen
     {
       const xml::Element& rPart = rMessage.GetChildElementByName("part");
       ParsePart(rMember, rPart, rWsdlTypes, true, false);
-      if (!rPart.IsAttributeExists("element"))
-      {
-        rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
-      }
+//      if (!rPart.IsAttributeExists("element"))
+//      {
+//        rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
+//      }
     }
 
     void ParseFault(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
