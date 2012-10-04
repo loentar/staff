@@ -23,8 +23,10 @@
 #pragma warning (disable : 4267)
 #endif
 
+#include <stdlib.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
+#include <staff/utils/fromcstring.h>
 #include <staff/sqlite3/sqlite3.h>
 #include "DbConn.h"
 
@@ -156,10 +158,15 @@ namespace staff
 
     sqlite3* DbConn::GetDb()
     {
+      if (m_nBusyTimeout != 0)
+      {
+        sqlite3_busy_timeout(m_pDb, m_nBusyTimeout);
+      }
       return m_pDb;
     }
 
     sqlite3* DbConn::m_pDb = NULL;
     int DbConn::m_nCounter = 0;
+    int DbConn::m_nBusyTimeout = FromCStringDefault(getenv("STAFF_SQLITE_BUSY_TIMEOUT"), 5000);
   }
 }
