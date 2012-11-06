@@ -1,14 +1,21 @@
 #ifeq($(Enum.Extern),false) // do not serialize/deserialize extern type
+#cginclude <common/StringTypes>
 
       <simpleType name="\
 #ifneq($(Enum.Owner.!dot),)
 $(Enum.Owner.!dot).\
 #ifeqend
 $(Enum.Name.!dot)">
-        <restriction base="string">
+        <restriction base="$(Enum.Options.*baseType||"integer")">
+#ifeq($(Enum.Options.*baseType),$($sStringTypes))
 #foreach $(Enum.Members)
-          <enumeration value="$(Member.Value||Member.Name)"/>
+          <enumeration value="$(Member.Name)"/>
 #end
+#else
+#foreach $(Enum.Members)
+          <enumeration value="$(Member.Value)" enum="$(Member.Name)"/>
+#end
+#ifeqend
         </restriction>
       </simpleType>
 
