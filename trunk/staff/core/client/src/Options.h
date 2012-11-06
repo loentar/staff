@@ -162,6 +162,18 @@ namespace staff
     void SetTestProxyAuth(bool bAuth);
 
 
+    //! set NTLM authentication information
+    /*! \param sUserName    - ntlm username
+        \param sPassword    - ntlm password
+        \param sDomain      - ntlm domain (optional)
+        \param sWorkstation - ntlm workstation (optional)
+        \param nFlags       - ntlm flags (optional)
+        */
+    void SetNtlmAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                         const std::string& sDomain = "", const std::string& sWorkstation = "",
+                         int nFlags = 0);
+
+
     //! set timeout
     /*! \param lTimeout - timeout in milli seconds
       */
