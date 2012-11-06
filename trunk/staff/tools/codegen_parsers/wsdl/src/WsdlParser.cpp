@@ -3334,6 +3334,7 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
+        rstStruct.mOptions = itStruct->mOptions;
         ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
         ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
       }
