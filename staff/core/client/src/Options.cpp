@@ -22,8 +22,11 @@
 #include <staff/common/Exception.h>
 #include <axiom_soap_const.h>
 #include <axis2_options.h>
+#include <axis2_http_transport.h>
 #include <staff/common/Runtime.h>
 #include "Options.h"
+
+#define STAFF_PARAM_UNUSED(param) (void)param
 
 namespace staff
 {
@@ -216,6 +219,28 @@ namespace staff
     STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_test_proxy_auth(m_pOptions, m_pEnv, bAuth ? AXIS2_TRUE : AXIS2_FALSE);
+  }
+
+
+  void Options::SetNtlmAuthInfo(const std::string& sUserName, const std::string& sPassword,
+                                const std::string& sDomain, const std::string& sWorkstation,
+                                int nFlags)
+  {
+#ifdef WITH_NTLM
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
+    axis2_options_set_ntlm_http_auth_info(m_pOptions, m_pEnv, sUserName.c_str(),
+                                          sPassword.c_str(), nFlags,
+                                          sDomain.empty() ? sDomain.c_str() : NULL ,
+                                          sWorkstation.empty() ? sWorkstation.c_str() : NULL,
+                                          AXIS2_HTTP_AUTH_TYPE_NTLM);
+#else
+    STAFF_PARAM_UNUSED(sUserName);
+    STAFF_PARAM_UNUSED(sPassword);
+    STAFF_PARAM_UNUSED(sDomain);
+    STAFF_PARAM_UNUSED(sWorkstation);
+    STAFF_PARAM_UNUSED(nFlags);
+	STAFF_THROW_ASSERT("Staff was built without NTLM support, please recompile with -DWITH_NTLM");
+#endif //#ifdef WITH_NTLM
   }
 
 
