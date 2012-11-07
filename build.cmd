@@ -84,7 +84,7 @@ echo Build type: "%build%" >%buildlog%
 
 if %VSVERSION% equ 2005 goto skip_upgrade
 
-  rem Upgrading solutions for Visual Studio
+  echo Upgrading solutions for Visual Studio %VSVERSION%
   cd staff
   devenv /upgrade staff.sln >%buildlog%
   if %ERRORLEVEL% gtr 0 (
