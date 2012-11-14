@@ -65,6 +65,7 @@
     * [StaffDetails Описание WSF Staff]
     * [SoaApplicationStruct Структура SOA-Приложения]
     * [WsfCodegensOverview Генераторы кода WSF]
+    * [KnownBugsAxis2c Известные проблемы Axis2/C]
     * [ToDo TODO]
   * [SupportPage Поддержка]
 
