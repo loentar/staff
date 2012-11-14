@@ -150,7 +150,7 @@ namespace staff
   inline Type FromCStringDefault(const char* szString, Type tDefaultValue)
   {
     Type tResult = 0;
-    return FromCString(szString, tResult) ? tResult : tDefaultValue;
+    return (szString != NULL && FromCString(szString, tResult)) ? tResult : tDefaultValue;
   }
 
 
@@ -193,7 +193,7 @@ namespace staff
   inline Type FromHexCStringDefault(const char* szString, Type tDefaultValue)
   {
     Type tResult = 0;
-    return FromHexCString(szString, tResult) ? tResult : tDefaultValue;
+    return (szString != NULL && FromHexCString(szString, tResult)) ? tResult : tDefaultValue;
   }
 
 }
