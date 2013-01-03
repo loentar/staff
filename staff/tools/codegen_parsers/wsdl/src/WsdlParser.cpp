@@ -2522,23 +2522,6 @@ namespace codegen
             ElementToData(*itElement, stMember.stDataType, rWsdlTypes);
           }
 
-          if (!pElement->lsComplexTypes.empty())
-          {
-            const ComplexType& rComplexType = pElement->lsComplexTypes.front();
-            if (rComplexType.lsElements.size() == 1)
-            {
-              const Element& rElem = rComplexType.lsElements.front();
-              if (rElem.bIsArray)
-              {
-                const std::string& sElemName = StripPrefix(rElem.sName);
-                if (!sElemName.empty() && sElemName != "Item")
-                {
-                  stMember.mOptions["elementName"] = sElemName;
-                }
-              }
-            }
-          }
-
           if (itElement->bIsArray)
           {
             stMember.mOptions["useParentElement"] = "true";
@@ -2549,61 +2532,6 @@ namespace codegen
             stMember.sName = "tUnnamed" + ToString(nUnnamedElemNo++);
             stMember.mOptions["useParentElement"] = "true";
           }
-
-          // optimize template argument type
-//          if (stMember.stDataType.eType == DataType::TypeTemplate)
-//          {
-//            const std::string& sOwnerName =
-//                pstStruct->sNamespace +
-//                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-//                pstStruct->sName + "::";
-
-//            STAFF_ASSERT(!stMember.stDataType.lsParams.empty(), "type of " + stMember.sName +
-//                        " is template, but no template arg is defined");
-//            DataType& rDataType = stMember.stDataType.lsParams.front();
-
-//            if (rDataType.eType == DataType::TypeStruct ||
-//                rDataType.eType == DataType::TypeTypedef ||
-//                rDataType.eType == DataType::TypeEnum)
-//            {
-//              // do not optimize namespace if member name equals data type name
-//              bool bDoNotOptimizeNs = rDataType.sName == stMember.sName;
-//              if (bDoNotOptimizeNs && rDataType.sNamespace.empty())
-//              {
-//                rDataType.sNamespace = "::";
-//              }
-
-//              rDataType.sUsedName = rDataType.sNamespace + rDataType.sName;
-
-//              if (!bDoNotOptimizeNs)
-//              {
-//                OptimizeCppNs(rDataType.sUsedName, sOwnerName);
-//              }
-//            }
-//          }
-//          else
-//          if (stMember.stDataType.eType == DataType::TypeStruct ||
-//              stMember.stDataType.eType == DataType::TypeTypedef ||
-//              stMember.stDataType.eType == DataType::TypeEnum)
-//          {
-//            // do not optimize namespace if member name equals data type name
-//            bool bDoNotOptimizeNs = stMember.stDataType.sName == stMember.sName;
-//            if (bDoNotOptimizeNs && stMember.stDataType.sNamespace.empty())
-//            {
-//              stMember.stDataType.sNamespace = "::";
-//            }
-
-//            const std::string& sOwnerName =
-//                pstStruct->sNamespace +
-//                (pstStruct->sOwnerName.empty() ? "" : (pstStruct->sOwnerName + "::")) +
-//                pstStruct->sName + "::";
-//            stMember.stDataType.sUsedName = stMember.stDataType.sNamespace + stMember.stDataType.sName;
-
-//            if (!bDoNotOptimizeNs)
-//            {
-//              OptimizeCppNs(stMember.stDataType.sUsedName, sOwnerName);
-//            }
-//          }
 
           if (!pElement->sDefault.empty())
           {
