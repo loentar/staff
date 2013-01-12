@@ -10,9 +10,7 @@
 
 DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >& tpAbstractStruct)
 {
-#ifneq($(Interface.Options.*targetNamespace),)
-  rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
-#ifeqend
+#var sStructNsName $(Struct.Namespace)
 \
 #ifneq($(Interface.Options.*elementFormDefault),)
 #ifeq($(Interface.Options.*elementFormDefault),qualified)
@@ -32,39 +30,80 @@ DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >&
 \
   const std::string& sInstanceType = tpAbstractStruct.GetType();
 #var sThisStructNsName $(.NsName)
-#foreach $(Interface.Structs) // check all top-level structs including external
-#ifeq($(Struct.ParentNsName),$($sThisStructNsName))
+#foreach $(Project.Interfaces)
+#foreach $(Interface.Structs)
+#ifeq($(Struct.ParentNsName)-$(Struct.Extern),$($sThisStructNsName)-false)
   if (sInstanceType == "$(Struct.NsName.!dot)")
   {
+#var sStructTns $(Interface.Options.*targetNamespace)
+#ifeq($($sStructTns),)
+#var sStructTns http://tempui.org/$(Interface.NsName.!dot)
+#ifeqend
+    rdoParam.SetCppInstanceType("$(Struct.Name)", "$($sStructTns)");
     rdoParam << static_cast< const $(Struct.NsName)& >(*tpAbstractStruct);
   }
   else
 #ifeqend
 #end
+#end
   {
     STAFF_THROW_ASSERT("Can't serialize dynamic type [" + sInstanceType + "]");
   }
-  rdoParam.SetInstanceType(sInstanceType);
+
   return rdoParam;
 }
 
 const DataObject& operator>>(const DataObject& rdoParam, Abstract< $(Struct.NsName) >& tpAbstractStruct)
 {
-  const std::string& sInstanceType = rdoParam.GetInstanceType();
+  std::string sCppInstanceType;
+  std::string sInstanceUri;
+  rdoParam.GetCppInstanceType(sCppInstanceType, sInstanceUri);
+
+#var bFirstInheritedType 1
 #var sThisStructNsName $(.NsName)
-#foreach $(Interface.Structs) // check all top-level structs including external
-#ifeq($(Struct.ParentNsName),$($sThisStructNsName))
-  if (sInstanceType == "$(Struct.NsName.!dot)")
-  {
-    tpAbstractStruct = new $(Struct.NsName);
-    rdoParam >> static_cast< $(Struct.NsName)& >(*tpAbstractStruct);
-  }
-  else
+#foreach $(Project.Interfaces)
+#var bHasInheritedStruct 0
+#foreach $(Interface.Structs)
+#ifeq($(Struct.ParentNsName)-$(Struct.Extern),$($sThisStructNsName)-false)
+#var bHasInheritedStruct 1
 #ifeqend
 #end
+\
+#ifeq($($bHasInheritedStruct),1)
+#var sStructTns $(Interface.Options.*targetNamespace)
+#ifeq($($sStructTns),)
+#var sStructTns http://tempui.org/$(Interface.NsName.!dot)
+#ifeqend
+#ifeq($($bFirstInheritedType),1)
+#var bFirstInheritedType 0
+#else
+  else
+#ifeqend
+  if (sInstanceUri == "$($sStructTns)")
   {
-    STAFF_THROW_ASSERT("Can't deserialize dynamic type [" + sInstanceType + "]");
+#var bFirstInheritedTypeStruct 1
+#foreach $(Interface.Structs)
+#ifeq($(Struct.ParentNsName)-$(Struct.Extern),$($sThisStructNsName)-false)
+\
+#ifeq($($bFirstInheritedTypeStruct),1)
+#var bFirstInheritedTypeStruct 0
+#else
+    else
+#ifeqend
+    if (sCppInstanceType == "$(Struct.Name)")
+    {
+      tpAbstractStruct = new $(Struct.NsName);
+      rdoParam >> static_cast< $(Struct.NsName)& >(*tpAbstractStruct);
+    }
+#ifeqend
+#end
   }
+#ifeqend
+#end
+
+  STAFF_ASSERT(tpAbstractStruct, "Can't deserialize dynamic type [" + sCppInstanceType
+               + "] with uri [" + sInstanceUri + "]");
+
   return rdoParam;
 }
 #ifeqend

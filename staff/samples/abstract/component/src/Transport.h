@@ -62,7 +62,8 @@ namespace abstract
   enum TransportType
   {
     TransportTypeCar,
-    TransportTypePlane
+    TransportTypePlane,
+    TransportTypeSubmarine
   };
 
 

@@ -8,10 +8,10 @@ LIBTARGET = $(LIBPREFIX)$(TARGET)$(LIBEXT)
 LDFLAGS += -L$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffcomponent
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
-COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
+COMPONENT_SERVICES := $(patsubst $(SRCDIR)%.h, %, $(filter-out %Impl.h %Wrapper.h, $(wildcard $(SRCDIR)*.h)))
 COMPONENT_SERVICES_HEADERS := $(patsubst %, $(SRCDIR)%.h, $(COMPONENT_SERVICES))
 
-WSDLS := $(patsubst %, $(OUTDIR)$(COMPONENT).%.wsdl, $(COMPONENT_SERVICES))
+WSDLS := $(OUTDIR)$(COMPONENT).Transport.wsdl $(OUTDIR)$(COMPONENT).Transport2.xsd
 
 COMPONENT_SERVICES_CODEGEN := $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp \
     $(patsubst %.h,%Wrapper.h,$(COMPONENT_SERVICES_HEADERS)) $(patsubst %.h,%Wrapper.cpp,$(COMPONENT_SERVICES_HEADERS))
@@ -24,10 +24,10 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 .NOTPARALLEL: $(CODEGEN_SOURCES)
 
 # == make ===========================================
-make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
+make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) $(WSDLS) deploy
 
 # link
-$(OUTDIR)$(LIBTARGETVER): codegen $(OBJECTS)
+$(OUTDIR)$(LIBTARGETVER): $(COMPONENT_SERVICES_CODEGEN) $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
@@ -35,7 +35,6 @@ $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == codegen ===========================================
-codegen: $(COMPONENT_SERVICES_CODEGEN) $(WSDLS)
 
 $(SRCDIR)%Wrapper.h $(SRCDIR)%Wrapper.cpp:: $(SRCDIR)%.h
 	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
@@ -43,8 +42,8 @@ $(SRCDIR)%Wrapper.h $(SRCDIR)%Wrapper.cpp:: $(SRCDIR)%.h
 $(SRCDIR)ComponentImpl.h $(SRCDIR)ComponentImpl.cpp:: $(COMPONENT_SERVICES_HEADERS)
 	cd $(SRCDIR) && $(STAFF_CODEGEN) -u -tcomponent $(patsubst $(SRCDIR)%,%,$(COMPONENT_SERVICES_HEADERS))
 
-$(OUTDIR)$(COMPONENT).%.wsdl: $(SRCDIR)%.h
-	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$<) -i$(SRCDIR) -o$(OUTDIR)
+$(OUTDIR)$(COMPONENT).Transport.wsdl $(OUTDIR)$(COMPONENT).Transport2.xsd: $(SRCDIR)Transport.h $(SRCDIR)Transport2.h
+	$(STAFF_CODEGEN) -u -twsdl $(patsubst $(SRCDIR)%,%,$^) -i$(SRCDIR) -o$(OUTDIR)
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)

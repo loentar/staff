@@ -895,14 +895,37 @@ namespace staff
     // dynamic types support
 
     //! set xml schema instance type
+    /*! \param szInstanceType - xml schema instance type (C-string)
+      */
+    void SetInstanceType(const char* szInstanceType);
+
+    //! set xml schema instance type
     /*! \param sInstanceType - xml schema instance type
       */
     void SetInstanceType(const std::string& sInstanceType);
+
+    //! set xml schema instance type
+    /*! \param szCppInstanceType - Cpp class name (C-string)
+        \param szUri - namespace uri (C-string)
+      */
+    void SetCppInstanceType(const char* szCppInstanceType, const char* szUri);
+
+    //! set xml schema instance type
+    /*! \param sCppInstanceType - Cpp class name
+        \param sUri - namespace uri
+      */
+    void SetCppInstanceType(const std::string& sCppInstanceType, const std::string& sUri);
 
     //! get xml schema instance type
     /*! \return xml schema instance type
       */
     std::string GetInstanceType() const;
+
+    //! get xml schema instance type
+    /*! \param sCppInstanceType - Cpp class name
+        \param sUri - namespace uri
+      */
+    void GetCppInstanceType(std::string& sCppInstanceType, std::string& sUri) const;
 
     //! get xml schema instance type
     /*! \param sInstanceType - xml schema instance type
@@ -995,6 +1018,18 @@ namespace staff
         \return prefix
         */
     std::string GetNamespacePrefixByUri(const std::string& sUri) const;
+
+    //! get namespace uri by prefix
+    /*! \param  szPrefix - uri (C-string)
+        \return namespace uri
+        */
+    std::string GetNamespaceUriByPrefix(const char* szPrefix) const;
+
+    //! get namespace prefix by uri
+    /*! \param  sPrefix - prefix
+        \return namespace uri
+        */
+    std::string GetNamespaceUriByPrefix(const std::string& sPrefix) const;
 
     //! find a namespace in the scope of the document.
     /*!         Start to find from the given node and go up the hierarchy.

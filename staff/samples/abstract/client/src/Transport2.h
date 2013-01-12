@@ -19,62 +19,24 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#ifndef _TRANSPORT_H_
-#define _TRANSPORT_H_
+#ifndef _TRANSPORT2_H_
+#define _TRANSPORT2_H_
 
 #include <string>
 #include <staff/common/Abstract.h>
 #include <staff/common/IService.h>
 #include <staff/common/WsdlTypes.h>
+#include "Transport.h"
 
 namespace samples
 {
 namespace abstract
 {
-  //! abstract struct
-  // *abstract: true
-  struct Vehicle
-  {
-    // virtual destructor should present to get rtti working
-    virtual ~Vehicle() {}
-  };
 
   //! inherited struct
-  struct Car: public Vehicle
+  struct Submarine: public Vehicle
   {
-    std::string sModel;
-  };
-
-  //! inherited struct
-  struct Plane: public Vehicle
-  {
-    std::string sSerialNumber;
-  };
-
-
-  struct TransportInfo
-  {
-    staff::Abstract<Vehicle> tpVehicle;
-  };
-
-
-  // *baseType: string
-  enum TransportType
-  {
-    TransportTypeCar,
-    TransportTypePlane,
-    TransportTypeSubmarine
-  };
-
-
-  //! service to demonstrate abstract types support
-  class Transport: public staff::IService
-  {
-  public:
-    virtual TransportInfo GetTransport(TransportType eTransport) = 0;
-
-    //! test operation
-    virtual staff::Abstract<Vehicle> Echo(const staff::Abstract<Vehicle>& rtpVehicle) = 0;
+    std::string sOtherInfo;
   };
 
 }
