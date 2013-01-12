@@ -2744,16 +2744,61 @@ namespace staff
   //////////////////////////////////////////////////////////////////////////
   // dynamic types support
 
+  void DataObject::SetInstanceType(const char* szInstanceType)
+  {
+    DeclareNamespace(g_szXsiSchemaUrl, "xsi");
+    CreateAttribute("xsi:type", szInstanceType);
+  }
+
   void DataObject::SetInstanceType(const std::string& sInstanceType)
   {
     DeclareNamespace(g_szXsiSchemaUrl, "xsi");
     CreateAttribute("xsi:type", sInstanceType);
   }
 
+  void DataObject::SetCppInstanceType(const char* szCppInstanceType, const char* szUri)
+  {
+    std::string sType;
+    SetNamespaceUriGenPrefix(szUri, true, &sType);
+
+    if (!sType.empty())
+    {
+      SetInstanceType(sType.append(":").append(szCppInstanceType));
+    }
+    else
+    {
+      SetInstanceType(szCppInstanceType);
+    }
+  }
+
+  void DataObject::SetCppInstanceType(const std::string& sCppInstanceType, const std::string& sUri)
+  {
+    SetCppInstanceType(sCppInstanceType, sUri.c_str());
+  }
+
   std::string DataObject::GetInstanceType() const
   {
     const std::string& sXsiPrefix = GetNamespacePrefixByUri(g_szXsiSchemaUrl);
     return GetAttributeTextByName(sXsiPrefix.empty() ? "type" : sXsiPrefix + ":type");
+  }
+
+  void DataObject::GetCppInstanceType(std::string& sCppInstanceType, std::string& sUri) const
+  {
+    const std::string& sInstanceType = GetInstanceType();
+
+    std::string::size_type nPos = sInstanceType.find_last_of(':');
+    std::string sPrefix;
+    if (nPos != std::string::npos)
+    {
+      sPrefix = sInstanceType.substr(0, nPos);
+      sCppInstanceType = sInstanceType.substr(nPos + 1);
+    }
+    else
+    {
+      sCppInstanceType = sInstanceType;
+    }
+
+    sUri = GetNamespaceUriByPrefix(sPrefix);
   }
 
   bool DataObject::GetInstanceTypeOpt(std::string& sInstanceType) const
@@ -2925,6 +2970,20 @@ namespace staff
   std::string DataObject::GetNamespacePrefixByUri(const std::string& sUri) const
   {
     return GetNamespacePrefixByUri(sUri.c_str());
+  }
+
+  std::string DataObject::GetNamespaceUriByPrefix(const char* szPrefix) const
+  {
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+    axiom_namespace_t* pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, NULL, szPrefix);
+    STAFF_ASSERT(pNs, "Can't find uri for prefix: [" + std::string(szPrefix) + "]");
+    const char* szUri = static_cast<const char*>(axiom_namespace_get_uri(pNs, m_pEnv));
+    return szUri ? szUri : "";
+  }
+
+  std::string DataObject::GetNamespaceUriByPrefix(const std::string& sPrefix) const
+  {
+    return GetNamespaceUriByPrefix(sPrefix.c_str());
   }
 
   Namespace DataObject::FindNamespace(const std::string& sUri)

@@ -136,7 +136,7 @@ namespace staff
 
     inline bool operator!() const
     {
-      return m_pType != NULL;
+      return m_pType == NULL;
     }
 
     inline std::string GetType() const

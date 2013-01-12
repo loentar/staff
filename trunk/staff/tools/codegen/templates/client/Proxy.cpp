@@ -21,6 +21,29 @@
 #include <staff/client/ICallback.h>
 #include <staff/client/Options.h>
 #ifeqend // #ifneq($(Interface.Classes.$Count),0)
+\
+#foreach $(Interface.Structs) // headers for extern abstract types
+#ifeq($(Struct.Extern),false)
+#ifeq($(Struct.Options.*abstract),true||1)
+#var sThisStructNsName $(Struct.NsName)
+#var sThisInterfaceNsName $(Interface.NsName)
+#var bThisInterfaceIncluded 0
+#foreach $(Project.Interfaces)
+#foreach $(Interface.Structs)
+#ifeq($(Struct.ParentNsName)-$(Struct.Extern),$($sThisStructNsName)-false)
+#ifneq($(Interface.NsName),$($sThisInterfaceNsName))
+#ifeq($($bThisInterfaceIncluded),0)
+#include "$(Interface.FilePath)$(Interface.Name)Proxy.h"
+#var bThisInterfaceIncluded 1
+#ifeqend
+#ifeqend
+#ifeqend
+#end
+#end
+#ifeqend
+#ifeqend
+#end
+\
 #include "$(Interface.FilePath)$(Interface.Name)Proxy.h"
 
 #cginclude <common/Serialization.cpp>

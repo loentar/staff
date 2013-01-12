@@ -7,6 +7,7 @@
 #include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include "Transport.h"
+#include "Transport2.h"
 
 // callbacks
 
@@ -42,6 +43,17 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
       const samples::abstract::Plane& rPlaneRes = dynamic_cast<const samples::abstract::Plane&>(*tPlaneResult);
       staff::LogInfo() << "echo. number = " << rPlaneRes.sSerialNumber;
     }
+
+    {
+      staff::Abstract<samples::abstract::Vehicle> tpReq(new samples::abstract::Submarine);
+      samples::abstract::Submarine& rSubmarineReq = static_cast<samples::abstract::Submarine&>(*tpReq);
+      rSubmarineReq.sOtherInfo = "some info";
+
+      staff::Abstract<samples::abstract::Vehicle> tSubmarineResult = pTransport->Echo(tpReq);
+      const samples::abstract::Submarine& rSubmarineRes = dynamic_cast<const samples::abstract::Submarine&>(*tSubmarineResult);
+      staff::LogInfo() << "echo. other info = " << rSubmarineRes.sOtherInfo;
+    }
+
   }
   STAFF_CATCH_ALL
 
