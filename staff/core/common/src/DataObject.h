@@ -428,6 +428,12 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // child nodes management
 
+    //! use qualified form for this element and while creating childs
+    /*! note: it does not change form to unqualified if it was qualified previously
+        \param  bQualified - true - use qualified form, false - use unqualified form
+      */
+    void SetElementFormQualified(bool bQualified = true);
+
     //! use qualified form while creating childs
     /*! \param  bQualified - true - use qualified form, false - use unqualified form
       */

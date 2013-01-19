@@ -4,6 +4,51 @@
 // in var: sdoParam: rdoParam || rdoParam.CreateChild("$($sParam)")
 #ifeqend
 \
+\
+\
+#var elementForm $(Interface.Options.*elementFormDefault)
+#var attributeForm $(Interface.Options.*attributeFormDefault)
+\
+#ifeq($(.Name),Nillable||Optional)
+#var recreateChild false
+#else
+#ifeq($(.Type),generic||string)
+#var recreateChild false
+#else
+#var recreateChild $($sdoParam.!match/.CreateChild/)
+#ifeqend
+\
+\
+#ifneq($(.Options.*form),)
+#ifeq($(.Options.*isAttribute),true||1)
+#var attributeForm $(.Options.form)
+#else
+#var elementForm $(.Options.form)
+#ifeqend
+#ifeqend
+\
+#ifneq($($elementForm)$($attributeForm),)
+#var recreateChild true
+#ifeqend
+\
+#ifeqend // Nillable||Optional
+\
+#ifeq($($recreateChild),true)
+#var doName tdoParam$($sParamName)
+  staff::DataObject $($doName) = $($sdoParam);
+#else
+#var doName $($sdoParam)
+#ifeqend
+\
+#ifneq($($elementForm),)
+  $($doName).SetElementFormQualified($($elementForm.!match/qualified/));
+#ifeqend
+#ifneq($($attributeForm),)
+  $($doName).SetAttributeFormDefaultQualified($($attributeForm.!match/qualified/));
+#ifeqend
+\
+\
+\
 #ifeq($(.Name),Optional||Nillable)           // ######### Optional or Nillable ############
   if (!($($sOptMod)$($sParam)).IsNull()) // $(.Name)
   {
@@ -19,7 +64,7 @@
 #ifeq($(.Name),Nillable) // */
   else
   {
-    $($sdoParam).SetNil();
+    $($doName).SetNil();
   }
 #ifeqend
 #else // not optional or nillable
@@ -32,21 +77,15 @@
 #ifneq($(.TemplateParams.TemplateParam1.Type),struct)
 #cgerror Abstract template type is not struct. Member $($sParam)
 #ifeqend
-#ifneq($($sdoParam.!match/.CreateChild/),true)
-#var doName $($sdoParam)
-#else
-#var doName tdoParam$($sParamName)
-  staff::DataObject $($doName) = $($sdoParam);
-#ifeqend
   $($doName) << $($sOptMod)$($sParam);
 #else                                        // ######### not abstract #####################
 \
 #ifeq($(.Options.*isAttribute),true||1)      // serialize to attribute
 #ifeq($(.Type),generic||string||typedef)
-  $($sdoParam).CreateAttribute("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
+  $($doName).CreateAttribute("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #else
 #ifeq($(.Type),enum)
-  $($sdoParam).CreateAttribute("$(.Options.*elementName||$sParamName)", \
+  $($doName).CreateAttribute("$(.Options.*elementName||$sParamName)", \
 ::staff::SerializeEnum_$(.NsName.!mangle)_ToString($($sOptMod)$($sParam)));
 #else
 #cgerror Cannot serialize type $(.Type) to attribute value. $($sParamName)
@@ -60,29 +99,21 @@
   for (anyAttribute::const_iterator itAttr = ($($sOptMod)$($sParam)).begin(),
        itAttrEnd = ($($sOptMod)$($sParam)).end(); itAttr != itAttrEnd; ++itAttr)
   {
-    $($sdoParam).AppendAttribute(const_cast<Attribute&>(*itAttr));
+    $($doName).AppendAttribute(const_cast<Attribute&>(*itAttr));
   }
 #else
 #ifeq($($sdoParam.!match/.CreateChild/),true)
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
 #else
-  $($sdoParam).SetValue($($sOptMod)$($sParam));
+  $($doName).SetValue($($sOptMod)$($sParam));
 #ifeqend  // param optimization
 #ifeqend // anyAttribute
 #else
 \
 \
 #ifeq($(.Type),dataobject)                                     // ==== dataobject ====
-  $($sdoParam).AppendChild($($sOptMod)$($sParam));
+  $($doName).AppendChild($($sOptMod)$($sParam));
 #else
-\
-\
-#ifneq($($sdoParam.!match/.CreateChild/),true)
-#var doName $($sdoParam)
-#else
-#var doName tdoParam$($sParamName)
-  staff::DataObject $($doName) = $($sdoParam);
-#ifeqend
 \
 \
 #ifeq($(.Type),typedef)

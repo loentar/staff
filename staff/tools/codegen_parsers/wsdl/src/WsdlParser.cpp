@@ -99,6 +99,7 @@ namespace codegen
     std::string sDefault;
     bool bIsRef;
     bool bIsOptional;
+    std::string sForm;
 
     Attribute();
     Attribute& Parse(const xml::Element& rElemAttr);
@@ -126,6 +127,7 @@ namespace codegen
     bool bIsMessage;
     std::string sDefault;
     std::string sChoiceId;
+    std::string sForm;
 
     std::list<SimpleType> lsSimpleTypes;
     std::list<ComplexType> lsComplexTypes;
@@ -509,6 +511,12 @@ namespace codegen
       sDefault = pAttr->GetValue();
     }
 
+    pAttr = rElemAttr.FindAttribute("form");
+    if (pAttr)
+    {
+      sForm = pAttr->GetValue();
+    }
+
     GetTns(rElemAttr, sNamespace, sPrefix);
 
     ReadDoc(rElemAttr, sDescr, sDetail);
@@ -593,6 +601,12 @@ namespace codegen
 
     pAttr = rElemElement.FindAttribute("nillable");
     bIsNillable = pAttr && (pAttr->GetValue() == "true");
+
+    pAttr = rElemElement.FindAttribute("form");
+    if (pAttr)
+    {
+      sForm = pAttr->GetValue();
+    }
 
     bIsArray = IsElementArray(rElemElement);
 
@@ -1099,7 +1113,6 @@ namespace codegen
     void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst);
     void Import(xml::Element& rElemImport, Project& rProject, Interface& rInterface, bool bInclude);
     void ImportAll(xml::Element& rElem, Project& rProject, Interface& rInterface);
-  public:
   };
 
 
@@ -2125,6 +2138,10 @@ namespace codegen
         {
           stMember.mOptions["defaultValue"] = pAttr->sDefault;
         }
+        if (!pAttr->sForm.empty())
+        {
+          stMember.mOptions["form"] = pAttr->sForm;
+        }
         if (bIsAttrOptional)
         {
           WrapTypeInTemplate(stMember.stDataType, "Optional");
@@ -2536,6 +2553,11 @@ namespace codegen
           if (!pElement->sDefault.empty())
           {
             stMember.mOptions["defaultValue"] = pElement->sDefault;
+          }
+
+          if (!pElement->sForm.empty())
+          {
+            stMember.mOptions["form"] = pElement->sForm;
           }
 
           if (!sChoiceId.empty())

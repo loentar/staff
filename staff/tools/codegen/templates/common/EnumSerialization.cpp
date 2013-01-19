@@ -24,22 +24,6 @@ DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
   rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
 #ifeqend
 \
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-  rdoParam.SetElementFormDefaultQualified(true);
-#else
-  rdoParam.SetElementFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-  rdoParam.SetAttributeFormDefaultQualified(true);
-#else
-  rdoParam.SetAttributeFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
   rdoParam.SetText(SerializeEnum_$(Enum.NsName.!mangle)_ToString(eEnumValue));
   return rdoParam;
 }
