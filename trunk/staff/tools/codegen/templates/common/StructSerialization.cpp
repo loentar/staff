@@ -12,22 +12,6 @@ DataObject& operator<<(DataObject& rdoParam, const Abstract< $(Struct.NsName) >&
 {
 #var sStructNsName $(Struct.Namespace)
 \
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-  rdoParam.SetElementFormDefaultQualified(true);
-#else
-  rdoParam.SetElementFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-  rdoParam.SetAttributeFormDefaultQualified(true);
-#else
-  rdoParam.SetAttributeFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
   const std::string& sInstanceType = tpAbstractStruct.GetType();
 #var sThisStructNsName $(.NsName)
 #foreach $(Project.Interfaces)
@@ -121,22 +105,6 @@ rstStruct\
 {
 #ifneq($(Interface.Options.*targetNamespace),)
   rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
-#ifeqend
-\
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-  rdoParam.SetElementFormDefaultQualified(true);
-#else
-  rdoParam.SetElementFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-  rdoParam.SetAttributeFormDefaultQualified(true);
-#else
-  rdoParam.SetAttributeFormDefaultQualified(false);
-#ifeqend
 #ifeqend
 \
 #ifneq($(Struct.ParentName),)

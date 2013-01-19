@@ -100,20 +100,23 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 \
 #ifneq($(Member.Options.*mep),in-only)
 \
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-      rOperation.GetResponse().SetElementFormDefaultQualified(true);
+#var elementForm $(Interface.Options.*elementFormDefault)
+#var attributeForm $(Interface.Options.*attributeFormDefault)
+\
+#ifneq($(Member.Options.*form),)
+#ifeq($(Member.Options.*attribute),true||1)
+#var attributeForm $(Member.Options.form)
 #else
-      rOperation.GetResponse().SetElementFormDefaultQualified(false);
+#var elementForm $(Member.Options.form)
 #ifeqend
 #ifeqend
 \
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-      rOperation.GetResponse().SetAttributeFormDefaultQualified(true);
-#else
-      rOperation.GetResponse().SetAttributeFormDefaultQualified(false);
+#ifneq($($elementForm),)
+  rOperation.GetResponse().SetElementFormQualified($($elementForm.!match/qualified/));
 #ifeqend
+\
+#ifneq($($attributeForm),)
+  rOperation.GetResponse().SetAttributeFormDefaultQualified($($attributeForm.!match/qualified/));
 #ifeqend
 #ifeqend
 \

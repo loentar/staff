@@ -1404,11 +1404,33 @@ namespace staff
 
     m_pAxiomElement = m_pAxiomNode ?
           reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(m_pAxiomNode, m_pEnv)) :
-          NULL;
+                NULL;
   }
 
   //////////////////////////////////////////////////////////////////////////
   // child nodes management
+
+  void DataObject::SetElementFormQualified(bool bQualified /*= true*/)
+  {
+    m_bElemFormDefaultQualified = bQualified;
+    if (m_bElemFormDefaultQualified)
+    {
+      if (!m_pChildNs)
+      {
+        axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
+        STAFF_ASSERT_DOM(pParentNode != NULL, "Can\'t get parent node");
+        axiom_element_t* pParentElement =
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pParentNode, m_pEnv));
+        STAFF_ASSERT_DOM(pParentElement != NULL, "Can\'t get element");
+        axiom_element_set_namespace_assume_param_ownership(m_pAxiomElement, m_pEnv,
+                  axiom_element_get_namespace(pParentElement, m_pEnv, m_pAxiomNode));
+      }
+      else
+      {
+        axiom_element_set_namespace_assume_param_ownership(m_pAxiomElement, m_pEnv, m_pChildNs);
+      }
+    }
+  }
 
   void DataObject::SetElementFormDefaultQualified(bool bQualified /*= true*/)
   {

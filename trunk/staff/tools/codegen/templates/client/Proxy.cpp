@@ -362,20 +362,23 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
   rdoRequest.SetNamespaceUriGenPrefix("$(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace)");
 #ifeqend
 \
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-  rdoRequest.SetElementFormDefaultQualified(true);
+#var elementForm $(Interface.Options.*elementFormDefault)
+#var attributeForm $(Interface.Options.*attributeFormDefault)
+\
+#ifneq($(Member.Options.*form),)
+#ifeq($(Member.Options.*attribute),true||1)
+#var attributeForm $(Member.Options.form)
 #else
-  rdoRequest.SetElementFormDefaultQualified(false);
+#var elementForm $(Member.Options.form)
 #ifeqend
 #ifeqend
 \
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-  rdoRequest.SetAttributeFormDefaultQualified(true);
-#else
-  rdoRequest.SetAttributeFormDefaultQualified(false);
+#ifneq($($elementForm),)
+  rdoRequest.SetElementFormQualified($($elementForm.!match/qualified/));
 #ifeqend
+\
+#ifneq($($attributeForm),)
+  rdoRequest.SetAttributeFormDefaultQualified($($attributeForm.!match/qualified/));
 #ifeqend
 \
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method

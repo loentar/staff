@@ -40,22 +40,6 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
   rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
 #ifeqend
 \
-#ifneq($(Interface.Options.*elementFormDefault),)
-#ifeq($(Interface.Options.*elementFormDefault),qualified)
-  rdoParam.SetElementFormDefaultQualified(true);
-#else
-  rdoParam.SetElementFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
-#ifneq($(Interface.Options.*attributeFormDefault),)
-#ifeq($(Interface.Options.*attributeFormDefault),qualified)
-  rdoParam.SetAttributeFormDefaultQualified(true);
-#else
-  rdoParam.SetAttributeFormDefaultQualified(false);
-#ifeqend
-#ifeqend
-\
   return rdoParam;
 }
 
