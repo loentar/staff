@@ -43,7 +43,7 @@ To install on device start:
 {{{
 <PATH_TO_ADB>/adb push axis2c /data/local/axis2c/
 <PATH_TO_ADB>/adb push staff /data/local/staff/
-mkdir /data/local/axis2c/logs
+<PATH_TO_ADB>/adb shell mkdir /data/local/axis2c/logs
 # if you are under windows
 <PATH_TO_ADB>/adb shell chmod 777 /data/local/axis2c/bin/axis2_http_server
 }}}
@@ -76,3 +76,4 @@ Open browser on your device and enter URL: http://localhost:9090/axis2/services
 you must see services list.
 
 
+Also you can access device list from other device/PC entering the same URL, replacing 'localhost' to target device IP.
