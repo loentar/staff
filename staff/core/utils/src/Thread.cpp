@@ -195,7 +195,7 @@ namespace staff
 #ifdef WIN32
       STAFF_ASSERT(TerminateThread(m_pImpl->hThread, 0) == TRUE, "Failed to terminate thread: "
                    + Error::GetLastErrorStr());
-#else
+#elif !defined __ANDROID_API__
       STAFF_ASSERT(!pthread_cancel(m_pImpl->hThread), "Failed to terminate thread: "
                    + Error::GetLastErrorStr());
 #endif

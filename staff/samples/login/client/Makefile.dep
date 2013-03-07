@@ -1,2 +1,2 @@
 
-samples/login/client.dep: core/common.dep core/client.dep core/component.dep tools/codegen.dep tools/codegen_parsers/cpp.dep
+samples/login/client.dep: core/common.dep core/client.dep core/component.dep tools/codegen.hostdep tools/codegen_parsers/cpp.hostdep

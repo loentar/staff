@@ -1,0 +1,2 @@
+
+core/security.hostdep: core/sqlite3.hostdep core/common.hostdep

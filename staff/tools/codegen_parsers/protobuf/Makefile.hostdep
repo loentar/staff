@@ -1,0 +1,2 @@
+
+tools/codegen_parsers/protobuf.hostdep: tools/codegenparser.hostdep core/utils.hostdep

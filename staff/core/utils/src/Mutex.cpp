@@ -21,8 +21,7 @@
 
 #ifdef WIN32
 #include <Windows.h>
-#else
-#if defined __APPLE__
+#elif defined __APPLE__
 #include <libkern/OSAtomic.h>
 #else
 #if !defined _XOPEN_SOURCE || (_XOPEN_SOURCE - 0) < 600
@@ -30,7 +29,6 @@
 #define _XOPEN_SOURCE 600
 #endif
 #include <pthread.h>
-#endif
 #endif
 #include "Mutex.h"
 
@@ -41,16 +39,16 @@ namespace staff
   {
 #ifdef WIN32
     HANDLE hMutex; //!< mutex handle
-#else
-#ifdef __APPLE__
+#elif defined __APPLE__
     OSSpinLock hMutex; //!< mutex handle
 
     MutexImpl():
       hMutex(0)
     {}
+#elif defined __ANDROID_API__
+    pthread_mutex_t hMutex; //!< mutex handle
 #else
     pthread_spinlock_t hMutex; //!< mutex handle
-#endif
 #endif
   };
 
@@ -61,7 +59,13 @@ namespace staff
 #ifdef WIN32
     m_pImpl->hMutex = CreateMutex(NULL, FALSE, NULL);
 #elif !defined __APPLE__
+#if defined __ANDROID_API__
+    pthread_mutexattr_t tAttr;
+    pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+    pthread_mutex_init(&m_pImpl->hMutex, &tAttr);
+#else
     pthread_spin_init(&m_pImpl->hMutex, 0);
+#endif
 #endif
   }
 
@@ -70,7 +74,11 @@ namespace staff
 #ifdef WIN32
     CloseHandle(m_pImpl->hMutex);
 #elif !defined __APPLE__
+#if defined __ANDROID_API__
+    pthread_mutex_destroy(&m_pImpl->hMutex);
+#else
     pthread_spin_destroy(&m_pImpl->hMutex);
+#endif
 #endif
     delete m_pImpl;
   }
@@ -79,12 +87,12 @@ namespace staff
   {
 #ifdef WIN32
     WaitForSingleObject(m_pImpl->hMutex, INFINITE);
-#else
-#ifdef __APPLE__
+#elif defined __APPLE__
     OSSpinLockLock(&m_pImpl->hMutex);
+#elif defined __ANDROID_API__
+    pthread_mutex_lock(&m_pImpl->hMutex);
 #else
     pthread_spin_lock(&m_pImpl->hMutex);
-#endif
 #endif
   }
 
@@ -92,12 +100,12 @@ namespace staff
   {
 #ifdef WIN32
     ReleaseMutex(m_pImpl->hMutex);
-#else
-#ifdef __APPLE__
+#elif defined __APPLE__
     OSSpinLockUnlock(&m_pImpl->hMutex);
+#elif defined __ANDROID_API__
+    pthread_mutex_unlock(&m_pImpl->hMutex);
 #else
     pthread_spin_unlock(&m_pImpl->hMutex);
-#endif
 #endif
   }
 
@@ -105,12 +113,12 @@ namespace staff
   {
 #ifdef WIN32
     return WaitForSingleObject(m_pImpl->hMutex, 0) == WAIT_OBJECT_0;
-#else
-#ifdef __APPLE__
+#elif defined __APPLE__
     return OSSpinLockTry(&m_pImpl->hMutex);
+#elif defined __ANDROID_API__
+    return !pthread_mutex_trylock(&m_pImpl->hMutex);
 #else
     return !pthread_spin_trylock(&m_pImpl->hMutex);
-#endif
 #endif
   }
 

@@ -11,7 +11,10 @@ LDFLAGS += -lstaffutils -lstaffcommon -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug?
   LDFLAGS += -laxiom
 else
-  LDFLAGS += -laxis2_axiom -laxis2_http_common
+  LDFLAGS += -laxis2_axiom
+ifeq ($(ANDROID),)
+  LDFLAGS += -laxis2_http_common
+endif
 endif
 LDFLAGS += -laxis2_parser
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)

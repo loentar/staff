@@ -14,7 +14,10 @@ LFLAGS += -laxutil -laxis2_engine
 ifeq ($(OS),MINGW) # axis2/c library naming bug, is axis2_http_common staticaly built in axis2_http_sender/receiver?
   LFLAGS += -laxiom
 else
-  LFLAGS += -laxis2_axiom -laxis2_http_common
+  LFLAGS += -laxis2_axiom
+ifeq ($(ANDROID),)
+  LFLAGS +=  -laxis2_http_common
+endif
 endif
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
