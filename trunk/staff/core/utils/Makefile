@@ -6,7 +6,7 @@ CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_UTILS_DLL_EXPORTS=1
 endif
-LDFLAGS += $(LDLIB)$(LIBTARGETVER)
+LDFLAGS += $(LDLIB)$(LIBTARGETVER) $(HOSTLDFLAGS)
 ifeq ($(LINUX_RELEASE),MCBC)
   PTHREAD_VERSION := $(shell readlink /lib/libpthread.so.0 | sed 's/.*-\([\.0-9]*\)\..*/\1/')
   PTHREAD_VERSION_MAJOR := $(shell echo $(PTHREAD_VERSION) | cut -d'.' -f1)
@@ -16,7 +16,7 @@ endif
 
 # detect iconv usability
 ICONV_INCLUDE="\#include <iconv.h>"
-WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
+WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
 ifneq ($(WITH_ICONV),)
 ifeq ($(OS),FreeBSD)
@@ -37,7 +37,7 @@ ifneq ($(OS),MINGW)
 ifneq ($(OS),Darwin)
 # detect bfd usability
 BFD_INCLUDE="\#include <bfd.h>"
-WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `gcc -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
+WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_BFD)
 ifneq ($(WITH_BFD),)
   LDFLAGS += -lbfd -liberty

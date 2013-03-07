@@ -5,7 +5,7 @@ LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lstaffcodegenparser -lstaffutils
+LDFLAGS += -lstaffcodegenparser -lstaffutils $(HOSTLDFLAGS)
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
@@ -20,11 +20,11 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
 $(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
+	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXXHOST) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)codegen/parsers/"

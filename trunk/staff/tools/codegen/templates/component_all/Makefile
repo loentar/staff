@@ -44,7 +44,6 @@ ifeq (\$(OS),MINGW)
   LIBPREFIX =
   LIBEXT = .dll
   LDLIB = -shared -Wl,-soname,
-  CC = gcc
   export STAFF_HOME := \$(subst :,,\$(subst \,/,/\$(STAFF_HOME)))
   CFLAGS += -DAXIS2_SKIP_INT_TYPEDEFS
   CXXFLAGS += -DAXIS2_SKIP_INT_TYPEDEFS

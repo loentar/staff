@@ -6,7 +6,7 @@ CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_XML_DLL_EXPORTS=1
 endif
-LDFLAGS += -lstaffutils
+LDFLAGS += -lstaffutils $(HOSTLDFLAGS)
 
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 

@@ -5,9 +5,11 @@ LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser -laxis2_http_sender -laxutil
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser -laxis2_http_sender -laxutil $(HOSTLDFLAGS)
 ifneq ($(OS),MINGW)
+ifeq ($(ANDROID),)
   LDFLAGS += -laxis2_http_common
+endif
 else
   LDFLAGS += -laxis2_engine
   CXXFLAGS += -DAXIS2_DECLARE_EXPORT
@@ -26,11 +28,11 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
 $(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
+	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXXHOST) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)codegen/parsers/"

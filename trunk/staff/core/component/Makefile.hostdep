@@ -1,0 +1,3 @@
+
+core/component.hostdep: core/common.hostdep core/security.hostdep core/xml.hostdep
+

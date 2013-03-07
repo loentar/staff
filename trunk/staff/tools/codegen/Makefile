@@ -6,7 +6,8 @@ TARGETNAME = staff_$(TARGET)
 CXXFLAGS += -I$(DEPLOYDIR)include
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\" -DLIBRARY_VERSION=\"$(LIBRARY_VERSION)\"
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser $(HOSTLDFLAGS)
+
 
 VPATH = $(SRCDIR)
 
@@ -18,11 +19,11 @@ make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXXHOST) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" "$(DEPLOYDIR)$(LIBDIR)codegen/" $(OUTDIR)$(TARGETNAME)

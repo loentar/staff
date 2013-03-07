@@ -6,8 +6,17 @@ MAKECMDGOALS ?= make
 
 include ../Makefile.env
 
-MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep | sed 's/^.\///g')
-MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
+ifeq ($(CROSSCOMPILE),0)
+# uniq dependencies
+UNIQ_DEPS := | sed 's/^\(.*\)\.\(.*\)$$/\2 \1/gm' | uniq -f 1 | sed 's/^\(.*\) \(.*\)$$/\2.\1/gm'
+endif
+
+MAKEFILES_DEP := $(shell find . -mindepth 2 -type f -regex '.*/Makefile\.\(host\|\)dep' -a \! -path './samples/*' | sed 's/^.\///g' $(UNIQ_DEPS))
+MAKE_ORDER_DEPS := $(subst /Makefile,,$(MAKEFILES_DEP))
+ifeq ($(CROSSCOMPILE),0)
+MAKE_ORDER_DEPS := $(patsubst %.hostdep,%.dep,$(MAKE_ORDER_DEPS))
+endif
+
 ifeq "0" "$(PARALLEL)"
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
 endif
@@ -18,24 +27,31 @@ endif
 #
 # ==  GOALS  ==============================================================
 
-
-ifneq ($(MAKECMDGOALS),distclean)
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
-all: make
-else
-$(MAKECMDGOALS):
-	$(MAKE) clean
-	find . -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rfv
-endif
 
 # must be declared under main goal
+ifeq ($(CROSSCOMPILE),0)
+# include dep files, replacing ".hostdep" -> ".dep"
+$(eval $(subst ^,$(newline),$(shell cat $(MAKEFILES_DEP) | sed 's/\.hostdep/.dep/gm' | tr '\n' '^')))
+else
+# include dependencies, taking care about host and cross building
 include $(MAKEFILES_DEP)
+endif
 
 %.dep:
 ifeq "0" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
 endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
+
+ifeq ($(CROSSCOMPILE),1)
+%.hostdep:
+ifeq "0" "$(PARALLEL)"
+	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.hostdep,%,$@)\033[0m"
+endif
+	$(MAKE) -C $(patsubst %.hostdep,%,$@) $(MAKECMDGOALS) $(HOSTMAKEFLAGS)
+endif
+
 
 ifeq ($(MAKECMDGOALS),distrib)
 DISTRIBDIR = $(TOPDIR)/distrib/

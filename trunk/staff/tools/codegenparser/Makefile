@@ -24,11 +24,11 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
 $(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
+	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXXHOST) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)" "$(DEPLOYDIR)$(INCDIR)"

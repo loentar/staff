@@ -8,9 +8,17 @@ include ../Makefile.env
 ifneq ($(MAKECMDGOALS),test)
   EXCLUDE_TESTS := -a \! -path './tests/*'
 endif
-MAKEFILES_DEP = $(shell find . -type f -name Makefile.dep -a \! -path './samples/*' $(EXCLUDE_TESTS) | sed 's/^.\///g')
+ifeq ($(CROSSCOMPILE),0)
+# uniq dependencies
+UNIQ_DEPS := | sed 's/^\(.*\)\.\(.*\)$$/\2 \1/gm' | uniq -f 1 | sed 's/^\(.*\) \(.*\)$$/\2.\1/gm'
+endif
 
-MAKE_ORDER_DEPS = $(patsubst %/Makefile.dep,%.dep,$(MAKEFILES_DEP))
+MAKEFILES_DEP := $(shell find . -mindepth 2 -type f -regex '.*/Makefile\.\(host\|\)dep' -a \! -path './samples/*' $(EXCLUDE_TESTS) | sed 's/^.\///g' $(UNIQ_DEPS))
+MAKE_ORDER_DEPS := $(subst /Makefile,,$(MAKEFILES_DEP))
+ifeq ($(CROSSCOMPILE),0)
+MAKE_ORDER_DEPS := $(patsubst %.hostdep,%.dep,$(MAKE_ORDER_DEPS))
+endif
+
 ifeq "0" "$(PARALLEL)"
 .NOTPARALLEL: $(MAKE_ORDER_DEPS)
 endif
@@ -21,10 +29,17 @@ endif
 #
 # ==  GOALS  ==============================================================
 
-$(MAKECMDGOALS): upgrade $(MAKE_ORDER_DEPS)
+$(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 
 # must be declared under main goal
+ifeq ($(CROSSCOMPILE),0)
+# include dep files, replacing ".hostdep" -> ".dep"
+$(eval $(subst ^,$(newline),$(shell cat $(MAKEFILES_DEP) | sed 's/\.hostdep/.dep/gm' | tr '\n' '^')))
+else
+$(filter %.dep,$(MAKE_ORDER_DEPS)): $(filter %.hostdep,$(MAKE_ORDER_DEPS))
+# include dependencies, taking care about host and cross building
 include $(MAKEFILES_DEP)
+endif
 
 %.dep:
 ifeq "0" "$(PARALLEL)"
@@ -32,7 +47,11 @@ ifeq "0" "$(PARALLEL)"
 endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
-upgrade:
-ifeq ($(MAKECMDGOALS),install)
-	test -z "$(STAFF_HOME)" -o -L "$(STAFF_HOME)/include/staff" || rm -Rf "$(STAFF_HOME)/include/staff"
+ifeq ($(CROSSCOMPILE),1)
+%.hostdep:
+ifeq "0" "$(PARALLEL)"
+	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.hostdep,%,$@)\033[0m"
 endif
+	$(MAKE) -C $(patsubst %.hostdep,%,$@) $(MAKECMDGOALS) $(HOSTMAKEFLAGS)
+endif
+
