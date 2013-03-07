@@ -61,6 +61,8 @@
       * [InstallationManualMacOSX Установка staff из исходного кода]
     * FreeBSD
       * [InstallationManualFreeBSD Установка staff из исходного кода]
+    * Android
+      * [InstallationManualAndroidBinary Установка staff из исходного кода]
   * Разное
     * [StaffDetails Описание WSF Staff]
     * [SoaApplicationStruct Структура SOA-Приложения]

@@ -61,6 +61,8 @@
       * [InstallationManualMacOSX Install staff from source code]
     * FreeBSD
       * [InstallationManualFreeBSD Install staff from source code]
+    * Android
+      * [InstallationManualAndroidBinary Install staff from binary tarball]
   * Misc
     * [StaffDetails WSF Staff details]
     * [SoaApplicationStruct SOA Application structure]

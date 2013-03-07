@@ -15,3 +15,6 @@
 Руководство под установке под FreeBSD:
   * [InstallationManualFreeBSD Руководство по установке под FreeBSD]
 
+Руководство под установке под Android:
+  * [InstallationManualAndroidBinary Руководство по установке под Android из архива бинарного кода]
+
