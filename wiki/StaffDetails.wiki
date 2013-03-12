@@ -42,6 +42,7 @@ WSDL extensions supported by WSF Staff are:
   * Dynamic types (Abstract);
   * Nillable;
   * Optional;
+  * SOAP Arrays;
   * hexBinary and base64Binary.
 
 
@@ -75,9 +76,12 @@ Currently WSF Staff has been ported to following platforms:
   * Linux;
   * Microsoft Windows;
   * Mac OS X;
-  * FreeBSD.
+  * FreeBSD;
+  * Android.
 
 Tested on x86 and x86_64 platforms under Ubuntu 9.10-11.10, Debian Lenny, Debian Squeeze, RHEL 5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1.
+
+Android version tested on: Galaxy Tab 10.1, Google Nexus S, Emulator.
 
 Tested on ARMv5 and MIPS32-v1 platforms on Busybox v1.18.
 
