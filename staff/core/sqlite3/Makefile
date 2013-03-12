@@ -12,6 +12,9 @@ ifneq ($(OS),MINGW)
   LFLAGS += -ldl
 endif
 endif
+ifneq ($(ANDROID),)
+  CFLAGS += -Dfdatasync=fsync
+endif
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
