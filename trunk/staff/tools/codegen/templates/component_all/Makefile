@@ -26,7 +26,7 @@ wsdl\
 #ifeqend
 
 
-PLATFORM ?= \$(shell uname -m)
+PLATFORM ?= \$(shell \$(CXX) -dumpmachine)
 ifeq (\$(shell uname -o 2>/dev/null),Msys)
   OS := MINGW
 else
@@ -66,13 +66,21 @@ ifneq (\$(DEBUG),)
   LDFLAGS += -g -O0
 endif
 
+ifneq (\$(HOST_STAFF_HOME),)
+  STAFF_CODEGEN ?= STAFF_HOME=\$(HOST_STAFF_HOME) \$(HOST_STAFF_HOME)/bin/staff_codegen
+else
+ifneq (\$(STAFF_HOME),)
+  STAFF_CODEGEN ?= \$(STAFF_HOME)/bin/staff_codegen
+else
+  STAFF_CODEGEN ?= staff_codegen
+endif
+endif
+
 ifneq (\$(STAFF_HOME),)
   CXXFLAGS += -I\$(STAFF_HOME)/include/
   LDFLAGS += -L\$(STAFF_HOME)/lib
-  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
   INSTALLDIR = \$(STAFF_HOME)/components/
 else
-  STAFF_CODEGEN = staff_codegen
   INSTALLDIR = /usr/lib/staff/components/
 endif
 

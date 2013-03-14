@@ -6,10 +6,10 @@ INTERFACES :=\
  $(Interface.Name).h\
 #end
 
-TARGET := $($sProjectName)
+TARGET ?= $($sProjectName)
 
 
-PLATFORM ?= \$(shell uname -m)
+PLATFORM ?= \$(shell \$(CXX) -dumpmachine)
 SRCDIR = $($SRCDIR)
 OBJDIR = obj/\$(PLATFORM)/
 OUTDIR = out/\$(PLATFORM)/
@@ -19,12 +19,19 @@ ifneq (\$(DEBUG),)
   LDFLAGS += -g -O0
 endif
 
+ifneq (\$(HOST_STAFF_HOME),)
+  STAFF_CODEGEN ?= STAFF_HOME=\$(HOST_STAFF_HOME) \$(HOST_STAFF_HOME)/bin/staff_codegen
+else
+ifneq (\$(STAFF_HOME),)
+  STAFF_CODEGEN ?= \$(STAFF_HOME)/bin/staff_codegen
+else
+  STAFF_CODEGEN ?= staff_codegen
+endif
+endif
+
 ifneq (\$(STAFF_HOME),)
   CXXFLAGS += -I\$(STAFF_HOME)/include/
   LDFLAGS += -L\$(STAFF_HOME)/lib
-  STAFF_CODEGEN = \$(STAFF_HOME)/bin/staff_codegen
-else
-  STAFF_CODEGEN = staff_codegen
 endif
 
 LDFLAGS += -lstaffutils -lstaffcommon -lstaffclient
