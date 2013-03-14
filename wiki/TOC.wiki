@@ -7,6 +7,7 @@
     * [BriefExamples Short examples]
     * Creating a service
       * [ExampleCalculatorService Calculator service]
+      * [ExampleHelloWorldServiceAndroid HelloWorld service for Android]
     * Creating a C++ client
       * [ExampleCalculatorClient Calculator client]
       * [ExampleCalculatorNonBlocking Non-blocking C++ client]

@@ -5,6 +5,7 @@
   * [ExampleCalculatorService Сервис "Calculator"]
   * [ExampleCalculatorClient C++ клиент "Calculator"]
   * [ExampleCalculatorNonBlocking Асинхронный С++ клиент]
+  * [ExampleHelloWorldServiceAndroid Сервис HelloWorld под Android]
 
 == WSDL ==
   * [ExampleCreatingCppClientFromWsdl Создание C++ клиента из WSDL]

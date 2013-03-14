@@ -7,6 +7,7 @@
     * [BriefExamples Примеры кода]
     * Создание сервиса
       * [ExampleCalculatorService сервис Calculator]
+      * [ExampleHelloWorldServiceAndroid сервис HelloWorld под Android]
     * Создание C++ клиента
       * [ExampleCalculatorClient клиент Calculator]
       * [ExampleCalculatorNonBlocking Неблокируемый C++ клиент]

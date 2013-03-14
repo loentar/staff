@@ -5,6 +5,7 @@
   * [ExampleCalculatorService Creating a Calculator service]
   * [ExampleCalculatorClient Creating a Calculator client]
   * [ExampleCalculatorNonBlocking Asynchronous C++ client]
+  * [ExampleHelloWorldServiceAndroid Creating a HelloWorld service for Android]
 
 == WSDL ==
   * [ExampleCreatingCppClientFromWsdl Creating C++ client from WSDL]
