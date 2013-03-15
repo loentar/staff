@@ -7,7 +7,7 @@
 
 Staff is based on Axis2/C framework.
 
-As last Axis2/C release 1.6.0 is a bit outdated, there are many known issues on it that influence Staff, but will probably be fixed in the new Axis2/C release.
+As last Axis2/C release 1.6.0 is a bit outdated, there are many known issues on it that influence Staff, but they will probably be fixed in the new Axis2/C release.
 
 This list doesn't have every single Axis2/C issue, just some of the issues that staff users have runned into. If you find another issue related to Axis2/C please let us know at by creating new issue with `Component-Axis2C` label set. Feel free to attach your patch (if any) or some other helpful information.
 
@@ -42,7 +42,7 @@ wget https://issues.apache.org/jira/secure/attachment/12407627/utf8-patch.txt
 patch -d. -p0 <utf8-patch.txt
 }}}
 
-Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by make distclean).
+Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by `make distclean`).
 
 After installation you should be able to work with UTF-8 chars.
 
@@ -72,7 +72,7 @@ wget https://issues.apache.org/jira/secure/attachment/12408133/axis2c-1244.txt
 patch -d. -p0 <axis2c-1244.txt
 }}}
 
-Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by make distclean).
+Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by `make distclean`).
 
 After installation there should be no duplicate requests.
 
@@ -96,7 +96,7 @@ It's a libxml bug. Please recompile axis2/c with guththila without libxml to avo
 ./configure --enable-libxml=no --enable-guhthilla=yes
 }}}
 
-Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by make distclean).
+Then you must recompile Axis2/C and staff as in InstallationManualLinux (don't forget to clean up staff's source code by `make distclean`).
 
 == Client crashes with asynchronous client calls and/or under high load ==
 
@@ -139,7 +139,7 @@ Staff does not compile on clean Axis2/C-1.7.0 from trunk.
 
 === Explanation ===
 
-Axis2/C has OM (Object Model) API changes that prevents Staff from compiling on it. Some necessary functions like axiom_element_remove_attribute was commented out in AxiOM header file.
+Axis2/C has OM (Object Model) API changes that prevents Staff from compiling on it. Some necessary functions like `axiom_element_remove_attribute` were commented out in AxiOM header file.
 
 See issue description on Axis2/C Jira tracker: https://issues.apache.org/jira/browse/AXIS2C-1553
 
@@ -155,7 +155,7 @@ export STAFF_HOME=/usr/local/staff
 rm -Rf $AXIS2C_HOME $STAFF_HOME
 mkdir ~/install
 cd ~/install
-svn co http://svn.apache.org/repos/asf/axis/axis2/c/core/trunk axis2c-trunk
+svn co http://svn.apache.org/repos/asf/axis/axis2/c/core/trunk axis2c-trunk -r 1406900
 cd axis2c-trunk
 sed -i '/SUBDIRS/s/ test//' neethi/Makefile.am # else it does not compile
 wget -qO- http://staff.googlecode.com/files/axis2c-1.7.0-om.patch | patch -p1 -d. # apply patch
@@ -168,6 +168,6 @@ cd staff-trunk
 make -j6 && sudo -E make install
 echo -e "$STAFF_HOME/lib\n$AXIS2C_HOME/lib" | sudo tee /etc/ld.so.conf.d/staff.conf
 sudo ldconfig
-cd samples
+cd staff/samples
 make -j6 && sudo -E make install
 }}}
