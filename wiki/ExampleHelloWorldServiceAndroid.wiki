@@ -12,13 +12,13 @@
 /opt/android-ndk-r8c/build/tools/make-standalone-toolchain.sh --toolchain=arm-linux-androideabi-4.6 --install-dir=/opt/android-8-toolchain
 }}}
 
-  * Must have [https://code.google.com/p/staff/downloads/list?can=2&q=WSFStaffAndroid-*.apk WSF Staff Android] app installed on your device/emulator.
+  * Must have [https://code.google.com/p/staff/downloads/list?can=2&q=WSFStaffAndroid-*.apk WSF Staff Android app] installed on your device/emulator.
 
   * Must have latest version of WSF Staff installed on your host, refer the InstallationManual.
 
   * Must have WSF Staff SDK for android installed.
 
-  Download and unpack [https://code.google.com/p/staff/downloads/list?q=ws-android-*.7z Axis2/C+Staff for Android] into /data/local dir on your host.
+  Download and unpack [https://code.google.com/p/staff/downloads/list?q=ws-android-*.7z WSF Staff SDK for Android] into /data/local dir on your host.
 
 == Creating a service ==
 
@@ -27,7 +27,7 @@ Start codegen to produce interface template:
 staff_codegen -tinterfacegen -dsvc=samples.HelloWorld -osrc
 }}}
 
-Now edit generated `src/HelloWorld.h` and operation like that:
+Now edit generated `src/HelloWorld.h` and add "Hello" operation like that:
 
 {{{
   class HelloWorld: public staff::IService
@@ -86,7 +86,6 @@ Push the "Open services list" button, your service must appear now in the list.
 
 Now you can connect to that service as usual.
 
-== Download source ==
+== Download sources ==
 
 Download source code [https://code.google.com/p/staff/downloads/detail?name=samples.hello_android.tar.bz2 here].
-
