@@ -15,11 +15,16 @@ SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
+ifeq ($(CROSSCOMPILE),0)
 ifneq ($(POSTGRESQL_DEV_INSTALLED),0)
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 else
 make:
 	@$(ECHO) "\n\033[33;1mSkipping Postgresql provider compilation because Postgresql development package is not installed.\033[31;0m\n"
+endif
+else
+make:
+	@$(ECHO) "Crosscompilation of postgresql provider is not supported now"
 endif
 
 # link
