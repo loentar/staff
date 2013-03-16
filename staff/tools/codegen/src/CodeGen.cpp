@@ -306,7 +306,7 @@ namespace codegen
     const xml::Element& ExecuteFunction(std::string& sFunction, const xml::Element& rElement) const
     {
       static xml::Element tResult("Result");
-      std::string sResult = rElement.GetValue();
+      std::string sResult = rElement.GetTextValue();
       tResult.Clear();
 
       if (sFunction.substr(0, 9) == "mangledot")
@@ -347,6 +347,25 @@ namespace codegen
         sFunction.erase(0, 3);
       }
       else
+      if (sFunction.substr(0, 3) == "not")
+      {
+        sFunction.erase(0, 3);
+
+        sResult = sResult == "true" ? "false" : "true";
+      }
+      else
+      if (sFunction.substr(0, 7) == "equals/")
+      {
+        sFunction.erase(0, 7);
+
+        std::string::size_type nPosEnd = ParseParam(sFunction);
+        std::string sWhat = sFunction.substr(0, nPosEnd);
+        sFunction.erase(0, nPosEnd + 1);
+        ReplaceToValue(sWhat, rElement);
+
+        sResult = (sResult == sWhat) ? "true" : "false";
+      }
+      else
       if (sFunction.substr(0, 6) == "match/")
       {
         sFunction.erase(0, 6);
@@ -356,7 +375,7 @@ namespace codegen
         sFunction.erase(0, nPosEnd + 1);
         ReplaceToValue(sWhat, rElement);
 
-        sResult = (rElement.GetTextValue().find(sWhat) != std::string::npos) ? "true" : "false";
+        sResult = (sResult.find(sWhat) != std::string::npos) ? "true" : "false";
       }
       else
       if (sFunction.substr(0, 8) == "replace/")
