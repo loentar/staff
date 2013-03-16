@@ -4,11 +4,16 @@ TARGET = axis2services
 TARGETNAME = .libs/mod_$(TARGET).so
 
 # == make ===========================================
+ifeq ($(CROSSCOMPILE),0)
 ifneq ($(APXS),)
 make: $(TARGETNAME) deploy
 else
 make:
 	@$(ECHO) "\n\033[33;1mSkipping Apache2 module \"$(TARGET)\" compilation: Apache apxs is not found.\033[0m\n"
+endif
+else
+make:
+	@$(ECHO) "Crosscompilation of axis2services is not supported now"
 endif
 
 ifeq ($(OS),FreeBSD)
