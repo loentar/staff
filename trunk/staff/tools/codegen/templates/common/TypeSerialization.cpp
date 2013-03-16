@@ -6,8 +6,8 @@
 \
 \
 \
-#var elementForm $(Interface.Options.*elementFormDefault)
-#var attributeForm $(Interface.Options.*attributeFormDefault)
+#var elementForm
+#var attributeForm
 \
 #ifeq($(.Name),Nillable||Optional)
 #var recreateChild false
@@ -40,14 +40,6 @@
 #var doName $($sdoParam)
 #ifeqend
 \
-#ifneq($($elementForm),)
-  $($doName).SetElementFormQualified($($elementForm.!match/qualified/));
-#ifeqend
-#ifneq($($attributeForm),)
-  $($doName).SetAttributeFormDefaultQualified($($attributeForm.!match/qualified/));
-#ifeqend
-\
-\
 \
 #ifeq($(.Name),Optional||Nillable)           // ######### Optional or Nillable ############
   if (!($($sOptMod)$($sParam)).IsNull()) // $(.Name)
@@ -68,6 +60,14 @@
   }
 #ifeqend
 #else // not optional or nillable
+\
+#ifneq($($elementForm),)
+  $($doName).SetElementFormQualified($($elementForm.!equals/qualified/));
+#ifeqend
+#ifneq($($attributeForm),)
+  $($doName).SetAttributeFormDefaultQualified($($attributeForm.!equals/qualified/));
+#ifeqend
+\
 \
 #ifeq($(.Name),Abstract)                     // ########## abstract #################
 

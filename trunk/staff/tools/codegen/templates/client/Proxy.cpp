@@ -374,11 +374,11 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 \
 #ifneq($($elementForm),)
-  rdoRequest.SetElementFormQualified($($elementForm.!match/qualified/));
+  rdoRequest.SetElementFormQualified($($elementForm.!equals/qualified/));
 #ifeqend
 \
 #ifneq($($attributeForm),)
-  rdoRequest.SetAttributeFormDefaultQualified($($attributeForm.!match/qualified/));
+  rdoRequest.SetAttributeFormDefaultQualified($($attributeForm.!equals/qualified/));
 #ifeqend
 \
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
