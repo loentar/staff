@@ -52,8 +52,8 @@ namespace samples
           \return added customer id
         */
       // *restEnable: true
-      // *restMethod: PUT
-      // *restLocation: Add/firstname={sFirstName}&lastname={sLastName}&year={nYear}
+      // *restMethod: POST
+      // *restLocation: Add
       virtual int Add(const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
       //! delete customer
@@ -74,7 +74,7 @@ namespace samples
           \param nYear - year of birth
         */
       // *restEnable: true
-      // *restMethod: POST
+      // *restMethod: PUT
       // *restLocation: Update/id={nId}&firstname={sFirstName}&lastname={sLastName}&year={nYear}
       virtual void Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
 
