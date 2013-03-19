@@ -156,21 +156,31 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
     axutil_param_t* pParam = axis2_svc_get_param(pService, pEnv, "IsStaffVirtualService");
     if (pParam != NULL) /* Staff virtual service? */
     {
-      int* pbIsStaffVirtualService = (int*)axutil_param_get_value(pParam, pEnv);
-      if (pbIsStaffVirtualService != NULL)
+      axis2_svc_t* pStaffService = Axis2Dispatcher_find_svc(pMsgCtx, pEnv);
+      if (pStaffService != NULL)
       {
-        if (*pbIsStaffVirtualService)
+        pOperation = axis2_svc_get_op_with_name(pStaffService, pEnv, "Invoke");
+        if (pOperation != NULL)
         {
-          axis2_svc_t* pStaffService = Axis2Dispatcher_find_svc(pMsgCtx, pEnv);
-          if (pStaffService != NULL)
+          /* get real operation name for REST services */
+          axis2_op_t* pRealOperation = axis2_msg_ctx_get_op(pMsgCtx, pEnv);
+          if (pRealOperation != NULL)
           {
-            pOperation = axis2_svc_get_op_with_name(pStaffService, pEnv, "Invoke");
-            if (pOperation != NULL)
+            const axutil_qname_t* pOperationQName = axis2_op_get_qname(pRealOperation, pEnv);
+            if (pOperationQName != NULL)
             {
-              axis2_msg_ctx_set_op(pMsgCtx, pEnv, pOperation);
-              axis2_msg_ctx_set_svc(pMsgCtx, pEnv, pStaffService);
+              axis2_char_t* szOperation = axutil_qname_get_localpart(pOperationQName, pEnv);
+              if (szOperation != NULL)
+              {
+                axutil_property_t* pProp = axutil_property_create(pEnv);
+                axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szOperation));
+                axis2_msg_ctx_set_property(pMsgCtx, pEnv, "Operation", pProp);
+              }
             }
           }
+
+          axis2_msg_ctx_set_op(pMsgCtx, pEnv, pOperation);
+          axis2_msg_ctx_set_svc(pMsgCtx, pEnv, pStaffService);
         }
 
         return AXIS2_SUCCESS;

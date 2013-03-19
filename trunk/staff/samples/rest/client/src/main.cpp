@@ -40,11 +40,17 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     STAFF_ASSERT(pCustomers.get(), "Cannot get client for service samples.rest.Customers!");
 
     // Invoke Your service here:
-
-    int nId1 = pCustomers->Add("John", "Smith", 1970);
+    ::samples::rest::Customer stCustomer;
+    stCustomer.sFirstName = "John";
+    stCustomer.sLastName = "Smith";
+    stCustomer.nYear = 1970;
+    int nId1 = pCustomers->Add(stCustomer);
     staff::LogInfo() << "Add result: " << nId1;
 
-    int nId2 = pCustomers->Add("Mary", "Brown", 1975);
+    stCustomer.sFirstName = "Mary";
+    stCustomer.sLastName = "Brown";
+    stCustomer.nYear = 1975;
+    int nId2 = pCustomers->Add(stCustomer);
     staff::LogInfo() << "Add result: " << nId2;
 
 
@@ -53,7 +59,9 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 
 
     staff::LogInfo() << "updating #" << nId2;
-    pCustomers->Update(nId2, "Mary", "Brown", 1980);
+    *stCustomer.nId = nId2;
+    stCustomer.nYear = 1980;
+    pCustomers->Update(stCustomer);
     staff::LogInfo() << "Update called";
 
 

@@ -18,9 +18,9 @@ namespace rest
   public:
     CustomersImpl();
     virtual ~CustomersImpl();
-    virtual int Add(const std::string& sFirstName, const std::string& sLastName, int nYear);
+    virtual int Add(const Customer& rstCustomer);
     virtual void Delete(int nId);
-    virtual void Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear);
+    virtual void Update(const Customer& rstCustomer);
     virtual CustomersList List();
     virtual Customer Get(int nId);
 

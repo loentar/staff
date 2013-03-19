@@ -258,6 +258,16 @@ public:
       tOperation.SetRequest(pAxiomNode);
       tOperation.SetMessageContext(tMessageContext);
 
+      if (axis2_msg_ctx_get_doing_rest(pMsgCtx, pEnv))
+      {
+        const axis2_char_t* szOperation = reinterpret_cast<const axis2_char_t*>
+            (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "Operation"));
+        if (szOperation != NULL)
+        {
+          tOperation.SetName(szOperation);
+        }
+      }
+
       if (sServiceName == "StaffService")
       {
         staff::ServiceDispatcher::Inst().InvokeSelf(tOperation);

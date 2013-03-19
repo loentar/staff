@@ -37,7 +37,14 @@ namespace staff
 
   void Operation::SetName(const std::string& sName)
   {
-    m_sRequestName = sName;
+    if (m_tdoRequest.IsInit())
+    {
+      m_tdoRequest.SetLocalName(sName);
+    }
+    else
+    {
+      m_sRequestName = sName;
+    }
   }
 
   const std::string Operation::GetName() const

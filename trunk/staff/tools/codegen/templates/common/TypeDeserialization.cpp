@@ -37,7 +37,7 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
 #var doName $($sdoParam)
 #else
 #var doName $($sdoParam)$($sParamName)
-  const staff::DataObject& $($doName) = $($sdoParam).GetChildByLocalNameOpt("$($sParamName)");
+  const staff::DataObject& $($doName) = $($sdoParam).GetChildByLocalNameOpt("$(.Options.*elementName||$sParamName)");
 #ifeqend
   if (!$($doName).IsNull()) // optional
 #ifeqend // is attr
@@ -47,7 +47,7 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
 #else
 #ifeq($($sOptMod),)
 #var doName $($sdoParam)$($sParamName)
-  const staff::DataObject& $($sdoParam)$($sParamName) = $($sdoParam).GetChildByLocalName("$($sParamName)");
+  const staff::DataObject& $($sdoParam)$($sParamName) = $($sdoParam).GetChildByLocalName("$(.Options.*elementName||$sParamName)");
 #else
 #var doName $($sdoParam)
 #ifeqend
