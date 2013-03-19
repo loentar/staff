@@ -132,7 +132,8 @@ To fix Axis2/C-1.6.0 you can use patch located in [http://code.google.com/p/staf
 This patch is based on AXIS2C-1418 but adopted to use with Axis2/C-1.6.0.
 
 
-== Source back compatibility of Axis2/C-1.7.0 with 1.6.0 ==
+== Source back compatibility of Axis2/C-1.7.0 with 1.6.0 == 
+||Notice: This issue has been solved for Axis2/C trunk currently, the issue only arises for Axis revisions prior to 1406900  ||
 
 === Problem ===
 Staff does not compile on clean Axis2/C-1.7.0 from trunk.
