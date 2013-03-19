@@ -3,6 +3,8 @@
 
 (function(){
 
+  var oResult;
+
   setTimeout(function(){
     if (typeof jQuery == "undefined")
     {
@@ -54,7 +56,7 @@
       processData: false
     };
 
-    if (sMethod == "POST")
+    if (sMethod === "POST" || sMethod === "PUT")
     { 
       // create JSON object in form as follows:
       // {
@@ -65,13 +67,13 @@
       //    }
       //  }
       var oRequest = {};
-      var sOpName = sRestUrl.substr(sRestUrl.lastIndexOf('/') + 1);
-      var oOpParams = oRequest[sOpName] = {};
+      var sObjName = oForm.attr("name");
+      var oObjProps = oRequest[sObjName] = {};
       var oParams = sParams.split("&");
       for (var i = 0, len = oParams.length; i < len; ++i)
       {
         var oPair = oParams[i].split('=');
-        oOpParams[oPair[0]] = oPair[1];
+        oObjProps[oPair[0]] = oPair[1];
       }
 
       // convert JSON to XML and set it as request
@@ -80,18 +82,23 @@
     }
     else // create URL with params
     {
-      sRestUrl += sParams;
+      if (sParams.length !== 0)
+      {
+        oRequestInfo.url += "/" + sParams;
+      }
       oRequestInfo.contentType = oForm[0].encoding;
     }
 
     function onSuccess(sResult)
     {
-      alert(sResult);
+      oResult.text(sResult);
+      oResult.css("color", "");
     }
 
     function onError()
     {
-      alert("failed to send [" + sMethod + "] request: " + arguments[2]);
+      oResult.text("failed to send [" + sMethod + "] request: " + arguments[2]);
+      oResult.css("color", "red");
     }
 
     jQuery.ajax(oRequestInfo)
@@ -104,7 +111,14 @@
   $(document).ready(function(){
     // bind our handler instead default submit method
     $('form').bind("submit", onFormSubmit);
+
+    var oBody = $(document.body);
+    oBody.append("Result:<p/><div style=\"border: 1px solid silver\">" +
+                            "<pre id=\"result\" style=\"word-wrap: break-word\"/></div>");
+    oResult = $("#result");
+
+    oBody.append("<p/><a href=\"javascript:history.go(-1)\">&lt;&lt;&lt; back</a>");
   });
 
-})()
+})();
 

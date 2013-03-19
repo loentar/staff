@@ -25,6 +25,7 @@
 #include <string>
 #include <list>
 #include <staff/common/IService.h>
+#include <staff/common/Optional.h>
 
 namespace samples
 {
@@ -33,12 +34,20 @@ namespace samples
     //! customer
     struct Customer
     {
-      int nId;                 //!< customer id
-      std::string sFirstName;  //!< first name
-      std::string sLastName;   //!< last name
-      int nYear;               //!< year of birth
+      // *elementName: id
+      staff::Optional<int> nId;     //!< customer id
+
+      // *elementName: firstName
+      std::string sFirstName;       //!< first name
+
+      // *elementName: lastName
+      std::string sLastName;        //!< last name
+
+      // *elementName: year
+      int nYear;                    //!< year of birth
     };
 
+    // *elementName: Customer
     typedef std::list<Customer> CustomersList; //!< customers list
 
     //! REST demo: Customers service
@@ -46,15 +55,14 @@ namespace samples
     {
     public:
       //! add customer
-      /*! \param sFirstName - first name
-          \param sLastName - last name
-          \param nYear - year of birth
+      /*! \param rstCustomer - customer info without id
           \return added customer id
         */
       // *restEnable: true
       // *restMethod: POST
-      // *restLocation: Add
-      virtual int Add(const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
+      // *restLocation: customer
+      // *param-rstCustomer-useParentElement: true
+      virtual int Add(const Customer& rstCustomer) = 0;
 
       //! delete customer
       /*! \param nId - customer id to delete
@@ -64,19 +72,17 @@ namespace samples
         */
       // *restEnable: true
       // *restMethod: DELETE
-      // *restLocation: Delete/id={nId}
+      // *restLocation: customer/id={nId}
       virtual void Delete(int nId) = 0;
 
       //! update customer
-      /*! \param nId - existing customer id
-          \param sFirstName - first name
-          \param sLastName - last name
-          \param nYear - year of birth
+      /*! \param rstCustomer - customer with id to update
         */
       // *restEnable: true
       // *restMethod: PUT
-      // *restLocation: Update/id={nId}&firstname={sFirstName}&lastname={sLastName}&year={nYear}
-      virtual void Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear) = 0;
+      // *restLocation: customer
+      // *param-rstCustomer-useParentElement: true
+      virtual void Update(const Customer& rstCustomer) = 0;
 
       //! get all customers
       /*! \return all customers
@@ -84,7 +90,7 @@ namespace samples
       // *restEnable: true
       // *responseElement: Customers
       // *restMethod: GET
-      // *restLocation: List
+      // *restLocation: customer
       virtual CustomersList List() = 0;
 
       //! get customer with given id
@@ -93,7 +99,7 @@ namespace samples
       // *restEnable: true
       // *responseElement: Customer
       // *restMethod: GET
-      // *restLocation: Get/id={nId}
+      // *restLocation: customer/id={nId}
       virtual Customer Get(int nId) = 0;
 
     };

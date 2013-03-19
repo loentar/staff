@@ -19,16 +19,12 @@ CustomersImpl::~CustomersImpl()
 {
 }
 
-int CustomersImpl::Add(const std::string& sFirstName, const std::string& sLastName, int nYear)
+int CustomersImpl::Add(const Customer& rstCustomer)
 {
-  Customer stCustomer;
-  stCustomer.nId = ++m_nLastId;
-  stCustomer.sFirstName = sFirstName;
-  stCustomer.sLastName = sLastName;
-  stCustomer.nYear = nYear;
+  CustomersList::iterator itResult =
+          m_lsCustomers.insert(m_lsCustomers.end(), rstCustomer);
 
-  m_lsCustomers.push_back(stCustomer);
-  return stCustomer.nId;
+  return *itResult->nId = ++m_nLastId;
 }
 
 void CustomersImpl::Delete(int nId)
@@ -36,7 +32,7 @@ void CustomersImpl::Delete(int nId)
   for (CustomersList::iterator itCustomer = m_lsCustomers.begin();
       itCustomer != m_lsCustomers.end(); ++itCustomer)
   {
-    if (itCustomer->nId == nId)
+    if (*itCustomer->nId == nId)
     {
       m_lsCustomers.erase(itCustomer);
       return;
@@ -46,16 +42,19 @@ void CustomersImpl::Delete(int nId)
   STAFF_THROW(staff::RemoteException, "Customer with given id does not exists");
 }
 
-void CustomersImpl::Update(int nId, const std::string& sFirstName, const std::string& sLastName, int nYear)
+void CustomersImpl::Update(const Customer& rstCustomer)
 {
+  STAFF_ASSERT(!rstCustomer.nId.IsNull(), "Customer ID is not set");
+  int nId = *rstCustomer.nId;
+
   for (CustomersList::iterator itCustomer = m_lsCustomers.begin();
       itCustomer != m_lsCustomers.end(); ++itCustomer)
   {
-    if (itCustomer->nId == nId)
+    if (*itCustomer->nId == nId)
     {
-      itCustomer->sFirstName = sFirstName;
-      itCustomer->sLastName = sLastName;
-      itCustomer->nYear = nYear;
+      itCustomer->sFirstName = rstCustomer.sFirstName;
+      itCustomer->sLastName = rstCustomer.sLastName;
+      itCustomer->nYear = rstCustomer.nYear;
       return;
     }
   }
@@ -73,7 +72,7 @@ Customer CustomersImpl::Get(int nId)
   for (CustomersList::iterator itCustomer = m_lsCustomers.begin();
       itCustomer != m_lsCustomers.end(); ++itCustomer)
   {
-    if (itCustomer->nId == nId)
+    if (*itCustomer->nId == nId)
     {
       return *itCustomer;
     }
