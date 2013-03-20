@@ -3,8 +3,8 @@ include ../../../../Makefile.env
 INTERFACES := Echo.h
 TARGET = staff_test_regress_$(notdir $(patsubst %/,%,$(dir $(CURDIR))))
 
-CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lstaffclient -L$(DEPLOYDIR)$(LIBDIR)
+CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR) -I $(AXIS2C_HOME)/include/axis2-*
+LDFLAGS += -L$(AXIS2C_HOME)/lib -laxutil -laxis2_engine -L$(DEPLOYDIR)$(LIBDIR) -lstaffutils -lstaffcommon -lstaffclient
 
 CODEGEN_INTERFACES := $(patsubst %.h,$(SRCDIR)%.h,$(INTERFACES))
 CODEGEN_HEADERS := $(patsubst %.h,%Proxy.h,$(CODEGEN_INTERFACES))
