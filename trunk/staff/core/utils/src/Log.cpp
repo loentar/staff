@@ -298,5 +298,25 @@ namespace staff
     m_eLevelDefault = eLevel;
   }
 
-  
+
+  std::ostream& LogResultSuccess(std::ostream& rStream)
+  {
+    return rStream << ": " << ColorTextGreen << ColorBright << "Success" << ColorDefault;
+  }
+
+  std::ostream& LogResultDone(std::ostream& rStream)
+  {
+    return rStream << ": " << ColorTextGreen << ColorBright << "Done" << ColorDefault;
+  }
+
+  std::ostream& LogResultWarning(std::ostream& rStream)
+  {
+    return rStream << ": " << ColorTextBrown << ColorBright << "Warning" << ColorDefault;
+  }
+
+  std::ostream& LogResultFailed(std::ostream& rStream)
+  {
+    return rStream << ": " << ColorTextRed << ColorBright << "Failed" << ColorDefault;
+  }
+
 } // namespace staff

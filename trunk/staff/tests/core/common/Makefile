@@ -5,7 +5,7 @@ TARGETNAME = staff_test_$(TARGET)
 
 # == 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
-LDFLAGS += -lstaffcommon -L$(DEPLOYDIR)$(LIBDIR)
+LDFLAGS += -lstaffutils -lstaffcommon -L$(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 

@@ -215,6 +215,19 @@ namespace staff
     const char*           m_szFunction;    //!< function
   };
 
+
+  //! log success message
+  STAFF_UTILS_EXPORT std::ostream& LogResultSuccess(std::ostream& rStream);
+
+  //! log done message
+  STAFF_UTILS_EXPORT std::ostream& LogResultDone(std::ostream& rStream);
+
+  //! log warning message
+  STAFF_UTILS_EXPORT std::ostream& LogResultWarning(std::ostream& rStream);
+
+  //! log fail message
+  STAFF_UTILS_EXPORT std::ostream& LogResultFailed(std::ostream& rStream);
+
 } // namespace staff
 
 #endif // _STAFF_UTILS_LOG_H_

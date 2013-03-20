@@ -2,6 +2,7 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#include <unistd.h>
 #include <memory>
 #include <axutil_thread.h>
 #include <axis2_util.h>
