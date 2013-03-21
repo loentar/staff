@@ -620,7 +620,7 @@ namespace xml
     XmlReader(m_ifStream, bStripWhitespace)
   {
     SetFileName(sFileName);
-    m_ifStream.open(sFileName.c_str());
+    m_ifStream.open(sFileName.c_str(), std::ios::binary);
   }
 
 } // namespace xml
