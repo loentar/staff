@@ -67,6 +67,7 @@ endif
 # == distrib =========================================
 distrib:;
 
+ifeq ($(CROSSCOMPILE),0)
 install:
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
@@ -92,7 +93,11 @@ else
 endif
 endif
 endif
+else
+install:;
+endif
 
+ifeq ($(CROSSCOMPILE),0)
 uninstall:
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
@@ -112,6 +117,8 @@ else
 	rm -f $(APACHEMODDIR)/$(TARGETNAME)
 endif
 endif
+endif
+uninstall:
 endif
 
 
