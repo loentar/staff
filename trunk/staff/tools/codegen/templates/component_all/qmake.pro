@@ -24,6 +24,10 @@ STAFF_HOME   = $\$(STAFF_HOME)
   INSTALL_PATH    = /usr/lib/staff/components/$$COMPONENT
 }
 
+#ifeq($($c++11),true)
+QMAKE_CXXFLAGS += -std=gnu++0x
+#ifeqend
+
 LIBS        += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
 
 #var nLastInterface $(Project.Interfaces.$Count)
@@ -67,7 +71,10 @@ HEADERS     += \\
 staff_service_wrapper_decl.name = staff service wrapper header
 staff_service_wrapper_decl.input = STAFF_INTERFACES
 staff_service_wrapper_decl.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}Wrapper.h
-staff_service_wrapper_decl.commands = $$STAFF_CODEGEN -tcomponent -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h
+staff_service_wrapper_decl.commands = $$STAFF_CODEGEN -tcomponent -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h\
+#ifeq($($c++11),true)
+ -dc++11
+#ifeqend
 staff_service_wrapper_decl.variable_out = GENERATED_FILES
 QMAKE_EXTRA_COMPILERS += staff_service_wrapper_decl
 

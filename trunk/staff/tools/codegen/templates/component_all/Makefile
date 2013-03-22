@@ -61,6 +61,10 @@ SRCDIR = $($SRCDIR)
 OBJDIR = obj/\$(PLATFORM)/
 OUTDIR = out/\$(PLATFORM)/
 
+#ifeq($($c++11),true)
+CXXFLAGS += -std=gnu++0x
+#ifeqend
+
 ifneq (\$(DEBUG),)
   CXXFLAGS += -D_DEBUG -g -O0
   LDFLAGS += -g -O0
@@ -123,10 +127,16 @@ all: make
 \$(NON_CODEGEN_SOURCES): \$(CODEGEN_FILES)
 
 \$(SRCDIR)%Wrapper.h \$(SRCDIR)%Wrapper.cpp:: \$(SRCDIR)%.h
-	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)\
+#ifeq($($c++11),true)
+ -dc++11
+#ifeqend
 
 \$(SRCDIR)ComponentImpl.h \$(SRCDIR)ComponentImpl.cpp:: \$(CODEGEN_INTERFACES)
-	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tcomponent -c\$(SRCDIR) \$(INTERFACES)\
+#ifeq($($c++11),true)
+ -dc++11
+#ifeqend
 
 #ifneq($($bFromInterface),)
 #foreach $(Project.Interfaces)

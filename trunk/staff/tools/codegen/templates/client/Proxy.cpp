@@ -48,6 +48,12 @@
 
 #cginclude <common/Serialization.cpp>
 
+#ifeq($($c++11),true)
+#var SmartPtr std::unique_ptr
+#else
+#var SmartPtr std::auto_ptr
+#ifeqend
+\
 #ifneq($(Interface.Classes.$Count),0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // classes implementation
@@ -72,7 +78,7 @@ public:
                                          const std::string& sSessionId,
                                          const std::string& sInstanceId)
   {
-    std::auto_ptr<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
+    $($SmartPtr)<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
     tpProxy->Init(sServiceUri, sSessionId, sInstanceId);
     return tpProxy.release();
   }
@@ -82,7 +88,7 @@ public:
                                          const std::string& sSessionId,
                                          const std::string& sInstanceId)
   {
-    std::auto_ptr<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
+    $($SmartPtr)<$(Class.Name)Proxy> tpProxy(new $(Class.Name)Proxy);
     tpProxy->Init(sBaseUri + (sServiceName.empty() ? "$(Class.ServiceNsName)" : sServiceName),
                   sSessionId, sInstanceId);
     return tpProxy.release();

@@ -20,6 +20,10 @@ STAFF_HOME   = $\$(STAFF_HOME)
   STAFF_CODEGEN   = staff_codegen
 }
 
+#ifeq($($c++11),true)
+QMAKE_CXXFLAGS += -std=gnu++0x
+#ifeqend
+
 LIBS        += -lstaffutils -lstaffcommon -lstaffclient
 
 #var nLastInterface $(Project.Interfaces.$Count)
@@ -66,7 +70,10 @@ OTHER_FILES += \\
 staff_client_proxy_decl.name  = staff client proxy header
 staff_client_proxy_decl.input = STAFF_INTERFACES
 staff_client_proxy_decl.output  = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}Proxy.h ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.h
-staff_client_proxy_decl.commands = $$STAFF_CODEGEN -tclient -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h
+staff_client_proxy_decl.commands = $$STAFF_CODEGEN -tclient -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h\
+#ifeq($($c++11),true)
+ -dc++11
+#ifeqend
 staff_client_proxy_decl.variable_out = GENERATED_FILES
 QMAKE_EXTRA_COMPILERS += staff_client_proxy_decl
 
