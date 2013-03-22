@@ -23,6 +23,7 @@ make:
 	@$(ECHO) "\n\033[33;1mSkipping Postgresql provider compilation because Postgresql development package is not installed.\033[31;0m\n"
 endif
 else
+POSTGRESQL_DEV_INSTALLED=0
 make:
 	@$(ECHO) "Crosscompilation of postgresql provider is not supported now"
 endif

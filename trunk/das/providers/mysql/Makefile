@@ -23,6 +23,7 @@ make:
 	@$(ECHO) "\n\033[33;1mSkipping MySQL provider compilation because MySQL development package is not installed.\033[31;0m\n"
 endif
 else
+MYSQL_DEV_INSTALLED=0
 make:
 	@$(ECHO) "Crosscompilation of MySQL provider is not supported now"
 endif
