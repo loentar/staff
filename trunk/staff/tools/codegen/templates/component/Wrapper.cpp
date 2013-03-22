@@ -112,7 +112,7 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 \
 #ifneq($($elementForm),)
-  rOperation.GetResponse().SetElementFormQualified($($elementForm.!equals/qualified/));
+  rOperation.GetResponse().SetElementFormDefaultQualified($($elementForm.!equals/qualified/));
 #ifeqend
 \
 #ifneq($($attributeForm),)

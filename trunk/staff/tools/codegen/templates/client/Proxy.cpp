@@ -374,7 +374,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 \
 #ifneq($($elementForm),)
-  rdoRequest.SetElementFormQualified($($elementForm.!equals/qualified/));
+  rdoRequest.SetElementFormDefaultQualified($($elementForm.!equals/qualified/));
 #ifeqend
 \
 #ifneq($($attributeForm),)
