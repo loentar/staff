@@ -22,4 +22,5 @@ See also:
   * [CodegenPlugins codegen plugins list]
   * [CodegenCommandLine codegen command line switches]
   * [CodegenMetacomments codegen metacomments description]
+  * [CodegenDefinitions codegen definitions]
 

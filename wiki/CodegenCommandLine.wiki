@@ -26,3 +26,5 @@ See also:
   * [CodegenPlugins codegen plugins list]
   * [CodegenMetacomments codegen metacomments description]
   * [CodegenTemplates codegen templates list]
+  * [CodegenDefinitions codegen definitions]
+
