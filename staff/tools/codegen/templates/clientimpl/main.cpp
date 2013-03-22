@@ -2,6 +2,11 @@
 // For more information please visit: http://code.google.com/p/staff/
 // Client skeleton
 
+#ifeq($($c++11),true)
+#var SmartPtr std::unique_ptr
+#else
+#var SmartPtr std::auto_ptr
+#ifeqend
 #var HasAsynchOps $($nonblocking)
 #ifeq($($HasAsynchOps),)
 #foreach $(Project.Interfaces)
@@ -93,7 +98,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 #foreach $(Project.Interfaces)
 #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)
-    std::auto_ptr< $(Class.NsName) > p$(Class.ServiceName)(::staff::ServiceFactory::Inst().GetService< $(Class.NsName) >());
+    $($SmartPtr)< $(Class.NsName) > p$(Class.ServiceName)(::staff::ServiceFactory::Inst().GetService< $(Class.NsName) >());
 
     STAFF_ASSERT(p$(Class.ServiceName).get(), "Cannot get client for service $(Class.ServiceNsName)!");
 

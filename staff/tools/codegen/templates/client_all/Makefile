@@ -14,6 +14,10 @@ SRCDIR = $($SRCDIR)
 OBJDIR = obj/\$(PLATFORM)/
 OUTDIR = out/\$(PLATFORM)/
 
+#ifeq($($c++11),true)
+CXXFLAGS += -std=gnu++0x
+#ifeqend
+
 ifneq (\$(DEBUG),)
   CXXFLAGS += -D_DEBUG -g -O0
   LDFLAGS += -g -O0
@@ -63,7 +67,11 @@ all: make
 \$(NON_CODEGEN_SOURCES): \$(CODEGEN_SOURCES)
 
 \$(SRCDIR)%Proxy.h \$(SRCDIR)%Proxy.cpp:: \$(SRCDIR)%.h
-	\$(STAFF_CODEGEN) -u -tclient -c\$(SRCDIR) \$(INTERFACES)
+	\$(STAFF_CODEGEN) -u -tclient -c\$(SRCDIR) \$(INTERFACES)\
+#ifeq($($c++11),true)
+ -dc++11
+#ifeqend
+
 
 # == clean ==========================================
 clean:
