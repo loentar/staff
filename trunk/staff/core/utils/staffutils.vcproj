@@ -732,10 +732,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\LogStream.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Mutex.cpp"
 				>
 			</File>
@@ -819,10 +815,6 @@
 			</File>
 			<File
 				RelativePath=".\src\Log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LogStream.h"
 				>
 			</File>
 			<File
