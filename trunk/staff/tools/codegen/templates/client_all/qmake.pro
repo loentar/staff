@@ -73,6 +73,8 @@ staff_client_proxy_decl.output  = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}Proxy.h $
 staff_client_proxy_decl.commands = $$STAFF_CODEGEN -tclient -c${QMAKE_FILE_PATH} ${QMAKE_FILE_BASE}.h\
 #ifeq($($c++11),true)
  -dc++11
+#else
+
 #ifeqend
 staff_client_proxy_decl.variable_out = GENERATED_FILES
 QMAKE_EXTRA_COMPILERS += staff_client_proxy_decl
