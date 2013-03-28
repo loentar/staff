@@ -96,7 +96,12 @@ namespace staff
 #endif
     size_t nSrcSize = static_cast<size_t>(nSourceSize);
     size_t nOut = nResultSize;
+
+#ifndef sun
     size_t nRet = iconv(m_pIconv, &szSrc, &nSrcSize, &szResult, &nOut);
+#else
+    size_t nRet = iconv(m_pIconv,const_cast<const char **>(&szSrc), &nSrcSize, &szResult, &nOut);
+#endif
 
     if (pnConvertedSize)
     {
@@ -149,7 +154,11 @@ namespace staff
       szSrcCurr = szSrc + nSrcPos;
       szOutTmp = szOutBuff;
 
+#ifndef sun
       nRet = iconv(m_pIconv, &szSrcCurr, &nSrcCurrSizeRead, &szOutTmp, &nOut);
+#else
+      nRet = iconv(m_pIconv, const_cast<const char **>(&szSrcCurr), &nSrcCurrSizeRead, &szOutTmp, &nOut);
+#endif
       if (nRet == static_cast<size_t>(-1))
       {
         switch (errno)

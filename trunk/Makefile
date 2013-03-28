@@ -24,7 +24,7 @@ $(MAKECMDGOALS):
 	-$(MAKE) -Cdistrib $(MAKECMDGOALS)
 	$(MAKE) clean
 	$(MAKE) -C staff/samples clean
-	find das/samples -name Makefile -exec bash -c "echo {} | sed 's/[^\/]*$$//g' | xargs $(MAKE) clean -C" \;
+	find das/samples -name Makefile | sed 's/[^\/]*$$//g' | xargs -L 1 $(MAKE) clean -C
 	find . -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rf
 else
 ifeq ($(MAKECMDGOALS),test)

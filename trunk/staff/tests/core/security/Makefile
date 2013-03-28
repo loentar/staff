@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-  unset STAFF_LOG_LEVEL; LD_LIBRARY_PATH=:../../$(OUTDIR) $(OUTDIR)$(TARGETNAME)
+	unset STAFF_LOG_LEVEL; LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

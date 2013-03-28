@@ -33,8 +33,12 @@
 #if defined __FreeBSD__ || defined __APPLE__
 #define sighandler_t sig_t
 #else
+#if defined sun
+#define sighandler_t struct sigaction
+#else
 #ifdef WIN32
 typedef void (*sighandler_t)(int);
+#endif
 #endif
 #endif
 #endif
@@ -61,22 +65,34 @@ namespace staff
     static sighandler_t m_pPrevSigSegvHandler;
     static sighandler_t m_pPrevSigAbrtHandler;
   };
-  sighandler_t CrashHandlerImpl::m_pPrevSigSegvHandler = NULL;
-  sighandler_t CrashHandlerImpl::m_pPrevSigAbrtHandler = NULL;
+  sighandler_t CrashHandlerImpl::m_pPrevSigSegvHandler;
+  sighandler_t CrashHandlerImpl::m_pPrevSigAbrtHandler;
 
 
   void CrashHandler::Enable()
   {
+#ifndef sun
     CrashHandlerImpl::m_pPrevSigSegvHandler = signal(SIGSEGV, CrashHandlerImpl::OnSignal);
     CrashHandlerImpl::m_pPrevSigAbrtHandler = signal(SIGABRT, CrashHandlerImpl::OnSignal);
+#else
+     sigaction(SIGSEGV, NULL, &CrashHandlerImpl::m_pPrevSigSegvHandler);
+     sigaction(SIGABRT, NULL, &CrashHandlerImpl::m_pPrevSigAbrtHandler);
+     signal(SIGSEGV, CrashHandlerImpl::OnSignal);
+     signal(SIGABRT, CrashHandlerImpl::OnSignal);
+#endif
   }
 
   void CrashHandler::Disable()
   {
+#ifndef sun
     signal(SIGSEGV, CrashHandlerImpl::m_pPrevSigSegvHandler);
-    CrashHandlerImpl::m_pPrevSigSegvHandler = NULL;
     signal(SIGABRT, CrashHandlerImpl::m_pPrevSigAbrtHandler);
+    CrashHandlerImpl::m_pPrevSigSegvHandler = NULL;
     CrashHandlerImpl::m_pPrevSigAbrtHandler = NULL;
+#else
+    sigaction(SIGSEGV, &CrashHandlerImpl::m_pPrevSigSegvHandler,NULL);
+    sigaction(SIGABRT, &CrashHandlerImpl::m_pPrevSigAbrtHandler,NULL);
+#endif
   }
   
 } // namespace staff

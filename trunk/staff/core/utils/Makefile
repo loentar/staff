@@ -31,6 +31,7 @@ ifeq ($(OS),MINGW)
 LDFLAGS += -limagehlp
 endif
 
+ifneq ($(OS),SunOS)
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
   LDFLAGS += -ldl
@@ -41,6 +42,7 @@ WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus
 CXXFLAGS += $(WITH_BFD)
 ifneq ($(WITH_BFD),)
   LDFLAGS += -lbfd -liberty
+endif
 endif
 endif
 endif

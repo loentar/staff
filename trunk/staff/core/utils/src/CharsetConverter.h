@@ -26,10 +26,14 @@
 #include <string>
 #include "staffutilsexport.h"
 
+#if !defined sun || !defined WITH_ICONV
 extern "C"
 {
   typedef void* iconv_t;
 }
+#else
+#include <iconv.h>
+#endif
 
 namespace staff
 {

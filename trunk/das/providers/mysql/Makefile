@@ -1,6 +1,6 @@
 include ../../Makefile.env
 
-MYSQL_DEV_INSTALLED := $(shell whereis mysql 2>/dev/null | grep include -c)
+MYSQL_DEV_INSTALLED := $(shell $(WHEREISCMD) mysql 2>/dev/null | grep -c include)
 
 COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql

@@ -28,7 +28,10 @@
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
+#define _STDC_C99
+#define _POSIX_C_SOURCE 200112L
 #include <pthread.h>
+#undef _STDC_C99
 #endif
 #include "Mutex.h"
 

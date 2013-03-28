@@ -1,6 +1,6 @@
 include ../../Makefile.env
 
-POSTGRESQL_DEV_INSTALLED := $(shell whereis postgresql pgsql 2>/dev/null | grep include -c)
+POSTGRESQL_DEV_INSTALLED := $(shell $(WHEREISCMD) postgresql pgsql 2>/dev/null | grep -c include)
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres

@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-  unset STAFF_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
+	unset STAFF_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(LD_LIBRARY_PATH):$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

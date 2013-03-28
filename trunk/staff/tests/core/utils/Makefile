@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-	LD_LIBRARY_PATH=$(DEPLOYDIR)lib $(OUTDIR)$(TARGETNAME)
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)
