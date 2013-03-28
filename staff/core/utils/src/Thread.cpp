@@ -159,7 +159,7 @@ namespace staff
 #ifdef WIN32
     return reinterpret_cast<unsigned long>(GetCurrentThread());
 #else
-#ifdef __linux__
+#if defined __linux__ || defined sun
     return static_cast<unsigned long>(pthread_self());
 #else
     return reinterpret_cast<unsigned long>(pthread_self());
@@ -169,7 +169,7 @@ namespace staff
 
   unsigned long Thread::GetId() const
   {
-#ifdef __linux__
+#if defined __linux__ || defined sun
     return static_cast<unsigned long>(m_pImpl->hThread);
 #else
     return reinterpret_cast<unsigned long>(m_pImpl->hThread);
