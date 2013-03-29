@@ -77,9 +77,11 @@ Currently WSF Staff has been ported to following platforms:
   * Microsoft Windows;
   * Mac OS X;
   * FreeBSD;
-  * Android.
+  * Android;
+  * SunOS;
+  * Solaris.
 
-Tested on x86 and x86_64 platforms under Ubuntu 9.10-11.10, Debian Lenny, Debian Squeeze, RHEL 5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1.
+Tested on x86 and x86_64 platforms under Ubuntu 9.10-11.10, Debian Lenny, Debian Squeeze, RHEL 5, Windows XP SP2, Windows Vista, Windows 7, Mac OS X 10.5.5, FreeBSD 8.1, SunOS 5.10.
 
 Android version tested on: Galaxy Tab 10.1, Google Nexus S, Emulator.
 
