@@ -19,9 +19,9 @@
  *  Please, visit http://code.google.com/p/staff for more infor mation.
  */
 
+#include <time.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 #if defined __MINGW32__
 #include <pthread.h> // for localtime_r
