@@ -27,6 +27,10 @@ LDFLAGS += -liconv
 endif
 endif
 
+ifeq ($(OS),FreeBSD)
+LDFLAGS += -lcompat
+endif
+
 ifeq ($(OS),MINGW)
 LDFLAGS += -limagehlp
 endif
