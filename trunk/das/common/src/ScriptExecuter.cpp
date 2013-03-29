@@ -47,10 +47,9 @@ namespace das
     staff::DataObject tdoValue;
   };
 
-  template <typename Type>
-  LogStream& operator<<(LogStream& rStream, const std::list<Type>& rList)
+  LogStream& operator<<(LogStream& rStream, const StringList& rList)
   {
-    typename std::list<Type>::const_iterator itItem = rList.begin();
+    StringList::const_iterator itItem = rList.begin();
     if (itItem != rList.end())
     {
       rStream << *itItem;
