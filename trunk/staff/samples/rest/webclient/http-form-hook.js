@@ -44,6 +44,7 @@
 
   function onFormSubmit(oEvent)
   {
+    var bJson = $("#json")[0].checked;
     var oForm = $(oEvent.target);
     var sMethod = oForm.attr('method');
     var sParams = oForm.serialize();
@@ -52,12 +53,12 @@
       type: sMethod,
       async: true,
       url: sRestUrl,
-      dataType: "text",
+      dataType: bJson ? "json" : "text",
       processData: false
     };
 
     if (sMethod === "POST" || sMethod === "PUT")
-    { 
+    {
       // create JSON object in form as follows:
       // {
       //    "OpName": {
@@ -73,12 +74,21 @@
       for (var i = 0, len = oParams.length; i < len; ++i)
       {
         var oPair = oParams[i].split('=');
-        oObjProps[oPair[0]] = oPair[1];
+        oObjProps[oPair[0]] = unescape(oPair[1].replace(/\+/g, ' '));
       }
 
-      // convert JSON to XML and set it as request
-      oRequestInfo.data = jsonToXml(oRequest);
-      oRequestInfo.contentType = "text/xml";
+      if (bJson)
+      {
+        // use generated JSON as request
+        oRequestInfo.data = JSON.stringify(oRequest);
+        oRequestInfo.contentType = "application/json; charset=utf-8";
+      }
+      else
+      {
+        // convert JSON to XML and set it as request
+        oRequestInfo.data = jsonToXml(oRequest);
+        oRequestInfo.contentType = "text/xml";
+      }
     }
     else // create URL with params
     {
@@ -86,11 +96,16 @@
       {
         oRequestInfo.url += "/" + sParams;
       }
-      oRequestInfo.contentType = oForm[0].encoding;
+      oRequestInfo.contentType = bJson ?
+          "application/json; charset=utf-8" : oForm[0].encoding;
     }
+
 
     function onSuccess(sResult)
     {
+      if (bJson)
+        sResult = JSON.stringify(sResult);
+
       oResult.text(sResult);
       oResult.css("color", "");
     }
@@ -117,6 +132,7 @@
                             "<pre id=\"result\" style=\"word-wrap: break-word\"/></div>");
     oResult = $("#result");
 
+    oBody.append("<p/><input type=\"checkbox\" id=\"json\"></input><label for=\"json\">use JSON</label>");
     oBody.append("<p/><a href=\"javascript:history.go(-1)\">&lt;&lt;&lt; back</a>");
   });
 
