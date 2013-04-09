@@ -10,12 +10,7 @@ DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/services/staff/
 
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -laxutil -laxis2_engine
-ifeq ($(OS),MINGW) # axis2/c library naming bug?
-  LDFLAGS += -laxiom
-else
-  LDFLAGS += -laxis2_axiom
-endif
+LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib $(LDAXIS2LIBS)
 LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent -lstaffsecurity -lstdc++
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 

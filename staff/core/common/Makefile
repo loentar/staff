@@ -6,14 +6,7 @@ CXXFLAGS += -c -I$(DEPLOYDIR)include
 ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_COMMON_DLL_EXPORTS=1 -DAXIS2_DECLARE_EXPORT
 endif
-LDFLAGS += -lstaffutils -laxutil -laxis2_engine
-ifeq ($(OS),MINGW) # axis2/c library naming bug?
-  LDFLAGS += -laxiom
-else
-  LDFLAGS += -laxis2_axiom
-endif
-LDFLAGS += $(LDAXIS2LIBS)
-
+LDFLAGS += $(LDAXIS2LIBS) -lstaffutils
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

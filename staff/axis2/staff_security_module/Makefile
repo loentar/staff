@@ -9,16 +9,7 @@ INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff_security/
 
 CFLAGS += -c -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR)
 CFLAGS += -DLIBRARY_VEREXT=\"$(LIBVEREXT)\"
-LFLAGS += -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR)
-LFLAGS += -laxutil -laxis2_engine
-ifeq ($(OS),MINGW) # axis2/c library naming bug, is axis2_http_common staticaly built in axis2_http_sender/receiver?
-  LFLAGS += -laxiom
-else
-  LFLAGS += -laxis2_axiom
-ifeq ($(ANDROID),)
-  LFLAGS +=  -laxis2_http_common
-endif
-endif
+LFLAGS += -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR) $(LDAXIS2LIBS)
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
   LFLAGS += -ldl
