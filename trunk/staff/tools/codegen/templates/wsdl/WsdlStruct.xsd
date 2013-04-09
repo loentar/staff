@@ -95,7 +95,7 @@
               <annotation><documentation>$(Param.Description)</documentation></annotation>
 #ifeqend
               <sequence>
-                <element name="Item" type="\
+                <element name="$(Param.Options.*itemName||"Item")" type="\
 #cginclude "WsdlDataType.xsd"
 "/>
               </sequence>

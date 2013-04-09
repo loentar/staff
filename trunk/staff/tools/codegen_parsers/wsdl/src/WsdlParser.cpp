@@ -2417,6 +2417,7 @@ namespace codegen
             stTypedef.stDataType.sNamespace = "std::";
             stTypedef.stDataType.eType = DataType::TypeTemplate;
             stTypedef.mOptions["useParentElement"] = "true";
+            stTypedef.mOptions["itemName"] = stStruct.sName;
 
             DataType stTypedefDataType;
             stTypedefDataType.eType = DataType::TypeTypedef;
@@ -2542,6 +2543,7 @@ namespace codegen
           if (itElement->bIsArray)
           {
             stMember.mOptions["useParentElement"] = "true";
+            stMember.mOptions["itemName"] = pElement->sName;
           }
 
           if (stMember.sName.empty())

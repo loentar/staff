@@ -167,9 +167,9 @@ $($doName).FirstChild()\
 #ifeq($(.Type),template)                                       // ==== template ====
   for (staff::DataObject tdoItem = $($sdoParam).FirstChild(); !tdoItem.IsNull(); tdoItem.SetNextSibling())
   {
-#var sElementName $($sElementName||.Options.*elementName||"Item")
+#var sItemName $(.Options.*itemName||"Item")
 #ifneq($($bUseParentElement),true||1)
-    if (tdoItem.GetLocalName() == "$($sElementName)")
+    if (tdoItem.GetLocalName() == "$($sItemName)")
     {
 #indent +
 #else

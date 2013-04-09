@@ -134,13 +134,13 @@
   for ($(.NsName)::const_iterator itItem = ($($sOptMod)$($sParam)).begin(), itItemEnd = ($($sOptMod)$($sParam)).end();
        itItem != itItemEnd; ++itItem)
   {
-#var sElementName $($sElementName||.Options.*elementName||"Item")
+#var sItemName $(.Options.*itemName||"Item")
 #ifeq($(.Name),map||multimap)                                  // ==== map ====
 #ifeq($($bUseParentElement),true||1)
 #var sdoItem $($doName)
 #else
 #var sdoItem tdoItem
-    staff::DataObject $($sdoItem) = $($doName).CreateChild("$($sElementName)");
+    staff::DataObject $($sdoItem) = $($doName).CreateChild("$($sItemName)");
 #ifeqend
 \
 #indent +
@@ -180,7 +180,7 @@
 #ifeq($($bUseParentElement),true||1)
 #var sdoItem $($doName)
 #else
-#var sdoParam $($doName).CreateChild("$($sElementName)")
+#var sdoParam $($doName).CreateChild("$($sItemName)")
 #ifeqend
 #var bUseParentElement
 #cginclude "TypeSerialization.cpp"
