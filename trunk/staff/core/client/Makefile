@@ -7,16 +7,7 @@ ifeq ($(OS),MINGW)
   CXXFLAGS += -DSTAFF_CLIENT_DLL_EXPORTS=1
 endif
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffutils -lstaffcommon -laxutil -laxis2_engine
-ifeq ($(OS),MINGW) # axis2/c library naming bug?
-  LDFLAGS += -laxiom
-else
-  LDFLAGS += -laxis2_axiom
-ifeq ($(ANDROID),)
-  LDFLAGS += -laxis2_http_common
-endif
-endif
-LDFLAGS += -laxis2_parser
+LDFLAGS += -lstaffutils -lstaffcommon $(LDAXIS2LIBS)
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

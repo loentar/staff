@@ -8,12 +8,7 @@ DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/modules/staff/
 INSTALLLIBDIR = $(AXIS2C_HOME)/modules/staff/
 
 CFLAGS += -c -I$(AXIS2C_INCDIR)
-LFLAGS += -L$(AXIS2C_LIBDIR) -laxutil -laxis2_engine
-ifeq ($(OS),MINGW) # axis2/c library naming bug?
-  LFLAGS += -laxiom
-else
-  LFLAGS += -laxis2_axiom
-endif
+LFLAGS += -L$(AXIS2C_LIBDIR) $(LDAXIS2LIBS)
 LFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))

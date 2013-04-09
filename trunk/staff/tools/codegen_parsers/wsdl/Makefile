@@ -5,15 +5,8 @@ LIBTARGETVER = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffcgparser-$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser -laxis2_http_sender -laxutil $(HOSTLDFLAGS)
-ifneq ($(OS),MINGW)
-ifeq ($(ANDROID),)
-  LDFLAGS += -laxis2_http_common
-endif
-else
-  LDFLAGS += -laxis2_engine
-  CXXFLAGS += -DAXIS2_DECLARE_EXPORT
-endif
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcodegenparser
+LDFLAGS += $(LDAXIS2LIBS) -laxis2_http_sender $(HOSTLDFLAGS)
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
