@@ -36,11 +36,7 @@
 #else
         <sequence>
 #ifeq($(Typedef.DataType.Name),list||vector)  // -- list ------------------
-#ifneq($(Typedef.Options.*elementName),)
-#var ElementName $(Typedef.Options.*elementName)
-#else
-#var ElementName Item
-#ifeqend
+#var ElementName $(Typedef.Options.*itemName||"Item")
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
           <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)">
             <complexType>
@@ -54,11 +50,11 @@
 #context $(Typedef.DataType.TemplateParams.TemplateParam1)
 #cginclude "WsdlDataType.xsd"
 #contextend
-" nillable="true" />
+" />
 #ifeqend
 #else // bool
 #ifeq($(Typedef.DataType.Name),map||multimap) // -- map -------------------------
-          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" nillable="true">
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)">
             <complexType>
               <sequence>
 #ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
