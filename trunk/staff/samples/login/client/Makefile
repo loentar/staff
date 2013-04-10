@@ -32,7 +32,7 @@ $(OBJDIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
-	bash test "$@" -nt "$^" || (cd src && $(STAFF_CODEGEN) $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
+	[ "$@" -nt "$^" ] || (cd src && $(STAFF_CODEGEN) $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
