@@ -238,7 +238,7 @@
 >
         <complexType>
           <sequence>
-            <element name="$(Param.Options.*itemName||"Item")" type="\
+            <element name="$(.Options.*itemName||"Item")" type="\
 #cginclude "WsdlDataType.xsd"
 "/>
           </sequence>
