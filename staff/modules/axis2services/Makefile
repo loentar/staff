@@ -71,7 +71,8 @@ ifeq ($(CROSSCOMPILE),0)
 install:
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
-	cp -f conf/$(TARGET).load conf/$(TARGET).conf /etc/apache2/mods-available/
+	test -e /etc/apache2/mods-available/$(TARGET).conf || cp -f conf/$(TARGET).conf /etc/apache2/mods-available/
+	test -e /etc/apache2/mods-available/$(TARGET).load || cp -f conf/$(TARGET).load /etc/apache2/mods-available/
 	$(LN) ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
 	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
@@ -82,13 +83,13 @@ ifeq ($(LINUX_VERSION),debian)
 else
 ifeq ($(APXS),/www/bin/apxs)
 	mkdir -p /www/conf/mods-enabled/
-	cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > /www/conf/mods-enabled/$(TARGET).conf
+	test -e /www/conf/mods-enabled/$(TARGET).conf || cat conf/$(TARGET).load conf/$(TARGET).conf | sed 's/\/usr\/lib\/apache2\//\/www\//g' > /www/conf/mods-enabled/$(TARGET).conf
 	grep -q 'Include conf/mods-enabled/\*' /www/conf/httpd.conf || echo -e '\nInclude conf/mods-enabled/*\n\n' >> /www/conf/httpd.conf
 	cp -f $(TARGETNAME) /www/modules/
 else
 	test ! -z "$(APACHECONFDIR)" -a -d "$(APACHECONFDIR)"
 	test ! -z "$(APACHEMODDIR)" -a -d "$(APACHEMODDIR)"
-	cat conf/$(TARGET).load conf/$(TARGET).conf > $(APACHECONFDIR)/$(TARGET).conf
+	test -e $(APACHECONFDIR)/$(TARGET).conf || cat conf/$(TARGET).load conf/$(TARGET).conf > $(APACHECONFDIR)/$(TARGET).conf
 	cp -f $(TARGETNAME) $(APACHEMODDIR)
 endif
 endif
