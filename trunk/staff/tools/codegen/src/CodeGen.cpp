@@ -1397,14 +1397,26 @@ namespace codegen
           STAFF_ASSERT(!sFileName.empty(), "#fileopen: Filename is empty");
 
           sFileName = m_sOutDir + sFileName;
+          const std::string& sFailedFileName = sFileName + ".failed";
 
           std::ofstream ofsFile(sFileName.c_str());
           STAFF_ASSERT(ofsFile.good(), "can't open output file: " + sFileName);
 
           std::cout << "Generating " << sFileName << std::endl;
           m_nIndent = 0;
-          Process(fsIn, ofsFile, rElement);
+          try
+          {
+            Process(fsIn, ofsFile, rElement);
+          }
+          catch(...)
+          {
+            ofsFile.close();
+            ::unlink(sFailedFileName.c_str());
+            ::rename(sFileName.c_str(), sFailedFileName.c_str());
+            throw;
+          }
           ofsFile.close();
+          ::unlink(sFailedFileName.c_str());
         }
         else
         if (sLine.substr(0, 10) == "#fileclose")

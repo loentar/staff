@@ -103,10 +103,6 @@ rstStruct\
 #ifeqend
 )
 {
-#ifneq($(Interface.Options.*targetNamespace),)
-  rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
-#ifeqend
-\
 #ifneq($(Struct.ParentName),)
   // serialize parent struct
   rdoParam << static_cast< const struct $(Struct.ParentNsName)& >(rstStruct);

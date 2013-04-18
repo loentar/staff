@@ -35,11 +35,6 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 #cginclude "TypeSerialization.cpp"
 #contextend
 #cgpopvars
-\
-#ifneq($(Interface.Options.*targetNamespace),)
-  rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
-#ifeqend
-\
   return rdoParam;
 }
 
