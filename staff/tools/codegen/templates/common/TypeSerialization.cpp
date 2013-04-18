@@ -6,8 +6,8 @@
 \
 \
 \
-#var elementForm
-#var attributeForm
+#var elementForm $(Interface.Options.*elementFormDefault)
+#var attributeForm $(Interface.Options.*attributeFormDefault)
 \
 #ifeq($(.Name),Nillable||Optional)
 #var recreateChild false
@@ -26,9 +26,8 @@
 #var elementForm $(.Options.form)
 #ifeqend
 #ifeqend
-\
-#ifneq($($elementForm)$($attributeForm),)
-#var recreateChild true
+#ifeq($(.Options.*isRef),true||1)
+#var elementForm qualified
 #ifeqend
 \
 #ifeqend // Nillable||Optional
@@ -61,11 +60,10 @@
 #ifeqend
 #else // not optional or nillable
 \
-#ifneq($($elementForm),)
-  $($doName).SetElementFormQualified($($elementForm.!equals/qualified/));
+#ifeq($($elementForm),qualified)
+#ifneq($(.Type),generic||string)
+  $($doName).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
 #ifeqend
-#ifneq($($attributeForm),)
-  $($doName).SetAttributeFormDefaultQualified($($attributeForm.!equals/qualified/));
 #ifeqend
 \
 \
@@ -81,16 +79,26 @@
 #else                                        // ######### not abstract #####################
 \
 #ifeq($(.Options.*isAttribute),true||1)      // serialize to attribute
+\
+#ifeq($($attributeForm),qualified)
+  std::string sPrefix$($sParamName);
+  $($doName).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", &sPrefix$($sParamName), false);
+#var sAttrPrefix sPrefix$($sParamName) + ": \
+#else
+#var sAttrPrefix "
+#ifeqend
+\
 #ifeq($(.Type),generic||string||typedef)
-  $($doName).CreateAttribute("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
+  $($doName).CreateAttribute($($sAttrPrefix)$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #else
 #ifeq($(.Type),enum)
-  $($doName).CreateAttribute("$(.Options.*elementName||$sParamName)", \
-::staff::SerializeEnum_$(.NsName.!mangle)_ToString($($sOptMod)$($sParam)));
+  $($doName).CreateAttribute($($sAttrPrefix)$(.Options.*elementName||$sParamName)", \
+::staff::SerializeEnum_$(.NsName.!mangle)_ToString($($sOptMod)$($sParam))$($attrFormDecl));
 #else
 #cgerror Cannot serialize type $(.Type) to attribute value. $($sParamName)
 #ifeqend
 #ifeqend
+\
 #else                                        // ############ common serialization ##########
 \
 \
@@ -103,7 +111,12 @@
   }
 #else
 #ifeq($($sdoParam.!match/.CreateChild/),true)
+#ifeq($($elementForm),qualified)
+#var doName tdoParam$($sParamName)
+  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+#else
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
+#ifeqend
 #else
   $($doName).SetValue($($sOptMod)$($sParam));
 #ifeqend  // param optimization

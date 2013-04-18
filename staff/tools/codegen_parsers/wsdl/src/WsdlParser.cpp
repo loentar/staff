@@ -1401,15 +1401,15 @@ namespace codegen
         rMember.stReturn.stDataType.sName = "void";
       }
 
-      // response
+      // fault
       const xml::Element* pElemFault = rOperation.FindChildElementByName("fault");
       if (pElemFault)
       {
-        std::string sResponseName = StripPrefix(pElemFault->GetAttributeValue("message"));
+        std::string sFaultName = StripPrefix(pElemFault->GetAttributeValue("message"));
 
-        const xml::Element* pMessage = FindElemMatch(rDefs, "message", "name", sResponseName);
+        const xml::Element* pMessage = FindElemMatch(rDefs, "message", "name", sFaultName);
 
-        STAFF_ASSERT(pMessage, "Can't find message definition(output) for: " + sResponseName);
+        STAFF_ASSERT(pMessage, "Can't find message definition(fault) for: " + sFaultName);
 
         ParseFault(rMember, *pMessage, rWsdlTypes);
         bHasOutput = true;
@@ -2529,6 +2529,11 @@ namespace codegen
           if (FixId(stMember.sName))
           {
             stMember.mOptions["elementName"] = StripPrefix(pElement->sName);
+          }
+
+          if (itElement->bIsRef)
+          {
+            stMember.mOptions["isRef"] = "true";
           }
 
           if (!itElement->bIsRef && itElement->stType.sName.empty())

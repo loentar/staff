@@ -20,10 +20,6 @@ std::string SerializeEnum_$(Enum.NsName.!mangle)_ToString(const $(Enum.NsName) e
 
 DataObject& operator<<(DataObject& rdoParam, const $(Enum.NsName) eEnumValue)
 {
-#ifneq($(Interface.Options.*targetNamespace),)
-  rdoParam.SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", true);
-#ifeqend
-\
   rdoParam.SetText(SerializeEnum_$(Enum.NsName.!mangle)_ToString(eEnumValue));
   return rdoParam;
 }

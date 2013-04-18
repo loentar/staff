@@ -364,28 +364,7 @@ $(Member.Return) $(Class.Name)Proxy::$(Member.Name)($(Member.Params))$(Member.Co
 #ifeqend
 );
   staff::DataObject& rdoRequest = tOperation.Request();
-#ifneq($(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace),)
-  rdoRequest.SetNamespaceUriGenPrefix("$(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace)");
-#ifeqend
-\
-#var elementForm $(Interface.Options.*elementFormDefault)
-#var attributeForm $(Interface.Options.*attributeFormDefault)
-\
-#ifneq($(Member.Options.*form),)
-#ifeq($(Member.Options.*attribute),true||1)
-#var attributeForm $(Member.Options.form)
-#else
-#var elementForm $(Member.Options.form)
-#ifeqend
-#ifeqend
-\
-#ifneq($($elementForm),)
-  rdoRequest.SetElementFormDefaultQualified($($elementForm.!equals/qualified/));
-#ifeqend
-\
-#ifneq($($attributeForm),)
-  rdoRequest.SetAttributeFormDefaultQualified($($attributeForm.!equals/qualified/));
-#ifeqend
+  rdoRequest.SetNamespaceUriGenPrefix("$(Member.Options.*requestTargetNamespace||Interface.Options.*targetNamespace||"http://tempui.org/$(Class.ServiceNsName)")");
 \
 #ifeq($($bGenerateBody),1) // do not generate the body for REST GET method
 #ifneq($(Member.Params.$Count),0)

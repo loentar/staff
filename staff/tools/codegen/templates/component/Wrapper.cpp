@@ -98,28 +98,6 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #ifeqend
 #ifeqend
 \
-#ifneq($(Member.Options.*mep),in-only)
-\
-#var elementForm $(Interface.Options.*elementFormDefault)
-#var attributeForm $(Interface.Options.*attributeFormDefault)
-\
-#ifneq($(Member.Options.*form),)
-#ifeq($(Member.Options.*attribute),true||1)
-#var attributeForm $(Member.Options.form)
-#else
-#var elementForm $(Member.Options.form)
-#ifeqend
-#ifeqend
-\
-#ifneq($($elementForm),)
-  rOperation.GetResponse().SetElementFormDefaultQualified($($elementForm.!equals/qualified/));
-#ifeqend
-\
-#ifneq($($attributeForm),)
-  rOperation.GetResponse().SetAttributeFormDefaultQualified($($attributeForm.!equals/qualified/));
-#ifeqend
-#ifeqend
-\
 #ifneq($(Member.Options.*resultElement),)
       rOperation.SetResultName("$(Member.Options.*resultElement)");
 #ifeqend
@@ -254,9 +232,9 @@ $(Param.Name)\
 #else
 #ifneq($(Member.Options.*responseTargetNamespace),)
 #ifneq($(Class.Options.*targetNamespacePrefix),)
-    rOperation.GetResponse().SetNamespace("$(Member.Options.*responseTargetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
+      rOperation.GetResponse().SetNamespace("$(Member.Options.*responseTargetNamespace)", "$(Class.Options.*targetNamespacePrefix)");
 #else
-    rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Member.Options.*responseTargetNamespace)");
+      rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Member.Options.*responseTargetNamespace)");
 #ifeqend
       return;
 #else
@@ -279,11 +257,7 @@ $(Param.Name)\
     rOperation.GetResponse().SetNamespace("http://tempui.org/" + m_pComponent->GetName(), "$(Class.Options.*targetNamespacePrefix)");
 #ifeqend
 #else
-#ifneq($(Class.Options.*targetNamespace),)
-    rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Class.Options.*targetNamespace)");
-#else
-    rOperation.GetResponse().SetNamespaceUriGenPrefix("http://tempui.org/" + m_pComponent->GetName());
-#ifeqend
+    rOperation.GetResponse().SetNamespaceUriGenPrefix("$(Class.Options.*targetNamespace||Interface.Options.*targetNamespace||"http://tempui.org/$(Class.ServiceNsName)")");
 #ifeqend
   }
 }

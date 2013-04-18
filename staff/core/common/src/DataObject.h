@@ -273,21 +273,19 @@ namespace staff
 
     //! set namespace uri and generate prefix for it in top node
     /*! \param  szUri - namespace uri (C-string)
-        \param  bChildsOnly - apply namespace only to newly created child elements and
-                                do not apply it to current element
         \param  psPrefix - generated prefix
+        \param  bSetNamespace - set created namespace
       */
-    void SetNamespaceUriGenPrefix(const char* szUri, bool bChildsOnly = false,
-                                  std::string* psPrefix = NULL);
+    void SetNamespaceUriGenPrefix(const char* szUri, std::string* psPrefix = NULL,
+                                  bool bSetNamespace = true);
 
     //! set namespace uri and generate prefix for it in top node
     /*! \param  sUri - namespace uri
-        \param  bChildsOnly - apply namespace only to newly created child elements and
-                                do not apply it to current element
+        \param  bSetNamespace - set created namespace
         \param  psPrefix - generated prefix
       */
-    void SetNamespaceUriGenPrefix(const std::string& sUri, bool bChildsOnly = false,
-                                  std::string* psPrefix = NULL);
+    void SetNamespaceUriGenPrefix(const std::string& sUri, std::string* psPrefix = NULL,
+                                  bool bSetNamespace = true);
 
     //////////////////////////////////////////////////////////////////////////
     // node management
@@ -427,22 +425,6 @@ namespace staff
 
     //////////////////////////////////////////////////////////////////////////
     // child nodes management
-
-    //! use qualified form for this element and while creating childs
-    /*! note: it does not change form to unqualified if it was qualified previously
-        \param  bQualified - true - use qualified form, false - use unqualified form
-      */
-    void SetElementFormQualified(bool bQualified = true);
-
-    //! use qualified form while creating childs
-    /*! \param  bQualified - true - use qualified form, false - use unqualified form
-      */
-    void SetElementFormDefaultQualified(bool bQualified = true);
-
-    //! get default element form while creating childs
-    /*! \return true - using qualified form, false - using unqualified form
-      */
-    bool IsElementFromDefaultQualified() const;
 
     //! get first child element
     /*! \return first child element
@@ -1074,16 +1056,6 @@ namespace staff
     //////////////////////////////////////////////////////////////////////////
     // attribute management
 
-    //! use qualified form while creating attributes
-    /*! \param  bQualified - true - use qualified form, false - use unqualified form
-      */
-    void SetAttributeFormDefaultQualified(bool bQualified = true);
-
-    //! get default element form while creating attributes
-    /*! \return true - using qualified form, false - using unqualified form
-      */
-    bool IsAttributeFromDefaultQualified() const;
-
     // optimized create attribute functions
     void CreateAttribute(const char* szAttrName, bool bValue);
     void CreateAttribute(const char* szAttrName, byte btValue);
@@ -1484,18 +1456,17 @@ namespace staff
         */
     axiom_node_t* Clone(axiom_node_t* pNodeIn, axiom_node_t* pNodeOutParent);
 
-    //! internal constructor for childs
+    //! internal constructor for children
     DataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement);
 
     const char* GetChildTextByLocalNameC(const char* szLocalName) const;
 
+//    axiom_namespace_t* GetDeclaredNamespace();
+
   private:
     axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node
     axiom_element_t* m_pAxiomElement;   //!<  DataObject's AxiOM node element
-    axiom_namespace_t* m_pChildNs;      //!<  namespace to create childs within
-    bool m_bOwner;                      //!<  ownership flag
-    bool m_bElemFormDefaultQualified;   //!<  use qualified form while creating childs
-    bool m_bAttrFormDefaultQualified;   //!<  use qualified form while creating attributes
+    mutable bool m_bOwner;              //!<  ownership flag
     static axutil_env_t* m_pEnv;        //!<  Axis2/C environment
 
     friend class Iterator;
