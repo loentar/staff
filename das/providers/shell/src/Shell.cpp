@@ -29,7 +29,6 @@
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Operation.h>
-#include <staff/security/tools.h>
 #include <staff/component/SharedContext.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/das/common/DataSource.h>

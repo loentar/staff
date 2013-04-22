@@ -8,13 +8,19 @@ ifeq ($(OS),MINGW)
 endif
 
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
-LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffsecurity
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
 HEADERS := $(wildcard $(patsubst %,%*.h*,$(SRCDIR)))
 SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
+ifneq ($(WITHOUT_SECURITY),)
+HEADERS := $(filter-out $(SRCDIR)SessionManager.h,$(HEADERS))
+SOURCES := $(filter-out $(SRCDIR)SessionManager.cpp,$(SOURCES))
+else
+LDFLAGS += -lstaffsecurity
+endif
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================

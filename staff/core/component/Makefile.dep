@@ -1,3 +1,6 @@
 
+ifeq ($(WITHOUT_SECURITY),)
 core/component.dep: core/common.dep core/security.dep core/xml.dep
-
+else
+core/component.dep: core/common.dep core/xml.dep
+endif

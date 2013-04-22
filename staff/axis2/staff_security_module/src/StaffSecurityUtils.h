@@ -25,8 +25,14 @@
 #include <axis2_module_desc.h>
 #include <axis2_msg_ctx.h>
 
-#define AXIS2_UTILS_CHECK(expression) \
-  if(!(expression)) { printf("error: %s[%d]: %s\n", GetBaseFile(__FILE__), __LINE__, #expression); return AXIS2_FAILURE; }
+#define AXIS2_UTILS_ASSERT(env, expression, description) \
+  if(!(expression)) { \
+    fprintf(stderr, "Assertion failed: %s[%d]: %s (%s)\n", GetBaseFile(__FILE__), __LINE__, \
+           description, #expression); \
+    AXIS2_ERROR_SET_MESSAGE(env->error, description); \
+    AXIS2_ERROR_SET_ERROR_NUMBER(env->error, AXUTIL_ERROR_MAX + 2); \
+    AXIS2_ERROR_SET_STATUS_CODE(env->error, AXIS2_FAILURE); \
+    return AXIS2_FAILURE; }
 
 #ifdef _DEBUG
 #define dprintf printf("%s[%d]: staff_security: ", GetBaseFile(__FILE__), __LINE__); printf
@@ -34,8 +40,9 @@
 #define dprintf(...)
 #endif
 
-axis2_status_t GetServiceOperationPath(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
-                                       axis2_char_t** psServiceOperationPath, axis2_char_t** pszServiceName);
+axis2_status_t GetOperationName(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                                const axis2_char_t** pszOperationName);
+
 void GetSessionAndInstanceId(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
                              const axis2_char_t** pszSessionId, const axis2_char_t** pszInstanceId);
 const char* GetBaseFile(const char* szFilePath);

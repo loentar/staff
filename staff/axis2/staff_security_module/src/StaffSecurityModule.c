@@ -39,8 +39,6 @@
 #include <axis2_util.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
-#include <axis2_http_header.h>
-#include <axis2_http_transport.h>
 #include <staff/security/tools.h>
 #include "StaffSecurityUtils.h"
 
@@ -78,30 +76,28 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
   if (g_bIsSvrSide)
   {
     axis2_char_t* szServiceOperationPath = NULL;
-    const axis2_char_t* szHttpHost = NULL;
     const axis2_char_t* szSessionId = NULL;
     const axis2_char_t* szInstanceId = NULL;
-    axis2_char_t* szServiceName = NULL;
-    axutil_hash_t * pHashHeaders = NULL;
+    const axis2_char_t* szServiceName = NULL;
     int nAccess = 0;
+    axutil_property_t* pProp = NULL;
+    axis2_svc_t* pService = NULL;
+    const axis2_char_t* szOperation = NULL;
 
-    AXIS2_UTILS_CHECK(g_pstaff_security_calc_fn);
+    AXIS2_UTILS_ASSERT(pEnv, g_pstaff_security_calc_fn, "Failed to get staff_security_calc_fn");
 
-    pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);
+    pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
+    AXIS2_UTILS_ASSERT(pEnv, pService, "Failed to get service object");
 
-    if (pHashHeaders != NULL)
-    {
-      axis2_http_header_t* pHostHeader = (axis2_http_header_t *) axutil_hash_get(
-          pHashHeaders, AXIS2_HTTP_HEADER_HOST, AXIS2_HASH_KEY_STRING);
+    szServiceName = axis2_svc_get_name(pService, pEnv);
+    AXIS2_UTILS_ASSERT(pEnv, szServiceName, "Failed to get service name");
 
-      if (pHostHeader)
-      {
-        szHttpHost = axis2_http_header_get_value(pHostHeader, pEnv);
-      }
-    }
+    GetOperationName(pMsgCtx, pEnv, &szOperation);
+    AXIS2_UTILS_ASSERT(pEnv, szOperation, "Failed to get operation name");
 
+    szServiceOperationPath =
+        axutil_strcat(pEnv, "component.", szServiceName, ".", szOperation, NULL);
 
-    AXIS2_UTILS_CHECK(GetServiceOperationPath(pMsgCtx, pEnv, &szServiceOperationPath, &szServiceName));
 
     GetSessionAndInstanceId(pMsgCtx, pEnv, &szSessionId, &szInstanceId);
     if (szSessionId == NULL)
@@ -115,7 +111,6 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
         szSessionId, szServiceOperationPath);
 
       AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
-      AXIS2_FREE(pEnv->allocator, szServiceName);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied: sessionid unknown or expired");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
@@ -129,7 +124,6 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
               szSessionId, szServiceOperationPath);
 
       AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
-      AXIS2_FREE(pEnv->allocator, szServiceName);
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
@@ -139,51 +133,27 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
     AXIS2_FREE(pEnv->allocator, szServiceOperationPath);
 
-    { /* remember service name, sessionid instanceid in message context */
-      axutil_property_t* pProp = axutil_property_create(pEnv);
-      if (!pProp)
-      {
-        dprintf("WARNING: failed to create property to save service name");
-        AXIS2_FREE(pEnv->allocator, szServiceName);
-        return AXIS2_FAILURE;
-      }
-
-      axutil_property_set_value(pProp, pEnv, szServiceName);
-      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
-
-
-      pProp = axutil_property_create(pEnv);
-      if (!pProp)
-      {
-        dprintf("WARNING: failed to create property to save session id");
-        return AXIS2_FAILURE;
-      }
-
-      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szSessionId));
-      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "SessionId", pProp);
-
-
-      pProp = axutil_property_create(pEnv);
-      if (!pProp)
-      {
-        dprintf("WARNING: failed to create property to save instance id");
-        return AXIS2_FAILURE;
-      }
-
-      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szInstanceId ? szInstanceId : ""));
-      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "InstanceId", pProp);
-
-
-      pProp = axutil_property_create(pEnv);
-      if (!pProp)
-      {
-        dprintf("WARNING: failed to create property to save host");
-        return AXIS2_FAILURE;
-      }
-
-      axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szHttpHost ? szHttpHost : ""));
-      axis2_msg_ctx_set_property(pMsgCtx, pEnv, "HttpHost", pProp);
+    /* store session id and instance id within message context */
+    pProp = axutil_property_create(pEnv);
+    if (!pProp)
+    {
+      dprintf("WARNING: failed to create property to save session id");
+      return AXIS2_FAILURE;
     }
+
+    axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szSessionId));
+    axis2_msg_ctx_set_property(pMsgCtx, pEnv, "SessionId", pProp);
+
+
+    pProp = axutil_property_create(pEnv);
+    if (!pProp)
+    {
+      dprintf("WARNING: failed to create property to save instance id");
+      return AXIS2_FAILURE;
+    }
+
+    axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szInstanceId ? szInstanceId : ""));
+    axis2_msg_ctx_set_property(pMsgCtx, pEnv, "InstanceId", pProp);
   }
 
   return AXIS2_SUCCESS;
@@ -323,14 +293,14 @@ AXIS2_EXPORT int axis2_get_instance(axis2_module_t** ppInst,
                                     const axutil_env_t* pEnv)
 {
   *ppInst = StaffSecurityModule_create(pEnv);
-  AXIS2_UTILS_CHECK(*ppInst);
+  AXIS2_UTILS_ASSERT(pEnv, *ppInst, "Failed to get instance");
 
   return AXIS2_SUCCESS;
 }
 
 AXIS2_EXPORT int axis2_remove_instance(axis2_module_t* pInst, const axutil_env_t* pEnv)
 {
-  AXIS2_UTILS_CHECK(pInst);
+  AXIS2_UTILS_ASSERT(pEnv, pInst, "Instance is NULL");
 
   return StaffSecurityModule_shutdown(pInst, pEnv);
 }

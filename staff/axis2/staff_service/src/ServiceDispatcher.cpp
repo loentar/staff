@@ -32,10 +32,16 @@
 #include <staff/common/Exception.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
-#include <staff/component/SessionManager.h>
 #include <staff/component/ServiceInstanceManager.h>
+#ifndef WITHOUT_SECURITY
+#include <staff/component/SessionManager.h>
 #include <staff/security/tools.h>
+#endif
 #include "ServiceDispatcher.h"
+
+#ifdef WITHOUT_SECURITY
+#define STAFF_SECURITY_NOBODY_SESSION_ID ""
+#endif
 
 
 namespace staff
@@ -97,7 +103,9 @@ namespace staff
         }
       }
 
+#ifndef WITHOUT_SECURITY
       SessionManager::Inst().Start();
+#endif
 
       LoadServices();
 
@@ -114,7 +122,9 @@ namespace staff
 
     void Deinit()
     {
+#ifndef WITHOUT_SECURITY
       SessionManager::Inst().Stop();
+#endif
 
       SharedContext& rSharedContext = SharedContext::Inst();
       if (m_stEvents.pOnDisconnect != NULL)

@@ -1,2 +1,4 @@
 
+ifeq ($(WITHOUT_SECURITY),)
 core/sqlite3.hostdep: core/common.hostdep
+endif

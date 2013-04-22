@@ -19,7 +19,11 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
+#ifdef WITH_SQLITE
+#include <sqlite3.h>
+#else
 #include <staff/sqlite3/sqlite3.h>
+#endif
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/Log.h>
 #include <staff/utils/stringutils.h>

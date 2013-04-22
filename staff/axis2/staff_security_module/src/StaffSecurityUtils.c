@@ -27,106 +27,50 @@
 #include <axis2_module_desc.h>
 #include "StaffSecurityUtils.h"
 
-axis2_status_t GetServiceOperationPath( axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
-                                        axis2_char_t** pszServiceOperationPath, axis2_char_t** pszServiceName )
-{
-  const axis2_char_t* szServiceUri = NULL;
-  axis2_endpoint_ref_t* pEndPoint = NULL;
-  axiom_node_t* pNodeOperation = NULL;
-  axiom_element_t* pElementOperation = NULL;
 
+axis2_status_t GetOperationName(axis2_msg_ctx_t* pMsgCtx, const axutil_env_t* pEnv,
+                                const axis2_char_t** pszOperationName)
+{
+  axis2_op_t* pOperation = NULL;
+  const axutil_qname_t* pOperationQName = NULL;
   axiom_soap_envelope_t* pSoapEnv = NULL;
   axiom_soap_body_t* pSoapBody = NULL;
-  axiom_node_t* pBaseNode = NULL;
+  axiom_node_t* pNode = NULL;
+  axiom_element_t* pElemOperation = NULL;
 
-  const axis2_char_t* szServiceName = NULL;
-  const axis2_char_t* szServiceOperation = NULL;
-  axis2_char_t* szServiceNameParam = NULL;
 
-  AXIS2_UTILS_CHECK(pMsgCtx);
-  AXIS2_UTILS_CHECK(pEnv);
-  AXIS2_UTILS_CHECK(pszServiceOperationPath);
-
-  /* HTTP-request header */
-  pEndPoint = axis2_msg_ctx_get_to(pMsgCtx, pEnv);
-  if (pEndPoint != NULL)
+  /* try to get operation name from message context: for REST */
+  pOperation = axis2_msg_ctx_get_op(pMsgCtx, pEnv);
+  if (pOperation)
   {
-    szServiceUri = axis2_endpoint_ref_get_address(pEndPoint, pEnv);
+    pOperationQName = axis2_op_get_qname(pOperation, pEnv);
+    if (pOperationQName)
+    {
+      *pszOperationName = axutil_qname_get_localpart(pOperationQName, pEnv);
+      return AXIS2_SUCCESS;
+    }
   }
 
+  /* try to get operation name from soap request */
   pSoapEnv = axis2_msg_ctx_get_soap_envelope(pMsgCtx, pEnv);
-  AXIS2_UTILS_CHECK(pSoapEnv);
+  AXIS2_UTILS_ASSERT(pEnv, pSoapEnv, "Failed to get soap envelope");
 
   pSoapBody = axiom_soap_envelope_get_body(pSoapEnv, pEnv);
-  AXIS2_UTILS_CHECK(pSoapBody);
+  AXIS2_UTILS_ASSERT(pEnv, pSoapBody, "Failed to get soap body");
 
-  pBaseNode = axiom_soap_body_get_base_node(pSoapBody, pEnv);
-  AXIS2_UTILS_CHECK(pBaseNode);
+  pNode = axiom_soap_body_get_base_node(pSoapBody, pEnv);
+  AXIS2_UTILS_ASSERT(pEnv, pNode, "Failed to get soap base node");
 
-  pNodeOperation = axiom_node_get_first_element(pBaseNode, pEnv);
-  AXIS2_UTILS_CHECK(pNodeOperation);
+  pNode = axiom_node_get_first_element(pNode, pEnv);
+  AXIS2_UTILS_ASSERT(pEnv, pNode, "Failed to get soap first element");
+  AXIS2_UTILS_ASSERT(pEnv, axiom_node_get_node_type(pNode, pEnv) == AXIOM_ELEMENT,
+                     "Invalid node type");
 
-  pElementOperation = (axiom_element_t*)axiom_node_get_data_element(pNodeOperation, pEnv);
-  AXIS2_UTILS_CHECK(pElementOperation);
+  pElemOperation = (axiom_element_t*)axiom_node_get_data_element(pNode, pEnv);
+  AXIS2_UTILS_ASSERT(pEnv, pElemOperation, "Failed to get operation element");
 
-  if (szServiceUri == NULL || szServiceUri[0] == '\0')
-  {
-    axiom_namespace_t* pNamespace = NULL;
-    pNamespace = axiom_element_get_namespace(pElementOperation, pEnv, pNodeOperation);
-    AXIS2_UTILS_CHECK(pNamespace);
-
-    szServiceUri = axiom_namespace_get_uri(pNamespace, pEnv);
-  }
-
-  AXIS2_UTILS_CHECK(szServiceUri);
-
-  dprintf("Service URI: %s\n", szServiceUri);
-
-  AXIS2_UTILS_CHECK(axiom_node_get_node_type(pNodeOperation, pEnv) == AXIOM_ELEMENT);
-
-  szServiceOperation = axiom_element_get_localname(pElementOperation, pEnv);
-  AXIS2_UTILS_CHECK(szServiceOperation);
-
-  szServiceName = strstr(szServiceUri, "/axis2/services/");
-
-  if (szServiceName == NULL)
-  {
-    /* target namespace does not contain "axis2/services"
-       trying to guess service name */
-    szServiceName = strrchr(szServiceUri, '/');
-    if (szServiceName == NULL)
-    {
-      szServiceName = szServiceUri;
-    }
-    else
-    {
-      ++szServiceName;
-    }
-
-    szServiceNameParam = axutil_strdup(pEnv, szServiceName);
-  } else
-  {
-    const char* szServiceNameEnd = NULL;
-    szServiceName += 16;
-
-    /* cut off REST request params from service name */
-    szServiceNameEnd = strchr(szServiceName, '/');
-    if (szServiceNameEnd)
-    {
-      unsigned uSize = (unsigned)(szServiceNameEnd - szServiceName);
-      szServiceNameParam = AXIS2_MALLOC(pEnv->allocator, uSize + 1);
-      AXIS2_UTILS_CHECK(szServiceNameParam);
-      strncpy(szServiceNameParam, szServiceName, uSize);
-      szServiceNameParam[uSize] = '\0';
-    }
-    else
-    {
-      szServiceNameParam = axutil_strdup(pEnv, szServiceName);
-    }
-  }
-
-  *pszServiceName = szServiceNameParam;
-  *pszServiceOperationPath = axutil_strcat(pEnv, "component.", szServiceNameParam, ".", szServiceOperation, NULL);
+  *pszOperationName = axiom_element_get_localname(pElemOperation, pEnv);
+  AXIS2_UTILS_ASSERT(pEnv, *pszOperationName, "Failed to get operation name");
 
   return AXIS2_SUCCESS;
 }

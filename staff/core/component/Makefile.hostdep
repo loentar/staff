@@ -1,3 +1,6 @@
 
+ifneq ($(WITHOUT_SECURITY),)
+core/component.hostdep: core/common.hostdep core/xml.hostdep
+else
 core/component.hostdep: core/common.hostdep core/security.hostdep core/xml.hostdep
-
+endif

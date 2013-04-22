@@ -115,6 +115,9 @@ namespace staff
   ServiceInstanceManager::ServiceInstanceManager()
   {
     m_pImpl = new ServiceInstanceManagerImpl;
+#ifdef WITHOUT_SECURITY
+    CreateSession("");
+#endif
   }
 
   ServiceInstanceManager::~ServiceInstanceManager()
