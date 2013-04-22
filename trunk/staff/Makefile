@@ -8,12 +8,15 @@ include ../Makefile.env
 ifneq ($(MAKECMDGOALS),test)
   EXCLUDE_TESTS := |grep -v 'tests'
 endif
+ifneq ($(WITHOUT_SECURITY),)
+  EXCLUDE_SECURITY := | sed '/\/components\/\(Login\|admin\)\/\|\/axis2\/staff_security_module\/\|\/core\/security\/\|\/core\/sqlite3\//d'
+endif
 ifeq ($(CROSSCOMPILE),0)
 # uniq dependencies
 UNIQ_DEPS := | sed 's/^\(.*\)\.\(.*\)$$/\2 \1/g' | uniq -f 1 | sed 's/^\(.*\) \(.*\)$$/\2.\1/g'
 endif
 
-MAKEFILES_DEP := $(shell find . -type f |grep -v '/samples/'|grep '/[^/]*/[^/]*$$' |egrep '(.*/Makefile\.(host)?dep$$)'$(EXCLUDE_TESTS) | sed 's/^.\///g' $(UNIQ_DEPS))
+MAKEFILES_DEP := $(shell find . -type f | grep -v '/samples/'|grep '/[^/]*/[^/]*$$' |egrep '(.*/Makefile\.(host)?dep$$)'$(EXCLUDE_TESTS)$(EXCLUDE_SECURITY) | sed 's/^.\///g' $(UNIQ_DEPS))
 MAKE_ORDER_DEPS := $(subst /Makefile,,$(MAKEFILES_DEP))
 ifeq ($(CROSSCOMPILE),0)
 MAKE_ORDER_DEPS := $(patsubst %.hostdep,%.dep,$(MAKE_ORDER_DEPS))

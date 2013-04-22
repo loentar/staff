@@ -28,12 +28,19 @@
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Operation.h>
+#ifndef WITHOUT_SECURITY
 #include <staff/security/tools.h>
+#endif
 #include <staff/component/SharedContext.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Executor.h>
 #include "Services.h"
+
+#ifdef WITHOUT_SECURITY
+#define STAFF_SECURITY_NOBODY_SESSION_ID ""
+#endif
+
 
 namespace staff
 {

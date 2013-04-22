@@ -1,2 +1,4 @@
 
+ifeq ($(WITHOUT_SECURITY),)
 tests/core/security.dep: core/security.dep
+endif

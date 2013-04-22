@@ -1,2 +1,6 @@
 
+ifeq ($(WITHOUT_SECURITY),)
 axis2/staff_service.dep: core/common.dep core/component.dep core/security.dep
+else
+axis2/staff_service.dep: core/common.dep core/component.dep
+endif

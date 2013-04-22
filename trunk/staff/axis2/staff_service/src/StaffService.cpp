@@ -47,7 +47,9 @@
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
 #include <staff/common/MessageContext.h>
+#ifndef WITHOUT_SECURITY
 #include <staff/security/tools.h>
+#endif
 #include <staff/component/ServiceWrapper.h>
 #include <staff/component/SharedContext.h>
 #include "Axis2Utils.h"
@@ -115,6 +117,7 @@ public:
       exit(1);
     }
 
+#ifndef WITHOUT_SECURITY
     // check for staff_security is engaged
     pQName = axutil_qname_create(pEnv, "staff_security", NULL, NULL);
     bEngaged = axis2_svc_is_module_engaged(m_pAxis2Svc, pEnv, pQName);
@@ -132,6 +135,7 @@ public:
       staff::LogError() << "Failed to initialize staff::security.";
       exit(1);
     }
+#endif
 
     m_pEnv = pEnv;
     m_pConf = pConf;
@@ -157,7 +161,9 @@ public:
     staff::ServiceDispatcher::Inst().Deinit();
 #endif
 
+#ifndef WITHOUT_SECURITY
     staff_security_free();
+#endif
 
     if (pSvcSkeleton)
     {
@@ -209,33 +215,39 @@ public:
 
     const axis2_char_t* szServiceName = reinterpret_cast<const axis2_char_t*>
         (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "ServiceName"));
+#ifndef WITHOUT_SECURITY
     const axis2_char_t* szSessionId = reinterpret_cast<const axis2_char_t*>
         (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "SessionId"));
     const axis2_char_t* szInstanceId = reinterpret_cast<const axis2_char_t*>
         (axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "InstanceId"));
+#endif
 
     if (szServiceName == NULL)
     {
-      staff::LogError() << "Cannot process message: Service name is not set by security module.";
+      staff::LogError() << "Cannot process message: Failed to get service name.";
       return NULL;
     }
 
+#ifndef WITHOUT_SECURITY
     if (szSessionId == NULL)
     {
-      staff::LogError() << "Cannot process message: Session id is not set by security module.";
+      staff::LogError() << "Cannot process message: Failed to get session id.";
       return NULL;
     }
 
     if (szInstanceId == NULL)
     {
-      staff::LogError() << "Cannot process message: Instance id is not set by security module.";
+      staff::LogError() << "Cannot process message: Failed to get instance id.";
       return NULL;
     }
+#endif
 
 #ifdef _DEBUG
     staff::LogDebug1() << "Service name: [" << szServiceName << "]";
+#ifndef WITHOUT_SECURITY
     staff::LogDebug1() << "Session id: [" << szSessionId << "]";
     staff::LogDebug1() << "Instance id: [" << szInstanceId << "]";
+#endif
 
     {
       axiom_node_t* panBody = axiom_node_get_parent(pAxiomNode, pEnv);
@@ -250,8 +262,13 @@ public:
     staff::MessageContext tMessageContext(pEnv, pMsgCtx);
 
     std::string sServiceName(szServiceName);
+#ifndef WITHOUT_SECURITY
     std::string sSessionId(szSessionId);
     std::string sInstanceId(szInstanceId);
+#else
+    static std::string sSessionId;
+    static std::string sInstanceId;
+#endif
 
     try
     {
@@ -274,7 +291,8 @@ public:
       }
       else
       {
-        staff::ServiceWrapper* pServiceWrapper = staff::SharedContext::Inst().GetService(sServiceName);
+        staff::ServiceWrapper* pServiceWrapper =
+            staff::SharedContext::Inst().GetService(sServiceName);
         STAFF_ASSERT(pServiceWrapper, "Service [" + sServiceName + "] is not found: ");
         pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
       }
@@ -282,12 +300,20 @@ public:
     catch (const std::exception& rEx)
     {
       tOperation.SetFault("server", rEx.what(), "Failed to invoke service " + sServiceName
-                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
+                          + "." + tOperation.GetName()
+#ifndef WITHOUT_SECURITY
+                          + "#" + sInstanceId + "(" + sSessionId + ")"
+#endif
+                          );
     }
     catch (...)
     {
       tOperation.SetFault("server", "Unknown exception", "Failed to invoke service " + sServiceName
-                          + "." + tOperation.GetName() + "#" + sInstanceId + "(" + sSessionId + ")");
+                          + "." + tOperation.GetName()
+#ifndef WITHOUT_SECURITY
+                          + "#" + sInstanceId + "(" + sSessionId + ")"
+#endif
+                          );
     }
 
     if (tOperation.IsFault())

@@ -1,2 +1,6 @@
 
+ifeq ($(WITHOUT_SECURITY),)
 components/wsdl.dep: core/common.dep core/component.dep core/security.dep tools/codegen.hostdep tools/codegen_parsers/cpp.hostdep
+else
+components/wsdl.dep: core/common.dep core/component.dep tools/codegen.hostdep tools/codegen_parsers/cpp.hostdep
+endif

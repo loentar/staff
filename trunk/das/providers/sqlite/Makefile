@@ -5,15 +5,31 @@ TARGET = sqlite
 LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
 
+ifeq ($(WITHOUT_SECURITY),)
+LDFLAGS += -lstaffsqlite3
+else
+SQLITE_INCLUDE="\#include <sqlite3.h>"
+WITH_SQLITE := $(shell echo $(SQLITE_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_SQLITE"; rm -f gccdump.s)
+ifneq ($(WITH_SQLITE),)
+CXXFLAGS += $(WITH_SQLITE)
+LDFLAGS += -lsqlite3
+endif
+endif
+
 CXXFLAGS += -I$(DEPLOYDIR)include
-LDFLAGS += -lstaffutils -lstaffxml -lstaffsqlite3 -lstaffcommon -lstaffdascommon
+LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffdascommon
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 # == make ===========================================
+ifneq ($(SQLITE_DEV_INSTALLED),0)
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
+else
+make:
+	@$(ECHO) "\n\033[33;1mSkipping sqlite provider compilation because MySQL development package is not installed.\033[31;0m\n"
+endif
 
 # link
 $(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
@@ -32,14 +48,22 @@ deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)
 distrib:;
 
 # == install ========================================
+ifneq ($(SQLITE_DEV_INSTALLED),0)
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
+else
+install:;
+endif
 
 # == uninstall ======================================
+ifneq ($(SQLITE_DEV_INSTALLED),0)
 uninstall: check
 	rm -f $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 	-rmdir $(INSTALLDIR)$(COMDIR)$(COMPONENT)
+else
+uninstall:;
+endif
 
 # == clean ==========================================
 clean:

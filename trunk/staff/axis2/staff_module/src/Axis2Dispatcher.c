@@ -32,6 +32,8 @@
 #include <axis2_const.h>
 #include <axis2_conf_ctx.h>
 #include <axis2_addr.h>
+#include <axis2_http_header.h>
+#include <axis2_http_transport.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
 
@@ -156,13 +158,46 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
     axutil_param_t* pParam = axis2_svc_get_param(pService, pEnv, "IsStaffVirtualService");
     if (pParam != NULL) /* Staff virtual service? */
     {
+      axutil_hash_t * pHashHeaders = NULL;
+      axis2_svc_t* pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
       axis2_svc_t* pStaffService = Axis2Dispatcher_find_svc(pMsgCtx, pEnv);
+
+      if (pService != NULL)
+      {
+        const axis2_char_t* szServiceName = axis2_svc_get_name(pService, pEnv);
+        if (szServiceName != NULL)
+        {
+          axutil_property_t* pProp = axutil_property_create(pEnv);
+          axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szServiceName));
+          axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
+        }
+      }
+
+      pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);
+      if (pHashHeaders != NULL)
+      {
+        axis2_http_header_t* pHostHeader = (axis2_http_header_t *) axutil_hash_get(
+            pHashHeaders, AXIS2_HTTP_HEADER_HOST, AXIS2_HASH_KEY_STRING);
+
+        if (pHostHeader != NULL)
+        {
+          axis2_char_t* szHttpHost = axis2_http_header_get_value(pHostHeader, pEnv);
+          if (szHttpHost != NULL)
+          {
+            axutil_property_t* pProp = axutil_property_create(pEnv);
+            axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szHttpHost ? szHttpHost : ""));
+            axis2_msg_ctx_set_property(pMsgCtx, pEnv, "HttpHost", pProp);
+          }
+        }
+      }
+
+
       if (pStaffService != NULL)
       {
         pOperation = axis2_svc_get_op_with_name(pStaffService, pEnv, "Invoke");
         if (pOperation != NULL)
         {
-          /* get real operation name for REST services */
+          /* get real operation name */
           axis2_op_t* pRealOperation = axis2_msg_ctx_get_op(pMsgCtx, pEnv);
           if (pRealOperation != NULL)
           {

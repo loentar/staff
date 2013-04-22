@@ -11,8 +11,12 @@ DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/services/staff/
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
 CXXFLAGS += -c -I$(DEPLOYDIR)include
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib $(LDAXIS2LIBS)
-LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent -lstaffsecurity -lstdc++
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent -lstdc++
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
+
+ifeq ($(WITHOUT_SECURITY),)
+LDFLAGS += -lstaffsecurity
+endif
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -45,6 +49,10 @@ install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGETVER)
 	$(LN) $(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
 	cp -f config/services.xml $(INSTALLLIBDIR)
+ifneq ($(WITHOUT_SECURITY),)
+	sed -i '/"staff_security"/{d;q}' $(INSTALLLIBDIR)services.xml
+	-rm -rf $(AXIS2C_HOME)/modules/staff_security/
+endif
 
 # == uninstall ======================================
 uninstall: check
