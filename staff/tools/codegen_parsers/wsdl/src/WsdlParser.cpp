@@ -1678,9 +1678,9 @@ namespace codegen
       {
         // import all before parsing schema
         // import xsd in definitions
+        m_stWsdlTypes.GetInterfaceAttrs(rRootElem, m_stInterface);
         m_stWsdlTypes.ImportAll(rRootElem, rProject, m_stInterface);
         m_stWsdlTypes.ParseSchema(rRootElem);
-        m_stWsdlTypes.GetInterfaceAttrs(rRootElem, m_stInterface);
       }
 
       for (SimpleTypeList::const_iterator itSimple = m_stWsdlTypes.lsSimpleTypes.begin();
@@ -1847,7 +1847,6 @@ namespace codegen
         // fill in interface name
         m_stInterface.sFileName = sInterfaceFileName;
         m_stInterface.sFilePath = sInterfaceFilePath;
-        m_stInterface.sNamespace = TnsToCppNs(StringMapValue(m_stInterface.mOptions, "targetNamespace"));
         m_stInterface.sName = sInterfaceFileName;
         nPos = m_stInterface.sName.find_last_of('.');
         if (nPos != std::string::npos)
@@ -1878,6 +1877,7 @@ namespace codegen
         Interface& rProjectThisInterface = rProject.lsInterfaces.back();
 
         ParseInterface(rDefs, rProject);
+        m_stInterface.sNamespace = TnsToCppNs(StringMapValue(m_stInterface.mOptions, "targetNamespace"));
 
         // fix enum member names
         FixEnums(m_stInterface.lsEnums, m_stInterface.lsStructs, &m_stInterface.lsTypedefs);
