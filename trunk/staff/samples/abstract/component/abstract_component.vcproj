@@ -707,6 +707,10 @@
 				RelativePath=".\src\TransportWrapper.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\Transport2Wrapper.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -722,11 +726,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Transport2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\TransportImpl.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\TransportWrapper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Transport2Wrapper.h"
 				>
 			</File>
 		</Filter>

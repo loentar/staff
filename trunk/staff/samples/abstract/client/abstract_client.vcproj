@@ -715,6 +715,10 @@
 				RelativePath=".\src\TransportProxy.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\Transport2Proxy.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -726,7 +730,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Transport2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\TransportProxy.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Transport2Proxy.h"
 				>
 			</File>
 		</Filter>
