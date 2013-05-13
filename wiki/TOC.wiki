@@ -65,6 +65,8 @@
       * [InstallationManualFreeBSD Install staff from source code]
     * Android
       * [InstallationManualAndroidBinary Install staff from binary tarball]
+    * Solaris/Sun0S
+      * [InstallationManualSolaris Install staff from source code]
   * Misc
     * [StaffDetails WSF Staff details]
     * [SoaApplicationStruct SOA Application structure]
