@@ -2775,9 +2775,14 @@ namespace codegen
           rDataType.sName = "int";
         }
         else
+        if (sName == "long")
+        {
+          rDataType.sName = "long long";
+        }
+        else
         if (sName == "unsignedLong")
         {
-          rDataType.sName = "unsigned long";
+          rDataType.sName = "unsigned long long";
         }
         else
         if (sName == "unsignedInt")

@@ -22,8 +22,7 @@ ns_$(.Namespace.!mangle):$(.Name.!dot)\
 #ifneq($(.Name.!match/long long/),true)
 $(.Name.!replace/ /_/.!tocamelcase)\
 #else
-#cgwarning "long long" type is not supported by wsdl
-$(.Name.!replace/ /_/.!tocamelcase.!replace/LongLong/Long/)\
+$(.Name.!replace/ /_/.!tocamelcase.!depostfix/Long/)\
 #ifeqend
 #else
 #cgerror $(.Type) is not supported
