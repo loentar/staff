@@ -69,7 +69,7 @@ namespace staff
 //  typedef short short;
   typedef char byte;
   typedef unsigned int nonNegativeInteger;
-  typedef unsigned long unsignedLong;
+  typedef unsigned long long unsignedLong;
   typedef unsigned int unsignedInt;
   typedef unsigned short unsignedShort;
   typedef unsigned char unsignedByte;
