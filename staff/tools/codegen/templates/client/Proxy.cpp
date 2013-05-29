@@ -13,9 +13,9 @@
 #include <staff/utils/Base64Binary.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Attribute.h>
+#include <staff/common/Exception.h>
 #ifneq($(Interface.Classes.$Count),0)
 #include <staff/common/Operation.h>
-#include <staff/common/Exception.h>
 #include <staff/client/ServiceFactory.h>
 #include <staff/client/IProxyAllocator.h>
 #include <staff/client/ICallback.h>
