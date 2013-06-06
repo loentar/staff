@@ -5,7 +5,6 @@ TARGETNAME = $(TARGET)
 
 HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
-
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -L$(DEPLOYDIR)lib -lstaffutils -lstaffcommon -lstaffclient
 
@@ -21,9 +20,9 @@ OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 .SECONDARY: $(CODEGEN)
 
 # == make ===========================================
-make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
+make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME)
 
-test: $(OUTDIR)$(TARGETNAME)
+test: make
 	$(OUTDIR)$(TARGETNAME)
 
 # link
@@ -37,25 +36,11 @@ $(OBJDIR)%.o: %.cpp
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
 	[ "$@" -nt "$^" ] || (cd src && $(STAFF_CODEGEN) -e $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
 
-# == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) "$(DEPLOYDIR)$(SAMPLESDIR)$(BINDIR)"
-
-# == distrib =========================================
-distrib:;
-
-# == install ========================================
-install: check "$(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)"
-	cp -f $(OUTDIR)$(TARGETNAME) $(INSTALLDIR)$(SAMPLESDIR)$(BINDIR)$(TARGETNAME)
-
-# == uninstall ======================================
-uninstall: check
-	rm -f $(INSTALLDIR)$(BINDIR)$(TARGETNAME)
-
 # == clean ==========================================
 clean:
 	rm -Rf $(OBJDIR) $(OUTDIR)
 	rm -f $(CODEGEN)
+	-rmdir -p obj out 2>/dev/null
 
 # == mkdir ==========================================
 "%/":
