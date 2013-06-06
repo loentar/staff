@@ -3,7 +3,7 @@
 # == defines ==============================================================
 
 ifeq "" "$(MAKECMDGOALS)"
-  MAKECMDGOALS = make
+  MAKECMDGOALS = test
 endif
 
 include ../../Makefile.env
@@ -26,4 +26,5 @@ include $(MAKEFILES_DEP)
 
 %.dep:
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@)\033[0m"
-	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
+	@$(MAKE) -sC $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
+	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.dep,%,$@) OK\033[0m"

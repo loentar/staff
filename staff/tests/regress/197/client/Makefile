@@ -1,11 +1,11 @@
 
-OUTDIR = test_client
+SUBDIR = test_client
 
 make:
-	$(MAKE) -C$(OUTDIR)
+	$(MAKE) -C$(SUBDIR)
 
-test:
-	$(MAKE) -C$(OUTDIR) test
+test: make
+	$(MAKE) -C$(SUBDIR) test
 
 clean:
-	rm -Rf $(OUTDIR)
+	$(MAKE) -C$(SUBDIR) clean

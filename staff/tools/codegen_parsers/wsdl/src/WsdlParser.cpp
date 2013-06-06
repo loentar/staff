@@ -1670,6 +1670,7 @@ namespace codegen
       STAFF_ASSERT(bSchema || rRootElem.GetName() == "definitions",
         "Invalid wsdl/xsd root node name: [" + rRootElem.GetName() + "]");
 
+      m_stWsdlTypes.GetInterfaceAttrs(rRootElem, m_stInterface);
       if (!bSchema)
       {
         m_stWsdlTypes.Parse(rRootElem, rProject, m_stInterface);
@@ -1678,7 +1679,6 @@ namespace codegen
       {
         // import all before parsing schema
         // import xsd in definitions
-        m_stWsdlTypes.GetInterfaceAttrs(rRootElem, m_stInterface);
         m_stWsdlTypes.ImportAll(rRootElem, rProject, m_stInterface);
         m_stWsdlTypes.ParseSchema(rRootElem);
       }
