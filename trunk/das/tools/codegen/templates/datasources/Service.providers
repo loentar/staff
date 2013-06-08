@@ -6,10 +6,10 @@
     <connection>
       <db>$(Interface.Options.das-db)</db>
 #foreach $(Interface.Options)
-#ifeq($($ThisNodeName.!match/das-dbconn-/),true)
-#var option $($ThisNodeName.!replace/das-dbconn-//)
+#ifeq($($ThisElementName.!match/das-dbconn-/),true)
+#var option $($ThisElementName.!replace/das-dbconn-//)
 #ifneq($($option),singleservice)
-      <$($option)>$($ThisNodeValue)</$($option)>
+      <$($option)>$($ThisElementValue)</$($option)>
 #ifeqend
 #ifeqend
 #end

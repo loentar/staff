@@ -16,8 +16,8 @@
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
     xmlns:$($TnsPrefix)="$($TargetNamespace)"
 #foreach $(Interface) // generate all top-level namespaces
-#ifeq($($ThisNodeName),Includes||Classes||Structs||Typedefs||Enums)
-#context $($ThisNodeName)
+#ifeq($($ThisElementName),Includes||Classes||Structs||Typedefs||Enums)
+#context $($ThisElementName)
 #foreach $(.)
 #ifneq($($aPrefixes.!match/[ns_$(.Namespace.!mangle)]/),true)
     xmlns:ns_$(.Namespace.!mangle)="$(.*TargetNamespace||.Namespace.!dot.!prepend/http:\/\/tempui.org\//)"
