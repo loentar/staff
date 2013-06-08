@@ -119,8 +119,8 @@
 #else
 >
 #foreach $(Typedef.Options)
-#ifeq($($ThisNodeName.!match/restriction-/),true)
-          <$($ThisNodeName.!replace/restriction-//) value="$($ThisNodeValue)" />
+#ifeq($($ThisElementName.!match/restriction-/),true)
+          <$($ThisElementName.!replace/restriction-//) value="$($ThisElementValue)" />
 #ifeqend
 #end
         </restriction>

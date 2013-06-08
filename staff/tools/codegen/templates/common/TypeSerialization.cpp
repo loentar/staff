@@ -62,7 +62,12 @@
 \
 #ifeq($($elementForm),qualified)
 #ifneq($(.Type),generic||string)
-  $($doName).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+#var elPath $($ThisElementPath)
+#ifneq($($elPath.!match/.Class./),true) // don't set namespace for request element
+#ifneq($(.Options.*targetNamespace||Interface.Options.*targetNamespace),)
+  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
+#ifeqend
+#ifeqend
 #ifeqend
 #ifeqend
 \
@@ -82,7 +87,7 @@
 \
 #ifeq($($attributeForm),qualified)
   std::string sPrefix$($sParamName);
-  $($doName).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)", &sPrefix$($sParamName), false);
+  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)", &sPrefix$($sParamName), false);
 #var sAttrPrefix sPrefix$($sParamName) + ": \
 #else
 #var sAttrPrefix "
@@ -113,7 +118,7 @@
 #ifeq($($sdoParam.!match/.CreateChild/),true)
 #ifeq($($elementForm),qualified)
 #var doName tdoParam$($sParamName)
-  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)).SetNamespaceUriGenPrefix("$(Interface.Options.*targetNamespace)");
+  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
 #else
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
 #ifeqend

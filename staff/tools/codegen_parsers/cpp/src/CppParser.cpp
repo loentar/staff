@@ -1438,17 +1438,22 @@ namespace codegen
       rTypedef.sNamespace = m_sCurrentNamespace;
     }
 
-    void ImportEnums(const std::list<Enum>& rlsSrc, std::list<Enum>& rlsDst)
+    void ImportEnums(const std::list<Enum>& rlsSrc, std::list<Enum>& rlsDst,
+                     const StringMap& rmOptions)
     {
       for (std::list<Enum>::const_iterator itEnum = rlsSrc.begin();
           itEnum != rlsSrc.end(); ++itEnum)
       {
         rlsDst.push_back(*itEnum);
-        rlsDst.back().bExtern = true;
+        Enum& rstEnum = rlsDst.back();
+        rstEnum.bExtern = true;
+        // does not overwrite existing keys and values
+        rstEnum.mOptions.insert(rmOptions.begin(), rmOptions.end());
       }
     }
 
-    void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst)
+    void ImportStruct(const std::list<Struct>& rlsSrc, std::list<Struct>& rlsDst,
+                      const StringMap& rmOptions)
     {
       for (std::list<Struct>::const_iterator itStruct = rlsSrc.begin();
           itStruct != rlsSrc.end(); ++itStruct)
@@ -1462,8 +1467,11 @@ namespace codegen
         rstStruct.sDetail = itStruct->sDetail;
         rstStruct.bExtern = true;
         rstStruct.sOwnerName = itStruct->sOwnerName;
-        ImportEnums(itStruct->lsEnums, rstStruct.lsEnums);
-        ImportStruct(itStruct->lsStructs, rstStruct.lsStructs);
+        rstStruct.mOptions = itStruct->mOptions;
+        // does not overwrite existing keys and values
+        rstStruct.mOptions.insert(rmOptions.begin(), rmOptions.end());
+        ImportEnums(itStruct->lsEnums, rstStruct.lsEnums, rmOptions);
+        ImportStruct(itStruct->lsStructs, rstStruct.lsStructs, rmOptions);
       }
     }
 
@@ -1486,10 +1494,10 @@ namespace codegen
           const Interface& rInterface = tCppHeaderParser.Parse(m_sInDir, sbTmp.str(), *m_pProject);
 
           // import extern enums
-          ImportEnums(rInterface.lsEnums, m_stInterface.lsEnums);
+          ImportEnums(rInterface.lsEnums, m_stInterface.lsEnums, rInterface.mOptions);
 
           // import extern structs
-          ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs);
+          ImportStruct(rInterface.lsStructs, m_stInterface.lsStructs, rInterface.mOptions);
 
           // use extern typedefs
           for (std::list<Typedef>::const_iterator itTypedef = rInterface.lsTypedefs.begin();
