@@ -407,7 +407,7 @@ namespace staff
 
     if (m_pEnv->error->status_code == AXIS2_ERROR_RESPONSE_TIMED_OUT)
     {
-      STAFF_THROW(TimeoutException, "Axis2/C client send receive failed. error: " + GetLastErrorStr())
+      STAFF_THROW(TimeoutException, "Axis2/C client send receive failed (Timeout). error: " + GetLastErrorStr())
     }
 
     STAFF_ASSERT(pAxiomResponseNode, "Axis2/C client send receive failed. error: " + GetLastErrorStr());
