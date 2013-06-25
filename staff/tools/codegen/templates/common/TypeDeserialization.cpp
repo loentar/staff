@@ -93,7 +93,11 @@ $($sdoParam).GetAttributeByLocalNameOpt("$(.Options.*elementName||$sParamName)")
 #ifeq($(.Options.*isAttribute),true||1)      // deserialize to attribute
 #ifeq($(.Type),generic||string||typedef)
 #ifneq($($sOptMod),) // is optional
+#ifneq($(.Type),string)
   STAFF_ASSERT(rAttr$($sParamName).GetValue($($sOptMod)$($sParam)), "Invalid value for attribute $($sParamName)");
+#else
+  rAttr$($sParamName).GetValue($($sOptMod)$($sParam));
+#ifeqend
 #else
   $($sdoParam).GetAttributeValueByName("$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
 #ifeqend
@@ -130,9 +134,17 @@ $($sdoParam).GetChildTextByLocalName("$($sElementName||.Options.*elementName||$s
 #ifeqend  // param optimization
 #else
 #ifneq($($bUseParentElem),)
+#ifneq($(.Type),string)
   STAFF_ASSERT($($sdoParam).GetValue($($sOptMod)$($sParam)), "Invalid value for element $($sParam)");
 #else
+  $($sdoParam).GetValue($($sOptMod)$($sParam));
+#ifeqend
+#else
+#ifneq($(.Type),string)
   STAFF_ASSERT($($sdoParam).GetChildValueByLocalName("$($sElementName||.Options.*elementName||$sParamName)", $($sOptMod)$($sParam)), "Invalid value for element $($sParam)");
+#else
+  $($sdoParam).GetChildValueByLocalName("$($sElementName||.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
+#ifeqend  // string
 #ifeqend  // param optimization
 #ifeqend // lvalue
 #ifeqend // anyAttribute
