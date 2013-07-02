@@ -256,11 +256,12 @@ namespace staff
     return FromCString(szText, rdValue);
   }
 
-  void Attribute::GetValue(std::string& sValue) const
+  bool Attribute::GetValue(std::string& sValue) const
   {
     STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
     char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
     sValue = szText ? szText : "";
+    return true;
   }
 
 
