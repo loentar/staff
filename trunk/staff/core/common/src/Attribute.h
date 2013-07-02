@@ -139,7 +139,7 @@ namespace staff
     bool GetValue(unsigned long long& rullValue) const;
     bool GetValue(float& rfValue) const;
     bool GetValue(double& rdValue) const;
-    void GetValue(std::string& sValue) const;
+    bool GetValue(std::string& sValue) const;
 
     //! get qname
     /*! \return qname
