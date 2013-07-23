@@ -1008,7 +1008,7 @@ namespace xml
       {
         if (pElement->m_sPrefix == m_sPrefix)
         {
-          ReplacePrefix(sNewPrefix, bRecursive);
+          pElement->ReplacePrefix(sNewPrefix, bRecursive);
         }
       }
     }

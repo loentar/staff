@@ -1728,7 +1728,8 @@ namespace codegen
       }
     }
 
-    Interface& Parse(std::string sFileUri, Project& rProject, const Interface* pParentInterface = NULL)
+    Interface& Parse(std::string sFileUri, Project& rProject, const Interface* pParentInterface = NULL,
+                     xml::Element* pParentDefs = NULL)
     {
       STAFF_ASSERT_PARAM(m_pParseSettings);
       std::string::size_type nPos = sFileUri.find_last_of("/\\");
@@ -1842,6 +1843,29 @@ namespace codegen
         else
         {
           xml::XmlFileReader(sFileUri).ReadDocument(tWsdlDoc);
+        }
+
+        if (pParentDefs)
+        {
+          const std::string& sTns = GetTns(rDefs);
+          const xml::Namespace* pNs = pParentDefs->FindNamespaceDeclarationByUri(sTns);
+
+          // push messages and port types into parent interface
+          for (const xml::Element* pElem = rDefs.GetFirstChildElement();
+               pElem != NULL; pElem = pElem->GetNextSiblingElement())
+          {
+            const std::string& sElemName = pElem->GetName();
+            if (sElemName == "message" || sElemName == "portType"
+                || sElemName == "binding" || sElemName == "service")
+            {
+              xml::Element* pClonedElem = pElem->CloneElement();
+              if (pNs)
+              {
+                pClonedElem->SetNamespace(*pNs);
+              }
+              pParentDefs->AppendChild(pClonedElem);
+            }
+          }
         }
 
         // fill in interface name
@@ -3389,6 +3413,20 @@ namespace codegen
                         << "] from: [" << rInterface.sFileName << "]";
     }
 
+    // get root element of current doc
+    xml::Element* pElemDefinitions = &rElemImport;
+    for (; pElemDefinitions; pElemDefinitions = pElemDefinitions->GetParent())
+    {
+      if (pElemDefinitions->GetName() == "definitions" ||
+          (pElemDefinitions->GetName() == "schema" && !pElemDefinitions->GetParent()))
+      {
+        break;
+      }
+    }
+    STAFF_ASSERT(pElemDefinitions, "Can't find definitions node in [" + rInterface.sFileName + "]");
+
+
+
     WsdlParserImpl& rWsdlParser = WsdlParsers::Parser(sSchemaLocation);
     Interface* pNewInterface = NULL;
 
@@ -3396,7 +3434,7 @@ namespace codegen
     {
       rWsdlParser.Init(m_pParser->GetParseSettings());
       pNewInterface = &rWsdlParser.Parse(m_pParser->GetParseSettings().sInDir + sSchemaLocation,
-                                         rProject, &rInterface);
+                                         rProject, &rInterface, pElemDefinitions);
     }
     else
     {
@@ -3449,19 +3487,8 @@ namespace codegen
       }
     }
 
+
     // insert imported namespaces into current definitions or xsd's schema element
-    xml::Element* pElemDefinitions = &rElemImport;
-    for (; pElemDefinitions; pElemDefinitions = pElemDefinitions->GetParent())
-    {
-      if (pElemDefinitions->GetName() == "definitions" ||
-          (pElemDefinitions->GetName() == "schema" && !pElemDefinitions->GetParent()))
-      {
-        break;
-      }
-    }
-    STAFF_ASSERT(pElemDefinitions, "Can't find definitions node in [" + rInterface.sFileName + "]");
-
-
     const xml::Element& rImportedDeclElement = DeclarationsCache::mCache[sSchemaLocation];
 
     for (const xml::Namespace* pImpNs = rImportedDeclElement.GetFirstNamespace();
