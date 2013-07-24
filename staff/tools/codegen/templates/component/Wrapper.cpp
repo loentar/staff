@@ -162,6 +162,11 @@ rOperation.Result().AppendChild(\
 \
 tpServiceImpl->$(Member.Name)(\
 #foreach $(Member.Params)
+#ifeq($(Param.Options.*useParentElement),)
+#var sElementName
+#else
+#var sElementName $(Param.Options.*elementName||Param.Name)
+#ifeqend
 #ifneq($(Param.$Num),0) // param splitter
 , \
 #ifeqend // params
