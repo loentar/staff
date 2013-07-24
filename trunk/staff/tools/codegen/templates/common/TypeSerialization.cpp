@@ -123,6 +123,9 @@
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
 #ifeqend
 #else
+#ifeq($($elementForm),qualified)
+  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
+#ifeqend // form
   $($doName).SetValue($($sOptMod)$($sParam));
 #ifeqend  // param optimization
 #ifeqend // anyAttribute
