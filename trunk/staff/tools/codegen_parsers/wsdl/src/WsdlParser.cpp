@@ -1774,21 +1774,17 @@ namespace codegen
       if (bRemote && sInterfaceFileName.empty())
       {
         sInterfaceFileName = sFileUri.substr(nProtocolPos + 3, sFileUri.size() - nProtocolPos - 4);
-        StringReplace(sInterfaceFileName, "/", "_", true);
-        StringReplace(sInterfaceFileName, ".", "_", true);
       }
 
-      nPos = sInterfaceFileName.find('?'); // remove GET parameters from interface file name
-      if (nPos != std::string::npos)
-      {
-        sInterfaceFileName.erase(nPos);
-      }
+      bool bFilenameHasQuery = sInterfaceFileName.find('?') != std::string::npos;
+      FixFileName(sInterfaceFileName);
 
       for (std::list<Interface>::iterator itInterface = rProject.lsInterfaces.begin();
           itInterface != rProject.lsInterfaces.end(); ++itInterface)
       {
         if (itInterface->sFileName == sInterfaceFileName &&
-            itInterface->sFilePath == sInterfaceFilePath)
+            itInterface->sFilePath == sInterfaceFilePath &&
+            (!bRemote || itInterface->mOptions["url"] == sFileUri))
         {
           LogWarning() << "Already parsed";
           return *itInterface; // already parsed
@@ -1804,8 +1800,7 @@ namespace codegen
         {
           static const std::string sCacheDir = ".staff_codegen_cache" STAFF_PATH_SEPARATOR;
           std::string sCachedName = sFileUri;
-          StringReplace(sCachedName, "/", "_", true);
-          StringReplace(sCachedName, ":", "_", true);
+          FixFileName(sCachedName);
           sCachedName.insert(0, sCacheDir);
 
           std::ifstream ifStream(sCachedName.c_str());
@@ -1847,9 +1842,6 @@ namespace codegen
 
         if (pParentDefs)
         {
-          const std::string& sTns = GetTns(rDefs);
-          const xml::Namespace* pNs = pParentDefs->FindNamespaceDeclarationByUri(sTns);
-
           // push messages and port types into parent interface
           for (const xml::Element* pElem = rDefs.GetFirstChildElement();
                pElem != NULL; pElem = pElem->GetNextSiblingElement())
@@ -1859,13 +1851,20 @@ namespace codegen
                 || sElemName == "binding" || sElemName == "service")
             {
               xml::Element* pClonedElem = pElem->CloneElement();
-              if (pNs)
+              // re-declare all namespaces into imported element to prevent conflict
+              for (const xml::Namespace* pNs = rDefs.GetFirstNamespace(); pNs != NULL;
+                   pNs = pNs->GetNextSibling())
               {
-                pClonedElem->SetNamespace(*pNs);
+                pClonedElem->DeclareNamespace(*pNs);
               }
               pParentDefs->AppendChild(pClonedElem);
             }
           }
+        }
+
+        if (bFilenameHasQuery)
+        {
+          sInterfaceFileName += (rDefs.GetName() == "definitions") ? ".wsdl" : ".xsd";
         }
 
         // fill in interface name

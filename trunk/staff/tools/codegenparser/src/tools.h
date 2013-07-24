@@ -94,6 +94,10 @@ namespace codegen
 
   //! check and fix identifier
   STAFF_CODEGENPARSER_EXPORT
+  bool FixFileName(std::string& sFileName);
+
+  //! check and fix identifier
+  STAFF_CODEGENPARSER_EXPORT
   bool FixId(std::string& sName, bool bIgnoreBool = false);
 
   //!

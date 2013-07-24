@@ -314,6 +314,21 @@ namespace codegen
     }
   }
 
+  bool FixFileName(std::string& sFileName)
+  {
+    static const char* szInvalidChars = "\\/:*?\"<>|";
+    bool bChanged = false;
+
+    std::string::size_type nPos = 0;
+    while ((nPos = sFileName.find_first_of(szInvalidChars, nPos)) != std::string::npos)
+    {
+      sFileName[nPos] = '_';
+      bChanged = true;
+    }
+
+    return bChanged;
+  }
+
   bool FixId(std::string& sId, bool bIgnoreBool /*= false*/)
   {
     static const char* szIdChars = "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
