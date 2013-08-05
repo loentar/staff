@@ -21,7 +21,7 @@ $(Enum.Name.!dot)">
 #else
 #var currValue $($enumValue.!inc.!trunc)
 #ifeqend
-          <enumeration value="$($enumValue)" enum="$(Member.Name)"/>
+          <enumeration value="$($enumValue)" staff:enum="$(Member.Name)"/>
 #end
 #ifeqend
         </restriction>

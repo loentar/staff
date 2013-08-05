@@ -1,6 +1,10 @@
 #ifeq($(Struct.Extern),false) // do not serialize/deserialize extern type
 
-      <complexType name="$(Struct.Name.!dot)"\
+#var structOwner $(Struct.Owner.!dot)
+#ifneq($($structOwner),)
+#var structOwner $($structOwner).
+#ifeqend
+      <complexType name="$($structOwner)$(Struct.Name.!dot)"\
 #ifeq($(Struct.Options.*abstract),true||1)
  abstract="true"\
 #ifeqend
@@ -188,11 +192,11 @@
 #foreach $(Struct.Enums)
 #cginclude "WsdlEnum.xsd"
 #end // #foreach $(Struct.Enums)
+#ifeqend // Struct.Enums.Count != 0
 #ifneq($(Struct.Structs.$Count),0)
 #foreach $(Struct.Structs)
 #cginclude "WsdlStruct.xsd"
 #end // #foreach $(Interface.Structs)
 #ifeqend // Struct.Structs.Count != 0
-#ifeqend // Struct.Enums.Count != 0
 \
 #ifeqend //#ifeq($(Struct.Extern),false) // do not serialize extern type

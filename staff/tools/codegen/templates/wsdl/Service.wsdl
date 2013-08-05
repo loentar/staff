@@ -14,6 +14,7 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:staff="http://tempui.org/wsf/staff"
     xmlns:$($TnsPrefix)="$($TargetNamespace)"
 #foreach $(Interface) // generate all top-level namespaces
 #ifeq($($ThisElementName),Includes||Classes||Structs||Typedefs||Enums)
