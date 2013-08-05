@@ -12,8 +12,16 @@ $(Enum.Name.!dot)">
           <enumeration value="$(Member.Name)"/>
 #end
 #else
+#var currValue 0
 #foreach $(Enum.Members)
-          <enumeration value="$(Member.Value)" enum="$(Member.Name)"/>
+#var enumValue $(Member.Value)
+#ifeq($($enumValue),)
+#var enumValue $($currValue)
+#var currValue $($currValue.!inc.!trunc)
+#else
+#var currValue $($enumValue.!inc.!trunc)
+#ifeqend
+          <enumeration value="$($enumValue)" enum="$(Member.Name)"/>
 #end
 #ifeqend
         </restriction>
