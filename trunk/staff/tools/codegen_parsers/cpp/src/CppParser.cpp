@@ -1396,7 +1396,10 @@ namespace codegen
           chTmp = m_tFile.peek();
         }
 
-        rEnum.lsMembers.push_back(stMember);
+        if (!stMember.sName.empty())
+        {
+          rEnum.lsMembers.push_back(stMember);
+        }
 
         if (chTmp == '}')
         {
