@@ -14,6 +14,7 @@
 #ifeqend
 #end
     targetNamespace="$($TargetNamespace)"
+    xmlns:staff="http://tempui.org/wsf/staff"
     xmlns:ns_$(Interface.Namespace.!mangle)="$($TargetNamespace)"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
