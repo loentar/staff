@@ -45,8 +45,6 @@ ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)etc/apache2/mods-enabled/ $(DEPLOYROOTDIR)usr/lib/apache2/modules/
 	cp -f conf/$(TARGET).load conf/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-available/
-	$(LN) ../mods-available/$(TARGET).conf $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).conf
-	$(LN) ../mods-available/$(TARGET).load $(DEPLOYROOTDIR)etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) $(DEPLOYROOTDIR)usr/lib/apache2/modules/
 else
 ifeq ($(APXS),/www/bin/apxs)
@@ -73,8 +71,6 @@ ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	test -e /etc/apache2/mods-available/$(TARGET).conf || cp -f conf/$(TARGET).conf /etc/apache2/mods-available/
 	test -e /etc/apache2/mods-available/$(TARGET).load || cp -f conf/$(TARGET).load /etc/apache2/mods-available/
-	$(LN) ../mods-available/$(TARGET).conf /etc/apache2/mods-enabled/$(TARGET).conf
-	$(LN) ../mods-available/$(TARGET).load /etc/apache2/mods-enabled/$(TARGET).load
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 	-/etc/init.d/apache2 status >/dev/null 2>&1 && (\
  /etc/init.d/apache2 stop;\
