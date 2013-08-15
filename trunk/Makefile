@@ -36,6 +36,12 @@ $(MAKECMDGOALS):
 	$(MAKE) -Cdistrib $(MAKECMDGOALS)
 else
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
+ifeq ($(OS)|$(MAKECMDGOALS),Linux|install)
+ifeq ($(wildcard /etc/ld.so.conf.d/staff.conf),)
+	-@$(ECHO) "$(STAFF_HOME)/lib\n$(AXIS2C_HOME)/lib" > /etc/ld.so.conf.d/staff.conf
+endif
+	-@ldconfig
+endif
 endif
 endif
 endif
