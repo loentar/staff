@@ -159,18 +159,14 @@ axis2_status_t AXIS2_CALL Axis2Dispatcher_invoke(axis2_handler_t* pHandler, cons
     if (pParam != NULL) /* Staff virtual service? */
     {
       axutil_hash_t * pHashHeaders = NULL;
-      axis2_svc_t* pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
       axis2_svc_t* pStaffService = Axis2Dispatcher_find_svc(pMsgCtx, pEnv);
 
-      if (pService != NULL)
+      const axis2_char_t* szServiceName = axis2_svc_get_name(pService, pEnv);
+      if (szServiceName != NULL)
       {
-        const axis2_char_t* szServiceName = axis2_svc_get_name(pService, pEnv);
-        if (szServiceName != NULL)
-        {
-          axutil_property_t* pProp = axutil_property_create(pEnv);
-          axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szServiceName));
-          axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
-        }
+        axutil_property_t* pProp = axutil_property_create(pEnv);
+        axutil_property_set_value(pProp, pEnv, axutil_strdup(pEnv, szServiceName));
+        axis2_msg_ctx_set_property(pMsgCtx, pEnv, "ServiceName", pProp);
       }
 
       pHashHeaders = axis2_msg_ctx_get_transport_headers(pMsgCtx, pEnv);

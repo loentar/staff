@@ -1,7 +1,7 @@
 <module name="staff_security" class="staff_security_module">
   <inflow>
     <handler name="StaffSecurity" class="staff_axis2_security_module">
-      <order phase="PreDispatch"/>
+      <order phase="Dispatch" before="staff"/>
     </handler>
   </inflow>
 </module>
