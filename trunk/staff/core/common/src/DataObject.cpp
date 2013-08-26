@@ -3818,9 +3818,11 @@ namespace staff
     catch(...)
     {
       axiom_node_free_tree(pAxiomNode, m_pEnv);
+      axiom_stax_builder_free_self(pStaxBuilder, m_pEnv);
       throw;
     }
 
+    axiom_stax_builder_free_self(pStaxBuilder, m_pEnv);
     return *this;
   }
 
