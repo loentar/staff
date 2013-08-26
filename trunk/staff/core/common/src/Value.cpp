@@ -54,6 +54,12 @@ namespace staff
     operator=(dValue);
   }
 
+  Value::Value(long double ldValue):
+    m_bChanged(false)
+  {
+    operator=(ldValue);
+  }
+
   Value::Value(byte btValue):
     m_bChanged(false)
   {
@@ -157,6 +163,15 @@ namespace staff
     m_eType = TypeDouble;
     m_ePrevType = m_eType;
     m_uValue.dValue = dValue;
+    return *this;
+  }
+
+  Value& Value::operator=(long double ldValue)
+  {
+    m_bChanged = true;
+    m_eType = TypeLongDouble;
+    m_ePrevType = m_eType;
+    m_uValue.ldValue = ldValue;
     return *this;
   }
 
@@ -297,6 +312,13 @@ namespace staff
     return m_uValue.dValue;
   }
 
+  Value::operator long double&()
+  {
+    m_bChanged = true;
+    SyncTo(TypeLongDouble);
+    return m_uValue.ldValue;
+  }
+
   Value::operator byte&()
   {
     m_bChanged = true;
@@ -393,6 +415,12 @@ namespace staff
     return m_uValue.dValue;
   }
 
+  Value::operator long double() const
+  {
+    SyncTo(TypeLongDouble);
+    return m_uValue.ldValue;
+  }
+
   Value::operator byte() const
   {
     SyncTo(TypeByte);
@@ -475,6 +503,9 @@ namespace staff
         case TypeDouble:
           ToString(m_uValue.dValue, m_sValue);
           break;
+        case TypeLongDouble:
+          ToString(m_uValue.ldValue, m_sValue);
+          break;
         case TypeByte:
           ToString(m_uValue.btValue, m_sValue);
           break;
@@ -523,6 +554,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.fValue = static_cast<float>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        m_uValue.fValue = static_cast<float>(m_uValue.ldValue);
         break;
       case TypeByte:
         m_uValue.fValue = static_cast<float>(m_uValue.btValue);
@@ -573,6 +607,9 @@ namespace staff
         break;
       case TypeDouble:
         break;
+      case TypeLongDouble:
+        m_uValue.dValue = static_cast<double>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.dValue = static_cast<double>(m_uValue.btValue);
         break;
@@ -611,6 +648,58 @@ namespace staff
       }
       break;
       
+    case TypeLongDouble:
+      switch(eTypeFrom)
+      {
+      case TypeText:
+        FromString(m_sValue, m_uValue.ldValue);
+        break;
+      case TypeFloat:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.fValue);
+        break;
+      case TypeDouble:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        break;
+      case TypeByte:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.btValue);
+        break;
+      case TypeInt:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.nValue);
+        break;
+      case TypeShort:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.shValue);
+        break;
+      case TypeLong:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.lValue);
+        break;
+      case TypeLongLong:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.llValue);
+        break;
+      case TypeUByte:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.ubtValue);
+        break;
+      case TypeUInt:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.unValue);
+        break;
+      case TypeUShort:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.ushValue);
+        break;
+      case TypeULong:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.ulValue);
+        break;
+      case TypeULongLong:
+        m_uValue.ldValue = static_cast<long double>(m_uValue.ullValue);
+        break;
+      case TypeBool:
+        m_uValue.ldValue = m_uValue.bValue ? 1.0 : 0.0;
+        break;
+      case TypeUnknown:
+        break;
+      }
+      break;
+
     case TypeByte:
       switch(eTypeFrom)
       {
@@ -622,6 +711,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.btValue = static_cast<byte>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        m_uValue.btValue = static_cast<byte>(m_uValue.ldValue);
         break;
       case TypeByte:
         break;
@@ -672,6 +764,9 @@ namespace staff
       case TypeDouble:
         m_uValue.nValue = static_cast<int>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.nValue = static_cast<int>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.nValue = static_cast<int>(m_uValue.btValue);
         break;
@@ -720,6 +815,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.shValue = static_cast<short>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        m_uValue.shValue = static_cast<short>(m_uValue.ldValue);
         break;
       case TypeByte:
         m_uValue.shValue = static_cast<short>(m_uValue.btValue);
@@ -770,6 +868,9 @@ namespace staff
       case TypeDouble:
         m_uValue.lValue = static_cast<long>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.lValue = static_cast<long>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.lValue = static_cast<long>(m_uValue.btValue);
         break;
@@ -819,6 +920,9 @@ namespace staff
       case TypeDouble:
         m_uValue.llValue = static_cast<long long>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.llValue = static_cast<long long>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.llValue = static_cast<long long>(m_uValue.btValue);
         break;
@@ -867,6 +971,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.ldValue);
         break;
       case TypeByte:
         m_uValue.ubtValue = static_cast<unsignedByte>(m_uValue.btValue);
@@ -918,6 +1025,9 @@ namespace staff
       case TypeDouble:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.unValue = static_cast<unsigned int>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.unValue = static_cast<unsigned int>(m_uValue.btValue);
         break;
@@ -966,6 +1076,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.dValue);
+        break;
+      case TypeLongDouble:
+        m_uValue.ushValue = static_cast<unsigned short>(m_uValue.ldValue);
         break;
       case TypeByte:
         m_uValue.ushValue = static_cast<unsigned short>(m_uValue.btValue);
@@ -1016,6 +1129,9 @@ namespace staff
       case TypeDouble:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.ulValue = static_cast<unsigned long>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.ulValue = static_cast<unsigned long>(m_uValue.btValue);
         break;
@@ -1065,6 +1181,9 @@ namespace staff
       case TypeDouble:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.dValue);
         break;
+      case TypeLongDouble:
+        m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.ldValue);
+        break;
       case TypeByte:
         m_uValue.ullValue = static_cast<unsigned long long>(m_uValue.btValue);
         break;
@@ -1113,6 +1232,9 @@ namespace staff
         break;
       case TypeDouble:
         m_uValue.bValue = m_uValue.dValue != 0;
+        break;
+      case TypeLongDouble:
+        m_uValue.bValue = m_uValue.ldValue != 0;
         break;
       case TypeByte:
         m_uValue.bValue = m_uValue.btValue != 0;
@@ -1206,6 +1328,10 @@ namespace staff
       break;
     case TypeDouble:
       if (m_uValue.dValue == rValue.m_uValue.dValue)
+        return true;
+      break;
+    case TypeLongDouble:
+      if (m_uValue.ldValue == rValue.m_uValue.ldValue)
         return true;
       break;
     case TypeByte:

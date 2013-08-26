@@ -256,6 +256,14 @@ namespace staff
     return FromCString(szText, rdValue);
   }
 
+  bool Attribute::GetValue(long double& rldValue) const
+  {
+    STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");
+    char* szText = axiom_attribute_get_value(m_pAxiomAttribute, m_pEnv);
+    STAFF_ASSERT_DOM(szText, "value of attribute [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rldValue);
+  }
+
   bool Attribute::GetValue(std::string& sValue) const
   {
     STAFF_ASSERT(m_pAxiomAttribute, "Not Initialized");

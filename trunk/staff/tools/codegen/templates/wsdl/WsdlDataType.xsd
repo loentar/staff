@@ -19,10 +19,14 @@ ns_$(.Namespace.!mangle):$(.Name.!dot)\
 #ifeq($(.Name),void)
 #cgwarning void type in wsdl
 #ifeqend
+#ifeq($(.Name.!match/long double/),true)
+staff:longDouble\
+#else
 #ifneq($(.Name.!match/long long/),true)
 $(.Name.!replace/ /_/.!tocamelcase)\
 #else
 $(.Name.!replace/ /_/.!tocamelcase.!depostfix/Long/)\
+#ifeqend
 #ifeqend
 #else
 #cgerror $(.Type) is not supported

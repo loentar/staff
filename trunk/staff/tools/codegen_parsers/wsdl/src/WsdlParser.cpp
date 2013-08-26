@@ -2818,6 +2818,11 @@ namespace codegen
           rDataType.sName = "unsigned short";
         }
         else
+        if (sName == "longDouble")
+        {
+          rDataType.sName = "long double";
+        }
+        else
         if (sName == "decimal" ||
             sName == "hexBinary" ||
             sName == "base64Binary" ||
@@ -2841,7 +2846,8 @@ namespace codegen
     void GetCppType(const QName& stQName, DataType& rDataType, const BaseType** ppBaseType = NULL)
     {
       bool bIsXmlType = stQName.sNamespace == "http://www.w3.org/2001/XMLSchema" ||
-                        stQName.sNamespace == "http://schemas.xmlsoap.org/wsdl/";
+                        stQName.sNamespace == "http://schemas.xmlsoap.org/wsdl/" ||
+                        stQName.sNamespace == "http://tempui.org/wsf/staff"; // staff extensions
 
       rDataType.sNamespace.erase();
       if (bIsXmlType)
