@@ -30,10 +30,12 @@
 #define staff_strtoll _strtoi64
 #define staff_strtoull _strtoui64
 #define staff_strtof(str, end) static_cast<float>(strtod(str, end))
+#define staff_strtold static_cast<long double>(strtod(str, end))
 #else
 #define staff_strtoll strtoll
 #define staff_strtoull strtoull
 #define staff_strtof strtof
+#define staff_strtold strtold
 #endif
 
 namespace staff
@@ -143,6 +145,13 @@ namespace staff
   {
     char* szEndPtr = NULL;
     rdValue = strtod(szString, &szEndPtr);
+    return !szEndPtr || *szEndPtr == '\0';
+  }
+
+  inline bool FromCString(const char* szString, long double& rldValue)
+  {
+    char* szEndPtr = NULL;
+    rldValue = staff_strtold(szString, &szEndPtr);
     return !szEndPtr || *szEndPtr == '\0';
   }
 

@@ -115,6 +115,15 @@ namespace staff
     return staff_snprintf(szBuffer, nBufferSize, "%f", dValue) < nBufferSize;
   }
 
+  inline bool ToCString(long double ldValue, char* szBuffer, int nBufferSize)
+  {
+#ifdef WIN32
+    return staff_snprintf(szBuffer, nBufferSize, "%Le", ldValue) < nBufferSize;
+#else
+    return staff_snprintf(szBuffer, nBufferSize, "%Lf", ldValue) < nBufferSize;
+#endif
+  }
+
 
   inline bool ToHexCString(unsignedByte ubtValue, char* szBuffer, int nBufferSize)
   {

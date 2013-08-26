@@ -114,16 +114,6 @@ namespace staff
     */
     void SetText(const std::string& sText);
 
-    //! get attribute value
-    /*! \return value
-    */
-    Value GetValue() const;
-
-    //! set attribute value
-    /*! \param  rValue - value
-    */
-    void SetValue(const Value& rValue);
-
     // optimized get value functions
     // returns true, if conversion to type was successed
     bool GetValue(bool& rbValue) const;
@@ -139,7 +129,18 @@ namespace staff
     bool GetValue(unsigned long long& rullValue) const;
     bool GetValue(float& rfValue) const;
     bool GetValue(double& rdValue) const;
+    bool GetValue(long double& rldValue) const;
     bool GetValue(std::string& sValue) const;
+
+    //! get attribute value
+    /*! \return value
+    */
+    Value GetValue() const;
+
+    //! set attribute value
+    /*! \param  rValue - value
+    */
+    void SetValue(const Value& rValue);
 
     //! get qname
     /*! \return qname

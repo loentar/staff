@@ -401,8 +401,6 @@ namespace codegen
           sDataTypeName == "bool" ||
           sDataTypeName == "char" ||
           sDataTypeName == "int" ||
-          sDataTypeName == "short" ||
-          sDataTypeName == "long" ||
           sDataTypeName == "float" ||
           sDataTypeName == "double" ||
           sDataTypeName == "void" ||
@@ -534,10 +532,9 @@ namespace codegen
             if (sType == "double" || sType == "float")
             {
               CSP_ASSERT(!bIsShort, "short and float type", m_stInterface.sFileName, m_nLine);
-              CSP_ASSERT(!bIsLong, "long and float type", m_stInterface.sFileName, m_nLine);
+              CSP_ASSERT(sType == "double" || !bIsLong, "long and float type", m_stInterface.sFileName, m_nLine);
               CSP_ASSERT(!bIsSigned, "signed and float type", m_stInterface.sFileName, m_nLine);
               CSP_ASSERT(!bIsUnsigned, "unsigned and float type", m_stInterface.sFileName, m_nLine);
-              CSP_ASSERT(!bIsLong, "long and float type", m_stInterface.sFileName, m_nLine);
               CSP_ASSERT(!bIsChar, "char and float type", m_stInterface.sFileName, m_nLine);
               CSP_ASSERT(!bIsInt, "int and float type", m_stInterface.sFileName, m_nLine);
               bIsFloat = true;

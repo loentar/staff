@@ -39,6 +39,7 @@ namespace staff
 
       TypeFloat,     //!<  float
       TypeDouble,    //!<  double
+      TypeLongDouble,//!<  long double
 
       TypeByte,      //!<  byte
       TypeInt,       //!<  int
@@ -78,6 +79,11 @@ namespace staff
     /*! \param  dValue - value
         */
     Value(double dValue);
+
+    //! initializing constructor
+    /*! \param  dValue - value
+        */
+    Value(long double ldValue);
 
     //! initializing constructor
     /*! \param  btValue - value
@@ -163,6 +169,11 @@ namespace staff
     Value& operator=(double dValue);
 
     //! copy operator
+    /*! \param  dValue - value
+        */
+    Value& operator=(long double dValue);
+
+    //! copy operator
     /*! \param  btValue - value
     */
     Value& operator=(byte btValue);
@@ -236,6 +247,11 @@ namespace staff
     //! const value cast operator
     /*! \return casted const value
         */
+    operator long double() const;
+
+    //! const value cast operator
+    /*! \return casted const value
+        */
     operator byte() const;
 
     //! const value cast operator
@@ -303,6 +319,11 @@ namespace staff
     /*! \return casted value
         */
     operator double&();
+
+    //! value cast operator
+    /*! \return casted value
+        */
+    operator long double&();
 
     //! value cast operator
     /*! \return casted value
@@ -398,6 +419,7 @@ namespace staff
                                           
       float               fValue;   //!<  float              
       double              dValue;   //!<  double             
+      long double         ldValue;  //!<  long double
                                           
       byte                btValue;  //!<  byte               
       int                 nValue;   //!<  int                

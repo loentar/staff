@@ -32,6 +32,7 @@ namespace staff
   typedef bool boolean;
 //  typedef float float;
 //  typedef double double;
+  typedef long double longDouble;
   typedef double decimal;
   typedef string duration;
   typedef string dateTime;

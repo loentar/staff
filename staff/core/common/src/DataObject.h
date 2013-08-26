@@ -94,6 +94,7 @@ namespace staff
     DataObject(const char* szLocalName, unsigned long long ullValue);
     DataObject(const char* szLocalName, float fValue);
     DataObject(const char* szLocalName, double dValue);
+    DataObject(const char* szLocalName, long double ldValue);
 
     DataObject(const std::string& sLocalName, bool bValue);
     DataObject(const std::string& sLocalName, byte btValue);
@@ -108,6 +109,7 @@ namespace staff
     DataObject(const std::string& sLocalName, unsigned long long ullValue);
     DataObject(const std::string& sLocalName, float fValue);
     DataObject(const std::string& sLocalName, double dValue);
+    DataObject(const std::string& sLocalName, long double ldValue);
 
     //! initializing constructor
     /*! \param  szLocalName - local name for creating node(C-string)
@@ -322,6 +324,7 @@ namespace staff
     void Create(const char* szLocalName, unsigned long long ullValue);
     void Create(const char* szLocalName, float fValue);
     void Create(const char* szLocalName, double dValue);
+    void Create(const char* szLocalName, long double ldValue);
     void Create(const char* szLocalName, const QName& rstQName);
 
     void Create(const std::string& sLocalName, bool bValue);
@@ -337,6 +340,7 @@ namespace staff
     void Create(const std::string& sLocalName, unsigned long long ullValue);
     void Create(const std::string& sLocalName, float fValue);
     void Create(const std::string& sLocalName, double dValue);
+    void Create(const std::string& sLocalName, long double ldValue);
     void Create(const std::string& sLocalName, const QName& rstQName);
 
     //! create named node, set ownership flag, set node value(string)
@@ -483,6 +487,7 @@ namespace staff
     DataObject CreateChild(const char* szLocalName, unsigned long long ullValue);
     DataObject CreateChild(const char* szLocalName, float fValue);
     DataObject CreateChild(const char* szLocalName, double dValue);
+    DataObject CreateChild(const char* szLocalName, long double ldValue);
     DataObject CreateChild(const char* szLocalName, const QName& rstQName);
 
     DataObject CreateChild(const std::string& sLocalName, bool bValue);
@@ -498,6 +503,7 @@ namespace staff
     DataObject CreateChild(const std::string& sLocalName, unsigned long long ullValue);
     DataObject CreateChild(const std::string& sLocalName, float fValue);
     DataObject CreateChild(const std::string& sLocalName, double dValue);
+    DataObject CreateChild(const std::string& sLocalName, long double ldValue);
     DataObject CreateChild(const std::string& sLocalName, const QName& rstQName);
 
     //! create child node with local name and value
@@ -774,6 +780,7 @@ namespace staff
     void SetValue(unsigned long long ullValue);
     void SetValue(float fValue);
     void SetValue(double dValue);
+    void SetValue(long double ldValue);
     void SetValue(const char* szText);
     void SetValue(const std::string& sText);
     void SetValue(const QName& rstQName);
@@ -794,6 +801,7 @@ namespace staff
     bool GetValue(unsigned long long& rullValue) const;
     bool GetValue(float& rfValue) const;
     bool GetValue(double& rdValue) const;
+    bool GetValue(long double& rldValue) const;
     void GetValue(std::string& sValue) const;
     void GetValue(QName& rstQName) const;
 
@@ -856,6 +864,7 @@ namespace staff
     bool GetChildValueByLocalName(const char* szLocalName, unsigned long long& rullValue) const;
     bool GetChildValueByLocalName(const char* szLocalName, float& rfValue) const;
     bool GetChildValueByLocalName(const char* szLocalName, double& rdValue) const;
+    bool GetChildValueByLocalName(const char* szLocalName, long double& rldValue) const;
     void GetChildValueByLocalName(const char* szLocalName, std::string& sValue) const;
     void GetChildValueByLocalName(const char* szLocalName, QName& rstQName) const;
     std::string GetChildTextByLocalName(const char* szLocalName) const;
@@ -874,6 +883,7 @@ namespace staff
     bool GetChildValueByLocalName(const std::string& sLocalName, unsigned long long& rullValue) const;
     bool GetChildValueByLocalName(const std::string& sLocalName, float& rfValue) const;
     bool GetChildValueByLocalName(const std::string& sLocalName, double& rdValue) const;
+    bool GetChildValueByLocalName(const std::string& sLocalName, long double& rldValue) const;
     void GetChildValueByLocalName(const std::string& sLocalName, std::string& sValue) const;
     void GetChildValueByLocalName(const std::string& sLocalName, QName& rstQName) const;
     std::string GetChildTextByLocalName(const std::string& sLocalName) const;
@@ -1070,6 +1080,7 @@ namespace staff
     void CreateAttribute(const char* szAttrName, unsigned long long ullValue);
     void CreateAttribute(const char* szAttrName, float fValue);
     void CreateAttribute(const char* szAttrName, double dValue);
+    void CreateAttribute(const char* szAttrName, long double ldValue);
     void CreateAttribute(const char* szAttrName, const QName& rstQName);
 
     void CreateAttribute(const std::string& sAttrName, bool bValue);
@@ -1085,6 +1096,7 @@ namespace staff
     void CreateAttribute(const std::string& sAttrName, unsigned long long ullValue);
     void CreateAttribute(const std::string& sAttrName, float fValue);
     void CreateAttribute(const std::string& sAttrName, double dValue);
+    void CreateAttribute(const std::string& sAttrName, long double ldValue);
     void CreateAttribute(const std::string& sAttrName, const QName& rstQName);
 
     //! create and add attribute
@@ -1296,6 +1308,7 @@ namespace staff
     bool GetAttributeValueByName(const char *szLocalName, unsigned long long& rullValue) const;
     bool GetAttributeValueByName(const char *szLocalName, float& rfValue) const;
     bool GetAttributeValueByName(const char *szLocalName, double& rdValue) const;
+    bool GetAttributeValueByName(const char *szLocalName, long double& rldValue) const;
     void GetAttributeValueByName(const char *szLocalName, std::string& sValue) const;
     void GetAttributeValueByName(const char *szLocalName, QName& sValue) const;
 
@@ -1312,6 +1325,7 @@ namespace staff
     bool GetAttributeValueByName(const std::string& sLocalName, unsigned long long& rullValue) const;
     bool GetAttributeValueByName(const std::string& sLocalName, float& rfValue) const;
     bool GetAttributeValueByName(const std::string& sLocalName, double& rdValue) const;
+    bool GetAttributeValueByName(const std::string& sLocalName, long double& rldValue) const;
     void GetAttributeValueByName(const std::string& sLocalName, std::string& sValue) const;
     void GetAttributeValueByName(const std::string& sLocalName, QName& sValue) const;
 

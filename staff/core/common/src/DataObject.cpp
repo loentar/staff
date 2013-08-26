@@ -220,6 +220,16 @@ namespace staff
     Create(szLocalName, szBuffer);
   }
 
+  DataObject::DataObject(const char* szLocalName, long double ldValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
 
   DataObject::DataObject(const std::string& sLocalName, bool bValue):
     m_pAxiomNode(NULL),
@@ -348,6 +358,16 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject::DataObject(const std::string& sLocalName, long double ldValue):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
     Create(sLocalName.c_str(), szBuffer);
   }
 
@@ -883,6 +903,13 @@ namespace staff
     Create(szLocalName, szBuffer);
   }
 
+  void DataObject::Create(const char* szLocalName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(szLocalName, szBuffer);
+  }
+
   void DataObject::Create(const char* szLocalName, const QName& rstQName)
   {
     Create(szLocalName, rstQName.ToString().c_str());
@@ -977,6 +1004,13 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void DataObject::Create(const std::string& sLocalName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
     Create(sLocalName.c_str(), szBuffer);
   }
 
@@ -1444,6 +1478,13 @@ namespace staff
     return CreateChild(szLocalName, szBuffer);
   }
 
+  DataObject DataObject::CreateChild(const char* szLocalName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
   DataObject DataObject::CreateChild(const char* szLocalName, const QName& rstQName)
   {
     return CreateChild(szLocalName, rstQName.ToString().c_str());
@@ -1538,6 +1579,13 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const std::string& sLocalName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
     return CreateChild(sLocalName.c_str(), szBuffer);
   }
 
@@ -2181,6 +2229,13 @@ namespace staff
     SetValue(szBuffer);
   }
 
+  void DataObject::SetValue(long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
   void DataObject::SetValue(const char* szText)
   {
     axis2_status_t nResult =
@@ -2289,6 +2344,13 @@ namespace staff
     char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
     STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
     return FromCString(szText, rdValue);
+  }
+
+  bool DataObject::GetValue(long double& rldValue) const
+  {
+    char* szText = axiom_element_get_text(m_pAxiomElement, m_pEnv, m_pAxiomNode);
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rldValue);
   }
 
   void DataObject::GetValue(std::string& sValue) const
@@ -2477,6 +2539,13 @@ namespace staff
     return FromCString(szText, rdValue);
   }
 
+  bool DataObject::GetChildValueByLocalName(const char* szLocalName, long double& rldValue) const
+  {
+    const char* szText = GetChildTextByLocalNameC(szLocalName);
+    STAFF_ASSERT(szText, "value of node [" + GetLocalName() + "] is NULL");
+    return FromCString(szText, rldValue);
+  }
+
   void DataObject::GetChildValueByLocalName(const char* szLocalName, std::string& sValue) const
   {
     const char* szText = GetChildTextByLocalNameC(szLocalName);
@@ -2563,6 +2632,11 @@ namespace staff
   bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, double& rdValue) const
   {
     return GetChildValueByLocalName(sLocalName.c_str(), rdValue);
+  }
+
+  bool DataObject::GetChildValueByLocalName(const std::string& sLocalName, long double& rldValue) const
+  {
+    return GetChildValueByLocalName(sLocalName.c_str(), rldValue);
   }
 
   void DataObject::GetChildValueByLocalName(const std::string& sLocalName, std::string& sValue) const
@@ -2968,6 +3042,13 @@ namespace staff
     return CreateAttribute(szAttrName, szBuffer);
   }
 
+  void DataObject::CreateAttribute(const char* szAttrName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
   void DataObject::CreateAttribute(const char* szAttrName, const QName& rstQName)
   {
     return CreateAttribute(szAttrName, rstQName.ToString().c_str());
@@ -3062,6 +3143,13 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, long double ldValue)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
     return CreateAttribute(sAttrName.c_str(), szBuffer);
   }
 
@@ -3521,6 +3609,14 @@ namespace staff
     return FromCString(szText, rdValue);
   }
 
+  bool DataObject::GetAttributeValueByName(const char* szLocalName, long double& rldValue) const
+  {
+    char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
+                                                             const_cast<char*>(szLocalName));
+    STAFF_ASSERT(szText, "attribute [" + std::string(szLocalName) + "] is not found or NULL");
+    return FromCString(szText, rldValue);
+  }
+
   void DataObject::GetAttributeValueByName(const char* szLocalName, std::string& sValue) const
   {
     char* szText = axiom_element_get_attribute_value_by_name(m_pAxiomElement, m_pEnv,
@@ -3601,6 +3697,11 @@ namespace staff
   bool DataObject::GetAttributeValueByName(const std::string& sLocalName, double& rdValue) const
   {
     return GetAttributeValueByName(sLocalName.c_str(), rdValue);
+  }
+
+  bool DataObject::GetAttributeValueByName(const std::string& sLocalName, long double& rldValue) const
+  {
+    return GetAttributeValueByName(sLocalName.c_str(), rldValue);
   }
 
   void DataObject::GetAttributeValueByName(const std::string& sLocalName, std::string& sValue) const
