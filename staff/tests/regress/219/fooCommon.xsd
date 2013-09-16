@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://common/v1" version="0" xmlns="http://common/v1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:simpleType name="commonType">
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:schema>

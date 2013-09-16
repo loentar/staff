@@ -1,0 +1,34 @@
+<xs:schema
+attributeFormDefault="unqualified"
+elementFormDefault="qualified"
+targetNamespace="http://ns/v1"
+version="0"
+xmlns="http://ns/v1"
+xmlns:common="http://common/v1"
+xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:import namespace="http://common/v1" schemaLocation="fooCommon.xsd"/>
+<!-- Request and response message elements -->
+
+<xs:element name="fooRequest">
+  <xs:complexType>
+	<xs:sequence>
+	  <xs:element name="fooRequest" type="fooRequestType"/>
+	</xs:sequence> 
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="fooResponse" type="fooResponseType"/>
+
+<xs:complexType name="fooRequestType">
+  <xs:sequence>
+	<xs:element name="attr1" type="common:commonType"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fooResponseType">
+  <xs:sequence>
+	<xs:element name="retVal" type="xs:string"/>
+  </xs:sequence>
+</xs:complexType>
+
+</xs:schema>
