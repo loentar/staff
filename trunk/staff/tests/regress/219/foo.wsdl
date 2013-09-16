@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+targetNamespace="http://ns/v1"
+xmlns="http://ns/v1"
+xmlns:ns="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:sub="http://ns/v1"
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+<wsdl:types>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:import namespace="http://ns/v1" schemaLocation="fooXsd.xsd"/>
+</xs:schema>
+
+</wsdl:types>
+
+<wsdl:message name="fooInMessage">
+<wsdl:part element="sub:fooRequest" name="parameters"/>
+</wsdl:message>
+
+<wsdl:message name="fooOutMessage">
+<wsdl:part element="sub:fooResponse" name="parameters"/>
+</wsdl:message>
+
+
+<wsdl:portType name="fooServiceEndpoint">
+  
+<wsdl:operation name="fooMethod">
+<wsdl:input message="fooInMessage"/>
+<wsdl:output message="fooOutMessage"/>
+</wsdl:operation>
+
+
+</wsdl:portType> 
+
+<wsdl:binding name="fooServiceSoapBinding" type="fooServiceEndpoint">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+<wsdl:operation name="fooMethod">
+<soap:operation style="document"/>
+<wsdl:input><soap:body use="literal"/></wsdl:input>
+<wsdl:output><soap:body use="literal"/></wsdl:output>
+</wsdl:operation>
+
+</wsdl:binding>
+
+<wsdl:service name="fooWebService">
+<wsdl:port binding="fooServiceSoapBinding" name="fooServiceEndpointPort">
+<soap:address location=""/>
+</wsdl:port>
+</wsdl:service>
+
+</wsdl:definitions>
