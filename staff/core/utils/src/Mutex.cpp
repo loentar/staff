@@ -24,12 +24,14 @@
 #elif defined __APPLE__
 #include <libkern/OSAtomic.h>
 #else
+#if (!defined SUNOS_MAJOR) || (!defined SUNOS_MINOR) || (SUNOS_MAJOR < 11) || (SUNOS_MINOR < 1)
 #if !defined _XOPEN_SOURCE || (_XOPEN_SOURCE - 0) < 600
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
 #define _STDC_C99
 #define _POSIX_C_SOURCE 200112L
+#endif
 #include <pthread.h>
 #undef _STDC_C99
 #endif
