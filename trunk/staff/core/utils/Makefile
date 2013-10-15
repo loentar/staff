@@ -35,6 +35,12 @@ ifeq ($(OS),MINGW)
 LDFLAGS += -limagehlp
 endif
 
+ifeq ($(OS),SunOS)
+SUNOS_VERSION := $(shell uname -v)
+CXXFLAGS += -DSUNOS_MAJOR=$(subst ., -DSUNOS_MINOR=,$(SUNOS_VERSION))
+endif
+
+
 ifneq ($(OS),SunOS)
 ifneq ($(OS),FreeBSD)
 ifneq ($(OS),MINGW)
