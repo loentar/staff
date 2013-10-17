@@ -88,8 +88,12 @@ else
   INSTALLDIR = /usr/lib/staff/components/
 endif
 
-
-TARGETNAME = \$(LIBPREFIX)\$(COMPONENT)\$(LIBEXT)
+#ifneq($(Project.Name),Project1)
+TARGET := $(Project.Name)
+#else
+TARGET := \$(COMPONENT)
+#ifeqend
+TARGETNAME = \$(LIBPREFIX)\$(TARGET)\$(LIBEXT)
 
 LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
 LDFLAGS += \$(LDLIB)\$(TARGETNAME)
