@@ -156,7 +156,7 @@ namespace staff
 
   inline bool ToHexCString(const void* pAddr, char* szBuffer, int nBufferSize)
   {
-#if defined _M_X64 || defined __x86_64
+#if defined __LP64__ || defined _M_X64 || defined __x86_64
     return staff_snprintf(szBuffer, nBufferSize,
                           "0x%016lx", reinterpret_cast<const unsigned long>(pAddr)) < nBufferSize;
 #else
