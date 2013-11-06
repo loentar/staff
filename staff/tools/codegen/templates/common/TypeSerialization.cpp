@@ -152,8 +152,9 @@
 #else
 \
 #ifeq($(.Type),template)                                       // ==== template ====
-  for ($(.NsName)::const_iterator itItem = ($($sOptMod)$($sParam)).begin(), itItemEnd = ($($sOptMod)$($sParam)).end();
-       itItem != itItemEnd; ++itItem)
+  for ($(.NsName)::const_iterator itItem$($nItemLevel) = ($($sOptMod)$($sParam)).begin(),\
+ itItem$($nItemLevel)End = ($($sOptMod)$($sParam)).end();
+       itItem$($nItemLevel) != itItem$($nItemLevel)End; ++itItem$($nItemLevel))
   {
 #var sItemName $(.Options.*itemName||"Item")
 #ifeq($(.Name),map||multimap)                                  // ==== map ====
@@ -167,9 +168,11 @@
 #indent +
 #context $(.TemplateParams.TemplateParam1)
 #cgpushvars
+#var nItemLevelPrev $($nItemLevel)
+#var nItemLevel $($nItemLevel.!inc.!trunc)
 #var bUseParentElement
 #var sOptMod
-#var sParam itItem->first
+#var sParam itItem$($nItemLevelPrev)->first
 #var sParamName Item
 #var sdoParam $($sdoItem).CreateChild("Key")
 #cginclude "TypeSerialization.cpp"
@@ -180,9 +183,11 @@
 #indent +
 #context $(.TemplateParams.TemplateParam2)
 #cgpushvars
+#var nItemLevelPrev $($nItemLevel)
+#var nItemLevel $($nItemLevel.!inc.!trunc)
 #var bUseParentElement
 #var sOptMod
-#var sParam itItem->second
+#var sParam itItem$($nItemLevelPrev)->second
 #var sParamName Item
 #var sdoParam $($sdoItem).CreateChild("Value")
 #cginclude "TypeSerialization.cpp"
@@ -195,8 +200,10 @@
 #indent +
 #context $(.TemplateParams.TemplateParam1)
 #cgpushvars
+#var nItemLevelPrev $($nItemLevel)
+#var nItemLevel $($nItemLevel.!inc.!trunc)
 #var sOptMod
-#var sParam (*itItem)
+#var sParam (*itItem$($nItemLevelPrev))
 #var sParamName Item
 #ifeq($($bUseParentElement),true||1)
 #var sdoItem $($doName)
