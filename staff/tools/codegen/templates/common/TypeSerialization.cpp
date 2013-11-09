@@ -33,7 +33,7 @@
 #ifeqend // Nillable||Optional
 \
 #ifeq($($recreateChild),true)
-#var doName tdoParam$($sParamName)
+#var doName tdoParam$($sParamName)$($nItemLevel)
   staff::DataObject $($doName) = $($sdoParam);
 #else
 #var doName $($sdoParam)
@@ -117,7 +117,7 @@
 #else
 #ifeq($($sdoParam.!match/.CreateChild/),true)
 #ifeq($($elementForm),qualified)
-#var doName tdoParam$($sParamName)
+#var doName tdoParam$($sParamName)$($nItemLevel)
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
 #else
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
