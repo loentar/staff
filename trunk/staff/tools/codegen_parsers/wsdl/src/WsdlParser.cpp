@@ -1349,8 +1349,15 @@ namespace codegen
 
     void ParseResponse(Member& rMember, const xml::Element& rMessage, WsdlTypes& rWsdlTypes)
     {
-      const xml::Element& rPart = rMessage.GetChildElementByName("part");
-      ParsePart(rMember, rPart, rWsdlTypes, true, false);
+      const xml::Element* pPart = rMessage.FindChildElementByName("part");
+      if (pPart)
+      {
+        ParsePart(rMember, *pPart, rWsdlTypes, true, false);
+      }
+      else
+      {
+        rMember.stReturn.stDataType.sName = "void";
+      }
 //      if (!rPart.IsAttributeExists("element"))
 //      {
 //        rMember.mOptions["responseElement"] = rMessage.GetAttributeValue("name");
