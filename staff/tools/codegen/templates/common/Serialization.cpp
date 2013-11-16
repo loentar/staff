@@ -28,6 +28,7 @@ DataObject& SerializeTypedef_$(Typedef.NsName.!mangle)(DataObject& rdoParam, con
 {
 #cgpushvars
 #var bUseParentElement $(Typedef.Options.*useParentElement)
+#var bDontWriteNs true
 #context $(Typedef.DataType)
 #var sParamName
 #var sParam rtType

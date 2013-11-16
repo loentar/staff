@@ -52,9 +52,23 @@
 #indent -
 #cgpopvars
   }
-#ifeq($(.Name),Nillable) // */
+#ifeq($(.Name),Nillable)
   else
   {
+#ifeq($($elementForm),qualified)
+#ifeq($($bDontWriteNs),)
+#ifeq($($doName.!match/.CreateChild/),true)
+#var doName1 $($doName)
+#var doName tdoParam$($sParamName)$($nItemLevel)
+    staff::DataObject $($doName) = $($doName1);
+#ifeqend
+#ifneq($(.Options.*targetNamespace),)
+    $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace)");
+#else
+    $($doName).RedeclareParentNamespace();
+#ifeqend
+#ifeqend
+#ifeqend
     $($doName).SetNil();
   }
 #ifeqend
@@ -62,10 +76,19 @@
 \
 #ifeq($($elementForm),qualified)
 #ifneq($(.Type),generic||string)
+#ifeq($($bDontWriteNs),)
 #var elPath $($ThisElementPath)
-#ifneq($($elPath.!match/.Class./),true) // don't set namespace for request element
-#ifneq($(.Options.*targetNamespace||Interface.Options.*targetNamespace),)
-  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
+#ifeq($($elPath),Project.Interfaces.Interface.Classes.Class.Members.Member.Params.Param.DataType)
+#ifneq($(Member.Options.*requestElement),) // don't skip namespace setting, if this is not a root request element
+#var elPath
+#ifeqend
+#ifeqend
+#ifneq($($elPath),Project.Interfaces.Interface.Classes.Class.Members.Member.Params.Param.DataType) // don't set namespace for request element
+#ifneq($(.Options.*targetNamespace),)
+  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace)");
+#else
+  $($doName).RedeclareParentNamespace();
+#ifeqend
 #ifeqend
 #ifeqend
 #ifeqend
@@ -118,13 +141,27 @@
 #ifeq($($sdoParam.!match/.CreateChild/),true)
 #ifeq($($elementForm),qualified)
 #var doName tdoParam$($sParamName)$($nItemLevel)
-  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
+  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam))\
+#ifeq($($bDontWriteNs),)
+#ifneq($(.Options.*targetNamespace),)
+.SetNamespaceUriGenPrefix("$(.Options.*targetNamespace)")\
 #else
+.RedeclareParentNamespace()\
+#ifeqend
+#ifeqend
+;
+#else  // !qualified
   $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
 #ifeqend
 #else
 #ifeq($($elementForm),qualified)
-  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace||Interface.Options.*targetNamespace)");
+#ifeq($($bDontWriteNs),)
+#ifneq($(.Options.*targetNamespace),)
+  $($doName).SetNamespaceUriGenPrefix("$(.Options.*targetNamespace)");
+#else
+  $($doName).RedeclareParentNamespace();
+#ifeqend
+#ifeqend // bDontWriteNs
 #ifeqend // form
   $($doName).SetValue($($sOptMod)$($sParam));
 #ifeqend  // param optimization
@@ -208,7 +245,9 @@
 #ifeq($($bUseParentElement),true||1)
 #var sdoItem $($doName)
 #else
-#var sdoParam $($doName).CreateChild("$($sItemName)")
+#var sdoItem tdoItem
+#var sdoParam tdoItem
+  staff::DataObject $($sdoItem) = $($doName).CreateChild("$($sItemName)");
 #ifeqend
 #var bUseParentElement
 #cginclude "TypeSerialization.cpp"

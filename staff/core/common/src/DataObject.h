@@ -406,17 +406,17 @@ namespace staff
     //! get parent element
     /*! \return parent element
       */
-    DataObject Parent();
+    DataObject Parent() const;
 
     //! get next sibling element
     /*! \return next sibling element
       */
-    DataObject NextSibling();
+    DataObject NextSibling() const;
 
     //! get previous sibling element
     /*! \return previous sibling element
       */
-    DataObject PreviousSibling();
+    DataObject PreviousSibling() const;
 
     //! move to the next sibling element
     /*! to check for DataObject for validaty please use IsInit() */
@@ -965,6 +965,9 @@ namespace staff
     /*! \param  sUri - default namespace
         */
     void DeclareDefaultNamespace(const std::string& sUri);
+
+    //! use namespace of parent element
+    void RedeclareParentNamespace();
 
     //! get the namespace
     /*! \return namespace

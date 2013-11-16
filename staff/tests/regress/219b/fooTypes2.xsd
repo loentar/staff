@@ -1,0 +1,9 @@
+<!-- IPTV Version='2.0.4005.0' -->
+<s:schema targetNamespace="http://namespace2"
+                  elementFormDefault="qualified"
+                  xmlns="http://namespace2"
+                  xmlns:s="http://www.w3.org/2001/XMLSchema">
+  <s:simpleType name="guid">
+    <s:restriction base="s:string"/>
+  </s:simpleType>
+</s:schema>

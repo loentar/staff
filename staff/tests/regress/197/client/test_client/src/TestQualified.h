@@ -25,6 +25,8 @@
 
 #include <string>
 #include <list>
+#include <staff/common/IService.h>
+#include <staff/common/DataObject.h>
 
 // *interface.elementFormDefault: qualified
 // *interface.attributeFormDefault: qualified
@@ -58,6 +60,13 @@ namespace tests
 
     // *isAttribute: true
     std::string d;
+  };
+
+
+  class DummyQualified: public IService
+  {
+  public:
+    virtual staff::DataObject Test(const TestDefaultQualified& data) = 0;
   };
 
 }
