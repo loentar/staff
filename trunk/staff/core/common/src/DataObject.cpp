@@ -1279,13 +1279,13 @@ namespace staff
     return *this;
   }
 
-  DataObject DataObject::Parent()
+  DataObject DataObject::Parent() const
   {
     STAFF_ASSERT(m_pAxiomNode, "Not initialized");
     return axiom_node_get_parent(m_pAxiomNode, m_pEnv);
   }
 
-  DataObject DataObject::NextSibling()
+  DataObject DataObject::NextSibling() const
   {
     axiom_node_t* pNode = NULL;
     while ((pNode = axiom_node_get_next_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
@@ -1293,7 +1293,7 @@ namespace staff
     return pNode;
   }
 
-  DataObject DataObject::PreviousSibling()
+  DataObject DataObject::PreviousSibling() const
   {
     axiom_node_t* pNode = NULL;
     while ((pNode = axiom_node_get_previous_sibling(m_pAxiomNode, m_pEnv)) != NULL &&
@@ -2835,6 +2835,26 @@ namespace staff
   void DataObject::DeclareDefaultNamespace(const std::string& sUri)
   {
     DeclareDefaultNamespace(sUri.c_str());
+  }
+
+  void DataObject::RedeclareParentNamespace()
+  {
+    STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
+
+    axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
+    if (pParentNode)
+    {
+      axiom_element_t* pParentElement =
+          reinterpret_cast<axiom_element_t*>(axiom_node_get_data_element(pParentNode, m_pEnv));
+      if (pParentElement)
+      {
+        axiom_namespace_t* pParentNamespace = axiom_element_get_namespace(pParentElement, m_pEnv, pParentNode);
+        if (pParentNamespace)
+        {
+          axiom_element_set_namespace_assume_param_ownership(m_pAxiomElement, m_pEnv, pParentNamespace);
+        }
+      }
+    }
   }
 
   Namespace DataObject::GetNamespace() const

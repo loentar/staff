@@ -8,12 +8,7 @@
 #include <staff/common/DataObject.h>
 #include <staff/common/logoperators.h>
 #include <staff/common/Exception.h>
-#include <staff/client/ServiceFactory.h>
-#include "foo.h"
-#include "fooXsd.h"
-#include "fooXsdProxy.h"
-#include "fooCommon.h"
-#include "fooCommonProxy.h"
+#include "fooProxy.h"
 
 using namespace staff;
 
@@ -21,20 +16,29 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
   try
   {
-      std::string attr1Namespace;
+      fooWebServiceProxy proxy;
       ::fooRequest fooRequest;
-      staff::DataObject dataObject1("staff-packet");
-      staff::DataObject dataObject2("staff-packet");
 
       fooRequest.fooRequest.attr1 = "value";
+      fooRequest.fooRequest.commonTypeElement = "test";
 
-      dataObject1<< fooRequest.fooRequest;
+      // here is the patched version of method, which returns the serialized request.
+      staff::DataObject root = proxy.fooMethod(fooRequest);
 
-      dataObject2 =  dataObject1.FirstChild();
+      staff::LogInfo() << root.ToString();
 
-      attr1Namespace = dataObject2.GetNamespaceUri();
+      STAFF_ASSERT(root.GetNamespaceUri() == "http://ns/v1", "Wrong namespace for root");
 
-      STAFF_ASSERT(attr1Namespace == "http://ns/v1", "Wrong namespace for attr1");
+      const staff::DataObject& child = root.FirstChild();
+      STAFF_ASSERT(child.GetNamespaceUri() == "http://ns/v1", "Wrong namespace for child");
+
+      const staff::DataObject& attr1 = child.FirstChild();
+      STAFF_ASSERT(attr1.GetNamespaceUri() == "http://ns/v1", "Wrong namespace for attr1");
+
+      const staff::DataObject& elem1 = attr1.NextSibling();
+      STAFF_ASSERT(elem1.GetNamespaceUri() == "http://common/v1", "Wrong namespace for commonTypeElement");
+
+      staff::LogInfo() << "namespaces are ok";
 
       //Normal exit (assert succeded)
       return 0;

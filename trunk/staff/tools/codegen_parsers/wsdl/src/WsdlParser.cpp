@@ -1169,7 +1169,7 @@ namespace codegen
           return false;
         }
 
-        rDataType = ComplexTypeToData(pSchemaElem->lsComplexTypes.front(), m_stWsdlTypes);
+        rDataType = ComplexTypeToData(pSchemaElem->lsComplexTypes.front(), m_stWsdlTypes, NULL, false, true);
         return true;
       }
       return false;
@@ -1224,7 +1224,9 @@ namespace codegen
                       && (!pstStruct->bExtern || !!pstStruct->mOptions.count("hidden")) &&
                   (pstStruct->lsMembers.empty() || !pstStruct->lsMembers.front().mOptions.count("choice")) &&
                   (pstStruct->mOptions.empty() ||
-                    (pstStruct->mOptions.size() == 1 && pstStruct->mOptions.count("hidden"))) &&
+                    (pstStruct->mOptions.size() ==
+                      (pstStruct->mOptions.count("hidden") +
+                       pstStruct->mOptions.count("targetNamespace")))) &&
                   pstStruct->lsStructs.empty() && pstStruct->lsEnums.empty();
             }
           }
@@ -1968,7 +1970,7 @@ namespace codegen
     }
 
     DataType SimpleTypeToData(const SimpleType& rSimpleType, const WsdlTypes& rWsdlTypes,
-                              bool bWriteAsForward = false)
+                              bool bWriteAsForward = false, bool bIsElement = false)
     {
       DataType stDataType;
 
@@ -1985,6 +1987,10 @@ namespace codegen
         }
         stEnum.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
         StringReplace(stEnum.sName, ".", "::", true);
+        if (bIsElement)
+        {
+          stEnum.mOptions["targetNamespace"] = rSimpleType.sNamespace;
+        }
 
         stDataType.eType = DataType::TypeEnum;
         stDataType.sName = stEnum.sName;
@@ -2066,6 +2072,10 @@ namespace codegen
               stTypedef.sNamespace = TnsToCppNs(rSimpleType.sNamespace);
               stTypedef.sDescr = rSimpleType.sDescr;
               stTypedef.sDetail = rSimpleType.sDetail;
+              if (bIsElement)
+              {
+                stTypedef.mOptions["targetNamespace"] = rSimpleType.sNamespace;
+              }
 
               m_stInterface.lsTypedefs.insert(m_stInterface.lsTypedefs.end(), stTypedef);
 
@@ -2269,7 +2279,8 @@ namespace codegen
     }
 
     DataType ComplexTypeToData(const ComplexType& rComplexType, const WsdlTypes& rWsdlTypes,
-                               Struct* pstOwnerStruct = NULL, bool bIsMessagePart = false)
+                               Struct* pstOwnerStruct = NULL, bool bIsMessagePart = false,
+                               bool bIsElement = false)
     {
       const BaseType* pBaseType = NULL;
       DataType stDataType;
@@ -2303,6 +2314,10 @@ namespace codegen
         stTypedef.sNamespace = stDataType.sNamespace;
         stTypedef.sDescr = rComplexType.sDescr;
         stTypedef.sDetail = rComplexType.sDetail;
+        if (bIsElement)
+        {
+          stTypedef.mOptions["targetNamespace"] = rComplexType.sNamespace;
+        }
 
         // restriction method
         if (rComplexType.lsElements.empty())
@@ -2397,6 +2412,10 @@ namespace codegen
         stTypedef.sNamespace = stDataType.sNamespace;
         stTypedef.sDescr = rComplexType.sDescr;
         stTypedef.sDetail = rComplexType.sDetail;
+        if (bIsElement)
+        {
+          stTypedef.mOptions["targetNamespace"] = rComplexType.sNamespace;
+        }
 
         stTypedef.stDataType = stDataType;
 
@@ -2433,6 +2452,10 @@ namespace codegen
           if (rComplexType.bIsAbstract)
           {
             stStruct.mOptions["abstract"] = "true";
+          }
+          if (bIsElement)
+          {
+            stStruct.mOptions["targetNamespace"] = rComplexType.sNamespace;
           }
 
           if (rComplexType.bIsInlineArray)
@@ -2564,6 +2587,7 @@ namespace codegen
           if (itElement->bIsRef)
           {
             stMember.mOptions["isRef"] = "true";
+            stMember.mOptions["targetNamespace"] = pElement->sNamespace;
           }
 
           if (!itElement->bIsRef && itElement->stType.sName.empty())
@@ -2671,7 +2695,7 @@ namespace codegen
           for (std::list<SimpleType>::const_iterator itSimpleSubtype = pElement->lsSimpleTypes.begin();
             itSimpleSubtype != pElement->lsSimpleTypes.end(); ++itSimpleSubtype)
           {
-            rDataType = SimpleTypeToData(*itSimpleSubtype, rWsdlTypes);
+            rDataType = SimpleTypeToData(*itSimpleSubtype, rWsdlTypes, false, true);
           }
         }
         else
@@ -2680,7 +2704,7 @@ namespace codegen
           for (std::list<ComplexType>::const_iterator itComplexSubtype = pElement->lsComplexTypes.begin();
             itComplexSubtype != pElement->lsComplexTypes.end(); ++itComplexSubtype)
           {
-            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, pstOwnerStruct, pElement->bIsMessage);
+            rDataType = ComplexTypeToData(*itComplexSubtype, rWsdlTypes, pstOwnerStruct, pElement->bIsMessage, true);
           }
         }
         else // reference to type
@@ -2693,12 +2717,12 @@ namespace codegen
                 FindQNameType(pElement->stType.sName, pElement->stType.sNamespace, m_stWsdlTypes.lsSimpleTypes);
             if (pSimpleType)
             {
-              rDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes);
+              rDataType = SimpleTypeToData(*pSimpleType, m_stWsdlTypes, false, true);
             }
           }
           else
           {
-            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, pstOwnerStruct, pElement->bIsMessage);
+            rDataType = ComplexTypeToData(*pComplexType, m_stWsdlTypes, pstOwnerStruct, pElement->bIsMessage, true);
           }
         }
       }
@@ -2706,13 +2730,13 @@ namespace codegen
       {
         if (!pElement->lsSimpleTypes.empty())
         {
-          rDataType = SimpleTypeToData(pElement->lsSimpleTypes.front(), rWsdlTypes);
+          rDataType = SimpleTypeToData(pElement->lsSimpleTypes.front(), rWsdlTypes, false, true);
         }
         else
         if (!pElement->lsComplexTypes.empty())
         {
           rDataType = ComplexTypeToData(pElement->lsComplexTypes.front(), rWsdlTypes, pstOwnerStruct,
-                                        pElement->bIsMessage);
+                                        pElement->bIsMessage, true);
         }
         else
         {

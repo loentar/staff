@@ -35,6 +35,7 @@ $(OBJDIR)%.o: %.cpp
 
 $(SRCDIR)%Proxy.h $(SRCDIR)%Proxy.cpp:: $(SRCDIR)%.h
 	[ "$@" -nt "$^" ] || (cd src && $(STAFF_CODEGEN) -e $(patsubst $(SRCDIR)%,%,$(HEADERS)) -tclient -n$(TARGET))
+	sed -i '/\/\/ synchronous call/,/rdoResult = /d;s/return rdoResult.*/rdoRequest.SetOwner(false);\n  return rdoRequest;/' $(SRCDIR)TestQualifiedProxy.cpp $(SRCDIR)TestUnqualifiedProxy.cpp
 
 # == clean ==========================================
 clean:

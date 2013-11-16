@@ -9,12 +9,12 @@ TARGETNAME = foo
 make: checkdeploy $(OUTDIR)$(TARGETNAME)
 
 $(OUTDIR)$(TARGETNAME):
-	staff_codegen -pwsdl -tinterface foo.wsdl -o$(SUBDIR)
+	staff_codegen -pwsdl -tinterface foo2.wsdl -o$(SUBDIR)
 # patch interface
-	sed -i '/virtual ::fooResponseType fooMethod/s/::fooResponseType/staff::DataObject/' client/foo.h
+	sed -i '/virtual void fooMethod/s/void/staff::DataObject/' client/foo2.h
 # patch proxy.cpp to return serialized request
-	staff_codegen -u -tclient foo.h -c$(SUBDIR)
-	sed -i '/\/\/ synchronous call/,/rdoResult = /d;s/return rdoResult.*/rdoRequest.SetOwner(false);\n  return rdoRequest;/' client/fooProxy.cpp
+	staff_codegen -u -tclient foo2.h -c$(SUBDIR)
+	sed -i '/\/\/ synchronous call/,/rdoResult = /d;/rOptions/d;s/return rdoResult.*/rdoRequest.SetOwner(false);\n  return rdoRequest;/' client/foo2Proxy.cpp
 	$(MAKE) -C$(SUBDIR)
 
 # == test ===========================================
@@ -28,4 +28,4 @@ checkdeploy:
 
 clean:
 	$(MAKE) -C$(SUBDIR) clean
-	rm -rf $(SUBDIR)foo.h $(SUBDIR)fooXsd.h $(SUBDIR)fooCommon.h
+	rm -rf $(SUBDIR)foo2.h $(SUBDIR)fooTypes1.h $(SUBDIR)fooTypes2.h

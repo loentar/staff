@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:schema xmlns="http://namespace1" xmlns:tns="http://namespace1" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://namespace2" targetNamespace="http://namespace1" elementFormDefault="qualified">
+
+	<s:element name="fooType1" type="fooType1"/>
+	<s:complexType name="fooType1" mixed="false">
+		<s:sequence>
+			<s:element name="attr1" type="s:string" nillable="true"/>
+		</s:sequence>
+	</s:complexType>
+
+</s:schema>

@@ -11,8 +11,24 @@
 
 int main(int /*nArgs*/, const char* /*paszArgs*/[])
 {
-  std::string expectQualified = "<ns0:q xmlns:ns0=\"http://tempui.org/test/TEST_DEFAULT_QUALIFIED\" u=\"u attr\" ns0:q=\"q attr\" ns0:d=\"d attr\"><ns0:Item>q1</ns0:Item><ns0:Item>q2</ns0:Item><Item>uq1</Item><Item>uq2</Item><ns0:Item>d1</ns0:Item><ns0:Item>d2</ns0:Item></ns0:q>";
-  std::string expectUnqualified = "<ns0:u xmlns:ns0=\"http://tempui.org/test/TEST_DEFAULT_UNQUALIFIED\" d=\"d attr\" u=\"u attr\" ns0:q=\"q attr\"><ns0:Item>q1</ns0:Item><ns0:Item>q2</ns0:Item><Item>uq1</Item><Item>uq2</Item><Item>d1</Item><Item>d2</Item></ns0:u>";
+  std::string expectQualified =
+    "<ns0:Test xmlns:ns0=\"http://tempui.org/test/TEST_DEFAULT_QUALIFIED\">"
+      "<ns0:data u=\"u attr\" ns0:q=\"q attr\" ns0:d=\"d attr\">"
+        "<ns0:Item>q1</ns0:Item><ns0:Item>q2</ns0:Item>"
+        "<Item>uq1</Item><Item>uq2</Item>"
+        "<ns0:Item>d1</ns0:Item><ns0:Item>d2</ns0:Item>"
+      "</ns0:data>"
+    "</ns0:Test>";
+
+  std::string expectUnqualified = 
+    "<ns0:Test xmlns:ns0=\"http://tempui.org/test/TEST_DEFAULT_UNQUALIFIED\">"
+      "<ns0:data d=\"d attr\" u=\"u attr\" ns0:q=\"q attr\">"
+        "<ns0:Item>q1</ns0:Item><ns0:Item>q2</ns0:Item>"
+        "<Item>uq1</Item><Item>uq2</Item>"
+        "<Item>d1</Item><Item>d2</Item>"
+      "</ns0:data>"
+    "</ns0:Test>";
+
   try
   {
     staff::tests::TestDefaultQualified qual;
@@ -30,8 +46,8 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     qual.u = "u attr";
     qual.d = "d attr";
 
-    staff::DataObject doQual("q");
-    doQual << qual;
+    staff::tests::DummyQualifiedProxy qualifiedProxy;
+    staff::DataObject doQual = qualifiedProxy.Test(qual);
 
     const std::string& strQual = doQual.ToString();
 
@@ -50,8 +66,8 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     unqual.u = "u attr";
     unqual.d = "d attr";
 
-    staff::DataObject doUnqual("u");
-    doUnqual << unqual;
+    staff::tests::DummyUnqualifiedProxy unqualifiedProxy;
+    staff::DataObject doUnqual = unqualifiedProxy.Test(unqual);
 
     const std::string& strUnqual = doUnqual.ToString();
 
@@ -63,7 +79,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     {
       staff::LogInfo() << "qualified" << staff::LogResultFailed;
       staff::LogError() << "expectQualified != strQual: \nresult\n\n"
-          << expectQualified << "\n\nexpected:\n\n" << strQual;
+           << strQual<< "\n\nexpected:\n\n" << expectQualified;
       return 1;
     }
     staff::LogInfo() << "qualified" << staff::LogResultSuccess;
@@ -72,7 +88,7 @@ int main(int /*nArgs*/, const char* /*paszArgs*/[])
     {
     staff::LogInfo() << "unqualified" << staff::LogResultFailed;
       staff::LogError() << "expectUnqualified != strUnqual: \nresult\n\n"
-          << expectUnqualified << "\n\nexpected:\n\n" << strUnqual;
+          << strUnqual << "\n\nexpected:\n\n" << expectUnqualified;
       return 2;
     }
     staff::LogInfo() << "unqualified" << staff::LogResultSuccess;
