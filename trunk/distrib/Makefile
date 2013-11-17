@@ -54,6 +54,8 @@ distrib_deploy_dev:
 	@find $(DEPLOYDIR)$(STAFF_HOME)/lib/ -maxdepth 1 -type l -a \! -name '*codegen*' -exec cp -dp {} $(DISTRIBDIR_DEPLOY_DEV)usr/lib/ \;
 	@cp -Rdpf $(DEPLOYDIR)$(STAFF_HOME)/lib/*codegenparser* $(DISTRIBDIR_DEPLOY_DEV)usr/lib/
 	@cp -Rdpf $(DEPLOYDIR)$(STAFF_HOME)/lib/codegen/* $(DISTRIBDIR_DEPLOY_DEV)usr/lib/staff/codegen/
+	@mkdir -p $(DISTRIBDIR_DEPLOY_DEV)/usr/lib/pkgconfig/
+	@sed "s:__STAFF_HOME__:$(STAFF_HOME):g;s/__VERSION__/$(PACKAGE_VERSION)/g" $(TOPDIR)/distrib/pkgconfig/wsf-staff.pc > $(DISTRIBDIR_DEPLOY_DEV)/usr/lib/pkgconfig/wsf-staff.pc
 	@# ---- man documentation ----
 	@mkdir -p $(DISTRIBDIR_DEPLOY_DEV)usr/share/man/man1 && cp -Rf $(TOPDIR)/distrib/man/staff_codegen.1 $(DISTRIBDIR_DEPLOY_DEV)usr/share/man/man1/
 
