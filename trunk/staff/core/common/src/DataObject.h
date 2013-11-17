@@ -95,6 +95,9 @@ namespace staff
     DataObject(const char* szLocalName, float fValue);
     DataObject(const char* szLocalName, double dValue);
     DataObject(const char* szLocalName, long double ldValue);
+    DataObject(const char* szLocalName, float fValue, const char* szPrec);
+    DataObject(const char* szLocalName, double dValue, const char* szPrec);
+    DataObject(const char* szLocalName, long double ldValue, const char* szPrec);
 
     DataObject(const std::string& sLocalName, bool bValue);
     DataObject(const std::string& sLocalName, byte btValue);
@@ -110,6 +113,9 @@ namespace staff
     DataObject(const std::string& sLocalName, float fValue);
     DataObject(const std::string& sLocalName, double dValue);
     DataObject(const std::string& sLocalName, long double ldValue);
+    DataObject(const std::string& sLocalName, float fValue, const char* szPrec);
+    DataObject(const std::string& sLocalName, double dValue, const char* szPrec);
+    DataObject(const std::string& sLocalName, long double ldValue, const char* szPrec);
 
     //! initializing constructor
     /*! \param  szLocalName - local name for creating node(C-string)
@@ -325,6 +331,9 @@ namespace staff
     void Create(const char* szLocalName, float fValue);
     void Create(const char* szLocalName, double dValue);
     void Create(const char* szLocalName, long double ldValue);
+    void Create(const char* szLocalName, float fValue, const char* szPrec);
+    void Create(const char* szLocalName, double dValue, const char* szPrec);
+    void Create(const char* szLocalName, long double ldValue, const char* szPrec);
     void Create(const char* szLocalName, const QName& rstQName);
 
     void Create(const std::string& sLocalName, bool bValue);
@@ -341,6 +350,9 @@ namespace staff
     void Create(const std::string& sLocalName, float fValue);
     void Create(const std::string& sLocalName, double dValue);
     void Create(const std::string& sLocalName, long double ldValue);
+    void Create(const std::string& sLocalName, float fValue, const char* szPrec);
+    void Create(const std::string& sLocalName, double dValue, const char* szPrec);
+    void Create(const std::string& sLocalName, long double ldValue, const char* szPrec);
     void Create(const std::string& sLocalName, const QName& rstQName);
 
     //! create named node, set ownership flag, set node value(string)
@@ -488,6 +500,9 @@ namespace staff
     DataObject CreateChild(const char* szLocalName, float fValue);
     DataObject CreateChild(const char* szLocalName, double dValue);
     DataObject CreateChild(const char* szLocalName, long double ldValue);
+    DataObject CreateChild(const char* szLocalName, float fValue, const char* szPrec);
+    DataObject CreateChild(const char* szLocalName, double dValue, const char* szPrec);
+    DataObject CreateChild(const char* szLocalName, long double ldValue, const char* szPrec);
     DataObject CreateChild(const char* szLocalName, const QName& rstQName);
 
     DataObject CreateChild(const std::string& sLocalName, bool bValue);
@@ -504,6 +519,9 @@ namespace staff
     DataObject CreateChild(const std::string& sLocalName, float fValue);
     DataObject CreateChild(const std::string& sLocalName, double dValue);
     DataObject CreateChild(const std::string& sLocalName, long double ldValue);
+    DataObject CreateChild(const std::string& sLocalName, float fValue, const char* szPrec);
+    DataObject CreateChild(const std::string& sLocalName, double dValue, const char* szPrec);
+    DataObject CreateChild(const std::string& sLocalName, long double ldValue, const char* szPrec);
     DataObject CreateChild(const std::string& sLocalName, const QName& rstQName);
 
     //! create child node with local name and value
@@ -781,6 +799,9 @@ namespace staff
     void SetValue(float fValue);
     void SetValue(double dValue);
     void SetValue(long double ldValue);
+    void SetValue(float fValue, const char* szPrec);
+    void SetValue(double dValue, const char* szPrec);
+    void SetValue(long double ldValue, const char* szPrec);
     void SetValue(const char* szText);
     void SetValue(const std::string& sText);
     void SetValue(const QName& rstQName);
@@ -1084,6 +1105,9 @@ namespace staff
     void CreateAttribute(const char* szAttrName, float fValue);
     void CreateAttribute(const char* szAttrName, double dValue);
     void CreateAttribute(const char* szAttrName, long double ldValue);
+    void CreateAttribute(const char* szAttrName, float fValue, const char* szPrec);
+    void CreateAttribute(const char* szAttrName, double dValue, const char* szPrec);
+    void CreateAttribute(const char* szAttrName, long double ldValue, const char* szPrec);
     void CreateAttribute(const char* szAttrName, const QName& rstQName);
 
     void CreateAttribute(const std::string& sAttrName, bool bValue);
@@ -1100,6 +1124,9 @@ namespace staff
     void CreateAttribute(const std::string& sAttrName, float fValue);
     void CreateAttribute(const std::string& sAttrName, double dValue);
     void CreateAttribute(const std::string& sAttrName, long double ldValue);
+    void CreateAttribute(const std::string& sAttrName, float fValue, const char* szPrec);
+    void CreateAttribute(const std::string& sAttrName, double dValue, const char* szPrec);
+    void CreateAttribute(const std::string& sAttrName, long double ldValue, const char* szPrec);
     void CreateAttribute(const std::string& sAttrName, const QName& rstQName);
 
     //! create and add attribute

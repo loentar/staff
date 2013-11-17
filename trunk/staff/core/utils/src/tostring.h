@@ -32,7 +32,7 @@ namespace staff
   template<typename Type>
   std::string ToString(Type tValue)
   {
-    char szBuffer[32];
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(tValue, szBuffer, sizeof(szBuffer));
     return szBuffer;
   }
@@ -40,7 +40,7 @@ namespace staff
   template<typename Type>
   std::string& ToString(Type tValue, std::string& sResult)
   {
-    char szBuffer[32];
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(tValue, szBuffer, sizeof(szBuffer));
     sResult = szBuffer;
     return sResult;
@@ -49,7 +49,7 @@ namespace staff
   template<typename Type>
   std::string ToString(Type tValue, bool* pbIsOk)
   {
-    char szBuffer[32];
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
     bool bIsOk = ToCString(tValue, szBuffer, sizeof(szBuffer));
     if (pbIsOk)
     {
@@ -61,7 +61,7 @@ namespace staff
   template<typename Type>
   std::string& ToString(Type tValue, std::string& sResult, bool* pbIsOk)
   {
-    char szBuffer[32];
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
     bool bIsOk = ToCString(tValue, szBuffer, sizeof(szBuffer));
     if (pbIsOk)
     {
@@ -75,7 +75,7 @@ namespace staff
   template<typename Type>
   std::string ToHexString(Type tValue)
   {
-    char szBuffer[32];
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToHexCString(tValue, szBuffer, sizeof(szBuffer));
     return szBuffer;
   }

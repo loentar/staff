@@ -38,6 +38,10 @@ namespace staff
   typedef char byte;
   typedef unsigned char unsignedByte;
 
+#ifndef NUM_TO_STR_BUFF_SIZE
+  static const int NUM_TO_STR_BUFF_SIZE = 32;
+#endif
+
 
   inline bool ToCString(bool bValue, char* szBuffer, int nBufferSize)
   {
@@ -122,6 +126,37 @@ namespace staff
 #else
     return staff_snprintf(szBuffer, nBufferSize, "%Lf", ldValue) < nBufferSize;
 #endif
+  }
+
+  inline bool ToCString(float fValue, char* szBuffer, int nBufferSize, const char* szPrec)
+  {
+    char szFormat[NUM_TO_STR_BUFF_SIZE];
+    if (staff_snprintf(szFormat, nBufferSize, "%%%sf", szPrec) >= nBufferSize)
+      return false;
+
+    return staff_snprintf(szBuffer, nBufferSize, szFormat, fValue) < nBufferSize;
+  }
+
+  inline bool ToCString(double dValue, char* szBuffer, int nBufferSize, const char* szPrec)
+  {
+    char szFormat[NUM_TO_STR_BUFF_SIZE];
+    if (staff_snprintf(szFormat, nBufferSize, "%%%sf", szPrec) >= nBufferSize)
+      return false;
+
+    return staff_snprintf(szBuffer, nBufferSize, szFormat, dValue) < nBufferSize;
+  }
+
+  inline bool ToCString(long double ldValue, char* szBuffer, int nBufferSize, const char* szPrec)
+  {
+    char szFormat[NUM_TO_STR_BUFF_SIZE];
+#ifdef WIN32
+    if (staff_snprintf(szFormat, nBufferSize, "%%%sLe", szPrec) >= nBufferSize)
+#else
+    if (staff_snprintf(szFormat, nBufferSize, "%%%sLf", szPrec) >= nBufferSize)
+#endif
+      return false;
+
+    return staff_snprintf(szBuffer, nBufferSize, szFormat, ldValue) < nBufferSize;
   }
 
 

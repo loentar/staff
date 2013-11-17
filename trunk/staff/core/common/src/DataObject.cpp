@@ -43,8 +43,6 @@
 
 namespace staff
 {
-  enum { NUM_TO_STR_BUFF_SIZE = 32 };
-
   static const char* g_szXsiSchemaUrl = "http://www.w3.org/2001/XMLSchema-instance";
 
   DataObject::DataObject(axiom_node_t* pAxiomNode /*= NULL*/):
@@ -230,6 +228,36 @@ namespace staff
     Create(szLocalName, szBuffer);
   }
 
+  DataObject::DataObject(const char* szLocalName, float fValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
+  DataObject::DataObject(const char* szLocalName, double dValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
+  DataObject::DataObject(const char* szLocalName, long double ldValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
 
   DataObject::DataObject(const std::string& sLocalName, bool bValue):
     m_pAxiomNode(NULL),
@@ -368,6 +396,36 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject::DataObject(const std::string& sLocalName, float fValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject::DataObject(const std::string& sLocalName, double dValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject::DataObject(const std::string& sLocalName, long double ldValue, const char* szPrec):
+    m_pAxiomNode(NULL),
+    m_pAxiomElement(NULL),
+    m_bOwner(false)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
     Create(sLocalName.c_str(), szBuffer);
   }
 
@@ -910,6 +968,27 @@ namespace staff
     Create(szLocalName, szBuffer);
   }
 
+  void DataObject::Create(const char* szLocalName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
+  void DataObject::Create(const char* szLocalName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
+  void DataObject::Create(const char* szLocalName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(szLocalName, szBuffer);
+  }
+
   void DataObject::Create(const char* szLocalName, const QName& rstQName)
   {
     Create(szLocalName, rstQName.ToString().c_str());
@@ -1011,6 +1090,27 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void DataObject::Create(const std::string& sLocalName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void DataObject::Create(const std::string& sLocalName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    Create(sLocalName.c_str(), szBuffer);
+  }
+
+  void DataObject::Create(const std::string& sLocalName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
     Create(sLocalName.c_str(), szBuffer);
   }
 
@@ -1485,6 +1585,27 @@ namespace staff
     return CreateChild(szLocalName, szBuffer);
   }
 
+  DataObject DataObject::CreateChild(const char* szLocalName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const char* szLocalName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const char* szLocalName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateChild(szLocalName, szBuffer);
+  }
+
   DataObject DataObject::CreateChild(const char* szLocalName, const QName& rstQName)
   {
     return CreateChild(szLocalName, rstQName.ToString().c_str());
@@ -1586,6 +1707,27 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const std::string& sLocalName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const std::string& sLocalName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateChild(sLocalName.c_str(), szBuffer);
+  }
+
+  DataObject DataObject::CreateChild(const std::string& sLocalName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
     return CreateChild(sLocalName.c_str(), szBuffer);
   }
 
@@ -2233,6 +2375,27 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    SetValue(szBuffer);
+  }
+
+  void DataObject::SetValue(float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    SetValue(szBuffer);
+  }
+
+  void DataObject::SetValue(double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    SetValue(szBuffer);
+  }
+
+  void DataObject::SetValue(long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
     SetValue(szBuffer);
   }
 
@@ -3069,6 +3232,27 @@ namespace staff
     return CreateAttribute(szAttrName, szBuffer);
   }
 
+  void DataObject::CreateAttribute(const char* szAttrName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const char* szAttrName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateAttribute(szAttrName, szBuffer);
+  }
+
   void DataObject::CreateAttribute(const char* szAttrName, const QName& rstQName)
   {
     return CreateAttribute(szAttrName, rstQName.ToString().c_str());
@@ -3170,6 +3354,27 @@ namespace staff
   {
     char szBuffer[NUM_TO_STR_BUFF_SIZE];
     ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, float fValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(fValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, double dValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(dValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
+    return CreateAttribute(sAttrName.c_str(), szBuffer);
+  }
+
+  void DataObject::CreateAttribute(const std::string& sAttrName, long double ldValue, const char* szPrec)
+  {
+    char szBuffer[NUM_TO_STR_BUFF_SIZE];
+    ToCString(ldValue, szBuffer, NUM_TO_STR_BUFF_SIZE, szPrec);
     return CreateAttribute(sAttrName.c_str(), szBuffer);
   }
 
