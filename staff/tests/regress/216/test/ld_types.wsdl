@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    name="foo_types"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:staff="http://tempui.org/wsf/staff"
+    xmlns:ns_ns_staff="http://tempui.org/ns_staff"
+    targetNamespace="http://tempui.org/ns_staff">
+
+  <wsdl:types>
+    <schema
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://tempui.org/ns_staff">
+
+      <!-- structures -->
+
+      <complexType name="TestLongDouble">
+        <sequence>
+          <element name="ld" type="staff:longDouble"/>
+        </sequence>
+      </complexType>
+
+
+      <!-- requests, responses of service ns_staff.Test -->
+
+      <!-- void test(const TestLongDouble& st) -->
+      <element name="test">
+        <complexType>
+          <sequence>
+            <element name="st" type="ns_ns_staff:TestLongDouble"/>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="testResult">
+        <complexType/>
+      </element>
+    </schema>
+  </wsdl:types>
+
+  <!-- Messages of service ns_staff.Test -->
+  <wsdl:message name="ns_staff_Test_testRequest">
+    <wsdl:part element="ns_ns_staff:test" name="ns_staff_Test_testRequest"/>
+  </wsdl:message>
+
+  <wsdl:message name="ns_staff_Test_testResponse">
+    <wsdl:part element="ns_ns_staff:testResult" name="ns_staff_Test_testResponse"/>
+  </wsdl:message>
+
+  <!-- Port Type of service ns_staff.Test -->
+  <wsdl:portType name="TestPortType">
+    <wsdl:operation name="test">
+      <wsdl:input message="ns_ns_staff:ns_staff_Test_testRequest" name="testRequest"/>
+      <wsdl:output message="ns_ns_staff:ns_staff_Test_testResponse" name="testResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+
+
+  <!-- binding of service ns_staff.Test -->
+  <wsdl:binding name="TestSoapBinding" type="ns_ns_staff:TestPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="test">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="testRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="testResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+
+
+  <!-- service ns_staff.Test -->
+  <wsdl:service name="Test">
+    <wsdl:port binding="ns_ns_staff:TestSoapBinding" name="TestSoapPort">
+      <soap:address location="http://localhost:9090/axis2/services/ns_staff.Test"/>
+    </wsdl:port>
+  </wsdl:service>
+
+
+</wsdl:definitions>
