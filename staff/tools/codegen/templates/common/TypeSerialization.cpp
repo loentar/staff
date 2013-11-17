@@ -117,7 +117,11 @@
 #ifeqend
 \
 #ifeq($(.Type),generic||string||typedef)
-  $($doName).CreateAttribute($($sAttrPrefix)$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam));
+  $($doName).CreateAttribute($($sAttrPrefix)$(.Options.*elementName||$sParamName)", $($sOptMod)$($sParam)\
+#ifneq($(.Options.*precision),)
+, "$(.Options.precision)"\
+#ifeqend
+);
 #else
 #ifeq($(.Type),enum)
   $($doName).CreateAttribute($($sAttrPrefix)$(.Options.*elementName||$sParamName)", \
@@ -141,7 +145,11 @@
 #ifeq($($sdoParam.!match/.CreateChild/),true)
 #ifeq($($elementForm),qualified)
 #var doName tdoParam$($sParamName)$($nItemLevel)
-  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam))\
+  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)\
+#ifneq($(.Options.*precision),)
+, "$(.Options.precision)"\
+#ifeqend
+)\
 #ifeq($($bDontWriteNs),)
 #ifneq($(.Options.*targetNamespace),)
 .SetNamespaceUriGenPrefix("$(.Options.*targetNamespace)")\
@@ -151,7 +159,11 @@
 #ifeqend
 ;
 #else  // !qualified
-  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam));
+  $($sdoParam.!depostfix/\)/), $($sOptMod)$($sParam)\
+#ifneq($(.Options.*precision),)
+, "$(.Options.precision)"\
+#ifeqend
+);
 #ifeqend
 #else
 #ifeq($($elementForm),qualified)
@@ -163,7 +175,11 @@
 #ifeqend
 #ifeqend // bDontWriteNs
 #ifeqend // form
-  $($doName).SetValue($($sOptMod)$($sParam));
+  $($doName).SetValue($($sOptMod)$($sParam)\
+#ifneq($(.Options.*precision),)
+, "$(.Options.precision)"\
+#ifeqend
+);
 #ifeqend  // param optimization
 #ifeqend // anyAttribute
 #else
