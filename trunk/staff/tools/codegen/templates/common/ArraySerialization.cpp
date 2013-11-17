@@ -47,10 +47,10 @@
 #var nArrayRecursionLevel $($nArrayRecursionLevel.!dec)
 #else  // --------------------------- not a sub-array ---------------------------------
 \
-#var doName tdoItem
 #var sOptMod
 #var sParam $($sOptMod)$($sParam)[$($sPos)]
 #var sParamName Item
+#var doName tdoParam$($sParamName)$($nItemLevel)
 #context $(.TemplateParams.TemplateParam1)
 #var sElementName $($sElementName||.Options.*elementName||"Item")
 #var sdoParam $($doPrevName).CreateChild("$($sElementName)")
