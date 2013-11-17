@@ -1,0 +1,11 @@
+prefix=__STAFF_HOME__
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: wsf-staff
+Description: Web Services Framework for C++ based on Axis2/C.
+Requires: axis2c
+Version: __VERSION__
+Libs: -L${libdir} -lstaffutils -lstaffcommon
+Cflags: -I${includedir}

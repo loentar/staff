@@ -38,9 +38,12 @@ else
 $(MAKECMDGOALS): $(MAKE_ORDER_DEPS)
 ifeq ($(OS)|$(MAKECMDGOALS),Linux|install)
 ifeq ($(wildcard /etc/ld.so.conf.d/staff.conf),)
-	-@$(ECHO) "$(STAFF_HOME)/lib\n$(AXIS2C_HOME)/lib" > /etc/ld.so.conf.d/staff.conf
+	-$(ECHO) "$(STAFF_HOME)/lib\n$(AXIS2C_HOME)/lib" > /etc/ld.so.conf.d/staff.conf
 endif
-	-@ldconfig
+	-ldconfig
+ifeq ($(wildcard /usr/local/lib/pkgconfig/wsf-staff.pc),)
+	-sed "s:__STAFF_HOME__:$(STAFF_HOME):g;s/__VERSION__/$(PACKAGE_VERSION)/g" distrib/pkgconfig/wsf-staff.pc > /usr/local/lib/pkgconfig/wsf-staff.pc
+endif
 endif
 endif
 endif
