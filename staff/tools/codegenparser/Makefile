@@ -1,21 +1,21 @@
 include ../../Makefile.env
 
 TARGET = codegen
-LIBTARGETVER = $(LIBPREFIX)staff$(TARGET)parser$(LIBVEREXT)
-LIBTARGET = $(LIBPREFIX)staff$(TARGET)parser$(LIBEXT)
+LIBTARGET_BASE = $(LIBPREFIX)staff$(TARGET)parser
 
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CXXFLAGS += -DSTAFF_CODEGENPARSER_DLL_EXPORTS=1 -DAXIS2_DECLARE_EXPORT
 endif
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-LDFLAGS +=
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
 SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
 
 .NOTPARALLEL: $(OUTDIR)$(LIBTARGETVER) deploy
 
@@ -32,7 +32,6 @@ $(OBJDIR)%.o: %.cpp
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)" "$(DEPLOYDIR)$(INCDIR)"
-	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)
 	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
 	cp -f $(SRCDIR)*.h $(DEPLOYDIR)$(INCDIR)
 
@@ -42,6 +41,9 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(LIBDIR)" "$(INSTALLDIR)$(INCDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 	cp -f $(SRCDIR)*.h $(INSTALLDIR)$(INCDIR)
 

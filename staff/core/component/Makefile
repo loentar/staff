@@ -3,8 +3,11 @@ include ../../Makefile.env
 TARGET = component
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CXXFLAGS += -DSTAFF_COMPONENT_DLL_EXPORTS=1
+ifeq ($(OS),WINSDK)
+  CXXFLAGS += -DWINE_CL_WORKAROUND
+endif
 endif
 
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib
@@ -23,6 +26,8 @@ LDFLAGS += -lstaffsecurity
 endif
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
+
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
@@ -37,9 +42,8 @@ $(OBJDIR)%.o: %.cpp
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers
 
-deploy_libs: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(LIBTARGETVER)
-	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGETVER)
-	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
+deploy_libs: $(OUTDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(OUTDIR)$(LIBTARGET)
 
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
@@ -54,6 +58,9 @@ install: check "$(INSTALLDIR)" install_libs install_headers
 
 install_libs: "$(INSTALLDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGETVER)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 
 install_headers: "$(INSTALLDIR)$(INCDIR)"

@@ -11,7 +11,7 @@ DEPLOYLIBDIR = $(DEPLOYROOTDIR)$(AXIS2C_HOME)/services/staff/
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\"
 CXXFLAGS += -c -I$(DEPLOYDIR)include
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib $(LDAXIS2LIBS)
-LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent -lstdc++
+LDFLAGS += -lstaffutils -lstaffcommon -lstaffcomponent
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 ifeq ($(WITHOUT_SECURITY),)

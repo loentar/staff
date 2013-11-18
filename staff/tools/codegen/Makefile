@@ -1,7 +1,7 @@
 include ../../Makefile.env
 
 TARGET = codegen
-TARGETNAME = staff_$(TARGET)
+TARGETNAME = staff_$(TARGET)$(EXEC_EXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\" -DLIBRARY_VERSION=\"$(LIBRARY_VERSION)\"
@@ -13,6 +13,8 @@ VPATH = $(SRCDIR)
 
 SOURCES = $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+OUTDIR := $(DEPLOYDIR)$(BINDIR)
 
 # == make ===========================================
 make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
@@ -26,8 +28,7 @@ $(OBJDIR)%.o: %.cpp
 	$(CXXHOST) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(BINDIR)" "$(DEPLOYDIR)$(INCDIR)" "$(DEPLOYDIR)$(LIBDIR)codegen/" $(OUTDIR)$(TARGETNAME)
-	cp -f $(OUTDIR)$(TARGETNAME) $(DEPLOYDIR)$(BINDIR)$(TARGETNAME)
+deploy: "$(DEPLOYDIR)$(INCDIR)" "$(DEPLOYDIR)$(LIBDIR)codegen/"
 	cp -Rf templates $(DEPLOYDIR)$(LIBDIR)codegen/
 	find $(DEPLOYDIR)$(LIBDIR)codegen/ -type d -name '.svn' | xargs rm -Rf
 

@@ -11,7 +11,7 @@ CFLAGS += -c -I$(DEPLOYDIR)include -I$(AXIS2C_INCDIR)
 CFLAGS += -DLIBRARY_VEREXT=\"$(LIBVEREXT)\"
 LFLAGS += -L$(DEPLOYDIR)lib -L$(AXIS2C_LIBDIR) $(LDAXIS2LIBS)
 ifneq ($(OS),FreeBSD)
-ifneq ($(OS),MINGW)
+ifeq (,$(filter $(OS),MINGW WINSDK))
   LFLAGS += -ldl
 endif
 endif

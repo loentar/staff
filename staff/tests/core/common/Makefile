@@ -1,7 +1,7 @@
 include ../../../Makefile.env
 
 TARGET = core_common
-TARGETNAME = staff_test_$(TARGET)
+TARGETNAME = staff_test_$(TARGET)$(EXEC_EXT)
 
 # == 
 CXXFLAGS += -c -I$(DEPLOYDIR)$(INCDIR)
@@ -29,7 +29,7 @@ distrib:;
 
 # == test ===========================================
 test: make
-	unset STAFF_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(LD_LIBRARY_PATH):$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
+	unset STAFF_LOG_LEVEL; $(LIBRARY_PATH_ENV)=$(LD_LIBRARY_PATH)$(PATH_SEPARATOR)$(AXIS2C_HOME)/lib:$(DEPLOYDIR)$(LIBDIR) $(OUTDIR)$(TARGETNAME)
 
 checkdeploy:
 	@test -d $(DEPLOYDIR) || (echo "Please compile staff first."; false)

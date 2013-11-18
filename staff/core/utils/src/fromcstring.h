@@ -30,7 +30,7 @@
 #define staff_strtoll _strtoi64
 #define staff_strtoull _strtoui64
 #define staff_strtof(str, end) static_cast<float>(strtod(str, end))
-#define staff_strtold static_cast<long double>(strtod(str, end))
+#define staff_strtold(str, end) static_cast<long double>(strtod(str, end))
 #else
 #define staff_strtoll strtoll
 #define staff_strtoull strtoull

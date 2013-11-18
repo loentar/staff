@@ -2,8 +2,7 @@ include ../../Makefile.env
 
 COMPONENT = staff.das/providers/staff.das.Services
 TARGET = services
-LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
-LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
+LIBTARGET_BASE = $(LIBPREFIX)staffdasprov-$(TARGET)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -lstaffutils -lstaffxml -lstaffcomponent -lstaffcommon -lstaffdascommon
@@ -34,6 +33,9 @@ distrib:;
 # == install ========================================
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 
 # == uninstall ======================================

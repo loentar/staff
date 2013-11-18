@@ -50,6 +50,7 @@ $(OUTDIR)$(COMPONENT).%.wsdl: $(SRCDIR)%.h
 deploy: "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/" $(OUTDIR)$(LIBTARGETVER)
 	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(COMDIR)$(COMPONENT)/"
 	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
+	cp -f $(patsubst $(SRCDIR)%, $(OUTDIR)%, $(WSDLS)) $(DEPLOYDIR)$(COMDIR)$(COMPONENT)/
 
 # == distrib =========================================
 distrib:;

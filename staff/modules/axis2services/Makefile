@@ -4,6 +4,7 @@ TARGET = axis2services
 TARGETNAME = .libs/mod_$(TARGET).so
 
 # == make ===========================================
+ifneq ($(OS),WINSDK)
 ifeq ($(CROSSCOMPILE),0)
 ifneq ($(APXS),)
 make: $(TARGETNAME) deploy
@@ -14,6 +15,10 @@ endif
 else
 make:
 	@$(ECHO) "Crosscompilation of axis2services is not supported now"
+endif
+else
+make:
+	@$(ECHO) "Compilation of axis2services under winsdk is not supported now"
 endif
 
 ifeq ($(OS),FreeBSD)
@@ -41,6 +46,7 @@ clean:
 
 # == deploy ==========================================
 deploy: $(TARGETNAME)
+ifneq ($(OS),WINSDK)
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	mkdir -p $(DEPLOYROOTDIR)etc/apache2/mods-available/ $(DEPLOYROOTDIR)etc/apache2/mods-enabled/ $(DEPLOYROOTDIR)usr/lib/apache2/modules/
@@ -61,12 +67,14 @@ else
 endif
 endif
 endif
+endif
 
 # == distrib =========================================
 distrib:;
 
-ifeq ($(CROSSCOMPILE),0)
 install:
+ifneq ($(OS),WINSDK)
+ifeq ($(CROSSCOMPILE),0)
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	test -e /etc/apache2/mods-available/$(TARGET).conf || cp -f conf/$(TARGET).conf /etc/apache2/mods-available/
@@ -94,12 +102,12 @@ else
 endif
 endif
 endif
-else
-install:;
+endif
 endif
 
-ifeq ($(CROSSCOMPILE),0)
 uninstall:
+ifneq ($(OS),WINSDK)
+ifeq ($(CROSSCOMPILE),0)
 ifneq ($(APXS),)
 ifeq ($(LINUX_VERSION),debian)
 	a2dismod $(TARGET)
@@ -120,7 +128,7 @@ else
 endif
 endif
 endif
-uninstall:
+endif
 endif
 
 

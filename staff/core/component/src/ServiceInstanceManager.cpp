@@ -25,10 +25,9 @@
 
 #include <map>
 #include <staff/utils/SharedPtr.h>
-#include <staff/common/Exception.h>
 #include <staff/utils/Log.h>
-#include <staff/utils/SharedPtr.h>
 #include <staff/utils/Mutex.h>
+#include <staff/common/Exception.h>
 #include <staff/common/IService.h>
 #include "SharedContext.h"
 #include "ServiceWrapper.h"
@@ -39,9 +38,15 @@ namespace staff
   class ServiceInstanceManager::ServiceInstanceManagerImpl
   {
   public:
+#ifndef WINE_CL_WORKAROUND
     typedef std::map<std::string, PIService> InstanceMap;
     typedef std::map<std::string, InstanceMap> ServiceMap;
     typedef std::map<std::string, ServiceMap> SessionMap;
+#else
+    class InstanceMap: public std::map<std::string, PIService>{};
+    class ServiceMap: public std::map<std::string, InstanceMap>{};
+    class SessionMap: public std::map<std::string, ServiceMap>{};
+#endif
 
     ~ServiceInstanceManagerImpl()
     {

@@ -40,13 +40,15 @@ ifeq (\$(OS),Darwin)
   CXXFLAGS += -fPIC
   LDFLAGS += -fPIC
 else
-ifeq (\$(OS),MINGW)
+ifneq (,\$(filter \$(OS),MINGW WINSDK))
   LIBPREFIX =
   LIBEXT = .dll
   LDLIB = -shared -Wl,-soname,
   export STAFF_HOME := \$(subst :,,\$(subst \,/,/\$(STAFF_HOME)))
+ifeq (\$(OS),MINGW)
   CFLAGS += -DAXIS2_SKIP_INT_TYPEDEFS
   CXXFLAGS += -DAXIS2_SKIP_INT_TYPEDEFS
+endif
 else
   LIBPREFIX = lib
   LIBEXT = .so

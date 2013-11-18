@@ -4,7 +4,7 @@ TARGET = dascommon
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 CXXFLAGS += -DVERSION_FULL=\"$(VERSION_FULL)\" -DLIBRARY_VERSION=\"$(LIBRARY_VERSION)\"
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CXXFLAGS += -DSTAFF_DAS_COMMON_DLL_EXPORTS
 endif
 LDFLAGS += -lstaffutils -lstaffxml -lstaffcommon -lstaffcomponent
@@ -12,6 +12,8 @@ LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 SOURCES = $(wildcard $(SRCDIR)*.cpp)
 OBJECTS = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
 
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
@@ -25,9 +27,8 @@ $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
-deploy: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)include/staff/das/common/"
+deploy: "$(DEPLOYDIR)$(LIBDIR)" "$(DEPLOYDIR)include/staff/das/common/"
 	cp -f $(SRCDIR)*.h $(DEPLOYDIR)include/staff/das/common/
-	cp -f $(OUTDIR)$(LIBTARGETVER) "$(DEPLOYDIR)$(LIBDIR)"
 	$(LN) $(LIBTARGETVER) "$(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)"
 
 # == distrib =========================================
@@ -37,6 +38,9 @@ distrib:;
 install: check "$(INSTALLDIR)$(LIBDIR)" "$(STAFF_HOME)/include/staff/das/common/"
 	cp -f $(SRCDIR)*.h $(STAFF_HOME)/include/staff/das/common/
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) "$(INSTALLDIR)$(LIBDIR)$(LIBTARGET)"
 
 # == uninstall ======================================

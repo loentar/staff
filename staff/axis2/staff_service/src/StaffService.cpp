@@ -54,7 +54,7 @@
 #include <staff/component/SharedContext.h>
 #include "Axis2Utils.h"
 #include "ServiceDispatcher.h"
-#ifdef _MSC_VER
+#if !defined VERSION_FULL && defined _MSC_VER
 #include "version.h"
 #endif
 

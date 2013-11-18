@@ -6,7 +6,7 @@ LIBTARGETVER = $(LIBPREFIX)staff$(TARGET)$(LIBVEREXT)
 LIBTARGET = $(LIBPREFIX)staff$(TARGET)$(LIBEXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
-LDFLAGS += -I$(DEPLOYDIR)lib -lstaffcommon -lstaffutils -lstaffcomponent
+LDFLAGS += -L$(DEPLOYDIR)lib -lstaffcommon -lstaffutils -lstaffcomponent
 LDFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 COMPONENT_SERVICES := $(patsubst $(SRCDIR)%Impl.h, %, $(filter-out $(SRCDIR)ComponentImpl.h, $(wildcard $(SRCDIR)*Impl.h)))
