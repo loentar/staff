@@ -1,7 +1,7 @@
 include ../../../Makefile.env
 
 TARGET = echo_custom_client_non_blocking
-TARGETNAME = $(TARGET)
+TARGETNAME = $(TARGET)$(EXEC_EXT)
 
 CXXFLAGS += -I$(DEPLOYDIR)include
 LDFLAGS += -L$(DEPLOYDIR)lib -L$(STAFF_HOME)/lib -lstaffutils -lstaffcommon -lstaffclient

@@ -3,7 +3,7 @@ include ../../Makefile.env
 TARGET = security
 
 CXXFLAGS += -c -DSQLITE_THREADSAFE=1
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CXXFLAGS += -DSTAFF_SECURITY_DLL_EXPORTS=1
 endif
 
@@ -17,6 +17,8 @@ SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
 
 .PHONY: db
+
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
 
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
@@ -32,9 +34,8 @@ $(OBJDIR)%.o: %.cpp
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers deploy_db
 
-deploy_libs: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(LIBTARGETVER)
-	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGETVER)
-	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
+deploy_libs: $(OUTDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(OUTDIR)$(LIBTARGET)
 
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
@@ -52,6 +53,9 @@ install: check "$(INSTALLDIR)" install_libs install_headers install_db
 
 install_libs: "$(INSTALLDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGETVER)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 
 install_headers: "$(INSTALLDIR)$(INCDIR)"

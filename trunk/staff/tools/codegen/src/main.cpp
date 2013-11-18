@@ -37,7 +37,7 @@
 #include <staff/codegen/CodegenParser.h>
 #include "CodeGen.h"
 #include "XmlGen.h"
-#ifdef _MSC_VER
+#if !defined VERSION_FULL && defined _MSC_VER
 #include "version.h"
 #endif
 

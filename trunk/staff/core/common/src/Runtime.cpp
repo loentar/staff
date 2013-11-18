@@ -19,7 +19,7 @@
  *  Please, visit http://code.google.com/p/staff for more information.
  */
 
-#include <axis2_util.h>
+#include <axutil_env.h>
 #include <staff/utils/stringutils.h>
 #include <staff/utils/File.h>
 #include "Exception.h"
@@ -160,14 +160,14 @@ namespace staff
 
   std::string Runtime::GetEnv(const std::string& sVariable) const
   {
-    const char* szEnv = AXIS2_GETENV(sVariable.c_str());
+    const char* szEnv = getenv(sVariable.c_str());
     STAFF_ASSERT(szEnv, "Environment variable " + sVariable + " not found");
     return szEnv;
   }
 
   std::string Runtime::GetEnvOpt(const std::string& sVariable) const
   {
-    const char* szEnv = AXIS2_GETENV(sVariable.c_str());
+    const char* szEnv = getenv(sVariable.c_str());
     return szEnv ? szEnv : "";
   }
 

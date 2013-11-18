@@ -1,7 +1,7 @@
 include ../../../Makefile.env
 
 TARGET = echo_client_blocking_addr
-TARGETNAME = $(TARGET)
+TARGETNAME = $(TARGET)$(EXEC_EXT)
 
 HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 

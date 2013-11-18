@@ -1,6 +1,10 @@
 include ../../Makefile.env
 
+ifneq ($(OS),WINSDK)
 POSTGRESQL_DEV_INSTALLED := $(shell $(WHEREISCMD) postgresql pgsql 2>/dev/null | grep -c include)
+else
+POSTGRESQL_DEV_INSTALLED := 0
+endif
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres

@@ -3,7 +3,7 @@ include ../../Makefile.env
 TARGET = xml
 
 CXXFLAGS += -c -I$(DEPLOYDIR)include
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CXXFLAGS += -DSTAFF_XML_DLL_EXPORTS=1
 endif
 LDFLAGS += -lstaffutils $(HOSTLDFLAGS)
@@ -15,6 +15,8 @@ VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 HEADERS := $(wildcard $(patsubst %,%*.h*,$(SRCDIR)))
 SOURCES := $(wildcard $(patsubst %,%*.cpp,$(SRCDIR)))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(SOURCES)))
+
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
 
 # == make ===========================================
 make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
@@ -30,9 +32,8 @@ $(OBJDIR)%.o: %.cpp
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers
 
-deploy_libs: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(LIBTARGETVER)
-	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGETVER)
-	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
+deploy_libs: $(OUTDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(OUTDIR)$(LIBTARGET)
 
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
@@ -47,6 +48,9 @@ install: check install_libs install_headers
 
 install_libs: "$(INSTALLDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGETVER)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 
 install_headers: "$(INSTALLDIR)$(INCDIR)"

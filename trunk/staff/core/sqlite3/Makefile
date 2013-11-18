@@ -3,18 +3,20 @@ include ../../Makefile.env
 TARGET = sqlite3
 
 CFLAGS += -c -DSQLITE_THREADSAFE=1
-ifeq ($(OS),MINGW)
+ifneq (,$(filter $(OS),MINGW WINSDK))
   CFLAGS += -DSQLITE_DLL_EXPORTS=1
 endif
 LFLAGS += $(LDLIB)$(LIBTARGETVER)
 ifneq ($(OS),FreeBSD)
-ifneq ($(OS),MINGW)
+ifeq (,$(filter $(OS),MINGW WINSDK))
   LFLAGS += -ldl
 endif
 endif
 ifneq ($(ANDROID),)
   CFLAGS += -Dfdatasync=fsync
 endif
+
+OUTDIR := $(DEPLOYDIR)$(LIBDIR)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
 
@@ -36,9 +38,8 @@ $(OBJDIR)%.o: %.c
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)" deploy_libs deploy_headers
 
-deploy_libs: "$(DEPLOYDIR)$(LIBDIR)" $(OUTDIR)$(LIBTARGETVER)
-	cp -f $(OUTDIR)$(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGETVER)
-	$(LN) $(LIBTARGETVER) $(DEPLOYDIR)$(LIBDIR)$(LIBTARGET)
+deploy_libs: $(OUTDIR)$(LIBTARGETVER)
+	$(LN) $(LIBTARGETVER) $(OUTDIR)$(LIBTARGET)
 
 deploy_headers: "$(DEPLOYDIR)$(INCDIR)"
 	cp -f $(HEADERS) $(DEPLOYDIR)$(INCDIR)
@@ -53,6 +54,9 @@ install: check "$(INSTALLDIR)" install_libs install_headers
 
 install_libs: "$(INSTALLDIR)$(LIBDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGETVER)
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(LIBDIR)
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(LIBDIR)$(LIBTARGET)
 
 install_headers: "$(INSTALLDIR)$(INCDIR)"

@@ -2862,7 +2862,7 @@ namespace staff
 
   void DataObject::SetCppInstanceType(const std::string& sCppInstanceType, const std::string& sUri)
   {
-    SetCppInstanceType(sCppInstanceType, sUri.c_str());
+    SetCppInstanceType(sCppInstanceType.c_str(), sUri.c_str());
   }
 
   std::string DataObject::GetInstanceType() const

@@ -1,6 +1,10 @@
 include ../../Makefile.env
 
+ifneq ($(OS),WINSDK)
 MYSQL_DEV_INSTALLED := $(shell $(WHEREISCMD) mysql 2>/dev/null | grep -c include)
+else
+MYSQL_DEV_INSTALLED := 0
+endif
 
 COMPONENT = staff.das/providers/staff.das.MySql
 TARGET = mysql

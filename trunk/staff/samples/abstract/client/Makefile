@@ -1,7 +1,7 @@
 include ../../../Makefile.env
 
 TARGET = abstract_client
-TARGETNAME = $(TARGET)
+TARGETNAME = $(TARGET)$(EXEC_EXT)$(EXEC_EXT)
 
 HEADERS := $(filter-out %ServiceFactory.h %Proxy.h,$(wildcard $(SRCDIR)*.h))
 
