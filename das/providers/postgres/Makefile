@@ -8,8 +8,7 @@ endif
 
 COMPONENT = staff.das/providers/staff.das.Postgres
 TARGET = postgres
-LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
-LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
+LIBTARGET_BASE = $(LIBPREFIX)staffdasprov-$(TARGET)
 
 CXXFLAGS += -I$(DEPLOYDIR)include -I/usr/include/postgresql -I/usr/include/pgsql
 LDFLAGS += -lpq -lstaffutils -lstaffxml -lstaffcommon -lstaffdascommon

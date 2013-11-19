@@ -64,7 +64,7 @@ namespace staff
       */
     unsigned long GetId();
 
-    //! read all stdandard output
+    //! read all standard output
     /*! this function will block until process is finished
         \return readed standard output
       */
