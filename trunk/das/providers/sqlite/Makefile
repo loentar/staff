@@ -2,8 +2,7 @@ include ../../Makefile.env
 
 COMPONENT = staff.das/providers/staff.das.Sqlite
 TARGET = sqlite
-LIBTARGETVER = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBVEREXT)
-LIBTARGET = $(LIBPREFIX)staffdasprov-$(TARGET)$(LIBEXT)
+LIBTARGET_BASE = $(LIBPREFIX)staffdasprov-$(TARGET)
 
 ifeq ($(WITHOUT_SECURITY),)
 LDFLAGS += -lstaffsqlite3
@@ -51,6 +50,9 @@ distrib:;
 ifneq ($(SQLITE_DEV_INSTALLED),0)
 install: check "$(INSTALLDIR)$(COMDIR)$(COMPONENT)/"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+ifeq ($(OS),WINSDK)
+	cp -f $(OUTDIR)$(LIBTARGET_BASE).lib $(OUTDIR)$(LIBTARGET_BASE).exp $(INSTALLDIR)$(COMDIR)$(COMPONENT)/
+endif
 	$(LN) $(LIBTARGETVER) $(INSTALLDIR)$(COMDIR)$(COMPONENT)/$(LIBTARGET)
 else
 install:;
