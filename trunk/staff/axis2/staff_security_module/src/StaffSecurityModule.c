@@ -45,7 +45,7 @@
 #define STAFF_PARAM_UNUSED(param) (void)param
 #define STAFF_SECURITY_CALC_FN_NAME "staff_security_calculate_access_by_session_id"
 #ifdef WIN32
-#ifdef _MSC_VER
+#if defined _MSC_VER && !defined WINSDK
 #define STAFF_SECURITY_DL_NAME "staff_security.dll"
 #else
 #define STAFF_SECURITY_DL_NAME "staffsecurity.dll"

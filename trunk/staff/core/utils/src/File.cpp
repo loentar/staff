@@ -55,13 +55,12 @@ namespace staff
 
     if (nFile != -1)
     {
-      unsigned nMask =
-          ((nAttrs & AttributeDirectory) ? _A_SUBDIR : 0) |
-          ((nAttrs & AttributeAnyFile) ? ~_A_SUBDIR : 0);
-
       do
       {
-        if (!IsDots(stSearchData.name) && ((stSearchData.attrib & nMask) != 0))
+        if (!IsDots(stSearchData.name) &&
+            (((nAttrs & AttributeDirectory) != 0)
+                && (stSearchData.attrib & _A_SUBDIR) != 0) ||
+            ((nAttrs & AttributeAnyFile) != 0))
         {
           rList.push_back(stSearchData.name);
         }
