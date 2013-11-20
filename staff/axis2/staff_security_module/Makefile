@@ -14,7 +14,11 @@ ifneq ($(OS),FreeBSD)
 ifeq (,$(filter $(OS),MINGW WINSDK))
   LFLAGS += -ldl
 endif
+ifeq ($(OS),WINSDK)
+  CFLAGS += -DWINSDK
 endif
+endif
+
 LFLAGS += $(LDLIB)$(LIBTARGETVER)
 
 VPATH = $(subst $(empty) $(empty),:,$(SRCDIR))
