@@ -23,6 +23,7 @@
 #include <axiom_soap_const.h>
 #include <axis2_options.h>
 #include <axis2_http_transport.h>
+#include <axis2_http_header.h>
 #include <staff/common/Runtime.h>
 #include "Options.h"
 
@@ -31,13 +32,13 @@
 namespace staff
 {
   Options::Options(axutil_env_t* pEnv):
-    m_pEnv(pEnv), m_bOwner(true)
+    m_pEnv(pEnv), m_bOwner(true), m_pHeaders(NULL)
   {
     m_pOptions = axis2_options_create(m_pEnv);
   }
 
   Options::Options(axis2_options_t* pOptions, axutil_env_t* pEnv):
-    m_pOptions(pOptions), m_pEnv(pEnv), m_bOwner(false)
+    m_pOptions(pOptions), m_pEnv(pEnv), m_bOwner(false), m_pHeaders(NULL)
   {
   }
 
@@ -340,6 +341,25 @@ namespace staff
     STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_http_method(m_pOptions, m_pEnv, sHttpMethod.c_str());
+  }
+
+
+  void Options::AddHttpHeader(const std::string& sName, const std::string& sValue)
+  {
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
+
+    if (!m_pHeaders)
+    {
+      // create with default capacity
+      m_pHeaders = axutil_array_list_create(m_pEnv, 0);
+      STAFF_ASSERT(m_pHeaders, "Failed to create http headers");
+      axis2_options_set_http_headers(m_pOptions, m_pEnv, m_pHeaders);
+    }
+
+    axis2_http_header_t* pHttpHeader =
+        axis2_http_header_create(m_pEnv, sName.c_str(), sValue.c_str());
+
+    axutil_array_list_add(m_pHeaders, m_pEnv, pHttpHeader);
   }
 
 
