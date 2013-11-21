@@ -28,6 +28,7 @@
 
 typedef struct axutil_env axutil_env_t;
 typedef struct axis2_options axis2_options_t;
+typedef struct axutil_array_list axutil_array_list_t;
 
 namespace staff
 {
@@ -222,6 +223,13 @@ namespace staff
     void SetHttpMethod(const std::string& sHttpMethod);
 
 
+    //! add new http header
+    /*! \param sName - header name
+        \param sValue - header value
+      */
+    void AddHttpHeader(const std::string& sName, const std::string& sValue);
+
+
     //! get is MTOM enabled or not
     /*! \return true - MTOM is enabled
       */
@@ -287,6 +295,7 @@ namespace staff
     std::string m_sInstanceId;
     std::string m_sDefaultNsUri;
     std::string m_sDefaultNsPrefix;
+    axutil_array_list_t* m_pHeaders;
   };
 
 }
