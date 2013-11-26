@@ -16,15 +16,15 @@
 
 /*
  *  This file is part of the WSF Staff project.
- *  Please, visit http://code.google.com/p/staff for more infor mation.
+ *  Please, visit http://code.google.com/p/staff for more information.
  */
 
 #include <time.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined __MINGW32__
-#include <pthread.h> // for localtime_r
+#ifdef WIN32
+#include <windows.h>
 #endif
 #include <iostream>
 #include <fstream>
@@ -226,19 +226,23 @@ namespace staff
     {
       static const int nBuffSize = 32;
       char szBuff[nBuffSize];
-      struct timeb tTimeb;
-      struct tm tLocal;
 
-      ftime(&tTimeb);
-#if defined WIN32 && !defined __MINGW32__
-      localtime_s(&tLocal, &tTimeb.time);
+#if defined WIN32
+      SYSTEMTIME tTime;
+      GetLocalTime(&tTime);
+      staff_snprintf(szBuff, nBuffSize, "%02d-%02d-%02d %02d:%02d:%02d.%03d ",
+                     tTime.wDay, tTime.wMonth, tTime.wYear,
+                     tTime.wHour, tTime.wMinute, tTime.wSecond, tTime.wMilliseconds);
 #else
+      struct tm tLocal;
+      struct timeb tTimeb;
+      ftime(&tTimeb);
       localtime_r(&tTimeb.time, &tLocal);
-#endif
 
       staff_snprintf(szBuff, nBuffSize, "%02d-%02d-%02d %02d:%02d:%02d.%03d ",
                      tLocal.tm_mday, tLocal.tm_mon + 1, tLocal.tm_year + 1900,
                      tLocal.tm_hour, tLocal.tm_min, tLocal.tm_sec, tTimeb.millitm);
+#endif
 
       *m_pStream << szBuff;
     }

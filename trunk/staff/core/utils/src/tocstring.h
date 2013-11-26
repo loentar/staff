@@ -192,8 +192,13 @@ namespace staff
   inline bool ToHexCString(const void* pAddr, char* szBuffer, int nBufferSize)
   {
 #if defined __LP64__ || defined _M_X64 || defined __x86_64
+#ifdef WIN32
     return staff_snprintf(szBuffer, nBufferSize,
-                          "0x%016lx", reinterpret_cast<const unsigned long>(pAddr)) < nBufferSize;
+                          "0x%016I64x", reinterpret_cast<const unsigned long long>(pAddr)) < nBufferSize;
+#else
+    return staff_snprintf(szBuffer, nBufferSize,
+                          "0x%016llx", reinterpret_cast<const unsigned long long>(pAddr)) < nBufferSize;
+#endif
 #else
     return staff_snprintf(szBuffer, nBufferSize,
                           "0x%08x", reinterpret_cast<const unsigned int>(pAddr)) < nBufferSize;

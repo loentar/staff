@@ -29,7 +29,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #else
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include <limits.h>
 #ifdef __FreeBSD__
@@ -260,7 +260,7 @@ namespace staff
 #ifndef WIN32
     return static_cast<unsigned long>(m_pImpl->tPid);
 #else
-    return reinterpret_cast<unsigned long>(m_pImpl->tProcessInformation.hProcess);
+    return static_cast<unsigned long>(reinterpret_cast<unsigned long long>(m_pImpl->tProcessInformation.hProcess));
 #endif
   }
 

@@ -470,6 +470,17 @@ namespace staff
     delete[] pAddresses;
 #else
 #if defined _WIN64
+#if defined __MINGW64__
+#if !defined __in
+#define __in
+#endif
+#if !defined __out
+#define __out
+#endif
+#if !defined __out_opt
+#define __out_opt
+#endif
+#endif
      typedef USHORT (WINAPI *PCaptureStackBackTrace)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
      PCaptureStackBackTrace pCaptureStackBackTrace =
        (PCaptureStackBackTrace)(GetProcAddress(LoadLibraryA("kernel32.dll"), "RtlCaptureStackBackTrace"));

@@ -1,0 +1,3 @@
+
+tools/codegen.dep: tools/codegenparser.dep core/utils.dep core/xml.dep
+

@@ -20,7 +20,7 @@
  */
 
 #ifdef WIN32
-#include <Windows.h>
+#include <windows.h>
 #else
 #include <pthread.h>
 #include <signal.h>
@@ -157,7 +157,7 @@ namespace staff
   unsigned long Thread::GetCurrentId()
   {
 #ifdef WIN32
-    return reinterpret_cast<unsigned long>(GetCurrentThread());
+    return static_cast<unsigned long>(reinterpret_cast<unsigned long long>(GetCurrentThread()));
 #else
 #if defined __linux__ || defined sun
     return static_cast<unsigned long>(pthread_self());
@@ -172,7 +172,7 @@ namespace staff
 #if defined __linux__ || defined sun
     return static_cast<unsigned long>(m_pImpl->hThread);
 #else
-    return reinterpret_cast<unsigned long>(m_pImpl->hThread);
+    return static_cast<unsigned long>(reinterpret_cast<unsigned long long>(m_pImpl->hThread));
 #endif
   }
 

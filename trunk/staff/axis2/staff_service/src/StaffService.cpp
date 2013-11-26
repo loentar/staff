@@ -25,7 +25,7 @@
 #endif
 
 #ifdef WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include <axis2_svc_skeleton.h>
 #include <axis2_conf.h>
