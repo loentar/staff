@@ -21,11 +21,11 @@ make: check $(CODEGEN) "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(TARGETNAME) deploy
 
 # link
 $(OUTDIR)$(TARGETNAME): $(OBJECTS)
-	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(TARGETNAME) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXXHOST) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # == deploy  ========================================
 deploy: "$(DEPLOYDIR)$(INCDIR)" "$(DEPLOYDIR)$(LIBDIR)codegen/"

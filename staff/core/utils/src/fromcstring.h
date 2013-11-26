@@ -30,11 +30,15 @@
 #define staff_strtoll _strtoi64
 #define staff_strtoull _strtoui64
 #define staff_strtof(str, end) static_cast<float>(strtod(str, end))
-#define staff_strtold(str, end) static_cast<long double>(strtod(str, end))
 #else
 #define staff_strtoll strtoll
 #define staff_strtoull strtoull
 #define staff_strtof strtof
+#endif
+
+#if defined _MSC_VER || defined __ANDROID_API__
+#define staff_strtold(str, end) static_cast<long double>(strtod(str, end))
+#else
 #define staff_strtold strtold
 #endif
 

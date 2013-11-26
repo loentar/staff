@@ -1,0 +1,2 @@
+
+tools/codegen_parsers/protobuf.dep: tools/codegenparser.dep core/utils.dep

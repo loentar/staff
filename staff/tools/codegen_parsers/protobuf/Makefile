@@ -20,11 +20,11 @@ make: check "$(OBJDIR)" "$(OUTDIR)" $(OUTDIR)$(LIBTARGETVER) deploy
 
 # link
 $(OUTDIR)$(LIBTARGETVER): $(OBJECTS)
-	$(CXXHOST) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
+	$(CXX) $(OBJECTS) -o $(OUTDIR)$(LIBTARGETVER) $(LDFLAGS)
 
 # compile
 $(OBJDIR)%.o: %.cpp
-	$(CXXHOST) $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 # == deploy ========================================
 deploy: "$(DEPLOYDIR)$(LIBDIR)codegen/parsers/"

@@ -15,6 +15,7 @@ ifeq ($(LINUX_RELEASE),MCBC)
 endif
 
 # detect iconv usability
+ifeq ($(HOSTBUILD),1)
 ICONV_INCLUDE="\#include <iconv.h>"
 WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
@@ -24,6 +25,7 @@ LDFLAGS += -liconv
 endif
 ifeq ($(OS),Darwin)
 LDFLAGS += -liconv
+endif
 endif
 endif
 

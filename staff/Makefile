@@ -20,6 +20,10 @@ MAKEFILES_DEP := $(shell find . -type f | grep -v '/samples/'|grep '/[^/]*/[^/]*
 MAKE_ORDER_DEPS := $(subst /Makefile,,$(MAKEFILES_DEP))
 ifeq ($(CROSSCOMPILE),0)
 MAKE_ORDER_DEPS := $(patsubst %.hostdep,%.dep,$(MAKE_ORDER_DEPS))
+else
+ifeq ($(MAKECMDGOALS),install)
+MAKE_ORDER_DEPS := $(filter %.dep,$(MAKE_ORDER_DEPS))
+endif
 endif
 
 ifeq "0" "$(PARALLEL)"
@@ -51,10 +55,12 @@ endif
 	$(MAKE) -C $(patsubst %.dep,%,$@) $(MAKECMDGOALS)
 
 ifeq ($(CROSSCOMPILE),1)
+ifneq ($(MAKECMDGOALS),install)
 %.hostdep:
 ifeq "0" "$(PARALLEL)"
 	@$(ECHO) "\n\033[1m$(MAKECMDGOALS): $(patsubst %.hostdep,%,$@)\033[0m"
 endif
 	$(MAKE) -C $(patsubst %.hostdep,%,$@) $(MAKECMDGOALS) $(HOSTMAKEFLAGS)
+endif
 endif
 

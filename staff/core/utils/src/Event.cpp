@@ -25,7 +25,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #else
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include "Error.h"
 #include "Exception.h"

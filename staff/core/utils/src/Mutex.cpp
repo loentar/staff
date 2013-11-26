@@ -20,7 +20,7 @@
  */
 
 #ifdef WIN32
-#include <Windows.h>
+#include <windows.h>
 #elif defined __APPLE__
 #include <libkern/OSAtomic.h>
 #else
