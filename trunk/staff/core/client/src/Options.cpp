@@ -32,13 +32,13 @@
 namespace staff
 {
   Options::Options(axutil_env_t* pEnv):
-    m_pEnv(pEnv), m_bOwner(true), m_pHeaders(NULL)
+    m_pEnv(pEnv), m_bOwner(true)
   {
     m_pOptions = axis2_options_create(m_pEnv);
   }
 
   Options::Options(axis2_options_t* pOptions, axutil_env_t* pEnv):
-    m_pOptions(pOptions), m_pEnv(pEnv), m_bOwner(false), m_pHeaders(NULL)
+    m_pOptions(pOptions), m_pEnv(pEnv), m_bOwner(false)
   {
   }
 
@@ -344,22 +344,23 @@ namespace staff
   }
 
 
-  void Options::AddHttpHeader(const std::string& sName, const std::string& sValue)
+  void Options::SetHttpHeaders(const StringMap& rmHeaders)
   {
     STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
-    if (!m_pHeaders)
+    axutil_array_list_t* pHeaders = axutil_array_list_create(m_pEnv, rmHeaders.size());
+    STAFF_ASSERT(pHeaders, "Failed to create http headers");
+
+    axis2_http_header_t* pHttpHeader = NULL;
+    for (StringMap::const_iterator itHeader = rmHeaders.begin();
+         itHeader != rmHeaders.end(); ++itHeader)
     {
-      // create with default capacity
-      m_pHeaders = axutil_array_list_create(m_pEnv, 0);
-      STAFF_ASSERT(m_pHeaders, "Failed to create http headers");
-      axis2_options_set_http_headers(m_pOptions, m_pEnv, m_pHeaders);
+      pHttpHeader = axis2_http_header_create(m_pEnv, itHeader->first.c_str(),
+                                             itHeader->second.c_str());
+      axutil_array_list_add(pHeaders, m_pEnv, pHttpHeader);
     }
 
-    axis2_http_header_t* pHttpHeader =
-        axis2_http_header_create(m_pEnv, sName.c_str(), sValue.c_str());
-
-    axutil_array_list_add(m_pHeaders, m_pEnv, pHttpHeader);
+    axis2_options_set_http_headers(m_pOptions, m_pEnv, pHeaders);
   }
 
 

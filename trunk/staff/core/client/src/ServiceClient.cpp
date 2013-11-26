@@ -404,6 +404,8 @@ namespace staff
 #endif
 
     axiom_node_t* pAxiomResponseNode = axis2_svc_client_send_receive(m_pSvcClient, m_pEnv, rdoPayload);
+    if (m_pOptions) // unset http headers to avoid double free
+      axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
 
     if (m_pEnv->error->status_code == AXIS2_ERROR_RESPONSE_TIMED_OUT)
     {
@@ -443,6 +445,9 @@ namespace staff
 #endif
 
     axis2_svc_client_send_receive_non_blocking(m_pSvcClient, m_pEnv, rdoPayload, pAxis2Callback);
+
+    if (m_pOptions) // unset http headers to avoid double free
+      axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
   }
 
   void ServiceClient::Invoke(DataObject& rdoPayload, PICallback& rpCallback)
@@ -468,6 +473,9 @@ namespace staff
 #endif
 
     axis2_svc_client_send_receive_non_blocking(m_pSvcClient, m_pEnv, rdoPayload, pAxis2Callback);
+
+    if (m_pOptions) // unset http headers to avoid double free
+      axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
   }
 
 
@@ -478,6 +486,10 @@ namespace staff
     PrepareToSend(rdoPayload);
 
     axis2_status_t nResult = axis2_svc_client_send_robust(m_pSvcClient, m_pEnv, rdoPayload);
+
+    if (m_pOptions) // unset http headers to avoid double free
+      axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
+
     STAFF_ASSERT(nResult == AXIS2_SUCCESS, "Axis2/C client send robust failed. error: " + GetLastErrorStr());
 
 #ifdef _DEBUG
@@ -501,6 +513,9 @@ namespace staff
 #endif
 
     axis2_svc_client_fire_and_forget(m_pSvcClient, m_pEnv, rdoPayload);
+
+    if (m_pOptions) // unset http headers to avoid double free
+      axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
   }
 
   bool ServiceClient::GetLastResponseHasFault()

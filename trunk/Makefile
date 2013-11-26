@@ -26,6 +26,7 @@ $(MAKECMDGOALS):
 	$(MAKE) -C staff/samples clean
 	find das/samples -name Makefile | sed 's/[^\/]*$$//g' | xargs -L 1 $(MAKE) clean -C
 	find . -type d -a \( -name deploy -o -name out -o -name obj \) | xargs rm -Rf
+	find . -type f -name '*.pdb' | xargs rm -f {}
 else
 ifeq ($(MAKECMDGOALS),test)
 $(MAKECMDGOALS):
