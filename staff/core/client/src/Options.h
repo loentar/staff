@@ -25,13 +25,15 @@
 
 #include "staffclientexport.h"
 #include <string>
+#include <map>
 
 typedef struct axutil_env axutil_env_t;
 typedef struct axis2_options axis2_options_t;
-typedef struct axutil_array_list axutil_array_list_t;
 
 namespace staff
 {
+  typedef std::map<std::string, std::string> StringMap;
+
   //! service client options
   class STAFF_CLIENT_EXPORT Options
   {
@@ -223,11 +225,11 @@ namespace staff
     void SetHttpMethod(const std::string& sHttpMethod);
 
 
-    //! add new http header
-    /*! \param sName - header name
-        \param sValue - header value
-      */
-    void AddHttpHeader(const std::string& sName, const std::string& sValue);
+    //! set http headers for the next client request
+    /*! \param rmHeaders - headers.
+        after client request list of headers will be cleared
+     */
+    void SetHttpHeaders(const StringMap& rmHeaders);
 
 
     //! get is MTOM enabled or not
@@ -295,7 +297,6 @@ namespace staff
     std::string m_sInstanceId;
     std::string m_sDefaultNsUri;
     std::string m_sDefaultNsPrefix;
-    axutil_array_list_t* m_pHeaders;
   };
 
 }
