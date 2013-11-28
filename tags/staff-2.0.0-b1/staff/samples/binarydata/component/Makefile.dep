@@ -1,0 +1,2 @@
+
+samples/binarydata/component.dep: core/utils.dep core/common.dep core/component.dep tools/codegen.hostdep tools/codegen_parsers/cpp.hostdep

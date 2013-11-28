@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Groups" descr="Data source for manipulating with groups (provider is Sqlite)">
+    <provider name="staff.das.Sqlite">
+      <connection>
+        <db>$(STAFF_HOME)/db/testdas.db</db>
+      </connection>
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+      <Group type="struct" descr="Group info">
+        <nId type="int" descr="Group id"/>
+        <sName type="string" descr="Group name"/>
+        <sDescr type="string" nillable="true" descr="Group description"/>
+      </Group>
+      <GroupsList type="list" itemtype="Group" descr="Groups list" />
+    </types>
+
+    <operations>
+      <operation name="GetGroup" descr="get group info by group id">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="Group" />
+        <execute>SELECT "id", "name", "description" FROM "groups" WHERE "id" = $(nId)</execute>
+      </operation>
+
+      <operation name="GetAllGroups">
+        <params/>
+        <return type="GroupsList" />
+        <execute>SELECT "id", "name", "description" FROM "groups"</execute>
+      </operation>
+
+      <operation name="GetAllGroupsAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>SELECT "id", "name", "description" FROM "groups"</execute>
+      </operation>
+
+      <operation name="AddGroup">
+        <params>
+          <sName type="string"/>
+          <sDescr type="string" nillable="true"/>
+        </params>
+        <execute>INSERT INTO "groups"("name", "description") VALUES($(sName), $(sDescr))</execute>
+      </operation>
+    </operations>
+
+  </datasource>
+</datasources>
+

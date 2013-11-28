@@ -1,0 +1,3 @@
+
+samples/echo/client_blocking_auth.dep: core/common.dep core/client.dep core/component.dep tools/codegen.hostdep tools/codegen_parsers/cpp.hostdep
+

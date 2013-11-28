@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<wsdl:definitions 
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://tempui.org/staff/staff.tests"
+    targetNamespace="http://tempui.org/staff/staff.tests">
+
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempui.org/staff/staff.tests">
+
+      <xsd:complexType name="testArray">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:test[]"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="test">
+        <xsd:all>
+          <xsd:element name="f1" type="xsd:int"/>
+          <xsd:element name="f2" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+
+
+      <xsd:simpleType name="phoneNumber">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+
+      <xsd:element name="ArrayOfPhoneNumbers">
+        <xsd:complexType>
+	        <xsd:complexContent>
+	          <xsd:restriction base="SOAP-ENC:Array">
+	            <xsd:sequence>
+	              <xsd:element name="phoneNumber" type="tns:phoneNumber" maxOccurs="unbounded"/>
+	            </xsd:sequence>
+	          </xsd:restriction>
+          </xsd:complexContent>
+        </xsd:complexType>
+      </xsd:element>
+
+
+      <xsd:complexType name="Array2D">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:test[][,]"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="testArray2">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:sequence>
+              <xsd:element name="testElem" type="xsd:int" maxOccurs="unbounded"/>
+            </xsd:sequence>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+    </xsd:schema>
+  </wsdl:types>
+
+  <message name="testOpRequest">
+    <part name="data" type="xsd:string"/>
+  </message>
+  <message name="testOpResponse">
+    <part name="testOpReturn" type="tns:testArray"/>
+  </message>
+
+  <message name="getPhoneNumbersRequest">
+    <part name="name" type="xsd:string"/>
+  </message>
+  <message name="getPhoneNumbersResponse">
+    <part name="result" element="tns:ArrayOfPhoneNumbers"/>
+  </message>
+
+  <wsdl:portType name="Test147PortType">
+    <wsdl:operation name="testOp">
+      <wsdl:input message="tns:testOpRequest"/>
+      <wsdl:output message="tns:testOpResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getPhoneNumbers">
+      <wsdl:input message="tns:getPhoneNumbersRequest"/>
+      <wsdl:output message="tns:getPhoneNumbersResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <binding name="Test147Binding" type="tns:Test147PortType">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="testOp">
+      <soap:operation style="rpc"/>
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://tempui.org/staff/staff.tests" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://tempui.org/staff/staff.tests" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPhoneNumbers">
+      <soap:operation style="rpc"/>
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://tempui.org/staff/staff.tests" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://tempui.org/staff/staff.tests" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </binding>
+
+  <wsdl:service name="Test147">
+    <wsdl:port name="Test147Port" binding="tns:Test147Binding">
+      <soap:address location="http://localhost/axis2/services/tests.Test147"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

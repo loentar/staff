@@ -1,0 +1,9 @@
+/usr/local/axis2c/include/axis2-1.6.0
+/usr/local/axis2c/include/axis2-1.7.0
+deploy/x86_64-linux-gnu/usr/local/staff/include
+deploy/i686-linux-gnu/usr/local/staff/include
+deploy/mingw32/c/ws/staff/include
+/usr/include/apache2
+/usr/include/apr-1.0
+/usr/include/mysql
+/usr/include/postgresql

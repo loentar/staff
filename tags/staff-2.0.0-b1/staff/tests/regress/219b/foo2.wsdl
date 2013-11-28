@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions 
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+	xmlns:tns="http://namespace1" 
+	xmlns:s1="http://namespace2" 
+	xmlns:s="http://www.w3.org/2001/XMLSchema" 
+	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	targetNamespace="http://namespace1">
+	<wsdl:types>
+		<s:schema elementFormDefault="qualified" targetNamespace="http://namespace1">
+			<s:include schemaLocation="fooTypes1.xsd"/>
+			<s:import id="guid" namespace="http://namespace2" schemaLocation="fooTypes2.xsd"/>
+			<s:element name="fooMethod1Request">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="param1" type="s1:guid"/>
+						<s:element minOccurs="1" maxOccurs="1" name="param2" type="s:short"/>
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="fooMethod1Response">
+				<s:complexType/>
+			</s:element>
+
+			<s:element name="fooMethod2Request">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="param1" type="tns:fooType1"/>
+						<s:element minOccurs="1" maxOccurs="1" name="param2" type="s:boolean"/>
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="fooMethod2Response">
+				<s:complexType/>
+			</s:element>
+	</s:schema>
+	</wsdl:types>
+	<wsdl:message name="fooMethod2SoapIn">
+		<wsdl:part name="parameters" element="tns:fooMethod2Request"/>
+	</wsdl:message>
+	<wsdl:message name="fooMethod2SoapOut">
+		<wsdl:part name="parameters" element="tns:fooMethod2Response"/>
+	</wsdl:message>
+	<wsdl:message name="fooMethod1SoapIn">
+		<wsdl:part name="parameters" element="tns:fooMethod1Request"/>
+	</wsdl:message>
+	<wsdl:message name="fooMethod1SoapOut">
+		<wsdl:part name="parameters" element="tns:fooMethod1Response"/>
+	</wsdl:message>
+	<wsdl:portType name="fooServiceSoap">
+		<wsdl:operation name="fooMethod2">
+			<wsdl:input message="tns:fooMethod2SoapIn"/>
+			<wsdl:output message="tns:fooMethod2SoapOut"/>
+		</wsdl:operation>
+		<wsdl:operation name="fooMethod1">
+			<wsdl:input message="tns:fooMethod1SoapIn"/>
+			<wsdl:output message="tns:fooMethod1SoapOut"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="fooServiceSoap" type="tns:fooServiceSoap">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+
+		<wsdl:operation name="fooMethod2">
+			<soap:operation soapAction="http://fooAction2" style="document"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="fooMethod1">
+			<soap:operation soapAction="http://fooAction1" style="document"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+
+	</wsdl:binding>
+	<wsdl:service name="fooService">
+		<wsdl:port name="fooServiceSoap" binding="tns:fooServiceSoap">
+			<soap:address location="http://location"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

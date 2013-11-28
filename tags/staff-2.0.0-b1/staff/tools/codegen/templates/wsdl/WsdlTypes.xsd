@@ -1,0 +1,135 @@
+#ifneq($(Interface.Enums.$Count),0)
+
+      <!-- enums -->
+#foreach $(Interface.Enums)
+#cginclude "WsdlEnum.xsd"
+#end // #foreach $(Interface.Enums)
+#ifeqend // #ifneq($(Interface.Enums.$Count),0)
+#ifneq($(Interface.Structs.$Count),0)
+
+      <!-- structures -->
+#foreach $(Interface.Structs)
+#cginclude "WsdlStruct.xsd"
+#end // #foreach $(Interface.Structs)
+#ifeqend // #ifneq($(Interface.Structs.$Count),0)
+#ifneq($(Interface.Typedefs.$Count),0)
+
+      <!-- typedefs -->
+
+#foreach $(Interface.Typedefs)
+#ifeq($(Typedef.Extern),false) // do not serialize extern type
+#ifeq($(Typedef.DataType.Type),template)
+      <complexType name="$(Typedef.Name)">
+#ifneq($(Typedef.Description),)
+        <annotation><documentation>$(Typedef.Description)</documentation></annotation>
+#ifeqend
+#ifeq($(Typedef.DataType.Namespace)$(Typedef.DataType.Name),staff::Array)
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType" wsdl:arrayType="\
+#context $(Typedef.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlArrayType.xsd"
+#contextend
+"/>
+          </restriction>
+        </complexContent>
+#else
+        <sequence>
+#ifeq($(Typedef.DataType.Name),list||vector)  // -- list ------------------
+#var ElementName $(Typedef.Options.*itemName||"Item")
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)">
+            <complexType>
+              <sequence>
+                <any/>
+              </sequence>
+            </complexType>
+          </element>
+#else
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)" type="\
+#context $(Typedef.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlDataType.xsd"
+#contextend
+" />
+#ifeqend
+#else // bool
+#ifeq($(Typedef.DataType.Name),map||multimap) // -- map -------------------------
+          <element minOccurs="0" maxOccurs="unbounded" name="$($ElementName)">
+            <complexType>
+              <sequence>
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam1.Type),dataobject)
+                <element name="Key">
+                  <complexType>
+                    <sequence>
+                      <any/>
+                    </sequence>
+                  </complexType>
+                </element>
+#else
+                <element name="Key" type="\
+#context $(Typedef.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlDataType.xsd"
+#contextend
+" />
+#ifeqend
+#ifeq($(Typedef.DataType.TemplateParams.TemplateParam2.Type),dataobject)
+                <element name="Value">
+                  <complexType>
+                    <sequence>
+                      <any/>
+                    </sequence>
+                  </complexType>
+                </element>
+#else
+                <element name="Value" type="\
+#context $(Typedef.DataType.TemplateParams.TemplateParam2)
+#cginclude "WsdlDataType.xsd"
+#contextend
+" />
+#ifeqend
+              </sequence>
+            </complexType>
+          </element>
+#else
+#cgerror "Cannot generate type $(Typedef.DataType.Name): [$(Typedef.NsName) $(Typedef.DataType);]"
+#ifeqend
+#ifeqend
+        </sequence>
+#ifeqend // array
+      </complexType>
+#else
+      <simpleType name="$(Typedef.Name)">
+#ifneq($(Typedef.Description),)
+        <annotation><documentation>$(Typedef.Description)</documentation></annotation>
+#ifeqend
+#ifeq($(Typedef.DataType.Type),dataobject)
+        <complexType>
+          <sequence>
+            <any/>
+          </sequence>
+        </complexType>
+#else
+        <restriction base="\
+#context $(Typedef.DataType)
+#cginclude "WsdlDataType.xsd"
+#contextend
+"\
+#ifeq($(Typedef.Options.$Count),0)
+/>
+#else
+>
+#foreach $(Typedef.Options)
+#ifeq($($ThisElementName.!match/restriction-/),true)
+          <$($ThisElementName.!replace/restriction-//) value="$($ThisElementValue)" />
+#ifeqend
+#end
+        </restriction>
+#ifeqend
+#ifeqend
+      </simpleType>
+#ifeqend
+
+#ifeqend // #ifeq($(Typedef.Extern),false) // do not serialize extern type
+#end // #foreach $(Interface.Typedefs)
+#ifeqend // #ifneq($(Interface.Typedefs.$Count),0)
+

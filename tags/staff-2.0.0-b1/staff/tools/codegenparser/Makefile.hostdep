@@ -1,0 +1,3 @@
+
+tools/codegenparser.hostdep: core/utils.hostdep
+

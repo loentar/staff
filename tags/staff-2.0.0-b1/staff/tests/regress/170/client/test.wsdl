@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<wsdl:definitions
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<wsdl:types>
+		<xsd:schema>
+			<xsd:element name="elem1">
+				<xsd:complexType>
+					<xsd:attribute name="elem1ID" type="xsd:long" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="elem2">
+				<xsd:complexType>
+					<xsd:attribute name="elem2ID" type="xsd:long" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="type1">
+				<xsd:complexType>
+					<xsd:attribute name="attr1" type="xsd:double" use="required"/>
+					<xsd:attribute name="attr2" type="xsd:string" use="optional"/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="type2">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="type1" maxOccurs="8"/>
+						<xsd:choice minOccurs="1" maxOccurs="unbounded">
+							<xsd:element ref="elem2" maxOccurs="2"/>
+							<xsd:element ref="elem1" maxOccurs="unbounded"/>
+						</xsd:choice>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</wsdl:types>
+</wsdl:definitions>

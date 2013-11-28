@@ -1,0 +1,36 @@
+#ifeq($(.Name),bool)
+boolean\
+#else
+#ifeq($(.Type),struct||typedef||enum)
+ns_$(.Namespace.!mangle):$(.Name.!dot)\
+#else
+#ifeq($(.Type),template)
+#context $(.TemplateParams.TemplateParam1)
+#cginclude "WsdlDataType.xsd"
+#ifneq($(.Type),template)
+" minOccurs="0\
+#ifeqend
+#contextend
+#ifneq($(.Name),Optional)
+" maxOccurs="unbounded\
+#ifeqend
+#else
+#ifeq($(.Type),generic||string)
+#ifeq($(.Name),void)
+#cgwarning void type in wsdl
+#ifeqend
+#ifeq($(.Name.!match/long double/),true)
+staff:longDouble\
+#else
+#ifneq($(.Name.!match/long long/),true)
+$(.Name.!replace/ /_/.!tocamelcase)\
+#else
+$(.Name.!replace/ /_/.!tocamelcase.!depostfix/Long/)\
+#ifeqend
+#ifeqend
+#else
+#cgerror $(.Type) is not supported
+#ifeqend
+#ifeqend
+#ifeqend
+#ifeqend

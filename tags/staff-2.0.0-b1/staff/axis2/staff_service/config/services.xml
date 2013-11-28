@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serviceGroup>
+  <service name="StaffService">
+    <module ref="staff"/>
+    <module ref="staff_security"/>
+    <parameter name="loadServiceAtStartup" locked="xsd:false">true</parameter>
+    <parameter name="ServiceClass" locked="xsd:false">staff_service</parameter>
+    <operation name="Invoke"/>
+    <operation name="GetOperations"/>
+    <operation name="GetServices"/>
+  </service>
+</serviceGroup>

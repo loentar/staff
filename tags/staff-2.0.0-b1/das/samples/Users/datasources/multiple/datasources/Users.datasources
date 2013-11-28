@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="Users" descr="Data source for manipulating with users (providers are Services and Sqlite)">
+    <!-- first provider is default -->
+    <provider name="staff.das.Services" id="svc">
+      <connection>
+        <service>staff.samples.das.services.Accounts</service>
+      </connection>
+    </provider>
+
+    <provider name="staff.das.Sqlite" id="sql">
+      <connection>
+        <db>$(STAFF_HOME)/db/testdas.db</db>
+      </connection>
+
+      <!-- this script is executed on when this datasource is loaded -->
+      <oncreate>
+        <script>
+          <execute>PRAGMA synchronous = OFF</execute>
+        </script>
+      </oncreate>
+      <!-- you can write script here to execute it when datasource is unloaded
+      <ondestroy>
+      </ondestroy>
+      -->
+    </provider>
+
+    <types>
+      <include filename="Role.datatypes" />
+
+      <User type="struct" descr="User info">
+        <nId type="int" descr="User id"/>
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+      </User>
+      <UsersList type="list" itemtype="User" descr="Users list" />
+
+      <UserToAdd type="struct" descr="User info with password for adding">
+        <sName type="string" descr="User name"/>
+        <sDescr type="string" descr="User description"/>
+        <sPassword type="string" descr="User password"/>
+      </UserToAdd>
+      <UserToAddList type="list" itemtype="UserToAdd" descr="Users to add list" />
+
+      <IntList type="list" itemtype="int" descr="list of integers" />
+      <StringList type="list" itemtype="string" descr="list of strings" />
+    </types>
+
+    <operations>
+
+      <operation name="Add" descr="add user, returns added user id">
+        <params>
+          <sName type="string" />
+          <sPassword type="string" />
+          <sDescr type="string" />
+        </params>
+        <return type="int" />
+        <!-- will be used default provider -->
+        <execute>AddUser(sName=$(sName), sPassword=$(sPassword), sDescr=$(sDescr))</execute>
+      </operation>
+
+      <operation name="AddStruct" descr="add user, returns added user id">
+        <params>
+          <stUser type="UserToAdd" />
+        </params>
+        <return type="int" />
+        <!-- provider can be set for whole script -->
+        <script providerid="sql">
+          <execute>INSERT INTO "users"("name", "password", "description") VALUES('$(stUser.sName)', '$(stUser.sPassword)', '$(stUser.sDescr)')</execute>
+          <execute>SELECT last_insert_rowid()</execute>
+        </script>
+      </operation>
+
+      <operation name="AddList" descr="add multiple users using script, returns added users ids list">
+        <params>
+          <lsUsers type="UserToAddList" />
+        </params>
+        <return type="IntList" />
+        <script>
+          <foreach element="$(lsUsers)">
+            <!-- provider can be set per each execute command -->
+            <execute providerid="sql">INSERT INTO "users"("name", "password", "description") VALUES('$(stUser.sName)', '$(stUser.sPassword)', '$(stUser.sDescr)')</execute>
+            <execute providerid="sql">SELECT last_insert_rowid()</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="AddUsers" descr="add multiple users, returns added users ids list">
+        <params>
+          <lsUsers type="UserToAddList" />
+        </params>
+        <return type="IntList" />
+        <execute>AddUsers(lsUsers=$[lsUsers])</execute>
+      </operation>
+
+      <operation name="Remove" descr="remove user by id">
+        <params>
+          <nId type="int" />
+        </params>
+        <execute>RemoveUser(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="RemoveByName" descr="remove user by name">
+        <params>
+          <sName type="string" />
+        </params>
+        <script>
+          <execute>RemoveUserByName(sName=$(sName))</execute>
+        </script>
+      </operation>
+
+      <operation name="RemoveByNameList" descr="remove users by names list">
+        <params>
+          <lsNames type="StringList" />
+        </params>
+        <script>
+          <var name="names" value="" />
+          <foreach element="$(lsNames)">
+            <execute>RemoveUserByName(sName=$nodeValue)</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="RemoveList" descr="remove users by id list">
+        <params>
+          <lsIds type="IntList" />
+        </params>
+        <script>
+          <foreach element="$(lsIds)">
+            <execute>RemoveUser(nId=$nodeValue)</execute>
+          </foreach>
+        </script>
+      </operation>
+
+      <operation name="GetUserIdByName" descr="get user id by user name">
+        <params>
+          <sName type="string" />
+        </params>
+        <return type="int" />
+        <execute>GetUserIdByName(sName=$(sName))</execute>
+      </operation>
+
+      <operation name="GetUser" descr="get user info by user id using direct sql query">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="User" />
+        <execute>SELECT "id", "name", "description" FROM "users" WHERE "id" = $(nId)</execute>
+      </operation>
+
+      <operation name="GetUserSvc" descr="get user info by user id using GetUserSql via service">
+        <params>
+          <nId type="int" />
+        </params>
+        <return type="User" />
+        <execute>GetUserSvc(nId=$(nId))</execute>
+      </operation>
+
+      <operation name="GetUserIdByName_1" descr="get user id returning -1 on error">
+        <params>
+          <sName type="string" />
+        </params>
+        <return type="int" />
+        <script>
+          <trycatch>
+            <try>
+              <execute>GetUserIdByName(sName=$(sName))</execute>
+            </try>
+            <!-- variable name is optional -->
+            <catch var="ex">
+              <log>exception occured: "${ex}". Returning 1 as result</log>
+              <return>-1</return>
+            </catch>
+          </trycatch>
+        </script>
+      </operation>
+
+      <operation name="GetAllUsers">
+        <params/>
+        <return type="UsersList" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+      <operation name="GetAllUsersDataObject">
+        <params/>
+        <return type="DataObject" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+      <operation name="GetAllUsersAsRoles">
+        <params/>
+        <return type="RolesList" />
+        <execute>GetUsers()</execute>
+      </operation>
+
+    </operations>
+
+  </datasource>
+</datasources>
+

@@ -1,0 +1,30 @@
+#ifeq($(Enum.Extern),false) // do not serialize/deserialize extern type
+#cginclude <common/StringTypes>
+
+      <simpleType name="\
+#ifneq($(Enum.Owner.!dot),)
+$(Enum.Owner.!dot).\
+#ifeqend
+$(Enum.Name.!dot)">
+        <restriction base="$(Enum.Options.*baseType||"integer")">
+#ifeq($(Enum.Options.*baseType),$($sStringTypes))
+#foreach $(Enum.Members)
+          <enumeration value="$(Member.Name)"/>
+#end
+#else
+#var currValue 0
+#foreach $(Enum.Members)
+#var enumValue $(Member.Value)
+#ifeq($($enumValue),)
+#var enumValue $($currValue)
+#var currValue $($currValue.!inc.!trunc)
+#else
+#var currValue $($enumValue.!inc.!trunc)
+#ifeqend
+          <enumeration value="$($enumValue)" staff:enum="$(Member.Name)"/>
+#end
+#ifeqend
+        </restriction>
+      </simpleType>
+
+#ifeqend //#ifeq($(Enum.Extern),false) // do not serialize extern type

@@ -1,0 +1,14 @@
+#ifeq($(Enum.Extern),false)
+\
+#ifneq($(Enum.Description),)
+// $(Enum.Description)
+#ifeqend
+enum $(Enum.Name)
+{
+#var tag -1
+#foreach $(Enum.Members)
+  $(Member.Name) = $(Member.Value||$tag.!inc);
+#end
+};
+
+#ifeqend

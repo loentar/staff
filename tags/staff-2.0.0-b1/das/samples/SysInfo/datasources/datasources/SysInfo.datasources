@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datasources>
+  <datasource namespace="staff.das.samples" name="SysInfo" descr="Data source to obtain system information using staff.das.Shell provider">
+    <provider name="staff.das.Shell">
+      <connection>
+        <!-- root dir for scripts
+        <scriptsdir>/usr/local/staff/components/staff.das/providers/staff.das.Shell/scripts/</scriptsdir>
+        -->
+        <!-- use first line as column names when working with complex types. false by default -->
+        <colheaders>true</colheaders>
+        <!-- count columns by first line. Rest of line put into last field. true by default
+        <firstcolcount>true</firstcolcount> -->
+        <!-- delimiters for columns: space or tab by default
+        <coldelims> &#9;</coldelims>
+        -->
+        <!-- delimiters for rows: line feed or carriage return by default
+        <coldelims>&#10;&#13;</coldelims>
+        -->
+      </connection>
+    </provider>
+
+    <types>
+      <Process type="struct" descr="Process info">
+        <nId type="int" descr="Process id"/>
+        <sCommand type="string" descr="Command line"/>
+        <sTime type="string" descr="Time consumed"/>
+      </Process>
+      <ProcessList type="list" itemtype="Process" descr="Process list" />
+    </types>
+
+    <operations>
+
+      <operation name="GetUname" descr="get certain system information">
+        <params/>
+        <return type="string" />
+        <execute trim="true">uname -a</execute>
+      </operation>
+
+      <operation name="GetMemStat" descr="get memory status">
+        <params/>
+        <return type="DataObject" />
+        <!-- don't pass any arguments inside 'sh -c ""', it is not secure -->
+        <execute>sh -c "free | sed -n '1,+1{2s/^.\+://g;p'}"</execute>
+      </operation>
+
+      <operation name="GetProcessListDataObject" descr="get process list as DataObject in default format">
+        <params/>
+        <return type="DataObject" />
+        <execute>ps x</execute>
+      </operation>
+
+      <operation name="GetProcessList" descr="get process list">
+        <params/>
+        <return type="ProcessList" />
+        <execute>ps xo pid,time,command</execute>
+      </operation>
+
+      <operation name="GetProcessListByName" descr="get process list by process name">
+        <params>
+          <sProcessName type="string"/>
+        </params>
+        <return type="ProcessList" />
+        <execute>ps -C $(sProcessName) o pid,time,command</execute>
+      </operation>
+
+      <operation name="GetProcessByName" descr="get process list by process name">
+        <params>
+          <sProcessName type="string"/>
+        </params>
+        <return type="Process" />
+        <script>
+          <var name="p">
+            <execute>ps -C $(sProcessName) o pid,time,command</execute>
+          </var>
+
+          <!-- create resulting structure -->
+          <var name="GetProcessByNameResult" type="Process" />
+          <var name="GetProcessByNameResult.nId" value="${p.Item.PID}" />
+          <var name="GetProcessByNameResult.sTime" value="${p.Item.TIME}" />
+          <var name="GetProcessByNameResult.sCommand" value="${p.Item.COMMAND}" />
+          <return var="GetProcessByNameResult" />
+        </script>
+      </operation>
+
+      <operation name="Add" descr="calculate sum for A and B">
+        <params>
+          <nA type="int"/>
+          <nB type="int"/>
+        </params>
+        <return type="int" />
+        <execute>sh -c 'echo -n \$(($(nA) + $(nB)))'</execute>
+      </operation>
+
+      <!-- example for "if" -->
+      <operation name="Min" descr="calculate min for A and B">
+        <params>
+          <nA type="int"/>
+          <nB type="int"/>
+        </params>
+        <return type="int" />
+        <script>
+          <if expr1="$(nA)" expr2="$(nB)" op="lt">
+            <then>
+              <return>$(nA)</return>
+            </then>
+            <else>
+              <return>$(nB)</return>
+            </else>
+          </if>
+        </script>
+      </operation>
+
+      <!-- example for "if" -->
+      <operation name="MinStr" descr="calculate min for A and B">
+        <params>
+          <nA type="string"/>
+          <nB type="string"/>
+        </params>
+        <return type="int" />
+        <script>
+          <if expr1="$(nA)" expr2="$(nB)" op="slt">
+            <then>
+              <return>$(nA)</return>
+            </then>
+            <else>
+              <return>$(nB)</return>
+            </else>
+          </if>
+        </script>
+      </operation>
+
+      <!-- example for "switch/case" -->
+      <operation name="GetProcessState" descr="get process state by pid">
+        <params>
+          <nPid type="int"/>
+        </params>
+        <return type="string" />
+        <script>
+          <var name="result" type="string" />
+          <var name="stat" type="DataObject">
+            <!-- first echo - to set column name -->
+            <execute trim="true">sh -c 'echo stat; ps -p $(nPid) -ostat= | sed "s/./&amp;\n/g"'</execute>
+          </var>
+          <foreach element="$[stat]">
+            <switch expr="$(stat)">
+              <case expr="D">
+                <var name="result" value="$result Uninterruptible" />
+              </case>
+              <case expr="R">
+                <var name="result" value="$result Running" />
+              </case>
+              <case expr="S">
+                <var name="result" value="$result Sleeping" />
+              </case>
+              <case expr="T">
+                <var name="result" value="$result Stopped" />
+              </case>
+              <case expr="Z">
+                <var name="result" value="$result Zombie" />
+              </case>
+              <case expr="&lt;">
+                <var name="result" value="$result high-priority" />
+              </case>
+              <case expr="N">
+                <var name="result" value="$result low-priority" />
+              </case>
+              <case expr="L">
+                <var name="result" value="$result has-pages-locked" />
+              </case>
+              <case expr="s">
+                <var name="result" value="$result session-leader" />
+              </case>
+              <case expr="l">
+                <var name="result" value="$result multi-threaded" />
+              </case>
+              <case expr="+">
+                <var name="result" value="$result foreground" />
+              </case>
+              <default>
+                <var name="result" value="$result unknown[$(stat)]" />
+              </default>
+            </switch>
+          </foreach>
+          <return>$result</return>
+        </script>
+      </operation>
+
+    </operations>
+
+  </datasource>
+</datasources>
+

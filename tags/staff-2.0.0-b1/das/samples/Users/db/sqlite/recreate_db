@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sqlite3 testdas.db < testdas.sql
+

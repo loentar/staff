@@ -1,0 +1,202 @@
+#ifeq($(Struct.Extern),false) // do not serialize/deserialize extern type
+
+#var structOwner $(Struct.Owner.!dot)
+#ifneq($($structOwner),)
+#var structOwner $($structOwner).
+#ifeqend
+      <complexType name="$($structOwner)$(Struct.Name.!dot)"\
+#ifeq($(Struct.Options.*abstract),true||1)
+ abstract="true"\
+#ifeqend
+>
+#ifneq($(Struct.Description),)
+        <annotation><documentation>$(Struct.Description)</documentation></annotation>
+#ifeqend
+#ifneq($(Struct.ParentName),)       // inherited
+        <complexContent mixed="false">
+          <extension base="ns_$(Struct.ParentNamespace.!mangle):$(Struct.ParentName)"\
+#ifeq($(Struct.Members.$Count),0)
+/\
+#else
+#indent +2
+#ifeqend
+>
+#ifeqend
+#ifneq($(Struct.Members.$Count),0)
+        <sequence>
+#var sChoiceId
+#var bChoiceClosed
+#foreach $(Struct.Members)
+#ifneq($(Param.Options.*isAttribute),true||1)
+#ifneq($(Param.Options.*choiceId),$($sChoiceId))
+#ifneq($($sChoiceId),)
+#var bChoiceClosed 1
+#indent -
+          </choice>
+#ifeqend
+#ifneq($(Param.Options.*choiceId),)
+#var bChoiceClosed 0
+          <choice>
+#indent +
+#ifeqend
+#var sChoiceId $(Param.Options.*choiceId)
+#ifeqend
+          <element name="$(.Options.*elementName||Param.Name)"\
+#ifeq($(Param.DataType.Namespace)$(Param.DataType.Name),staff::Array)
+>
+#ifneq($(Param.Description),)
+            <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+            <complexType>
+              <complexContent>
+                <restriction base="soapenc:Array">
+                  <attribute ref="soapenc:arrayType" wsdl:arrayType="\
+#context $(Param.DataType.TemplateParams.TemplateParam1)
+#cginclude "WsdlArrayType.xsd"
+#contextend
+"/>
+                </restriction>
+              </complexContent>
+            </complexType>
+          </element>
+#else
+#ifeq($(Param.DataType.Name),Optional||Nillable)
+#ifeq($(Param.DataType.Name),Nillable)
+ nillable="true"\
+#else
+#ifeq($($sChoiceId),)
+ minOccurs="0"\
+#ifeqend
+#ifeqend
+#var sContext Param.DataType.TemplateParams.TemplateParam1
+#else
+#var sContext Param.DataType
+#ifeqend      // optional
+#context $($sContext)
+#ifeq($(Param.DataType.Name),Abstract)
+#var sContext .TemplateParams.TemplateParam1
+#else
+#var sContext .
+#ifeqend      // abstract
+#context $($sContext)
+#ifeq($(.Type),dataobject)
+>
+            <complexType>
+#ifneq($(.Description),)
+              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+              <sequence>
+                <any/>
+              </sequence>
+            </complexType>
+          </element>
+#else
+#ifeq($(.Type),template)
+#ifeq($(Param.Options.*useParentElement),)
+>
+            <complexType>
+#ifneq($(Param.Description),)
+              <annotation><documentation>$(Param.Description)</documentation></annotation>
+#ifeqend
+              <sequence>
+                <element name="$(Param.Options.*itemName||"Item")" type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+              </sequence>
+            </complexType>
+          </element>
+#else
+ type="\
+#cginclude "WsdlDataType.xsd"
+"/>
+#ifeqend
+#else // simple type
+ type="\
+#cginclude "WsdlDataType.xsd"
+"\
+#ifneq($(Param.Options.*defaultValue),)
+ default="$(Param.Options.*defaultValue)"\
+#ifeqend
+#ifneq($(Param.Description),)
+>
+            <annotation><documentation>$(Param.Description)</documentation></annotation>
+          </element>
+#else
+/>
+#ifeqend // use parent element
+#ifeqend // template
+#ifeqend
+#contextend   // abstract
+#contextend   // optional
+#ifeqend // array
+#ifeqend // not attribute
+#end // #foreach $(Struct.Members) -- elements
+#ifeq($($bChoiceClosed),0)
+#indent -
+          </choice>
+#ifeqend
+        </sequence>
+#var sAttrGroupName
+#var bAttrGroupClosed
+#foreach $(Struct.Members)
+#ifeq($(Param.Options.*isAttribute),true||1)
+\
+#ifneq($(Param.Options.*attributeGroupName),$($sAttrGroupName))
+#ifneq($($sAttrGroupName),)
+#var bAttrGroupClosed 1
+#indent -
+        </attributeGroup>
+#ifeqend
+#ifneq($(Param.Options.*attributeGroupName),)
+#var bAttrGroupClosed 0
+        <attributeGroup name="$(Param.Options.*attributeGroupName)">
+#indent +
+#ifeqend
+#var sAttrGroupName $(Param.Options.*attributeGroupName)
+#ifeqend
+\
+        <attribute name="$(Param.Name)"\
+ type="\
+#context $(Param.DataType)
+#cginclude "WsdlDataType.xsd"
+#contextend
+"\
+#ifneq($(Param.Options.*defaultValue),)
+ default="$(Param.Options.*defaultValue)"\
+#ifeqend
+#ifneq($(Param.Description),)
+>
+          <annotation><documentation>$(Param.Description)</documentation></annotation>
+        </attribute>
+#else
+/>
+#ifeqend // attribute
+#ifeqend
+#end // #foreach $(Struct.Members) -- attributes
+\
+#ifeq($($bAttrGroupClosed),0)
+#indent -
+        </attributeGroup>
+#ifeqend
+\
+#ifeqend // $(Struct.Members.$Count),0
+#ifneq($(Struct.ParentName),)
+#ifneq($(Struct.Members.$Count),0)
+#indent -2
+          </extension>
+#ifeqend
+        </complexContent>
+#ifeqend
+      </complexType>
+#ifneq($(Struct.Enums.$Count),0)
+#foreach $(Struct.Enums)
+#cginclude "WsdlEnum.xsd"
+#end // #foreach $(Struct.Enums)
+#ifeqend // Struct.Enums.Count != 0
+#ifneq($(Struct.Structs.$Count),0)
+#foreach $(Struct.Structs)
+#cginclude "WsdlStruct.xsd"
+#end // #foreach $(Interface.Structs)
+#ifeqend // Struct.Structs.Count != 0
+\
+#ifeqend //#ifeq($(Struct.Extern),false) // do not serialize extern type

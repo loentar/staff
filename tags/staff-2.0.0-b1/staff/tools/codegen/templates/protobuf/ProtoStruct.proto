@@ -1,0 +1,66 @@
+#ifeq($(Struct.Extern),false)
+#ifneq($(Struct.ParentName),)
+#cgerror structure inheritance is not supported by protocol buffers
+#ifeqend
+\
+#ifneq($(Struct.Description),)
+// $(Struct.Description)
+#ifeqend
+message $(Struct.Name)
+{
+#indent +
+#foreach $(Struct.Enums)
+#cginclude "ProtoEnum.proto"
+#end
+\
+#foreach $(Struct.Structs)
+#cginclude "ProtoStruct.proto"
+#end
+\
+#var tag 0
+#foreach $(Struct.Members)
+\
+#ifneq($(Param.Options.*protobufTag),)
+#var tag $(Param.Options.*protobufTag)
+#else
+#var tag $($tag.!inc)
+#ifeqend
+#ifeq($(Param.Options.*optional),true)
+#var prefix optional
+#else
+#var prefix required
+#ifeqend
+\
+\
+#ifeq($(Param.DataType.Type),template)
+#ifeq($(Param.DataType.Name),list||vector)
+repeated \
+#context $(Param.DataType.TemplateParams.TemplateParam1)
+#cginclude "ProtoDataType.proto"
+#contextend
+#else
+#cgerror unsupported template $(Param.DataType.NsName)
+#ifeqend // list||vector
+#else // simple type
+\
+$($prefix) \
+#context $(Param.DataType)
+#cginclude "ProtoDataType.proto"
+#contextend
+#ifeqend // if else template
+\
+ $(Param.Name) = $($tag)\
+#ifneq($(Param.Options.*defaultValue),)
+ [default = $(Param.Options.*defaultValue)]\
+#ifeqend
+;\
+#ifneq($(Param.Description),)
+ // $(Param.Description)
+#else
+
+#ifeqend
+#end
+#indent -
+};
+
+#ifeqend

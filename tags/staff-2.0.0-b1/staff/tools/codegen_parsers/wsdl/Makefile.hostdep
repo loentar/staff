@@ -1,0 +1,2 @@
+
+tools/codegen_parsers/wsdl.hostdep: tools/codegenparser.hostdep core/utils.hostdep core/xml.hostdep
