@@ -3,9 +3,10 @@
 . ./VERSION
 DISTRIB=../staff_tmp$(printf %x $(date +%s))/
 REVISION=$(LANG=en svn info --non-interactive 2>&- | grep 'Revision: ' | cut -d' ' -f2)
-TARBALLNAME=../staff-${PACKAGE_VERSION}-r${REVISION}
+TARBALLNAME=../staff-src-${PACKAGE_VERSION}-r${REVISION}
 
-test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || /bin/echo -e "\033[1mWARNING: working copy was locally modified\033[0m"
+test $(svn st --non-interactive | grep -vE '^\? ' | wc -l) -eq 0 || \
+    /bin/echo -e "\e[1mWARNING: working copy has local changes\e[0m"
 
 echo "creating tarball..."
 
@@ -14,9 +15,10 @@ mkdir -p ${DISTRIB}staff/
 cp -Rf . ${DISTRIB}staff/
 cd ${DISTRIB}staff/
 
-find -type d -name .svn | xargs rm -Rf
-make clean >/dev/null && make distclean >/dev/null
+make distclean >/dev/null
 rm -f staff.creator.user create_src_tarball update_qtcreator_files
+svn st . --no-ignore | sed -n '/^[I\?]/s/^.[ \t]*//p' | xargs rm -rf
+find -type d -name .svn | xargs rm -Rf
 cd ..
 
 if [ -z "$(which 7z)" ]
@@ -25,7 +27,7 @@ then
   rm -Rf ${DISTRIB}
   echo "created ${TARBALLNAME}.tar.bz2"
 else
-  7z a -r ${TARBALLNAME}.7z staff
+  7z a -r $@ ${TARBALLNAME}.7z staff
   rm -Rf ${DISTRIB}
   echo "created ${TARBALLNAME}.7z"
 fi
