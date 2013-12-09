@@ -1617,7 +1617,21 @@ namespace codegen
         SkipWs();
 
         // checking for service class
-        ReadBefore(stClass.sName, " \t\n\r:{;");
+        ReadBefore(sTmp, ":{;");
+        StringTrimRight(sTmp);
+
+        std::string::size_type nPos = sTmp.find_last_of(" \t\n\r");
+        if (nPos == std::string::npos)
+        {
+          stClass.sName = sTmp;
+        }
+        else
+        {
+          stClass.sName = sTmp.substr(nPos + 1);
+          sTmp.erase(nPos);
+          StringTrimRight(sTmp);
+          mOptions["dllExport"] = sTmp;
+        }
 
         SkipWs();
         char chTmp = m_tFile.peek();

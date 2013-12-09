@@ -100,10 +100,17 @@ $($sNewOpeningNs)
 #ifneq($(Class.Detail),)
   /*! $(Class.Detail) */
 #ifeqend
+#var sDllExport $($dllExport||Class.Options.*dllExport)
+#ifneq($($sDllExport),)
+#var sDllExport $($sDllExport.!append/ /)
+#ifeqend
+\
 #foreach $(Class.Options)
+#ifneq($($ThisElementName),dllExport)
   // *$($ThisElementName): $($ThisElementValue)
+#ifeqend
 #end
-  class $(Class.Name): public staff::IService
+  class $($sDllExport)$(Class.Name): public staff::IService
   {
   public:
 #foreach $(Class.Members)
