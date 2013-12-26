@@ -15,9 +15,14 @@
 
 #ifneq($(Interface.Classes.$Count),0)
 #foreach $(Interface.Classes)
+#var sDllExport $($dllExport||Class.Options.*dllExport)
+#ifneq($($sDllExport),)
+#var sDllExport $($sDllExport.!append/ /)
+#ifeqend
+\
 $(Class.OpeningNs)
 //! Proxy for component service $(Class.ServiceNsName)
-class $(Class.Name)Proxy: public $(Class.Name)
+class $($sDllExport)$(Class.Name)Proxy: public $(Class.Name)
 {
 public:
   $(Class.Name)Proxy();
