@@ -21,11 +21,15 @@ namespace staff
 }
 
 #foreach $(Interface.Classes)
+#var sDllExport $($dllExport||Class.Options.*dllExport)
+#ifneq($($sDllExport),)
+#var sDllExport $($sDllExport.!append/ /)
+#ifeqend
 $(Class.OpeningNs)
   class $(Class.Name)Impl;
 
   //! $(Class.ServiceName) service wrapper
-  class $(Class.Name)Wrapper: public staff::ServiceWrapper
+  class $($sDllExport)$(Class.Name)Wrapper: public staff::ServiceWrapper
   {
   public:
     //! initializing constructor
