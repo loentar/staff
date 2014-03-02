@@ -74,7 +74,7 @@ namespace das
   {
   public:
     MySqlQueryExecutor(MySqlProvider* pProvider):
-      m_pProvider(pProvider), m_pResult(NULL),
+      m_pProvider(pProvider), m_pStmt(NULL),
       m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0)
     {
     }
@@ -86,10 +86,10 @@ namespace das
 
     virtual void Reset()
     {
-      if (m_pResult)
+      if (m_pStmt)
       {
-        mysql_free_result(m_pResult);
-        m_pResult = NULL;
+        mysql_stmt_close(m_pStmt);
+        m_pStmt = NULL;
         m_nFieldsCount = 0;
         m_nRowsCount = 0;
         m_nCurrentRow = 0;
@@ -101,11 +101,12 @@ namespace das
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
 
       Reset();
+
       MYSQL_BIND* paBind = NULL;
       unsigned long* paSizes = NULL;
 
-      MYSQL_STMT* pStmt = mysql_stmt_init(&m_pProvider->m_pImpl->m_tConn);
-      STAFF_ASSERT(pStmt, "Can't init STMT: "
+      m_pStmt = mysql_stmt_init(&m_pProvider->m_pImpl->m_tConn);
+      STAFF_ASSERT(m_pStmt, "Can't init STMT: "
                    + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
                    + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
@@ -119,12 +120,12 @@ namespace das
         STAFF_ASSERT(paSizes, "Memory allocation failed!");
         memset(paSizes, 0, sizeof(unsigned long) * rlsParams.size());
 
-        int nStatus = mysql_stmt_prepare(pStmt, sExecute.c_str(), sExecute.size());
+        int nStatus = mysql_stmt_prepare(m_pStmt, sExecute.c_str(), sExecute.size());
         STAFF_ASSERT(nStatus == 0, "Failed to prepare STMT: "
-                     + std::string(mysql_stmt_error(pStmt))
+                     + std::string(mysql_stmt_error(m_pStmt))
                      + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
-        unsigned long nParamCount = mysql_stmt_param_count(pStmt);
+        unsigned long nParamCount = mysql_stmt_param_count(m_pStmt);
         STAFF_ASSERT(nParamCount == rlsParams.size(), "STMT count != params count: "
                      + ToString(nParamCount) + " != " + ToString(rlsParams.size()) );
 
@@ -153,36 +154,36 @@ namespace das
           }
         }
 
-        STAFF_ASSERT(mysql_stmt_bind_param(pStmt, paBind) == 0,
+        STAFF_ASSERT(mysql_stmt_bind_param(m_pStmt, paBind) == 0,
                      "Failed to bind param: #" + ToString(nStatus) + ": \n"
-                     + std::string(mysql_stmt_error(pStmt))
+                     + std::string(mysql_stmt_error(m_pStmt))
                      + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
-        nStatus = mysql_stmt_execute(pStmt);
+        nStatus = mysql_stmt_execute(m_pStmt);
         STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
-                    + std::string(mysql_stmt_error(pStmt))
+                    + std::string(mysql_stmt_error(m_pStmt))
                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
-        mysql_stmt_close(pStmt);
         free(paBind);
         free(paSizes);
       }
       catch (...)
       {
-        mysql_stmt_close(pStmt);
+        mysql_stmt_close(m_pStmt);
         free(paBind);
         free(paSizes);
         throw;
       }
 
-      if (mysql_field_count(&m_pProvider->m_pImpl->m_tConn) > 0)
+      int nFieldsCount = mysql_stmt_field_count(m_pStmt);
+      if (nFieldsCount > 0)
       {
-        m_pResult = mysql_store_result(&m_pProvider->m_pImpl->m_tConn);
-        STAFF_ASSERT(m_pResult, "Cannot retreive result: \n"
+        int nRes = mysql_stmt_store_result(m_pStmt);
+        STAFF_ASSERT(!nRes, "Can not retrieve result: \n"
                      + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
 
-        m_nFieldsCount = mysql_num_fields(m_pResult);
-        m_nRowsCount = mysql_num_rows(m_pResult);
+        m_nFieldsCount = nFieldsCount;
+        m_nRowsCount = mysql_stmt_num_rows(m_pStmt);
       }
     }
 
@@ -193,9 +194,9 @@ namespace das
         rNames.resize(m_nFieldsCount);
       }
 
-      if (m_pResult)
+      if (m_pStmt)
       {
-        MYSQL_FIELD* pFields = mysql_fetch_fields(m_pResult);
+        MYSQL_FIELD* pFields = m_pStmt->fields;
         const char* szFieldName = NULL;
         int nField = 0;
         for (StringList::iterator itItem = rNames.begin();
@@ -210,7 +211,7 @@ namespace das
 
     virtual bool GetNextResult(StringList& rResult)
     {
-      if (!m_pResult || m_nCurrentRow == m_nRowsCount)
+      if (!m_pStmt || m_nCurrentRow == m_nRowsCount)
       {
         return false;
       }
@@ -220,15 +221,80 @@ namespace das
         rResult.resize(m_nFieldsCount);
       }
 
-      MYSQL_ROW pRow = mysql_fetch_row(m_pResult);
-      STAFF_ASSERT(pRow, "Error while fetching row");
 
-      int nField = 0;
-      for (StringList::iterator itResult = rResult.begin();
-          itResult != rResult.end(); ++itResult, ++nField)
+      my_bool* pbIsNull = reinterpret_cast<my_bool*>(
+            malloc(sizeof(my_bool) * m_nFieldsCount));
+      STAFF_ASSERT(pbIsNull, "Memory allocation failed!");
+      memset(pbIsNull, 0, sizeof(my_bool) * m_nFieldsCount);
+
+      unsigned long* pulLengths = reinterpret_cast<unsigned long*>(
+            malloc(sizeof(unsigned long) * m_nFieldsCount));
+      STAFF_ASSERT(pulLengths, "Memory allocation failed!");
+      memset(pulLengths, 0, sizeof(unsigned long) * m_nFieldsCount);
+
+      MYSQL_BIND* paBind = reinterpret_cast<MYSQL_BIND*>(malloc(sizeof(MYSQL_BIND) * m_nFieldsCount));
+      STAFF_ASSERT(paBind, "Memory allocation failed!");
+      memset(paBind, 0, sizeof(MYSQL_BIND) * m_nFieldsCount);
+
+      char* szData = NULL;
+
+      try
       {
-        *itResult = pRow[nField] ? pRow[nField] : STAFF_DAS_NULL_VALUE;
+        for (unsigned i = 0; i < m_nFieldsCount; ++i)
+        {
+          paBind[i].is_null = &pbIsNull[i];
+          paBind[i].length = &pulLengths[i];
+        }
+
+        STAFF_ASSERT(!mysql_stmt_bind_result(m_pStmt, paBind), "Can't bind result: \n"
+                     + std::string(mysql_stmt_error(m_pStmt)));
+
+        if (!mysql_stmt_fetch(m_pStmt))
+        {
+          Reset();
+          return false;
+        }
+
+        int nField = 0;
+        for (StringList::iterator itResult = rResult.begin();
+            itResult != rResult.end(); ++itResult, ++nField)
+        {
+          if (*paBind[nField].is_null)
+          {
+            *itResult = STAFF_DAS_NULL_VALUE;
+          }
+          else
+          if (pulLengths[nField] > 0)
+          {
+            const unsigned int nLength = pulLengths[nField] + 1;
+            szData = reinterpret_cast<char*>(malloc(nLength));
+            STAFF_ASSERT(szData, "Memory allocation failed!");
+            memset(szData, 0, nLength);
+            paBind[nField].buffer = szData;
+            paBind[nField].buffer_length = nLength;
+
+            STAFF_ASSERT(!mysql_stmt_fetch_column(m_pStmt, &paBind[nField], nField, 0),
+                         "Failed to fetch column: " + std::string(mysql_stmt_error(m_pStmt)));
+
+            *itResult = szData;
+            free(szData);
+            szData = NULL;
+          }
+        }
       }
+      catch (...)
+      {
+        free(szData);
+        free(paBind);
+        free(pulLengths);
+        free(pbIsNull);
+        throw;
+      }
+
+      free(szData);
+      free(paBind);
+      free(pulLengths);
+      free(pbIsNull);
 
       ++m_nCurrentRow;
       return true;
@@ -237,6 +303,7 @@ namespace das
   private:
     MySqlProvider* m_pProvider;
     MYSQL_RES* m_pResult;
+    MYSQL_STMT* m_pStmt;
     unsigned m_nFieldsCount;
     unsigned long long m_nRowsCount;
     unsigned long long m_nCurrentRow;
