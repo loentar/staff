@@ -86,14 +86,25 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
     AXIS2_UTILS_ASSERT(pEnv, g_pstaff_security_calc_fn, "Failed to get staff_security_calc_fn");
 
-    pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
-    AXIS2_UTILS_ASSERT(pEnv, pService, "Failed to get service object");
+    /* try to get service name from staff_module */
+    szServiceName = axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "ServiceName");
+    if (!szServiceName)
+    {
+      /* fallback to generic method of getting service name */
+      pService = axis2_msg_ctx_get_svc(pMsgCtx, pEnv);
+      AXIS2_UTILS_ASSERT(pEnv, pService, "Failed to get service object");
 
-    szServiceName = axis2_svc_get_name(pService, pEnv);
-    AXIS2_UTILS_ASSERT(pEnv, szServiceName, "Failed to get service name");
+      szServiceName = axis2_svc_get_name(pService, pEnv);
+      AXIS2_UTILS_ASSERT(pEnv, szServiceName, "Failed to get service name");
+    }
 
-    GetOperationName(pMsgCtx, pEnv, &szOperation);
-    AXIS2_UTILS_ASSERT(pEnv, szOperation, "Failed to get operation name");
+    /* try to get operation name from staff_module */
+    szOperation = axis2_msg_ctx_get_property_value(pMsgCtx, pEnv, "Operation");
+    if (!szOperation)
+    {
+      GetOperationName(pMsgCtx, pEnv, &szOperation);
+      AXIS2_UTILS_ASSERT(pEnv, szOperation, "Failed to get operation name");
+    }
 
     szServiceOperationPath =
         axutil_strcat(pEnv, "component.", szServiceName, ".", szOperation, NULL);
