@@ -121,6 +121,10 @@ namespace staff
         LogDebug2() << "Sleep time: " << m_nSleepTime;
         while (--m_nSleepTime > 0)
         { // for delayed session closing
+          if (IsStopping())
+          {
+            return;
+          }
           Sleep(1000);
         }
       }
