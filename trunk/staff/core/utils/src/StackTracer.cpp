@@ -137,6 +137,7 @@ namespace staff
         unsigned int unSize = 0;
         if (!bfd_read_minisymbols(m_pBfd, FALSE, (void**)&m_ppSymbols, &unSize))
         {
+          free(m_ppSymbols);
           bfd_read_minisymbols(m_pBfd, TRUE, (void**)&m_ppSymbols, &unSize);
         }
       }
@@ -460,7 +461,7 @@ namespace staff
 
         if (szDemangled)
         {
-          delete szDemangled;
+          free(szDemangled); // allocated with malloc/realloc
           szDemangled = NULL;
         }
       }
