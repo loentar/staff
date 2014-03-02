@@ -27,6 +27,7 @@
 #include <staff/utils/stringutils.h>
 #include <staff/utils/tostring.h>
 #include <staff/utils/fromstring.h>
+#include <staff/utils/Log.h>
 #include <staff/xml/Element.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Runtime.h>
@@ -178,6 +179,9 @@ namespace das
       int nFieldsCount = mysql_stmt_field_count(m_pStmt);
       if (nFieldsCount > 0)
       {
+        my_bool bUpdateMaxLength = 1;
+        mysql_stmt_attr_set(m_pStmt, STMT_ATTR_UPDATE_MAX_LENGTH, &bUpdateMaxLength);
+
         int nRes = mysql_stmt_store_result(m_pStmt);
         STAFF_ASSERT(!nRes, "Can not retrieve result: \n"
                      + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
@@ -222,79 +226,70 @@ namespace das
       }
 
 
-      my_bool* pbIsNull = reinterpret_cast<my_bool*>(
-            malloc(sizeof(my_bool) * m_nFieldsCount));
-      STAFF_ASSERT(pbIsNull, "Memory allocation failed!");
-      memset(pbIsNull, 0, sizeof(my_bool) * m_nFieldsCount);
-
-      unsigned long* pulLengths = reinterpret_cast<unsigned long*>(
-            malloc(sizeof(unsigned long) * m_nFieldsCount));
-      STAFF_ASSERT(pulLengths, "Memory allocation failed!");
-      memset(pulLengths, 0, sizeof(unsigned long) * m_nFieldsCount);
-
       MYSQL_BIND* paBind = reinterpret_cast<MYSQL_BIND*>(malloc(sizeof(MYSQL_BIND) * m_nFieldsCount));
       STAFF_ASSERT(paBind, "Memory allocation failed!");
       memset(paBind, 0, sizeof(MYSQL_BIND) * m_nFieldsCount);
 
-      char* szData = NULL;
-
       try
       {
-        for (unsigned i = 0; i < m_nFieldsCount; ++i)
+         MYSQL_RES* pMetadata = mysql_stmt_result_metadata(m_pStmt);
+
+        for (unsigned nField = 0; nField < m_nFieldsCount; ++nField)
         {
-          paBind[i].is_null = &pbIsNull[i];
-          paBind[i].length = &pulLengths[i];
+          unsigned long ulMaxLength = pMetadata->fields[nField].max_length;
+
+          paBind[nField].buffer_type = MYSQL_TYPE_STRING;
+          paBind[nField].is_null = &paBind[nField].is_null_value;
+
+          if (ulMaxLength)
+          {
+            char* szData = reinterpret_cast<char*>(malloc(ulMaxLength));
+            STAFF_ASSERT(szData, "Memory allocation failed!");
+            memset(szData, 0, ulMaxLength);
+            paBind[nField].buffer = szData;
+            paBind[nField].buffer_length = ulMaxLength;
+          }
         }
+
+        mysql_free_result(pMetadata);
 
         STAFF_ASSERT(!mysql_stmt_bind_result(m_pStmt, paBind), "Can't bind result: \n"
                      + std::string(mysql_stmt_error(m_pStmt)));
 
-        if (!mysql_stmt_fetch(m_pStmt))
+        if (mysql_stmt_fetch(m_pStmt))
         {
+          LogWarning() << "can't fetch stmt: " << mysql_stmt_error(m_pStmt);
           Reset();
           return false;
         }
 
-        int nField = 0;
+        unsigned nField = 0;
         for (StringList::iterator itResult = rResult.begin();
             itResult != rResult.end(); ++itResult, ++nField)
         {
-          if (*paBind[nField].is_null)
+          if (paBind[nField].is_null_value)
           {
             *itResult = STAFF_DAS_NULL_VALUE;
           }
           else
-          if (pulLengths[nField] > 0)
           {
-            const unsigned int nLength = pulLengths[nField] + 1;
-            szData = reinterpret_cast<char*>(malloc(nLength));
-            STAFF_ASSERT(szData, "Memory allocation failed!");
-            memset(szData, 0, nLength);
-            paBind[nField].buffer = szData;
-            paBind[nField].buffer_length = nLength;
-
             STAFF_ASSERT(!mysql_stmt_fetch_column(m_pStmt, &paBind[nField], nField, 0),
                          "Failed to fetch column: " + std::string(mysql_stmt_error(m_pStmt)));
 
-            *itResult = szData;
-            free(szData);
-            szData = NULL;
+            itResult->assign(static_cast<const char*>(paBind[nField].buffer),
+                             paBind[nField].buffer_length);
           }
+
+          free(paBind[nField].buffer);
         }
       }
       catch (...)
       {
-        free(szData);
         free(paBind);
-        free(pulLengths);
-        free(pbIsNull);
         throw;
       }
 
-      free(szData);
       free(paBind);
-      free(pulLengths);
-      free(pbIsNull);
 
       ++m_nCurrentRow;
       return true;
