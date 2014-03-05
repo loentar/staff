@@ -23,6 +23,8 @@
 #include <my_global.h>
 #endif
 #include <mysql.h>
+#include <set>
+#include <algorithm>
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/stringutils.h>
 #include <staff/utils/tostring.h>
@@ -49,6 +51,11 @@ namespace das
       m_sPort("3306"),
       m_bConnected(false)
     {
+      m_sSupportedDmlStmt.insert("INSERT");
+      m_sSupportedDmlStmt.insert("REPLACE");
+      m_sSupportedDmlStmt.insert("UPDATE");
+      m_sSupportedDmlStmt.insert("DELETE");
+      m_sSupportedDmlStmt.insert("SELECT");
     }
 
 
@@ -63,6 +70,7 @@ namespace das
     std::string m_sLogin;
     std::string m_sPassword;
     bool m_bConnected;
+    std::set<std::string> m_sSupportedDmlStmt;
   };
 
   const std::string MySqlProvider::MySqlImpl::m_sName = "staff.das.MySql";
@@ -102,6 +110,26 @@ namespace das
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
 
       Reset();
+
+      // workaround: MySQL does not support prepared statements for DML other than:
+      //  INSERT, REPLACE, UPDATE, DELETE, CREATE TABLE, SELECT
+      std::string sDml = sExecute;
+      StringTrimLeft(sDml);
+      std::string::size_type nPos = sDml.find_first_of(" \n\r\t");
+      if (nPos != std::string::npos)
+        sDml.erase(nPos);
+
+      std::transform(sDml.begin(), sDml.end(), sDml.begin(), ::toupper);
+
+      if (m_pProvider->m_pImpl->m_sSupportedDmlStmt.count(sDml) == 0) {
+        // execute query without using of stmt
+        // no parameters are supported in that mode
+        int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
+        STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
+                     + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
+        return;
+      }
 
       MYSQL_BIND* paBind = NULL;
       unsigned long* paSizes = NULL;
