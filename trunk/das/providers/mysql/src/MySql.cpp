@@ -171,6 +171,7 @@ namespace das
       catch (...)
       {
         mysql_stmt_close(m_pStmt);
+        m_pStmt = NULL;
         free(paBind);
         free(paSizes);
         throw;
