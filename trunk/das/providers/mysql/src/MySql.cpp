@@ -132,7 +132,6 @@ namespace das
       }
 
       MYSQL_BIND* paBind = NULL;
-      unsigned long* paSizes = NULL;
 
       m_pStmt = mysql_stmt_init(&m_pProvider->m_pImpl->m_tConn);
       STAFF_ASSERT(m_pStmt, "Can't init STMT: "
@@ -144,10 +143,6 @@ namespace das
         paBind = reinterpret_cast<MYSQL_BIND*>(malloc(sizeof(MYSQL_BIND) * rlsParams.size()));
         STAFF_ASSERT(paBind, "Memory allocation failed!");
         memset(paBind, 0, sizeof(MYSQL_BIND) * rlsParams.size());
-
-        paSizes = reinterpret_cast<unsigned long*>(malloc(sizeof(unsigned long) * rlsParams.size()));
-        STAFF_ASSERT(paSizes, "Memory allocation failed!");
-        memset(paSizes, 0, sizeof(unsigned long) * rlsParams.size());
 
         int nStatus = mysql_stmt_prepare(m_pStmt, sExecute.c_str(), sExecute.size());
         STAFF_ASSERT(nStatus == 0, "Failed to prepare STMT: "
@@ -178,8 +173,7 @@ namespace das
             pBind->is_null = &bNotNull;
             pBind->buffer = const_cast<void*>(reinterpret_cast<const void*>(itParam->c_str()));
             pBind->buffer_length = itParam->size();
-            paSizes[nPos] = pBind->buffer_length + 1;
-            pBind->length = &paSizes[nPos];
+            pBind->length = &pBind->buffer_length;
           }
         }
 
@@ -194,14 +188,12 @@ namespace das
                     + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
         free(paBind);
-        free(paSizes);
       }
       catch (...)
       {
         mysql_stmt_close(m_pStmt);
         m_pStmt = NULL;
         free(paBind);
-        free(paSizes);
         throw;
       }
 
