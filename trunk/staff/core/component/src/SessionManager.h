@@ -72,10 +72,16 @@ namespace staff
         */
     bool Validate(const std::string& sSessionId);
 
+    //! get number of seconds after which session will be expired
+    /*! \param  sSessionId - session id
+        \return remaining time of session
+        */
+    int GetExpiresIn(const std::string& sSessionId);
+
     //! keepalive session
     /*! \param  sSessionId - session id
         */
-    void Keepalive(const std::string& sSessionId);
+    int Keepalive(const std::string& sSessionId);
 
   private:
     SessionManager();

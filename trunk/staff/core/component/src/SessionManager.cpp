@@ -237,7 +237,16 @@ namespace staff
     return staff::security::Sessions::Inst().Validate(sSessionId);
   }
 
-  void SessionManager::Keepalive(const std::string& sSessionId)
+  int SessionManager::GetExpiresIn(const std::string& sSessionId)
+  {
+    SessionManagerImpl::SessionMap::iterator itSession = m_pImpl->m_mSessions.find(sSessionId);
+    STAFF_ASSERT(itSession != m_pImpl->m_mSessions.end(), "Session with id [" + sSessionId +
+                 "] does not exists");
+
+    return itSession->second.nExpires - staff::security::Time::Get();
+  }
+
+  int SessionManager::Keepalive(const std::string& sSessionId)
   {
     staff::security::Sessions& rSessions = staff::security::Sessions::Inst();
     rSessions.Keepalive(sSessionId);
@@ -247,7 +256,10 @@ namespace staff
                  "] does not exists");
 
     itSession->second.nExpires = rSessions.GetExpiresById(itSession->second.nId);
+
+    return itSession->second.nExpires - staff::security::Time::Get();
   }
+
 
   SessionManager::SessionManager()
   {

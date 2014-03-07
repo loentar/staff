@@ -37,6 +37,9 @@ namespace staff
         \param  sPassword - password
         \return created/existing session id
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: login
     virtual std::string LoginUser(const std::string& sUserName, const std::string& sPassword) = 0;
 
     //! login and create session
@@ -46,38 +49,73 @@ namespace staff
         \param  bCloseExisting - close existing session if exists
         \return created session id
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: openSession
     virtual std::string OpenSession(const std::string& sUserName, const std::string& sPassword, bool bCloseExisting) = 0;
 
     //! logout and close session
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: logout
     virtual void Logout() = 0;
 
     //! keepalive session
-    virtual void KeepAliveSession() = 0;
+    /*! \return remaining duration of session in seconds
+        */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: keepAlive
+    virtual int KeepAliveSession() = 0;
 
     //! validate session
     /*! \return true - session is valid
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: validate
     virtual bool ValidateSession() = 0;
 
     //! get current user id
     /*! \return current user id
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: getUserId
     virtual int GetUserId() = 0;
 
     //! get current user name
     /*! \return current user name
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: getUserName
     virtual std::string GetUserName() = 0;
 
     //! get current user description
     /*! \return current user description
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: getUserDescription
     virtual std::string GetUserDescription() = 0;
 
-    //! get session expiration time
-    /*! \return session expiration time in minutes
+    //! get standard duration of session expiration
+    /*! \return standard duration of session expiration time in minutes
         */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: getSessionExpiration
     virtual int GetSessionExpiration() const = 0;
+
+    //! get number of seconds after which session will be expired
+    /*! \param  sSessionId - session id
+        \return remaining duration of session in seconds
+        */
+    // *restEnable: true
+    // *restMethod: POST
+    // *restLocation: getSessionExpiresIn
+    virtual int GetSessionExpiresIn() const = 0;
 
   };
 

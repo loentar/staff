@@ -43,6 +43,7 @@ namespace staff
       "Cannot login from non-nobody session");
 
     staff::SessionManager::Inst().Login(sUserName, sPassword, tResult);
+    staff::SessionManager::Inst().Keepalive(tResult);
 
     return tResult;  // result
   }
@@ -64,9 +65,9 @@ namespace staff
     staff::SessionManager::Inst().Close(IService::GetSessionId());
   }
 
-  void LoginImpl::KeepAliveSession()
+  int LoginImpl::KeepAliveSession()
   {
-    staff::SessionManager::Inst().Keepalive(IService::GetSessionId());
+    return staff::SessionManager::Inst().Keepalive(IService::GetSessionId());
   }
 
   int LoginImpl::GetUserId()
@@ -104,6 +105,11 @@ namespace staff
   bool LoginImpl::ValidateSession()
   {
     return staff::security::Sessions::Inst().Validate(IService::GetSessionId());
+  }
+
+  int LoginImpl::GetSessionExpiresIn() const
+  {
+    return staff::SessionManager::Inst().GetExpiresIn(IService::GetSessionId());
   }
 
 }
