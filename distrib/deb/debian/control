@@ -43,7 +43,7 @@ Description: Web Service Framework for C++ based on Apache Axis2/C. Development 
 Package: libapache2-mod-staff-axis2services
 Section: libs
 Architecture: any
-Depends: libaxis2c0 (>= 1.6.0), apache2.2-common (>= 2.2.0), ${shlibs:Depends}, ${misc:Depends}
+Depends: libaxis2c0 (>= 1.6.0), apache2.2-common | apache2 (>= 2.2.0), ${shlibs:Depends}, ${misc:Depends}
 Description: Web services proxy module for Apache2.
  This is an Apache2 proxy module to forward requests/response to stateful
  Web services on Axis2/C. If you using this module Axis2/C must be started
