@@ -31,7 +31,7 @@ APACHEMODDIR=/usr/libexec/apache2
 endif
 endif
 
-APXS_CFLAGS = $(shell $(APXS) -q CFLAGS)
+APXS_CFLAGS = $(shell $(APXS) -q CFLAGS) -D_LARGEFILE64_SOURCE
 ifneq ($(DEBUG),)
   APXS_CFLAGS += -D_DEBUG -g -O0
 endif
