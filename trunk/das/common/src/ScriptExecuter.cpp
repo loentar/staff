@@ -399,6 +399,8 @@ namespace das
 
       Var& rVar = m_mVars[sVarName];
 
+      DataType tType;
+
       // get var type
       const xml::Attribute* pAttrType = rScript.FindAttribute("type");
       if (pAttrType)
@@ -409,55 +411,72 @@ namespace das
 
         if (pType)
         { // datasource's type
-          rVar.tType = *pType;
+          tType = *pType;
         }
         else
         { // parse type
-          rVar.tType.sType = sType;
+          tType.sType = sType;
           if (sType == "DataObject")
           {
-            rVar.tType.eType = DataType::DataObject;
-            rVar.tdoValue.Create(sVarName);
+            tType.eType = DataType::DataObject;
           }
           else
           { // accept as generic
-            rVar.tType.eType = DataType::Generic;
+            tType.eType = DataType::Generic;
           }
+        }
+
+        // only set type for root, children are always DataObject
+        if (sVarPath.empty())
+        {
+          // reset variable in case of giving type for root
+          rVar.tdoValue.Detach();
+          rVar.tType = tType;
         }
       }
 
+
+
+      // if "value" attr is given, create variable of generic type
+      // else create variable of DataObject type
 
       const xml::Attribute* pAttrValue = rScript.FindAttribute("value");
       if (pAttrValue)
       {
-        rVar.sValue = Eval(rdoContext, pAttrValue->GetValue());
-        if (rVar.tType.eType == DataType::Void)
+        const std::string& sValue = Eval(rdoContext, pAttrValue->GetValue());
+        if (tType.eType == DataType::Void)
         {
-          rVar.tType.eType = DataType::Generic;
+          tType.eType = DataType::Generic;
+        }
+
+        // set value for root
+        if (sVarPath.empty())
+        {
+          rVar.sValue = sValue;
         }
         else
-        if (rVar.tType.eType == DataType::DataObject ||
-            rVar.tType.eType == DataType::Struct ||
-            rVar.tType.eType == DataType::List)
         {
-          DataObject doChild;
-          GetChild(rVar.tdoValue, sVarPath, doChild, true);
-          doChild.SetText(rVar.sValue);
+          DataObject tdoValue;
+          CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
+          tdoValue.SetText(sValue);
         }
       }
       else
       {
-        rVar.tdoValue.Create(sVarName);
-        if (rVar.tType.eType == DataType::Void)
+        if (tType.eType == DataType::Void)
         {
-          rVar.tType.eType = DataType::DataObject;
+          tType.eType = DataType::DataObject;
         }
-        ProcessSequence(rdoContext, rScript, rVar.tType, rVar.tdoValue);
-        if (rVar.tType.eType == DataType::Generic)
+
+        DataObject tdoValue;
+        CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
+
+        ProcessSequence(rdoContext, rScript, tType, tdoValue);
+        if (tType.eType == DataType::Generic)
         {
-          rVar.sValue = rVar.tdoValue.GetText();
+          rVar.sValue = tdoValue.GetText();
           rVar.tdoValue.Detach();
-          if (rVar.tType.sType != "string")
+          if (tType.sType != "string")
           {
             StringTrim(rVar.sValue);
           }
@@ -874,6 +893,15 @@ namespace das
       }
     }
 
+    void CreateDataObject(DataObject& rdoContext, const std::string& sName,
+                          const std::string& sChildPath, DataObject& rdoResult)
+    {
+      if (!rdoContext.IsInit())
+      {
+        rdoContext.Create(sName);
+      }
+      GetChild(rdoContext, sChildPath, rdoResult, true);
+    }
 
     void GetChild(const DataObject& rdoContext, const std::string& sChildPath, DataObject& rdoResult,
                   bool bCreate = false)
