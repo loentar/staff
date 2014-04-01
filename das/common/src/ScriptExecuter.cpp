@@ -798,7 +798,6 @@ namespace das
               {
                 DataObject tdoResult;
                 GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
-                const_cast<DataObject&>(rVar.tdoValue).SetOwner(true);
                 STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
                 if (tdoResult.IsNil())
                 {

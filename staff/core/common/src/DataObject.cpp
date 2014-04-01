@@ -1376,7 +1376,7 @@ namespace staff
     DataObject tdoResult;
     tdoResult.m_pAxiomNode = m_pAxiomNode;
     tdoResult.m_pAxiomElement = m_pAxiomElement;
-    return *this;
+    return tdoResult;
   }
 
   DataObject DataObject::Parent() const
