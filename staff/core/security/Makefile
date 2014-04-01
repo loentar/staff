@@ -64,7 +64,7 @@ install_headers: "$(INSTALLDIR)$(INCDIR)"
 	$(LN) staff-$(VERSION) $(INSTALLDIR)$(INCDIR_STAFF)
 
 install_db: "$(INSTALLDIR)db/"
-	cp -f db/staff.db $(INSTALLDIR)db/
+	test -e $(INSTALLDIR)db/staff.db || cp -f db/staff.db $(INSTALLDIR)db/
 	chmod -R go+rw $(INSTALLDIR)db/
 
 # == clean ==========================================
