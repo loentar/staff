@@ -195,7 +195,7 @@ char* StrDupN(apr_pool_t* pPool, const char* szString, int nStringSize)
   return szTmp;
 }
 
-inline long long Min(long long llA, long long llB)
+long long Min(long long llA, long long llB)
 {
   return llA > llB ? llB : llA;
 }

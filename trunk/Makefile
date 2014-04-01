@@ -44,6 +44,7 @@ ifeq ($(wildcard /etc/ld.so.conf.d/staff.conf),)
 endif
 	-ldconfig
 ifeq ($(wildcard /usr/local/lib/pkgconfig/wsf-staff.pc),)
+	mkdir -p /usr/local/lib/pkgconfig/
 	-sed "s:__STAFF_HOME__:$(STAFF_HOME):g;s/__VERSION__/$(PACKAGE_VERSION)/g" distrib/pkgconfig/wsf-staff.pc > /usr/local/lib/pkgconfig/wsf-staff.pc
 endif
 endif
