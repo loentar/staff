@@ -24,6 +24,7 @@ _Script operators list:_
 || *name*  || *description* || *values* || *example* ||
 || trim    || trims resulting string || "true" - enable resulting string trimming, any other - disable || *<font color=green>remove trailing and leading white spaces:</font>*<br>{{{<execute trim="true">echo "  text  "</execute>}}} ||
 || result  || controls result value checking || "optional" - do not check result (default)<br> "required" - if result is empty, throw fault || *<font color=green>disallow empty select result:</font>*<br>{{{<execute result="required">SELECT name FROM users WHERE id=$(id)</execute>}}} ||
+|| partial  || used to read only first few fields of structure || "true" - read only N first fields of struct which is present in result<br> "false" (default) - if number of structure fields not equal to number of result fields, throw fault || *<font color=green>select only id and name from user:</font>*<br>{{{<var name="user" type="User">}}}<br><dd>{{{<execute partial="true">SELECT id, name FROM users WHERE id=$(id)</execute>}}}</dd>{{{</var>}}} ||
 
 === Comparison operators: ===
 *Those operators can be used when comparing numbers*
