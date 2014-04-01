@@ -223,14 +223,33 @@ namespace das
 
           pExec->Execute(sExecute, lsParams);
 
+          bool bPartial = false;
+          const xml::Attribute* pAttr = rScript.FindAttribute("partial");
+          if (pAttr)
+          {
+            const std::string& sValue = pAttr->GetValue();
+            if (sValue == "true")
+            {
+              bPartial = true;
+            }
+            else
+            {
+              STAFF_ASSERT(sValue == "false", "Invalid value of \"partial\" attribute. "
+                           "Valid values are: \"true\", \"false\"(default)");
+            }
+          }
+
+
           StringList lsResult;
 
           if (rReturnType.eType == DataType::Generic)
           {
             if (pExec->GetNextResult(lsResult))
             {
-              STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
-                  ToString(lsResult.size()) + " expected: 1");
+              STAFF_ASSERT(lsResult.size() == 1,
+                           "The number of fields in result do not match ["
+                           + rReturnType.sName + " " + rReturnType.sType + "]: " +
+                           ToString(lsResult.size()) + " butexpected: 1");
               const std::string& sValue = lsResult.front();
               if (sValue == STAFF_DAS_NULL_VALUE)
               {
@@ -247,12 +266,17 @@ namespace das
           {
             if (pExec->GetNextResult(lsResult))
             {
-              STAFF_ASSERT(lsResult.size() == rReturnType.lsChilds.size(), "Fields count does not match: " +
-                  ToString(lsResult.size()) + " expected: " + ToString(rReturnType.lsChilds.size()));
+              STAFF_ASSERT((bPartial && lsResult.size() > 0)
+                           || lsResult.size() == rReturnType.lsChilds.size(),
+                           "The number of fields in result do not match ["
+                           + rReturnType.sName + " " + rReturnType.sType + "]: " +
+                           ToString(lsResult.size()) + " but expected: "
+                           + ToString(rReturnType.lsChilds.size()));
 
               StringList::const_iterator itResult = lsResult.begin();
               for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
-                  itType != rReturnType.lsChilds.end(); ++itType, ++itResult)
+                  itType != rReturnType.lsChilds.end() &&
+                   itResult != lsResult.end(); ++itType, ++itResult)
               {
                 if (*itResult == STAFF_DAS_NULL_VALUE)
                 {
@@ -267,7 +291,8 @@ namespace das
           }
           else
           if (rReturnType.eType == DataType::DataObject ||
-              (rReturnType.eType == DataType::List && rReturnType.lsChilds.front().eType == DataType::DataObject))
+              (rReturnType.eType == DataType::List &&
+               rReturnType.lsChilds.front().eType == DataType::DataObject))
           {
             StringList lsFieldsNames;
             pExec->GetFieldsNames(lsFieldsNames);
@@ -297,8 +322,10 @@ namespace das
             {
               if (pExec->GetNextResult(lsResult))
               {
-                STAFF_ASSERT(lsResult.size() == 1, "Fields count does not match: " +
-                             ToString(lsResult.size()) + " expected: 1");
+                STAFF_ASSERT(lsResult.size() == 1,
+                             "The number of fields in result do not match ["
+                             + rItemType.sName + " " + rItemType.sType + "]: " +
+                             ToString(lsResult.size()) + " but expected: 1");
                 do
                 {
                   const std::string& sResult = lsResult.front();
@@ -319,15 +346,20 @@ namespace das
             {
               if (pExec->GetNextResult(lsResult))
               {
-                STAFF_ASSERT(lsResult.size() == rItemType.lsChilds.size(), "Fields count does not match: " +
-                             ToString(lsResult.size()) + " expected: " + ToString(rItemType.lsChilds.size()));
+                STAFF_ASSERT((bPartial && lsResult.size() > 0)
+                             || lsResult.size() == rItemType.lsChilds.size(),
+                             "The number of fields in result do not match ["
+                             + rItemType.sName + " " + rItemType.sType + "]: " +
+                             ToString(lsResult.size()) + " but expected: "
+                             + ToString(rItemType.lsChilds.size()));
                 do
                 {
                   staff::DataObject tdoItem = rdoResult.CreateChild("Item");
 
                   StringList::const_iterator itResult = lsResult.begin();
                   for (DataTypesList::const_iterator itType = rItemType.lsChilds.begin();
-                      itType != rItemType.lsChilds.end(); ++itType, ++itResult)
+                      itType != rItemType.lsChilds.end() && 
+                      itResult != lsResult.end(); ++itType, ++itResult)
                   {
                     if (*itResult == STAFF_DAS_NULL_VALUE)
                     {
@@ -676,7 +708,7 @@ namespace das
           VarMap::const_iterator itVar = m_mVars.find(sVarName);
           STAFF_ASSERT(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
           const Var& rVar = itVar->second;
-          STAFF_ASSERT(rVar.tType.eType == rReturnType.eType, "Types mismatch in [ return " + sVarName + "]");
+          STAFF_ASSERT(rVar.tType.eType == rReturnType.eType, "Types mismatch in [return " + sVarName + "]");
 
           if (rReturnType.eType == DataType::Generic)
           {
