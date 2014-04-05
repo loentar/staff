@@ -39,6 +39,7 @@
 #include <axis2_util.h>
 #include <axiom_soap_envelope.h>
 #include <axiom_soap_body.h>
+#include <axis2_http_transport.h>
 #include <staff/security/tools.h>
 #include "StaffSecurityUtils.h"
 
@@ -125,11 +126,13 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied: sessionid unknown or expired");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
-      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
+      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
+      axis2_msg_ctx_set_status_code(pMsgCtx, pEnv, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
+
       return AXIS2_FAILURE;
     }
 
-    if(!nAccess)
+    if (!nAccess)
     {
       dprintf("Access denied to user with session id [%s] while accessing to operation %s\n",
               szSessionId, szServiceOperationPath);
@@ -138,7 +141,9 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
-      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
+      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
+      axis2_msg_ctx_set_status_code(pMsgCtx, pEnv, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
+
       return AXIS2_FAILURE;
     }
 
