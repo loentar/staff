@@ -141,8 +141,8 @@ axis2_status_t AXIS2_CALL StaffSecurity_invoke(axis2_handler_t* pHandler,
 
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, "Access denied");
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, AXUTIL_ERROR_MAX + 2);
-      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
-      axis2_msg_ctx_set_status_code(pMsgCtx, pEnv, AXIS2_HTTP_RESPONSE_BAD_REQUEST_CODE_VAL);
+      AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_HTTP_RESPONSE_CONFLICT_CODE_VAL);
+      axis2_msg_ctx_set_status_code(pMsgCtx, pEnv, AXIS2_HTTP_RESPONSE_CONFLICT_CODE_VAL);
 
       return AXIS2_FAILURE;
     }
