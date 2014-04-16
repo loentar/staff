@@ -518,18 +518,22 @@ namespace das
       if (pAttrValue)
       {
         const std::string& sValue = Eval(rdoContext, pAttrValue->GetValue());
-        if (tType.eType == DataType::Void)
-        {
-          tType.eType = DataType::Generic;
-        }
-
         // set value for root
         if (sVarPath.empty())
         {
           rVar.sValue = sValue;
+          if (rVar.tType.eType == DataType::Void)
+          {
+            rVar.tType.eType = DataType::Generic;
+          }
         }
         else
         {
+          if (tType.eType == DataType::Void)
+          {
+            tType.eType = DataType::Generic;
+          }
+
           DataObject tdoValue;
           CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
           tdoValue.SetText(sValue);
