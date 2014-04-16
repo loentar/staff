@@ -28,6 +28,7 @@
 #include <staff/utils/fromstring.h>
 #include <staff/utils/stringutils.h>
 #include <staff/common/Attribute.h>
+#include <staff/common/Namespace.h>
 #include <staff/common/DataObject.h>
 #include <staff/xml/Attribute.h>
 #include <staff/xml/Element.h>
@@ -40,6 +41,9 @@ namespace staff
 {
 namespace das
 {
+
+#define STAFF_SOAPENC_URI "http://schemas.xmlsoap.org/soap/encoding/"
+
   struct Var
   {
     DataType tType;
@@ -72,8 +76,15 @@ namespace das
 
   public:
     ScriptExecuterImpl(const DataSource& rDataSource, Providers& rstProviders):
-      m_rDataSource(rDataSource), m_rstProviders(rstProviders), m_bReturn(false)
+      m_rDataSource(rDataSource), m_rstProviders(rstProviders), m_bReturn(false),
+      m_bListAsArray(false)
     {
+      const StringMap& rmOptions = m_rDataSource.GetOptions();
+      StringMap::const_iterator it = rmOptions.find("listAsArray");
+      if (it != rmOptions.end())
+      {
+        m_bListAsArray = it->second == "true";
+      }
     }
 
     void ProcessSequence(const DataObject& rdoContext, const xml::Element& rScript,
@@ -294,6 +305,7 @@ namespace das
               (rReturnType.eType == DataType::List &&
                rReturnType.lsChilds.front().eType == DataType::DataObject))
           {
+            int nArrayChildren = 0;
             StringList lsFieldsNames;
             pExec->GetFieldsNames(lsFieldsNames);
             while (pExec->GetNextResult(lsResult))
@@ -312,11 +324,21 @@ namespace das
                   tdoItem.CreateChild(*itName).SetText(*itResult);
                 }
               }
+
+              ++nArrayChildren;
+            }
+
+            if (m_bListAsArray)
+            {
+              rdoResult.DeclareNamespace(STAFF_SOAPENC_URI, "enc");
+              rdoResult.CreateAttribute("enc:arrayType",
+                                        "any[" + ToString(nArrayChildren) + "]");
             }
           }
           else
           if (rReturnType.eType == DataType::List) // ---------------- list ----------------------------
           {
+            int nArrayChildren = 0;
             const DataType& rItemType = rReturnType.lsChilds.front();
             if (rItemType.eType == DataType::Generic) // list of generics
             {
@@ -337,6 +359,7 @@ namespace das
                   {
                     rdoResult.CreateChild("Item").SetText(sResult);
                   }
+                  ++nArrayChildren;
                 }
                 while (pExec->GetNextResult(lsResult));
               }
@@ -370,6 +393,7 @@ namespace das
                       tdoItem.CreateChild(itType->sName).SetText(*itResult);
                     }
                   }
+                  ++nArrayChildren;
                 }
                 while (pExec->GetNextResult(lsResult));
               }
@@ -377,6 +401,13 @@ namespace das
             else
             {
               STAFF_THROW_ASSERT("Unsupported list item type: " + rReturnType.sType);
+            }
+
+            if (m_bListAsArray)
+            {
+              rdoResult.DeclareNamespace(STAFF_SOAPENC_URI, "enc");
+              rdoResult.CreateAttribute("enc:arrayType", rItemType.sName
+                                        + "[" + ToString(nArrayChildren) + "]");
             }
           }
           else
@@ -504,7 +535,7 @@ namespace das
         CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
 
         ProcessSequence(rdoContext, rScript, tType, tdoValue);
-        if (tType.eType == DataType::Generic)
+        if (tType.eType == DataType::Generic && sVarPath.empty())
         {
           rVar.sValue = tdoValue.GetText();
           rVar.tdoValue.Detach();
@@ -1024,6 +1055,7 @@ namespace das
     VarMap m_mVars;
     ExecutorsMap m_mExec;
     bool m_bReturn;
+    bool m_bListAsArray;
   };
 
 

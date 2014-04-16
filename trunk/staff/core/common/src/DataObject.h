@@ -196,14 +196,20 @@ namespace staff
     operator axiom_element_t*();
 
     //! tests if the DataObject is NULL or not
-    /*! \return true if the DataObject is NULL
+    /*! \return true if the DataObject is NULL (not initialized)
     */
     bool IsNull() const;
 
     //! tests if the DataObject is initialized or not
     /*! \return true if the DataObject is initialized
+     *  this function is opposite to IsNull()
     */
     bool IsInit() const;
+
+    //! tests if the DataObject is empty or not
+    /*! \return true if the DataObject is not initialized or has no children nor text value
+    */
+    bool IsEmpty() const;
 
     //////////////////////////////////////////////////////////////////////////
     // Node properties
@@ -1504,8 +1510,6 @@ namespace staff
     DataObject(axiom_node_t* pAxiomNode, axiom_element_t* pAxiomElement);
 
     const char* GetChildTextByLocalNameC(const char* szLocalName) const;
-
-//    axiom_namespace_t* GetDeclaredNamespace();
 
   private:
     axiom_node_t* m_pAxiomNode;         //!<  DataObject's AxiOM node

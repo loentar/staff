@@ -550,6 +550,12 @@ namespace staff
     return (m_pAxiomNode != NULL && m_pAxiomElement != NULL);
   }
 
+  bool DataObject::IsEmpty() const
+  {
+    return (m_pAxiomNode == NULL || m_pAxiomElement == NULL) ||
+        axiom_node_get_first_child(m_pAxiomNode, m_pEnv) == NULL;
+  }
+
   //////////////////////////////////////////////////////////////////////////
   // Node properties
 
@@ -1780,6 +1786,8 @@ namespace staff
 
   DataObject DataObject::CreateChildOnce(const char* szLocalName)
   {
+    STAFF_ASSERT(m_pAxiomNode, "Not initialized");
+
     axiom_node_t* pNode = NULL;
     axiom_element_t* pElem = NULL;
 
@@ -3388,8 +3396,18 @@ namespace staff
   {
     STAFF_ASSERT(m_pAxiomNode != NULL && m_pAxiomElement != NULL, "Not initialized");
 
+    axiom_namespace_t* pNs = NULL;
+
+    const char* szAttrLocal = strrchr(szAttrName, ':');
+    if (szAttrLocal)
+    {
+      std::string sPrefix(szAttrName, szAttrLocal - szAttrName);
+      szAttrName = szAttrLocal + 1;
+      pNs = axiom_element_find_namespace(m_pAxiomElement, m_pEnv, m_pAxiomNode, NULL, sPrefix.c_str());
+    }
+
     axiom_attribute_t* pAxiomAttribute =
-        axiom_attribute_create(m_pEnv, szAttrName, szAttrText, NULL);
+        axiom_attribute_create(m_pEnv, szAttrName, szAttrText, pNs);
     STAFF_ASSERT(pAxiomAttribute, "Failed to create axiom attribute");
 
     axis2_status_t nResult =
