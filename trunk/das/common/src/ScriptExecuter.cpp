@@ -428,8 +428,19 @@ namespace das
         const std::string& sValue = pAttr->GetValue();
         if (sValue == "required")
         {
-          STAFF_ASSERT(!rdoResult.IsTextNull() || !rdoResult.FirstChild().IsNull(),
-                       "Empty result, when result is required");
+          STAFF_ASSERT(!rdoResult.IsEmpty(), "Empty result, when result is required");
+        }
+        else
+        if (sValue == "create")
+        {
+          for (DataTypesList::const_iterator itType = rReturnType.lsChilds.begin();
+              itType != rReturnType.lsChilds.end(); ++itType)
+          {
+            if (rdoResult.GetChildByLocalNameOpt(itType->sName).IsNull())
+            {
+              rdoResult.CreateChild(itType->sName).SetNil();
+            }
+          }
         }
         else
         {
