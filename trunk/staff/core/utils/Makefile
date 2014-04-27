@@ -17,7 +17,7 @@ endif
 # detect iconv usability
 ifeq ($(HOSTBUILD),1)
 ICONV_INCLUDE="\#include <iconv.h>"
-WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
+WITH_ICONV := $(shell echo $(ICONV_INCLUDE) | $(CC) -E -x c++ - >/dev/null 2>&1 && echo "-DWITH_ICONV"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_ICONV)
 ifneq ($(WITH_ICONV),)
 ifeq ($(OS),FreeBSD)
@@ -50,10 +50,11 @@ ifeq (,$(filter $(OS),MINGW WINSDK))
 ifneq ($(OS),Darwin)
 # detect bfd usability
 BFD_INCLUDE="\#include <bfd.h>"
-WITH_BFD := $(shell echo $(BFD_INCLUDE) | LANG=C `$(CC) -print-prog-name=cc1plus` $(filter -I%,$(CXXFLAGS)) >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
+WITH_BFD := $(shell echo $(BFD_INCLUDE) | $(CC) -E -x c++ - >/dev/null >/dev/null 2>&1 && echo "-DWITH_BFD"; rm -f gccdump.s)
 CXXFLAGS += $(WITH_BFD)
 ifneq ($(WITH_BFD),)
-  LDFLAGS += -lbfd -liberty
+  LINK_IBERTY := $(shell echo "int main(){}" | gcc -o /dev/null -x c - -liberty 2>/dev/null && echo "-liberty")
+  LDFLAGS += -lbfd $(LINK_IBERTY)
 endif
 endif
 endif
