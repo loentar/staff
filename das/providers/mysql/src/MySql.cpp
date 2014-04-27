@@ -49,7 +49,7 @@ namespace das
     MySqlImpl():
       m_sHost("localhost"),
       m_sPort("3306"),
-      m_bConnected(false)
+      m_ushPort(0)
     {
       m_sSupportedDmlStmt.insert("INSERT");
       m_sSupportedDmlStmt.insert("REPLACE");
@@ -63,13 +63,12 @@ namespace das
     static const std::string m_sName;
     static const std::string m_sDescr;
 
-    MYSQL m_tConn;
     std::string m_sHost;
     std::string m_sPort;
+    unsigned short m_ushPort;
     std::string m_sDataBase;
     std::string m_sLogin;
     std::string m_sPassword;
-    bool m_bConnected;
     std::set<std::string> m_sSupportedDmlStmt;
   };
 
@@ -82,15 +81,37 @@ namespace das
   class MySqlQueryExecutor: public IQueryExecutor
   {
   public:
-    MySqlQueryExecutor(MySqlProvider* pProvider):
+    MySqlQueryExecutor(MySqlProvider* pProvider,
+                       const std::string& sHost,
+                       unsigned short ushPort,
+                       const std::string& sDataBase,
+                       const std::string& sLogin,
+                       const std::string& sPassword):
       m_pProvider(pProvider), m_pStmt(NULL),
-      m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0)
+      m_nFieldsCount(0), m_nRowsCount(0), m_nCurrentRow(0),
+      m_bConnected(false)
     {
+      mysql_init(&m_tConn);
+      MYSQL* pResult = mysql_real_connect(&m_tConn, sHost.c_str(), sLogin.c_str(),
+                                          sPassword.c_str(), sDataBase.c_str(),
+                                          ushPort, NULL, 0);
+
+      STAFF_ASSERT(pResult, std::string("Failed to connect to db: ") + mysql_error(&m_tConn));
+
+      m_bConnected = true;
+
+      int nResult = mysql_set_character_set(&m_tConn, "UTF8");
+      STAFF_ASSERT(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_tConn));
     }
 
     virtual ~MySqlQueryExecutor()
     {
-      Reset();
+      if (m_bConnected)
+      {
+        Reset();
+        mysql_close(&m_tConn);
+        m_bConnected = false;
+      }
     }
 
     virtual void Reset()
@@ -107,7 +128,7 @@ namespace das
 
     virtual void Execute(const std::string& sExecute, const StringList& rlsParams)
     {
-      STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pImpl->m_bConnected, "Not Initialized");
+      STAFF_ASSERT(m_bConnected, "Not Initialized");
 
       Reset();
 
@@ -124,18 +145,18 @@ namespace das
       if (m_pProvider->m_pImpl->m_sSupportedDmlStmt.count(sDml) == 0) {
         // execute query without using of stmt
         // no parameters are supported in that mode
-        int nStatus = mysql_query(&m_pProvider->m_pImpl->m_tConn, sExecute.c_str());
+        int nStatus = mysql_query(&m_tConn, sExecute.c_str());
         STAFF_ASSERT(nStatus == 0, "error executing query #" + ToString(nStatus) + ": \n"
-                     + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                     + std::string(mysql_error(&m_tConn))
                      + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
         return;
       }
 
       MYSQL_BIND* paBind = NULL;
 
-      m_pStmt = mysql_stmt_init(&m_pProvider->m_pImpl->m_tConn);
+      m_pStmt = mysql_stmt_init(&m_tConn);
       STAFF_ASSERT(m_pStmt, "Can't init STMT: "
-                   + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn))
+                   + std::string(mysql_error(&m_tConn))
                    + "\nQuery was:\n----------\n" + sExecute + "\n----------\n");
 
       try
@@ -205,7 +226,7 @@ namespace das
 
         int nRes = mysql_stmt_store_result(m_pStmt);
         STAFF_ASSERT(!nRes, "Can not retrieve result: \n"
-                     + std::string(mysql_error(&m_pProvider->m_pImpl->m_tConn)));
+                     + std::string(mysql_error(&m_tConn)));
 
         m_nFieldsCount = nFieldsCount;
         m_nRowsCount = mysql_stmt_num_rows(m_pStmt);
@@ -317,12 +338,14 @@ namespace das
     }
 
   private:
+    MYSQL m_tConn;
     MySqlProvider* m_pProvider;
     MYSQL_RES* m_pResult;
     MYSQL_STMT* m_pStmt;
     unsigned m_nFieldsCount;
     unsigned long long m_nRowsCount;
     unsigned long long m_nCurrentRow;
+    bool m_bConnected;
   };
 
 
@@ -346,31 +369,11 @@ namespace das
     m_pImpl->m_sDataBase = rConnection.GetChildElementByName("db").GetTextValue();
     m_pImpl->m_sLogin = rConnection.GetChildElementByName("login").GetTextValue();
     m_pImpl->m_sPassword = rConnection.GetChildElementByName("password").GetTextValue();
-
-    STAFF_ASSERT(!m_pImpl->m_bConnected, "Already connected");
-    unsigned short ushPort = 0;
-    FromString(m_pImpl->m_sPort, ushPort);
-    mysql_init(&m_pImpl->m_tConn);
-    MYSQL* pResult = mysql_real_connect(&m_pImpl->m_tConn,
-                           m_pImpl->m_sHost.c_str(), m_pImpl->m_sLogin.c_str(),
-                           m_pImpl->m_sPassword.c_str(), m_pImpl->m_sDataBase.c_str(),
-                           ushPort, NULL, 0);
-
-    STAFF_ASSERT(pResult, std::string("Failed to connect to db: ") + mysql_error(&m_pImpl->m_tConn));
-
-    m_pImpl->m_bConnected = true;
-
-    int nResult = mysql_set_character_set(&m_pImpl->m_tConn, "UTF8");
-    STAFF_ASSERT(nResult == 0, std::string("error setting encoding: ") + mysql_error(&m_pImpl->m_tConn));
+    FromString(m_pImpl->m_sPort, m_pImpl->m_ushPort);
   }
 
   void MySqlProvider::Deinit()
   {
-    if (m_pImpl->m_bConnected)
-    {
-      mysql_close(&m_pImpl->m_tConn);
-      m_pImpl->m_bConnected = false;
-    }
   }
 
   const std::string& MySqlProvider::GetName() const
@@ -385,7 +388,9 @@ namespace das
 
   PExecutor MySqlProvider::GetExecutor()
   {
-    return new MySqlQueryExecutor(this);
+    return new MySqlQueryExecutor(this, m_pImpl->m_sHost, m_pImpl->m_ushPort,
+                                  m_pImpl->m_sDataBase, m_pImpl->m_sLogin,
+                                  m_pImpl->m_sPassword);
   }
 
 }
