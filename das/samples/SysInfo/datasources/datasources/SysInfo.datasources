@@ -142,8 +142,7 @@
             <execute trim="true">sh -c 'echo stat; ps -p $(nPid) -ostat= | sed "s/./&amp;\n/g"'</execute>
           </var>
           <foreach element="$[stat]">
-            <switch expr="$(stat)">
-              <case expr="D">
+            <switch expr="$(stat)"> <case expr="D">
                 <var name="result" value="$result Uninterruptible" />
               </case>
               <case expr="R">

@@ -56,11 +56,11 @@ namespace das
     StringList::const_iterator itItem = rList.begin();
     if (itItem != rList.end())
     {
-      rStream << *itItem;
+      rStream << "\"" << *itItem << "\"";
       ++itItem;
       for (; itItem != rList.end(); ++itItem)
       {
-        rStream << ", " << *itItem;
+        rStream << ", \"" << *itItem << "\"";
       }
     }
     return rStream;
@@ -794,6 +794,7 @@ namespace das
 
         std::string::size_type nSize = sResult.size();
         bool bIsRequest = false;
+        bool bStringize = false;
 
         STAFF_ASSERT((nBegin + 1) < nSize, "Unexpected '$' at end in [" + sResult + "]");
         if (sResult[nBegin + 1] == '(') // request field
@@ -834,7 +835,12 @@ namespace das
           continue;
         }
 
-        const std::string& sPath = sResult.substr(nNameBegin, nNameEnd - nNameBegin);
+        std::string sPath = sResult.substr(nNameBegin, nNameEnd - nNameBegin);
+        if (sPath[0] == '!')
+        {
+          bStringize = true;
+          sPath.erase(0, 1);
+        }
 
         std::string sValue;
         if (bIsRequest)
@@ -920,7 +926,7 @@ namespace das
           }
         } // if request
 
-        if (plsParamsResult)
+        if (plsParamsResult && !bStringize)
         {
           plsParamsResult->push_back(sValue);
           sResult.replace(nBegin, nEnd - nBegin, "?");
