@@ -80,11 +80,12 @@ ifeq ($(LINUX_VERSION),debian)
 	test -e /etc/apache2/mods-available/$(TARGET).conf || cp -f conf/$(TARGET).conf /etc/apache2/mods-available/
 	test -e /etc/apache2/mods-available/$(TARGET).load || cp -f conf/$(TARGET).load /etc/apache2/mods-available/
 ifneq ($(wildcard /etc/apache2/mods-enabled/$(TARGET).load),)
-	-/etc/init.d/apache2 status >/dev/null 2>&1 && (\
+	-/etc/init.d/apache2 status >/dev/null 2>&1 && ((\
  /etc/init.d/apache2 stop;\
  test -z "$(DEBUG)" || rm -f /tmp/axis2services_debug_*.log;\
  cp -f $(TARGETNAME) /usr/lib/apache2/modules/;\
- /etc/init.d/apache2 start) &
+ /etc/init.d/apache2 start) &) || \
+ cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 else
 	cp -f $(TARGETNAME) /usr/lib/apache2/modules/
 endif
