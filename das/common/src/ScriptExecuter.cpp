@@ -573,6 +573,14 @@ namespace das
       {
         GetChild(tdoElement, pAttrElementName->GetValue(), tdoElement);
       }
+      else
+      {
+        pAttrElementName = rScript.FindAttribute("var");
+        if (pAttrElementName)
+        {
+          tdoElement = m_mVars[pAttrElementName->GetValue()].tdoValue.Copy();
+        }
+      }
 
       for (DataObject::Iterator itChild = tdoElement.Begin(); itChild != tdoElement.End(); ++itChild)
       {
