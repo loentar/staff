@@ -427,7 +427,7 @@ namespace das
             pChild; pChild = pNextChild)
       {
         pNextChild = pChild->GetNextSiblingElement();
-        rNode.AppendChild(pChild->Detach());
+        rNode.InsertChildBefore(pChild->Detach(), pInclude);
       }
 
       pChildToRemove = pInclude;

@@ -211,6 +211,78 @@ namespace xml
     Cdata& CreateChildCdata(const Value& rValue);
 
 
+    //! insert child node before element
+    /*! \param pNode - node to insert
+        \param pBefore - existing child node to insert before
+        \return reference to appended child
+      */
+    Node& InsertChildBefore(Node* pNode, Node* pBefore);
+
+    //! insert child node before element
+    /*! \param pNode - node to insert
+        \param pBefore - existing child node to insert before
+        \return reference to appended child
+      */
+    Element& InsertChildBefore(Element* pNode, Node* pBefore);
+
+    //! insert child node before element
+    /*! \param pNode - node to insert
+        \param pBefore - existing child node to insert before
+        \return reference to appended child
+      */
+    Comment& InsertChildBefore(Comment* pNode, Node* pBefore);
+
+    //! insert child node before element
+    /*! \param pNode - node to insert
+        \param pBefore - existing child node to insert before
+        \return reference to appended child
+      */
+    Text& InsertChildBefore(Text* pNode, Node* pBefore);
+
+    //! insert child node before element
+    /*! \param pNode - node to insert
+        \param pBefore - existing child node to insert before
+        \return reference to appended child
+      */
+    Cdata& InsertChildBefore(Cdata* pNode, Node* pBefore);
+
+
+    //! insert child node after element
+    /*! \param pNode - node to insert
+        \param pAfter - existing child node to insert after
+        \return reference to appended child
+      */
+    Node& InsertChildAfter(Node* pNode, Node* pAfter);
+
+    //! insert child node after element
+    /*! \param pNode - node to insert
+        \param pAfter - existing child node to insert after
+        \return reference to appended child
+      */
+    Element& InsertChildAfter(Element* pNode, Node* pAfter);
+
+    //! insert child node after element
+    /*! \param pNode - node to insert
+        \param pAfter - existing child node to insert after
+        \return reference to appended child
+      */
+    Comment& InsertChildAfter(Comment* pNode, Node* pAfter);
+
+    //! insert child node after element
+    /*! \param pNode - node to insert
+        \param pAfter - existing child node to insert after
+        \return reference to appended child
+      */
+    Text& InsertChildAfter(Text* pNode, Node* pAfter);
+
+    //! insert child node after element
+    /*! \param pNode - node to insert
+        \param pAfter - existing child node to insert after
+        \return reference to appended child
+      */
+    Cdata& InsertChildAfter(Cdata* pNode, Node* pAfter);
+
+
     //! append child node
     /*! \param pNode - child node
         \return reference to appended child

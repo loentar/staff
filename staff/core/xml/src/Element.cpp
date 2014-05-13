@@ -408,6 +408,102 @@ namespace xml
     return AppendChild(new Cdata(rValue));
   }
 
+  Node& Element::InsertChildBefore(Node* pNode, Node* pBefore)
+  {
+    STAFF_ASSERT_PARAM(pNode);
+    STAFF_ASSERT(pNode != this, "Can't append self as child");
+    STAFF_ASSERT(!pNode->m_pParent && !pNode->m_pNextSibling && !pNode->m_pPreviousSibling,
+                 "Can't append node that is already in tree");
+
+    STAFF_ASSERT_PARAM(pBefore);
+    STAFF_ASSERT(pBefore->GetParent() == this, "The 'Before' node belong to the different parent");
+    STAFF_DEBUG_ASSERT(m_pFirstChild && m_pLastChild, "Internal error");
+
+    if (pBefore == m_pFirstChild)
+    {
+      m_pFirstChild = pNode;
+    }
+    else
+    {
+      pNode->m_pPreviousSibling = pBefore->m_pPreviousSibling;
+      pBefore->m_pPreviousSibling->m_pNextSibling = pNode;
+    }
+    pNode->m_pNextSibling = pBefore;
+    pBefore->m_pPreviousSibling = pNode;
+
+    pNode->m_pParent = this;
+
+    return *pNode;
+  }
+
+  Element& Element::InsertChildBefore(Element* pNode, Node* pBefore)
+  {
+    return static_cast<Element&>(InsertChildBefore(reinterpret_cast<Node*>(pNode), pBefore));
+  }
+
+  Comment& Element::InsertChildBefore(Comment* pNode, Node* pBefore)
+  {
+    return static_cast<Comment&>(InsertChildBefore(reinterpret_cast<Node*>(pNode), pBefore));
+  }
+
+  Text& Element::InsertChildBefore(Text* pNode, Node* pBefore)
+  {
+    return static_cast<Text&>(InsertChildBefore(reinterpret_cast<Node*>(pNode), pBefore));
+  }
+
+  Cdata& Element::InsertChildBefore(Cdata* pNode, Node* pBefore)
+  {
+    return static_cast<Cdata&>(InsertChildBefore(reinterpret_cast<Node*>(pNode), pBefore));
+  }
+
+  Node& Element::InsertChildAfter(Node* pNode, Node* pAfter)
+  {
+    STAFF_ASSERT_PARAM(pNode);
+    STAFF_ASSERT(pNode != this, "Can't append self as child");
+    STAFF_ASSERT(!pNode->m_pParent && !pNode->m_pNextSibling && !pNode->m_pPreviousSibling,
+                 "Can't append node that is already in tree");
+
+    STAFF_ASSERT_PARAM(pAfter);
+    STAFF_ASSERT(pAfter->GetParent() == this, "The 'After' node belong to the different parent");
+    STAFF_DEBUG_ASSERT(m_pFirstChild && m_pLastChild, "Internal error");
+
+    if (pAfter == m_pLastChild)
+    {
+      m_pLastChild = pNode;
+    }
+    else
+    {
+      pNode->m_pNextSibling = pAfter->m_pNextSibling;
+      pAfter->m_pNextSibling->m_pPreviousSibling = pNode;
+    }
+    pNode->m_pPreviousSibling = pAfter;
+    pAfter->m_pNextSibling = pNode;
+
+    pNode->m_pParent = this;
+
+    return *pNode;
+  }
+
+  Element& Element::InsertChildAfter(Element* pNode, Node* pAfter)
+  {
+    return static_cast<Element&>(InsertChildAfter(reinterpret_cast<Node*>(pNode), pAfter));
+  }
+
+  Comment& Element::InsertChildAfter(Comment* pNode, Node* pAfter)
+  {
+    return static_cast<Comment&>(InsertChildAfter(reinterpret_cast<Node*>(pNode), pAfter));
+  }
+
+  Text& Element::InsertChildAfter(Text* pNode, Node* pAfter)
+  {
+    return static_cast<Text&>(InsertChildAfter(reinterpret_cast<Node*>(pNode), pAfter));
+  }
+
+  Cdata& Element::InsertChildAfter(Cdata* pNode, Node* pAfter)
+  {
+    return static_cast<Cdata&>(InsertChildAfter(reinterpret_cast<Node*>(pNode), pAfter));
+  }
+
   Node& Element::AppendChild(Node* pNode)
   {
     STAFF_ASSERT_PARAM(pNode);
