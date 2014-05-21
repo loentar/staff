@@ -168,14 +168,27 @@ namespace staff
   void SessionManager::Login(const std::string& sUserName, const std::string& sPassword, std::string& sSessionId)
   {
     std::string sOldSessionId;
+    bool bCloseExisting = false;
 
     if (staff::security::Sessions::Inst().GetSessionIdByUserNameAndPassword(sUserName, sPassword, sOldSessionId))
     {
-      sSessionId = sOldSessionId;
-      return;
+      if (GetExpiresIn(sOldSessionId) > 1)
+      {
+        sSessionId = sOldSessionId;
+        return;
+      }
+      else
+      {
+        // close expired session before opening new one
+        // very rare case: this can occur when PC is returned from sleep
+        bCloseExisting = true;
+        LogDebug2() << "Freeing expired session: " << sOldSessionId;
+        ServiceInstanceManager::Inst().FreeSession(sOldSessionId);
+        m_pImpl->m_mSessions.erase(sOldSessionId);
+      }
     }
 
-    staff::security::Sessions::Inst().Open(sUserName, sPassword, false, sSessionId);
+    staff::security::Sessions::Inst().Open(sUserName, sPassword, bCloseExisting, sSessionId);
 
     m_pImpl->OpenSession(sSessionId);
   }
