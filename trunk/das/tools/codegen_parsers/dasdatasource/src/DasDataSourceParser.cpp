@@ -323,8 +323,11 @@ namespace codegen
     stInterface.sNamespace = sNamespace;
 
     // Types
-    const xml::Element& rNodeTypes = rDataSourceNode.GetChildElementByName("types");
-    ParseTypes(rNodeTypes, rProject, stInterface, sNamespace);
+    const xml::Element* pNodeTypes = rDataSourceNode.FindChildElementByName("types");
+    if (pNodeTypes)
+    {
+      ParseTypes(*pNodeTypes, rProject, stInterface, sNamespace);
+    }
 
 
     // class
