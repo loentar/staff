@@ -37,7 +37,9 @@ _Script operators list:_
 
 === Evaluating expressions ===
 
-`${variable_name}` or `$variable_name` - replace placeholder to variable value
+`${variable_name}` or `$variable_name` - replace placeholder to variable value. Use parameter binding for SQL providers.
+
+`${!variable_name}` - replace placeholder to variable value. Stringize variable's value into query. Use with care - this may cause SQL injection if variable is calculated from Operation's request.
 
 `${variable_name.child_name}` - replace placeholder to variable's child value (while using !DataObject-typed variables)
 
@@ -50,21 +52,86 @@ _Script operators list:_
   <execute>sh -c 'echo -n \$(($(a) + $(b)))'</execute>
 }}}
 
-*Example:*
+*Note 2: * If you declare `type` attribute variable's value will be cleared immediately. While having list/!DataObject variable type, variable's value _replaced_ by new one (if any).
 
+If you don't declare `type`, old value will be kept. In case you have list/!DataObject type new value will be _appended_ to existing.
+
+
+=== Example of using the variables ===
 
 request to the datasource is:
 
- {{{<Test><Info><Id>123</Id><Name>test name</Name></Info></Test>}}}
+{{{
+<Test><Info><Id>123</Id><Name>test name</Name></Info></Test>
+}}}
 
 variable "a" is declared as:
 
- {{{<var name="a" value="test" />}}}
+{{{
+<var name="a" value="test" />
+}}}
 
 expression:
 
-{{{variable a="${a}" and Test info id = $(Info.Id), name="$(Info.Name)"}}}
+{{{
+variable a="${a}" and Test info id = $(Info.Id), name="$(Info.Name)"
+}}}
 
 evaluated expression will be:
 
-{{{variable a="test" and Test info id = 123, name="test name"}}}
+{{{
+variable a="test" and Test info id = 123, name="test name"
+}}}
+=== Special variables ===
+
+There are two special variables that you may use to store data globally or per session.
+
+ * "global" - global data storage - for all users and all DAS services.
+ * "session" - session data storage - accessible only within current session.
+
+session has read-only variable named "id" which is used to get current session id from DAS service.
+
+
+=== Using of special variables ===
+
+Get current session id:
+
+{{{
+<log>sessionId = ${session.id}</log>
+}}}
+
+
+Write into global storage:
+
+{{{
+<var name="global.webServerRoot" value="https://myserver.example.com/root/"/>
+}}}
+
+Get user name on creating session and save it to session data storage:
+
+{{{
+<provider name="staff.das.Sqlite" id="staff">
+  <connection>
+    <db>$(STAFF_HOME)/db/staff.db</db>
+  </connection>
+
+  <!-- this script is executed when this datasource is loaded -->
+  <oncreate>
+    <script>
+      <var name="session.userName" type="string">
+        <execute>
+          SELECT u.name FROM users u
+          LEFT JOIN sessions s ON s.userId = u.id
+          WHERE s.sessionId = ${session.id}
+        </execute>
+      </var>
+    </script>
+  </oncreate>
+</provider>
+}}}
+
+Next you may use it somewhere in service:
+
+{{{
+<log>user name = ${session.userName}</log>
+}}}
