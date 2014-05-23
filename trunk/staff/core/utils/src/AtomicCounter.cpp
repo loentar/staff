@@ -42,6 +42,8 @@ namespace staff
   {
 #ifdef WIN32
     InterlockedIncrement(&m_lValue);
+#elif defined STAFF_USE_GNUC_BUILTINS
+    __sync_fetch_and_add(&m_lValue, 1);
 #else
     m_tMutex.Lock();
     ++m_lValue;
@@ -54,6 +56,8 @@ namespace staff
   {
 #ifdef WIN32
     InterlockedDecrement(&m_lValue);
+#elif defined STAFF_USE_GNUC_BUILTINS
+    __sync_fetch_and_sub(&m_lValue, 1);
 #else
     m_tMutex.Lock();
     --m_lValue;
@@ -67,6 +71,8 @@ namespace staff
     long lPrev = m_lValue;
 #ifdef WIN32
     InterlockedIncrement(&m_lValue);
+#elif defined STAFF_USE_GNUC_BUILTINS
+    __sync_fetch_and_add(&m_lValue, 1);
 #else
     m_tMutex.Lock();
     ++m_lValue;
@@ -80,6 +86,8 @@ namespace staff
     long lPrev = m_lValue;
 #ifdef WIN32
     InterlockedDecrement(&m_lValue);
+#elif defined STAFF_USE_GNUC_BUILTINS
+    __sync_fetch_and_sub(&m_lValue, 1);
 #else
     m_tMutex.Lock();
     --m_lValue;

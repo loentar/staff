@@ -113,7 +113,25 @@ public:
 
 };
 
-void testMutex()
+void testRecursiveMutex()
+{
+	staff::Mutex mutex1(staff::Mutex::Recursive);
+	staff::Mutex mutex2(staff::Mutex::Recursive);
+	
+	mutex1.Lock();
+	// trylock will success here because mutex is recursive
+	TestNoEx("Test Mutex TryLock after locking first mutex",mutex1.TryLock());
+	mutex1.Unlock();
+	TestNoEx("Test Mutex TryLock after unlocking first mutex",mutex1.TryLock());
+	
+	mutex2.Lock();
+	// trylock will success here because mutex is recursive
+	TestNoEx("Test Mutex TryLock after locking second mutex",mutex2.TryLock());
+	mutex2.Unlock();
+	mutex1.Unlock();
+}
+
+void testNonRecursiveMutex()
 {
 	staff::Mutex mutex1;
 	staff::Mutex mutex2;
@@ -163,13 +181,24 @@ void testThreads()
 	mutex1.Unlock();
 }
 
+void TestRecursiveLock()
+{
+  staff::LogInfo() << "Testing recursive lock. If test hangs, it's failed!";
+  staff::Mutex mutex1(staff::Mutex::Recursive);
+  mutex1.Lock();
+  mutex1.Lock();
+  TestNoEx("Recursive lock", true);
+}
+
 int main(int, char**)
 {
   try
   {
     Header("test");
-    testMutex();
+    testRecursiveMutex();
+    testNonRecursiveMutex();
     testThreads();
+    TestRecursiveLock();
   }
   STAFF_CATCH_ALL;
 
@@ -192,6 +221,8 @@ int main(int, char**)
     STAFF_ASSERT_PARAM(!lsFiles.empty());
   }
   STAFF_CATCH_ALL;
+
+  staff::LogInfo() << "Done!";
 
   return 0;
 }

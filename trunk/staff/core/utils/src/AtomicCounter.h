@@ -22,8 +22,14 @@
 #ifndef _STAFF_UTILS_ATOMICCOUNTER_H_
 #define _STAFF_UTILS_ATOMICCOUNTER_H_
 
+#if defined __GNUC__ && __GNUC__ >= 4 && __GNUC_MINOR__ >= 4
+#define STAFF_USE_GNUC_BUILTINS
+#endif
+
 #ifndef WIN32
+#ifndef STAFF_USE_GNUC_BUILTINS
 #include "Mutex.h"
+#endif
 #endif
 #include "staffutilsexport.h"
 
@@ -74,7 +80,9 @@ namespace staff
   private:
     long m_lValue;
 #ifndef WIN32
+#ifndef STAFF_USE_GNUC_BUILTINS
     Mutex m_tMutex;
+#endif
 #endif
   };
 
