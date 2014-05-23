@@ -23,8 +23,10 @@
 #define PROVIDERSERVICE_H
 
 #include <staff/common/IService.h>
+#include <staff/utils/Mutex.h>
 #include "staffdascommonexport.h"
 #include "Provider.h"
+#include "ScriptExecuter.h"
 
 namespace staff
 {
@@ -49,6 +51,8 @@ namespace das
   private:
     Providers m_stProviders;
     const DataSource* m_pDataSource;
+    VarMap m_mSessionStorage;
+    Mutex m_tSessionStorageMutex;
   };
 }
 }

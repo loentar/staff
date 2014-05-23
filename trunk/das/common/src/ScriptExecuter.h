@@ -25,11 +25,14 @@
 
 #include "staffdascommonexport.h"
 #include <string>
+#include <map>
+#include <staff/common/DataObject.h>
+#include "DataSource.h"
 
 namespace staff
 {
-  class DataObject;
   template <typename Type> class SharedPtr;
+  class Mutex;
 
 namespace xml
 {
@@ -38,8 +41,6 @@ namespace xml
 
 namespace das
 {
-  struct DataType;
-  class DataSource;
   class IProvider;
   typedef SharedPtr<IProvider> PProvider;
 }
@@ -50,6 +51,17 @@ namespace staff
 {
 namespace das
 {
+
+  //! Script executer variable
+  struct Var
+  {
+    DataType tType;               //!< type of variable
+    std::string sValue;           //!< generic value
+    staff::DataObject tdoValue;   //!< dataobject value
+  };
+
+  //! variables map
+  typedef std::map<std::string, Var> VarMap;
 
   //! script executer
   class STAFF_DAS_COMMON_EXPORT ScriptExecuter
@@ -63,6 +75,12 @@ namespace das
 
     //! destructor
     ~ScriptExecuter();
+
+    //! set session storage
+    /*! \param rmSessionStorage - session storage
+        \param rMutex - mutex for session storage
+     */
+    void SetSessionStorage(VarMap& rmSessionStorage, Mutex& rMutex);
 
     //! process operation
     /*! \param rdoOperation - operation request data object
