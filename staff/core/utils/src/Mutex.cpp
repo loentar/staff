@@ -21,8 +21,6 @@
 
 #ifdef WIN32
 #include <windows.h>
-#elif defined __APPLE__
-#include <libkern/OSAtomic.h>
 #else
 #if (!defined SUNOS_MAJOR) || (SUNOS_MAJOR < 11)
 #if !defined _XOPEN_SOURCE || (_XOPEN_SOURCE - 0) < 600
@@ -43,47 +41,59 @@ namespace staff
   struct Mutex::MutexImpl
   {
 #ifdef WIN32
-    HANDLE hMutex; //!< mutex handle
-#elif defined __APPLE__
-    OSSpinLock hMutex; //!< mutex handle
-
-    MutexImpl():
-      hMutex(0)
-    {}
-#elif defined __ANDROID_API__
-    pthread_mutex_t hMutex; //!< mutex handle
+    union
+    {
+      CRITICAL_SECTION hCriticalSection;
+      HANDLE hMutex;
+    }; //!< mutex handle
 #else
-    pthread_spinlock_t hMutex; //!< mutex handle
+    pthread_mutex_t hMutex; //!< mutex handle
 #endif
+    RecursionMode eMode;
+
+    MutexImpl(RecursionMode eMode_):
+      eMode(eMode_)
+    {
+    }
   };
 
 
-  Mutex::Mutex():
-    m_pImpl(new MutexImpl)
+  Mutex::Mutex(RecursionMode eMode):
+    m_pImpl(new MutexImpl(eMode))
   {
 #ifdef WIN32
-    m_pImpl->hMutex = CreateMutex(NULL, FALSE, NULL);
-#elif !defined __APPLE__
-#if defined __ANDROID_API__
-    pthread_mutexattr_t tAttr;
-    pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
-    pthread_mutex_init(&m_pImpl->hMutex, &tAttr);
+    if (eMode == Recursive)
+    {
+      m_pImpl->hMutex = CreateMutex(NULL, FALSE, NULL);
+    }
+    else
+    {
+      InitializeCriticalSection(&m_pImpl->hCriticalSection);
+    }
 #else
-    pthread_spin_init(&m_pImpl->hMutex, 0);
-#endif
+    pthread_mutexattr_t tAttr;
+    pthread_mutexattr_init(&tAttr);
+    if (eMode == Recursive)
+    {
+      pthread_mutexattr_settype(&tAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+    }
+    pthread_mutex_init(&m_pImpl->hMutex, &tAttr);
 #endif
   }
 
   Mutex::~Mutex()
   {
 #ifdef WIN32
-    CloseHandle(m_pImpl->hMutex);
-#elif !defined __APPLE__
-#if defined __ANDROID_API__
-    pthread_mutex_destroy(&m_pImpl->hMutex);
+    if (m_pImpl->eMode == Recursive)
+    {
+      CloseHandle(m_pImpl->hMutex);
+    }
+    else
+    {
+      DeleteCriticalSection(&m_pImpl->hCriticalSection);
+    }
 #else
-    pthread_spin_destroy(&m_pImpl->hMutex);
-#endif
+    pthread_mutex_destroy(&m_pImpl->hMutex);
 #endif
     delete m_pImpl;
   }
@@ -91,40 +101,59 @@ namespace staff
   void Mutex::Lock()
   {
 #ifdef WIN32
-    WaitForSingleObject(m_pImpl->hMutex, INFINITE);
-#elif defined __APPLE__
-    OSSpinLockLock(&m_pImpl->hMutex);
-#elif defined __ANDROID_API__
-    pthread_mutex_lock(&m_pImpl->hMutex);
+    if (m_pImpl->eMode == Recursive)
+    {
+      WaitForSingleObject(m_pImpl->hMutex, INFINITE);
+    }
+    else
+    {
+      EnterCriticalSection(&m_pImpl->hCriticalSection);
+    }
 #else
-    pthread_spin_lock(&m_pImpl->hMutex);
+    pthread_mutex_lock(&m_pImpl->hMutex);
 #endif
   }
 
   void Mutex::Unlock()
   {
 #ifdef WIN32
-    ReleaseMutex(m_pImpl->hMutex);
-#elif defined __APPLE__
-    OSSpinLockUnlock(&m_pImpl->hMutex);
-#elif defined __ANDROID_API__
-    pthread_mutex_unlock(&m_pImpl->hMutex);
+    if (m_pImpl->eMode == Recursive)
+    {
+      ReleaseMutex(m_pImpl->hMutex);
+    }
+    else
+    {
+      LeaveCriticalSection(&m_pImpl->hCriticalSection);
+    }
 #else
-    pthread_spin_unlock(&m_pImpl->hMutex);
+    pthread_mutex_unlock(&m_pImpl->hMutex);
 #endif
   }
 
   bool Mutex::TryLock()
   {
 #ifdef WIN32
-    return WaitForSingleObject(m_pImpl->hMutex, 0) == WAIT_OBJECT_0;
-#elif defined __APPLE__
-    return OSSpinLockTry(&m_pImpl->hMutex);
-#elif defined __ANDROID_API__
-    return !pthread_mutex_trylock(&m_pImpl->hMutex);
+    if (m_pImpl->eMode == Recursive)
+    {
+      return WaitForSingleObject(m_pImpl->hMutex, 0) == WAIT_OBJECT_0;
+    }
+    else
+    {
+#if(_WIN32_WINNT >= 0x0400)
+      return TryEnterCriticalSection(&m_pImpl->hCriticalSection) != 0;
 #else
-    return !pthread_spin_trylock(&m_pImpl->hMutex);
+#pragma message ("To include support of TryLock you must set preproccessor definition _WIN32_WINNT=0x0400 (or above)")
+      return false;
 #endif
+    }
+#else
+    return !pthread_mutex_trylock(&m_pImpl->hMutex);
+#endif
+  }
+
+  Mutex::RecursionMode Mutex::GetRecursionMode() const
+  {
+    return m_pImpl->eMode;
   }
 
 }

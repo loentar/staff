@@ -32,8 +32,19 @@ namespace staff
   class STAFF_UTILS_EXPORT Mutex
   {
   public:
-    //! constructor
-    Mutex();
+    //! mutex recursion mode
+    enum RecursionMode
+    {
+      Recursive,
+      NonRecursive
+    };
+
+    //! constructor.
+    /*! \param eMode - mutex mode
+     *  if eMode == Recursive, create recursive mutex,
+     *  if eMode == NonRecursive - create non-recursive mutex
+     */
+    Mutex(RecursionMode eMode = NonRecursive);
 
     //! destructor
     ~Mutex();
@@ -48,6 +59,11 @@ namespace staff
     /*! \return true, if mutex was successfully locked
       */
     bool TryLock();
+
+    //! is mutex recursive?
+    /*! \return Recursive - if mutex is recursive
+      */
+    RecursionMode GetRecursionMode() const;
 
   private:
     Mutex(const Mutex&);
