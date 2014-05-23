@@ -27,9 +27,9 @@
 #include <staff/utils/tostring.h>
 #include <staff/utils/fromstring.h>
 #include <staff/utils/stringutils.h>
+#include <staff/utils/Mutex.h>
 #include <staff/common/Attribute.h>
 #include <staff/common/Namespace.h>
-#include <staff/common/DataObject.h>
 #include <staff/xml/Attribute.h>
 #include <staff/xml/Element.h>
 #include "DataSource.h"
@@ -43,13 +43,6 @@ namespace das
 {
 
 #define STAFF_SOAPENC_URI "http://schemas.xmlsoap.org/soap/encoding/"
-
-  struct Var
-  {
-    DataType tType;
-    std::string sValue;
-    staff::DataObject tdoValue;
-  };
 
   LogStream& operator<<(LogStream& rStream, const StringList& rList)
   {
@@ -77,7 +70,7 @@ namespace das
   public:
     ScriptExecuterImpl(const DataSource& rDataSource, Providers& rstProviders):
       m_rDataSource(rDataSource), m_rstProviders(rstProviders), m_bReturn(false),
-      m_bListAsArray(false)
+      m_bListAsArray(false), m_pmSessionStorage(NULL), m_pSessionStorageMutex(NULL)
     {
       const StringMap& rmOptions = m_rDataSource.GetOptions();
       StringMap::const_iterator it = rmOptions.find("listAsArray");
@@ -471,95 +464,154 @@ namespace das
         sVarName.erase(nPos);
       }
 
-      Var& rVar = m_mVars[sVarName];
+      Mutex* pMutex = NULL;
+      VarMap* pmVarMap = NULL;
 
-      DataType tType;
-
-      // get var type
-      const xml::Attribute* pAttrType = rScript.FindAttribute("type");
-      if (pAttrType)
+      if (sVarName == "session")
       {
-        const std::string& sType = pAttrType->GetValue();
+        pMutex = m_pSessionStorageMutex;
+        pmVarMap = m_pmSessionStorage;
 
-        const DataType* pType = m_rDataSource.FindType(sType);
-
-        if (pType)
-        { // datasource's type
-          tType = *pType;
+        nPos = sVarPath.find_first_of('.');
+        if (nPos != std::string::npos)
+        {
+          sVarName = sVarName.substr(0, nPos);
+          sVarPath.erase(nPos);
         }
         else
-        { // parse type
-          tType.sType = sType;
-          if (sType == "DataObject")
-          {
-            tType.eType = DataType::DataObject;
-          }
-          else
-          { // accept as generic
-            tType.eType = DataType::Generic;
-          }
-        }
-
-        // only set type for root, children are always DataObject
-        if (sVarPath.empty())
         {
-          // reset variable in case of giving type for root
-          rVar.tdoValue.Detach();
-          rVar.tType = tType;
+          sVarName = sVarPath;
+          sVarPath.clear();
+        }
+        STAFF_ASSERT(sVarName != "id", "SessionId can't be changed");
+      }
+      else if (sVarName == "global")
+      {
+        pMutex = &m_tGlobalStorageMutex;
+        pmVarMap = &m_mGlobalStorage;
+
+        nPos = sVarPath.find_first_of('.');
+        if (nPos != std::string::npos)
+        {
+          sVarName = sVarName.substr(0, nPos);
+          sVarPath.erase(nPos);
+        }
+        else
+        {
+          sVarName = sVarPath;
+          sVarPath.clear();
         }
       }
-
-
-
-      // if "value" attr is given, create variable of generic type
-      // else create variable of DataObject type
-
-      const xml::Attribute* pAttrValue = rScript.FindAttribute("value");
-      if (pAttrValue)
+      else
       {
-        const std::string& sValue = Eval(rdoContext, pAttrValue->GetValue());
-        // set value for root
-        if (sVarPath.empty())
+        pmVarMap = &m_mVars;
+      }
+
+      STAFF_ASSERT(pmVarMap, "pmVarMap is NULL while processing var: " + sVarPath);
+
+      if (pMutex)
+        pMutex->Lock();
+
+      try
+      {
+        Var& rVar = (*pmVarMap)[sVarName];
+
+        DataType tType;
+
+        // get var type
+        const xml::Attribute* pAttrType = rScript.FindAttribute("type");
+        if (pAttrType)
         {
-          rVar.sValue = sValue;
-          if (rVar.tType.eType == DataType::Void)
+          const std::string& sType = pAttrType->GetValue();
+
+          const DataType* pType = m_rDataSource.FindType(sType);
+
+          if (pType)
+          { // datasource's type
+            tType = *pType;
+          }
+          else
+          { // parse type
+            tType.sType = sType;
+            if (sType == "DataObject")
+            {
+              tType.eType = DataType::DataObject;
+            }
+            else
+            { // accept as generic
+              tType.eType = DataType::Generic;
+            }
+          }
+
+          // only set type for root, children are always DataObject
+          if (sVarPath.empty())
           {
-            rVar.tType.eType = DataType::Generic;
+            // reset variable in case of giving type for root
+            rVar.tdoValue.Detach();
+            rVar.tType = tType;
+          }
+        }
+
+
+        // if "value" attr is given, create variable of generic type
+        // else create variable of DataObject type
+
+        const xml::Attribute* pAttrValue = rScript.FindAttribute("value");
+        if (pAttrValue)
+        {
+          const std::string& sValue = Eval(rdoContext, pAttrValue->GetValue());
+          // set value for root
+          if (sVarPath.empty())
+          {
+            rVar.sValue = sValue;
+            if (rVar.tType.eType == DataType::Void)
+            {
+              rVar.tType.eType = DataType::Generic;
+            }
+          }
+          else
+          {
+            if (tType.eType == DataType::Void)
+            {
+              tType.eType = DataType::Generic;
+            }
+
+            DataObject tdoValue;
+            CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
+            tdoValue.SetText(sValue);
           }
         }
         else
         {
           if (tType.eType == DataType::Void)
           {
-            tType.eType = DataType::Generic;
+            tType.eType = DataType::DataObject;
           }
 
           DataObject tdoValue;
           CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
-          tdoValue.SetText(sValue);
-        }
-      }
-      else
-      {
-        if (tType.eType == DataType::Void)
-        {
-          tType.eType = DataType::DataObject;
-        }
 
-        DataObject tdoValue;
-        CreateDataObject(rVar.tdoValue, sVarName, sVarPath, tdoValue);
-
-        ProcessSequence(rdoContext, rScript, tType, tdoValue);
-        if (tType.eType == DataType::Generic && sVarPath.empty())
-        {
-          rVar.sValue = tdoValue.GetText();
-          rVar.tdoValue.Detach();
-          if (tType.sType != "string")
+          ProcessSequence(rdoContext, rScript, tType, tdoValue);
+          if (tType.eType == DataType::Generic && sVarPath.empty())
           {
-            StringTrim(rVar.sValue);
+            rVar.sValue = tdoValue.GetText();
+            rVar.tdoValue.Detach();
+            if (tType.sType != "string")
+            {
+              StringTrim(rVar.sValue);
+            }
           }
         }
       }
+      catch(...)
+      {
+        if (pMutex)
+          pMutex->Unlock();
+        throw;
+      }
+
+      if (pMutex)
+        pMutex->Unlock();
     }
 
 
@@ -892,45 +944,108 @@ namespace das
           }
           else
           {
-            VarMap::const_iterator itVar = m_mVars.find(sVarName);
-            STAFF_ASSERT(itVar != m_mVars.end(), "Variable [" + sVarName + "] is undefined");
+            Mutex* pMutex = NULL;
+            VarMap* pmVarMap = NULL;
 
-            const Var& rVar = itVar->second;
-            STAFF_ASSERT(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
-                         + "] while evaluating expression [" + sExpr + "]");
-
-            if (rVar.tType.eType == DataType::Generic)
+            if (sVarName == "session")
             {
-              sValue = rVar.sValue;
-            }
-            else
-            { // dataobject, list, struct
+              pMutex = m_pSessionStorageMutex;
+              pmVarMap = m_pmSessionStorage;
+
+              sPath = sPath.substr(nPos + 1);
+              nPos = sPath.find_first_of('.');
               if (nPos != std::string::npos)
               {
-                DataObject tdoResult;
-                GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
-                STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
-                if (tdoResult.IsNil())
-                {
-                  sValue = STAFF_DAS_NULL_VALUE;
-                }
-                else
-                {
-                  sValue = tdoResult.GetText();
-                }
+                sVarName = sVarName.substr(0, nPos);
+                sPath.erase(nPos);
               }
               else
               {
-                if (rVar.tdoValue.IsNil())
+                sVarName = sPath;
+                sPath.clear();
+              }
+              STAFF_ASSERT(!sVarName.empty(), "Invalid session var name: [" + sPath + "]");
+            }
+            else if (sVarName == "global")
+            {
+              pMutex = &m_tGlobalStorageMutex;
+              pmVarMap = &m_mGlobalStorage;
+
+              sPath = sPath.substr(nPos + 1);
+              nPos = sPath.find_first_of('.');
+              if (nPos != std::string::npos)
+              {
+                sVarName = sVarName.substr(0, nPos);
+                sPath.erase(nPos);
+              }
+              else
+              {
+                sVarName = sPath;
+                sPath.clear();
+              }
+              STAFF_ASSERT(!sVarName.empty(), "Invalid session var name: [" + sPath + "]");
+            }
+            else
+            {
+              pmVarMap = &m_mVars;
+            }
+
+            STAFF_ASSERT(pmVarMap, "pmVarMap is NULL while evaluating expr: " + sExpr);
+
+            if (pMutex)
+              pMutex->Lock();
+
+            try
+            {
+              VarMap::const_iterator itVar = pmVarMap->find(sVarName);
+              STAFF_ASSERT(itVar != pmVarMap->end(), "Variable [" + sVarName + "] is undefined");
+
+              const Var& rVar = itVar->second;
+              STAFF_ASSERT(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
+                           + "] while evaluating expression [" + sExpr + "]");
+
+              if (rVar.tType.eType == DataType::Generic)
+              {
+                sValue = rVar.sValue;
+              }
+              else
+              { // dataobject, list, struct
+                if (nPos != std::string::npos)
                 {
-                  sValue = STAFF_DAS_NULL_VALUE;
+                  DataObject tdoResult;
+                  GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
+                  STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
+                  if (tdoResult.IsNil())
+                  {
+                    sValue = STAFF_DAS_NULL_VALUE;
+                  }
+                  else
+                  {
+                    sValue = tdoResult.GetText();
+                  }
                 }
                 else
                 {
-                  sValue = rVar.tdoValue.GetText();
+                  if (rVar.tdoValue.IsNil())
+                  {
+                    sValue = STAFF_DAS_NULL_VALUE;
+                  }
+                  else
+                  {
+                    sValue = rVar.tdoValue.GetText();
+                  }
                 }
               }
             }
+            catch(...)
+            {
+              if (pMutex)
+                pMutex->Unlock();
+              throw;
+            }
+
+            if (pMutex)
+              pMutex->Unlock();
           }
         } // if request
 
@@ -1085,7 +1200,14 @@ namespace das
     ExecutorsMap m_mExec;
     bool m_bReturn;
     bool m_bListAsArray;
+    VarMap* m_pmSessionStorage;
+    Mutex* m_pSessionStorageMutex;
+    static VarMap m_mGlobalStorage;
+    static Mutex m_tGlobalStorageMutex;
   };
+
+  VarMap ScriptExecuter::ScriptExecuterImpl::m_mGlobalStorage;
+  Mutex ScriptExecuter::ScriptExecuterImpl::m_tGlobalStorageMutex(Mutex::Recursive);
 
 
   ScriptExecuter::ScriptExecuter(const DataSource& rDataSource, Providers& rstProviders)
@@ -1096,6 +1218,12 @@ namespace das
   ScriptExecuter::~ScriptExecuter()
   {
     delete m_pImpl;
+  }
+
+  void ScriptExecuter::SetSessionStorage(VarMap& rmSessionStorage, Mutex& rMutex)
+  {
+    m_pImpl->m_pmSessionStorage = &rmSessionStorage;
+    m_pImpl->m_pSessionStorageMutex = &rMutex;
   }
 
   void ScriptExecuter::Process(const DataObject& rdoOperation, DataObject& rdoResult)

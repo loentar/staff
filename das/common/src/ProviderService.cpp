@@ -21,11 +21,11 @@
 
 #include <staff/utils/SharedPtr.h>
 #include <staff/xml/Element.h>
+#include <staff/xml/Attribute.h>
 #include <staff/common/DataObject.h>
 #include "ProviderFactory.h"
 #include "DataSourceFactory.h"
 #include "DataSource.h"
-#include "ScriptExecuter.h"
 #include "ProviderService.h"
 
 namespace staff
@@ -34,12 +34,16 @@ namespace das
 {
 
   ProviderService::ProviderService():
-    m_pDataSource(NULL)
+    m_pDataSource(NULL), m_tSessionStorageMutex(Mutex::Recursive)
   {
   }
 
   void ProviderService::OnCreate()
   {
+    Var& rVar = m_mSessionStorage["id"];
+    rVar.tType.eType = DataType::Generic;
+    rVar.sValue = GetSessionId();
+
     m_pDataSource = &DataSourceFactory::Inst().GetDataSource(IService::GetServiceName());
 
     const ProvidersInfoList& rlsProviders = m_pDataSource->GetProviders();
@@ -60,6 +64,7 @@ namespace das
         if (pScript)
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
+          tScriptExecuter.SetSessionStorage(m_mSessionStorage, m_tSessionStorageMutex);
           tScriptExecuter.Process(*pScript);
         }
       }
@@ -88,6 +93,7 @@ namespace das
         if (pScript)
         {
           ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
+          tScriptExecuter.SetSessionStorage(m_mSessionStorage, m_tSessionStorageMutex);
           tScriptExecuter.Process(*pScript);
         }
       }
@@ -99,6 +105,7 @@ namespace das
     STAFF_ASSERT(m_pDataSource, "Not initialized");
 
     ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
+    tScriptExecuter.SetSessionStorage(m_mSessionStorage, m_tSessionStorageMutex);
     tScriptExecuter.Process(rdoOperation, rdoResult);
   }
 
@@ -113,7 +120,21 @@ namespace das
       if (!rlsProviders.empty())
       {
         ProviderFactory& rProviderFactory = ProviderFactory::Inst();
-        m_stProviders.sDefaultId = rlsProviders.front().sId;
+        for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
+             itProvider != rlsProviders.end(); ++itProvider)
+        {
+          const xml::Attribute* pAttr = itProvider->tConfig.FindAttribute("default");
+          if (pAttr != NULL && pAttr->GetValue() == "true")
+          {
+            m_stProviders.sDefaultId = itProvider->sId;
+            break;
+          }
+        }
+
+        if (m_stProviders.sDefaultId.empty())
+        {
+          m_stProviders.sDefaultId = rlsProviders.front().sId;
+        }
 
         for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
              itProvider != rlsProviders.end(); ++itProvider)

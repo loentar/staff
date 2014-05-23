@@ -72,7 +72,7 @@ namespace das
         std::string::size_type nRowEnd = 0;
         std::string::size_type nColBegin = 0;
         std::string::size_type nColEnd = 0;
-        int nResultSize = 0;
+        unsigned nResultSize = 0;
         do
         {
           lsResult.clear();
