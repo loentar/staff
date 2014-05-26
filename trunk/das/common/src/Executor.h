@@ -119,12 +119,14 @@ namespace staff
       }
 
       //! execute query
-      /*! \param  sExecute - query to execute
+      /*! \param  sSessionId - session id
+          \param  sExecute - query to execute
           \param  rdoContext - context
           \param  rReturnType - return type
           \param  rdoResult - result
         */
-      virtual void Execute(const std::string& sExecute, const DataObject& rdoContext,
+      virtual void Execute(const std::string& sSessionId,
+                           const std::string& sExecute, const DataObject& rdoContext,
                            const DataType& rReturnType, DataObject& rdoResult) = 0;
     };
 

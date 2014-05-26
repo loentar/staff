@@ -28,18 +28,11 @@
 #include <staff/common/Runtime.h>
 #include <staff/common/DataObject.h>
 #include <staff/common/Operation.h>
-#ifndef WITHOUT_SECURITY
-#include <staff/security/tools.h>
-#endif
 #include <staff/component/SharedContext.h>
 #include <staff/component/ServiceWrapper.h>
 #include <staff/das/common/DataSource.h>
 #include <staff/das/common/Executor.h>
 #include "Services.h"
-
-#ifdef WITHOUT_SECURITY
-#define STAFF_SECURITY_NOBODY_SESSION_ID ""
-#endif
 
 
 namespace staff
@@ -55,7 +48,8 @@ namespace das
     {
     }
 
-    virtual void Execute(const std::string& sExecute, const DataObject& rdoContext,
+    virtual void Execute(const std::string& sSessionId,
+                         const std::string& sExecute, const DataObject& rdoContext,
                          const DataType& /*rReturnType*/, DataObject& rdoResult)
     {
       STAFF_ASSERT(m_pProvider != NULL && m_pProvider->m_pServiceWrapper != NULL, "Not Initialized");
@@ -146,9 +140,7 @@ namespace das
       LogDebug2() << "Invoking service [" << m_pProvider->m_pServiceWrapper->GetName() << "]: \n"
                   << ColorTextBlue << rdoRequest.ToString() << ColorDefault;
 #endif
-      // TODO: get SessionId and InstanceId
-      // security module can't filter this request 'cause we're inside
-      m_pProvider->m_pServiceWrapper->Invoke(tOperation, STAFF_SECURITY_NOBODY_SESSION_ID, "");
+      m_pProvider->m_pServiceWrapper->Invoke(tOperation, sSessionId, "");
 
 #ifdef _DEBUG
       LogDebug2() << "Service [" << m_pProvider->m_pServiceWrapper->GetName() << "] response: \n"
