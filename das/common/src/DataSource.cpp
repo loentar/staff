@@ -63,7 +63,7 @@ namespace das
     m_lsProviders.clear();
     std::string sId;
     const xml::Attribute* pAttr = NULL;
-    const xml::Element* pProvider = rDataSourceNode.GetFirstChildElement();
+    xml::Element* pProvider = rDataSourceNode.GetFirstChildElement();
     while ((pProvider = rDataSourceNode.FindChildElementByName("provider", pProvider)) != NULL)
     {
       pAttr = pProvider->FindAttribute("id");
@@ -83,8 +83,10 @@ namespace das
       }
       else
       {
-        STAFF_ASSERT(!sId.empty(), "When using multiple providers you should set unique id for each");
+        STAFF_ASSERT(!sId.empty(), "When using multiple providers you must set unique id for each");
       }
+
+      ProcessIncludes(*pProvider);
 
       for (ProvidersInfoList::const_iterator itProv = m_lsProviders.begin();
            itProv != m_lsProviders.end(); ++itProv)
