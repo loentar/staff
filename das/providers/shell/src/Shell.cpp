@@ -48,7 +48,8 @@ namespace das
     {
     }
 
-    virtual void Execute(const std::string& sExecute, const DataObject& /*rdoContext*/,
+    virtual void Execute(const std::string& /*sSessionId*/,
+                         const std::string& sExecute, const DataObject& /*rdoContext*/,
                          const DataType& rReturnType, DataObject& rdoResult)
     {
       STAFF_ASSERT(m_pProvider, "Not Initialized");

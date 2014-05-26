@@ -213,7 +213,9 @@ namespace das
           LogDebug1() << "Query with params [" + sExecute + "]";
 
           IRawExecutor* pExec = static_cast<IRawExecutor*>(rpExec.Get());
-          pExec->Execute(sExecute, rdoContext, rReturnType, rdoResult);
+          VarMap::const_iterator it = m_pmSessionStorage->find("id");
+          STAFF_ASSERT(it != m_pmSessionStorage->end(), "SessionId is not set!");
+          pExec->Execute(it->second.sValue, sExecute, rdoContext, rReturnType, rdoResult);
           break;
         }
 

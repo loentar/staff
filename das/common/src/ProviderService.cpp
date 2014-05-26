@@ -123,25 +123,23 @@ namespace das
         for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
              itProvider != rlsProviders.end(); ++itProvider)
         {
-          const xml::Attribute* pAttr = itProvider->tConfig.FindAttribute("default");
-          if (pAttr != NULL && pAttr->GetValue() == "true")
+          if (m_stProviders.sDefaultId.empty())
           {
-            m_stProviders.sDefaultId = itProvider->sId;
-            break;
+            const xml::Attribute* pAttr = itProvider->tConfig.FindAttribute("default");
+            if (pAttr != NULL && pAttr->GetValue() == "true")
+            {
+              m_stProviders.sDefaultId = itProvider->sId;
+            }
           }
+
+          PProvider tpProvider = rProviderFactory.Allocate(itProvider->sName);
+          tpProvider->Init(itProvider->tConfig);
+          m_stProviders.mProviders[itProvider->sId] = tpProvider;
         }
 
         if (m_stProviders.sDefaultId.empty())
         {
           m_stProviders.sDefaultId = rlsProviders.front().sId;
-        }
-
-        for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
-             itProvider != rlsProviders.end(); ++itProvider)
-        {
-          PProvider tpProvider = rProviderFactory.Allocate(itProvider->sName);
-          tpProvider->Init(itProvider->tConfig);
-          m_stProviders.mProviders[itProvider->sId] = tpProvider;
         }
       }
     }
