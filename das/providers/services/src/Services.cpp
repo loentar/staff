@@ -142,6 +142,15 @@ namespace das
 #endif
       m_pProvider->m_pServiceWrapper->Invoke(tOperation, sSessionId, "");
 
+      if (rdoResult != tOperation.GetResponse())
+      {
+        // this may occur in case of using variables as return value
+        std::string sResponseName;
+        rdoResult.GetLocalName(sResponseName);
+        rdoResult.ReplaceNode(tOperation.GetResponse());
+        rdoResult.SetLocalName(sResponseName);
+      }
+
 #ifdef _DEBUG
       LogDebug2() << "Service [" << m_pProvider->m_pServiceWrapper->GetName() << "] response: \n"
                   << ColorTextBlue << rdoResult.ToString() << ColorDefault;
