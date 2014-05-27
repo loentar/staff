@@ -1199,6 +1199,8 @@ namespace staff
       axiom_node_add_child(pParentNode, m_pEnv, rNewNode.m_pAxiomNode);
     }
 
+    rNewNode.m_bOwner = false;
+
     return *this;
   }
 
