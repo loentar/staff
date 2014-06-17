@@ -243,6 +243,13 @@ namespace staff
     void EnableMtom(bool bEnable = true);
 
 
+    //! set property
+    /*! \param sName - property name
+        \param sValue - property value
+     */
+    void SetProperty(const std::string& sName, const std::string& sValue);
+
+
     //! get session id
     /*! \return session id
       */

@@ -22,6 +22,7 @@
 #include <staff/common/Exception.h>
 #include <axiom_soap_const.h>
 #include <axis2_options.h>
+#include <axutil_property.h>
 #include <axis2_http_transport.h>
 #include <axis2_http_header.h>
 #include <staff/common/Runtime.h>
@@ -376,6 +377,15 @@ namespace staff
     STAFF_ASSERT(m_pOptions, "Options is not initialized");
 
     axis2_options_set_enable_mtom(m_pOptions, m_pEnv, bEnable ? AXIS2_TRUE : AXIS2_FALSE);
+  }
+
+  void Options::SetProperty(const std::string& sName, const std::string& sValue)
+  {
+    STAFF_ASSERT(m_pOptions, "Options is not initialized");
+
+    axutil_property_t* pProp = axutil_property_create(m_pEnv);
+    axutil_property_set_value(pProp, m_pEnv, axutil_strdup(m_pEnv, sValue.c_str()));
+    axis2_options_set_property(m_pOptions, m_pEnv, sName.c_str(), pProp);
   }
 
   Options& Options::operator=(axis2_options_t* pOptions)
