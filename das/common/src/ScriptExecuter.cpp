@@ -620,7 +620,7 @@ namespace das
     void ProcessForeach(const DataObject& rdoContext, const xml::Element& rScript,
                         const DataType& rReturnType, DataObject& rdoResult)
     {
-      DataObject tdoElement = rdoContext;
+      DataObject tdoElement = rdoContext.Copy();
 
       const xml::Attribute* pAttrElementName = rScript.FindAttribute("element");
       if (pAttrElementName)

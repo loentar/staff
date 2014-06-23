@@ -4083,13 +4083,16 @@ namespace staff
 
   DataObject& DataObject::operator=(const DataObject& rDataObject)
   {
-    if (m_pAxiomNode != rDataObject.m_pAxiomNode)
+    if (&rDataObject != this)
     {
-      Detach();
+      if (m_pAxiomNode != rDataObject.m_pAxiomNode)
+      {
+        Detach();
+        m_pAxiomNode = rDataObject.m_pAxiomNode;
+        m_pAxiomElement = rDataObject.m_pAxiomElement;
+      }
       m_bOwner = rDataObject.m_bOwner;
       rDataObject.m_bOwner = false;
-      m_pAxiomNode = rDataObject.m_pAxiomNode;
-      m_pAxiomElement = rDataObject.m_pAxiomElement;
     }
     return *this;
   }
