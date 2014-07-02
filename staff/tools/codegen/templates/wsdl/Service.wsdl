@@ -348,9 +348,11 @@
 #end // foreach Interface.Classes
 
 #ifeq($($bpel),true)
+#foreach $(Interface.Classes)
   <!-- bpel partner link -->
   <plnk:partnerLinkType name="$(Class.ServiceName)">
     <plnk:role name="$(Class.ServiceName)Provider" portType="ns_$(Class.NsName.!mangle.!tolower):$(Class.ServiceName)PortType"/>
   </plnk:partnerLinkType>
+#end // foreach Interface.Classes
 #ifeqend
 </wsdl:definitions>
