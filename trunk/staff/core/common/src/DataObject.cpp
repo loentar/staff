@@ -1189,15 +1189,14 @@ namespace staff
     STAFF_ASSERT(m_pAxiomNode != NULL, "Not initialized");
     axiom_node_t* pParentNode = axiom_node_get_parent(m_pAxiomNode, m_pEnv);
 
+    STAFF_ASSERT(pParentNode != NULL, "Can't replace root node!");
+
     DetachNode();
     Free();
 
     Attach(rNewNode);
 
-    if (pParentNode != NULL)
-    {
-      axiom_node_add_child(pParentNode, m_pEnv, rNewNode.m_pAxiomNode);
-    }
+    axiom_node_add_child(pParentNode, m_pEnv, rNewNode.m_pAxiomNode);
 
     rNewNode.m_bOwner = false;
 
