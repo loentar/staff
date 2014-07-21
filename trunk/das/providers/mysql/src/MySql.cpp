@@ -56,6 +56,7 @@ namespace das
       m_sSupportedDmlStmt.insert("UPDATE");
       m_sSupportedDmlStmt.insert("DELETE");
       m_sSupportedDmlStmt.insert("SELECT");
+      m_sSupportedDmlStmt.insert("SET");
     }
 
 
