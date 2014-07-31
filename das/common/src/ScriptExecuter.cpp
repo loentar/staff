@@ -671,7 +671,7 @@ namespace das
       else
       if (sOp == "seq")
       {
-        bProcess = sValue1 > sValue2;
+        bProcess = sValue1 == sValue2;
       }
       else
       if (sOp == "sgt")
@@ -708,7 +708,7 @@ namespace das
 
         if (sOp == "eq")
         {
-          bProcess = dValue1 > dValue2;
+          bProcess = dValue1 == dValue2;
         }
         else
         if (sOp == "gt")
