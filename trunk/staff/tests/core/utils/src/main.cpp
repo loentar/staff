@@ -27,6 +27,7 @@
 #include <staff/utils/Exception.h>
 #include <staff/utils/StackTracer.h>
 #include <staff/utils/CrashHandler.h>
+#include <staff/utils/Base64Binary.h>
 #include <staff/utils/File.h>
 
 int nSuccessed = 0;
@@ -190,6 +191,29 @@ void TestRecursiveLock()
   TestNoEx("Recursive lock", true);
 }
 
+void TestBase64()
+{
+  const char* expect[] =
+  {
+    "cQ==",
+    "cXE=",
+    "cXFx",
+    "cXFxcQ==",
+    "cXFxcXE=",
+    "cXFxcXFx",
+    "cXFxcXFxcQ=="
+  };
+
+  const unsigned sizeofTest = 7;
+  staff::byte test[sizeofTest];
+  for (unsigned a = 1; a < sizeofTest + 1; ++a) {
+    test[a - 1] = 'q';
+    const std::string& result = staff::Base64Binary::Encode(test, a);
+    TestNoEx("result is a multiple of 4", (result.size() % 4) == 0);
+    TestNoEx("check result value", result == expect[a - 1]);
+  }
+}
+
 int main(int, char**)
 {
   try
@@ -201,6 +225,13 @@ int main(int, char**)
     TestRecursiveLock();
   }
   STAFF_CATCH_ALL;
+
+  try
+  {
+    TestBase64();
+  }
+  STAFF_CATCH_ALL;
+
 
   staff::StringList lsFiles;
   try
