@@ -150,7 +150,7 @@ namespace staff
     unsigned long ulRest = ulDataSize % 3;
     unsigned long ulPos = 0;
 
-    sEncodedData.resize(ulDataSize * 4 / 3 + 2); // +1 '=', +1 '\0'
+    sEncodedData.resize(ulDataSize * 4 / 3 + 3);
 
     std::string::iterator itRes = sEncodedData.begin();
 
@@ -175,9 +175,15 @@ namespace staff
       *(++itRes) = ulRest > 2 ? sEncodeTable[ pData[ulPos + 2] & 0x3f ] : '=';
     }
 
-    if(itRes != sEncodedData.end())
+    if (ulRest != 0)
     {
-      sEncodedData.erase(++itRes, sEncodedData.end());
+      *itRes = '=';
+      ++itRes;
+    }
+
+    if (itRes != sEncodedData.end())
+    {
+      sEncodedData.erase(itRes, sEncodedData.end());
     }
   }
 
