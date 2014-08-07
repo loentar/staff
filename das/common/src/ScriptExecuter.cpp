@@ -140,6 +140,11 @@ namespace das
           ProcessFault(rdoContext, *pOperator);
         }
         else
+        if (sOperator == "validate")
+        {
+          ProcessValidate(rdoContext, *pOperator);
+        }
+        else
         if (sOperator == "trycatch")
         {
           ProcessTryCatch(rdoContext, *pOperator, rReturnType, rdoResult);
@@ -440,7 +445,7 @@ namespace das
         else
         {
           STAFF_ASSERT(sValue == "optional", "Invalid \"result\" attribute value. "
-                       "Valid values are: \"optional\"(default), \"required\"");
+                       "Valid values are: \"optional\"(default), \"required\", \"create\"");
         }
       }
 
@@ -1077,6 +1082,35 @@ namespace das
       STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
                   "] in datasource [" + m_rDataSource.GetName() +
                   "]: " + Eval(rdoContext, rScript.GetValue()));
+    }
+
+    void ProcessValidate(const DataObject& rdoContext, const xml::Element& rScript)
+    {
+      const std::string& sType = rScript.GetAttributeValue("type");
+      const std::string& sValue = Eval(rdoContext, rScript.GetAttributeValue("value"));
+      bool isValid = false;
+      if (sType == "number")
+      {
+        double dDummyValue = 0.;
+        FromString(sValue, dDummyValue, &isValid);
+      }
+      else
+      if (sType == "string")
+      {
+        isValid = (sValue.find_first_of("'\"`") == std::string::npos);
+      }
+      else
+      {
+        STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
+                    "] in datasource [" + m_rDataSource.GetName() +
+                    "]: unknown type of 'validate' operator " + sType);
+      }
+      if (!isValid)
+      {
+        STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
+                    "] in datasource [" + m_rDataSource.GetName() +
+                    "]: " + sValue + " is not valid");
+      }
     }
 
     void ProcessTryCatch(const DataObject& rdoContext, const xml::Element& rScript,
