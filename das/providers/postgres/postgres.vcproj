@@ -80,7 +80,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffdascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffdascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -254,7 +254,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffdascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"
@@ -336,7 +336,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_dascommon.lib libpq.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffdascommon.lib libpq.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../deploy/win_$(PlatformName)/staff/lib&quot;;&quot;../../../staff/deploy/win_$(PlatformName)/staff/lib&quot;;&quot;$(POSTGRESQL_HOME)\lib&quot;"

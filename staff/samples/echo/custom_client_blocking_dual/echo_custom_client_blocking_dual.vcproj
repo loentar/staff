@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -248,7 +248,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -330,7 +330,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -416,7 +416,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -501,7 +501,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -580,7 +580,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -662,7 +662,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_utils.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffutils.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_client"
-	ProjectGUID="{B98F5740-E61D-40B9-AE1E-0C150A248937}"
-	RootNamespace="staffclient"
+	Name="staffsecurity"
+	ProjectGUID="{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
+	RootNamespace="staff_security"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -45,14 +45,14 @@
 				UseUnicodeResponseFiles="true"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -66,12 +66,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -127,14 +127,14 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -148,12 +148,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -207,12 +207,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -226,15 +226,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -289,12 +288,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -308,15 +307,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -372,14 +370,14 @@
 				UseUnicodeResponseFiles="true"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -393,12 +391,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -455,14 +453,14 @@
 				UseUnicodeResponseFiles="true"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -476,12 +474,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -535,12 +533,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -554,15 +552,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -618,12 +615,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
-				AdditionalIncludeDirectories="&quot;$(AXIS2C_HOME)\include&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_CLIENT_DLL_EXPORTS;_WIN32_WINNT=0x0400"
+				AdditionalIncludeDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STAFF_SECURITY_DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -637,15 +634,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axutil.lib axiom.lib axis2_engine.lib axis2_parser.lib neethi.lib ws2_32.lib staff_common.lib staff_utils.lib"
+				AdditionalDependencies="staffsqlite3.lib staffutils.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -684,23 +680,39 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Axis2Callback.cpp"
+				RelativePath=".\src\Acl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IProxyAllocator.cpp"
+				RelativePath=".\src\DbConn.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Options.cpp"
+				RelativePath=".\src\Groups.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ServiceClient.cpp"
+				RelativePath=".\src\Objects.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ServiceFactory.cpp"
+				RelativePath=".\src\Sessions.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Time.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Users.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\UsersToGroups.cpp"
 				>
 			</File>
 		</Filter>
@@ -710,31 +722,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\Axis2Callback.h"
+				RelativePath=".\src\Acl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ICallback.h"
+				RelativePath=".\src\DbConn.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IProxyAllocator.h"
+				RelativePath=".\src\Groups.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Options.h"
+				RelativePath=".\src\Objects.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ServiceClient.h"
+				RelativePath=".\src\Sessions.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ServiceFactory.h"
+				RelativePath=".\src\staffsecurityexport.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\staffclientexport.h"
+				RelativePath=".\src\Time.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tools.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Users.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\UsersToGroups.h"
 				>
 			</File>
 		</Filter>

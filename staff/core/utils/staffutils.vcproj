@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_utils"
+	Name="staffutils"
 	ProjectGUID="{17EBD752-DD05-4154-A1D8-C65F0C424957}"
 	RootNamespace="staff"
 	Keyword="Win32Proj"
