@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffcommon.lib staffcomponent.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(STAFF_HOME)\lib&quot;"
@@ -151,7 +151,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffcommon.lib staffcomponent.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(STAFF_HOME)\lib&quot;"
@@ -230,7 +230,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffcommon.lib staffcomponent.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(STAFF_HOME)\lib&quot;"
@@ -312,7 +312,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffcommon.lib staffcomponent.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(STAFF_HOME)\lib&quot;"

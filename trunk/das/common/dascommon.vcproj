@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_dascommon"
+	Name="staffdascommon"
 	ProjectGUID="{AA2D15AD-0718-459E-8A44-7CA64820119B}"
 	RootNamespace="dascommon"
 	Keyword="Win32Proj"
@@ -81,7 +81,7 @@
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
 				UseUnicodeResponseFiles="true"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -175,7 +175,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -255,7 +255,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -337,7 +337,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -427,7 +427,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="true"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -516,7 +516,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="true"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -597,7 +597,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="true"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"
@@ -681,7 +681,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="true"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib staff_common.lib staff_component.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib staffcommon.lib staffcomponent.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../staff/deploy/win_$(PlatformName)/staff/lib&quot;"

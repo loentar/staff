@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -150,7 +150,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -229,7 +229,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -311,7 +311,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -396,7 +396,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -480,7 +480,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -559,7 +559,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -642,7 +642,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\deploy\win_$(PlatformName)\staff\lib&quot;"

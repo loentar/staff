@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="staff_common.lib staff_client.lib staff_utils.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib staffutils.lib"
 				OutputFile="\$(InputDir)\$(IntDir)\\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;\$(STAFF_HOME)\lib&quot;"
@@ -163,7 +163,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib staff_utils.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib staffutils.lib"
 				OutputFile="\$(InputDir)\$(IntDir)\\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;\$(STAFF_HOME)\lib&quot;"
@@ -250,7 +250,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib staff_utils.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib staffutils.lib"
 				OutputFile="\$(InputDir)\$(IntDir)\\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;\$(STAFF_HOME)\lib&quot;"
@@ -330,7 +330,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib staff_utils.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib staffutils.lib"
 				OutputFile="\$(InputDir)\$(IntDir)\\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;\$(STAFF_HOME)\lib&quot;"

@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -148,7 +148,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -226,7 +226,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -308,7 +308,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -393,7 +393,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -476,7 +476,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -554,7 +554,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"
@@ -637,7 +637,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staff_utils.lib staff_xml.lib"
+				AdditionalDependencies="axis2_http_sender.lib axis2_http_receiver.lib axutil.lib axis2_engine.lib staffutils.lib staffxml.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(AXIS2C_HOME)\lib&quot;;&quot;..\..\..\deploy\win_$(PlatformName)\staff\lib&quot;"

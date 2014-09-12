@@ -41,7 +41,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff.Login", "components\L
 		{2F182FEC-9149-4670-A7C0-1665830EB6EA} = {2F182FEC-9149-4670-A7C0-1665830EB6EA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_client", "core\client\staff_client.vcproj", "{B98F5740-E61D-40B9-AE1E-0C150A248937}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_client", "core\client\staffclient.vcproj", "{B98F5740-E61D-40B9-AE1E-0C150A248937}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 	EndProjectSection
@@ -57,7 +57,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_component", "core\com
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_security", "core\security\staff_security.vcproj", "{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_security", "core\security\staffsecurity.vcproj", "{F1B7CC6B-6698-4810-8A73-7CD32C0EE2A0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31DFC1BC-999D-474D-9F2F-415231BA2271} = {31DFC1BC-999D-474D-9F2F-415231BA2271}
 		{9AF8F9C4-D049-417A-817A-08017076274C} = {9AF8F9C4-D049-417A-817A-08017076274C}
@@ -103,7 +103,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-wsdl", "tools
 		{6D6790A9-B950-4A74-9206-FE2EDCDD7138} = {6D6790A9-B950-4A74-9206-FE2EDCDD7138}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_sqlite3", "core\sqlite3\staff_sqlite3.vcproj", "{9AF8F9C4-D049-417A-817A-08017076274C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staff_sqlite3", "core\sqlite3\staffsqlite3.vcproj", "{9AF8F9C4-D049-417A-817A-08017076274C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "staffcgparser-protobuf", "tools\codegen_parsers\protobuf\staffcgparser-protobuf.vcproj", "{8F4E2088-4FB4-4009-BB5E-385A2F6A50BE}"
 	ProjectSection(ProjectDependencies) = postProject

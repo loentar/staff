@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(STAFF_HOME)\lib"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="staff_common.lib staff_client.lib"
+				AdditionalDependencies="staffcommon.lib staffclient.lib"
 				OutputFile="$(InputDir)$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(STAFF_HOME)\lib"

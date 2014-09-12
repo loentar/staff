@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="staff_sqlite3"
+	Name="staffsqlite3"
 	ProjectGUID="{9AF8F9C4-D049-417A-817A-08017076274C}"
 	RootNamespace="staff"
 	Keyword="Win32Proj"
