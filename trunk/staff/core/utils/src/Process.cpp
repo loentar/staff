@@ -83,7 +83,6 @@ namespace staff
 
   void Process::Start(const std::string& sCommandLine, bool bReadOutput /*= false*/)
   {
-    std::string sOutput;
 #ifndef WIN32
     static const int nMaxArgs = 256;
     char* aszArgs[nMaxArgs];
