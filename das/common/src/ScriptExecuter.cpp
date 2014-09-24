@@ -30,6 +30,7 @@
 #include <staff/utils/Mutex.h>
 #include <staff/common/Attribute.h>
 #include <staff/common/Namespace.h>
+#include <staff/common/Runtime.h>
 #include <staff/xml/Attribute.h>
 #include <staff/xml/Element.h>
 #include "DataSource.h"
@@ -950,6 +951,11 @@ namespace das
             sValue = rdoContext.GetLocalName();
           }
           else
+          if (sVarName[0] == '$')
+          {
+            sValue = Runtime::Inst().GetEnvOpt(sVarName.substr(1));
+          }
+          else
           {
             Mutex* pMutex = NULL;
             VarMap* pmVarMap = NULL;
@@ -1004,42 +1010,73 @@ namespace das
 
             try
             {
+              bool bOptional = (sVarName[0] == '*');
+              bool bSkip = false;
+              if (bOptional)
+                sVarName.erase(0, 1);
+
               VarMap::const_iterator itVar = pmVarMap->find(sVarName);
-              STAFF_ASSERT(itVar != pmVarMap->end(), "Variable [" + sVarName + "] is undefined");
-
-              const Var& rVar = itVar->second;
-              STAFF_ASSERT(rVar.tType.eType != DataType::Void, "found void type variable [" + sVarName
-                           + "] while evaluating expression [" + sExpr + "]");
-
-              if (rVar.tType.eType == DataType::Generic)
+              if (itVar == pmVarMap->end())
               {
-                sValue = rVar.sValue;
-              }
-              else
-              { // dataobject, list, struct
-                if (nPos != std::string::npos)
+                if (bOptional)
                 {
-                  DataObject tdoResult;
-                  GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
-                  STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
-                  if (tdoResult.IsNil())
-                  {
-                    sValue = STAFF_DAS_NULL_VALUE;
-                  }
-                  else
-                  {
-                    sValue = tdoResult.GetText();
-                  }
+                  bSkip = true;
                 }
                 else
                 {
-                  if (rVar.tdoValue.IsNil())
+                  STAFF_THROW_ASSERT("Variable [" + sVarName + "] is undefined");
+                }
+              }
+
+              if (!bSkip)
+              {
+                const Var& rVar = itVar->second;
+                if (rVar.tType.eType == DataType::Void)
+                {
+                  if (bOptional)
                   {
-                    sValue = STAFF_DAS_NULL_VALUE;
+                    bSkip = true;
                   }
                   else
                   {
-                    sValue = rVar.tdoValue.GetText();
+                    STAFF_THROW_ASSERT("Unexpected void type variable [" + sVarName
+                                       + "] while evaluating expression [" + sExpr + "]");
+                  }
+                }
+
+                if (!bSkip)
+                {
+                  if (rVar.tType.eType == DataType::Generic)
+                  {
+                    sValue = rVar.sValue;
+                  }
+                  else
+                  { // dataobject, list, struct
+                    if (nPos != std::string::npos)
+                    {
+                      DataObject tdoResult;
+                      GetChild(rVar.tdoValue, sPath.substr(nPos + 1), tdoResult);
+                      STAFF_ASSERT(!tdoResult.IsNull(), "Node not found while processing eval. NodeName: [" + sPath + "]");
+                      if (tdoResult.IsNil())
+                      {
+                        sValue = STAFF_DAS_NULL_VALUE;
+                      }
+                      else
+                      {
+                        sValue = tdoResult.GetText();
+                      }
+                    }
+                    else
+                    {
+                      if (rVar.tdoValue.IsNil())
+                      {
+                        sValue = STAFF_DAS_NULL_VALUE;
+                      }
+                      else
+                      {
+                        sValue = rVar.tdoValue.GetText();
+                      }
+                    }
                   }
                 }
               }

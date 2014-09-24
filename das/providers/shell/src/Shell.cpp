@@ -230,6 +230,20 @@ namespace das
     if (pElem)
     {
       m_sScriptsDir = pElem->GetTextValue();
+
+      // replace env variable to full path
+      std::string::size_type nPosStart = 0;
+      std::string::size_type nPosEnd = 0;
+
+      while ((nPosStart = m_sScriptsDir.find("$(", nPosEnd)) != std::string::npos)
+      {
+        nPosEnd = m_sScriptsDir.find(')', nPosStart);
+        STAFF_ASSERT(nPosEnd != std::string::npos, "Invalid Env var declaration: " + m_sScriptsDir);
+        const std::string& sVar = m_sScriptsDir.substr(nPosStart + 2, nPosEnd - nPosStart - 2);
+        const std::string& sValue = staff::Runtime::Inst().GetEnv(sVar);
+        m_sScriptsDir.replace(nPosStart, nPosEnd - nPosStart + 1, sValue);
+        nPosEnd = nPosStart + sValue.size();
+      }
     }
 
     pElem = rConnection.FindChildElementByName("colheaders");
