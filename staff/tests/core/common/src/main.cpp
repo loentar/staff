@@ -2,9 +2,89 @@
 #include <staff/utils/Log.h>
 #include <staff/common/Exception.h>
 #include <staff/common/DataObject.h>
+#include <staff/common/Attribute.h>
+#include <staff/common/Namespace.h>
+
+
+void LeakCheck()
+{ // leak checks
+  staff::DataObject tdoTest;
+  const staff::DataObject& tdoTestConst = tdoTest;
+  tdoTest.FromString("<a attr1=\"asd\" attr2=\"asd\" attr3=\"asd\" attr4=\"asd\" xmlns:a=\"1\" xmlns:b=\"1\" xmlns:c=\"1\"><b/><c/><d/></a>");
+
+  // test 1 attr
+  for (int i = 0; i < 5; ++i) {
+    staff::Attribute it = tdoTest.GetAttributeByLocalName("attr2");
+    if (!it.IsNull())
+      it.GetText();
+  }
+
+  // test 2 attr iter
+  for (int i = 0; i < 5; ++i) {
+    int p = 0;
+    for (staff::DataObject::AttributeIterator it = tdoTest.AttributeBegin();
+         it != tdoTest.AttributeEnd(); ++it, ++p) {
+        if (p == 2)
+          break;
+        it->GetText();
+    }
+
+    for (staff::DataObject::AttributeIterator it = tdoTest.AttributeBegin();
+         it != tdoTest.AttributeEnd(); ++it) {
+        it->GetText();
+    }
+
+    p = 0;
+    for (staff::DataObject::ConstAttributeIterator it = tdoTestConst.AttributeBegin();
+         it != tdoTestConst.AttributeEnd(); ++it, ++p) {
+        if (p == 2)
+          break;
+        it->GetText();
+    }
+
+    for (staff::DataObject::ConstAttributeIterator it = tdoTestConst.AttributeBegin();
+         it != tdoTestConst.AttributeEnd(); ++it) {
+        it->GetText();
+    }
+  }
+
+  // test 3 NS
+  for (int i = 0; i < 5; ++i) {
+    int p = 0;
+    for (staff::DataObject::NamespaceIterator it = tdoTest.NamespaceBegin();
+         it != tdoTest.NamespaceEnd(); ++it, ++p) {
+        if (p == 2)
+          break;
+        it->GetPrefix();
+    }
+
+
+    for (staff::DataObject::NamespaceIterator it = tdoTest.NamespaceBegin();
+         it != tdoTest.NamespaceEnd(); ++it, ++p) {
+        it->GetPrefix();
+    }
+
+    p = 0;
+    for (staff::DataObject::ConstNamespaceIterator it = tdoTestConst.NamespaceBegin();
+         it != tdoTestConst.NamespaceEnd(); ++it, ++p) {
+        if (p == 2)
+          break;
+        it->GetPrefix();
+    }
+
+
+    for (staff::DataObject::ConstNamespaceIterator it = tdoTestConst.NamespaceBegin();
+         it != tdoTestConst.NamespaceEnd(); ++it, ++p) {
+        it->GetPrefix();
+    }
+  }
+
+}
 
 int main()
 {
+  LeakCheck();
+
   int nSuccessed = 0;
   int nFailed = 0;
 

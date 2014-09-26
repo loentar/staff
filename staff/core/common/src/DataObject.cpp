@@ -3708,6 +3708,7 @@ namespace staff
           axiom_attribute_t* pAttr = reinterpret_cast<axiom_attribute_t*>(pHashValue);
           if (!axutil_strcmp(szLocalName, axiom_attribute_get_localname(pAttr, m_pEnv)))
           {
+            AXIS2_FREE(m_pEnv->allocator, pIndex);
             return pAttr;
           }
         }
@@ -4469,6 +4470,7 @@ namespace staff
 
   DataObject::NamespaceIterator::~NamespaceIterator()
   {
+    AXIS2_FREE(m_pEnv->allocator, m_pNamespaceIndex);
   }
 
   DataObject::NamespaceIterator& DataObject::NamespaceIterator::operator=(const DataObject::NamespaceIterator& rIter)
@@ -4555,6 +4557,7 @@ namespace staff
 
   DataObject::ConstNamespaceIterator::~ConstNamespaceIterator()
   {
+    AXIS2_FREE(m_pEnv->allocator, m_pNamespaceIndex);
   }
 
   DataObject::ConstNamespaceIterator& DataObject::ConstNamespaceIterator::operator=(const DataObject::ConstNamespaceIterator& rIter)
@@ -4642,6 +4645,7 @@ namespace staff
 
   DataObject::AttributeIterator::~AttributeIterator()
   {
+    AXIS2_FREE(m_pEnv->allocator, m_pAttributeIndex);
   }
 
   DataObject::AttributeIterator& DataObject::AttributeIterator::operator=(const DataObject::AttributeIterator& rIter)
@@ -4728,6 +4732,7 @@ namespace staff
 
   DataObject::ConstAttributeIterator::~ConstAttributeIterator()
   {
+    AXIS2_FREE(m_pEnv->allocator, m_pAttributeIndex);
   }
 
   DataObject::ConstAttributeIterator& DataObject::ConstAttributeIterator::operator=(const DataObject::ConstAttributeIterator& rIter)
