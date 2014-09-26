@@ -129,7 +129,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #else
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
+#ifeq($(Param.DataType.Type),template) // iterate under parameter, not parameters
+#var sdoParam rRequest.GetChildByLocalName("$(Param.Name)")
+#else
 #var sdoParam rRequest
+#ifeqend
 #ifeqend
 \
 #cginclude <common/TypeDeserialization.cpp>
