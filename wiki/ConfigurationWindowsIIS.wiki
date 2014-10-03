@@ -1,0 +1,25 @@
+#summary Running Staff under IIS
+
+= Introduction =
+
+This article explains how to run Staff under IIS 6.0. The procedure has been tested on Windows Server 2003 and the instructions assume the build tool is Microsoft Visual Studio.
+
+= Procedure =
+
+ # Download and install Staff and Axis2/C. Let’s assume it is installed in c:\ws<br><br>
+ # Download the unofficial 1.6.0 version of Axis2/C. Let’s assume it is installed in c:\axis2-unofficial.<br><br>
+ # Install a version of Microsoft Visual Studio that is compatible with the Staff distribution that was downloaded. For the December 2013 binary distribution of Staff, this would be Microsoft Visual Studio 2010.<br><br>
+ # Start Visual Studio and go to the Tools menu to start a Visual Studio Command Prompt. In there, issue the command _cd c:\axis2-unofficial\build\win32_, following by the command _nmake install_. This should build Axis2/C.<br><br>
+ # Enter the command, _nmake mod_axis2_iis_. This should build the Axis2/C IIS module and it will be located at c:\axis2-unofficial\build\deploy\lib\mod_axis2_IIS.dll. Copy this file to c:\ws\axis2c\lib.<br><br>
+ # Start Internet Information Services (IIS) Manager from Start/Administrative Tools.  Go to “{{{<machine>}}} (local computer)/Web Service Extensions” and ensure that “All Unknown ISAPI Extensions” has a status of “Allowed”.<br><br>
+ # Create either a new web site, a virtual directory or use the “Default Web Site” for the Staff installation. Set the home folder to be c:\inetpub\wwwroot (in fact any folder other than the root Staff folder will do). Let’s assume the default web site is used.<br><br>
+ # Select “Properties” on the web site (or virtual directory), then select the “Home Directory” tab and press the “Configuration” button. In the dialog that pops up, select the “Mappings” tab and press the “Insert” button for the section entitled “Wildcard application maps”. Add the IIS module at c:\ws\axis2c\lib\mod_axis2_IIS.dll and ensure the setting for “Verify that file exists” is unchecked.<br><br>
+ # Set write permissions for IIS on c:\ws\staff\staff.db. To do this, select Properties from Windows Explorer on that file, select the “Security” tab and press the “Add” button for the “Groups or user names” section. The easiest was to find the correct user is to press the “Advanced” button on the dialog that pops up and then the “Find Now” button. Select the user which begins with IUSR_, usually it is IUSR_{{{<machine>}}} and press the OK button. Highlight the user and ensure that write permission is granted, then press the OK button to set.<br><br>
+ # Set up the registry for the IIS module. Run the registry editor and create the following key: HKEY_LOCAL_MACHINE/SYSTEM/Apache Axis2C/IIS ISAPI Redirector. Beneath this key create the following REG_SZ (string) key values:<br>
+    {{{axis2c_home = c:\ws\axis2c }}}<br>
+    {{{log_file = c:\ws\axis2c\logs\axis2.log }}}<br>
+    {{{log_level = one of crit, error, warn, info, debug or trace }}}
+ # Start the System applet from Control Panel. Select the “Advanced” tab and press the “Environment Variables” button. Set up the following system environment variables and press the OK button on both dialogs:<br>
+    {{{STAFF_HOME = c:\ws\staff }}}<br>
+    {{{PATH = %PATH%;c:\ws\axis2c\lib;c:\ws\staff\lib;c:\ws\staff\bin }}}
+ # Reboot the system and then in a browser navigate to http://localhost/axis2/services, assuming the web site created in step 7 is listening on port 80. The Axis2 and Staff services should be listed.
