@@ -130,7 +130,11 @@ void $(Class.Name)Wrapper::Invoke(staff::Operation& rOperation, const std::strin
 #var sParam $(Param.Name)
 #var sParamName $(Param.Name)
 #ifeq($(Param.DataType.Type),template) // iterate under parameter, not parameters
+#ifeq($(Param.DataType.Name),list||vector||map||Array) // only for containers
 #var sdoParam rRequest.GetChildByLocalName("$(Param.Name)")
+#else
+#var sdoParam rRequest
+#ifeqend
 #else
 #var sdoParam rRequest
 #ifeqend
