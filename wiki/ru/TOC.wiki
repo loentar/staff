@@ -56,6 +56,7 @@
       * [InstallationManualWindows Установка staff из исходного кода]
       * [InstallationManualWindowsMinGW Установка staff из исходного кода с MinGW]
       * [InstallationManualWindowsBinary Установка staff из бинарного кода]
+      * [ConfigurationWindowsIIS Запуск staff под IIS]
     * Linux
       * [InstallationManualLinux Установка staff из исходного кода]
       * [InstallationManualUbuntuPpa Установка staff в Ubuntu из PPA]

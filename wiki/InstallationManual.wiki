@@ -4,6 +4,8 @@
 Windows installation manuals:
   * [InstallationManualWindowsBinary Staff installation manual for Windows from binary package]
   * [InstallationManualWindows Staff Installation manual for Windows from sources]
+  * [InstallationManualWindowsMinGW Install staff from source code under MinGW]
+  * [ConfigurationWindowsIIS Running Staff under IIS]
 
 Linux installation manuals:
   * [InstallationManualUbuntuPpa Staff Installation manual from Ubuntu PPA]

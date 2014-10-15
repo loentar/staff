@@ -56,6 +56,7 @@
       * [InstallationManualWindows Install staff from source code]
       * [InstallationManualWindowsMinGW Install staff from source code under MinGW]
       * [InstallationManualWindowsBinary Install staff from binary tarball]
+      * [ConfigurationWindowsIIS Running Staff under IIS]
     * Linux
       * [InstallationManualUbuntuPpa Install staff under Ubuntu from PPA]
       * [InstallationManualLinux Install staff from source code]

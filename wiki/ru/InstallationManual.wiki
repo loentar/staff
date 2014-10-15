@@ -4,6 +4,8 @@
 Руководства по установке под Windows:
   * [InstallationManualWindowsBinary Руководство по установке под Windows из архива бинарного кода]
   * [InstallationManualWindows Руководство по установке под Windows из исходного кода]
+  * [InstallationManualWindowsMinGW Установка staff из исходного кода с MinGW]
+  * [ConfigurationWindowsIIS Запуск staff под IIS]
 
 Руководства по установке под Linux:
   * [InstallationManualUbuntuPpa Установка staff в Ubuntu из PPA]
