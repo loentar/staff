@@ -27,6 +27,7 @@
 
 namespace staff
 {
+  template <typename Type> class Optional;
 
   template <typename Type>
   class Nillable
@@ -41,8 +42,8 @@ namespace staff
     {
     }
 
-    inline Nillable(const Nillable& rOpt):
-      m_tpData(const_cast< Nillable<Type>& >(rOpt).m_tpData)
+    inline Nillable(const Nillable<Type>& rOther):
+      m_tpData(rOther.m_tpData)
     {
     }
 
@@ -52,20 +53,20 @@ namespace staff
       return *this;
     }
 
-    inline Nillable<Type>& operator=(const Nillable<Type>& rOpt)
+    inline Nillable<Type>& operator=(const Nillable<Type>& rOther)
     {
-      m_tpData = rOpt.m_tpData;
+      m_tpData = rOther.m_tpData;
       return *this;
     }
 
-    inline bool operator==(const Type& rOpt) const
+    inline bool operator==(const Type& rOther) const
     {
       if (!m_tpData.Get())
       {
         return false;
       }
 
-      return *m_tpData.Get() == rOpt;
+      return *m_tpData.Get() == rOther;
     }
 
     inline operator Type&()
@@ -125,8 +126,26 @@ namespace staff
       return *pData;
     }
 
+
+    inline Nillable(const Optional<Type>& rOther):
+      m_tpData(rOther.m_tpData)
+    {
+    }
+
+    inline Nillable<Type>& operator=(const Optional<Type>& rOther)
+    {
+      m_tpData = rOther.m_tpData;
+      return *this;
+    }
+
+    inline SharedPtr<Type>& Ptr()
+    {
+      return m_tpData;
+    }
+
   private:
     mutable SharedPtr<Type> m_tpData;
+    friend class staff::Optional<Type>;
   };
 
 } // namespace staff

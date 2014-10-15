@@ -181,7 +181,7 @@ namespace staff
     const Attribute* operator->() const;
 
   private:
-    bool m_bOwner; //!<  ownership flag
+    mutable bool m_bOwner; //!<  ownership flag
     DataObject* m_pDataObject; //!<  owner dataobject
     axiom_attribute_t* m_pAxiomAttribute; //!<  axiom attribute
     static axutil_env_t* m_pEnv; //!<  Axis2/C environment
