@@ -1252,7 +1252,20 @@ namespace das
           {
             if (!bCreate)
             {
-              rdoResult = rdoResult.GetChildByLocalName(sName);
+              if (sName[0] == '*')
+              {
+                rdoResult = rdoResult.GetChildByLocalNameOpt(sName.substr(1));
+                if (rdoResult.IsNull())
+                {
+                  static DataObject tdoEmpty("empty");
+                  rdoResult = tdoEmpty.Copy();
+                  return;
+                }
+              }
+              else
+              {
+                rdoResult = rdoResult.GetChildByLocalName(sName);
+              }
             }
             else
             {
