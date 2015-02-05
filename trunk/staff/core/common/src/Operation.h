@@ -208,10 +208,15 @@ namespace staff
     //! reset fault
     void ResetFault();
 
-    //! set fault as DataObject
+    //! set fault as DataObject in user-defined format
     /*! \param  rDataObjectFault - DataObject with fault description
         */
     void SetUserFault(DataObject& rDataObjectFault);
+
+    //! get is fault in user-defined format
+    /*! \return true if fault is in user-defined format
+        */
+    bool IsUserFault() const;
 
     //! set message context
     /*! \param  rMessageContext - message context
@@ -232,6 +237,7 @@ namespace staff
     std::string m_sResultName;         //!<  result name
     std::string m_sSoapAction;         //!<  SOAP action
     MessageContext* m_pMessageContext; //!<  message context
+    bool m_bIsUserFault;               //!<  true if SetUserFault has been called
   };
 
 }

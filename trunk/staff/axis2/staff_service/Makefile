@@ -48,7 +48,7 @@ distrib:;
 install: check "$(INSTALLLIBDIR)" "$(INSTALLDIR)"
 	cp -f $(OUTDIR)$(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGETVER)
 	$(LN) $(LIBTARGETVER) $(INSTALLLIBDIR)$(LIBTARGET)
-	cp -f config/services.xml $(INSTALLLIBDIR)
+	test -e $(INSTALLLIBDIR)/services.xml || cp -f config/services.xml $(INSTALLLIBDIR)/services.xml
 ifneq ($(WITHOUT_SECURITY),)
 	sed -i '/"staff_security"/{d;q}' $(INSTALLLIBDIR)services.xml
 	-rm -rf $(AXIS2C_HOME)/modules/staff_security/

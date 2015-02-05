@@ -5,6 +5,8 @@
     <module ref="staff_security"/>
     <parameter name="loadServiceAtStartup" locked="xsd:false">true</parameter>
     <parameter name="ServiceClass" locked="xsd:false">staff_service</parameter>
+    <!-- if set to true, this will response with SoapFault on error -->
+    <parameter name="Http200OnFault" locked="xsd:false">true</parameter>
     <operation name="Invoke"/>
     <operation name="GetOperations"/>
     <operation name="GetServices"/>

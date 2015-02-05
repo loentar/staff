@@ -46,6 +46,7 @@
 #include <staff/utils/CrashHandler.h>
 #include <staff/common/Exception.h>
 #include <staff/common/Operation.h>
+#include <staff/common/DataObject.h>
 #include <staff/common/MessageContext.h>
 #ifndef WITHOUT_SECURITY
 #include <staff/security/tools.h>
@@ -136,6 +137,16 @@ public:
       exit(1);
     }
 #endif
+
+    axutil_param_t* pParam = axis2_svc_get_param(m_pAxis2Svc, pEnv, "Http200OnFault");
+    if (pParam != NULL)
+    {
+      const axis2_char_t* szValue = reinterpret_cast<const axis2_char_t*>(axutil_param_get_value(pParam, pEnv));
+      if (szValue != NULL)
+      {
+        m_bHttp200OnFault = !axutil_strcasecmp(szValue, "true");
+      }
+    }
 
     m_pEnv = pEnv;
     m_pConf = pConf;
@@ -297,6 +308,29 @@ public:
         pServiceWrapper->Invoke(tOperation, sSessionId, sInstanceId);
       }
     }
+    catch (const staff::SoapUserFaultException& rEx)
+    {
+      try
+      {
+        staff::DataObject tdoFault;
+        tdoFault.FromString(rEx.GetFault());
+        tOperation.SetUserFault(tdoFault);
+      }
+      catch (...)
+      {
+        tOperation.SetFault("server", "Invalid format of user soap fault",
+                            "Failed to invoke service " + sServiceName
+                            + "." + tOperation.GetName()
+#ifndef WITHOUT_SECURITY
+                            + "#" + sInstanceId + "(" + sSessionId + ")"
+#endif
+                            );
+      }
+    }
+    catch (const staff::SoapFaultException& rEx)
+    {
+      tOperation.SetFault(rEx.GetCode(), rEx.GetString(), rEx.GetDetail());
+    }
     catch (const std::exception& rEx)
     {
       tOperation.SetFault("server", rEx.what(), "Failed to invoke service " + sServiceName
@@ -325,7 +359,8 @@ public:
       AXIS2_ERROR_SET_MESSAGE(pEnv->error, static_cast<axis2_char_t*>(axutil_strdup(pEnv, tOperation.GetFaultString().c_str())));
       AXIS2_ERROR_SET_ERROR_NUMBER(pEnv->error, static_cast<axutil_error_codes_t>(AXUTIL_ERROR_MAX + 1));
       AXIS2_ERROR_SET_STATUS_CODE(pEnv->error, AXIS2_FAILURE);
-      return NULL;
+      if (!m_bHttp200OnFault)
+        return NULL;
     }
 
     if(!IsNeedReply(pMsgCtx, pEnv))
@@ -388,6 +423,7 @@ private:
   static const axutil_env_t* m_pEnv; 
   static axis2_conf* m_pConf;
   static bool m_bShuttingDown;
+  static bool m_bHttp200OnFault;
 };
 
 
@@ -406,6 +442,7 @@ std::map<unsigned long, std::string> StaffService::m_mFaultDetails;
 const axutil_env_t* StaffService::m_pEnv = NULL;
 axis2_conf* StaffService::m_pConf = NULL;
 bool StaffService::m_bShuttingDown = false;
+bool StaffService::m_bHttp200OnFault = false;
 
 /**
  * Following block distinguish the exposed part of the dll.

@@ -236,6 +236,7 @@ namespace staff
     rFault.CreateChildOnce("faultcode").SetText(sFaultCode);
     rFault.CreateChildOnce("faultstring").SetText(sFaultString);
     rFault.CreateChildOnce("detail").SetText(sDetail);
+    m_bIsUserFault = false;
   }
 
   void Operation::ResetFault()
@@ -247,35 +248,49 @@ namespace staff
     rFault.RemoveChildByLocalName("faultcode");
     rFault.RemoveChildByLocalName("faultstring");
     rFault.RemoveChildByLocalName("detail");
+    m_bIsUserFault = false;
   }
 
   void Operation::SetUserFault(DataObject& rDataObjectFault)
   {
     SetResponse(rDataObjectFault);
     GetResponse().SetLocalName("Fault");
+    m_bIsUserFault = true;
+  }
+
+  bool Operation::IsUserFault() const
+  {
+    return m_bIsUserFault;
   }
 
   std::string Operation::GetFaultDescr() const
   {
-    std::string sResult;
-    const std::string& sFaultCode = GetFaultCode();
-    const std::string& sFaultString = GetFaultString();
-    const std::string& sFaultDetail = GetFaultDetail();
+    if (m_bIsUserFault)
+    {
+      return GetResponse().ToString();
+    }
+    else
+    {
+      std::string sResult;
+      const std::string& sFaultCode = GetFaultCode();
+      const std::string& sFaultString = GetFaultString();
+      const std::string& sFaultDetail = GetFaultDetail();
 
-    if (!sFaultCode.empty())
-    {
-      sResult += "faultcode: " + sFaultCode + "\n";
-    }
-    if (!sFaultString.empty())
-    {
-      sResult += "faultstring: " + sFaultString + "\n";
-    }
-    if (!sFaultDetail.empty())
-    {
-      sResult += "detail: " + sFaultDetail + "\n";
-    }
+      if (!sFaultCode.empty())
+      {
+        sResult += "faultcode: " + sFaultCode + "\n";
+      }
+      if (!sFaultString.empty())
+      {
+        sResult += "faultstring: " + sFaultString + "\n";
+      }
+      if (!sFaultDetail.empty())
+      {
+        sResult += "detail: " + sFaultDetail + "\n";
+      }
 
-    return sResult;
+      return sResult;
+    }
   }
 
   std::string Operation::GetFaultString() const
@@ -352,7 +367,7 @@ namespace staff
 
   const DataObject Operation::GetFault() const
   {
-    return GetResponse();
+    return GetResponse().Copy();
   }
 
   void Operation::PrepareResult()

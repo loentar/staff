@@ -22,6 +22,8 @@
 #include <string>
 #include <map>
 #include <exception>
+#include <sstream>
+#include <staff/common/Exception.h>
 #include <staff/utils/Log.h>
 #include <staff/utils/SharedPtr.h>
 #include <staff/utils/tostring.h>
@@ -33,6 +35,7 @@
 #include <staff/common/Runtime.h>
 #include <staff/xml/Attribute.h>
 #include <staff/xml/Element.h>
+#include <staff/xml/XmlWriter.h>
 #include "DataSource.h"
 #include "Executor.h"
 #include "Provider.h"
@@ -1116,9 +1119,21 @@ namespace das
 
     void ProcessFault(const DataObject& rdoContext, const xml::Element& rScript)
     {
-      STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
-                  "] in datasource [" + m_rDataSource.GetName() +
-                  "]: " + Eval(rdoContext, rScript.GetValue()));
+      const xml::Attribute* pAttr = rScript.FindAttribute("user");
+      if (pAttr != NULL && pAttr->GetValue() == "true")
+      {
+        // user-defined fault
+        std::ostringstream ossFault;
+        xml::XmlWriter(ossFault, false).WriteElement(rScript);
+        STAFF_THROW_SOAPUSERFAULT(ossFault.str());
+      }
+      else
+      {
+        // standard fault
+        STAFF_THROW_ASSERT("Error while invoking Operation [" + rdoContext.GetLocalName() +
+                    "] in datasource [" + m_rDataSource.GetName() +
+                    "]: " + Eval(rdoContext, rScript.GetValue()));
+      }
     }
 
     void ProcessValidate(const DataObject& rdoContext, const xml::Element& rScript)
