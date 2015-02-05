@@ -36,6 +36,9 @@
 #define STAFF_THROW_SOAPFAULT(CODE, STRING, DETAIL) \
   throw ::staff::SoapFaultException(STAFF_FILE_LINE, __FUNCTION__, CODE, STRING, DETAIL);
 
+#define STAFF_THROW_SOAPUSERFAULT(DATA) \
+  throw ::staff::SoapUserFaultException(STAFF_FILE_LINE, __FUNCTION__, DATA);
+
 //! assert expression and generate remote exception
 #define STAFF_ASSERT_SOAPFAULT(EXPRESSION, CODE, STRING, DETAIL) \
   if (!(EXPRESSION)) STAFF_THROW_SOAPFAULT(CODE, STRING, DETAIL)
@@ -125,6 +128,38 @@ namespace staff
     std::string m_sCode;
     std::string m_sString;
     std::string m_sDetail;
+  };
+
+  //! soap fault exception class
+  class SoapUserFaultException: public RemoteException
+  {
+  public:
+    //! exception constructor
+    /*! \param  szFileLine - source file name and line number
+        \param  szFunction - function signature
+        \param  sFault - xml-serialized fault
+        \param  sString - exception string (used for logging)
+      */
+    inline SoapUserFaultException(const char* szFileLine, const char* szFunction, const std::string& sFault,
+                                  const std::string& sString = std::string()):
+      RemoteException(szFileLine, szFunction, sString),
+      m_sFault(sFault)
+    {
+    }
+
+    //! destructor
+    inline virtual ~SoapUserFaultException() throw()
+    {
+    }
+
+    //! get fault
+    inline const std::string& GetFault() const throw()
+    {
+      return m_sFault;
+    }
+
+  private:
+    std::string m_sFault;
   };
 
   class DomException: public Exception

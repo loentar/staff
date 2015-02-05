@@ -106,12 +106,20 @@ namespace staff
     {
     }
 
-    //! get exception description
-    /*! \return
+    //! get description of exception thrown
+    /*! \return description
       */
     inline virtual const char* what() const throw()
     {
       return m_sDescr.c_str();
+    }
+
+    //! get description of exception thrown
+    /*! \return description
+      */
+    inline virtual const std::string& strWhat() const throw()
+    {
+      return m_sDescr;
     }
 
   private:
