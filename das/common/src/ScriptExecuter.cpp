@@ -1125,7 +1125,7 @@ namespace das
         // user-defined fault
         std::ostringstream ossFault;
         xml::XmlWriter(ossFault, false).WriteElement(rScript);
-        STAFF_THROW_SOAPUSERFAULT(ossFault.str());
+        STAFF_THROW_SOAPUSERFAULT(Eval(rdoContext, ossFault.str()));
       }
       else
       {
