@@ -48,6 +48,9 @@ namespace das
 
     const ProvidersInfoList& rlsProviders = m_pDataSource->GetProviders();
 
+    // init providers and avoid lazy initialization
+    Providers& rProviders = GetProviders();
+
     for (ProvidersInfoList::const_iterator itProvider = rlsProviders.begin();
          itProvider != rlsProviders.end(); ++itProvider)
     {
@@ -63,7 +66,7 @@ namespace das
 
         if (pScript)
         {
-          ScriptExecuter tScriptExecuter(*m_pDataSource, GetProviders());
+          ScriptExecuter tScriptExecuter(*m_pDataSource, rProviders);
           tScriptExecuter.SetSessionStorage(m_mSessionStorage, m_tSessionStorageMutex);
           tScriptExecuter.Process(*pScript);
         }

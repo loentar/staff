@@ -42,6 +42,33 @@ namespace staff
 {
 namespace das
 {
+  class MysqlInitializer {
+  public:
+    MysqlInitializer():
+      m_nRecursion(0)
+    {
+    }
+
+    void Init()
+    {
+      if (++m_nRecursion == 1)
+        STAFF_ASSERT(mysql_library_init(0, NULL, NULL) == 0, "Failed to initialize MySQL!");
+    }
+
+    void Deinit()
+    {
+      if (--m_nRecursion == 0)
+        mysql_library_end();
+    }
+
+    static MysqlInitializer& Inst() {
+      static MysqlInitializer tInst;
+      return tInst;
+    }
+
+  private:
+    int m_nRecursion;
+  };
 
   class MySqlProvider::MySqlImpl
   {
@@ -371,10 +398,13 @@ namespace das
     m_pImpl->m_sLogin = rConnection.GetChildElementByName("login").GetTextValue();
     m_pImpl->m_sPassword = rConnection.GetChildElementByName("password").GetTextValue();
     FromString(m_pImpl->m_sPort, m_pImpl->m_ushPort);
+
+    MysqlInitializer::Inst().Init();
   }
 
   void MySqlProvider::Deinit()
   {
+    MysqlInitializer::Inst().Deinit();
   }
 
   const std::string& MySqlProvider::GetName() const
