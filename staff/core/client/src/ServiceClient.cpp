@@ -407,7 +407,7 @@ namespace staff
     if (m_pOptions) // unset http headers to avoid double free
       axis2_options_set_http_headers(*m_pOptions, m_pEnv, NULL);
 
-    if (m_pEnv->error->status_code == AXIS2_ERROR_RESPONSE_TIMED_OUT)
+    if (m_pEnv->error->error_number == AXIS2_ERROR_RESPONSE_TIMED_OUT)
     {
       STAFF_THROW(TimeoutException, "Axis2/C client send receive failed (Timeout). error: " + GetLastErrorStr())
     }

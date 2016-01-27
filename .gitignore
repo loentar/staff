@@ -1,0 +1,14 @@
+**/out/
+**/obj/
+**/.libs/
+**/src/*Wrapper.h
+**/src/*Wrapper.cpp
+**/src/*Proxy.h
+**/src/*Proxy.cpp
+**/src/ComponentImpl.h
+**/src/ComponentImpl.cpp
+deploy/
+**/*.la
+**/*.lo
+**/*.slo
+*.creator.user
