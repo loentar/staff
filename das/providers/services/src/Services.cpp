@@ -168,7 +168,7 @@ namespace das
 
     void GetChild(const DataObject& rdoContext, const std::string& sPath, DataObject& rdoResult)
     {
-      rdoResult = rdoContext;
+      rdoResult = rdoContext.Copy();
 
       if (!sPath.empty())
       {
